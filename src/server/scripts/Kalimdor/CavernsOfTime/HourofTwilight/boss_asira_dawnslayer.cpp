@@ -48,7 +48,7 @@ class boss_asira_dawnslayer : public CreatureScript
         {
             boss_asira_dawnslayerAI(Creature* creature) : BossAI(creature, DATA_ASIRA)
             {
-				me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
@@ -93,7 +93,7 @@ class boss_asira_dawnslayer : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -157,12 +157,12 @@ class spell_asira_dawnslayer_blade_barrier: public SpellScriptLoader
         {
             PrepareAuraScript(spell_asira_dawnslayer_blade_barrier_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool& /*canBeRecalculated*/)
             {
                 amount = -1;
             }
 
-            void Absorb(AuraEffectPtr aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 if (dmgInfo.GetDamage() < (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
                     absorbAmount = dmgInfo.GetDamage() - 1;
@@ -170,7 +170,7 @@ class spell_asira_dawnslayer_blade_barrier: public SpellScriptLoader
                     GetAura()->Remove();
             }
 
-            void HandleAfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     GetCaster()->CastSpell(GetCaster(), SPELL_LESSER_BLADE_BARRIER, true);

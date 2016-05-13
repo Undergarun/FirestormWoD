@@ -121,7 +121,7 @@ class boss_garfrost : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_SLAY);
             }
 
@@ -181,7 +181,7 @@ class boss_garfrost : public CreatureScript
             {
                 if (spell->Id == SPELL_PERMAFROST_HELPER)
                 {
-                    if (AuraPtr aura = target->GetAura(SPELL_PERMAFROST_HELPER))
+                    if (Aura* aura = target->GetAura(SPELL_PERMAFROST_HELPER))
                         _permafrostStack = std::max<uint32>(_permafrostStack, aura->GetStackAmount());
                 }
             }

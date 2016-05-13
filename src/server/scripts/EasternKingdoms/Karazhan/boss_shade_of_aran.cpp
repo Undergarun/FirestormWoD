@@ -197,7 +197,7 @@ public:
             {
                 Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 //only on alive players
-                if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                if (target && target->isAlive() && target->IsPlayer())
                     targets.push_back(target);
             }
 
@@ -467,7 +467,7 @@ public:
                         Unit* unit = Unit::GetUnit(*me, FlameWreathTarget[i]);
                         if (unit && !unit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
                         {
-                            unit->CastSpell(unit, 20476, true, 0, NULLAURA_EFFECT, me->GetGUID());
+                            unit->CastSpell(unit, 20476, true, 0, nullptr, me->GetGUID());
                             unit->CastSpell(unit, 11027, true);
                             FlameWreathTarget[i] = 0;
                         }

@@ -243,7 +243,7 @@ class boss_mannoroth : public CreatureScript
             
             void KilledUnit(Unit* who)
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                     Talk(SAY_MANNOROTH_KILL);
             }
 
@@ -526,7 +526,7 @@ class npc_mannoroth_varothen : public CreatureScript
             
             void KilledUnit(Unit* who)
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                     Talk(SAY_VAROTHEN_KILL);
             }
 

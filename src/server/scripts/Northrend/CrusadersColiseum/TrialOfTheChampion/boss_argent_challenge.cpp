@@ -151,7 +151,7 @@ class spell_eadric_hammer_of_righteous: public SpellScriptLoader
                 if(!caster || !target)
                     return;
 
-                AuraPtr hammerJustice = target->GetAura(SPELL_HAMMER_JUSTICE_STUN);
+                Aura* hammerJustice = target->GetAura(SPELL_HAMMER_JUSTICE_STUN);
 
                 // Target isn't affected by HoJ so is able to pickup the Hammer
                 if(!hammerJustice)
@@ -311,7 +311,7 @@ public:
                 me->AttackerStateUpdate(me->getVictim());
                 me->resetAttackTimer();
 
-                if (AuraPtr vengance = me->GetAura(SPELL_VENGANCE_AURA))
+                if (Aura* vengance = me->GetAura(SPELL_VENGANCE_AURA))
                     if (vengance->GetDuration() < 4900)
                         me->RemoveAurasDueToSpell(SPELL_VENGANCE_AURA);
             }
@@ -333,7 +333,7 @@ class spell_paletress_shield: public SpellScriptLoader
         {
             PrepareAuraScript(spell_paletress_shieldAuraScript);
 
-            void HandleOnEffectAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void HandleOnEffectAbsorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 Unit* caster = GetCaster();
                 Unit* attacker = dmgInfo.GetAttacker();

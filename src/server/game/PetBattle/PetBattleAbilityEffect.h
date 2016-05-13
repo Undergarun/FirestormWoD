@@ -92,7 +92,12 @@ struct PetBattleAbilityEffect
     bool Heal(uint32 target, int32 heal);
     bool SetState(uint32 target, uint32 state, int32 value);
     int32 GetState(uint32 target, uint32 state);
-    void ModState(uint32 target, uint32 state, int32 value, bool apply = true);
+    /// Modify pet battle state increment or decrement state by ModValue
+    /// @p_Target   : Target Pet ID
+    /// @p_StateID  : ID of the state to modify
+    /// @p_ModValue : Value to add or sub
+    /// @p_Apply    : Add or sub p_ModValue
+    void ModState(uint32 p_Target, uint32 p_StateID, int32 p_ModValue, bool p_Apply = true);
     bool AddAura(uint32 target, int32 duration, int32 maxAllowed);
     PetBattleAura* GetAura(uint32 target, uint32 ability);
     void Trigger(uint32 target, uint32 ability);
@@ -101,6 +106,7 @@ struct PetBattleAbilityEffect
     bool Execute();
 
     bool HandleNull() { return false; }
+    bool HandleDummy();
 
     bool HandleSetState();
     bool HandleDamage();
@@ -166,6 +172,8 @@ struct PetBattleAbilityEffect
     bool HandleCheckFailure();
     bool HandleTryRevive();
     bool HandleDamagePercentTaken();
+    bool HandleDamageRange();
+    bool HandleDamageWithBonus();
 };
 
 #endif

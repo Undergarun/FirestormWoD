@@ -227,7 +227,7 @@ public:
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
         {
-            if (apply && who->GetTypeId() == TYPEID_PLAYER)
+            if (apply && who->IsPlayer())
             {
                 SlipstreamPlayer new_player;
                 new_player.uiPlayerGUID = who->GetGUID();
@@ -252,7 +252,7 @@ public:
                             player->CastSpell(player, SPELL_SLIPSTREAM, true);
                             player->CastSpell(Landing, 46598, true);
 
-                            if (AuraPtr aura = Landing->GetAura(46598, (*itr).uiPlayerGUID))
+                            if (Aura* aura = Landing->GetAura(46598, (*itr).uiPlayerGUID))
                                 aura->SetDuration(1000);
                         }
 

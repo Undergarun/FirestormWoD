@@ -75,7 +75,7 @@ class DB2StorageBase
         /// Constructor
         /// @p_Format :  DB2 format
         DB2StorageBase(const char * p_Format)
-            : m_MaxID(0), m_FieldCount(0), m_Format(p_Format), m_TableHash(0)
+            : m_TableHash(0), m_MaxID(0), m_FieldCount(0), m_Format(p_Format)
         {
 
         }
@@ -434,7 +434,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                 if (l_SQLQueryResult)
                 {
                     /// All locales (but not us), Index & BuildVerified
-                    if (l_SQLQueryResult->GetFieldCount() != ((l_StringCount * (MAX_LOCALES - 1)) + 2))
+                    if (l_SQLQueryResult->GetFieldCount() != ((l_StringCount * (MAX_LOCALES - 1)) + 2)) ///< Comparison of integers of different signs: 'uint32' (aka 'unsigned int') and 'int'
                     {
                         sLog->outError(LOG_FILTER_GENERAL, "SQL format invalid for table : '%s_locale'", p_SQL->m_SQLTableName.c_str());
                         return false;
@@ -667,7 +667,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                 if (l_SQLQueryResult)
                 {
                     /// All locales (but not us), Index & BuildVerified
-                    if (l_SQLQueryResult->GetFieldCount() != ((l_StringCount * (MAX_LOCALES - 1)) + 2))
+                    if (l_SQLQueryResult->GetFieldCount() != ((l_StringCount * (MAX_LOCALES - 1)) + 2)) ///< Comparison of integers of different signs: 'uint32' (aka 'unsigned int') and 'int'
                     {
                         p_OutMessage = "SQL format invalid for table : '" + m_SQL->m_SQLTableName + "_locale'";
                         return false;
@@ -743,6 +743,8 @@ template<class T> class DB2Storage : public DB2StorageBase
             if (!l_DB2Reader.Load(p_FileName, m_Format))
                 return false;
 
+            m_DB2FileName = p_FileName;
+
             /// load strings from another locale dbc data
             m_StringPoolList.push_back(l_DB2Reader.AutoProduceStrings(m_Format, (char*)m_DataTable));
 
@@ -782,6 +784,11 @@ template<class T> class DB2Storage : public DB2StorageBase
                 delete m_SQL;
         }
 
+        std::string GetDB2FileName() const
+        {
+            return m_DB2FileName;
+        }
+
     private:
         T** m_IndexTable;
         T* m_DataTable;
@@ -790,7 +797,7 @@ template<class T> class DB2Storage : public DB2StorageBase
         std::list<std::string> m_CustomStrings;
         std::set<LocalizedString*> m_LocalizedString;
         SqlDb2 * m_SQL;
-
+        std::string m_DB2FileName;
 };
 
 #endif

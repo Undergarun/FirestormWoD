@@ -180,9 +180,13 @@ namespace MS { namespace Garrison
                 if (!l_Owner)
                     return;
 
-                Tokenizer l_Datas(l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()), ' ');
+                MS::Garrison::Manager* l_Manager = l_Owner->GetGarrison();
+                if (!l_Manager)
+                    return;
 
-                if (l_Datas.size() < 4 || l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()) == "" || p_Recursion >= 5)
+                Tokenizer l_Datas(l_Manager->GetBuildingGatheringData(GetPlotInstanceID()), ' ');
+
+                if (l_Datas.size() < 4 || l_Manager->GetBuildingGatheringData(GetPlotInstanceID()) == "" || p_Recursion >= 5)
                 {
                     InitGatheringPlots(0);
                     UpdateGatheringPlots(p_Recursion + 1);
@@ -328,7 +332,7 @@ namespace MS { namespace Garrison
     /// @t_SetupLevel1  : Function pour initializing sequence for level 1 building
     /// @t_SetupLevel2  : Function pour initializing sequence for level 2 building
     /// @t_SetupLevel3  : Function pour initializing sequence for level 3 building
-    template<char const* t_ScriptName, uint32 t_QuestID, InitSequenceFunction * t_SetupLevel1, InitSequenceFunction * t_SetupLevel2, InitSequenceFunction * t_SetupLevel3>
+    template<char const* t_ScriptName, uint32 t_QuestID, InitSequenceFunction* t_SetupLevel1, InitSequenceFunction* t_SetupLevel2, InitSequenceFunction* t_SetupLevel3>
     class GatheringBuilding_WorkOrderNPC : public SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>
     {
         public:
@@ -342,10 +346,10 @@ namespace MS { namespace Garrison
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance
             /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
             {
                 if (p_Player->IsQuestRewarded(t_QuestID))
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                    p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultWorkOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
                 p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
@@ -357,10 +361,10 @@ namespace MS { namespace Garrison
             /// @p_Creature : Target creature instance
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override
             {
                 if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName() && p_Player->IsQuestRewarded(t_QuestID))
-                    reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+                    static_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
 
                 return true;
             }

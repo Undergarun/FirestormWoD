@@ -411,7 +411,7 @@ class boss_steelbreaker : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     Talk(SAY_STEELBREAKER_SLAY);
 
@@ -429,7 +429,7 @@ class boss_steelbreaker : public CreatureScript
                         events.RescheduleEvent(EVENT_FUSION_PUNCH, 15000);
                         superChargedCnt++;
                         DoAction(ACTION_UPDATEPHASE);
-                        if (AuraPtr charge = me->GetAura(SPELL_SUPERCHARGE))
+                        if (Aura* charge = me->GetAura(SPELL_SUPERCHARGE))
                             charge->SetStackAmount(std::min<uint8>(2, superChargedCnt));
                         break;
                     case SPELL_ELECTRICAL_CHARGE_TRIGGERED:
@@ -594,11 +594,11 @@ public:
     {
         PrepareAuraScript(spell_steelbreaker_electrical_charge_AuraScript);
 
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
             Unit* caster = GetCaster();
-            if (target && target->ToPlayer() && caster && GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+            if (target && target->IsPlayer() && caster && GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
                 target->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), true);
         }
 
@@ -710,7 +710,7 @@ class boss_runemaster_molgeim : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_MOLGEIM_SLAY);
             }
 
@@ -723,7 +723,7 @@ class boss_runemaster_molgeim : public CreatureScript
                     events.RescheduleEvent(EVENT_RUNE_OF_POWER, 25000);
                     superChargedCnt++;
                     DoAction(ACTION_UPDATEPHASE);
-                    if (AuraPtr charge = me->GetAura(SPELL_SUPERCHARGE))
+                    if (Aura* charge = me->GetAura(SPELL_SUPERCHARGE))
                         charge->SetStackAmount(std::min<uint8>(2, superChargedCnt));
                 }
             }
@@ -992,7 +992,7 @@ class boss_stormcaller_brundir : public CreatureScript
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
-                if (target->GetTypeId() == TYPEID_PLAYER)
+                if (target->IsPlayer())
                     if (couldNotDoThat)
                         switch (spell->Id)
                         {
@@ -1050,7 +1050,7 @@ class boss_stormcaller_brundir : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_BRUNDIR_SLAY);
             }
 
@@ -1065,7 +1065,7 @@ class boss_stormcaller_brundir : public CreatureScript
                     DoAction(ACTION_UPDATEPHASE);
                     // Crazy hack, but since - whyever - stacking does not work automatically when the casts are fired from different NPCs...
                     // Note that it also does not work if the same NPC tries to cast the spell twice (as used in last commit)
-                    if (AuraPtr charge = me->GetAura(SPELL_SUPERCHARGE))
+                    if (Aura* charge = me->GetAura(SPELL_SUPERCHARGE))
                         charge->SetStackAmount(std::min<uint8>(2, superChargedCnt));
                 }
             }
@@ -1228,7 +1228,7 @@ class spell_shield_of_runes: public SpellScriptLoader
         {
             PrepareAuraScript(spell_shield_of_runes_AuraScript);
 
-            void OnAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 uint32 damage = dmgInfo.GetDamage();
 

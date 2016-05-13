@@ -60,6 +60,7 @@ EndContentData */
 #include "Vehicle.h"
 #include "Player.h"
 #include "SpellScript.h"
+#include "Chat.h"
 
 /*########
 # npc_air_force_bots
@@ -216,7 +217,7 @@ class npc_air_force_bots : public CreatureScript
                             if (!who->IsWithinDistInMap(me, RANGE_GUARDS_MARK))
                                 return;
 
-                            AuraPtr markAura = who->GetAura(SPELL_GUARDS_MARK);
+                            Aura* markAura = who->GetAura(SPELL_GUARDS_MARK);
                             if (markAura)
                             {
                                 // the target wasn't able to move out of our range within 25 seconds
@@ -762,7 +763,7 @@ class npc_injured_patient : public CreatureScript
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
             {
-                if (caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && spell->Id == 20804)
+                if (caster->IsPlayer() && me->isAlive() && spell->Id == 20804)
                 {
                     if ((CAST_PLR(caster)->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (CAST_PLR(caster)->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE))
                         if (DoctorGUID)
@@ -1153,10 +1154,11 @@ class npc_guardian : public CreatureScript
         }
 };
 
-/*######
-## npc_mount_vendor
-######*/
+/////////////////////////
+/// npc_mount_vendor
+/////////////////////////
 
+/// Used for faction restriction on mount vendor.
 class npc_mount_vendor : public CreatureScript
 {
     public:
@@ -1173,69 +1175,78 @@ class npc_mount_vendor : public CreatureScript
 
             switch (vendor)
             {
-                case 384:                                           //Katie Hunter
-                case 1460:                                          //Unger Statforth
-                case 2357:                                          //Merideth Carlson
-                case 4885:                                          //Gregor MacVince
+                case 384:                                           ///< Katie Hunter
+                case 1460:                                          ///< Unger Statforth
+                case 2357:                                          ///< Merideth Carlson
+                case 4885:                                          ///< Gregor MacVince
                     if (player->GetReputationRank(72) != REP_EXALTED && race != RACE_HUMAN)
                         player->SEND_GOSSIP_MENU(5855, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 1261:                                          //Veron Amberstill
+                case 1261:                                          ///< Veron Amberstill
                     if (player->GetReputationRank(47) != REP_EXALTED && race != RACE_DWARF)
                         player->SEND_GOSSIP_MENU(5856, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 3362:                                          //Ogunaro Wolfrunner
+                case 3362:                                          ///< Ogunaro Wolfrunner
                     if (player->GetReputationRank(76) != REP_EXALTED && race != RACE_ORC)
                         player->SEND_GOSSIP_MENU(5841, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 3685:                                          //Harb Clawhoof
+                case 3685:                                          ///< Harb Clawhoof
                     if (player->GetReputationRank(81) != REP_EXALTED && race != RACE_TAUREN)
                         player->SEND_GOSSIP_MENU(5843, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 4730:                                          //Lelanai
+                case 4730:                                          ///< Lelanai
                     if (player->GetReputationRank(69) != REP_EXALTED && race != RACE_NIGHTELF)
                         player->SEND_GOSSIP_MENU(5844, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 4731:                                          //Zachariah Post
+                case 4731:                                          ///< Zachariah Post
                     if (player->GetReputationRank(68) != REP_EXALTED && race != RACE_UNDEAD_PLAYER)
                         player->SEND_GOSSIP_MENU(5840, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 7952:                                          //Zjolnir
+                case 7952:                                          ///< Zjolnir
                     if (player->GetReputationRank(530) != REP_EXALTED && race != RACE_TROLL)
                         player->SEND_GOSSIP_MENU(5842, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 7955:                                          //Milli Featherwhistle
+                case 7955:                                          ///< Milli Featherwhistle
                     if (player->GetReputationRank(54) != REP_EXALTED && race != RACE_GNOME)
                         player->SEND_GOSSIP_MENU(5857, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 16264:                                         //Winaestra
+                case 16264:                                         ///< Winaestra
                     if (player->GetReputationRank(911) != REP_EXALTED && race != RACE_BLOODELF)
                         player->SEND_GOSSIP_MENU(10305, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 17584:                                         //Torallius the Pack Handler
+                case 17584:                                         ///< Torallius the Pack Handler
                     if (player->GetReputationRank(930) != REP_EXALTED && race != RACE_DRAENEI)
                         player->SEND_GOSSIP_MENU(10239, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 48510:                                         //Kall Worthalon
+                case 48510:                                         ///< Kall Worthalon
                     if (player->GetReputationRank(1133) != REP_EXALTED && race != RACE_GOBLIN)
                         player->SEND_GOSSIP_MENU(30002, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 65068:                                         //Old Whitenose
-                    canBuy = true;
+                case 55285:                                         ///< Astrid Langstrump
+                    if (player->GetReputationRank(1134) != REP_EXALTED && race != RACE_WORGEN)
+                        player->SEND_GOSSIP_MENU(30002, creature->GetGUID());
+                    else canBuy = true;
                     break;
-                case 66022:                                         //Turtlemaster Odai
-                    canBuy = true;
+                case 65068:                                         ///< Old Whitenose
+                    if (player->GetReputationRank(1353) != REP_EXALTED && race != RACE_PANDAREN_ALLI)
+                        player->SEND_GOSSIP_MENU(300002, creature->GetGUID()); ///< unk id
+                    else canBuy = true;
+                    break;
+                case 66022:                                         ///< Turtlemaster Odai
+                    if (player->GetReputationRank(1352) != REP_EXALTED && race != RACE_PANDAREN_HORDE)
+                        player->SEND_GOSSIP_MENU(300002, creature->GetGUID()); ///< unk id
+                    else canBuy = true;
                     break;
             }
 
@@ -1334,8 +1345,8 @@ class npc_rogue_trainer : public CreatureScript
 
                             // Cast spells that teach dual spec
                             // Both are also ImplicitTarget self and must be cast by player
-                            player->CastSpell(player, 63680, true, NULL, NULLAURA_EFFECT, player->GetGUID());
-                            player->CastSpell(player, 63624, true, NULL, NULLAURA_EFFECT, player->GetGUID());
+                            player->CastSpell(player, 63680, true, NULL, nullptr, player->GetGUID());
+                            player->CastSpell(player, 63624, true, NULL, nullptr, player->GetGUID());
 
                             // Should show another Gossip text with "Congratulations..."
                             player->PlayerTalkClass->SendCloseGossip();
@@ -1702,7 +1713,8 @@ class npc_snake_trap : public CreatureScript
                             else
                                 spell = SPELL_CRIPPLING_POISON;
 
-                            DoCast(me->getVictim(), spell);
+                            if (!me->getVictim()->HasAura(spell))
+                                DoCast(me->getVictim(), spell);
                         }
 
                         SpellTimer = VIPER_TIMER;
@@ -1710,7 +1722,10 @@ class npc_snake_trap : public CreatureScript
                     else //Venomous Snake
                     {
                         if (urand(0, 2) == 0) //33% chance to cast
-                            DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                        {
+                            if (!me->getVictim()->HasAura(SPELL_DEADLY_POISON))
+                                DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                        }
                         SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() % 5) * 100;
                     }
                 }
@@ -1945,6 +1960,10 @@ class npc_mirror_image : public CreatureScript
                 events.Update(p_Diff);
 
                 Unit* l_Victim = me->getVictim();
+                Player* l_Owner = me->GetOwner()->ToPlayer();
+                if (!l_Owner)
+                    return;
+
                 if (l_Victim)
                 {
                     if (CanAIAttack(l_Victim))
@@ -1954,9 +1973,9 @@ class npc_mirror_image : public CreatureScript
                         {
                             if (uint32 l_SpellId = events.ExecuteEvent())
                             {
-                                DoCast(l_SpellId);
+                                me->CastSpell(l_Victim, l_SpellId, false);
                                 uint32 l_CastTime = me->GetCurrentSpellCastTime(l_SpellId);
-                                events.ScheduleEvent(l_SpellId, (l_CastTime ? l_CastTime : 500) + GetAISpellInfo(l_SpellId)->realCooldown);
+                                events.ScheduleEvent(l_SpellId, 0);
                             }
                         }
                     }
@@ -1978,7 +1997,12 @@ class npc_mirror_image : public CreatureScript
                         /// No target? Let's see if our owner has a better target for us
                         if (Unit* l_Owner = me->GetOwner())
                         {
-                            Unit* l_OwnerVictim = l_Owner->getVictim();
+                            Unit* l_OwnerVictim = nullptr;
+                            if (Player* l_Player = l_Owner->ToPlayer())
+                                l_OwnerVictim = l_Player->GetSelectedUnit();
+                            else
+                                l_OwnerVictim = l_Owner->getVictim();
+
                             if (l_OwnerVictim && me->canCreatureAttack(l_OwnerVictim))
                                 l_Target = l_OwnerVictim;
                         }
@@ -2143,13 +2167,13 @@ class npc_lightwell : public CreatureScript
 
                 m_RenewTimer = 1000;
 
-                if (p_Owner->GetTypeId() == TYPEID_PLAYER)
+                if (p_Owner->IsPlayer())
                     m_OwnerGUID = p_Owner->GetGUID();
 
                 me->SetMaxHealth(p_Owner->GetMaxHealth());
                 me->SetHealth(p_Owner->GetHealth());
 
-                if (AuraPtr l_Charges = me->AddAura(eSpells::ChargeAura, me))
+                if (Aura* l_Charges = me->AddAura(eSpells::ChargeAura, me))
                 {
                     l_Charges->SetCharges(15);
                     l_Charges->GetEffect(EFFECT_0)->ChangeAmount(15);
@@ -2203,7 +2227,7 @@ class npc_lightwell : public CreatureScript
                                 for (auto itr : l_TempList)
                                 {
                                     me->CastSpell(itr, eSpells::LightWellHeal, true);
-                                    if (AuraPtr l_Charges = me->GetAura(eSpells::ChargeAura))
+                                    if (Aura* l_Charges = me->GetAura(eSpells::ChargeAura))
                                     {
                                         l_Charges->DropCharge();
                                         l_Charges->GetEffect(0)->ChangeAmount(l_Charges->GetCharges());
@@ -3114,55 +3138,63 @@ class npc_generic_harpoon_cannon : public CreatureScript
         }
 };
 
-/*######
-## npc_rate_xp_modifier
-######*/
-
-#define GOSSIP_TEXT_EXP_MODIF    1587
-#define GOSSIP_TEXT_EXP_MODIF_OK 1588
-#define GOSSIP_TEXT_EXP_NORMAL   1589
-#define GOSSIP_ITEM_XP_CLOSE     "Good bye."
-
+/// Toran <Experience Rate Master> - 159753
 class npc_rate_xp_modifier : public CreatureScript
 {
     public:
         npc_rate_xp_modifier() : CreatureScript("npc_rate_xp_modifier") { }
 
-        bool OnGossipHello(Player *pPlayer, Creature *pCreature)
+        enum eOptions
         {
-            for (uint32 i = 1; i < sWorld->getRate(RATE_XP_KILL); ++i)
-            {
-                std::ostringstream gossipText;
-                gossipText << "I would like to change my rates" << i;
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossipText.str(), GOSSIP_SENDER_MAIN, i);
-            }
+            Rate1,
+            Rate3,
+            Rate5,
+            OriginalRate
+        };
 
-            if (pPlayer->GetPersonnalXpRate())
-            {
-                std::ostringstream gossipText;
-                gossipText << "I would like to restore my rates (" << sWorld->getRate(RATE_XP_KILL) << ")";
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossipText.str(), GOSSIP_SENDER_MAIN, 0);
-            }
+        struct npc_rate_xp_modifierAI : public ScriptedAI
+        {
+            npc_rate_xp_modifierAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_EXP_MODIF, pCreature->GetGUID());
-            return true;
+            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eOptions::Rate1:
+                        p_Player->SetPersonnalXpRate(1.0f);
+                        break;
+                    case eOptions::Rate3:
+                        p_Player->SetPersonnalXpRate(3.0f);
+                        break;
+                    case eOptions::Rate5:
+                        p_Player->SetPersonnalXpRate(5.0f);
+                        break;
+                    case eOptions::OriginalRate:
+                        p_Player->SetPersonnalXpRate(sWorld->getRate(RATE_XP_KILL));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_rate_xp_modifierAI(p_Creature);
         }
+};
 
-        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+/// Send current rate XP at login
+class RatesXPWarner : public PlayerScript
+{
+    public:
+        RatesXPWarner() : PlayerScript("RatesXPWarner") { }
+
+        void OnLogin(Player* p_Player)
         {
-            if (uiAction >= sWorld->getRate(RATE_XP_KILL))
-            {
-                pPlayer->PlayerTalkClass->SendCloseGossip();
-                return true;
-            }
+            uint32 l_Rate = p_Player->GetPersonnalXpRate();
 
-            pPlayer->SetPersonnalXpRate(float(uiAction));
-
-            pPlayer->PlayerTalkClass->ClearMenus();
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_XP_CLOSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_EXP_MODIF_OK, pCreature->GetGUID());
-
-            return true;
+            ChatHandler(p_Player).PSendSysMessage(TrinityStrings::CharXPRateWarn, l_Rate);
         }
 };
 
@@ -3567,7 +3599,7 @@ class npc_bloodworm : public CreatureScript
 
             void Burst()
             {
-                if (AuraPtr bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
+                if (Aura* bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
                 {
                     uint32 stacks = std::min<uint32>(bloodGorged->GetStackAmount(), 10);
                     int32 damage = stacks *  10;
@@ -3600,7 +3632,7 @@ class npc_bloodworm : public CreatureScript
                 {
                     if (me->GetOwner())
                     {
-                        if (AuraPtr bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
+                        if (Aura* bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
                         {
                             // 10% per stack
                             int32 stacks = bloodGorged->GetStackAmount() * 10;
@@ -3679,7 +3711,7 @@ class npc_past_self : public CreatureScript
 
             void IsSummonedBy(Unit* p_Owner)
             {
-                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
+                if (p_Owner && p_Owner->IsPlayer())
                 {
                     m_Mana = p_Owner->GetPower(Powers::POWER_MANA);
                     m_Health = p_Owner->GetHealth();
@@ -3854,7 +3886,7 @@ class npc_void_tendrils : public CreatureScript
             void IsSummonedBy(Unit* owner)
             {
 
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner && owner->IsPlayer())
                 {
                     me->SetLevel(owner->getLevel());
 
@@ -3919,7 +3951,7 @@ class npc_spectral_guise : public CreatureScript
 
             void IsSummonedBy(Unit* owner)
             {
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner && owner->IsPlayer())
                 {
                     me->SetLevel(owner->getLevel());
                     me->SetMaxHealth(owner->GetMaxHealth() / 2);
@@ -3967,7 +3999,6 @@ enum eForceOfNatureSpells
     SPELL_TREANT_SWIFTMEND      = 142421,
     SPELL_TREANT_HEAL           = 113828,
     SPELL_TREANT_WRATH          = 113769,
-    SPELL_TREANT_EFFLORESCENCE  = 142424
 };
 
 class npc_force_of_nature : public CreatureScript
@@ -4062,37 +4093,6 @@ class npc_force_of_nature : public CreatureScript
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return new npc_force_of_natureAI(pCreature);
-        }
-};
-
-/// Swiftmend - 142423
-class spell_special_swiftmend: public SpellScriptLoader
-{
-    public:
-        spell_special_swiftmend() : SpellScriptLoader("spell_special_swiftmend") { }
-
-        class spell_special_swiftmend_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_special_swiftmend_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (DynamicObject* dynObj = caster->GetDynObject(SPELL_TREANT_SWIFTMEND))
-                        caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_TREANT_EFFLORESCENCE, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_special_swiftmend_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_special_swiftmend_AuraScript();
         }
 };
 
@@ -4717,6 +4717,166 @@ class npc_xuen_the_white_tiger : public CreatureScript
         }
 };
 
+/// Frozen Trail Packer - 64227
+class npc_frozen_trail_packer : public CreatureScript
+{
+    public:
+        npc_frozen_trail_packer() : CreatureScript("npc_frozen_trail_packer") { }
+
+        struct npc_frozen_trail_packerAI : public ScriptedAI
+        {
+            npc_frozen_trail_packerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            {
+                if (p_Player->AddItem(86125, 1)) ///< Kafa Press
+                    me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_frozen_trail_packerAI(p_Creature);
+        }
+};
+
+/////////////////////////////////////////////////////////////
+/// Ethereal Soul-Trader - 27914
+class npc_ethereal_soul_trader : public CreatureScript
+{
+    public:
+        npc_ethereal_soul_trader() : CreatureScript("npc_ethereal_soul_trader") { }
+
+        struct npc_ethereal_soul_traderAI : public PassiveAI
+        {
+            npc_ethereal_soul_traderAI(Creature* p_Creature) : PassiveAI(p_Creature) { }
+
+            enum eSpells
+            {
+                EtherealPetAura                 = 50051,
+                EtherealPetOnKillStealEssence   = 50101
+            };
+
+            std::queue<uint64> m_PendingTargets;
+
+            void IsSummonedBy(Unit* p_Owner) override
+            {
+                me->GetMotionMaster()->Clear(false);
+                me->GetMotionMaster()->MoveFollow(p_Owner, PET_FOLLOW_DIST, (3 * M_PI) / 2);
+
+                p_Owner->CastSpell(p_Owner, eSpells::EtherealPetAura, true);
+            }
+
+            void JustDespawned() override
+            {
+                if (Unit* l_Owner = me->GetOwner())
+                    l_Owner->RemoveAura(eSpells::EtherealPetAura);
+            }
+
+            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            {
+                m_PendingTargets.push(p_Guid);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || m_PendingTargets.empty())
+                    return;
+
+                if (uint64 l_Guid = m_PendingTargets.front())
+                {
+                    m_PendingTargets.pop();
+
+                    if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
+                        me->CastSpell(l_Target, eSpells::EtherealPetOnKillStealEssence, false);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ethereal_soul_traderAI(p_Creature);
+        }
+};
+
+/// Ethereal Pet Aura - 50051
+class spell_ethereal_pet_aura : public SpellScriptLoader
+{
+    public:
+        spell_ethereal_pet_aura() : SpellScriptLoader("spell_ethereal_pet_aura") { }
+
+        class spell_ethereal_pet_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ethereal_pet_aura_AuraScript);
+
+            enum eDatas
+            {
+                EtherealSoulTrader = 27914
+            };
+
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!GetTarget() || !p_EventInfo.GetActionTarget() || !GetTarget()->IsPlayer())
+                    return;
+
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                Creature* l_BattlePet = l_Player->GetSummonedBattlePet();
+                if (l_BattlePet == nullptr || l_BattlePet->GetEntry() != eDatas::EtherealSoulTrader)
+                    return;
+
+                if (l_BattlePet->IsAIEnabled)
+                    l_BattlePet->AI()->SetGUID(p_EventInfo.GetActionTarget()->GetGUID(), 0);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_ethereal_pet_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ethereal_pet_aura_AuraScript();
+        }
+};
+
+/// Ethereal Pet OnKill Steal Essence - 50101
+class spell_ethereal_pet_onkill_steal_essence : public SpellScriptLoader
+{
+    public:
+        spell_ethereal_pet_onkill_steal_essence() : SpellScriptLoader("spell_ethereal_pet_onkill_steal_essence") { }
+
+        class spell_ethereal_pet_onkill_steal_essence_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ethereal_pet_onkill_steal_essence_AuraScript);
+
+            enum eData
+            {
+                EtherealPetOnKillGiveToken = 50063
+            };
+
+            void HandleRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eData::EtherealPetOnKillGiveToken, true);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ethereal_pet_onkill_steal_essence_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ethereal_pet_onkill_steal_essence_AuraScript();
+        }
+};
+/////////////////////////////////////////////////////////////
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4747,7 +4907,8 @@ void AddSC_npcs_special()
     new npc_firework();
     new npc_spring_rabbit();
     new npc_generic_harpoon_cannon();
-    //new npc_rate_xp_modifier();
+    new npc_rate_xp_modifier();
+    new RatesXPWarner();
     new npc_demoralizing_banner();
     new npc_guardian_of_ancient_kings();
     new npc_dire_beast();
@@ -4760,7 +4921,6 @@ void AddSC_npcs_special()
     new npc_void_tendrils();
     new npc_spectral_guise();
     new npc_force_of_nature();
-    new spell_special_swiftmend();
     new npc_luo_meng();
     new npc_monk_spirit();
     new npc_rogue_decoy();
@@ -4770,4 +4930,12 @@ void AddSC_npcs_special()
     new npc_training_dummy_tanking();
     new npc_consecration();
     new npc_xuen_the_white_tiger();
+    new npc_frozen_trail_packer();
+
+    /////////////////////////////////////////////////////////////
+    /// Ethereal Soul-Trader
+    new npc_ethereal_soul_trader();
+    new spell_ethereal_pet_aura();
+    new spell_ethereal_pet_onkill_steal_essence();
+    /////////////////////////////////////////////////////////////
 }

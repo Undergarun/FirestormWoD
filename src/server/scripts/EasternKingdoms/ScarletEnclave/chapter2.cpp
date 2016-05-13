@@ -74,7 +74,7 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (spell->Id == SPELL_PERSUASIVE_STRIKE && caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && !uiSpeech_counter)
+            if (spell->Id == SPELL_PERSUASIVE_STRIKE && caster->IsPlayer() && me->isAlive() && !uiSpeech_counter)
             {
                 if (CAST_PLR(caster)->GetQuestStatus(12720) == QUEST_STATUS_INCOMPLETE)
                 {
@@ -184,6 +184,7 @@ enum Koltira
     SPELL_ANTI_MAGIC_ZONE           = 52894,
 
     QUEST_BREAKOUT                  = 12727,
+    NPC_KOLTIRA_SUMMON              = 45112,
 
     NPC_CRIMSON_ACOLYTE             = 29007,
     NPC_HIGH_INQUISITOR_VALROTH     = 29001,
@@ -194,172 +195,220 @@ enum Koltira
     MODEL_DEATH_KNIGHT_MOUNT        = 25278
 };
 
-class npc_koltira_deathweaver : public CreatureScript
+/// Passive Scene Object
+class playerScript_koltira_deathweaver_escort : public PlayerScript
 {
-public:
-    npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
+    public:
+        playerScript_koltira_deathweaver_escort() : PlayerScript("playerScript_koltira_deathweaver_escort") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
-    {
-        if (quest->GetQuestId() == QUEST_BREAKOUT)
+        void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
         {
-            creature->SetStandState(UNIT_STAND_STATE_STAND);
-
-            if (npc_escortAI* escortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, creature->AI()))
-                escortAI->Start(false, false, player->GetGUID());
-        }
-        return true;
-    }
-
-    struct npc_koltira_deathweaverAI : public npc_escortAI
-    {
-        npc_koltira_deathweaverAI(Creature* creature) : npc_escortAI(creature)
-        {
-            me->SetReactState(REACT_DEFENSIVE);
-        }
-
-        void Reset()
-        {
-            if (!HasEscortState(STATE_ESCORT_ESCORTING))
+            if (p_Quest->GetQuestId() == QUEST_BREAKOUT)
             {
-                wave = 0;
-                waveTimer = 3000;
-                valrothGUID = 0;
-                me->LoadEquipment(0, true);
-                me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
-                me->RemoveAurasDueToSpell(SPELL_KOLTIRA_TRANSFORM);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                uint32 l_PhaseMask = p_Player->GetPhaseMask();
+                l_PhaseMask &= ~0x08;
+                l_PhaseMask |= 0x04;
+                p_Player->SetPhaseMask(l_PhaseMask, true);
             }
         }
 
-        void WaypointReached(uint32 waypointId)
+        void OnQuestAbandon(Player* p_Player, const Quest* p_Quest) override
         {
-            switch (waypointId)
+            if (p_Quest->GetQuestId() == QUEST_BREAKOUT)
             {
-                case 0:
-                    Talk(SAY_BREAKOUT1);
-                    break;
-                case 1:
-                    me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                    break;
-                case 2:
-                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                    DoCast(me, SPELL_KOLTIRA_TRANSFORM);
-                    me->LoadEquipment();
-                    break;
-                case 3:
-                    SetEscortPaused(true);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                    Talk(SAY_BREAKOUT2);
-                    DoCast(me, SPELL_ANTI_MAGIC_ZONE);
-                    break;
-                case 4:
-                    SetRun(true);
-                    break;
-                case 9:
-                    me->Mount(MODEL_DEATH_KNIGHT_MOUNT);
-                    break;
-                case 10:
-                    me->Dismount();
-                    break;
+                uint32 l_PhaseMask = p_Player->GetPhaseMask();
+                l_PhaseMask &= ~0x08;
+                l_PhaseMask |= 0x04;
+                p_Player->SetPhaseMask(l_PhaseMask, true);
             }
         }
+};
 
-        void JustSummoned(Creature* summoned)
+class npc_koltira_deathweaver_escort : public CreatureScript
+{
+    public:
+        npc_koltira_deathweaver_escort() : CreatureScript("npc_koltira_deathweaver_escort") { }
+
+        struct npc_koltira_deathweaver_escortAI : public npc_escortAI
         {
-            if (Player* player = GetPlayerForEscort())
-                summoned->AI()->AttackStart(player);
-
-            if (summoned->GetEntry() == NPC_HIGH_INQUISITOR_VALROTH)
-                valrothGUID = summoned->GetGUID();
-
-            summoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-        }
-
-        void SummonAcolyte(uint32 uiAmount)
-        {
-            for (uint32 i = 0; i < uiAmount; ++i)
-                me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            npc_escortAI::UpdateAI(uiDiff);
-
-            if (HasEscortState(STATE_ESCORT_PAUSED))
+            npc_koltira_deathweaver_escortAI(Creature* creature) : npc_escortAI(creature)
             {
-                if (waveTimer <= uiDiff)
+                me->SetReactState(REACT_DEFENSIVE);
+            }
+
+            void Reset()
+            {
+                if (!HasEscortState(STATE_ESCORT_ESCORTING))
                 {
-                    switch (wave)
-                    {
-                        case 0:
-                            Talk(SAY_BREAKOUT3);
-                            SummonAcolyte(3);
-                            waveTimer = 20000;
-                            break;
-                        case 1:
-                            Talk(SAY_BREAKOUT4);
-                            SummonAcolyte(3);
-                            waveTimer = 20000;
-                            break;
-                        case 2:
-                            Talk(SAY_BREAKOUT5);
-                            SummonAcolyte(4);
-                            waveTimer = 20000;
-                            break;
-                        case 3:
-                            Talk(SAY_BREAKOUT6);
-                            me->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-                            waveTimer = 1000;
-                            break;
-                        case 4:
-                        {
-                            Creature* temp = Unit::GetCreature(*me, valrothGUID);
-
-                            if (!temp || !temp->isAlive())
-                            {
-                                Talk(SAY_BREAKOUT8);
-                                waveTimer = 5000;
-                            }
-                            else
-                            {
-                                waveTimer = 2500;
-                                return;
-                            }
-                            break;
-                        }
-                        case 5:
-                            Talk(SAY_BREAKOUT9);
-                            me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            waveTimer = 2500;
-                            break;
-                        case 6:
-                            Talk(SAY_BREAKOUT10);
-                            SetEscortPaused(false);
-                            break;
-                    }
-
-                    ++wave;
+                    wave = 0;
+                    waveTimer = 3000;
+                    valrothGUID = 0;
+                    SetDespawnAtFar(false);
+                    SetDespawnAtEnd(false);
+                    me->LoadEquipment(0, true);
+                    me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
+                    me->RemoveAurasDueToSpell(SPELL_KOLTIRA_TRANSFORM);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }
-                else
-                    waveTimer -= uiDiff;
             }
-        }
-        
-    private:
-        uint8 wave;
-        uint32 waveTimer;
-        uint64 valrothGUID;
 
-    };
+            void IsSummonedBy(Unit* p_Summoner)
+            {
+                Start(false, false, p_Summoner->GetGUID());
+                SetEscortPaused(false);
+            }
+
+            void WaypointReached(uint32 waypointId)
+            {
+                switch (waypointId)
+                {
+                    case 0:
+                        Talk(SAY_BREAKOUT1);
+                        break;
+                    case 1:
+                        me->SetStandState(UNIT_STAND_STATE_KNEEL);
+                        break;
+                    case 2:
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
+                        DoCast(me, SPELL_KOLTIRA_TRANSFORM);
+                        me->LoadEquipment();
+                        break;
+                    case 3:
+                        SetEscortPaused(true);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetStandState(UNIT_STAND_STATE_KNEEL);
+                        Talk(SAY_BREAKOUT2);
+                        DoCast(me, SPELL_ANTI_MAGIC_ZONE);
+                        break;
+                    case 4:
+                        SetRun(true);
+                        break;
+                    case 9:
+                        me->Mount(MODEL_DEATH_KNIGHT_MOUNT);
+                        break;
+                    case 10:
+                        me->Dismount();
+                        me->DespawnOrUnsummon();
+                        break;
+                }
+            }
+
+            void JustSummoned(Creature* summoned)
+            {
+                if (Player* player = GetPlayerForEscort())
+                    summoned->AI()->AttackStart(player);
+
+                if (summoned->GetEntry() == NPC_HIGH_INQUISITOR_VALROTH)
+                    valrothGUID = summoned->GetGUID();
+
+                summoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            }
+
+            void SummonAcolyte(uint32 uiAmount)
+            {
+                for (uint32 i = 0; i < uiAmount; ++i)
+                    me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+            }
+
+            void UpdateAI(const uint32 uiDiff)
+            {
+                npc_escortAI::UpdateAI(uiDiff);
+
+                if (HasEscortState(STATE_ESCORT_PAUSED))
+                {
+                    if (waveTimer <= uiDiff)
+                    {
+                        switch (wave)
+                        {
+                            case 0:
+                                Talk(SAY_BREAKOUT3);
+                                SummonAcolyte(3);
+                                waveTimer = 20000;
+                                break;
+                            case 1:
+                                Talk(SAY_BREAKOUT4);
+                                SummonAcolyte(3);
+                                waveTimer = 20000;
+                                break;
+                            case 2:
+                                Talk(SAY_BREAKOUT5);
+                                SummonAcolyte(4);
+                                waveTimer = 20000;
+                                break;
+                            case 3:
+                                Talk(SAY_BREAKOUT6);
+                                me->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                                waveTimer = 1000;
+                                break;
+                            case 4:
+                            {
+                                Creature* temp = Unit::GetCreature(*me, valrothGUID);
+
+                                if (!temp || !temp->isAlive())
+                                {
+                                    Talk(SAY_BREAKOUT8);
+                                    waveTimer = 5000;
+                                }
+                                else
+                                {
+                                    waveTimer = 2500;
+                                    return;
+                                }
+                                break;
+                            }
+                            case 5:
+                                Talk(SAY_BREAKOUT9);
+                                me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                waveTimer = 2500;
+                                break;
+                            case 6:
+                                Talk(SAY_BREAKOUT10);
+                                SetEscortPaused(false);
+                                break;
+                        }
+
+                        ++wave;
+                    }
+                    else
+                        waveTimer -= uiDiff;
+                }
+            }
+        
+        private:
+            uint8 wave;
+            uint32 waveTimer;
+            uint64 valrothGUID;
+
+        };
     
-    CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_koltira_deathweaverAI(creature);
+        return new npc_koltira_deathweaver_escortAI(creature);
     }
 };
+
+class npc_koltira_deathweaver : public CreatureScript
+{
+    public:
+        npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
+
+        bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
+        {
+            if (p_Quest->GetQuestId() == QUEST_BREAKOUT)
+            {
+                uint32 l_PhaseMask = p_Player->GetPhaseMask();
+                l_PhaseMask &= ~p_Creature->GetPhaseMask();
+                l_PhaseMask |= 0x08;
+                p_Player->SetPhaseMask(l_PhaseMask, true);
+
+                if (Creature* l_Creature = p_Creature->SummonCreature(NPC_KOLTIRA_SUMMON, *p_Creature, TEMPSUMMON_MANUAL_DESPAWN))
+                    l_Creature->SetPhaseMask(0x08, true);
+            }
+            return true;
+        }
+};
+
 //Scarlet courier
 enum ScarletCourierEnum
 {
@@ -1094,6 +1143,10 @@ void AddSC_the_scarlet_enclave_c2()
     new npc_crusade_persuaded();
     new mob_scarlet_courier();
     new npc_koltira_deathweaver();
+    new npc_koltira_deathweaver_escort();
     new mob_high_inquisitor_valroth();
     new npc_a_special_surprise();
+
+    /// Playerscript
+    new playerScript_koltira_deathweaver_escort();
 }

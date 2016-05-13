@@ -52,7 +52,7 @@ const MovementInfo& AnticheatData::GetLastMovementInfo() const
     return lastMovementInfo;
 }
 
-void AnticheatData::SetLastMovementInfo(MovementInfo& moveInfo)
+void AnticheatData::SetLastMovementInfo(MovementInfo const& moveInfo)
 {
     lastMovementInfo = moveInfo;
 }

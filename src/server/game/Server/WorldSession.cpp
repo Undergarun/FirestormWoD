@@ -47,6 +47,7 @@
 #include "WardenMac.h"
 #include "GarrisonMgr.hpp"
 #include "AccountMgr.h"
+#include "PetBattle.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -93,21 +94,68 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags, uint32 p_CustomFlags) :
-m_muteTime(mute_time), m_timeOutTime(0),
-m_Player(NULL), m_Socket(sock), _security(sec), _accountId(id), m_expansion(expansion),
-_ispremium(ispremium), m_PremiumType(premiumType), m_VoteRemainingTime(p_VoteRemainingTime), m_VoteTimePassed(0), m_VoteSyncTimer(VOTE_SYNC_TIMER), _logoutTime(0), m_inQueue(false),
-m_playerLoading(false), m_playerLogout(false), m_playerRecentlyLogout(false), m_playerSave(false),
-m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)), m_sessionDbLocaleIndex(locale), m_latency(0),
-m_TutorialsChanged(false), recruiterId(recruiter), isRecruiter(isARecruiter), timeLastWhoCommand(0),
-timeCharEnumOpcode(0), m_TimeLastChannelInviteCommand(0), m_TimeLastChannelPassCommand(0),
-m_TimeLastChannelMuteCommand(0), m_TimeLastChannelBanCommand(0), m_TimeLastChannelUnbanCommand(0),
-m_TimeLastChannelAnnounceCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLastChannelModerCommand(0),
-m_TimeLastChannelOwnerCommand(0), m_TimeLastChannelSetownerCommand(0), m_TimeLastChannelUnmoderCommand(0),
-m_TimeLastChannelUnmuteCommand(0), m_TimeLastChannelKickCommand(0), timeLastServerCommand(0), timeLastArenaTeamCommand(0),
-timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0),
-m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_TimeLastTicketOnlineList(0), m_CustomFlags(p_CustomFlags)
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags, uint32 p_CustomFlags)
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    /// Members initialization
+    ///////////////////////////////////////////////////////////////////////////////
+    m_Player                = nullptr;
+    m_VoteSyncTimer         = VOTE_SYNC_TIMER;
+    m_muteTime              = mute_time;
+    m_Socket                = sock;
+    _security               = sec;
+    _accountId              = id;
+    m_expansion             = expansion;
+    _ispremium              = ispremium;
+    m_PremiumType           = premiumType;
+    m_VoteRemainingTime     = p_VoteRemainingTime;
+    m_sessionDbLocaleIndex  = locale;
+    recruiterId             = recruiter;
+    isRecruiter             = isARecruiter;
+    m_ServiceFlags          = p_ServiceFlags;
+    m_CustomFlags           = p_CustomFlags;
+    m_sessionDbcLocale      = sWorld->GetAvailableDbcLocale(locale);
+
+    m_timeOutTime                       = 0;
+    timeCharEnumOpcode                  = 0;
+    m_TimeLastChannelInviteCommand      = 0;
+    m_TimeLastChannelPassCommand        = 0;
+    m_TimeLastChannelMuteCommand        = 0;
+    m_TimeLastChannelBanCommand         = 0;
+    m_TimeLastChannelUnbanCommand       = 0;
+    m_TimeLastChannelAnnounceCommand    = 0;
+    m_TimeLastGroupInviteCommand        = 0;
+    m_TimeLastChannelModerCommand       = 0;
+    m_TimeLastChannelOwnerCommand       = 0;
+    m_TimeLastChannelUnmoderCommand     = 0;
+    timeLastArenaTeamCommand            = 0;
+    m_TimeLastChannelSetownerCommand    = 0;
+    m_TimeLastChannelUnmuteCommand      = 0;
+    m_TimeLastChannelKickCommand        = 0;
+    timeLastServerCommand               = 0;
+    timeLastChangeSubGroupCommand       = 0;
+    m_TimeLastSellItemOpcode            = 0;
+    m_uiAntispamMailSentCount           = 0;
+    m_PlayerLoginCounter                = 0;
+    m_clientTimeDelay                   = 0;
+    m_TimeLastUseItem                   = 0;
+    m_TimeLastTicketOnlineList          = 0;
+    m_AccountJoinDate                   = 0;
+    timeLastWhoCommand                  = 0;
+    _logoutTime                         = 0;
+    m_latency                           = 0;
+    m_VoteTimePassed                    = 0;
+
+    m_IsStressTestSession   = false;
+    m_playerRecentlyLogout  = false;
+    m_playerSave            = false;
+    m_TutorialsChanged      = false;
+    m_playerLoading         = false;
+    m_playerLogout          = false;
+    m_inQueue               = false;
+    m_IsPetBattleJournalLocked = false;
+    ///////////////////////////////////////////////////////////////////////////////
+
     _warden = NULL;
     _filterAddonMessages = false;
     m_LoginTime = time(nullptr);
@@ -119,8 +167,6 @@ m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_Ti
         ResetTimeOutTime();
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
-
-    new TransactionCallbacks();
 
     InitializeQueryCallbackParameters();
 
@@ -369,7 +415,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     ///- Before we process anything:
     /// If necessary, kick the player from the character select screen
-    if (IsConnectionIdle())
+    if (IsConnectionIdle() && m_Socket)
         m_Socket->CloseSocket();
 
     ///- Retrieve packets from the receive queue and call the appropriate handlers
@@ -517,7 +563,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     //check if we are safe to proceed with logout
     //logout procedure should happen only in World::UpdateSessions() method!!!
-    if (updater.ProcessLogout())
+    if (updater.ProcessLogout() && !m_IsStressTestSession)
     {
         time_t currTime = time(NULL);
         ///- If necessary, log the player out
@@ -563,6 +609,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 /// %Log the player out
 void WorldSession::LogoutPlayer(bool Save)
 {
+    sPetBattleSystem->LeaveQueue(m_Player);
+
     // fix exploit with Aura Bind Sight
     m_Player->StopCastingBindSight();
     m_Player->StopCastingCharm();
@@ -598,9 +646,9 @@ void WorldSession::LogoutPlayer(bool Save)
             for (Unit::AttackerSet::const_iterator itr = m_Player->getAttackers().begin(); itr != m_Player->getAttackers().end(); ++itr)
             {
                 Unit* owner = (*itr)->GetOwner();           // including player controlled case
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner && owner->IsPlayer())
                     aset.insert(owner->ToPlayer());
-                else if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+                else if ((*itr)->IsPlayer())
                     aset.insert((Player*)(*itr));
             }
 
@@ -695,6 +743,9 @@ void WorldSession::LogoutPlayer(bool Save)
                 _pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, _pet->m_Stampeded);
         }
 
+        //! Call script hook before deletion
+        sScriptMgr->OnPlayerLogout(m_Player);
+
         ///- empty buyback items and save the player in the database
         // some save parts only correctly work in case player present in map/player_lists (pets, etc)
         if (Save)
@@ -731,9 +782,6 @@ void WorldSession::LogoutPlayer(bool Save)
         //! Broadcast a logout message to the player's friends
         sSocialMgr->SendFriendStatus(m_Player, FRIEND_OFFLINE, m_Player->GetGUIDLow(), true);
         sSocialMgr->RemovePlayerSocial(m_Player->GetGUIDLow());
-
-        //! Call script hook before deletion
-        sScriptMgr->OnPlayerLogout(m_Player);
 
         //! Remove the player from the world
         // the player may not be in the world when logging out
@@ -1150,9 +1198,10 @@ void WorldSession::SendFeatureSystemStatus()
 
     uint32 l_ComplainSystemStatus = 2;                              ///< 0 - Disabled | 1 - Calendar & Mail | 2 - Calendar & Mail & Ignoring system
 
-    uint32 l_TwitterMsTillCanPost = 20;
-    uint32 l_TokenPollTimeSeconds = 300;
-    uint32 l_TokenRedeemIndex = 0;
+    uint32 l_TwitterPostThrottleLimit       = 60;
+    uint32 l_TwitterPostThrottleCooldown    = 20;
+    uint32 l_TokenPollTimeSeconds           = 300;
+    uint32 l_TokenRedeemIndex               = 0;
 
     WorldPacket l_Data(SMSG_FEATURE_SYSTEM_STATUS, 100);
 
@@ -1161,8 +1210,8 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data << uint32(l_SORRemaining);                               ///< SOR remaining
     l_Data << uint32(l_ConfigRealmID);                              ///< Config Realm ID
     l_Data << uint32(l_ConfigRealmRecordID);                        ///< Config Realm Record ID (used for url dbc reading)
-    l_Data << uint32(60);                                           ///< Unk 6.1.0
-    l_Data << uint32(l_TwitterMsTillCanPost);                       ///< TwitterMsTillCanPost
+    l_Data << uint32(l_TwitterPostThrottleLimit);                   ///< Number of twitter posts the client can send before they start being throttled
+    l_Data << uint32(l_TwitterPostThrottleCooldown);                ///< Time in seconds the client has to wait before posting again after hitting post limit
     l_Data << uint32(l_TokenPollTimeSeconds);                       ///< TokenPollTimeSeconds
     l_Data << uint32(l_TokenRedeemIndex);                           ///< TokenRedeemIndex
 
@@ -1260,8 +1309,11 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& p_Packet)
 
     for (uint32 l_I = 0; l_I < l_Count; ++l_I)
     {
-        p_Packet.FlushBits();
-        _registeredAddonPrefixes.push_back(p_Packet.ReadString(p_Packet.ReadBits(5)));
+        uint8 l_Size = p_Packet.ReadBits(5);
+
+        p_Packet.ResetBitReading();
+
+        _registeredAddonPrefixes.push_back(p_Packet.ReadString(l_Size));
     }
 
     if (_registeredAddonPrefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP) // shouldn't happen
@@ -1325,7 +1377,7 @@ void WorldSession::ProcessQueryCallbacks()
                     m_Player->RemoveAurasDueToSpell(VOTE_BUFF);
                 else if (m_Player && m_VoteRemainingTime != 0)
                 {
-                    AuraPtr l_Aura = m_Player->HasAura(VOTE_BUFF) ? m_Player->GetAura(VOTE_BUFF) : m_Player->AddAura(VOTE_BUFF, m_Player);
+                    Aura* l_Aura = m_Player->HasAura(VOTE_BUFF) ? m_Player->GetAura(VOTE_BUFF) : m_Player->AddAura(VOTE_BUFF, m_Player);
                     if (l_Aura != nullptr)
                         l_Aura->SetDuration(m_VoteRemainingTime + 60 * IN_MILLISECONDS);    //< Add remaining time + 1 mins (callback lag)
                 }

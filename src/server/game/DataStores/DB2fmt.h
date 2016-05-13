@@ -18,6 +18,9 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
+/// x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
+/// n - index (included), l - bool
+
 char const PathNodeEntryfmt[] =
 {
     FT_INDEX,
@@ -56,7 +59,7 @@ const char ItemCurrencyCostfmt[] = "in";
 const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
 const char ItemEffectFmt[] = "niiiiiiiii";
 const char HeirloomFmt[] = "nissiiiiiiii";
-const char PvpItemfmt[] = "ini";
+const char PvpItemfmt[] = "nii";
 const char ItemModifiedAppearanceFmt[] = "niiiii";
 const char ItemAppearanceFmt[] = "nii";
 const char ItemExtendedCostEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiii";
@@ -66,9 +69,9 @@ const char ItemUpgradeEntryfmt[] = "niiiii";
 const char RulesetItemUpgradeEntryfmt[] = "niii";
 const char SceneScriptEntryfmt[] = "nssii";
 const char SceneScriptPackageEntryfmt[] = "ns";
-const char TaxiNodesEntryfmt[] = "nifffsiiiiiff";
-const char TaxiPathEntryfmt[] = "niii";
-const char TaxiPathNodeEntryfmt[] = "niiifffiiii";
+const char TaxiNodesFormat[] = "nifffsiiiiiff";
+const char TaxiPathFormat[] = "niii";
+const char TaxiPathNodeFormat[] = "niiifffiiii";
 const char SpellRuneCostfmt[] = "niiiii";
 const char SpellCastingRequirementsEntryfmt[] = "niiiiii";
 const char SpellAuraRestrictionsEntryfmt[] = "niiiiiiii";

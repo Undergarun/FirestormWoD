@@ -162,6 +162,7 @@ public:
             { "vehicle_template_accessory",   SEC_ADMINISTRATOR, true,  &HandleReloadVehicleTemplateAccessoryCommand,   "", NULL },
             { "areatrigger_template",         SEC_ADMINISTRATOR, true,  &HandleReloadAreatriggerTemplateCommand,        "", NULL },
             { "areatrigger_move",             SEC_ADMINISTRATOR, true,  &HandleReloadAreatriggerMoveCommand,            "", NULL },
+            { "disabled_ranking",             SEC_ADMINISTRATOR, true,  &HandleReloadDisabledRankingCommand,            "", NULL },
             { NULL,                           0,                 false, NULL,                                           "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -170,6 +171,13 @@ public:
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;
+    }
+
+    static bool HandleReloadDisabledRankingCommand(ChatHandler* p_Handler, char const* p_Args)
+    {
+        sObjectMgr->LoadDisabledEncounters();
+        p_Handler->SendGlobalGMSysMessage("DB table `instance_disabled_rankings` reloaded.");
+        return true;
     }
 
     static bool HandleReloadAreatriggerTemplateCommand(ChatHandler* /*p_Handler*/, const char* /*p_Args*/)

@@ -69,11 +69,11 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    class npc_HomerStonefield : public CreatureScript
+    class npc_HomerStonefield_Garr : public CreatureScript
     {
         public:
             /// Constructor
-            npc_HomerStonefield();
+            npc_HomerStonefield_Garr();
 
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance
@@ -91,6 +91,8 @@ namespace MS { namespace Garrison
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
             virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
+            virtual bool HandleGossipActions(Player* p_Player, Creature* p_Creature, uint32 p_QuestID, uint32 p_Action);
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance

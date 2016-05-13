@@ -18,17 +18,12 @@
 
 #ifndef TRINITYSERVER_MOVESPLINEFLAG_H
 #define TRINITYSERVER_MOVESPLINEFLAG_H
-#include "MovementTypedefs.h"
 
-#include <string>
+#include "MovementTypedefs.h"
 
 namespace Movement
 {
-#if defined( __GNUC__ )
-#pragma pack(1)
-#else
-#pragma pack(push,1)
-#endif
+#pragma pack(push, 1)
 
     class MoveSplineFlag
     {
@@ -71,7 +66,7 @@ namespace Movement
             Mask_Final_Facing   = Final_Point | Final_Target | Final_Angle,
             // animation ids stored here, see AnimType enum, used with Animation flag
             Mask_Animations     = 0x7,
-            // flags that shouldn't be appended into SMSG_MONSTER_MOVE packet, should be more probably
+            // flags that shouldn't be appended into SMSG_MONSTER_MOVE\SMSG_MONSTER_MOVE_TRANSPORT packet, should be more probably
             Mask_No_Monster_Move = Mask_Final_Facing | Mask_Animations | Done,
             // Unused, not suported flags
             Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown0|Unknown1|Unknown2|Unknown3|Unknown4|Unknown5|Unknown6|Unknown7
@@ -86,9 +81,9 @@ namespace Movement
 
         // Constant interface
 
-        bool isSmooth() const { return raw() & Catmullrom; }
+        bool isSmooth() const { return (raw() & Catmullrom) != 0; }
         bool isLinear() const { return !isSmooth(); }
-        bool isFacing() const { return raw() & Mask_Final_Facing; }
+        bool isFacing() const { return (raw() & Mask_Final_Facing) != 0; }
 
         uint8 getAnimationId() const { return animId; }
         bool hasAllFlags(uint32 f) const { return (raw() & f) == f; }
@@ -104,8 +99,9 @@ namespace Movement
 
         void EnableAnimation(uint8 anim) { raw() = (raw() & ~(Mask_Animations | Falling | Parabolic | FallingSlow)) | Animation | (anim & Mask_Animations); }
         void EnableParabolic() { raw() = (raw() & ~(Mask_Animations | Falling | Animation | FallingSlow)) | Parabolic; }
-        void EnableFalling() { raw() = (raw() & ~(Mask_Animations | Parabolic | Animation)) | Falling; }
-        void EnableCatmullRom() { raw() = (raw() & ~SmoothGroundPath) | Catmullrom | UncompressedPath; }
+        void EnableFlying() { raw() = (raw() & ~(Falling)) | Flying; }
+        void EnableFalling() { raw() = (raw() & ~(Mask_Animations | Parabolic | Animation | Flying)) | Falling; }
+        void EnableCatmullRom() { raw() = (raw() & ~SmoothGroundPath) | Catmullrom; }
         void EnableFacingPoint() { raw() = (raw() & ~Mask_Final_Facing) | Final_Point; }
         void EnableFacingAngle() { raw() = (raw() & ~Mask_Final_Facing) | Final_Angle; }
         void EnableFacingTarget() { raw() = (raw() & ~Mask_Final_Facing) | Final_Target; }
@@ -143,11 +139,7 @@ namespace Movement
         bool unknown6            : 1;
         bool unknown7            : 1;
     };
-#if defined( __GNUC__ )
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 }
 
 #endif // TRINITYSERVER_MOVESPLINEFLAG_H

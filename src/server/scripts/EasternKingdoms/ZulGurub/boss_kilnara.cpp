@@ -190,7 +190,7 @@ class boss_kilnara : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(bTwoPhase? SAY_KILL_FERAL: SAY_KILL);
             }
 
@@ -426,7 +426,7 @@ class spell_kilnara_wave_of_agony_start: public SpellScriptLoader
         {
             PrepareAuraScript(spell_kilnara_wave_of_agony_start_AuraScript);
 
-            void PeriodicTick(constAuraEffectPtr aurEff)
+            void PeriodicTick(AuraEffect const* aurEff)
             {
                 if (!GetUnitOwner())
                     return;
@@ -497,7 +497,7 @@ class spell_kilnara_rat_lure: public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kilnara_rat_lure_SpellScript::FilterTargets, EFFECT_0,TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kilnara_rat_lure_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_kilnara_rat_lure_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };

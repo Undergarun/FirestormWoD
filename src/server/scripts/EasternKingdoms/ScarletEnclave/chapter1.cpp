@@ -500,7 +500,7 @@ public:
                         EnterEvadeMode();
                     return;
                 }
-                else if (me->getVictim() && me->getVictim()->GetTypeId() == TYPEID_PLAYER && me->getVictim()->HealthBelowPct(10))
+                else if (me->getVictim() && me->getVictim()->IsPlayer() && me->getVictim()->HealthBelowPct(10))
                 {
                     me->getVictim()->CastSpell(me->getVictim(), 7267, true); // beg
                     me->getVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
@@ -660,7 +660,7 @@ public:
             {
                 if (Unit* charmer = who->GetCharmer())
                 {
-                    if (charmer->GetTypeId() == TYPEID_PLAYER)
+                    if (charmer->IsPlayer())
                     {
                         // for quest Into the Realm of Shadows(12687)
                         if (me->GetEntry() == 28788 && CAST_PLR(charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE)
@@ -723,7 +723,7 @@ public:
             if (!deathcharger)
                 return;
 
-            if (killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->IsVehicle())
+            if (killer->IsPlayer() && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->IsVehicle())
             {
                 deathcharger->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 deathcharger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -762,7 +762,7 @@ public:
             {
                 if (Unit* owner = who->GetOwner())
                 {
-                    if (owner->GetTypeId() == TYPEID_PLAYER)
+                    if (owner->IsPlayer())
                     {
                         if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
                             CAST_CRE(who)->CastSpell(owner, 52517, true);
@@ -1005,8 +1005,7 @@ public:
                 case 1:
                     if (Unit* car = Unit::GetCreature(*me, carGUID))
                     {
-                        me->SetInFront(car);
-                        me->SendMovementFlagUpdate();
+                        me->SetFacingToObject(car);
                     }
                     me->MonsterSay(SAY_SCARLET_MINER1, LANG_UNIVERSAL, 0);
                     SetRun(true);
@@ -1016,8 +1015,7 @@ public:
                 case 17:
                     if (Unit* car = Unit::GetCreature(*me, carGUID))
                     {
-                        me->SetInFront(car);
-                        me->SendMovementFlagUpdate();
+                        me->SetFacingToObject(car);
                         car->Relocate(car->GetPositionX(), car->GetPositionY(), me->GetPositionZ() + 1);
                         car->StopMoving();
                         car->RemoveAura(SPELL_CART_DRAG);

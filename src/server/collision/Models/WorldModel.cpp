@@ -583,4 +583,23 @@ namespace VMAP
         fclose(rf);
         return result;
     }
+
+    void WorldModel::getGroupModels(std::vector<GroupModel>& outGroupModels)
+    {
+        outGroupModels = groupModels;
+    }
+
+    void GroupModel::getMeshData(std::vector<G3D::Vector3>& outVertices, std::vector<MeshTriangle>& outTriangles, WmoLiquid*& liquid)
+    {
+        outVertices = vertices;
+        outTriangles = triangles;
+        liquid = iLiquid;
+    }
+
+    void WmoLiquid::getPosInfo(uint32 &tilesX, uint32 &tilesY, G3D::Vector3 &corner) const
+    {
+        tilesX = iTilesX;
+        tilesY = iTilesY;
+        corner = iCorner;
+    }
 }

@@ -166,7 +166,7 @@ class boss_lorewalker_stonestep : public CreatureScript
             void MoveInLineOfSight(Unit* who)
             {
                 // If Lorewalker stonestep sees a player, launch the speech.
-                if (!event_go && who->GetTypeId() == TYPEID_PLAYER)
+                if (!event_go && who->IsPlayer())
                 {
                     event_go = true;
                     events.ScheduleEvent(EVENT_INTRO_0, 500);

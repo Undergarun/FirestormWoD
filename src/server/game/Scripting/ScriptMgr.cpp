@@ -56,7 +56,7 @@ void DoScriptText(int32 p_ItemTextEntry, WorldObject* p_Source, Unit* p_Target)
 
     if (l_TextDatas->uiEmote)
     {
-        if (p_Source->GetTypeId() == TYPEID_UNIT || p_Source->GetTypeId() == TYPEID_PLAYER)
+        if (p_Source->GetTypeId() == TYPEID_UNIT || p_Source->IsPlayer())
             ((Unit*)p_Source)->HandleEmoteCommand(l_TextDatas->uiEmote);
         else
             sLog->outError(LOG_FILTER_TSCR, "DoScriptText entry %i tried to process emote for invalid TypeId (%u).", p_ItemTextEntry, p_Source->GetTypeId());
@@ -78,7 +78,7 @@ void DoScriptText(int32 p_ItemTextEntry, WorldObject* p_Source, Unit* p_Target)
             break;
         case CHAT_TYPE_WHISPER:
         {
-            if (p_Target && p_Target->GetTypeId() == TYPEID_PLAYER)
+            if (p_Target && p_Target->IsPlayer())
                 p_Source->MonsterWhisper(p_ItemTextEntry, p_Target->GetGUID());
             else
                 sLog->outError(LOG_FILTER_TSCR, "DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", p_ItemTextEntry);
@@ -87,7 +87,7 @@ void DoScriptText(int32 p_ItemTextEntry, WorldObject* p_Source, Unit* p_Target)
         }
         case CHAT_TYPE_BOSS_WHISPER:
         {
-            if (p_Target && p_Target->GetTypeId() == TYPEID_PLAYER)
+            if (p_Target && p_Target->IsPlayer())
                 p_Source->MonsterWhisper(p_ItemTextEntry, p_Target->GetGUID(), true);
             else
                 sLog->outError(LOG_FILTER_TSCR, "DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", p_ItemTextEntry);
@@ -462,7 +462,7 @@ bool ScriptMgr::IsScriptScheduled() const
 /// Called when the area trigger is activated by a player.
 /// @p_Player  : Player who trigger this area trigger
 /// @p_Trigger : Area Trigger 
-bool ScriptMgr::OnAreaTrigger(Player * p_Player, const AreaTriggerEntry * p_Trigger)
+bool ScriptMgr::OnAreaTrigger(Player* p_Player, const AreaTriggerEntry* p_Trigger)
 {
     ASSERT(p_Player);
     ASSERT(p_Trigger);
@@ -519,7 +519,7 @@ void ScriptMgr::InitScriptEntity(AreaTrigger* p_AreaTrigger)
 
 /// Proc when AreaTrigger is created.
 /// @p_AreaTrigger : AreaTrigger instance
-void ScriptMgr::OnCreateAreaTriggerEntity(AreaTrigger * p_AreaTrigger)
+void ScriptMgr::OnCreateAreaTriggerEntity(AreaTrigger* p_AreaTrigger)
 {
     ASSERT(p_AreaTrigger);
     
@@ -550,7 +550,7 @@ void ScriptMgr::OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Ca
 /// Proc when AreaTrigger is updated.
 /// @p_AreaTrigger : AreaTrigger instance
 /// @p_Time        : Diff since last update
-void ScriptMgr::OnUpdateAreaTriggerEntity(AreaTrigger * p_AreaTrigger, uint32 p_Time)
+void ScriptMgr::OnUpdateAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time)
 {
     ASSERT(p_AreaTrigger);
 
@@ -563,7 +563,7 @@ void ScriptMgr::OnUpdateAreaTriggerEntity(AreaTrigger * p_AreaTrigger, uint32 p_
 /// Proc when AreaTrigger is removed.
 /// @p_AreaTrigger : AreaTrigger instance
 /// @p_Time        : Diff since last update
-void ScriptMgr::OnRemoveAreaTriggerEntity(AreaTrigger * p_AreaTrigger, uint32 p_Time)
+void ScriptMgr::OnRemoveAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time)
 {
     ASSERT(p_AreaTrigger);
 
@@ -585,12 +585,20 @@ void ScriptMgr::OnDestinationReached(AreaTrigger* p_AreaTrigger)
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+
+/// Get Creature script by ScriptID
+/// @p_ScriptID : ScriptID from the creature template
+CreatureScript* ScriptMgr::GetCreatureScriptByID(uint32 p_ScriptID)
+{
+    return ScriptRegistry<CreatureScript>::GetScriptById(p_ScriptID);
+}
+
 /// Called when a dummy spell effect is triggered on the creature.
 /// @p_Caster      : Spell Caster
 /// @p_SpellID     : Casted spell ID
 /// @p_EffectIndex : Dummy effect index
 /// @p_Target      : Spell target
-bool ScriptMgr::OnDummyEffect(Unit * p_Caster, uint32 p_SpellID, SpellEffIndex p_EffectIndex, Creature * p_Target)
+bool ScriptMgr::OnDummyEffect(Unit* p_Caster, uint32 p_SpellID, SpellEffIndex p_EffectIndex, Creature* p_Target)
 {
     ASSERT(p_Caster);
     ASSERT(p_Target);
@@ -602,7 +610,7 @@ bool ScriptMgr::OnDummyEffect(Unit * p_Caster, uint32 p_SpellID, SpellEffIndex p
 /// Called when a player opens a gossip dialog with the creature.
 /// @p_Player   : Source player instance
 /// @p_Creature : Target creature instance
-bool ScriptMgr::OnGossipHello(Player * p_Player, Creature * p_Creature)
+bool ScriptMgr::OnGossipHello(Player* p_Player, Creature* p_Creature)
 {
     ASSERT(p_Player);
     ASSERT(p_Creature);
@@ -617,7 +625,7 @@ bool ScriptMgr::OnGossipHello(Player * p_Player, Creature * p_Creature)
 /// @p_Creature : Target creature instance
 /// @p_Sender   : Sender menu
 /// @p_Action   : Action
-bool ScriptMgr::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
+bool ScriptMgr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
 {
     ASSERT(p_Player);
     ASSERT(p_Creature);
@@ -632,7 +640,7 @@ bool ScriptMgr::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 
 /// @p_Sender   : Sender menu
 /// @p_Action   : Action
 /// @p_Code     : Player input code
-bool ScriptMgr::OnGossipSelectCode(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action, const char * p_Code)
+bool ScriptMgr::OnGossipSelectCode(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action, const char* p_Code)
 {
     ASSERT(p_Player);
     ASSERT(p_Creature);
@@ -646,7 +654,7 @@ bool ScriptMgr::OnGossipSelectCode(Player * p_Player, Creature * p_Creature, uin
 /// @p_Player   : Source player instance
 /// @p_Creature : Target creature instance
 /// @p_Quest    : Accepted quest
-bool ScriptMgr::OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest)
+bool ScriptMgr::OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
 {
     ASSERT(p_Player);
     ASSERT(p_Creature);
@@ -661,7 +669,7 @@ bool ScriptMgr::OnQuestAccept(Player * p_Player, Creature * p_Creature, const Qu
 /// @p_Player   : Source player instance
 /// @p_Creature : Target creature instance
 /// @p_Quest    : Selected quest
-bool ScriptMgr::OnQuestSelect(Player * p_Player, Creature * p_Creature, const Quest * p_Quest)
+bool ScriptMgr::OnQuestSelect(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
 {
     ASSERT(p_Player);
     ASSERT(p_Creature);
@@ -676,7 +684,7 @@ bool ScriptMgr::OnQuestSelect(Player * p_Player, Creature * p_Creature, const Qu
 /// @p_Player   : Source player instance
 /// @p_Creature : Target creature instance
 /// @p_Quest    : Completed quest
-bool ScriptMgr::OnQuestComplete(Player * p_Player, Creature * p_Creature, const Quest * p_Quest)
+bool ScriptMgr::OnQuestComplete(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
 {
     ASSERT(p_Player);
     ASSERT(p_Creature);
@@ -692,7 +700,7 @@ bool ScriptMgr::OnQuestComplete(Player * p_Player, Creature * p_Creature, const 
 /// @p_Creature : Target creature instance
 /// @p_Quest    : Reward quest
 /// @p_Option   : Reward
-bool ScriptMgr::OnQuestReward(Player * p_Player, Creature * p_Creature, const Quest * p_Quest, uint32 p_Option)
+bool ScriptMgr::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
 {
     ASSERT(p_Player);
     ASSERT(p_Creature);
@@ -706,7 +714,7 @@ bool ScriptMgr::OnQuestReward(Player * p_Player, Creature * p_Creature, const Qu
 /// Called when the dialog status between a player and the creature is requested.
 /// @p_Player   : Source player instance
 /// @p_Creature : Target creature instance
-uint32 ScriptMgr::GetDialogStatus(Player * p_Player, Creature * p_Creature)
+uint32 ScriptMgr::GetDialogStatus(Player* p_Player, Creature* p_Creature)
 {
     ASSERT(p_Player);
     ASSERT(p_Creature);
@@ -732,7 +740,7 @@ void ScriptMgr::OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32
 
 /// Called when a CreatureAI object is needed for the creature.
 /// @p_Creature : Target creature instance
-CreatureAI * ScriptMgr::GetCreatureAI(Creature * p_Creature)
+CreatureAI* ScriptMgr::GetCreatureAI(Creature* p_Creature)
 {
     ASSERT(p_Creature);
 
@@ -750,7 +758,7 @@ CreatureAI * ScriptMgr::GetCreatureAI(Creature * p_Creature)
 /// On update
 /// @p_Object : Updated object instance
 /// @p_Diff   : Time since last update
-void ScriptMgr::OnCreatureUpdate(Creature * p_Object, uint32 p_Diff)
+void ScriptMgr::OnCreatureUpdate(Creature* p_Object, uint32 p_Diff)
 {
     ASSERT(p_Object);
 
@@ -765,7 +773,7 @@ void ScriptMgr::OnCreatureUpdate(Creature * p_Object, uint32 p_Diff)
 /// @p_SpellID     : Casted spell ID
 /// @p_EffectIndex : Dummy effect index
 /// @p_Target      : Spell target
-bool ScriptMgr::OnDummyEffect(Unit * p_Caster, uint32 p_SpellID, SpellEffIndex p_EffectIndex, GameObject * p_Target)
+bool ScriptMgr::OnDummyEffect(Unit* p_Caster, uint32 p_SpellID, SpellEffIndex p_EffectIndex, GameObject* p_Target)
 {
     ASSERT(p_Caster);
     ASSERT(p_Target);
@@ -777,7 +785,7 @@ bool ScriptMgr::OnDummyEffect(Unit * p_Caster, uint32 p_SpellID, SpellEffIndex p
 /// Called when a player opens a gossip dialog with the GameObject.
 /// @p_Player     : Source player instance
 /// @p_GameObject : Target GameObject instance
-bool ScriptMgr::OnGossipHello(Player * p_Player, GameObject * p_GameObject)
+bool ScriptMgr::OnGossipHello(Player* p_Player, GameObject* p_GameObject)
 {
     ASSERT(p_Player);
     ASSERT(p_GameObject);
@@ -792,7 +800,7 @@ bool ScriptMgr::OnGossipHello(Player * p_Player, GameObject * p_GameObject)
 /// @p_GameObject : Target GameObject instance
 /// @p_Sender     : Sender menu
 /// @p_Action     : Action
-bool ScriptMgr::OnGossipSelect(Player * p_Player, GameObject * p_GameObject, uint32 p_Sender, uint32 p_Action)
+bool ScriptMgr::OnGossipSelect(Player* p_Player, GameObject* p_GameObject, uint32 p_Sender, uint32 p_Action)
 {
     ASSERT(p_Player);
     ASSERT(p_GameObject);
@@ -807,7 +815,7 @@ bool ScriptMgr::OnGossipSelect(Player * p_Player, GameObject * p_GameObject, uin
 /// @p_Sender     : Sender menu
 /// @p_Action     : Action
 /// @p_Code       : Player input code
-bool ScriptMgr::OnGossipSelectCode(Player * p_Player, GameObject * p_GameObject, uint32 p_Sender, uint32 p_Action, const char * p_Code)
+bool ScriptMgr::OnGossipSelectCode(Player* p_Player, GameObject* p_GameObject, uint32 p_Sender, uint32 p_Action, const char* p_Code)
 {
     ASSERT(p_Player);
     ASSERT(p_GameObject);
@@ -821,7 +829,7 @@ bool ScriptMgr::OnGossipSelectCode(Player * p_Player, GameObject * p_GameObject,
 /// @p_Player     : Source player instance
 /// @p_GameObject : Target GameObject instance
 /// @p_Quest      : Accepted quest
-bool ScriptMgr::OnQuestAccept(Player * p_Player, GameObject * p_GameObject, const Quest * p_Quest)
+bool ScriptMgr::OnQuestAccept(Player* p_Player, GameObject* p_GameObject, const Quest* p_Quest)
 {
     ASSERT(p_Player);
     ASSERT(p_GameObject);
@@ -837,7 +845,7 @@ bool ScriptMgr::OnQuestAccept(Player * p_Player, GameObject * p_GameObject, cons
 /// @p_GameObject : Target GameObject instance
 /// @p_Quest      : Reward quest
 /// @p_Option     : Reward
-bool ScriptMgr::OnQuestReward(Player * p_Player, GameObject * p_GameObject, Quest const * p_Quest, uint32 p_Option)
+bool ScriptMgr::OnQuestReward(Player* p_Player, GameObject* p_GameObject, Quest const* p_Quest, uint32 p_Option)
 {
     ASSERT(p_Player);
     ASSERT(p_GameObject);
@@ -851,7 +859,7 @@ bool ScriptMgr::OnQuestReward(Player * p_Player, GameObject * p_GameObject, Ques
 /// Called when the dialog status between a player and the GameObject is requested.
 /// @p_Player     : Source player instance
 /// @p_GameObject : Target GameObject instance
-uint32 ScriptMgr::GetDialogStatus(Player * p_Player, GameObject * p_GameObject)
+uint32 ScriptMgr::GetDialogStatus(Player* p_Player, GameObject* p_GameObject)
 {
     ASSERT(p_Player);
     ASSERT(p_GameObject);
@@ -865,7 +873,7 @@ uint32 ScriptMgr::GetDialogStatus(Player * p_Player, GameObject * p_GameObject)
 // Called when the game object is destroyed (destructible buildings only).
 /// @p_GameObject : Destroyed GameObject
 /// @p_Player     : Destroyer player instance
-void ScriptMgr::OnGameObjectDestroyed(GameObject * p_GameObject, Player* player)
+void ScriptMgr::OnGameObjectDestroyed(GameObject* p_GameObject, Player* player)
 {
     ASSERT(p_GameObject);
 
@@ -876,7 +884,7 @@ void ScriptMgr::OnGameObjectDestroyed(GameObject * p_GameObject, Player* player)
 /// Called when the game object is damaged (destructible buildings only).
 /// @p_GameObject : Damaged GameObject
 /// @p_Player     : Damager player instance
-void ScriptMgr::OnGameObjectDamaged(GameObject * p_GameObject, Player * p_Player)
+void ScriptMgr::OnGameObjectDamaged(GameObject* p_GameObject, Player* p_Player)
 {
     ASSERT(p_GameObject);
 
@@ -888,7 +896,7 @@ void ScriptMgr::OnGameObjectDamaged(GameObject * p_GameObject, Player * p_Player
 /// @p_GameObject : Looted GameObject
 /// @p_State      : Loot state
 /// @p_Unit       : Unit
-void ScriptMgr::OnGameObjectLootStateChanged(GameObject * p_GameObject, uint32 p_State, Unit * p_Unit)
+void ScriptMgr::OnGameObjectLootStateChanged(GameObject* p_GameObject, uint32 p_State, Unit* p_Unit)
 {
     ASSERT(p_GameObject);
 
@@ -899,7 +907,7 @@ void ScriptMgr::OnGameObjectLootStateChanged(GameObject * p_GameObject, uint32 p
 /// Called when the game object state is changed.
 /// @p_GameObject : Changed GameObject
 /// @p_State      : GameObject state
-void ScriptMgr::OnGameObjectStateChanged(GameObject * p_GameObject, uint32 p_State)
+void ScriptMgr::OnGameObjectStateChanged(GameObject* p_GameObject, uint32 p_State)
 {
     ASSERT(p_GameObject);
 
@@ -909,7 +917,7 @@ void ScriptMgr::OnGameObjectStateChanged(GameObject * p_GameObject, uint32 p_Sta
 
 /// Called when server want to send elevator update, by default all GameObject type transport are elevator
 /// @p_GameObject : GameObject instance
-bool ScriptMgr::OnGameObjectElevatorCheck(const GameObject * p_GameObject) const
+bool ScriptMgr::OnGameObjectElevatorCheck(const GameObject* p_GameObject) const
 {
     ASSERT(p_GameObject);
 
@@ -927,7 +935,7 @@ bool ScriptMgr::OnGameObjectSpellCasterUse(GameObject const* p_GameObject, Playe
 
 /// Called when a GameObjectAI object is needed for the GameObject.
 /// @p_GameObject : GameObject instance
-GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject * p_GameObject)
+GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* p_GameObject)
 {
     ASSERT(p_GameObject);
 
@@ -938,7 +946,7 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject * p_GameObject)
 /// On update
 /// @p_Object : Updated object instance
 /// @p_Diff   : Time since last update
-void ScriptMgr::OnGameObjectUpdate(GameObject * p_Object, uint32 p_Diff)
+void ScriptMgr::OnGameObjectUpdate(GameObject* p_Object, uint32 p_Diff)
 {
     ASSERT(p_Object);
 
@@ -951,7 +959,7 @@ void ScriptMgr::OnGameObjectUpdate(GameObject * p_Object, uint32 p_Diff)
 /// Called when a member is added to a group.
 /// @p_Group : Group Instance
 /// @p_GUID  : Added member GUID
-void ScriptMgr::OnGroupAddMember(Group * p_Group, uint64 p_GUID)
+void ScriptMgr::OnGroupAddMember(Group* p_Group, uint64 p_GUID)
 {
     ASSERT(p_Group);
     FOREACH_SCRIPT(GroupScript)->OnAddMember(p_Group, p_GUID);
@@ -972,7 +980,7 @@ void ScriptMgr::OnGroupInviteMember(Group* p_Group, uint64 p_GUID)
 /// @p_Method     : Remove method
 /// @p_KickerGUID : Kicker GUID
 /// @p_Reason     : Kick reason
-void ScriptMgr::OnGroupRemoveMember(Group * p_Group, uint64 p_GUID, RemoveMethod p_Method, uint64 p_KickerGUID, const char * p_Reason)
+void ScriptMgr::OnGroupRemoveMember(Group* p_Group, uint64 p_GUID, RemoveMethod p_Method, uint64 p_KickerGUID, const char* p_Reason)
 {
     ASSERT(p_Group);
     FOREACH_SCRIPT(GroupScript)->OnRemoveMember(p_Group, p_GUID, p_Method, p_KickerGUID, p_Reason);
@@ -982,7 +990,7 @@ void ScriptMgr::OnGroupRemoveMember(Group * p_Group, uint64 p_GUID, RemoveMethod
 /// @p_Group         : Group Instance
 /// @p_NewLeaderGUID : New group leader GUID
 /// @p_OldLeaderGUID : Old group leader GUID
-void ScriptMgr::OnGroupChangeLeader(Group * p_Group, uint64 p_NewLeaderGUID, uint64 p_OldLeaderGUID)
+void ScriptMgr::OnGroupChangeLeader(Group* p_Group, uint64 p_NewLeaderGUID, uint64 p_OldLeaderGUID)
 {
     ASSERT(p_Group);
     FOREACH_SCRIPT(GroupScript)->OnChangeLeader(p_Group, p_NewLeaderGUID, p_OldLeaderGUID);
@@ -990,7 +998,7 @@ void ScriptMgr::OnGroupChangeLeader(Group * p_Group, uint64 p_NewLeaderGUID, uin
 
 /// Called when a group is disbanded.
 /// @p_Group : Group Instance
-void ScriptMgr::OnGroupDisband(Group * p_Group)
+void ScriptMgr::OnGroupDisband(Group* p_Group)
 {
     ASSERT(p_Group);
     FOREACH_SCRIPT(GroupScript)->OnDisband(p_Group);
@@ -1002,7 +1010,7 @@ void ScriptMgr::OnGroupDisband(Group * p_Group)
 /// @p_Guild  : Guild instance
 /// @p_Player : Added player
 /// @p_Rank   : Added player destination rank
-void ScriptMgr::OnGuildAddMember(Guild * p_Guild, Player * p_Player, uint8 & p_Rank)
+void ScriptMgr::OnGuildAddMember(Guild* p_Guild, Player* p_Player, uint8 & p_Rank)
 {
     FOREACH_SCRIPT(GuildScript)->OnAddMember(p_Guild, p_Player, p_Rank);
 }
@@ -1012,7 +1020,7 @@ void ScriptMgr::OnGuildAddMember(Guild * p_Guild, Player * p_Player, uint8 & p_R
 /// @p_Player       : Removed player
 /// @p_IsDisbanding : Player is removed from a guild disbanding
 /// @p_IsKicked     : Is that removed player kicked
-void ScriptMgr::OnGuildRemoveMember(Guild * p_Guild, Player * p_Player, bool p_IsDisbanding, bool p_IsKicked)
+void ScriptMgr::OnGuildRemoveMember(Guild* p_Guild, Player* p_Player, bool p_IsDisbanding, bool p_IsKicked)
 {
     FOREACH_SCRIPT(GuildScript)->OnRemoveMember(p_Guild, p_Player, p_IsDisbanding, p_IsKicked);
 }
@@ -1020,7 +1028,7 @@ void ScriptMgr::OnGuildRemoveMember(Guild * p_Guild, Player * p_Player, bool p_I
 /// Called when the guild MOTD (message of the day) changes.
 /// @p_Guild   : Guild instance
 /// @p_NewMotd : New message of the day
-void ScriptMgr::OnGuildMOTDChanged(Guild * p_Guild, const std::string & p_NewMotd)
+void ScriptMgr::OnGuildMOTDChanged(Guild* p_Guild, const std::string & p_NewMotd)
 {
     FOREACH_SCRIPT(GuildScript)->OnMOTDChanged(p_Guild, p_NewMotd);
 }
@@ -1028,7 +1036,7 @@ void ScriptMgr::OnGuildMOTDChanged(Guild * p_Guild, const std::string & p_NewMot
 /// Called when the guild info is altered.
 /// @p_Guild   : Guild instance
 /// @p_NewInfo : New guild info
-void ScriptMgr::OnGuildInfoChanged(Guild * p_Guild, const std::string & p_NewInfo)
+void ScriptMgr::OnGuildInfoChanged(Guild* p_Guild, const std::string & p_NewInfo)
 {
     FOREACH_SCRIPT(GuildScript)->OnInfoChanged(p_Guild, p_NewInfo);
 }
@@ -1037,14 +1045,14 @@ void ScriptMgr::OnGuildInfoChanged(Guild * p_Guild, const std::string & p_NewInf
 /// @p_Guild  : Guild instance
 /// @p_Leader : Guild leader
 /// @p_Name   : Guild Name
-void ScriptMgr::OnGuildCreate(Guild * p_Guild, Player * p_Leader, const std::string & p_Name)
+void ScriptMgr::OnGuildCreate(Guild* p_Guild, Player* p_Leader, const std::string & p_Name)
 {
     FOREACH_SCRIPT(GuildScript)->OnCreate(p_Guild, p_Leader, p_Name);
 }
 
 /// Called when a guild is disbanded.
 /// @p_Guild : Guild instance
-void ScriptMgr::OnGuildDisband(Guild * p_Guild)
+void ScriptMgr::OnGuildDisband(Guild* p_Guild)
 {
     FOREACH_SCRIPT(GuildScript)->OnDisband(p_Guild);
 }
@@ -1054,7 +1062,7 @@ void ScriptMgr::OnGuildDisband(Guild * p_Guild)
 /// @p_Player   : Withdrawer player
 /// @p_Amount   : Dest gold amount
 /// @p_IsRepair : Is repair
-void ScriptMgr::OnGuildMemberWitdrawMoney(Guild * p_Guild, Player * p_Player, uint64 & p_Amount, bool p_IsRepair)
+void ScriptMgr::OnGuildMemberWitdrawMoney(Guild* p_Guild, Player* p_Player, uint64 & p_Amount, bool p_IsRepair)
 {
     FOREACH_SCRIPT(GuildScript)->OnMemberWitdrawMoney(p_Guild, p_Player, p_Amount, p_IsRepair);
 }
@@ -1063,7 +1071,7 @@ void ScriptMgr::OnGuildMemberWitdrawMoney(Guild * p_Guild, Player * p_Player, ui
 /// @p_Guild  : Guild instance
 /// @p_Player : Depositor player
 /// @p_Amount : Dest gold amount
-void ScriptMgr::OnGuildMemberDepositMoney(Guild * p_Guild, Player * p_Player, uint64 & p_Amount)
+void ScriptMgr::OnGuildMemberDepositMoney(Guild* p_Guild, Player* p_Player, uint64 & p_Amount)
 {
     FOREACH_SCRIPT(GuildScript)->OnMemberDepositMoney(p_Guild, p_Player, p_Amount);
 }
@@ -1078,7 +1086,7 @@ void ScriptMgr::OnGuildMemberDepositMoney(Guild * p_Guild, Player * p_Player, ui
 /// @p_IsDestBank    : Is to guild bank
 /// @p_DestContainer : Destination Bag
 /// @p_DestSlotID    : Destination Bag slot ID
-void ScriptMgr::OnGuildItemMove(Guild * p_Guild, Player * p_Player, Item * p_Item, bool p_IsSrcBank, uint8 p_SrcContainer, uint8 p_SrcSlotID, bool p_IsDestBank, uint8 p_DestContainer, uint8 p_DestSlotID)
+void ScriptMgr::OnGuildItemMove(Guild* p_Guild, Player* p_Player, Item* p_Item, bool p_IsSrcBank, uint8 p_SrcContainer, uint8 p_SrcSlotID, bool p_IsDestBank, uint8 p_DestContainer, uint8 p_DestSlotID)
 {
     FOREACH_SCRIPT(GuildScript)->OnItemMove(p_Guild, p_Player, p_Item, p_IsSrcBank, p_SrcContainer, p_SrcSlotID, p_IsDestBank, p_DestContainer, p_DestSlotID);
 }
@@ -1089,7 +1097,7 @@ void ScriptMgr::OnGuildItemMove(Guild * p_Guild, Player * p_Player, Item * p_Ite
 /// @p_PlayerGUID1 : Player GUID 1
 /// @p_PlayerGUID2 : Player GUID 2
 /// @p_NewRank     : New Rank (contextual)
-void ScriptMgr::OnGuildEvent(Guild * p_Guild, uint8 p_EventType, uint32 p_PlayerGUID1, uint32 p_PlayerGUID2, uint8 p_NewRank)
+void ScriptMgr::OnGuildEvent(Guild* p_Guild, uint8 p_EventType, uint32 p_PlayerGUID1, uint32 p_PlayerGUID2, uint8 p_NewRank)
 {
     FOREACH_SCRIPT(GuildScript)->OnEvent(p_Guild, p_EventType, p_PlayerGUID1, p_PlayerGUID2, p_NewRank);
 }
@@ -1101,7 +1109,7 @@ void ScriptMgr::OnGuildEvent(Guild * p_Guild, uint8 p_EventType, uint32 p_Player
 /// @p_ItemOrMoney    : Item entry or gold amount
 /// @p_ItemStackCount : Item stack count
 /// @p_DestTabID      : Destination tab ID
-void ScriptMgr::OnGuildBankEvent(Guild * p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint32 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID)
+void ScriptMgr::OnGuildBankEvent(Guild* p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint64 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID)
 {
     FOREACH_SCRIPT(GuildScript)->OnBankEvent(p_Guild, p_EventType, p_TabID, p_PlayerGUID, p_ItemOrMoney, p_ItemStackCount, p_DestTabID);
 }
@@ -1114,7 +1122,7 @@ void ScriptMgr::OnGuildBankEvent(Guild * p_Guild, uint8 p_EventType, uint8 p_Tab
 /// @p_SpellID     : Dummy effect origin spell ID
 /// @p_EffectIndex : Dummy effect index
 /// @p_Target      : Spell target
-bool ScriptMgr::OnDummyEffect(Unit * p_Caster, uint32 p_SpellID, SpellEffIndex p_EffectIndex, Item * p_Target)
+bool ScriptMgr::OnDummyEffect(Unit* p_Caster, uint32 p_SpellID, SpellEffIndex p_EffectIndex, Item* p_Target)
 {
     ASSERT(p_Caster);
     ASSERT(p_Target);
@@ -1127,7 +1135,7 @@ bool ScriptMgr::OnDummyEffect(Unit * p_Caster, uint32 p_SpellID, SpellEffIndex p
 /// @p_Player : Player who accepted quest from this item
 /// @p_Item   : Item quest owner instance
 /// @p_Quest  : Accepted quest instance
-bool ScriptMgr::OnQuestAccept(Player * p_Player, Item * p_Item, const Quest * p_Quest)
+bool ScriptMgr::OnQuestAccept(Player* p_Player, Item* p_Item, const Quest* p_Quest)
 {
     ASSERT(p_Player);
     ASSERT(p_Item);
@@ -1143,7 +1151,7 @@ bool ScriptMgr::OnQuestAccept(Player * p_Player, Item * p_Item, const Quest * p_
 /// @p_Player           : Player who use this item
 /// @p_Item             : Used Item instance
 /// @p_SpellCastTargets : Item spell action targets
-bool ScriptMgr::OnItemUse(Player * p_Player, Item * p_Item, const SpellCastTargets & p_SpellCastTargets)
+bool ScriptMgr::OnItemUse(Player* p_Player, Item* p_Item, const SpellCastTargets& p_SpellCastTargets)
 {
     ASSERT(p_Player);
     ASSERT(p_Item);
@@ -1155,7 +1163,7 @@ bool ScriptMgr::OnItemUse(Player * p_Player, Item * p_Item, const SpellCastTarge
 /// Called when a player opnes the item
 /// @p_Player : The Player who has used this item
 /// @p_Item   : Used Item instance
-bool ScriptMgr::OnItemOpen(Player* p_Player, Item * p_Item)
+bool ScriptMgr::OnItemOpen(Player* p_Player, Item* p_Item)
 {
     ASSERT(p_Player);
     ASSERT(p_Item);
@@ -1167,7 +1175,7 @@ bool ScriptMgr::OnItemOpen(Player* p_Player, Item * p_Item)
 /// Called when the item expires (is destroyed).
 /// @p_Player       : Item destroyer player instance
 /// @p_ItemTemplate : Destroyed item template
-bool ScriptMgr::OnItemExpire(Player * p_Player, const ItemTemplate * p_ItemTemplate)
+bool ScriptMgr::OnItemExpire(Player* p_Player, const ItemTemplate* p_ItemTemplate)
 {
     ASSERT(p_Player);
     ASSERT(p_ItemTemplate);
@@ -1198,7 +1206,7 @@ bool ScriptMgr::OnItemExpire(Player * p_Player, const ItemTemplate * p_ItemTempl
 
 /// Called when the map is created.
 /// @p_Map : Created map instance
-void ScriptMgr::OnCreateMap(Map * p_Map)
+void ScriptMgr::OnCreateMap(Map* p_Map)
 {
     ASSERT(p_Map);
 
@@ -1217,7 +1225,7 @@ void ScriptMgr::OnCreateMap(Map * p_Map)
 
 /// Called just before the map is destroyed.
 /// @p_Map : Destroyed map instance
-void ScriptMgr::OnDestroyMap(Map * p_Map)
+void ScriptMgr::OnDestroyMap(Map* p_Map)
 {
     ASSERT(p_Map);
 
@@ -1239,7 +1247,7 @@ void ScriptMgr::OnDestroyMap(Map * p_Map)
 /// @p_GridMap : Grid map container
 /// @p_GridX   : Loaded grid X offset
 /// @p_GridY   : Loaded grid Y offset
-void ScriptMgr::OnLoadGridMap(Map * p_Map, GridMap * p_GridMap, uint32 p_GridX, uint32 p_GridY)
+void ScriptMgr::OnLoadGridMap(Map* p_Map, GridMap* p_GridMap, uint32 p_GridX, uint32 p_GridY)
 {
     ASSERT(p_Map);
     ASSERT(p_GridMap);
@@ -1262,7 +1270,7 @@ void ScriptMgr::OnLoadGridMap(Map * p_Map, GridMap * p_GridMap, uint32 p_GridX, 
 /// @p_GridMap : Grid map container
 /// @p_GridX   : Unloaded grid X offset
 /// @p_GridY   : Unloaded grid Y offset
-void ScriptMgr::OnUnloadGridMap(Map * p_Map, GridMap* p_GridMap, uint32 p_GridX, uint32 p_GridY)
+void ScriptMgr::OnUnloadGridMap(Map* p_Map, GridMap* p_GridMap, uint32 p_GridX, uint32 p_GridY)
 {
     ASSERT(p_Map);
     ASSERT(p_GridMap);
@@ -1283,7 +1291,7 @@ void ScriptMgr::OnUnloadGridMap(Map * p_Map, GridMap* p_GridMap, uint32 p_GridX,
 /// Called when a player enters the map.
 /// @p_Map    : Context map
 /// @p_Player : Entered player instance
-void ScriptMgr::OnPlayerEnterMap(Map * p_Map, Player * p_Player)
+void ScriptMgr::OnPlayerEnterMap(Map* p_Map, Player* p_Player)
 {
     ASSERT(p_Map);
     ASSERT(p_Player);
@@ -1304,7 +1312,7 @@ void ScriptMgr::OnPlayerEnterMap(Map * p_Map, Player * p_Player)
 /// Called when a player leaves the map.
 /// @p_Map    : Context map
 /// @p_Player : Leaved player instance
-void ScriptMgr::OnPlayerLeaveMap(Map * p_Map, Player * p_Player)
+void ScriptMgr::OnPlayerLeaveMap(Map* p_Map, Player* p_Player)
 {
     ASSERT(p_Map);
     ASSERT(p_Player);
@@ -1350,7 +1358,7 @@ void ScriptMgr::OnMapUpdate(Map* p_Map, uint32 p_Diff)
 
 /// Gets an InstanceScript object for this instance.
 /// @p_Map : Context map
-InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap * p_Map)
+InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap* p_Map)
 {
     ASSERT(p_Map);
 
@@ -1375,7 +1383,7 @@ void ScriptMgr::OnNetworkStop()
 
 /// Called when a remote socket establishes a connection to the server. Do not store the socket object.
 /// @p_Socket : Opened socket
-void ScriptMgr::OnSocketOpen(WorldSocket * p_Socket)
+void ScriptMgr::OnSocketOpen(WorldSocket* p_Socket)
 {
     ASSERT(p_Socket);
 
@@ -1385,7 +1393,7 @@ void ScriptMgr::OnSocketOpen(WorldSocket * p_Socket)
 /// Called when a socket is closed. Do not store the socket object, and do not rely on the connection being open; it is not.
 /// @p_Socket : Closed socket
 /// @p_WasNew : Was new ?
-void ScriptMgr::OnSocketClose(WorldSocket * p_Socket, bool p_WasNew)
+void ScriptMgr::OnSocketClose(WorldSocket* p_Socket, bool p_WasNew)
 {
     ASSERT(p_Socket);
 
@@ -1395,7 +1403,7 @@ void ScriptMgr::OnSocketClose(WorldSocket * p_Socket, bool p_WasNew)
 /// Called when a packet is sent to a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
 /// @p_Socket : Socket who send the packet
 /// @p_Packet : Sent packet
-void ScriptMgr::OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet, WorldSession* p_Session)
+void ScriptMgr::OnPacketReceive(WorldSocket* p_Socket, WorldPacket p_Packet, WorldSession* p_Session)
 {
     ASSERT(p_Socket);
 
@@ -1405,7 +1413,7 @@ void ScriptMgr::OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet, Wo
 /// Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
 /// @p_Socket : Socket who received the packet
 /// @p_Packet : Received packet
-void ScriptMgr::OnPacketSend(WorldSocket * p_Socket, WorldPacket p_Packet)
+void ScriptMgr::OnPacketSend(WorldSocket* p_Socket, WorldPacket p_Packet)
 {
     ASSERT(p_Socket);
 
@@ -1416,7 +1424,7 @@ void ScriptMgr::OnPacketSend(WorldSocket * p_Socket, WorldPacket p_Packet)
 /// This allows you to actually handle unknown packets (for whatever purpose).
 /// @p_Socket : Socket who received the packet
 /// @p_Packet : Received packet
-void ScriptMgr::OnUnknownPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet)
+void ScriptMgr::OnUnknownPacketReceive(WorldSocket* p_Socket, WorldPacket p_Packet)
 {
     ASSERT(p_Socket);
 
@@ -1443,7 +1451,7 @@ void ScriptMgr::OnConfigLoad(bool p_Reload)
 
 /// Called before the message of the day is changed.
 /// @p_NewMotd : New server message of the day
-void ScriptMgr::OnMotdChange(std::string & p_NewMotd)
+void ScriptMgr::OnMotdChange(std::string& p_NewMotd)
 {
     FOREACH_SCRIPT(WorldScript)->OnMotdChange(p_NewMotd);
 }
@@ -1502,7 +1510,7 @@ std::vector<ChatCommand*> ScriptMgr::GetChatCommands()
 /// @p_Weather : Weather instance
 /// @p_State   : New weather state
 /// @p_Grade   : New weather grade
-void ScriptMgr::OnWeatherChange(Weather * p_Weather, WeatherState p_State, float p_Grade)
+void ScriptMgr::OnWeatherChange(Weather* p_Weather, WeatherState p_State, float p_Grade)
 {
     ASSERT(p_Weather);
 
@@ -1513,7 +1521,7 @@ void ScriptMgr::OnWeatherChange(Weather * p_Weather, WeatherState p_State, float
 /// On update
 /// @p_Object : Updated object instance
 /// @p_Diff   : Time since last update
-void ScriptMgr::OnWeatherUpdate(Weather * p_Object, uint32 p_Diff)
+void ScriptMgr::OnWeatherUpdate(Weather* p_Object, uint32 p_Diff)
 {
     ASSERT(p_Object);
 
@@ -1527,7 +1535,7 @@ void ScriptMgr::OnWeatherUpdate(Weather * p_Object, uint32 p_Diff)
 /// On update
 /// @p_Object : Updated object instance
 /// @p_Diff   : Time since last update
-void ScriptMgr::OnDynamicObjectUpdate(DynamicObject * p_Object, uint32 p_Diff)
+void ScriptMgr::OnDynamicObjectUpdate(DynamicObject* p_Object, uint32 p_Diff)
 {
     ASSERT(p_Object);
 
@@ -1541,7 +1549,7 @@ void ScriptMgr::OnDynamicObjectUpdate(DynamicObject * p_Object, uint32 p_Diff)
 /// Called when an auction is added to an auction house.
 /// @p_AuctionHouseObject : Auction House Object Instance
 /// @p_Entry              : Auction to add
-void ScriptMgr::OnAuctionAdd(AuctionHouseObject * p_AuctionHouseObject, AuctionEntry * p_Entry)
+void ScriptMgr::OnAuctionAdd(AuctionHouseObject* p_AuctionHouseObject, AuctionEntry* p_Entry)
 {
     ASSERT(p_AuctionHouseObject);
     ASSERT(p_Entry);
@@ -1552,7 +1560,7 @@ void ScriptMgr::OnAuctionAdd(AuctionHouseObject * p_AuctionHouseObject, AuctionE
 /// Called when an auction is removed from an auction house.
 /// @p_AuctionHouseObject : Auction House Object Instance
 /// @p_Entry              : Auction to remove
-void ScriptMgr::OnAuctionRemove(AuctionHouseObject * p_AuctionHouseObject, AuctionEntry * p_Entry)
+void ScriptMgr::OnAuctionRemove(AuctionHouseObject* p_AuctionHouseObject, AuctionEntry* p_Entry)
 {
     ASSERT(p_AuctionHouseObject);
     ASSERT(p_Entry);
@@ -1563,7 +1571,7 @@ void ScriptMgr::OnAuctionRemove(AuctionHouseObject * p_AuctionHouseObject, Aucti
 /// Called when an auction was successfully completed.
 /// @p_AuctionHouseObject : Auction House Object Instance
 /// @p_Entry              : Auction instance
-void ScriptMgr::OnAuctionSuccessful(AuctionHouseObject * p_AuctionHouseObject, AuctionEntry * p_Entry)
+void ScriptMgr::OnAuctionSuccessful(AuctionHouseObject* p_AuctionHouseObject, AuctionEntry* p_Entry)
 {
     ASSERT(p_AuctionHouseObject);
     ASSERT(p_Entry);
@@ -1574,7 +1582,7 @@ void ScriptMgr::OnAuctionSuccessful(AuctionHouseObject * p_AuctionHouseObject, A
 /// Called when an auction expires.
 /// @p_AuctionHouseObject : Auction House Object Instance
 /// @p_Entry              : Auction who expired
-void ScriptMgr::OnAuctionExpire(AuctionHouseObject * p_AuctionHouseObject, AuctionEntry * p_Entry)
+void ScriptMgr::OnAuctionExpire(AuctionHouseObject* p_AuctionHouseObject, AuctionEntry* p_Entry)
 {
     ASSERT(p_AuctionHouseObject);
     ASSERT(p_Entry);
@@ -1633,7 +1641,7 @@ void ScriptMgr::OnBaseGainCalculation(uint32 & p_Gain, uint8 p_PlayerLevel, uint
 /// @p_Gain   : Dest XP Gain
 /// @p_Player : Player instance for XP computation
 /// @p_Unit   : Killed unit
-void ScriptMgr::OnGainCalculation(uint32 & p_Gain, Player * p_Player, Unit * p_Unit)
+void ScriptMgr::OnGainCalculation(uint32 & p_Gain, Player* p_Player, Unit* p_Unit)
 {
     ASSERT(p_Player);
     ASSERT(p_Unit);
@@ -1657,7 +1665,7 @@ void ScriptMgr::OnGroupRateCalculation(float & p_Rate, uint32 p_Count, bool p_Is
 /// @p_ScriptID : Script ID
 /// @p_Source   : Criteria owner player
 /// @p_Target   : Target instance
-bool ScriptMgr::OnCriteriaCheck(uint32 p_ScriptID, Player * p_Source, Unit * p_Target)
+bool ScriptMgr::OnCriteriaCheck(uint32 p_ScriptID, Player* p_Source, Unit* p_Target)
 {
     ASSERT(p_Source);
     // target can be NULL.
@@ -1672,7 +1680,7 @@ bool ScriptMgr::OnCriteriaCheck(uint32 p_ScriptID, Player * p_Source, Unit * p_T
 /// Called when a single condition is checked for a player.
 /// @p_Condition  : Condition instance
 /// @p_SourceInfo : Condition  source
-bool ScriptMgr::OnConditionCheck(Condition * p_Condition, ConditionSourceInfo & p_SourceInfo)
+bool ScriptMgr::OnConditionCheck(Condition const* p_Condition, ConditionSourceInfo & p_SourceInfo)
 {
     ASSERT(p_Condition);
 
@@ -1683,18 +1691,34 @@ bool ScriptMgr::OnConditionCheck(Condition * p_Condition, ConditionSourceInfo & 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+/// Called just before item is destroyed
+/// @p_Item        : Item to be destroyed
+/// @p_Player      : Player level
+void ScriptMgr::OnItemDestroyed(Player* p_Player, Item* p_Item)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnItemDestroyed(p_Player, p_Item);
+}
+
 /// Called when a player kills another player
 /// @p_Killer : Killer instance
 /// @p_Killed : Killed instance
-void ScriptMgr::OnPVPKill(Player * p_Killer, Player * p_Killed)
+void ScriptMgr::OnPVPKill(Player* p_Killer, Player* p_Killed)
 {
     FOREACH_SCRIPT(PlayerScript)->OnPVPKill(p_Killer, p_Killed);
+}
+
+/// Called when a player kills a Unit
+/// @p_Killer : Killer instance
+/// @p_Killed : Killed instance
+void ScriptMgr::OnKill(Player* p_Killer, Unit* p_Killed)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnKill(p_Killer, p_Killed);
 }
 
 /// Called when a player kills a creature
 /// @p_Killer : Killer instance
 /// @p_Killed : Killed instance
-void ScriptMgr::OnCreatureKill(Player * p_Killer, Creature * p_Killed)
+void ScriptMgr::OnCreatureKill(Player* p_Killer, Creature* p_Killed)
 {
     FOREACH_SCRIPT(PlayerScript)->OnCreatureKill(p_Killer, p_Killed);
 }
@@ -1702,7 +1726,7 @@ void ScriptMgr::OnCreatureKill(Player * p_Killer, Creature * p_Killed)
 /// Called when a player is killed by a creature
 /// @p_Killer : Killer instance
 /// @p_Killed : Killed instance
-void ScriptMgr::OnPlayerKilledByCreature(Creature * p_Killer, Player * p_Killed)
+void ScriptMgr::OnPlayerKilledByCreature(Creature* p_Killer, Player* p_Killed)
 {
     FOREACH_SCRIPT(PlayerScript)->OnPlayerKilledByCreature(p_Killer, p_Killed);
 }
@@ -1718,10 +1742,26 @@ void ScriptMgr::OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue
     FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_OldValue, p_NewValue, p_Regen);
 }
 
+/// Called when the player switch from indoors to outdoors or from outdoors to indoors
+/// @p_Player : Player instance
+/// @p_IsOutdoors : Bool setting whether player is indoors or outdoors
+void ScriptMgr::OnSwitchOutdoorsState(Player* p_Player, bool p_IsOutdoors)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnSwitchOutdoorsState(p_Player, p_IsOutdoors);
+}
+
+/// Called when specialisation is modify (SetSpecializationId)
+/// @p_Player : Player instance
+/// @p_NewSpec  : New Specialisation
+void ScriptMgr::OnModifySpec(Player* p_Player, int32 p_NewSpec)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnModifySpec(p_Player, p_NewSpec);
+}
+
 /// Called when a player kills another player
 /// @p_Player : Player instance
 /// @p_Value  : New value
-void ScriptMgr::OnModifyHealth(Player * p_Player, int32 p_Value)
+void ScriptMgr::OnModifyHealth(Player* p_Player, int32 p_Value)
 {
     FOREACH_SCRIPT(PlayerScript)->OnModifyHealth(p_Player, p_Value);
 }
@@ -1729,7 +1769,7 @@ void ScriptMgr::OnModifyHealth(Player * p_Player, int32 p_Value)
 /// Called when a player's level changes (right before the level is applied)
 /// @p_Player   : Player instance
 /// @p_OldLevel : Old player Level
-void ScriptMgr::OnPlayerLevelChanged(Player * p_Player, uint8 p_OldLevel)
+void ScriptMgr::OnPlayerLevelChanged(Player* p_Player, uint8 p_OldLevel)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLevelChanged(p_Player, p_OldLevel);
 }
@@ -1737,7 +1777,7 @@ void ScriptMgr::OnPlayerLevelChanged(Player * p_Player, uint8 p_OldLevel)
 /// Called when a player's talent points are reset (right before the reset is done)
 /// @p_Player : Player instance
 /// @p_NoCost : Talent was reset without cost
-void ScriptMgr::OnPlayerTalentsReset(Player * p_Player, bool p_NoCost)
+void ScriptMgr::OnPlayerTalentsReset(Player* p_Player, bool p_NoCost)
 {
     FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(p_Player, p_NoCost);
 }
@@ -1745,7 +1785,7 @@ void ScriptMgr::OnPlayerTalentsReset(Player * p_Player, bool p_NoCost)
 /// Called when a player's money is modified (before the modification is done)
 /// @p_Player : Player instance
 /// @p_Amount : Modified money amount
-void ScriptMgr::OnPlayerMoneyChanged(Player * p_Player, int64 & p_Amount)
+void ScriptMgr::OnPlayerMoneyChanged(Player* p_Player, int64 & p_Amount)
 {
     FOREACH_SCRIPT(PlayerScript)->OnMoneyChanged(p_Player, p_Amount);
 }
@@ -1754,7 +1794,7 @@ void ScriptMgr::OnPlayerMoneyChanged(Player * p_Player, int64 & p_Amount)
 /// @p_Player : Player instance
 /// @p_Amount : Modified XP amount
 /// @p_Victim : XP Source
-void ScriptMgr::OnGivePlayerXP(Player * p_Player, uint32 & p_Amount, Unit * p_Victim)
+void ScriptMgr::OnGivePlayerXP(Player* p_Player, uint32 & p_Amount, Unit* p_Victim)
 {
     FOREACH_SCRIPT(PlayerScript)->OnGiveXP(p_Player, p_Amount, p_Victim);
 }
@@ -1764,7 +1804,7 @@ void ScriptMgr::OnGivePlayerXP(Player * p_Player, uint32 & p_Amount, Unit * p_Vi
 /// @p_FactionID    : Reward faction ID
 /// @p_Standing     : Standing
 /// @p_Incremential : Is incremental
-void ScriptMgr::OnPlayerReputationChange(Player * p_Player, uint32 p_FactionID, int32 & p_Standing, bool p_Incremential)
+void ScriptMgr::OnPlayerReputationChange(Player* p_Player, uint32 p_FactionID, int32 & p_Standing, bool p_Incremential)
 {
     FOREACH_SCRIPT(PlayerScript)->OnReputationChange(p_Player, p_FactionID, p_Standing, p_Incremential);
 }
@@ -1772,7 +1812,7 @@ void ScriptMgr::OnPlayerReputationChange(Player * p_Player, uint32 p_FactionID, 
 /// Called when a duel is requested
 /// @p_Target     : Duel target
 /// @p_Challenger : Duel challenger
-void ScriptMgr::OnPlayerDuelRequest(Player * p_Target, Player * p_Challenger)
+void ScriptMgr::OnPlayerDuelRequest(Player* p_Target, Player* p_Challenger)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDuelRequest(p_Target, p_Challenger);
 }
@@ -1780,7 +1820,7 @@ void ScriptMgr::OnPlayerDuelRequest(Player * p_Target, Player * p_Challenger)
 /// Called when a duel starts (after 3s countdown)
 /// @p_Player1 : First player
 /// @p_Player2 : Second player
-void ScriptMgr::OnPlayerDuelStart(Player * p_Player1, Player * p_Player2)
+void ScriptMgr::OnPlayerDuelStart(Player* p_Player1, Player* p_Player2)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDuelStart(p_Player1, p_Player2);
 }
@@ -1789,7 +1829,7 @@ void ScriptMgr::OnPlayerDuelStart(Player * p_Player1, Player * p_Player2)
 /// @p_Winner         : Duel winner
 /// @p_Looser         : Duel looser
 /// @p_CompletionType : Duel Completion Type
-void ScriptMgr::OnPlayerDuelEnd(Player * p_Winner, Player * p_Looser, DuelCompleteType p_CompletionType)
+void ScriptMgr::OnPlayerDuelEnd(Player* p_Winner, Player* p_Looser, DuelCompleteType p_CompletionType)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDuelEnd(p_Winner, p_Looser, p_CompletionType);
 }
@@ -1797,7 +1837,7 @@ void ScriptMgr::OnPlayerDuelEnd(Player * p_Winner, Player * p_Looser, DuelComple
 /// Called when the player get Teleport
 /// @p_Player : Player
 /// @p_SpellID : SpellID
-void ScriptMgr::OnTeleport(Player * p_Player, const SpellInfo *p_SpellInfo)
+void ScriptMgr::OnTeleport(Player* p_Player, const SpellInfo*p_SpellInfo)
 {
     FOREACH_SCRIPT(PlayerScript)->OnTeleport(p_Player, p_SpellInfo);
 }
@@ -1807,7 +1847,7 @@ void ScriptMgr::OnTeleport(Player * p_Player, const SpellInfo *p_SpellInfo)
 /// @p_Type    : Message type
 /// @p_Lang    : Message language (WoW)
 /// @p_Message : Message content
-void ScriptMgr::OnPlayerChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message)
+void ScriptMgr::OnPlayerChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChat(p_Player, p_Type, p_Lang, p_Message);
 }
@@ -1818,7 +1858,7 @@ void ScriptMgr::OnPlayerChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, st
 /// @p_Lang     : Message language (WoW)
 /// @p_Message  : Message content
 /// @p_Receiver : Message receiver
-void ScriptMgr::OnPlayerChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Player * p_Receiver)
+void ScriptMgr::OnPlayerChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Player* p_Receiver)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChat(p_Player, p_Type, p_Lang, p_Message, p_Receiver);
 }
@@ -1829,7 +1869,7 @@ void ScriptMgr::OnPlayerChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, st
 /// @p_Lang    : Message language (WoW)
 /// @p_Message : Message content
 /// @p_Group   : Message group target
-void ScriptMgr::OnPlayerChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Group * p_Group)
+void ScriptMgr::OnPlayerChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Group* p_Group)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChat(p_Player, p_Type, p_Lang, p_Message, p_Group);
 }
@@ -1840,7 +1880,7 @@ void ScriptMgr::OnPlayerChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, st
 /// @p_Lang    : Message language (WoW)
 /// @p_Message : Message content
 /// @p_Guild   : Message guild target
-void ScriptMgr::OnPlayerChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Guild * p_Guild)
+void ScriptMgr::OnPlayerChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Guild* p_Guild)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChat(p_Player, p_Type, p_Lang, p_Message, p_Guild);
 }
@@ -1851,7 +1891,7 @@ void ScriptMgr::OnPlayerChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, st
 /// @p_Lang    : Message language (WoW)
 /// @p_Message : Message content
 /// @p_Channel : Message channel target
-void ScriptMgr::OnPlayerChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Channel * p_Channel)
+void ScriptMgr::OnPlayerChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Channel* p_Channel)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChat(p_Player, p_Type, p_Lang, p_Message, p_Channel);
 }
@@ -1859,7 +1899,7 @@ void ScriptMgr::OnPlayerChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, st
 /// Both of the below are called on emote opcodes.
 /// @p_Player : Player instance
 /// @p_Emote  : Emote ID
-void ScriptMgr::OnPlayerEmote(Player * p_Player, uint32 p_Emote)
+void ScriptMgr::OnPlayerEmote(Player* p_Player, uint32 p_Emote)
 {
     FOREACH_SCRIPT(PlayerScript)->OnEmote(p_Player, p_Emote);
 }
@@ -1869,7 +1909,7 @@ void ScriptMgr::OnPlayerEmote(Player * p_Player, uint32 p_Emote)
 /// @p_TextEmote  : Text emote ID
 /// @p_SoundIndex : Emote sound ID
 /// @p_TargetGUID : Text emote target GUID
-void ScriptMgr::OnPlayerTextEmote(Player * p_Player, uint32 p_TextEmote, uint32 p_SoundIndex, uint64 p_TargetGUID)
+void ScriptMgr::OnPlayerTextEmote(Player* p_Player, uint32 p_TextEmote, uint32 p_SoundIndex, uint64 p_TargetGUID)
 {
     FOREACH_SCRIPT(PlayerScript)->OnTextEmote(p_Player, p_TextEmote, p_SoundIndex, p_TargetGUID);
 }
@@ -1878,7 +1918,7 @@ void ScriptMgr::OnPlayerTextEmote(Player * p_Player, uint32 p_TextEmote, uint32 
 /// @p_Player    : Player instance
 /// @p_Spell     : Casted spell
 /// @p_SkipCheck : Skipped checks
-void ScriptMgr::OnPlayerSpellCast(Player * p_Player, Spell * p_Spell, bool p_SkipCheck)
+void ScriptMgr::OnPlayerSpellCast(Player* p_Player, Spell* p_Spell, bool p_SkipCheck)
 {
     FOREACH_SCRIPT(PlayerScript)->OnSpellCast(p_Player, p_Spell, p_SkipCheck);
 }
@@ -1886,28 +1926,28 @@ void ScriptMgr::OnPlayerSpellCast(Player * p_Player, Spell * p_Spell, bool p_Ski
 /// When the player learn a spell
 /// @p_Player  : Player instance
 /// @p_SpellID : Learned spell ID
-void ScriptMgr::OnPlayerSpellLearned(Player * p_Player, uint32 p_SpellID)
+void ScriptMgr::OnPlayerSpellLearned(Player* p_Player, uint32 p_SpellID)
 {
     FOREACH_SCRIPT(PlayerScript)->OnSpellLearned(p_Player, p_SpellID);
 }
 
 /// Called when a player logs in.
 /// @p_Player : Player instance
-void ScriptMgr::OnPlayerLogin(Player * p_Player)
+void ScriptMgr::OnPlayerLogin(Player* p_Player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLogin(p_Player);
 }
 
 /// Called when a player logs out.
 /// @p_Player : Player instance
-void ScriptMgr::OnPlayerLogout(Player * p_Player)
+void ScriptMgr::OnPlayerLogout(Player* p_Player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLogout(p_Player);
 }
 
 /// Called when a player is created.
 /// @p_Player : Player instance
-void ScriptMgr::OnPlayerCreate(Player * p_Player)
+void ScriptMgr::OnPlayerCreate(Player* p_Player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnCreate(p_Player);
 }
@@ -1932,7 +1972,7 @@ void ScriptMgr::OnPlayerUpdate(Player* p_Player, uint32 p_Diff)
 /// @p_Difficulty : Instance Difficulty ID
 /// @p_MapID      : Instance Map ID
 /// @p_Permanent  : Is a permanent bind
-void ScriptMgr::OnPlayerBindToInstance(Player * p_Player, Difficulty p_Difficulty, uint32 p_MapID, bool p_Permanent)
+void ScriptMgr::OnPlayerBindToInstance(Player* p_Player, Difficulty p_Difficulty, uint32 p_MapID, bool p_Permanent)
 {
     FOREACH_SCRIPT(PlayerScript)->OnBindToInstance(p_Player, p_Difficulty, p_MapID, p_Permanent);
 }
@@ -1942,22 +1982,31 @@ void ScriptMgr::OnPlayerBindToInstance(Player * p_Player, Difficulty p_Difficult
 /// @p_NewZoneID : New player zone ID
 /// @p_OldZoneID : Old player zone ID
 /// @p_NewAreaID : New player area ID
-void ScriptMgr::OnPlayerUpdateZone(Player * p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
+void ScriptMgr::OnPlayerUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
 {
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(p_Player, p_NewZoneID, p_OldZoneID, p_NewAreaID);
 }
-    
+
 /// Called when a player updates his movement
 /// @p_Player : Player instance
-void ScriptMgr::OnPlayerUpdateMovement(Player * p_Player)
+void ScriptMgr::OnPlayerUpdateMovement(Player* p_Player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnUpdateMovement(p_Player);
+}
+
+/// Called when a spline step is done
+/// @p_Player   : Player instance
+/// @p_MoveType : Movement type
+/// @p_ID       : Movement ID
+void ScriptMgr::OnPlayerMovementInform(Player* p_Player, uint32 p_MoveType, uint32 p_ID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMovementInform(p_Player, p_MoveType, p_ID);
 }
 
 /// Called when player accepts some quest
 /// @p_Player : Player instance
 /// @p_Quest  : Accpeted quest
-void ScriptMgr::OnQuestAccept(Player * p_Player, const Quest * p_Quest)
+void ScriptMgr::OnQuestAccept(Player* p_Player, const Quest* p_Quest)
 {
     FOREACH_SCRIPT(PlayerScript)->OnQuestAccept(p_Player, p_Quest);
 }
@@ -1973,7 +2022,7 @@ void ScriptMgr::OnQuestReward(Player* p_Player, const Quest* p_Quest)
 /// @p_Player      : Player instance
 /// @p_QuestID     : Quest ID
 /// @p_ObjectiveID : Validated quest objective ID
-void ScriptMgr::OnObjectiveValidate(Player * p_Player, uint32 p_QuestID, uint32 p_ObjectiveID)
+void ScriptMgr::OnObjectiveValidate(Player* p_Player, uint32 p_QuestID, uint32 p_ObjectiveID)
 {
     FOREACH_SCRIPT(PlayerScript)->OnObjectiveValidate(p_Player, p_QuestID, p_ObjectiveID);
 }
@@ -2002,7 +2051,7 @@ void ScriptMgr::OnQuestCleared(Player* p_Player, Quest const* p_Quest)
 /// Called when a player shapeshift
 /// @p_Player : Player instance
 /// @p_Form   : New shapeshift from
-void ScriptMgr::OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_Form)
+void ScriptMgr::OnPlayerChangeShapeshift(Player* p_Player, ShapeshiftForm p_Form)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChangeShapeshift(p_Player, p_Form);
 }
@@ -2017,7 +2066,7 @@ void ScriptMgr::OnPlayerFactionChanged(Player* p_Player)
 /// Called when a player loot an item
 /// @p_Player : Player instance
 /// @p_Item   : New looted item instance
-void ScriptMgr::OnPlayerItemLooted(Player* p_Player, Item * p_Item)
+void ScriptMgr::OnPlayerItemLooted(Player* p_Player, Item* p_Item)
 {
     FOREACH_SCRIPT(PlayerScript)->OnItemLooted(p_Player, p_Item);
 }
@@ -2040,7 +2089,7 @@ void ScriptMgr::OnPlayerLeaveCombat(Player* p_Player)
 /// @p_Player          : Player instance
 /// @p_SceneInstanceID : Standalone scene instance ID
 /// @p_Event           : Event string received from client
-void ScriptMgr::OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event)
+void ScriptMgr::OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event)
 {
     FOREACH_SCRIPT(PlayerScript)->OnSceneTriggerEvent(p_Player, p_SceneInstanceID, p_Event);
 }
@@ -2053,12 +2102,38 @@ void ScriptMgr::OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId)
     FOREACH_SCRIPT(PlayerScript)->OnSceneCancel(p_Player, p_SceneInstanceId);
 }
 
+
+/// Called when a player enter in bg
+/// @p_Player   : Player instance
+/// @p_MapID    : Map ID
+void ScriptMgr::OnEnterBG(Player* p_Player, uint32 p_MapID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnEnterBG(p_Player, p_MapID);
+}
+
+/// Called when a leave a bg
+/// @p_Player   : Player instance
+/// @p_MapID    : Map ID
+void ScriptMgr::OnLeaveBG(Player* p_Player, uint32 p_MapID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnLeaveBG(p_Player, p_MapID);
+}
+
+/// Called when a player finish a movement like a jump
+/// @p_Player   : Player instance
+/// @p_SpellID  : Spell ID
+/// @p_TargetGUID : Target GUID
+void ScriptMgr::OnFinishMovement(Player* p_Player, uint32 p_SpellID, uint64 const p_TargetGUID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnFinishMovement(p_Player, p_SpellID, p_TargetGUID);
+}
+
 /// Called when a player regen a power
 /// @p_Player         : Player instance
 /// @p_Power          : Power to be regenerate
 /// @p_AddValue       : amount of power to regenerate
 /// @p_PreventDefault : avoid default regeneration
-void ScriptMgr::OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault)
+void ScriptMgr::OnPlayerRegenPower(Player* p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault)
 {
     FOREACH_SCRIPT(PlayerScript)->OnRegenPower(p_Player, p_Power, p_AddValue, p_PreventDefault);
 }
@@ -2085,7 +2160,7 @@ void ScriptMgr::OnPlayerBlock(Player* p_Player, Unit* p_Attacker)
 
 /// Should return a fully valid Battleground object for the type ID.
 /// @p_TypeID : Battleground Type ID
-Battleground * ScriptMgr::CreateBattleground(BattlegroundTypeId p_TypeID)
+Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId p_TypeID)
 {
     // TODO: Implement script-side battlegrounds.
     ASSERT(false);
@@ -2097,7 +2172,7 @@ Battleground * ScriptMgr::CreateBattleground(BattlegroundTypeId p_TypeID)
 
 /// Should return a fully valid OutdoorPvP object for the type ID.
 /// @p_Data : Outdoor PvP Data
-OutdoorPvP * ScriptMgr::CreateOutdoorPvP(const OutdoorPvPData * p_Data)
+OutdoorPvP* ScriptMgr::CreateOutdoorPvP(const OutdoorPvPData* p_Data)
 {
     ASSERT(p_Data);
 
@@ -2117,12 +2192,12 @@ void ScriptMgr::CreateSpellScripts(uint32 p_SpellID, std::list<SpellScript*> & p
 
     for (SpellScriptsContainer::iterator l_It = l_Bounds.first; l_It != l_Bounds.second; ++l_It)
     {
-        SpellScriptLoader * l_TempScript = ScriptRegistry<SpellScriptLoader>::GetScriptById(l_It->second);
+        SpellScriptLoader* l_TempScript = ScriptRegistry<SpellScriptLoader>::GetScriptById(l_It->second);
 
         if (!l_TempScript)
             continue;
 
-        SpellScript * l_Script = l_TempScript->GetSpellScript();
+        SpellScript* l_Script = l_TempScript->GetSpellScript();
 
         if (!l_Script)
             continue;
@@ -2146,7 +2221,7 @@ void ScriptMgr::CreateAuraScripts(uint32 p_SpellID, std::list<AuraScript*> & p_S
         if (!l_TempScript)
             continue;
 
-        AuraScript * l_AuraScript = l_TempScript->GetAuraScript();
+        AuraScript* l_AuraScript = l_TempScript->GetAuraScript();
 
         if (!l_AuraScript)
             continue;
@@ -2181,7 +2256,7 @@ void ScriptMgr::CreateSpellScriptLoaders(uint32 p_SpellID, std::vector<std::pair
 /// Called when a player boards the transport.
 /// @p_Transport : Transport instance
 /// @p_Player    : Added player passenger instance
-void ScriptMgr::OnAddPassenger(Transport * p_Transport, Player * p_Player)
+void ScriptMgr::OnAddPassenger(Transport* p_Transport, Player* p_Player)
 {
     ASSERT(p_Transport);
     ASSERT(p_Player);
@@ -2193,7 +2268,7 @@ void ScriptMgr::OnAddPassenger(Transport * p_Transport, Player * p_Player)
 /// Called when a creature boards the transport.
 /// @p_Transport : Transport instance
 /// @p_Creature  : Added creature passenger instance
-void ScriptMgr::OnAddCreaturePassenger(Transport * p_Transport, Creature * p_Creature)
+void ScriptMgr::OnAddCreaturePassenger(Transport* p_Transport, Creature* p_Creature)
 {
     ASSERT(p_Transport);
     ASSERT(p_Creature);
@@ -2205,7 +2280,7 @@ void ScriptMgr::OnAddCreaturePassenger(Transport * p_Transport, Creature * p_Cre
 /// Called when a player exits the transport.
 /// @p_Transport : Transport instance
 /// @p_Player    : Added player passenger instance
-void ScriptMgr::OnRemovePassenger(Transport * p_Transport, Player * p_Player)
+void ScriptMgr::OnRemovePassenger(Transport* p_Transport, Player* p_Player)
 {
     ASSERT(p_Transport);
     ASSERT(p_Player);
@@ -2221,7 +2296,7 @@ void ScriptMgr::OnRemovePassenger(Transport * p_Transport, Player * p_Player)
 /// @p_X          : New position X offset
 /// @p_Y          : New position Y offset
 /// @p_Z          : New position Z offset
-void ScriptMgr::OnRelocate(Transport * p_Transport, uint32 p_WaypointID, uint32 p_MapID, float p_X, float p_Y, float p_Z)
+void ScriptMgr::OnRelocate(Transport* p_Transport, uint32 p_WaypointID, uint32 p_MapID, float p_X, float p_Y, float p_Z)
 {
     GET_SCRIPT(TransportScript, p_Transport->GetScriptId(), tmpscript);
     tmpscript->OnRelocate(p_Transport, p_WaypointID, p_MapID, p_X, p_Y, p_Z);
@@ -2230,7 +2305,7 @@ void ScriptMgr::OnRelocate(Transport * p_Transport, uint32 p_WaypointID, uint32 
 /// Called on every Transport update tick.
 /// @p_Transport : Context Transport
 /// @p_Diff      : Time since last update
-void ScriptMgr::OnTransportUpdate(Transport * p_Transport, uint32 p_Diff)
+void ScriptMgr::OnTransportUpdate(Transport* p_Transport, uint32 p_Diff)
 {
     ASSERT(p_Transport);
 
@@ -2243,7 +2318,7 @@ void ScriptMgr::OnTransportUpdate(Transport * p_Transport, uint32 p_Diff)
 
 /// Called after a vehicle is installed.
 /// @p_Vehicle : Vehicle instance
-void ScriptMgr::OnInstall(Vehicle * p_Vehicle)
+void ScriptMgr::OnInstall(Vehicle* p_Vehicle)
 {
     ASSERT(p_Vehicle);
     ASSERT(p_Vehicle->GetBase()->GetTypeId() == TYPEID_UNIT);
@@ -2254,7 +2329,7 @@ void ScriptMgr::OnInstall(Vehicle * p_Vehicle)
 
 /// Called after a vehicle is uninstalled.
 /// @p_Vehicle : Vehicle instance
-void ScriptMgr::OnUninstall(Vehicle * p_Vehicle)
+void ScriptMgr::OnUninstall(Vehicle* p_Vehicle)
 {
     ASSERT(p_Vehicle);
     ASSERT(p_Vehicle->GetBase()->GetTypeId() == TYPEID_UNIT);
@@ -2265,7 +2340,7 @@ void ScriptMgr::OnUninstall(Vehicle * p_Vehicle)
 
 /// Called when a vehicle resets.
 /// @p_Vehicle : Vehicle instance
-void ScriptMgr::OnReset(Vehicle * p_Vehicle)
+void ScriptMgr::OnReset(Vehicle* p_Vehicle)
 {
     ASSERT(p_Vehicle);
     ASSERT(p_Vehicle->GetBase()->GetTypeId() == TYPEID_UNIT);
@@ -2277,7 +2352,7 @@ void ScriptMgr::OnReset(Vehicle * p_Vehicle)
 /// Called after an accessory is installed in a vehicle.
 /// @p_Vehicle   : Vehicle instance
 /// @p_Accessory : Accessory to install
-void ScriptMgr::OnInstallAccessory(Vehicle * p_Vehicle, Creature * p_Accessory)
+void ScriptMgr::OnInstallAccessory(Vehicle* p_Vehicle, Creature* p_Accessory)
 {
     ASSERT(p_Vehicle);
     ASSERT(p_Vehicle->GetBase()->GetTypeId() == TYPEID_UNIT);
@@ -2291,7 +2366,7 @@ void ScriptMgr::OnInstallAccessory(Vehicle * p_Vehicle, Creature * p_Accessory)
 /// @p_Vehicle   : Vehicle instance
 /// @p_Passanger : Passenger to add
 /// @p_SeatID    : Passenger destination seat ID
-void ScriptMgr::OnAddPassenger(Vehicle * p_Vehicle, Unit * p_Passanger, int8 p_SeatID)
+void ScriptMgr::OnAddPassenger(Vehicle* p_Vehicle, Unit* p_Passanger, int8 p_SeatID)
 {
     ASSERT(p_Vehicle);
     ASSERT(p_Vehicle->GetBase()->GetTypeId() == TYPEID_UNIT);
@@ -2304,7 +2379,7 @@ void ScriptMgr::OnAddPassenger(Vehicle * p_Vehicle, Unit * p_Passanger, int8 p_S
 /// Called after a passenger is removed from a vehicle.
 /// @p_Vehicle   : Vehicle instance
 /// @p_Passanger : Passenger to remove
-void ScriptMgr::OnRemovePassenger(Vehicle * p_Vehicle, Unit * p_Passanger)
+void ScriptMgr::OnRemovePassenger(Vehicle* p_Vehicle, Unit* p_Passanger)
 {
     ASSERT(p_Vehicle);
     ASSERT(p_Vehicle->GetBase()->GetTypeId() == TYPEID_UNIT);
@@ -2394,7 +2469,7 @@ void ScriptMgr::OnEncounterEnd(EncounterDatas const* p_EncounterDatas)
 
 /// Constructor
 /// @p_Name : Script name
-SpellScriptLoader::SpellScriptLoader(const char * p_Name)
+SpellScriptLoader::SpellScriptLoader(const char* p_Name)
     : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<SpellScriptLoader>::AddScript(this);
@@ -2402,7 +2477,7 @@ SpellScriptLoader::SpellScriptLoader(const char * p_Name)
 
 /// Constructor
 /// @p_Name : Script name
-ServerScript::ServerScript(const char * p_Name)
+ServerScript::ServerScript(const char* p_Name)
     : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<ServerScript>::AddScript(this);
@@ -2410,7 +2485,7 @@ ServerScript::ServerScript(const char * p_Name)
 
 /// Constructor
 /// @p_Name : Script Name
-WorldScript::WorldScript(const char * p_Name)
+WorldScript::WorldScript(const char* p_Name)
     : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<WorldScript>::AddScript(this);
@@ -2418,7 +2493,7 @@ WorldScript::WorldScript(const char * p_Name)
 
 /// Constructor
 /// @p_Name : Script Name
-FormulaScript::FormulaScript(const char * p_Name)
+FormulaScript::FormulaScript(const char* p_Name)
     : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<FormulaScript>::AddScript(this);
@@ -2427,7 +2502,7 @@ FormulaScript::FormulaScript(const char * p_Name)
 /// Constructor
 /// @p_Name  : Script Name
 /// @p_MapID : Map Script map ID
-WorldMapScript::WorldMapScript(const char * p_Name, uint32 p_MapID)
+WorldMapScript::WorldMapScript(const char* p_Name, uint32 p_MapID)
     : ScriptObjectImpl(p_Name), MapScript<Map>(p_MapID)
 {
     if (GetEntry() && !GetEntry()->IsWorldMap())
@@ -2439,7 +2514,7 @@ WorldMapScript::WorldMapScript(const char * p_Name, uint32 p_MapID)
 /// Constructor
 /// @p_Name  : Script Name
 /// @p_MapID : Map Script map ID
-InstanceMapScript::InstanceMapScript(const char * p_Name, uint32 p_MapID)
+InstanceMapScript::InstanceMapScript(const char* p_Name, uint32 p_MapID)
     : ScriptObjectImpl(p_Name), MapScript<InstanceMap>(p_MapID)
 {
     if (GetEntry() && !GetEntry()->IsDungeon())
@@ -2451,7 +2526,7 @@ InstanceMapScript::InstanceMapScript(const char * p_Name, uint32 p_MapID)
 /// Constructor
 /// @p_Name  : Script Name
 /// @p_MapID : Map Script map ID
-BattlegroundMapScript::BattlegroundMapScript(const char * p_Name, uint32 p_MapID)
+BattlegroundMapScript::BattlegroundMapScript(const char* p_Name, uint32 p_MapID)
     : ScriptObjectImpl(p_Name), MapScript<BattlegroundMap>(p_MapID)
 {
     if (GetEntry() && !GetEntry()->IsBattleground())
@@ -2462,7 +2537,7 @@ BattlegroundMapScript::BattlegroundMapScript(const char * p_Name, uint32 p_MapID
 
 /// Constructor
 /// @p_Name : Script Name
-ItemScript::ItemScript(const char * p_Name)
+ItemScript::ItemScript(const char* p_Name)
     : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<ItemScript>::AddScript(this);
@@ -2470,7 +2545,7 @@ ItemScript::ItemScript(const char * p_Name)
 
 /// Constructor
 /// @p_Name : Script Name
-CreatureScript::CreatureScript(const char * p_Name)
+CreatureScript::CreatureScript(const char* p_Name)
     : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<CreatureScript>::AddScript(this);
@@ -2478,7 +2553,7 @@ CreatureScript::CreatureScript(const char * p_Name)
 
 /// Constructor
 /// @p_Name : Script Name
-GameObjectScript::GameObjectScript(const char * p_Name)
+GameObjectScript::GameObjectScript(const char* p_Name)
     : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<GameObjectScript>::AddScript(this);

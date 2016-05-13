@@ -114,7 +114,7 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
 
     if (receive)
     {
-        rc_team = receive->GetTeam();
+        rc_team = receive->GetTeam(); ///< rc_team is never read 01/18/16
         mails_count = receive->GetMailSize();
     }
 
@@ -126,7 +126,7 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
     }
 
     // test the receiver's Faction... or all items are account bound
-    bool accountBound = l_AttachmentsCount ? true : false;
+    bool accountBound = l_AttachmentsCount ? true : false; ///< accoubntbound is never read 01/18/16
     for (uint8 l_I = 0; l_I < l_AttachmentsCount; ++l_I)
     {
         Item* item = m_Player->GetItemByGuid(itemGUIDs[l_I]);
@@ -135,7 +135,7 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
             ItemTemplate const* itemProto = item->GetTemplate();
             if (!itemProto || !(itemProto->Flags & ITEM_FLAG_BIND_TO_ACCOUNT))
             {
-                accountBound = false;
+                accountBound = false; ///< accountbound is never read 01/18/16
                 break;
             }
         }
@@ -201,7 +201,7 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
     if (!UpdateAntispamCount())
     {
         m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_INTERNAL_ERROR);
-        SendNotification(GetTrinityString(LANG_ANTISPAM_ERROR));
+        SendNotification(GetTrinityString(LANG_ANTISPAM_ERROR)); ///> Format string is not a string literal (potentially insecure)
         return;
     }
 

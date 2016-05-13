@@ -394,7 +394,7 @@ class boss_freya : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_SLAY);
             }
 
@@ -415,13 +415,34 @@ class boss_freya : public CreatureScript
                 _encounterFinished = true;
 
                 //! Freya's chest is dynamically spawned on death by different spells.
-                const uint32 summonSpell[2][4] =
+                std::map<uint32, std::vector<uint32>> summonSpell =
                 {
-                    /* 0Elder, 1Elder, 2Elder, 3Elder killed */
-                    /* 10N */ {62957, 62955, 62953, 62950},
-                    /* 25N */ {62958, 62956, 62954, 62952}
+                    {
+                        Difficulty::Difficulty10N,
+                        {
+                            62957,
+                            62955,
+                            62953,
+                            62950
+                        }
+                    },
+                    {
+                        Difficulty::Difficulty25N,
+                        {
+                            62958,
+                            62956,
+                            62954,
+                            62952
+                        }
+                    }
                 };
-                me->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficultyID()][_elderCount], true); // GetDifficulty should return 0 or 1 (numeric)
+
+                uint32 l_SpellId = 62957; ///< Default
+
+                if (summonSpell.find(me->GetMap()->GetDifficultyID()) != summonSpell.end() && _elderCount < 4)
+                    l_SpellId = summonSpell[me->GetMap()->GetDifficultyID()][_elderCount];
+
+                me->CastSpell((Unit*)NULL, l_SpellId, true);
 
                 Talk(SAY_DEATH);
                 me->SetReactState(REACT_PASSIVE);
@@ -611,7 +632,7 @@ class boss_freya : public CreatureScript
                     me->CastSpell(me, SPELL_TOUCH_OF_EONAR, true);
 
                 // For achievement check
-                if (AuraPtr aura = me->GetAura(SPELL_ATTUNED_TO_NATURE))
+                if (Aura* aura = me->GetAura(SPELL_ATTUNED_TO_NATURE))
                     _attunedToNature = aura->GetStackAmount();
                 else
                     _attunedToNature = 0;
@@ -921,7 +942,7 @@ class boss_elder_brightleaf : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_BRIGHTLEAF_SLAY);
             }
 
@@ -930,7 +951,7 @@ class boss_elder_brightleaf : public CreatureScript
                 _JustDied();
                 Talk(SAY_BRIGHTLEAF_DEATH);
 
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                 {
                     if (Creature* Ironbranch = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IRONBRANCH)))
                         Ironbranch->AI()->DoAction(ACTION_ELDER_DEATH);
@@ -985,7 +1006,7 @@ class boss_elder_brightleaf : public CreatureScript
                             me->RemoveAurasDueToSpell(SPELL_FLUX_MINUS);
 
                             me->AddAura(SPELL_FLUX_AURA, me);
-                            if (AuraPtr Flux = me->GetAura(SPELL_FLUX_AURA))
+                            if (Aura* Flux = me->GetAura(SPELL_FLUX_AURA))
                                 Flux->SetStackAmount(urand(1, 8));
                             events.ScheduleEvent(EVENT_FLUX, 7500);
                             break;
@@ -1050,7 +1071,7 @@ class boss_elder_stonebark : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_STONEBARK_SLAY);
             }
 
@@ -1059,7 +1080,7 @@ class boss_elder_stonebark : public CreatureScript
                 _JustDied();
                 Talk(SAY_STONEBARK_DEATH);
 
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                 {
                     if (Creature* Ironbranch = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IRONBRANCH)))
                         Ironbranch->AI()->DoAction(ACTION_ELDER_DEATH);
@@ -1180,7 +1201,7 @@ class boss_elder_ironbranch : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_IRONBRANCH_SLAY);
             }
 
@@ -1189,7 +1210,7 @@ class boss_elder_ironbranch : public CreatureScript
                 _JustDied();
                 Talk(SAY_IRONBRANCH_DEATH);
 
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                 {
                     if (Creature* Brightleaf = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF)))
                         Brightleaf->AI()->DoAction(ACTION_ELDER_DEATH);

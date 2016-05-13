@@ -25,25 +25,21 @@
 #include "Battleground.h"
 #include "BattlegroundBFG.h"
 #include "Language.h"
-#include "gamePCH.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
 #include "BattlegroundMgr.hpp"
-#include "Battleground.h"
 #include "Creature.h"
-#include "Language.h"
 #include "Object.h"
-#include "Player.h"
 #include "Util.h"
 
-uint32 GILNEAS_BG_HonorScoreTicks[BG_HONOR_MODE_NUM] =
+uint32 GILNEAS_BG_HonorScoreTicks[BG_HONOR_MODE_NUM] = ///< this is unused !
 {
     330, // normal honor
     200  // holiday
 };
 
-uint32 GILNEAS_BG_Reputation[BG_HONOR_MODE_NUM][GILNEAS_BG_REWARD_NUM] =
+uint32 GILNEAS_BG_Reputation[BG_HONOR_MODE_NUM][GILNEAS_BG_REWARD_NUM] = ///< this is unused !
 {
     200, // normal honor
     150  // holiday
@@ -138,7 +134,7 @@ void BattlegroundBFG::PostUpdateImpl(uint32 diff)
 
             if (m_HonorScoreTicks[team] >= m_HonorTicks)
             {
-                RewardHonorToTeam(GetBonusHonorFromKill(1), (team == BG_TEAM_ALLIANCE) ? ALLIANCE : HORDE);
+                RewardHonorToTeam(GetBonusHonorFromKill(1), (team == BG_TEAM_ALLIANCE) ? ALLIANCE : HORDE, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
                 m_HonorScoreTicks[team] -= m_HonorTicks;
             }
 

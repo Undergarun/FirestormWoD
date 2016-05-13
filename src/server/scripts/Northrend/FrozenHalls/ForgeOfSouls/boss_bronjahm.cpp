@@ -119,7 +119,7 @@ class boss_bronjahm : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
@@ -341,7 +341,7 @@ class spell_bronjahm_soulstorm_channel: public SpellScriptLoader
         {
             PrepareAuraScript(spell_bronjahm_soulstorm_channel_AuraScript);
 
-            void HandlePeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 for (uint32 i = 68904; i <= 68907; ++i)
@@ -369,7 +369,7 @@ class spell_bronjahm_soulstorm_visual: public SpellScriptLoader
         {
             PrepareAuraScript(spell_bronjahm_soulstorm_visual_AuraScript);
 
-            void HandlePeriodicTick(constAuraEffectPtr aurEff)
+            void HandlePeriodicTick(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
                 if (aurEff->GetTickNumber()%5)

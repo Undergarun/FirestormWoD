@@ -59,33 +59,22 @@ namespace MS { namespace Garrison
     {
         p_Player->PlayerTalkClass->ClearMenus();
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
-        CreatureAI* l_AI = p_Creature->AI();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
         if (l_AI == nullptr)
             return true;
 
-        if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
-        {
-            if (p_Player->GetQuestStatus(Quests::Alliance_PortablePortals) == QUEST_STATUS_INCOMPLETE)
-                p_Player->QuestObjectiveSatisfy(ObjectIDs::FirstMageTowerSpiritLodgeObjectID, 1, 3);
+        if (p_Player->GetQuestStatus(Quests::Alliance_PortablePortals) == QUEST_STATUS_INCOMPLETE)
+            p_Player->QuestObjectiveSatisfy(ObjectIDs::FirstMageTowerSpiritLodgeObjectID, 1, 3);
 
-            l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentFur);
-            reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player);
-        }
+        l_AI->SendShipmentCrafterUI(p_Player);
+
         return true;
     }
 
     void npc_ApprenticeVarNathAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
-        std::vector<SequencePosition> l_GobPos =
-        {
-            { 13.5690f, -5.1295f, 1.3013f, 2.1965f },
-            { 9.8864f,  -7.8239f, 1.2993f, 1.8823f },
-            { 1.7612f,  -6.5470f, 1.3018f, 0.7749f },
-            { -0.8525f, -1.5060f, 1.3028f, 0.1977f },
-            { 0.5427f,   6.0054f, 1.3089f, 5.6326f },
-            { 9.6880f,   8.1694f, 1.3003f, 4.5645f },
-        };
+        using namespace MS::Garrison::GarrisonPortals;
 
         if (Player* l_Owner = GetOwner())
         {
@@ -107,38 +96,53 @@ namespace MS { namespace Garrison
             {
                 if (l_Owner->IsQuestRewarded(l_QuestID) && l_Itr < l_BuildingEntry->Level)
                 {
-                    l_Itr++;
-
-                    SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::FrostfireRidgeBuildingGob, l_GobPos[0].X, l_GobPos[0].Y, l_GobPos[0].Z, l_GobPos[0].O);
-                    SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::GorgrondBuildingGob, l_GobPos[1].X, l_GobPos[1].Y, l_GobPos[1].Z, l_GobPos[1].O);
-                    SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::NagrandBuildingGob, l_GobPos[2].X, l_GobPos[2].Y, l_GobPos[2].Z, l_GobPos[2].O);
-                    SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::ShadowmoonBuildingGob, l_GobPos[3].X, l_GobPos[3].Y, l_GobPos[3].Z, l_GobPos[3].O);
-                    SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::SpiresOfArakBuildingGob, l_GobPos[4].X, l_GobPos[4].Y, l_GobPos[4].Z, l_GobPos[4].O);
-                    SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::TaladorBuildingGob, l_GobPos[5].X, l_GobPos[5].Y, l_GobPos[5].Z, l_GobPos[5].O);
-
-                    /*switch (l_QuestID)
+                    switch (l_QuestID)
                     {
                         case GarrisonPortals::PortalsQuests::QuestFrostfireRidge:
-                            SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::FrostfireRidgeBuildingGob, l_GobPos[0].X, l_GobPos[0].Y, l_GobPos[0].Z, l_GobPos[0].O);
+                            if (GameObject* l_Gob = SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::FrostfireRidgeBuildingGob, g_GobPos[l_Owner->GetTeamId()][l_BuildingEntry->Level - 1][0]))
+                            {
+                                l_Gob->SetPhaseMask(GarrisonPhases::PhaseMagePortalFrostfireRidge, true);
+                                l_Itr++;
+                            }
                             break;
                         case GarrisonPortals::PortalsQuests::QuestGorgrond:
-                            SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::GorgrondBuildingGob, l_GobPos[1].X, l_GobPos[1].Y, l_GobPos[1].Z, l_GobPos[1].O);
+                            if (GameObject* l_Gob = SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::GorgrondBuildingGob, g_GobPos[l_Owner->GetTeamId()][l_BuildingEntry->Level - 1][1]))
+                            {
+                                l_Gob->SetPhaseMask(GarrisonPhases::PhaseMagePortalGorgrond, true);
+                                l_Itr++;
+                            }
                             break;
                         case GarrisonPortals::PortalsQuests::QuestNagrand:
-                            SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::NagrandBuildingGob, l_GobPos[2].X, l_GobPos[2].Y, l_GobPos[2].Z, l_GobPos[2].O);
+                            if (GameObject* l_Gob = SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::NagrandBuildingGob, g_GobPos[l_Owner->GetTeamId()][l_BuildingEntry->Level - 1][2]))
+                            {
+                                l_Gob->SetPhaseMask(GarrisonPhases::PhaseMagePortalNagrand, true);
+                                l_Itr++;
+                            }
                             break;
                         case GarrisonPortals::PortalsQuests::QuestShadowmoon:
-                            SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::ShadowmoonBuildingGob, l_GobPos[3].X, l_GobPos[3].Y, l_GobPos[3].Z, l_GobPos[3].O);
+                            if (GameObject* l_Gob = SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::ShadowmoonBuildingGob, g_GobPos[l_Owner->GetTeamId()][l_BuildingEntry->Level - 1][3]))
+                            {
+                                l_Gob->SetPhaseMask(GarrisonPhases::PhaseMagePortalShadowmoon, true);
+                                l_Itr++;
+                            }
                             break;
                         case GarrisonPortals::PortalsQuests::QuestSpiresOfArak:
-                            SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::SpiresOfArakBuildingGob, l_GobPos[4].X, l_GobPos[4].Y, l_GobPos[4].Z, l_GobPos[4].O);
+                            if (GameObject* l_Gob = SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::SpiresOfArakBuildingGob, g_GobPos[l_Owner->GetTeamId()][l_BuildingEntry->Level - 1][4]))
+                            {
+                                l_Gob->SetPhaseMask(GarrisonPhases::PhaseMagePortalSpiresOfArak, true);
+                                l_Itr++;
+                            }
                             break;
                         case GarrisonPortals::PortalsQuests::QuestTalador:
-                            SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::TaladorBuildingGob, l_GobPos[5].X, l_GobPos[5].Y, l_GobPos[5].Z, l_GobPos[5].O);
+                            if (GameObject* l_Gob = SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::TaladorBuildingGob, g_GobPos[l_Owner->GetTeamId()][l_BuildingEntry->Level - 1][5]))
+                            {
+                                l_Gob->SetPhaseMask(GarrisonPhases::PhaseMagePortalTalador, true);
+                                l_Itr++;
+                            }
                             break;
                         default:
                             break;
-                    }*/
+                    }
                 }
             }
         }

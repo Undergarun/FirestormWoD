@@ -175,9 +175,13 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         break;
                 }
             }
-            
+
             bool SetBossState(uint32 p_ID, EncounterState p_State)
             {
+                /// If loading, runes will be disabled
+                if (p_ID == DATA_OREBENDER_GORASHAN && p_State == DONE)
+                    m_RunesDisabled = 5;
+
                 if (!InstanceScript::SetBossState(p_ID, p_State))
                     return false;
 
@@ -187,6 +191,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                     {
                         if (p_State != DONE)
                             m_ThunderingCacophonyCasted = 0;
+
                         break;
                     }
                     case DATA_KYRAK_THE_CORRUPTOR:
@@ -212,7 +217,6 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         if (p_State != DONE)
                             m_EmberscaleKilled = 0;
                         break;
-                    case DATA_COMMANDER_THARBEK:
                     default:
                         break;
                 }
@@ -366,21 +370,28 @@ class instance_upper_blackrock_spire : public InstanceMapScript
             ///< Must be overrided because of optional (runes) step...
             void OnPlayerEnter(Player* p_Player)
             {
-                SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
-
-                Unit* l_Orebender = sObjectAccessor->FindUnit(m_OrebenderGorashanGuid);
-                if (m_ScenarioStep == 0 && m_RunesDisabled >= 5 && l_Orebender != nullptr)
+                uint64 l_Guid = p_Player->GetGUID();
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
                 {
-                    if (GameObject* l_PreDoor = GameObject::GetGameObject(*l_Orebender, m_PreOrebenderDoorGuid))
-                        l_PreDoor->SetGoState(GO_STATE_ACTIVE);
-                    if (GameObject* l_Entrance = GameObject::GetGameObject(*l_Orebender, m_OrebenderEntranceGuid))
-                        l_Entrance->SetGoState(GO_STATE_ACTIVE);
+                    if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                    {
+                        SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), l_Player);
 
-                    if (!instance->IsChallengeMode())
-                        SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
-                }
+                        Unit* l_Orebender = sObjectAccessor->FindUnit(m_OrebenderGorashanGuid);
+                        if (m_ScenarioStep == 0 && m_RunesDisabled >= 5 && l_Orebender != nullptr)
+                        {
+                            if (GameObject* l_PreDoor = GameObject::GetGameObject(*l_Orebender, m_PreOrebenderDoorGuid))
+                                l_PreDoor->SetGoState(GO_STATE_ACTIVE);
+                            if (GameObject* l_Entrance = GameObject::GetGameObject(*l_Orebender, m_OrebenderEntranceGuid))
+                                l_Entrance->SetGoState(GO_STATE_ACTIVE);
 
-                UpdateCriteriasAfterLoading();
+                            if (!instance->IsChallengeMode())
+                                SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
+                        }
+
+                        UpdateCriteriasAfterLoading();
+                    }
+                });
             }
         };
 

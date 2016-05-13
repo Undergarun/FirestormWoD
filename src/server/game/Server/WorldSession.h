@@ -178,7 +178,9 @@ namespace ServiceFlags
 {
     enum
     {
-        Premade = 0x1
+        Premade     = 0x01,
+        Season2Gold = 0x02,
+        Season2Item = 0x04
     };
 }
 
@@ -188,6 +190,16 @@ namespace AccountCustomFlags
     {
         NoChatLocaleFiltering = 0x1
     };
+}
+
+namespace Taxi
+{
+    class ShowTaxiNodes;
+    class TaxiNodeStatusQuery;
+    class EnableTaxiNode;
+    class TaxiQueryAvailableNodes;
+    class ActivateTaxi;
+    class TaxiRequestEarlyLanding;
 }
 
 //class to deal with packet processing
@@ -337,6 +349,7 @@ class WorldSession
             return (_logoutTime > 0 && currTime >= _logoutTime + 20);
         }
 
+        void LoginPlayer(uint64 p_Guid);
         void LogoutPlayer(bool Save);
         void KickPlayer();
 
@@ -483,11 +496,11 @@ class WorldSession
         uint16 GetClientBuild() const { return m_ClientBuild; }
 
         /// Return join date as unix timestamp
-        uint32 GetAccountJoinDate() const { return m_AccountJoinDate; }
+        uint64 GetAccountJoinDate() const { return m_AccountJoinDate; }
 
         /// Set join date as unix timestamp
         /// @p_JoinDate : unix timestamp of the account creation
-        void SetAccountJoinDate(uint32 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
+        void SetAccountJoinDate(uint64 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
 
         time_t GetLoginTime() const { return m_LoginTime; }
 
@@ -726,6 +739,7 @@ class WorldSession
         void HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket);
         void HandleGuildFinderSetGuildPost(WorldPacket& recvPacket);
 
+        void HandleEnableTaxiNodeOpcode(WorldPacket& recvPacket);
         void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleTaxiQueryAvailableNodes(WorldPacket& recvPacket);
         void HandleActivateTaxiOpcode(WorldPacket& recvPacket);
@@ -740,6 +754,7 @@ class WorldSession
         void HandleBuyReagentBankOpcode(WorldPacket& recvPacket);
         void HandleSortReagentBankBagsOpcode(WorldPacket& recvPacket);
         void HandleDepositAllReagentsOpcode(WorldPacket& p_RecvData);
+        void HandleUseCritterItemOpcode(WorldPacket& p_RecvData);
 
         void HandleTrainerListOpcode(WorldPacket& recvPacket);
         void HandleTrainerBuySpellOpcode(WorldPacket& recvPacket);
@@ -1136,22 +1151,24 @@ class WorldSession
         //////////////////////////////////////////////////////////////////////////
         /// Garrison
         //////////////////////////////////////////////////////////////////////////
-        void HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData);
-        void HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData);
-        void HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData);
-        void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData);
+        void HandleGetGarrisonInfoOpcode(WorldPacket& p_RecvData);
+        void HandleRequestGarrisonUpgradeableOpcode(WorldPacket& p_RecvData);
+        void HandleUpgradeGarrisonOpcode(WorldPacket& p_RecvData);
+        void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonMissionNPCHelloOpcode(WorldPacket& p_RecvData);
         void HandleGarrisonRequestSetMissionNPC(WorldPacket& p_RecvData);
-        void HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonRequestBuildingsOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonPurchaseBuildingOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonCancelConstructionOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonStartMissionOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonCompleteMissionOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonMissionBonusRollOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonAssignFollowerToBuilding(WorldPacket& p_RecvData);
+        void HandleGarrisonRemoveFollowerFromBuilding(WorldPacket& p_RecvData);
+        void HandleGarrisonGetShipmentInfoOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonGetShipmentsOpcode(WorldPacket& p_RecvData);
         void HandleGarrisonFollowerRename(WorldPacket& p_RecvData);
         void HandleGarrisonDecommisionShip(WorldPacket& p_RecvData);
 
@@ -1159,29 +1176,68 @@ class WorldSession
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);
         void SendGarrisonSetMissionNpc(uint64 p_CreatureGUID);
 
-        // Pet Battle System
-        void HandlePetBattleSetAbility(WorldPacket& p_RecvData);
-        void HandlePetBattleRename(WorldPacket& p_RecvData);
-        void HandlePetBattleCagePet(WorldPacket& p_RecvData);
-        void HandlePetBattleQueryName(WorldPacket& p_RecvData);
-        void HandlePetBattleRequestWild(WorldPacket& p_RecvData);
-        void HandlePetBattleRequestPvP(WorldPacket& p_RecvData);
-        void HandlePetBattleJoinQueue(WorldPacket& p_RecvData);
-        void HandlePetBattleRequestUpdate(WorldPacket& p_RecvData);
-        void HandlePetBattleCancelRequestPvPMatchmaking(WorldPacket& p_RecvData);
-        void HandlePetBattleInput(WorldPacket& p_RecvData);
-        void HandlePetBattleInputNewFrontPet(WorldPacket& p_RecvData);
+        /// Battle pet
+        void SendBattlePetUpdates(bool p_AddedPet);
+        void SendBattlePetTrapLevel();
+        void SendBattlePetJournalLockAcquired();
+        void SendBattlePetJournalLockDenied();
+        void SendBattlePetJournal();
+        void SendBattlePetDeleted(uint64 p_BattlePetGUID);
+        void SendBattlePetRevoked(uint64 p_BattlePetGUID);
+        void SendBattlePetRestored(uint64 p_BattlePetGUID);
+        void SendBattlePetsHealed();
+        void SendBattlePetLicenseChanged();
+        void SendBattlePetError(uint32 p_Result, uint32 p_CreatureID);
+        void SendBattlePetCageDateError(uint32 p_SecondsUntilCanCage);
+        void HandleBattlePetQueryName(WorldPacket& p_RecvData);
+        void HandleBattlePetsReconvert(WorldPacket& p_RecvData);
+        void HandleBattlePetUpdateNotify(WorldPacket& p_RecvData);
+        void HandleBattlePetRequestJournalLock(WorldPacket& p_RecvData);
+        void HandleBattlePetRequestJournal(WorldPacket& p_RecvData);
+        void HandleBattlePetDeletePet(WorldPacket& p_RecvData);
+        void HandleBattlePetDeletePetCheat(WorldPacket& p_RecvData);
+        void HandleBattlePetDeleteJournal(WorldPacket& p_RecvData);
+        void HandleBattlePetModifyName(WorldPacket& p_RecvData);
+        void HandleBattlePetSummon(WorldPacket& p_RecvData);
+        void HandleBattlePetSetLevel(WorldPacket& p_RecvData);
         void HandleBattlePetSetBattleSlot(WorldPacket& p_RecvData);
-        void HandleSummonCompanion(WorldPacket& p_RecvData);
-        void SendPetBattleRequestFailed(uint8 reason);
-        void SendPetBattleJournal();
-        void SendPetBattleJournalBattleSlotUpdate();
-        void SendPetBattleFinalizeLocation(PetBattleRequest* request);
-        void SendPetBattleFullUpdate(PetBattle* battle);
-        void SendPetBattleRoundResult(PetBattle* battle);
-        void SendPetBattleFirstRound(PetBattle* battle);
+        void HandleBattlePetSetCollar(WorldPacket& p_RecvData);
+        void HandleBattlePetSetFlags(WorldPacket& p_RecvData);
+        void HandleBattlePetsRestoreHealth(WorldPacket& p_RecvData);
+        void HandleBattlePetAdd(WorldPacket& p_RecvData);
+        void HandleBattlePetSetQualityCheat(WorldPacket& p_RecvData);
+        void HandleBattlePetCage(WorldPacket& p_RecvData);
+
+        /// Pet battle
+        void SendPetBattleSlotUpdates(bool p_NewSlotUnlocked);
+        void SendPetBattleRequestFailed(uint8 p_Reason);
+        void SendPetBattlePvPChallenge(PetBattleRequest* p_Request);
+        void SendPetBattleFinalizeLocation(PetBattleRequest* p_Request);
+        void SendPetBattleInitialUpdate(PetBattle* p_Battle);
+        void SendPetBattleFirstRound(PetBattle* p_Battle);
+        void SendPetBattleRoundResult(PetBattle* p_Battle);
+        void SendPetBattleReplacementMade(PetBattle* p_Battle);
         void SendPetBattleFinalRound(PetBattle* p_Battle);
-        void SendPetBattleFinished(PetBattle* battle);
+        void SendPetBattleFinished(PetBattle* p_Battle);
+        void SendPetBattleChatRestricted();
+        void SendPetBattleMaxGameLenghtWarning();
+        void SendPetBattleQueueProposeMatch();
+        void SendPetBattleQueueStatus(uint32 p_TicketTime, uint32 p_TicketID, uint32 p_Status, uint32 p_AvgWaitTime);
+        void SendPetBattleDebugQueueDumpResponse();
+        void HandlePetBattleJoinQueue(WorldPacket& p_RecvData);
+        void HandlePetBattleLeaveQueue(WorldPacket& p_RecvData);
+        void HandlePetBattleRequestWild(WorldPacket& p_RecvData);
+        void HandlePetBattleWildLocationFail(WorldPacket& p_RecvData);
+        void HandlePetBattleRequestPvP(WorldPacket& p_RecvData);
+        void HandlePetBattleRequestUpdate(WorldPacket& p_RecvData);
+        void HandlePetBattleQuitNotify(WorldPacket& p_RecvData);
+        void HandlePetBattleFinalNotify(WorldPacket& p_RecvData);
+        void HandlePetBattleScriptErrorNotify(WorldPacket& p_RecvData);
+        void HandlePetBattleQueueProposeMatchResult(WorldPacket& p_RecvData);
+        void HandlePetBattleFirstPet(WorldPacket& p_RecvData);
+        void HandlePetBattleInput(WorldPacket& p_RecvData);
+        void HandlePetBattleReplaceFrontPet(WorldPacket& p_RecvData);
+        void HandlePetBattleDebugQueueDump(WorldPacket& p_RecvData);
 
         //////////////////////////////////////////////////////////////////////////
         /// ToyBox
@@ -1212,6 +1268,9 @@ class WorldSession
 
         /// Gms command cooldowns (performances)
         time_t m_TimeLastTicketOnlineList;
+
+        void SetStressTest(bool p_Value) { m_IsStressTestSession = p_Value; }
+        bool IsStressTest() const { return m_IsStressTestSession; }
 
     private:
         void InitializeQueryCallbackParameters();
@@ -1275,7 +1334,7 @@ class WorldSession
 
         uint16 m_ClientBuild;
 
-        uint32 m_AccountJoinDate;
+        uint64 m_AccountJoinDate;
 
         //////////////////////////////////////////////////////////////////////////
         /// Premium
@@ -1301,6 +1360,7 @@ class WorldSession
         bool m_playerLogout;                                // code processed in LogoutPlayer
         bool m_playerRecentlyLogout;
         bool m_playerSave;
+        bool m_IsPetBattleJournalLocked;
         LocaleConstant m_sessionDbcLocale;
         LocaleConstant m_sessionDbLocaleIndex;
         uint32 m_latency;
@@ -1345,6 +1405,8 @@ class WorldSession
         uint32 m_ServiceFlags;
         uint32 m_CustomFlags;
         time_t m_LoginTime;
+
+        bool m_IsStressTestSession;
 };
 #endif
 /// @}

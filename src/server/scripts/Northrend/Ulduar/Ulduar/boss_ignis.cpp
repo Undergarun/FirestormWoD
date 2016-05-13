@@ -202,7 +202,7 @@ class boss_ignis : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_SLAY);
             }
 
@@ -381,7 +381,7 @@ class npc_iron_construct : public CreatureScript
                 if (me->HasAura(SPELL_MOLTEN) && me->HasAura(SPELL_HEAT))
                     me->RemoveAura(SPELL_HEAT);
 
-                if (AuraPtr aur = me->GetAura(SPELL_HEAT))
+                if (Aura* aur = me->GetAura(SPELL_HEAT))
                 {
                     if (aur->GetStackAmount() >= 10)
                     {
@@ -502,7 +502,7 @@ class spell_ignis_slag_pot: public SpellScriptLoader
                 return true;
             }
 
-            void HandleEffectPeriodic(constAuraEffectPtr aurEff)
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
                 Unit* aurEffCaster = aurEff->GetCaster();
                 if (!aurEffCaster)
@@ -513,7 +513,7 @@ class spell_ignis_slag_pot: public SpellScriptLoader
                     aurEffCaster->CastSpell(target, spellId == SPELL_SLAG_POT ? SPELL_SLAG_POT_DAMAGE_N : SPELL_SLAG_POT_DAMAGE_H, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->isAlive())
                     GetTarget()->CastSpell(GetTarget(), SPELL_SLAG_IMBUED, true);

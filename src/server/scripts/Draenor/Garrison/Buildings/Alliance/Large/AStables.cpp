@@ -45,6 +45,10 @@ namespace MS { namespace Garrison
     {
         using namespace StablesData::Alliance::FannyQuestGiver;
         uint32 l_QuestID = p_Quest->GetQuestId();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+
+        if (l_AI == nullptr)
+            return true;
 
         if (std::find(g_BoarQuests.begin(), g_BoarQuests.end(), l_QuestID) != g_BoarQuests.end() ||
             std::find(g_ElekkQuests.begin(), g_ElekkQuests.end(), l_QuestID) != g_ElekkQuests.end() ||
@@ -54,16 +58,20 @@ namespace MS { namespace Garrison
         {
             p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
 
-            if (l_QuestID == g_BoarQuests.back() && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
+            if (l_QuestID == g_BoarQuests.back())
             {
                 using namespace StablesData::Alliance;
-                reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SummonRelativeCreature(g_KeeganQuestgiverEntry,
+
+                l_AI->SummonRelativeCreature(g_KeeganQuestgiverEntry,
                     g_AllianceCreaturesPos[4].X,
                     g_AllianceCreaturesPos[4].Y,
                     g_AllianceCreaturesPos[4].Z,
                     g_AllianceCreaturesPos[4].O,
                     TEMPSUMMON_MANUAL_DESPAWN);
             }
+
+            if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
+                l_GarrisonMgr->UpdatePlot(l_AI->GetPlotInstanceID());
         }
 
         return true;
@@ -87,9 +95,44 @@ namespace MS { namespace Garrison
         return false;
     }
 
+    void npc_FannyFirebeard::ProceedQuestSelection(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestsList, uint32 p_NextListQuestID, uint32 p_FirstQuestID)
+    {
+        if (p_Player == nullptr)
+            return;
+
+        uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest);
+        std::vector<uint32>::const_iterator l_Iterator = std::find(p_QuestsList.begin(), p_QuestsList.end(), l_QuestID);
+        uint32 l_NextQuestID = 0;
+
+        if (!l_QuestID)
+            return;
+
+        if ((std::find(p_QuestsList.begin(), p_QuestsList.end(), l_QuestID) == p_QuestsList.end() && l_QuestID != p_FirstQuestID) ||
+            l_QuestID == (p_FirstQuestID | StablesData::g_PendingQuestFlag)) ///< QUEST DIDN'T GOT DAILY RESET YET, SO NEXT QUEST ISN'T OFFERED
+            return;
+        else if (l_Iterator != p_QuestsList.end() || l_QuestID == p_FirstQuestID)
+        {
+            if (l_QuestID == p_FirstQuestID)
+                l_NextQuestID = p_QuestsList[0];
+            else if (l_Iterator + 1 != p_QuestsList.end())
+                l_NextQuestID = *(l_Iterator + 1);
+            else
+                l_NextQuestID = p_NextListQuestID;
+
+            if (!l_NextQuestID)
+                return;
+
+            Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
+
+            if (l_Quest != nullptr)
+                p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+        }
+    }
+
     bool npc_FannyFirebeard::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         using namespace StablesData::Alliance::FannyQuestGiver;
+        bool l_NeedFirstQuest = true;
 
         std::vector<uint32> l_BasicQuests =
         {
@@ -104,107 +147,39 @@ namespace MS { namespace Garrison
             CheckRewardQuest(p_Player, p_Creature, l_BasicQuests))
             return true;
 
+        /// Boar questline tests
         if (p_Player->IsQuestRewarded(BoarQuests::QuestBestingABoar))
         {
-            uint32 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest);
-            std::vector<uint32>::const_iterator l_Iterator = std::find(g_BoarQuests.begin(), g_BoarQuests.end(), l_QuestID);
-            uint32 l_NextQuestID = 0;
-
-            if (!l_QuestID)
-                return true;
-
-            /// Boar questline tests
-            if ((std::find(g_BoarQuests.begin(), g_BoarQuests.end(), l_QuestID) == g_BoarQuests.end() && l_QuestID != BoarQuests::QuestBestingABoar) ||
-                l_QuestID == (BoarQuests::QuestBestingABoar | StablesData::g_PendingQuestFlag)) ///< QUEST DIDN'T GOT DAILY RESET YET, SO NEXT QUEST ISN'T OFFERED
-                return true;
-            else if (l_Iterator != g_BoarQuests.end() || l_QuestID == BoarQuests::QuestBestingABoar)
-            {
-
-                if (l_Iterator + 1 != g_BoarQuests.end())
-                    l_NextQuestID = *(l_Iterator + 1);
-                else
-                    return true;
-
-                if (l_QuestID == BoarQuests::QuestBestingABoar)
-                    l_NextQuestID = g_BoarQuests[0];
-
-                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
-
-                if (l_Quest != nullptr)
-                    p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-
-                return true;
-            }
+            ProceedQuestSelection(p_Player, p_Creature, g_BoarQuests, 0, BoarQuests::QuestBestingABoar);
+            l_NeedFirstQuest = false;
         }
         /// Elekk questline tests
         else if (p_Player->IsQuestRewarded(ElekkQuests::QuestEntanglingAnElekk))
         {
-            uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest);
-            std::vector<uint32>::const_iterator l_Iterator = std::find(g_ElekkQuests.begin(), g_ElekkQuests.end(), l_QuestID);
-            uint32 l_NextQuestID = 0;
-
-            if (!l_QuestID)
-                return true;
-
-            if ((std::find(g_ElekkQuests.begin(), g_ElekkQuests.end(), l_QuestID) == g_ElekkQuests.end() && l_QuestID != ElekkQuests::QuestEntanglingAnElekk) ||
-                l_QuestID == (ElekkQuests::QuestEntanglingAnElekk | StablesData::g_PendingQuestFlag)) ///< QUEST DIDN'T GOT DAILY RESET YET, SO NEXT QUEST ISN'T OFFERED
-                return true;
-            else if (l_Iterator != g_ElekkQuests.end() || l_QuestID == ElekkQuests::QuestEntanglingAnElekk)
-            {
-                if (l_Iterator + 1 != g_ElekkQuests.end())
-                    l_NextQuestID = *(l_Iterator + 1);
-                else
-                    l_NextQuestID = BoarQuests::QuestBestingABoar;
-
-                if (l_QuestID == ElekkQuests::QuestEntanglingAnElekk)
-                    l_NextQuestID = g_ElekkQuests[0];
-
-                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
-
-                if (l_Quest != nullptr)
-                    p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-
-                return true;
-            }
+            ProceedQuestSelection(p_Player, p_Creature, g_ElekkQuests, BoarQuests::QuestBestingABoar, ElekkQuests::QuestEntanglingAnElekk);
+            l_NeedFirstQuest = false;
         }
         /// Clefthoof questline test
         else if (p_Player->IsQuestRewarded(ClefthoofQuests::QuestCapturingAClefthoof))
         {
-            uint64 l_QuestID     = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest);
-            std::vector<uint32>::const_iterator l_Iterator = std::find(g_ClefthoofQuests.begin(), g_ClefthoofQuests.end(), l_QuestID);
-            uint32 l_NextQuestID = 0;
-
-            if (!l_QuestID)
-                return true;
-
-            if ((std::find(g_ClefthoofQuests.begin(), g_ClefthoofQuests.end(), l_QuestID) == g_ClefthoofQuests.end() && l_QuestID != ClefthoofQuests::QuestCapturingAClefthoof) ||
-                l_QuestID == (ClefthoofQuests::QuestCapturingAClefthoof | StablesData::g_PendingQuestFlag)) ///< QUEST DIDN'T GOT DAILY RESET YET, SO NEXT QUEST ISN'T OFFERED
-                return true;
-            else if (l_Iterator != g_ClefthoofQuests.end() || l_QuestID == ClefthoofQuests::QuestCapturingAClefthoof)
-            {
-                if (l_Iterator + 1 != g_ClefthoofQuests.end())
-                    l_NextQuestID = *(l_Iterator + 1);
-                else
-                    l_NextQuestID = ElekkQuests::QuestEntanglingAnElekk;
-
-                if (l_QuestID == ClefthoofQuests::QuestCapturingAClefthoof)
-                    l_NextQuestID = g_ClefthoofQuests[0];
-
-                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
-
-                if (l_Quest != nullptr)
-                    p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-
-                return true;
-            }
+            ProceedQuestSelection(p_Player, p_Creature, g_ClefthoofQuests, ElekkQuests::QuestEntanglingAnElekk, ClefthoofQuests::QuestCapturingAClefthoof);
+            l_NeedFirstQuest = false;
         }
 
-        Quest const* l_Quest = sObjectMgr->GetQuestTemplate(ClefthoofQuests::QuestCapturingAClefthoof);
+        if (l_NeedFirstQuest)
+        {
+            Quest const* l_Quest = sObjectMgr->GetQuestTemplate(ClefthoofQuests::QuestCapturingAClefthoof);
 
-        if (l_Quest != nullptr)
-            p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+            if (l_Quest != nullptr)
+                p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+        }
 
         return true;
+    }
+
+    void npc_FannyFirebeardAI::OnPlotInstanceUnload()
+    {
+        me->DespawnCreaturesInArea(m_SummonsEntries, 20.0f);
     }
 
     void npc_FannyFirebeardAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
@@ -213,6 +188,8 @@ namespace MS { namespace Garrison
 
         if (l_Owner == nullptr)
             return;
+
+        me->DespawnCreaturesInArea(m_SummonsEntries, 20.0f);
 
         PlayerSpellMap &l_SpellMap = l_Owner->GetSpellMap();
         std::vector<uint32> l_MountEntries;
@@ -229,11 +206,15 @@ namespace MS { namespace Garrison
             }
         }
 
+        if (l_MountEntries.empty())
+            return;
+
         uint32 l_MountEntry = l_MountEntries[urand(0, l_MountEntries.size() - 1)];
 
         using namespace StablesData::Alliance;
 
-        SummonRelativeCreature(l_MountEntry, g_AllianceCreaturesPos[0].X, g_AllianceCreaturesPos[0].Y, g_AllianceCreaturesPos[0].Z, g_AllianceCreaturesPos[0].O, TEMPSUMMON_MANUAL_DESPAWN);
+        if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_AllianceCreaturesPos[0].X, g_AllianceCreaturesPos[0].Y, g_AllianceCreaturesPos[0].Z, g_AllianceCreaturesPos[0].O, TEMPSUMMON_MANUAL_DESPAWN))
+            m_SummonsEntries.push_back(l_Creature->GetEntry());
 
         l_MountEntries.erase(std::remove(l_MountEntries.begin(), l_MountEntries.end(), l_MountEntry), l_MountEntries.end());
         l_MountEntry = 0;
@@ -242,8 +223,10 @@ namespace MS { namespace Garrison
             l_MountEntry = l_MountEntries[urand(0, l_MountEntries.size() - 1)];
 
         if (l_MountEntry)
-            SummonRelativeCreature(l_MountEntry, g_AllianceCreaturesPos[1].X, g_AllianceCreaturesPos[1].Y, g_AllianceCreaturesPos[1].Z, g_AllianceCreaturesPos[1].O, TEMPSUMMON_MANUAL_DESPAWN);
-
+        {
+            if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_AllianceCreaturesPos[1].X, g_AllianceCreaturesPos[1].Y, g_AllianceCreaturesPos[1].Z, g_AllianceCreaturesPos[1].O, TEMPSUMMON_MANUAL_DESPAWN))
+                m_SummonsEntries.push_back(l_Creature->GetEntry());
+        }
 
         using namespace StablesData::Alliance::FannyQuestGiver;
         using namespace StablesData::Alliance::KeeganQuestGiver;
@@ -255,6 +238,8 @@ namespace MS { namespace Garrison
 
             if (Creature* l_FirstCreature = SummonRelativeCreature(305, g_AllianceCreaturesPos[2].X, g_AllianceCreaturesPos[2].Y, g_AllianceCreaturesPos[2].Z, g_AllianceCreaturesPos[2].O, TEMPSUMMON_MANUAL_DESPAWN))
             {
+                m_SummonsEntries.push_back(l_FirstCreature->GetEntry());
+
                 if (std::find(g_BoarQuests.begin(), g_BoarQuests.end(), l_QuestID) != g_BoarQuests.end() || l_QuestID == BoarQuests::QuestBestingABoar)
                     l_FirstCreature->SetDisplayId(StablesData::MountDisplayIDs::DisplayTrainedRocktusk);
                 else if (std::find(g_ElekkQuests.begin(), g_ElekkQuests.end(), l_QuestID) != g_ElekkQuests.end() || l_QuestID == ElekkQuests::QuestEntanglingAnElekk)
@@ -273,6 +258,8 @@ namespace MS { namespace Garrison
 
             if (Creature* l_SecondCreature = SummonRelativeCreature(305, g_AllianceCreaturesPos[3].X, g_AllianceCreaturesPos[3].Y, g_AllianceCreaturesPos[3].Z, g_AllianceCreaturesPos[3].O, TEMPSUMMON_MANUAL_DESPAWN))
             {
+                m_SummonsEntries.push_back(l_SecondCreature->GetEntry());
+
                 if (std::find(g_WolfQuests.begin(), g_WolfQuests.end(), l_QuestID) != g_WolfQuests.end() || l_QuestID == WolfQuests::QuestWanglingAWolf)
                     l_SecondCreature->SetDisplayId(StablesData::MountDisplayIDs::DisplayTrainedSnarler);
                 else if (std::find(g_TalbukQuests.begin(), g_TalbukQuests.end(), l_QuestID) != g_TalbukQuests.end() || l_QuestID == TalbukQuests::QuestTamingATalbuk)
@@ -282,6 +269,17 @@ namespace MS { namespace Garrison
                 else
                     l_SecondCreature->DespawnOrUnsummon();
             }
+        }
+
+        if (GetClosestCreatureWithEntry(me, g_KeeganQuestgiverEntry, 200.0f) == nullptr && l_Owner->IsQuestRewarded(StablesData::Alliance::FannyQuestGiver::ClefthoofQuests::QuestCapturingAClefthoof))
+        {
+            if (Creature* l_Creature = SummonRelativeCreature(g_KeeganQuestgiverEntry,
+                g_AllianceCreaturesPos[4].X,
+                g_AllianceCreaturesPos[4].Y,
+                g_AllianceCreaturesPos[4].Z,
+                g_AllianceCreaturesPos[4].O,
+                TEMPSUMMON_MANUAL_DESPAWN))
+                m_SummonsEntries.push_back(l_Creature->GetEntry());
         }
     }
 
@@ -312,7 +310,7 @@ namespace MS { namespace Garrison
             l_QuestID == WolfQuests::QuestWanglingAWolf || l_QuestID == TalbukQuests::QuestTamingATalbuk ||
             l_QuestID == RiverbeastQuests::QuestRequisitionARiverbeast)
         {
-            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
+            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
         }
 
         return true;
@@ -336,9 +334,44 @@ namespace MS { namespace Garrison
         return false;
     }
 
+    void npc_KeeganFirebeard::ProceedQuestSelection(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestsList, uint32 p_NextListQuestID, uint32 p_FirstQuestID)
+    {
+        if (p_Player == nullptr)
+            return;
+
+        uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest);
+        std::vector<uint32>::const_iterator l_Iterator = std::find(p_QuestsList.begin(), p_QuestsList.end(), l_QuestID);
+        uint32 l_NextQuestID = 0;
+
+        if (!l_QuestID)
+            return;
+
+        if ((std::find(p_QuestsList.begin(), p_QuestsList.end(), l_QuestID) == p_QuestsList.end() && l_QuestID != p_FirstQuestID) ||
+            l_QuestID == (p_FirstQuestID | StablesData::g_PendingQuestFlag)) ///< QUEST DIDN'T GOT DAILY RESET YET, SO NEXT QUEST ISN'T OFFERED
+            return;
+        else if (l_Iterator != p_QuestsList.end() || l_QuestID == p_FirstQuestID)
+        {
+            if (l_QuestID == p_FirstQuestID)
+                l_NextQuestID = p_QuestsList[0];
+            else if (l_Iterator + 1 != p_QuestsList.end())
+                l_NextQuestID = *(l_Iterator + 1);
+            else
+                l_NextQuestID = p_NextListQuestID;
+
+            if (!l_NextQuestID)
+                return;
+
+            Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
+
+            if (l_Quest != nullptr)
+                p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+        }
+    }
+
     bool npc_KeeganFirebeard::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         using namespace StablesData::Alliance::KeeganQuestGiver;
+        bool l_NeedFirstQuest = true;
 
         std::vector<uint32> l_BasicQuests =
         {
@@ -353,105 +386,32 @@ namespace MS { namespace Garrison
             CheckRewardQuest(p_Player, p_Creature, l_BasicQuests))
             return true;
 
+        /// Wolf questline tests
         if (p_Player->IsQuestRewarded(WolfQuests::QuestWanglingAWolf))
         {
-            uint32 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest);
-            std::vector<uint32>::const_iterator l_Iterator = std::find(g_WolfQuests.begin(), g_WolfQuests.end(), l_QuestID);
-            uint32 l_NextQuestID = 0;
-
-            if (!l_QuestID)
-                return true;
-
-            /// Boar questline tests
-            if ((std::find(g_WolfQuests.begin(), g_WolfQuests.end(), l_QuestID) == g_WolfQuests.end() && l_QuestID != WolfQuests::QuestWanglingAWolf) ||
-                l_QuestID == (WolfQuests::QuestWanglingAWolf | StablesData::g_PendingQuestFlag)) ///< QUEST DIDN'T GOT DAILY RESET YET, SO NEXT QUEST ISN'T OFFERED
-                return true;
-            else if (l_Iterator != g_WolfQuests.end() || l_QuestID == WolfQuests::QuestWanglingAWolf)
-            {
-
-                if (l_Iterator + 1 != g_WolfQuests.end())
-                    l_NextQuestID = *(l_Iterator + 1);
-                else
-                    return true;
-
-                if (l_QuestID == WolfQuests::QuestWanglingAWolf)
-                    l_NextQuestID = g_WolfQuests[0];
-
-                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
-
-                if (l_Quest != nullptr)
-                    p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-
-                return true;
-            }
+            ProceedQuestSelection(p_Player, p_Creature, g_WolfQuests, 0, WolfQuests::QuestWanglingAWolf);
+            l_NeedFirstQuest = false;
         }
-        /// Elekk questline tests
+        /// Talbuk questline tests
         else if (p_Player->IsQuestRewarded(TalbukQuests::QuestTamingATalbuk))
         {
-            uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest);
-            std::vector<uint32>::const_iterator l_Iterator = std::find(g_TalbukQuests.begin(), g_TalbukQuests.end(), l_QuestID);
-            uint32 l_NextQuestID = 0;
-
-            if (!l_QuestID)
-                return true;
-
-            if ((std::find(g_TalbukQuests.begin(), g_TalbukQuests.end(), l_QuestID) == g_TalbukQuests.end() && l_QuestID != TalbukQuests::QuestTamingATalbuk) ||
-                l_QuestID == (TalbukQuests::QuestTamingATalbuk | StablesData::g_PendingQuestFlag)) ///< QUEST DIDN'T GOT DAILY RESET YET, SO NEXT QUEST ISN'T OFFERED
-                return true;
-            else if (l_Iterator != g_TalbukQuests.end() || l_QuestID == TalbukQuests::QuestTamingATalbuk)
-            {
-                if (l_Iterator + 1 != g_TalbukQuests.end())
-                    l_NextQuestID = *(l_Iterator + 1);
-                else
-                    l_NextQuestID = WolfQuests::QuestWanglingAWolf;
-
-                if (l_QuestID == TalbukQuests::QuestTamingATalbuk)
-                    l_NextQuestID = g_TalbukQuests[0];
-
-                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
-
-                if (l_Quest != nullptr)
-                    p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-
-                return true;
-            }
+            ProceedQuestSelection(p_Player, p_Creature, g_TalbukQuests, WolfQuests::QuestWanglingAWolf, TalbukQuests::QuestTamingATalbuk);
+            l_NeedFirstQuest = false;
         }
-        /// Clefthoof questline test
+        /// Riverbeast questline test
         else if (p_Player->IsQuestRewarded(RiverbeastQuests::QuestRequisitionARiverbeast))
         {
-            uint64 l_QuestID     = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest);
-            std::vector<uint32>::const_iterator l_Iterator = std::find(g_RiverbeastQuests.begin(), g_RiverbeastQuests.end(), l_QuestID);
-            uint32 l_NextQuestID = 0;
-
-            if (!l_QuestID)
-                return true;
-
-            if ((std::find(g_RiverbeastQuests.begin(), g_RiverbeastQuests.end(), l_QuestID) == g_RiverbeastQuests.end() && l_QuestID != RiverbeastQuests::QuestRequisitionARiverbeast) ||
-                l_QuestID == (RiverbeastQuests::QuestRequisitionARiverbeast | StablesData::g_PendingQuestFlag)) ///< QUEST DIDN'T GOT DAILY RESET YET, SO NEXT QUEST ISN'T OFFERED
-                return true;
-            else if (l_Iterator != g_RiverbeastQuests.end() || l_QuestID == RiverbeastQuests::QuestRequisitionARiverbeast)
-            {
-                if (l_Iterator + 1 != g_RiverbeastQuests.end())
-                    l_NextQuestID = *(l_Iterator + 1);
-                else
-                    l_NextQuestID = TalbukQuests::QuestTamingATalbuk;
-
-                if (l_QuestID == RiverbeastQuests::QuestRequisitionARiverbeast)
-                    l_NextQuestID = g_RiverbeastQuests[0];
-
-                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
-
-                if (l_Quest != nullptr)
-                    p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-
-                return true;
-            }
+            ProceedQuestSelection(p_Player, p_Creature, g_RiverbeastQuests, TalbukQuests::QuestTamingATalbuk, RiverbeastQuests::QuestRequisitionARiverbeast);
+            l_NeedFirstQuest = false;
         }
 
-        Quest const* l_Quest = sObjectMgr->GetQuestTemplate(RiverbeastQuests::QuestRequisitionARiverbeast);
+        if (l_NeedFirstQuest)
+        {
+            Quest const* l_Quest = sObjectMgr->GetQuestTemplate(RiverbeastQuests::QuestRequisitionARiverbeast);
 
-        if (l_Quest != nullptr)
-            p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+            if (l_Quest != nullptr)
+                p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+        }
 
         return true;
     }

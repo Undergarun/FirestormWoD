@@ -1559,7 +1559,7 @@ class mob_pillar_controler : public CreatureScript
                         DoAction(ACTION_RESET_PILLAR_ENERGY);
                         ++m_PowerLevel;
 
-                        if (AuraPtr l_PowerAura = me->GetAura(g_PillarAltPowerEnabler[m_Data]))
+                        if (Aura* l_PowerAura = me->GetAura(g_PillarAltPowerEnabler[m_Data]))
                             l_PowerAura->SetStackAmount(l_PowerAura->GetStackAmount() + 1);
                     }
 
@@ -1860,7 +1860,7 @@ class spell_discharged_energy : public SpellScriptLoader
         {
             PrepareAuraScript(spell_discharged_energy_AuraScript);
 
-            void OnUpdate(uint32 p_Diff, AuraEffectPtr p_AurEff)
+            void OnUpdate(uint32 p_Diff, AuraEffect* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1894,7 +1894,7 @@ class spell_decapitate : public SpellScriptLoader
         {
             PrepareAuraScript(spell_decapitate_AuraScript);
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1979,7 +1979,7 @@ class spell_crashing_thunder_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_crashing_thunder_periodic_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2027,7 +2027,7 @@ class spell_diffusion_chain : public SpellScriptLoader
                             l_Spell = l_PowerLevel == 2 ? SPELL_DIFFUSION_CHAIN_SUMMON_2 : l_PowerLevel == 3 ? SPELL_DIFFUSION_CHAIN_SUMMON_3 : l_Spell;
                         }
 
-                        l_Target->CastSpell(l_Target, l_Spell, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
+                        l_Target->CastSpell(l_Target, l_Spell, true, NULL, nullptr, l_Caster->GetGUID());
                     }
                 }
             }
@@ -2067,7 +2067,7 @@ class spell_overcharged_dummy : public SpellScriptLoader
                             return;
 
                         // @TODO: Handle things with AreaTrigger for safety area
-                        l_Caster->CastSpell(l_Target, SPELL_OVERCHARGE_DAMAGE_STUN, true, NULL, NULLAURA_EFFECT, l_LeiShen->GetGUID());
+                        l_Caster->CastSpell(l_Target, SPELL_OVERCHARGE_DAMAGE_STUN, true, NULL, nullptr, l_LeiShen->GetGUID());
                     }
                 }
             }
@@ -2116,7 +2116,7 @@ class spell_bouncing_bolt : public SpellScriptLoader
                                 if (!p_Object)
                                     return true;
 
-                                if (p_Object->GetTypeId() == TYPEID_PLAYER)
+                                if (p_Object->IsPlayer())
                                     return false;
 
                                 if (p_Object->ToUnit() && p_Object->ToUnit()->GetOwner() && p_Object->ToUnit()->GetOwner()->ToPlayer())
@@ -2195,13 +2195,13 @@ class spell_overwhelming_power : public SpellScriptLoader
         {
             PrepareAuraScript(spell_overwhelming_power_AuraScript);
 
-            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& /*p_ProcInfo*/)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_ProcInfo*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Victim = l_Caster->getVictim())
                     {
-                        if (l_Victim->GetTypeId() == TYPEID_PLAYER)
+                        if (l_Victim->IsPlayer())
                             l_Caster->CastSpell(l_Victim, SPELL_OVERWHELMING_POWER_AURA, true);
                     }
 

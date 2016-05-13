@@ -137,7 +137,7 @@ class boss_the_butcher : public CreatureScript
             /// Frenzy (30%)
             SpellFrenzy         = 156598,
             /// Loot
-            ButcherBonusLoot    = 177504
+            ButcherBonusLoot    = 177522
         };
 
         enum eEvents
@@ -317,7 +317,10 @@ class boss_the_butcher : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheTenderizer);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellGushingWounds);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::ButcherBonusLoot, true);
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::ButcherBonusLoot, true);
                 }
             }
 
@@ -325,6 +328,28 @@ class boss_the_butcher : public CreatureScript
             {
                 if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(eTalks::Slay);
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::EFFECT_MOTION_TYPE)
+                    return;
+
+                if (p_ID == eSpells::BoundingCleaveCharg)
+                {
+                    me->CastSpell(me, eSpells::BoundingCleaveDmg, true);
+
+                    me->RemoveAura(eSpells::BoundingCleaveDummy);
+
+                    AddTimedDelayedOperation(50, [this]() -> void
+                    {
+                        if (Unit* l_Target = me->getVictim())
+                        {
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MoveChase(l_Target);
+                        }
+                    });
+                }
             }
 
             void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) override
@@ -489,7 +514,8 @@ class boss_the_butcher : public CreatureScript
                         me->CastSpell(me, eSpells::BoundingCleaveKnock, true);
                         /// Charge on players after 8s
                         me->CastSpell(me, eSpells::BoundingCleaveDummy, false);
-                        m_Events.DelayEvent(eEvents::EventMeatHook, 20 * TimeConstants::IN_MILLISECONDS);
+
+                        m_Events.DelayEvents(12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventMeatHook:
@@ -508,16 +534,18 @@ class boss_the_butcher : public CreatureScript
                         ++m_AddCount;
                         uint8 l_Count = floor(float(m_AddCount) / 4.0f) + 1;
 
-                        float l_Radius = 50.0f;
-                        float l_PosX = me->GetPositionX();
-                        float l_PosY = me->GetPositionY();
+                        float l_Radius  = 50.0f;
+                        float l_PosX    = me->GetHomePosition().m_positionX;
+                        float l_PosY    = me->GetHomePosition().m_positionY;
+                        float l_PosZ    = me->GetHomePosition().m_positionZ;
 
                         for (uint8 l_I = 0; l_I < l_Count; ++l_I)
                         {
                             float l_Orientation = frand(0, 2 * M_PI);
                             float l_X = l_PosX + (l_Radius * cos(l_Orientation));
                             float l_Y = l_PosY + (l_Radius * sin(l_Orientation));
-                            me->SummonCreature(eCreatures::NightTwistedCadaver, l_X, l_Y, me->GetPositionZ());
+
+                            me->SummonCreature(eCreatures::NightTwistedCadaver, l_X, l_Y, l_PosZ);
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventCadaver, 14 * TimeConstants::IN_MILLISECONDS);
@@ -684,7 +712,7 @@ class spell_highmaul_heavy_handed : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_heavy_handed_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -801,7 +829,7 @@ class spell_highmaul_bounding_cleave_dummy : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_bounding_cleave_dummy_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (p_AurEff->GetTickNumber() != 8)
                     return;
@@ -847,11 +875,25 @@ class spell_highmaul_gushing_wounds : public SpellScriptLoader
                 GushingWoundsKill = 156153
             };
 
-            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (p_AurEff->GetBase()->GetStackAmount() >= 5)
+                    Map* l_Map = l_Target->GetMap();
+                    Aura* l_Aura = p_AurEff->GetBase();
+
+                    if (l_Map->IsLFR())
+                    {
+                        l_Aura->SetDuration(10 * TimeConstants::IN_MILLISECONDS);
+                        l_Aura->SetMaxDuration(10 * TimeConstants::IN_MILLISECONDS);
+                    }
+                    else
+                    {
+                        l_Aura->SetDuration(15 * TimeConstants::IN_MILLISECONDS);
+                        l_Aura->SetMaxDuration(15 * TimeConstants::IN_MILLISECONDS);
+                    }
+
+                    if (l_Aura->GetStackAmount() >= 5)
                         l_Target->CastSpell(l_Target, eSpell::GushingWoundsKill, true);
                 }
             }

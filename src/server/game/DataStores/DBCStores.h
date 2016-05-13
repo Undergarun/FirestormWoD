@@ -70,9 +70,6 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 p_MapID, Difficulty& 
 
 uint32 GetLiquidFlags(uint32 liquidType);
 
-/*PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
-PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, Bracket::Id id);*/
-
 typedef std::unordered_map<uint32, std::list<ItemSetSpellEntry const*> > ItemSetSpellsByItemID;
 extern ItemSetSpellsByItemID sItemSetSpellsByItemIDStore;
 
@@ -181,5 +178,7 @@ extern DBCStorage <WorldStateExpressionEntry>    sWorldStateExpressionStore;
 void LoadDBCStores(const std::string& dataPath);
 
 uint32 GetQuestUniqueBitFlag(uint32 questId);
+
+void DeterminaAlternateMapPosition(uint32 p_MapID, float p_X, float p_Y, float p_Z, uint32* p_NewMapID = nullptr, float* p_NewPosX = nullptr, float* p_NewPosY = nullptr);
 
 #endif

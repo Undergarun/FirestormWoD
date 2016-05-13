@@ -64,11 +64,15 @@ class spell_mastery_molten_earth : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mastery_molten_earth_AuraScript);
 
-            void OnProc(constAuraEffectPtr, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const*, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
                 if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == MoltenEarthSpells::MoltenEarthDamage)
+                    return;
+
+                /// If spell doesn't deal damage it can't trigger Molten Earth
+                if (p_EventInfo.GetDamageInfo()->GetDamage() == 0 && p_EventInfo.GetDamageInfo()->GetAbsorb() == 0)
                     return;
 
                 Unit* l_Caster = GetCaster();
@@ -82,7 +86,7 @@ class spell_mastery_molten_earth : public SpellScriptLoader
 
                 if (l_Target->HasAura(MoltenEarthSpells::MoltenEarthPeriodic, l_Caster->GetGUID()))
                 {
-                    if (AuraPtr l_PeriodicAura = l_Target->GetAura(MoltenEarthSpells::MoltenEarthPeriodic, l_Caster->GetGUID()))
+                    if (Aura* l_PeriodicAura = l_Target->GetAura(MoltenEarthSpells::MoltenEarthPeriodic, l_Caster->GetGUID()))
                         l_PeriodicAura->RefreshDuration();
                 }
                 else
@@ -111,7 +115,7 @@ class spell_mastery_molten_earth_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mastery_molten_earth_periodic_AuraScript);
 
-            void HandleEffectPeriodic(constAuraEffectPtr)
+            void HandleEffectPeriodic(AuraEffect const*)
             {
                 PreventDefaultAction();
 
@@ -164,7 +168,7 @@ class spell_mastery_molten_earth_damage : public SpellScriptLoader
                 float l_Mastery = 0.0f;
                 float l_SpellPower = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
 
-                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::MoltenEarth, EFFECT_0))
+                if (AuraEffect* l_AuraEffect = l_Caster->GetAuraEffect(eSpells::MoltenEarth, EFFECT_0))
                     l_Mastery = l_AuraEffect->GetAmount();
 
                 int32 l_Damage = (l_Mastery / 100) * l_SpellPower;
@@ -202,29 +206,29 @@ class spell_mastery_sniper_training : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mastery_sniper_training_AuraScript);
 
-            void OnUpdate(uint32, AuraEffectPtr)
+            void OnUpdate(uint32, AuraEffect*)
             {
                 if (!GetUnitOwner())
                     return;
 
                 if (Player* l_Player = GetUnitOwner()->ToPlayer())
                 {
-                    if (AuraPtr l_Aura = l_Player->GetAura(Masteries::SniperTrainingAura))
+                    if (Aura* l_Aura = l_Player->GetAura(Masteries::SniperTrainingAura))
                     {
-                        if (l_Player->isMoving() && l_Aura->GetDuration() == -1)
+                        if (l_Player->IsMoving() && l_Aura->GetDuration() == -1)
                         {
                             l_Aura->SetDuration(6000);
                             l_Aura->SetMaxDuration(6000);
                         }
-                        else if (!l_Player->isMoving() && l_Aura->GetDuration() != -1 && !l_Player->HasAura(Masteries::RecentlyMoved))
+                        else if (!l_Player->IsMoving() && l_Aura->GetDuration() != -1 && !l_Player->HasAura(Masteries::RecentlyMoved))
                             l_Player->CastSpell(l_Player, Masteries::RecentlyMoved, true);
                     }
-                    else if (!l_Player->isMoving() && !l_Player->HasAura(Masteries::RecentlyMoved))
+                    else if (!l_Player->IsMoving() && !l_Player->HasAura(Masteries::RecentlyMoved))
                         l_Player->CastSpell(l_Player, Masteries::RecentlyMoved, true);
                 }
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -262,7 +266,7 @@ class spell_mastery_recently_moved : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mastery_recently_moved_AuraScript);
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -296,7 +300,7 @@ class spell_mastery_sniper_training_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mastery_sniper_training_aura_AuraScript);
 
-            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            void OnUpdate(uint32, AuraEffect* p_AurEff)
             {
                 if (!GetUnitOwner())
                     return;
@@ -309,11 +313,11 @@ class spell_mastery_sniper_training_aura : public SpellScriptLoader
                     float l_Mastery = l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 0.625f;
                     int32 l_BasePoints = l_Mastery;
 
-                    if (AuraPtr l_Aura = p_AurEff->GetBase())
+                    if (Aura* l_Aura = p_AurEff->GetBase())
                     {
                         for (uint8 l_I = 0; l_I < 4; ++l_I)
                         {
-                            if (AuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
+                            if (AuraEffect* l_Effect = l_Aura->GetEffect(l_I))
                                 l_Effect->ChangeAmount(l_BasePoints, true, true);
                         }
                     }
@@ -332,7 +336,7 @@ class spell_mastery_sniper_training_aura : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2
+/// last update : 6.2.3
 /// Mastery: Echo of Light - 77485
 class spell_mastery_echo_of_light: public SpellScriptLoader
 {
@@ -343,26 +347,26 @@ class spell_mastery_echo_of_light: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mastery_echo_of_light_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
                 if (!GetCaster())
                     return;
 
-                if (!eventInfo.GetHealInfo() || !eventInfo.GetHealInfo()->GetHeal())
+                if (!p_EventInfo.GetHealInfo() || !p_EventInfo.GetHealInfo()->GetHeal())
                     return;
 
-                Unit* unitTarget = eventInfo.GetActionTarget();
-                Player* plr = GetCaster()->ToPlayer();
-                if (!unitTarget || !plr)
+                Unit* l_UnitTarget = p_EventInfo.GetActionTarget();
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_UnitTarget || !l_Player)
                     return;
 
-                float Mastery = plr->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f / 100.0f;
-                int32 bp = (Mastery * eventInfo.GetHealInfo()->GetHeal()) / 2;
+                float l_Mastery = p_AurEff->GetAmount() / 100.0f;
+                int32 l_Bp = (l_Mastery * p_EventInfo.GetHealInfo()->GetHeal()) / 2;
 
-                bp += unitTarget->GetRemainingPeriodicAmount(plr->GetGUID(), SPELL_PRIEST_ECHO_OF_LIGHT, SPELL_AURA_PERIODIC_HEAL);
-                plr->CastCustomSpell(unitTarget, SPELL_PRIEST_ECHO_OF_LIGHT, &bp, NULL, NULL, true);
+                l_Bp += l_UnitTarget->GetRemainingPeriodicAmount(l_Player->GetGUID(), SPELL_PRIEST_ECHO_OF_LIGHT, SPELL_AURA_PERIODIC_HEAL);
+                l_Player->CastCustomSpell(l_UnitTarget, SPELL_PRIEST_ECHO_OF_LIGHT, &l_Bp, NULL, NULL, true);
             }
 
             void Register()
@@ -396,7 +400,7 @@ class spell_mastery_icicles_proc : public SpellScriptLoader
                 FrostfireBolt   = 44614
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
 
@@ -449,7 +453,7 @@ class spell_mastery_icicles_proc : public SpellScriptLoader
                         int32 l_MinDuration = 0xFFFFFF;
                         for (int8 i = 0; i < 5; i++)
                         {
-                            if (AuraPtr l_TmpCurrentAura = l_Player->GetAura(IcicleAuras[i]))
+                            if (Aura* l_TmpCurrentAura = l_Player->GetAura(IcicleAuras[i]))
                             {
                                 if (l_MinDuration > l_TmpCurrentAura->GetDuration())
                                 {
@@ -460,7 +464,7 @@ class spell_mastery_icicles_proc : public SpellScriptLoader
                         }
 
                         /// Launch the icicle with the smallest duration
-                        if (AuraEffectPtr l_CurrentIcicleAuraEffect = l_Player->GetAuraEffect(IcicleAuras[l_SmallestIcicle], EFFECT_0))
+                        if (AuraEffect* l_CurrentIcicleAuraEffect = l_Player->GetAuraEffect(IcicleAuras[l_SmallestIcicle], EFFECT_0))
                         {
                             int32 l_BasePoints = l_CurrentIcicleAuraEffect->GetAmount();
                             l_Player->CastSpell(l_Target, IcicleHits[l_SmallestIcicle], true);
@@ -477,9 +481,9 @@ class spell_mastery_icicles_proc : public SpellScriptLoader
                     case 3:
                     case 4:
                     {
-                        if (AuraPtr l_CurrentIcicleAura = l_Player->AddAura(IcicleAuras[l_IcicleFreeSlot], l_Player))
+                        if (Aura* l_CurrentIcicleAura = l_Player->AddAura(IcicleAuras[l_IcicleFreeSlot], l_Player))
                         {
-                            if (AuraEffectPtr l_Effect = l_CurrentIcicleAura->GetEffect(EFFECT_0))
+                            if (AuraEffect* l_Effect = l_CurrentIcicleAura->GetEffect(EFFECT_0))
                                 l_Effect->SetAmount(l_HitDamage);
                         }
 
@@ -551,24 +555,24 @@ class spell_mastery_icicles_periodic : public SpellScriptLoader
             uint32 m_Icicles[5];
             int32 m_IcicleCount;
 
-            void OnApply(constAuraEffectPtr /*l_AurEff*/, AuraEffectHandleModes /*l_Mode*/)
+            void OnApply(AuraEffect const* /*l_AurEff*/, AuraEffectHandleModes /*l_Mode*/)
             {
                 m_IcicleCount = 0;
                 if (Unit* l_Caster = GetCaster())
                 {
                     for (uint32 l_I = 0; l_I < 5; ++l_I)
                     {
-                        if (AuraPtr l_Icicle = l_Caster->GetAura(IcicleAuras[l_I]))
+                        if (Aura* l_Icicle = l_Caster->GetAura(IcicleAuras[l_I]))
                             m_Icicles[m_IcicleCount++] = IcicleAuras[l_I];
                     }
                 }
             }
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                    if (AuraEffect* l_Aura = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
                     {                        
                         // Maybe not the good target selection ...
                         if (Unit* l_Target = ObjectAccessor::FindUnit(l_Caster->GetIciclesTarget()))
@@ -576,7 +580,7 @@ class spell_mastery_icicles_periodic : public SpellScriptLoader
                             if (l_Target->isAlive())
                             {
                                 int32 l_Amount = l_Aura->GetAmount();
-                                if (AuraPtr l_CurrentIcicleAura = l_Caster->GetAura(m_Icicles[l_Amount]))
+                                if (Aura* l_CurrentIcicleAura = l_Caster->GetAura(m_Icicles[l_Amount]))
                                 {
                                     int32 l_BasePoints = l_CurrentIcicleAura->GetEffect(0)->GetAmount();
 
@@ -642,13 +646,13 @@ class spell_mastery_blood_shield: public SpellScriptLoader
                 if (l_Caster->GetGUID() != l_Target->GetGUID()) ///< Only when you heal yourself
                     return;
 
-                if (AuraEffectPtr l_MasteryBloodShield = l_Caster->GetAuraEffect(eSpells::MasteryAura, EFFECT_0))
+                if (AuraEffect* l_MasteryBloodShield = l_Caster->GetAuraEffect(eSpells::MasteryAura, EFFECT_0))
                 {
                     float l_Mastery = l_MasteryBloodShield->GetAmount();
 
                     int32 l_Bp = -int32(GetHitDamage() * (l_Mastery / 100));
 
-                    if (AuraEffectPtr l_ActualBloodShield = l_Caster->GetAuraEffect(MASTERY_SPELL_BLOOD_SHIELD, EFFECT_0))
+                    if (AuraEffect* l_ActualBloodShield = l_Caster->GetAuraEffect(MASTERY_SPELL_BLOOD_SHIELD, EFFECT_0))
                         l_Bp += l_ActualBloodShield->GetAmount();
 
                     l_Bp = std::min(uint32(l_Bp), l_Caster->GetMaxHealth());
@@ -692,7 +696,7 @@ class spell_mastery_ignite: public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->HasAura(MASTERY_SPELL_IGNITE) && l_Caster->getLevel() >= 80)
+                        if (l_Caster->IsPlayer() && l_Caster->HasAura(MASTERY_SPELL_IGNITE) && l_Caster->getLevel() >= 80)
                         {
                             const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(MASTERY_SPELL_IGNITE_AURA);
                             if (GetSpellInfo()->Id != MASTERY_SPELL_IGNITE_AURA && l_SpellInfo != nullptr)
@@ -707,9 +711,9 @@ class spell_mastery_ignite: public SpellScriptLoader
                                     if (l_SpellInfo->Effects[EFFECT_0].Amplitude > 0)
                                         l_Bp = l_Bp / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude);
                                     
-                                    if (AuraPtr l_PreviousIgnite = l_Target->GetAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
+                                    if (Aura* l_PreviousIgnite = l_Target->GetAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
                                     {
-                                        if (AuraEffectPtr l_Effect = l_PreviousIgnite->GetEffect(EFFECT_0))
+                                        if (AuraEffect* l_Effect = l_PreviousIgnite->GetEffect(EFFECT_0))
                                         {
                                             if (uint32 l_Amplitude = l_Effect->GetAmplitude())
                                             {
@@ -766,7 +770,7 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
                 EmpoweredHammerofWrath  = 158392
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -844,7 +848,7 @@ class spell_mastery_elemental_overload: public SpellScriptLoader
                     {
                         if (Unit* unitTarget = GetHitUnit())
                         {
-                            if (caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(77222))
+                            if (caster->IsPlayer() && caster->HasAura(77222))
                             {
                                 // Every Lightning Bolt, Chain Lightning and Lava Burst spells have duplicate vs 75% damage and no cost
                                 switch (procSpell->Id)
@@ -928,7 +932,7 @@ public:
             SPELL_DRU_PRIMAL_TENACITY = 155784
         };
 
-        void OnUpdate(uint32 /*diff*/, AuraEffectPtr aurEff)
+        void OnUpdate(uint32 /*diff*/, AuraEffect* aurEff)
         {
             if (!GetCaster())
                 return;
@@ -940,12 +944,12 @@ public:
                 int32 l_Mastery = int32(l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 1.5f);
 
                 /// Update tooltip information
-                if (AuraEffectPtr l_PrimalTenacityEffect = l_Player->GetAuraEffect(SPELL_DRU_PRIMAL_TENACITY, EFFECT_1))
+                if (AuraEffect* l_PrimalTenacityEffect = l_Player->GetAuraEffect(SPELL_DRU_PRIMAL_TENACITY, EFFECT_1))
                     l_PrimalTenacityEffect->SetAmount(l_Mastery);
             }
         }
 
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Player* l_Player = GetTarget()->ToPlayer())
             {

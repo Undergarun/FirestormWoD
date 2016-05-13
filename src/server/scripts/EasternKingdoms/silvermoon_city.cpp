@@ -89,7 +89,7 @@ public:
         void SpellHit(Unit* Hitter, const SpellInfo* Spellkind)
         {
             if ((Spellkind->Id == SPELL_SHIMMERING_VESSEL) && !spellHit &&
-                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_REDEEMING_THE_DEAD)))
+                (Hitter->IsPlayer()) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_REDEEMING_THE_DEAD)))
             {
                 CAST_PLR(Hitter)->AreaExploredOrEventHappens(QUEST_REDEEMING_THE_DEAD);
                 DoCast(me, SPELL_REVIVE_SELF);

@@ -166,7 +166,7 @@ class boss_vanessa_vancleef : public CreatureScript
 
             void KilledUnit(Unit * victim)
             {
-                if (victim && victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim && victim->IsPlayer())
                     Talk(SAY_KILL);
             }
 

@@ -207,8 +207,149 @@ class npc_kairoz : public CreatureScript
         };
 };
 
+/// Unlock Armor Cache (Plate) - 147597
+/// Unlock Armor Cache (Mail) - 148099
+/// Unlock Armor Cache (Leather) - 148103
+/// Unlock Armor Cache (Cloth) - 148104
+/// Create Curio - 148746
+/// Create Cloak - 146246
+/// Create Leggings - 146241
+/// Create Leggings - 146265
+/// Create Leggings - 146273
+/// Create Leggings - 146281
+/// Create Robes - 146278
+/// Create Helm - 146240
+/// Create Helm - 146264
+/// Create Helm - 146272
+/// Create Helm - 146280
+/// Create Ring - 146244
+/// Create Shoulders - 146242
+/// Create Shoulders - 146266
+/// Create Shoulders - 146274
+/// Create Shoulders - 146282
+/// Create Chestpiece - 146238
+/// Create Chestpiece - 146261
+/// Create Chestpiece - 146270
+/// Create Belt - 146236
+/// Create Belt - 146259
+/// Create Belt - 146268
+/// Create Belt - 146276
+/// Create Lavalliere - 148740
+/// Create Boots - 146237
+/// Create Boots - 146260
+/// Create Boots - 146269
+/// Create Boots - 146277
+/// Create Gloves - 146239
+/// Create Gloves - 146263
+/// Create Gloves - 146271
+/// Create Gloves - 146279
+/// Create Bracers - 146243
+/// Create Bracers - 146267
+/// Create Bracers - 146275
+/// Create Bracers - 146283
+class spell_item_timeless_caches : public SpellScriptLoader
+{
+    public:
+        spell_item_timeless_caches() : SpellScriptLoader("spell_item_timeless_caches") { }
+
+        class spell_item_timeless_caches_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_timeless_caches_SpellScript);
+
+            uint32 m_ItemID;
+
+            bool Load() override
+            {
+                m_ItemID = 0;
+                return true;
+            }
+
+            SpellCastResult CheckCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (l_Player == nullptr)
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+
+                LootTemplate const* l_LootTemplate = LootTemplates_Spell.GetLootFor(GetSpellInfo()->Id);
+                if (!l_LootTemplate)
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+
+                std::list<ItemTemplate const*> l_LootTable;
+                std::vector<uint32> l_Items;
+                l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+                uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+
+                for (ItemTemplate const* l_Template : l_LootTable)
+                {
+                    if ((l_Template->AllowableClass && !(l_Template->AllowableClass & l_Player->getClassMask())) ||
+                        (l_Template->AllowableRace && !(l_Template->AllowableRace & l_Player->getRaceMask())))
+                        continue;
+
+                    if (l_Template->HasSpec((SpecIndex)l_SpecID, l_Player->getLevel()))
+                        l_Items.push_back(l_Template->ItemId);
+                }
+
+                if (l_Items.empty())
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+
+                m_ItemID = l_Items[urand(0, l_Items.size() - 1)];
+
+                if (!m_ItemID)
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+
+                if (!l_Player->GetBagsFreeSlots())
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void HandleCreateItem(SpellEffIndex p_EffIndex)
+            {
+                PreventHitEffect(p_EffIndex);
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (m_ItemID)
+                    {
+                        /// Adding items
+                        uint32 l_NoSpaceForCount = 0;
+                        uint32 l_Count = 1;
+
+                        /// Check space and find places
+                        ItemPosCountVec l_Dest;
+                        InventoryResult l_Result = l_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Dest, m_ItemID, l_Count, &l_NoSpaceForCount);
+
+                        /// Convert to possible store amount
+                        if (l_Result != InventoryResult::EQUIP_ERR_OK)
+                            l_Count -= l_NoSpaceForCount;
+
+                        /// Can't add any
+                        if (l_Count == 0 || l_Dest.empty())
+                            return;
+
+                        Item* l_Item = l_Player->StoreNewItem(l_Dest, m_ItemID, true, Item::GenerateItemRandomPropertyId(m_ItemID));
+                        if (l_Count > 0 && l_Item)
+                            l_Player->SendNewItem(l_Item, l_Count, true, false);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_timeless_caches_SpellScript::CheckCast);
+                OnEffectHitTarget += SpellEffectFn(spell_item_timeless_caches_SpellScript::HandleCreateItem, EFFECT_0, SPELL_EFFECT_CREATE_ITEM_2);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_timeless_caches_SpellScript();
+        }
+};
+
 void AddSC_timeless_isle()
 {
     new npc_prince_anduin();
     new npc_kairoz();
+    new spell_item_timeless_caches();
 }

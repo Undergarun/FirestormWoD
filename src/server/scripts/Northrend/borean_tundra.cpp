@@ -80,7 +80,7 @@ public:
             if (Phase)
                 return;
 
-            if (spell->Id == SPELL_SET_CART && caster->GetTypeId() == TYPEID_PLAYER
+            if (spell->Id == SPELL_SET_CART && caster->IsPlayer()
                 && CAST_PLR(caster)->GetQuestStatus(11897) == QUEST_STATUS_INCOMPLETE)
             {
                 Phase = 1;
@@ -187,7 +187,7 @@ public:
             {
                 if (Unit* owner = who->GetOwner())
                 {
-                    if (owner->GetTypeId() == TYPEID_PLAYER)
+                    if (owner->IsPlayer())
                     {
                         owner->CastSpell(owner, 46231, true);
                         CAST_CRE(who)->DespawnOrUnsummon();
@@ -517,7 +517,7 @@ public:
             {
                 if (Unit* owner = who->GetOwner())
                 {
-                    if (owner->GetTypeId() == TYPEID_PLAYER)
+                    if (owner->IsPlayer())
                     {
                         if (who->HasAura(SPELL_CRATES_CARRIED))
                         {
@@ -604,7 +604,7 @@ public:
             if (TempSummon* summon = me->ToTempSummon())
                 if (summon->isSummon())
                     if (Unit* temp = summon->GetSummoner())
-                        if (temp->GetTypeId() == TYPEID_PLAYER)
+                        if (temp->IsPlayer())
                             CAST_PLR(temp)->KilledMonsterCredit(me->GetEntry(), 0);
 
             if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
@@ -874,7 +874,7 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (spell->Id == SPELL_DRAKE_HARPOON && caster->GetTypeId() == TYPEID_PLAYER)
+            if (spell->Id == SPELL_DRAKE_HARPOON && caster->IsPlayer())
             {
                 HarpoonerGUID = caster->GetGUID();
                 DoCast(me, SPELL_RED_DRAGONBLOOD, true);
@@ -1643,7 +1643,7 @@ public:
 
         void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
         {
-            if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && !bEnslaved)
+            if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->IsPlayer() && !bEnslaved)
             {
                 EnterEvadeMode(); //We make sure that the npc is not attacking the player!
                 me->SetReactState(REACT_PASSIVE);
@@ -1750,7 +1750,7 @@ public:
 
         void SpellHit(Unit* unit, const SpellInfo* spell)
         {
-            if (spell->Id == SPELL_NEURAL_NEEDLE && unit->GetTypeId() == TYPEID_PLAYER)
+            if (spell->Id == SPELL_NEURAL_NEEDLE && unit->IsPlayer())
             {
                 if (Player* player = unit->ToPlayer())
                 {
@@ -2433,8 +2433,7 @@ public:
             me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
             if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
             {
-                me->SetInFront(player);
-                me->SendMovementFlagUpdate();
+                me->SetFacingToObject(player);
             }
             uiEventTimer = 3000;
             uiEventPhase = 1;
@@ -2486,8 +2485,7 @@ public:
                                 DoScriptText(SAY_HIDDEN_CULTIST_4, me);
                                 if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
                                 {
-                                    me->SetInFront(player);
-                                    me->SendMovementFlagUpdate();
+                                    me->SetFacingToObject(player);
                                 }
                                 uiEventTimer = 3000;
                                 uiEventPhase = 3;

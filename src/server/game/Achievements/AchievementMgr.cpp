@@ -16,14 +16,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "DBCEnums.h"
 #include "DBCStructure.h"
 #include "ObjectMgr.h"
 #include "GuildMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "DatabaseEnv.h"
 #include "AchievementMgr.h"
 #include "Arena.h"
 #include "CellImpl.h"
@@ -42,7 +39,6 @@
 #include "InstanceScript.h"
 #include "Group.h"
 #include "Chat.h"
-#include "MapUpdater.h"
 #include "WowTime.hpp"
 
 namespace JadeCore
@@ -277,7 +273,7 @@ bool AchievementCriteriaData::IsValid(CriteriaEntry const* p_Criteria)
     }
 }
 
-bool AchievementCriteriaData::Meets(uint32 p_CriteriaID, Player const* p_Source, Unit const* p_Target, uint32 p_MiscValue1 /*= 0*/) const
+bool AchievementCriteriaData::Meets(uint32 p_CriteriaID, Player const* p_Source, Unit const* p_Target, uint64 p_MiscValue1 /*= 0*/) const
 {
     switch (dataType)
     {
@@ -390,7 +386,7 @@ bool AchievementCriteriaData::Meets(uint32 p_CriteriaID, Player const* p_Source,
     return false;
 }
 
-bool AchievementCriteriaDataSet::Meets(Player const* p_Source, Unit const* p_Target, uint32 p_MiscValue /*= 0*/) const
+bool AchievementCriteriaDataSet::Meets(Player const* p_Source, Unit const* p_Target, uint64 p_MiscValue /*= 0*/) const
 {
     for (Storage::const_iterator itr = storage.begin(); itr != storage.end(); ++itr)
         if (!itr->Meets(criteria_id, p_Source, p_Target, p_MiscValue))
@@ -864,16 +860,25 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
             ca.date = time_t(fields[2].GetUInt32());
             ca.changed = false;
             ca.first_guid = MAKE_NEW_GUID(first_guid, 0, HIGHGUID_PLAYER);
-            ca.completedByThisCharacter = false;
+            ca.completedByThisCharacter = first_guid == GetOwner()->GetGUIDLow();
             m_CompletedAchievementsLock.release();
 
             _achievementPoints += achievement->Points;
 
+            bool l_CanAddTitle = achievement->Flags & AchievementFlags::ACHIEVEMENT_FLAG_ACCOUNT || GetOwner()->GetGUIDLow() == first_guid;
+
             // Title achievement rewards are retroactive
-            if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
-                if (uint32 titleId = reward->titleId[Player::TeamForRace(GetOwner()->getRace()) == ALLIANCE ? 0 : 1])
-                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
-                        GetOwner()->SetTitle(titleEntry);
+            if (l_CanAddTitle)
+            {
+                if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
+                {
+                    if (uint32 titleId = reward->titleId[Player::TeamForRace(GetOwner()->getRace()) == ALLIANCE ? 0 : 1])
+                    {
+                        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
+                            GetOwner()->SetTitle(titleEntry);
+                    }
+                }
+            }
 
         }
         while (achievementAccountResult->NextRow());
@@ -946,6 +951,15 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
             m_CompletedAchievementsLock.release();
             _achievementPoints += achievement->Points;
 
+            if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
+            {
+                if (uint32 titleId = reward->titleId[Player::TeamForRace(GetOwner()->getRace()) == ALLIANCE ? 0 : 1])
+                {
+                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
+                        GetOwner()->SetTitle(titleEntry);
+                }
+            }
+
         }
         while (achievementResult->NextRow());
     }
@@ -971,13 +985,6 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
 
             if (!progressMap)
                 continue;
-
-            // Achievement in both account & characters achievement_progress, problem
-            if (progressMap->find(id) != progressMap->end())
-            {
-                sLog->outError(LOG_FILTER_ACHIEVEMENTSYS, "Achievement '%u' in both account & characters achievement_progress", id);
-                continue;
-            }
 
             CriteriaProgress& progress = (*progressMap)[id];
             progress.counter = counter;
@@ -1680,33 +1687,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
                 break;                                   // Not implemented yet :(
         }
 
-        AchievementCriteriaTreeList l_AchievementCriteriaTreeList = sAchievementMgr->GetAchievementCriteriaTreeList(l_AchievementCriteria);
-        for (AchievementCriteriaTreeList::const_iterator l_Iter = l_AchievementCriteriaTreeList.begin(); l_Iter != l_AchievementCriteriaTreeList.end(); l_Iter++)
-        {
-            AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievementEntryByCriteriaTree(*l_Iter);
-            if (!l_Achievement)
-                continue;
-
-            if (IsCompletedCriteriaForAchievement(l_AchievementCriteria, l_Achievement))
-                CompletedCriteriaFor(l_Achievement, p_ReferencePlayer, p_LoginCheck);
-
-            // check again the completeness for SUMM and REQ COUNT achievements,
-            // as they don't depend on the completed criteria but on the sum of the progress of each individual criteria
-            if (l_Achievement->Flags & ACHIEVEMENT_FLAG_SUMM)
-            {
-                if (IsCompletedAchievement(l_Achievement))
-                    CompletedAchievement(l_Achievement, p_ReferencePlayer, p_LoginCheck);
-            }
-
-            if (AchievementEntryList const* l_AchRefList = sAchievementMgr->GetAchievementByReferencedId(l_Achievement->ID))
-            {
-                for (AchievementEntryList::const_iterator l_Itr = l_AchRefList->begin(); l_Itr != l_AchRefList->end(); ++l_Itr)
-                {
-                    if (IsCompletedAchievement(*l_Itr))
-                        CompletedAchievement(*l_Itr, p_ReferencePlayer, p_LoginCheck);
-                }
-            }
-        }
+        SetCompletedAchievementsIfNeeded(l_AchievementCriteria, p_ReferencePlayer, p_LoginCheck);
     }
 }
 
@@ -2047,7 +2028,6 @@ CriteriaProgress* AchievementMgr<T>::GetCriteriaProgress(CriteriaEntry const* en
     return &(iter->second);
 }
 
-
 template<class T>
 void AchievementMgr<T>::SetCriteriaProgress(CriteriaEntry const* p_Entry, uint64 p_ChangeValue, Player* p_ReferencePlayer, ProgressType p_Type)
 {
@@ -2132,6 +2112,38 @@ void AchievementMgr<T>::SetCriteriaProgress(CriteriaEntry const* p_Entry, uint64
     }
 
     SendCriteriaUpdate(p_Entry, l_Progress, l_TimeElapsed, false, l_NeedAccountUpdate);
+}
+
+template<class T>
+void AchievementMgr<T>::SetCompletedAchievementsIfNeeded(CriteriaEntry const* p_Criteria, Player* p_RefPlayer, bool p_LoginCheck /*= false*/)
+{
+    AchievementCriteriaTreeList l_AchievementCriteriaTreeList = sAchievementMgr->GetAchievementCriteriaTreeList(p_Criteria);
+    for (AchievementCriteriaTreeList::const_iterator l_Iter = l_AchievementCriteriaTreeList.begin(); l_Iter != l_AchievementCriteriaTreeList.end(); l_Iter++)
+    {
+        AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievementEntryByCriteriaTree(*l_Iter);
+        if (!l_Achievement)
+            continue;
+
+        if (IsCompletedCriteriaForAchievement(p_Criteria, l_Achievement))
+            CompletedCriteriaFor(l_Achievement, p_RefPlayer, p_LoginCheck);
+
+        // check again the completeness for SUMM and REQ COUNT achievements,
+        // as they don't depend on the completed criteria but on the sum of the progress of each individual criteria
+        if (l_Achievement->Flags & ACHIEVEMENT_FLAG_SUMM)
+        {
+            if (IsCompletedAchievement(l_Achievement))
+                CompletedAchievement(l_Achievement, p_RefPlayer, p_LoginCheck);
+        }
+
+        if (AchievementEntryList const* l_AchRefList = sAchievementMgr->GetAchievementByReferencedId(l_Achievement->ID))
+        {
+            for (AchievementEntryList::const_iterator l_Itr = l_AchRefList->begin(); l_Itr != l_AchRefList->end(); ++l_Itr)
+            {
+                if (IsCompletedAchievement(*l_Itr))
+                    CompletedAchievement(*l_Itr, p_RefPlayer, p_LoginCheck);
+            }
+        }
+    }
 }
 
 template<class T>
@@ -2222,9 +2234,19 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
         if (Guild* guild = sGuildMgr->GetGuildById(referencePlayer->GetGuildId()))
             guild->GetNewsLog().AddNewEvent(GUILD_NEWS_PLAYER_ACHIEVEMENT, time(NULL), referencePlayer->GetGUID(), achievement->flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_HEADER, achievement->ID);*/
 
-    /// Slot unlocked
-    if (p_Achievement->ID == 7433 /* Newbie */ || p_Achievement->ID == 6566 /* Just a Pup */)
-        GetOwner()->GetSession()->SendPetBattleJournalBattleSlotUpdate();
+    switch (p_Achievement->ID)
+    {
+        case 7433:  ///< Newbie
+        case 6566:  ///< Just a Pup
+            GetOwner()->GetSession()->SendPetBattleSlotUpdates(true);
+            GetOwner()->GetSession()->SendBattlePetLicenseChanged();
+            break;
+
+        case 6556:  ///< Going to Need More Traps
+        case 6581:  ///< Pro Pet Crew
+            GetOwner()->GetSession()->SendBattlePetTrapLevel();
+            break;
+    }
 
     if (!GetOwner()->GetSession()->PlayerLoading() && !p_LoginCheck)
         SendAchievementEarned(p_Achievement);
@@ -2851,9 +2873,6 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
         {
-            if (!p_ReferencePlayer || !p_Unit)
-                return false;
-
             // if miscValues != 0, it contains the questID.
             if (p_MiscValue1)
             {
@@ -2868,8 +2887,11 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
             }
 
             if (AchievementCriteriaDataSet const* l_Data = sAchievementMgr->GetCriteriaDataSet(p_Criteria))
-                if (!l_Data->Meets(p_ReferencePlayer, p_Unit))
+            {
+                if (p_Unit && !l_Data->Meets(p_ReferencePlayer, p_Unit))
                     return false;
+            }
+
             break;
         }
         case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:

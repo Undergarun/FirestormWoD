@@ -366,9 +366,9 @@ bool Guild::BankTab::LoadFromDB(Field* fields)
 
 bool Guild::BankTab::LoadItemFromDB(Field* fields)
 {
-    uint8 slotId = fields[16].GetUInt8();
-    uint32 itemGuid = fields[17].GetUInt32();
-    uint32 itemEntry = fields[18].GetUInt32();
+    uint8 slotId = fields[18].GetUInt8();
+    uint32 itemGuid = fields[19].GetUInt32();
+    uint32 itemEntry = fields[20].GetUInt32();
     if (slotId >= GUILD_BANK_MAX_SLOTS)
     {
         sLog->outError(LOG_FILTER_GUILD, "Invalid slot for item (GUID: %u, id: %u) in guild bank, skipped.", itemGuid, itemEntry);
@@ -1223,7 +1223,7 @@ bool Guild::SetName(std::string const& name)
 void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
 {
     ByteBuffer memberData;
-    uint32 weeklyRepCap = uint32(sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP));
+    uint32 weeklyRepCap = uint32(sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP)); ///< weekyRepCap is never read 01/18/16
 
     WorldPacket l_Data(SMSG_GUILD_ROSTER, 500 * 1024);
 
@@ -1528,7 +1528,7 @@ bool Guild::SwitchGuildLeader(uint64 newLeaderGuid)
     return false;
 }
 
-void Guild::HandleSetBankTabInfo(WorldSession* p_Session, uint8 p_TabID, const std::string& p_Name, const std::string& p_Icon)
+void Guild::HandleSetBankTabInfo(WorldSession* p_Session, uint8 p_TabID, const std::string& p_Name, const std::string& p_Icon) ///< p_Session is unused
 {
     if (BankTab* pTab = GetBankTab(p_TabID))
     {
@@ -1852,7 +1852,7 @@ void Guild::HandleSetMemberRank(WorldSession* session, uint64 targetGuid, uint64
     }
 }
 
-void Guild::HandleSwapRanks(WorldSession* p_Session, uint32 p_RankID, bool p_Up)
+void Guild::HandleSwapRanks(WorldSession* p_Session, uint32 p_RankID, bool p_Up) ///< p_Session is unused
 {
     RankInfo* l_FirstRank = NULL;
     RankInfo* l_SecondRank = NULL;
@@ -2121,7 +2121,7 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
         {
             for (uint8 l_SlotID = 0; l_SlotID < GuildMisc::GUILD_BANK_MAX_SLOTS; ++l_SlotID)
             {
-                if (Item * l_TabItem = l_BankTab->GetItem(l_SlotID))
+                if (Item * l_TabItem = l_BankTab->GetItem(l_SlotID)) ///< l_TabItem is unused
                     ++l_ItemCount;
             }
         }
@@ -2159,7 +2159,7 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
 
                     for (uint32 l_EnchantmentSlot = 0; l_EnchantmentSlot < EnchantmentSlot::MAX_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
                     {
-                        if (uint32 l_EnchantId = l_TabItem->GetEnchantmentId(EnchantmentSlot(l_EnchantmentSlot)))
+                        if (uint32 l_EnchantId = l_TabItem->GetEnchantmentId(EnchantmentSlot(l_EnchantmentSlot))) ///< l_EnchantId is unused
                             ++l_EnchantsCount;
                     }
 
@@ -2477,11 +2477,11 @@ bool Guild::LoadBankTabFromDB(Field* fields)
 
 bool Guild::LoadBankItemFromDB(Field* fields)
 {
-    uint8 tabId = fields[15].GetUInt8();
+    uint8 tabId = fields[17].GetUInt8();
     if (tabId >= GetPurchasedTabsSize())
     {
         sLog->outError(LOG_FILTER_GUILD, "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
-            fields[17].GetUInt32(), fields[18].GetUInt32());
+            fields[19].GetUInt32(), fields[20].GetUInt32());
         return false;
     }
     return m_bankTabs[tabId]->LoadItemFromDB(fields);
@@ -2610,9 +2610,9 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
             player->GetSession()->SendPacket(packet);
 }
 
-void Guild::MassInviteToEvent(WorldSession* p_Session, uint32 p_MinLevel, uint32 p_MaxLevel, uint32 p_MinRank)
+void Guild::MassInviteToEvent(WorldSession* p_Session, uint32 p_MinLevel, uint32 p_MaxLevel, uint32 p_MinRank) ///< p_Session is unused
 {
-    // Finish me.
+    // Finish me. Thank still not done in 2016 !
     /*uint32 count = 0;
 
     WorldPacket data(SMSG_CALENDAR_FILTER_GUILD);
@@ -3220,7 +3220,7 @@ inline void Guild::_LogEvent(GuildEventLogTypes eventType, uint32 playerGuid1, u
 }
 
 // Add new bank event log record
-void Guild::_LogBankEvent(SQLTransaction& trans, GuildBankEventLogTypes eventType, uint8 tabId, uint32 lowguid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
+void Guild::_LogBankEvent(SQLTransaction& trans, GuildBankEventLogTypes eventType, uint8 tabId, uint32 lowguid, uint64 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
 {
     if (tabId > GUILD_BANK_MAX_TABS)
         return;
@@ -3449,7 +3449,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
         data << uint32(tabId);
         data << uint64(m_bankMoney);
 
-        size_t rempos = data.wpos();
+        size_t rempos = data.wpos(); ///< rempos is never read 01/18/16
         data << uint32(-1);                                      // Item withdraw amount, will be filled later
 
         /*for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)

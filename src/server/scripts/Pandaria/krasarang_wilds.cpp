@@ -415,7 +415,7 @@ class mob_champion_of_chi_ji : public CreatureScript
 
             void MoveInLineOfSight(Unit* who) // Dynamic Aggro !
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     if (CAST_PLR(who)->GetQuestStatus(30740) == QUEST_STATUS_INCOMPLETE)
                     {
@@ -479,7 +479,7 @@ class spell_chi_torpedo_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_chi_torpedo_periodic_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -510,12 +510,10 @@ class mob_anduin_wrynn : public CreatureScript
         {
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* p_Player, Creature* p_Creature, Quest const* p_Quest)
         {
-            if (quest->GetQuestId() == 30273)
-            {
-                player->SummonCreature(66975, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID());
-            }
+            if (p_Quest->GetQuestId() == QuestInTheHouseOfTheRedCrane)
+                p_Player->SummonCreature(NPC_ANDUIN_WRYNN, p_Player->GetPositionX(), p_Player->GetPositionY(), p_Player->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0, p_Player->GetGUID());
 
             return true;
         }
@@ -529,49 +527,64 @@ class mob_anduin_wrynn_escort : public CreatureScript
         {
         }
 
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_anduin_wrynn_escortAI(creature);
-        }
-
         struct mob_anduin_wrynn_escortAI : public ScriptedAI
         {
             mob_anduin_wrynn_escortAI(Creature* creature) : ScriptedAI(creature)
             {
-                playerGuid = 0;
+                m_PlayerGuid = 0;
             }
 
-            uint64 playerGuid;
+            uint64 m_PlayerGuid;
+            EventMap m_Events;
 
-            void Reset()
+            void IsSummonedBy(Unit* p_Summoner)
             {
-            }
+                m_Events.Reset();
 
-            void IsSummonedBy(Unit* summoner)
-            {
-                if (CAST_PLR(summoner)->GetQuestStatus(30273) == QUEST_STATUS_INCOMPLETE)
+                if (Player* l_Plr = p_Summoner->ToPlayer())
                 {
-                    me->GetMotionMaster()->MoveFollow(summoner, 2.0f, 2.0f, MOTION_SLOT_ACTIVE);
-                    playerGuid = summoner->GetGUID();
-                }
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                Player* summoner = sObjectAccessor->FindPlayer(playerGuid);
-                if (!summoner)
-                    return;
-
-                if (Unit* target = summoner->getVictim())
-                {
-                    if (CAST_CRE(target)->GetEntry() == 59651)
+                    if (l_Plr->GetQuestStatus(QuestInTheHouseOfTheRedCrane) == QUEST_STATUS_INCOMPLETE)
                     {
-                        me->Attack(target, true);
-                        DoMeleeAttackIfReady();
+                        me->GetMotionMaster()->MoveFollow(l_Plr, 2.0f, 2.0f, MOTION_SLOT_ACTIVE);
+                        m_PlayerGuid = l_Plr->GetGUID();
+                        m_Events.ScheduleEvent(EVENT_CHECK_TARGET, 1000);
                     }
                 }
             }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                m_Events.Update(p_Diff);
+
+                if (m_Events.ExecuteEvent() == EVENT_CHECK_TARGET)
+                {
+                    if (Player* l_Summoner = sObjectAccessor->FindPlayer(m_PlayerGuid))
+                    {
+                        if (Unit* l_Target = l_Summoner->getVictim())
+                        {
+                            if (Creature* l_Creature = l_Target->ToCreature())
+                            {
+                                if (l_Creature->GetEntry() == 59651)
+                                {
+                                    me->Attack(l_Target, true);
+                                    DoMeleeAttackIfReady();
+                                }
+                            }
+                        }
+
+                        m_Events.ScheduleEvent(EVENT_CHECK_TARGET, 1000);
+                    }
+                    else
+                        me->DespawnOrUnsummon();
+
+                }
+            }
         };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_anduin_wrynn_escortAI(creature);
+        }
 };
 
 // Chi Ji - 59653

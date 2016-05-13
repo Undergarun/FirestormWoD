@@ -243,7 +243,7 @@ class boss_primordius : public CreatureScript
                 if (m_IntroDone)
                     return;
 
-                if (p_Who->GetTypeId() == TYPEID_PLAYER && p_Who->GetDistance(me) <= 60.f)
+                if (p_Who->IsPlayer() && p_Who->GetDistance(me) <= 60.f)
                 {
                     Talk(TALK_INTRO_01);
                     m_IntroDone = true;
@@ -273,7 +273,7 @@ class boss_primordius : public CreatureScript
 
             void KilledUnit(Unit* p_Victim)
             {
-                if (p_Victim->GetTypeId() == TYPEID_PLAYER)
+                if (p_Victim->IsPlayer())
                     Talk(TALK_SLAY);
             }
 
@@ -518,7 +518,7 @@ class mob_living_fluid : public CreatureScript
                                     for (uint8 l_Index = 0; l_Index < 4; ++l_Index)
                                     {
                                         /// Checks if player has one of the benefic auras.
-                                        if (AuraPtr l_Aura = l_Player->GetAura(beneficAuras[l_Index]))
+                                        if (Aura* l_Aura = l_Player->GetAura(beneficAuras[l_Index]))
                                         {
                                             l_StackCount += l_Aura->GetStackAmount();
 
@@ -742,7 +742,7 @@ class spell_primordius_evolution: public SpellScriptLoader
         {
             PrepareAuraScript(spell_primordius_evolution_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster    = GetCaster();
                 Unit* l_Target    = GetTarget();

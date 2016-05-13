@@ -238,7 +238,7 @@ class spell_intense_cold: public SpellScriptLoader
         {
             PrepareAuraScript(spell_intense_cold_AuraScript);
 
-            void HandlePeriodicTick(constAuraEffectPtr aurEff)
+            void HandlePeriodicTick(AuraEffect const* aurEff)
             {
                 if (aurEff->GetBase()->GetStackAmount() < 2)
                     return;

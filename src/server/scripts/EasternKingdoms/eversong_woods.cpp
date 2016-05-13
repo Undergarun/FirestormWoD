@@ -244,7 +244,7 @@ public:
 
         void KilledUnit(Unit* Killed)
         {
-            if (Killed->GetTypeId() == TYPEID_PLAYER)
+            if (Killed->IsPlayer())
                 if (CAST_PLR(Killed)->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
                     CAST_PLR(Killed)->FailQuest(QUEST_SECOND_TRIAL);
         }
@@ -397,7 +397,7 @@ public:
 
 void npc_second_trial_paladin::npc_secondTrialAI::JustDied(Unit* Killer)
 {
-    if (Killer->GetTypeId() == TYPEID_PLAYER)
+    if (Killer->IsPlayer())
     {
         if (Creature* summoner = Unit::GetCreature((*me), summonerGuid))
             CAST_AI(npc_second_trial_controller::master_kelerun_bloodmournAI, summoner->AI())->SecondTrialKill();
@@ -405,7 +405,7 @@ void npc_second_trial_paladin::npc_secondTrialAI::JustDied(Unit* Killer)
         // last kill quest complete for group
         if (me->GetEntry() == CHAMPION_SUNSTRIKER)
         {
-            if (Killer->GetTypeId() == TYPEID_PLAYER)
+            if (Killer->IsPlayer())
                 Killer->ToPlayer()->GroupEventHappens(QUEST_SECOND_TRIAL, Killer);
         }
     }
@@ -568,7 +568,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!Progress && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
+            if (!Progress && who->IsPlayer() && me->IsWithinDistInMap(who, 10.0f))
             {
                 if (CAST_PLR(who)->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE)
                 {

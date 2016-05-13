@@ -25,26 +25,46 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel3;
 
         extern char ScriptName[];
-
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_Dorogarr = ProfessionBuilding_SkillNPC<npc_DorogarrAIData::ScriptName, SKILL_JEWELCRAFTING, Quests::Horde_YourFirstJewelcraftingWorkOrder, &npc_DorogarrAIData::Recipes, &npc_DorogarrAIData::FnLevel1, &npc_DorogarrAIData::FnLevel2, &npc_DorogarrAIData::FnLevel3>;
+    using npc_Dorogarr = ProfessionBuilding_SkillNPC<npc_DorogarrAIData::ScriptName, SKILL_JEWELCRAFTING, Quests::Horde_YourFirstJewelcraftingWorkOrder, 79832, &npc_DorogarrAIData::FnLevel1, &npc_DorogarrAIData::FnLevel2, &npc_DorogarrAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79830 - Elrondir Surrion                                          ////
     //////////////////////////////////////////////////////////////////////////
-    namespace npc_ElrondirSurrionAIData
+
+    class npc_ElrondirSurrion : public CreatureScript
     {
-        extern InitSequenceFunction FnLevel1;
-        extern InitSequenceFunction FnLevel2;
-        extern InitSequenceFunction FnLevel3;
+        public:
+            /// Constructor
+            npc_ElrondirSurrion();
 
-        extern char ScriptName[];
-    }
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_Creature   : Target GameObject instance
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
 
-    using npc_ElrondirSurrion = ProfessionBuilding_WorkOrderNPC<npc_ElrondirSurrionAIData::ScriptName, SKILL_JEWELCRAFTING, Quests::Horde_YourFirstJewelcraftingWorkOrder, &npc_ElrondirSurrionAIData::FnLevel1, &npc_ElrondirSurrionAIData::FnLevel2, &npc_ElrondirSurrionAIData::FnLevel3>;
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            virtual CreatureAI* GetAI(Creature* p_Creature) const override;
+
+            /// Creature AI
+            struct npc_ElrondirSurrionAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_ElrondirSurrionAI(Creature* p_Creature);
+
+                uint64 m_OwnerGuid = 0;
+
+                void SetGUID(uint64 p_Guid, int32 p_Id) override;
+
+                /// When the PlotInstance ID is set
+                /// @p_BuildingID : Set plot instance ID
+                virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
+            };
+        };
 }   ///< namespace Garrison
 }   ///< namespace MS
 

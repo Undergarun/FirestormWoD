@@ -102,7 +102,7 @@ namespace MS { namespace Garrison
         if (p_Player->IsQuestRewarded(Quests::Horde_ThingsAreNotGorenOurWay) ||
             (p_Player->GetQuestStatus(Quests::Horde_ThingsAreNotGorenOurWay) == QUEST_STATUS_INCOMPLETE))
         {
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Can you refine this draenic stone into ore for me?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::MineDefaultOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
         }
         else if (p_Player->GetQuestStatus(Quests::Horde_ThingsAreNotGorenOurWay) == QUEST_STATUS_NONE)
@@ -120,18 +120,15 @@ namespace MS { namespace Garrison
     /// @p_Action   : Action
     bool npc_Gorsol::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
-        p_Player->PlayerTalkClass->ClearMenus();
-        MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
-        CreatureAI* l_AI = p_Creature->AI();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
         if (l_AI == nullptr)
             return true;
 
+        p_Player->PlayerTalkClass->ClearMenus();
+
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player);
-        }
+            l_AI->SendShipmentCrafterUI(p_Player);
 
         return true;
     }
@@ -141,7 +138,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_Gorsol::GetAI(Creature* p_Creature) const
+    CreatureAI* npc_Gorsol::GetAI(Creature* p_Creature) const
     {
         return new npc_GorsolAI(p_Creature);
     }
@@ -172,13 +169,24 @@ namespace MS { namespace Garrison
                 {
                     if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcHordeMiner, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
                         l_Creature->GetMotionMaster()->MoveRandom(7.0f);
+                }
+
+                    GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(GetBuildingID());
+                    Position l_Pos = *p_Player;
+
+                    if (l_BuildingEntry)
+                        p_Player->PlayStandaloneScene(p_Player->GetGarrison()->GetGarrisonFactionIndex() ? l_BuildingEntry->HordeActivationScenePackageID : l_BuildingEntry->AllianceActivationScenePackageID, 0, l_Pos);
 
                     if (Manager* l_Garrison = p_Player->GetGarrison())
                         l_Garrison->ActivateBuilding(GetPlotInstanceID());
-                }
             }
             InitGatheringPlots(0);
         }
+    }
+
+    void npc_GorsolAI::OnPlotInstanceUnload()
+    {
+        me->DespawnCreaturesInArea({ NPCs::NpcFrostwallGorenHatchling, NPCs::NpcFrostwallGoren, NPCs::NpcStonetooth }, 200.0f);
     }
 
     void npc_GorsolAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)

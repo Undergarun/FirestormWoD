@@ -355,7 +355,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -984,7 +984,7 @@ class spell_deathwhisper_mana_barrier: public SpellScriptLoader
         {
             PrepareAuraScript(spell_deathwhisper_mana_barrier_AuraScript);
 
-            void HandlePeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())

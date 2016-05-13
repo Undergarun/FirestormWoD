@@ -162,7 +162,7 @@ struct BattlemasterListEntry
     //uint32    isRated;                                    // 27       m_Flags                 2 - Rated / 4 - TarenMill BG
     //uint32    m_IconFileDataID;                           // 28       m_IconFileDataID
     //char*     objectiveType;                              // 29       m_GametypeLang
-    //uint32    Unk_601_18612;                              // 30       6.0.1 18612             Only TarenMill BG have data
+    //uint32    PlayerConditionID;                          // 30       6.0.1 18612
 };
 
 struct CharTitlesEntry
@@ -1239,7 +1239,7 @@ struct SpellItemEnchantmentEntry
     uint32  amount[MAX_ENCHANTMENT_SPELLS];                 // 5-7      m_effectPointsMin[3]
     uint32  spellid[MAX_ENCHANTMENT_SPELLS];                // 8-10     m_effectArg[3]
     char*   description;                                    // 11       m_name_lang
-    uint32  aura_id;                                        // 12       m_itemVisual
+    uint32  itemVisualID;                                   // 12       m_itemVisual
     uint32  slot;                                           // 13       m_flags
     uint32  GemID;                                          // 14       m_src_itemID
     uint32  EnchantmentCondition;                           // 15       m_condition_id
@@ -1441,6 +1441,25 @@ struct WorldMapAreaEntry
     // uint32   m_Flags;                                    // 11       m_Flags
     uint32  minRecommendedLevel;                            // 12       m_LevelRangeMin
     uint32  maxRecommendedLevel;                            // 13       m_LevelRangeMax
+};
+
+struct WorldMapTransformsEntry
+{
+    //uint32 ID;                                            // 0
+    uint32 MapID;                                           // 1
+    float RegionMinX;                                       // 2
+    float RegionMinY;                                       // 3
+    float RegionMinZ;                                       // 4
+    float RegionMaxX;                                       // 4
+    float RegionMaxY;                                       // 5
+    float RegionMaxZ;                                       // 6
+    uint32 NewMapID;                                        // 7
+    float RegionOffsetX;                                    // 8
+    float RegionOffsetY;                                    // 9
+    //uint32 NewDungeonMapID;                               // 10
+    //uint32 Flags;                                         // 11
+    //uint32 NewAreaID;                                     // 12
+    float RegionScale;                                      // 13
 };
 
 struct World_PVP_AreaEntry
@@ -1875,7 +1894,7 @@ typedef std::map<uint32, VectorArray> NameGenVectorArraysMap;
 struct MapDifficulty
 {
     MapDifficulty()
-        : DifficultyID(0), ResetTime(0), MaxPlayers(0), HasErrorMessage(false), Context(0)
+        : DifficultyID(0), ResetTime(0), MaxPlayers(0), Context(0), HasErrorMessage(false)
     {
     }
 

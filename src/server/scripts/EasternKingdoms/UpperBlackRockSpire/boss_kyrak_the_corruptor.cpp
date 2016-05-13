@@ -78,7 +78,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
 
             void KilledUnit(Unit* p_Who)
             {
-                if (p_Who->GetTypeId() == TYPEID_PLAYER)
+                if (p_Who->IsPlayer())
                     Talk(TALK_SLAY);
             }
 
@@ -186,10 +186,10 @@ class boss_kyrak_the_corruptor : public CreatureScript
                                 if (l_Member->GetTypeId() != TYPEID_PLAYER)
                                     continue;
 
-                                l_Target->CastSpell(l_Member, SPELL_VILEBLOOD_SERUM_MISSILE, true, NULL, NULLAURA_EFFECT, me->GetGUID());
+                                l_Target->CastSpell(l_Member, SPELL_VILEBLOOD_SERUM_MISSILE, true, NULL, nullptr, me->GetGUID());
                             }
 
-                            l_Target->CastSpell(l_Target, SPELL_VILEBLOOD_SERUM_MISSILE, true, NULL, NULLAURA_EFFECT, me->GetGUID());
+                            l_Target->CastSpell(l_Target, SPELL_VILEBLOOD_SERUM_MISSILE, true, NULL, nullptr, me->GetGUID());
                         }
                         m_Events.ScheduleEvent(EVENT_VILEBLOOD_SERUM, 15000);
                         break;

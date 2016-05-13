@@ -50,8 +50,8 @@ namespace Battlepay
                     continue;
 
                 l_Data << uint32(l_Product.ProductID);
-                l_Data << uint64(l_Product.NormalPriceFixedPoint * g_CurrencyPrecision);
                 l_Data << uint64(l_Product.CurrentPriceFixedPoint * g_CurrencyPrecision);
+                l_Data << uint64(l_Product.NormalPriceFixedPoint * g_CurrencyPrecision);
                 l_Data << uint8(l_Product.Type);
                 l_Data << uint32(l_Product.Flags);
 

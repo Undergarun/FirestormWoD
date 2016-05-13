@@ -88,7 +88,7 @@ void WorldSession::HandleGuildOfficierRemoveMemberOpcode(WorldPacket& p_Packet)
         l_Guild->HandleRemoveMember(this, l_Removee);
 }
 
-void WorldSession::HandleGuildMasterReplaceOpcode(WorldPacket& p_Packet)
+void WorldSession::HandleGuildMasterReplaceOpcode(WorldPacket& p_Packet) ///< p_Packet is unused
 {
     Guild* l_Guild = _GetPlayerGuild(this, true);
     if (!l_Guild)
@@ -312,7 +312,7 @@ void WorldSession::HandleGuildBankActivate(WorldPacket& p_Packet)
     bool l_FullUpdate = false;
 
     p_Packet.readPackGUID(l_Banker);
-    l_FullUpdate = p_Packet.ReadBit();  ///< 0 = only slots updated in last operation are shown. 1 = all slots updated
+    l_FullUpdate = p_Packet.ReadBit();  ///< 0 = only slots updated in last operation are shown. 1 = all slots updated ///> l_FullUpdate is never read 01/18/16
 
     if (IS_GAMEOBJECT_GUID(l_Banker))
     {
@@ -340,7 +340,7 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket& p_Packet)
 
     p_Packet.readPackGUID(l_Banker);
     p_Packet >> l_Tab;
-    l_FullUpdate = p_Packet.ReadBit();      ///< 0 = only slots updated in last operation are shown. 1 = all slots updated
+    l_FullUpdate = p_Packet.ReadBit();      ///< 0 = only slots updated in last operation are shown. 1 = all slots updated ///< l_FullUpdate is never read 01/18/16
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
     {
@@ -360,9 +360,9 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket& p_Packet)
     p_Packet.readPackGUID(l_Banker);
     p_Packet >> l_Money;
 
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+    if (m_Player->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
     {
-        if (l_Money && GetPlayer()->HasEnoughMoney(l_Money))
+        if (l_Money && m_Player->HasEnoughMoney(l_Money))
         {
             if (Guild* l_Guild = _GetPlayerGuild(this))
             {
@@ -595,7 +595,7 @@ void WorldSession::HandleAutoDeclineGuildInvites(WorldPacket& recvPacket)
 
 void WorldSession::HandleRequestGuildRewardsListOpcode(WorldPacket& p_Packet)
 {
-    uint32 l_CurrentVersion = p_Packet.read<uint32>();
+    uint32 l_CurrentVersion = p_Packet.read<uint32>(); ///< l_currentversion is never read 01/18/16
 
     if (sGuildMgr->GetGuildById(m_Player->GetGuildId()) != nullptr)
     {

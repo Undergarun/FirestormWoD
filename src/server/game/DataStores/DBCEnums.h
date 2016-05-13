@@ -203,9 +203,37 @@ enum SpawnMask
 
 enum MapFlags
 {
-    MAP_FLAG_CAN_TOGGLE_DIFFICULTY  = 0x0100,
-    MAP_FLAG_FLEX_LOCKING           = 0x8000, ///< All difficulties share completed encounters lock, not bound to a single instance id
-                                              ///< heroic difficulty flag overrides it and uses instance id bind
+    MAP_FLAG_UNK_1                  = 0x00000001,
+    MAP_FLAG_DEV                    = 0x00000002,   ///< Client will reject loading of this map
+    MAP_FLAG_UNK_3                  = 0x00000004,
+    MAP_FLAG_UNK_4                  = 0x00000008,
+    MAP_FLAG_UNK_5                  = 0x00000010,
+    MAP_FLAG_UNK_6                  = 0x00000020,
+    MAP_FLAG_UNK_7                  = 0x00000040,
+    MAP_FLAG_UNK_8                  = 0x00000080,
+    MAP_FLAG_CAN_TOGGLE_DIFFICULTY  = 0x00000100,   ///< Allow players to change difficulty
+    MAP_FLAG_UNK_10                 = 0x00000200,
+    MAP_FLAG_UNK_11                 = 0x00000400,
+    MAP_FLAG_UNK_12                 = 0x00000800,
+    MAP_FLAG_UNK_13                 = 0x00001000,
+    MAP_FLAG_UNK_14                 = 0x00002000,
+    MAP_FLAG_UNK_15                 = 0x00004000,
+    MAP_FLAG_FLEX_LOCKING           = 0x00008000,   ///< All difficulties share completed encounters lock, not bound to a single instance id
+                                                    ///< heroic difficulty flag overrides it and uses instance id bind
+    MAP_FLAG_LIMIT_FAR_CLIP         = 0x00010000,   ///< Limit farclip to 727.0
+    MAP_FLAG_UNK_18                 = 0x00020000,
+    MAP_FLAG_UNK_19                 = 0x00040000,
+    MAP_FLAG_UNK_20                 = 0x00080000,
+    MAP_FLAG_UNK_21                 = 0x00100000,
+    MAP_FLAG_UNK_22                 = 0x00200000,
+    MAP_FLAG_UNK_23                 = 0x00400000,
+    MAP_FLAG_UNK_24                 = 0x00800000,
+    MAP_FLAG_UNK_25                 = 0x01000000,
+    MAP_FLAG_UNK_26                 = 0x02000000,
+    MAP_FLAG_GARRISON               = 0x04000000,
+    MAP_FLAG_UNK_28                 = 0x08000000,
+    MAP_FLAG_UNK_29                 = 0x10000000,
+    MAP_FLAG_UNK_30                 = 0x20000000
 };
 
 enum FactionTemplateFlags
@@ -273,18 +301,19 @@ enum ItemLimitCategoryMode
 
 enum class ItemContext : uint8
 {
-    None             = 0,
-    DungeonNormal    = 1,
-    DungeonHeroic    = 2,
-    RaidHeroic       = 5,
-    RaidMythic       = 6,
-    RaidNormal       = 8,   ///< Gussed
-    RaidLfr          = 9,   ///< Gussed
-    TradeSkill       = 13,
-    DungeonLevelUp1  = 17,
-    DungeonLevelUp2  = 18,
-    DungeonLevelUp3  = 19,
-    DungeonLevelUp4  = 20,
+    None            = 0,
+    DungeonNormal   = 1,
+    DungeonHeroic   = 2,
+    DungeonMythic   = 3,    ///< Guessed
+    RaidHeroic      = 5,
+    RaidMythic      = 6,
+    RaidNormal      = 8,    ///< Guessed
+    RaidLfr         = 9,    ///< Guessed
+    TradeSkill      = 13,
+    DungeonLevelUp1 = 17,
+    DungeonLevelUp2 = 18,
+    DungeonLevelUp3 = 19,
+    DungeonLevelUp4 = 20
 };
 
 enum MountFlags
@@ -419,6 +448,18 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4          = 0x02000000,
     VEHICLE_SEAT_FLAG_B_CAN_SWITCH               = 0x04000000,
     VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000            // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
+};
+
+enum TaxiNodeFlags
+{
+    TAXI_NODE_FLAG_ALLIANCE = 0x1,
+    TAXI_NODE_FLAG_HORDE    = 0x2
+};
+
+enum TaxiPathNodeFlags
+{
+    TAXI_PATH_NODE_FLAG_TELEPORT    = 0x1,
+    TAXI_PATH_NODE_FLAG_STOP        = 0x2
 };
 
 // CurrencyTypes.dbc

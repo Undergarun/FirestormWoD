@@ -552,7 +552,7 @@ class boss_flame_leviathan : public CreatureScript
             }
 
             private:
-                //! Copypasta from DoSpellAttackIfReady, only difference is the target - it cannot be selected trough getVictim this way -
+                //! Copypasta from DoSpellAttackIfReady, only difference is the target - it cannot be selected trough GetVictim this way -
                 //! I also removed the spellInfo check
                 void DoBatteringRamIfReady()
                 {
@@ -1000,7 +1000,7 @@ class npc_thorims_hammer : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER && who->IsVehicle() && me->IsInRange(who, 0, 10, false))
+                if (who->IsPlayer() && who->IsVehicle() && me->IsInRange(who, 0, 10, false))
                 {
                     if (Creature* trigger = DoSummonFlyer(NPC_THORIM_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
                         trigger->CastSpell(who, SPELL_THORIM_S_HAMMER, true);
@@ -1094,7 +1094,7 @@ class npc_hodirs_fury : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER && who->IsVehicle() && me->IsInRange(who, 0, 5, false))
+                if (who->IsPlayer() && who->IsVehicle() && me->IsInRange(who, 0, 5, false))
                 {
                     if (Creature* trigger = DoSummonFlyer(NPC_HODIR_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
                         trigger->CastSpell(who, SPELL_HODIR_S_FURY, true);
@@ -1545,7 +1545,7 @@ class spell_load_into_catapult: public SpellScriptLoader
         {
             PrepareAuraScript(spell_load_into_catapult_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* owner = GetOwner()->ToUnit();
                 if (!owner)
@@ -1554,7 +1554,7 @@ class spell_load_into_catapult: public SpellScriptLoader
                 owner->CastSpell(owner, SPELL_PASSENGER_LOADED, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* owner = GetOwner()->ToUnit();
                 if (!owner)
@@ -1651,7 +1651,7 @@ class spell_systems_shutdown: public SpellScriptLoader
         {
             PrepareAuraScript(spell_systems_shutdown_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Creature* owner = GetOwner()->ToCreature();
                 if (!owner)
@@ -1663,7 +1663,7 @@ class spell_systems_shutdown: public SpellScriptLoader
                 owner->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Creature* owner = GetOwner()->ToCreature();
                 if (!owner)

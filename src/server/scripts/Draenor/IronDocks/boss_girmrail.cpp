@@ -833,7 +833,7 @@ class iron_docks_grimrail_spell_sanguine_sphere : public SpellScriptLoader
         {
             PrepareAuraScript(iron_docks_grimrail_spell_sanguine_sphere_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {

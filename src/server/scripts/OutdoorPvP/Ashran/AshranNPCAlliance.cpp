@@ -978,11 +978,11 @@ class npc_ashran_fangraal : public CreatureScript
                 if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
                     l_PlayerCount = l_Ashran->CountPlayersForTeam(TeamId::TEAM_ALLIANCE);
 
-                if (AuraPtr l_Scaling = me->AddAura(eSpells::AshranLaneMobScalingAura, me))
+                if (Aura* l_Scaling = me->AddAura(eSpells::AshranLaneMobScalingAura, me))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                         l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_PlayerCount);
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                         l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_PlayerCount);
                 }
 
@@ -1183,7 +1183,7 @@ class npc_ashran_stormshield_stormcrow : public CreatureScript
                         l_Pos.m_orientation = l_Creature->GetOrientation();
 
                         /// Creating the circle path from the center
-                        Movement::MoveSplineInit l_Init(*me);
+                        Movement::MoveSplineInit l_Init(me);
                         FillCirclePath(l_Pos, 10.0f, me->GetPositionZ(), l_Init.Path(), true);
                         l_Init.SetWalk(true);
                         l_Init.SetCyclic();

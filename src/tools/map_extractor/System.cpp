@@ -57,6 +57,8 @@
     #define OPEN_FLAGS (O_RDONLY | O_BINARY)
 #endif
 
+#include <G3D/Plane.h>
+
 namespace
 {
     const char* HumanReadableCASCError(int error)
@@ -116,7 +118,7 @@ bool  CONF_allow_height_limit = true;
 float CONF_use_minHeight = -500.0f;
 
 // This option allow use float to int conversion
-bool  CONF_allow_float_to_int   = true;
+bool  CONF_allow_float_to_int   = false;
 float CONF_float_to_int8_limit  = 2.0f;      // Max accuracy = val/256
 float CONF_float_to_int16_limit = 2048.0f;   // Max accuracy = val/65536
 float CONF_flat_height_delta_limit = 0.005f; // If max - min less this value - surface is flat
@@ -399,7 +401,7 @@ void ReadLiquidTypeTableDBC()
 
 // Map file format data
 static char const* MAP_MAGIC         = "MAPS";
-static char const* MAP_VERSION_MAGIC = "v1.5";
+static char const* MAP_VERSION_MAGIC = "v1.8";
 static char const* MAP_AREA_MAGIC    = "AREA";
 static char const* MAP_HEIGHT_MAGIC  = "MHGT";
 static char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -428,9 +430,10 @@ struct map_areaHeader
     uint16 gridArea;
 };
 
-#define MAP_HEIGHT_NO_HEIGHT  0x0001
-#define MAP_HEIGHT_AS_INT16   0x0002
-#define MAP_HEIGHT_AS_INT8    0x0004
+#define MAP_HEIGHT_NO_HEIGHT            0x0001
+#define MAP_HEIGHT_AS_INT16             0x0002
+#define MAP_HEIGHT_AS_INT8              0x0004
+#define MAP_HEIGHT_HAS_FLIGHT_BOUNDS    0x0008
 
 struct map_heightHeader
 {
@@ -490,14 +493,17 @@ bool  liquid_show[ADT_GRID_SIZE][ADT_GRID_SIZE];
 float liquid_height[ADT_GRID_SIZE+1][ADT_GRID_SIZE+1];
 uint8 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID][8];
 
-bool TransformToHighRes(uint16 holes, uint8 hiResHoles[8])
+int16 flight_box_max[3][3];
+int16 flight_box_min[3][3];
+
+bool TransformToHighRes(uint16 lowResHoles, uint8 hiResHoles[8])
 {
     for (uint8 i = 0; i < 8; i++)
     {
         for (uint8 j = 0; j < 8; j++)
         {
             int32 holeIdxL = (i / 2) * 4 + (j / 2);
-            if (((holes >> holeIdxL) & 1) == 1)
+            if (((lowResHoles >> holeIdxL) & 1) == 1)
                 hiResHoles[i] |= (1 << j);
         }
     }
@@ -530,6 +536,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     memset(holes, 0, sizeof(holes));
 
     bool hasHoles = false;
+    bool hasFlightBox = false;
 
     for (std::multimap<std::string, FileChunk*>::const_iterator itr = adt.chunks.lower_bound("MCNK"); itr != adt.chunks.upper_bound("MCNK"); ++itr)
     {
@@ -745,6 +752,14 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
         }
     }
 
+    if (FileChunk* chunk = adt.GetChunk("MFBO"))
+    {
+        adt_MFBO* mfbo = chunk->As<adt_MFBO>();
+        memcpy(flight_box_max, &mfbo->max, sizeof(flight_box_max));
+        memcpy(flight_box_min, &mfbo->min, sizeof(flight_box_min));
+        hasFlightBox = true;
+    }
+
     //============================================
     // Try pack area data
     //============================================
@@ -835,6 +850,12 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     // Not need store if flat surface
     if (CONF_allow_float_to_int && (maxHeight - minHeight) < CONF_flat_height_delta_limit)
         heightHeader.flags |= MAP_HEIGHT_NO_HEIGHT;
+
+    if (hasFlightBox)
+    {
+        heightHeader.flags |= MAP_HEIGHT_HAS_FLIGHT_BOUNDS;
+        map.heightMapSize += sizeof(flight_box_max) + sizeof(flight_box_min);
+    }
 
     // Try store as packed in uint16 or uint8 values
     if (!(heightHeader.flags & MAP_HEIGHT_NO_HEIGHT))
@@ -1004,6 +1025,12 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
             fwrite(V9, sizeof(V9), 1, output);
             fwrite(V8, sizeof(V8), 1, output);
         }
+    }
+
+    if (heightHeader.flags & MAP_HEIGHT_HAS_FLIGHT_BOUNDS)
+    {
+        fwrite(reinterpret_cast<char*>(flight_box_max), sizeof(flight_box_max), 1, output);
+        fwrite(reinterpret_cast<char*>(flight_box_min), sizeof(flight_box_min), 1, output);
     }
 
     // Store liquid data if need

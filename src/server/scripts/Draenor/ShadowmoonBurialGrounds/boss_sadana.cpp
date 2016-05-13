@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "shadowmoon_burial_grounds.hpp"
+#include "MoveSplineInit.h"
 
 enum eSadanaSpells
 {
@@ -19,17 +20,23 @@ enum eSadanaSpells
     SpellDaggerFallTriggerMissile           = 153370,
     SpellDaggerFallGroundMarker             = 173073,
     SpellDaggerFallDamage                   = 153224,
-
     SpellDarkCommunion                      = 153153,
     SpellDarkCommunionBuff                  = 153164,
-
     SpellDeathSpikeProcTriggerSpell         = 153079,
     SpellDeathSpikeDamage                   = 153089,
     SpellDeathSpikeFull                     = 162696,
-
     SpellWhispersOfTheDarkStarDamage        = 153093,
     SpellWhisperOfTheDarkStarTriggerSpell   = 153094,
-
+    SpellLunarPurityAreaTrigger             = 164974,
+    SpellLunarPurityDamageModification      = 162652,
+    SpellShadowRitual                       = 152158,
+    SpellLunarRitual                        = 164693,
+    SpellShadowRuneVisual                   = 152684,
+    SpellShadowRuneVisual01                 = 152691,
+    SpellShadowRuneVisual02                 = 152695,
+    SpellLunarRuneVisual                    = 164693,
+    SpellLunarRuneVisual01                  = 164695,
+    SpellLunarRuneVisual02                  = 164696,
     SpellDarkEclipsePeriodicDummy           = 164685,
     SpellDarkEclipseDamage                  = 164686,
     SpellDarkEclipseAreatrirger             = 164704,
@@ -39,22 +46,7 @@ enum eSadanaSpells
     SpellDarkElcipseUnknownPeriodicDummy    = 164974,
     SpellLunaryPurtiyBuff                   = 162652,
     //SpellLunarPurityAreaTrigger           = 162620,
-
-    SpellLunarPurityAreaTrigger             = 164974,
-    SpellLunarPurityDamageModification      = 162652,
-
-    SpellShadowRitual                       = 152158,
-    SpellLunarRitual                        = 164693,
-    SpellShadowRuneVisual                   = 152684,
-    SpellShadowRuneVisual01                 = 152691,
-    SpellShadowRuneVisual02                 = 152695,
-
-    SpellLunarRuneVisual                    = 164693,
-    SpellLunarRuneVisual01                  = 164695,
-    SpellLunarRuneVisual02                  = 164696,
-
     SpellTenebreuxViolet                    = 152311,
-
     SpellCosmeticStrangulateState           = 78037
 };
 
@@ -90,13 +82,13 @@ enum eSadanaActions
     ActionActivateDefiledSpirit = 1, 
     ActionMoveDefiledSpirits,
     ActionActivateLunarTriggersActivate, 
-    ActionActivateLunarTriggersDeactivate
+    ActionActivateLunarTriggersDeactivate,
+	ActionSadanaReset
 };
 
 enum eSadanaCreatures
 {
     CreatureDaggerFall                   = 75981,
-    CreatureEclipseTrigger               = 76052,
     CreatureDefiledSpiritSadanaEncounter = 75966,
     CreatureShadowRune                   = 75778
 };
@@ -135,27 +127,17 @@ Position const g_PositionDefiledSpiritsMovement[8] =
     {1797.886f, -20.040f, 281.501f, 5.166008f}
 };
 
-static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
-{
-    std::list<Creature*> l_CreaturesList;
-    GetCreatureListWithEntryInGrid(l_CreaturesList, p_Object, p_Entry, 2000.0f);
+uint32 g_LunarRuneEntries[3] = { eSadanaSpells::SpellLunarRuneVisual, eSadanaSpells::SpellLunarRuneVisual01, eSadanaSpells::SpellLunarRuneVisual02 };
+uint32 g_ShadowRuneEntries[3] = { eSadanaSpells::SpellShadowRuneVisual, eSadanaSpells::SpellShadowRuneVisual01, eSadanaSpells::SpellShadowRuneVisual02 };
 
-    if (l_CreaturesList.empty())
-        return;
-
-    for (std::list<Creature*>::iterator iter = l_CreaturesList.begin(); iter != l_CreaturesList.end(); ++iter)
-        (*iter)->DespawnOrUnsummon();
-}
-
-uint32 l_LunarRuneEntries[3] = { eSadanaSpells::SpellLunarRuneVisual, eSadanaSpells::SpellLunarRuneVisual01, eSadanaSpells::SpellLunarRuneVisual02 };
-uint32 l_ShadowRuneEntries[3] = { eSadanaSpells::SpellShadowRuneVisual, eSadanaSpells::SpellShadowRuneVisual01, eSadanaSpells::SpellShadowRuneVisual02 };
+Position const g_PositionSpiritHomePoint = {1795.783f, -27.240f, 277.135f, 0.040068f };
 
 /// Basic Event - [The message Sadana says few minutes after players entered the instance for the first time]
 class EventSadanaIntro : public BasicEvent
 {
-public:
+	public:
 
-    explicit EventSadanaIntro(Unit* unit) : m_Obj(unit), BasicEvent()
+    explicit EventSadanaIntro(Unit* unit) : m_Obj(unit)
     {
     }
 
@@ -176,14 +158,13 @@ public:
     }
 
 private:
-
     Unit* m_Obj;
 };
 
 /// Sadana Bloodyfury - 75509 [Boss]
 class boss_sadana_bloodfury : public CreatureScript
 {
-public:
+	public:
 
     boss_sadana_bloodfury() : CreatureScript("boss_sadana_bloodfury") { }
 
@@ -192,77 +173,151 @@ public:
         boss_sadana_bloodfuryAI(Creature* p_Creature) : BossAI(p_Creature, eShadowmoonBurialGroundsDatas::DataBossSadana)
         {
             m_Instance = me->GetInstanceScript();
-
-            HandleDoorCombatActivation();
-            SummonPathsDefiledSpirits();
-
-            me->m_Events.AddEvent(new EventSadanaIntro(me), me->m_Events.CalculateTime(40 * TimeConstants::IN_MILLISECONDS));
+            m_First = false;
         }
+
+        enum eSadanaSpells
+        {
+            SpellDaggerFallDummy                  = 153240,
+            SpellDaggerFallSummon                 = 153200,
+            SpellDaggerAlttitudeVisual            = 153225,
+            SpellDaggerAura                       = 153236,
+            SpellDaggerAuraFunctioning            = 153216,
+            SpellDaggerExplosion                  = 153373,
+            SpellDaggerFallTriggerMissile         = 153370,
+            SpellDaggerFallGroundMarker           = 173073,
+            SpellDaggerFallDamage                 = 153224,
+            SpellDarkCommunion                    = 153153,
+            SpellDarkCommunionBuff                = 153164,
+            SpellDeathSpikeProcTriggerSpell       = 153079,
+            SpellDeathSpikeDamage                 = 153089,
+            SpellDeathSpikeFull                   = 162696,
+            SpellWhispersOfTheDarkStarDamage      = 153093,
+            SpellWhisperOfTheDarkStarTriggerSpell = 153094,
+            SpellDarkEclipsePeriodicDummy         = 164685,
+            SpellDarkEclipseDamage                = 164686,
+            SpellDarkEclipseAreatrirger           = 164704,
+            SpellDarkEclipseDummy                 = 164705,
+            SpellDarkEclipseDummy02               = 164706,
+            SpellDarkEclipsePeriodicTrigger       = 164710,
+            SpellDarkElcipseUnknownPeriodicDummy  = 164974,
+            SpellCosmeticStrangulateState         = 78037,
+            SpellShadowRitual                     = 152158
+        };
+
+        enum eSadanaEvents
+        {
+            EventDaggerFall = 1,
+            EventDaggerFallMovement,
+            EventDaggerFallActivation,
+            EventDarkCommunion,
+            EventDeathSpike,
+            EventWhisperOfTheDarkStar,
+            EventDarkEclipse,
+            EventDarkEclipseFinish
+        };
 
         InstanceScript* m_Instance;
         uint64 m_CommunionGuid;
         bool m_CommunionInRange;
         bool m_CommunionInAction;
+        bool m_First;
 
         void Reset() override
         {
             _Reset();
             events.Reset();
-
+            m_CommunionGuid = 0;
             m_CommunionInRange = false;
             m_CommunionInAction = false;
-            m_CommunionGuid = NULL;
-
+            me->CastSpell(me, eSadanaSpells::SpellShadowRitual);
+            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC
+                | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+            if (!m_First) // new way to handle constructor (new for me)
+            {
+                m_First = true;
+                me->m_Events.AddEvent(new EventSadanaIntro(me), me->m_Events.CalculateTime(40 * TimeConstants::IN_MILLISECONDS));
+            }
             /// Activate shadow runes;
             std::list<Creature*> l_ListShadowrunes;
             me->GetCreatureListWithEntryInGrid(l_ListShadowrunes, eSadanaCreatures::CreatureShadowRune, 200.0f);
-
             if (!l_ListShadowrunes.empty())
             {
-                for (auto itr : l_ListShadowrunes)
+                for (Creature* l_Itr : l_ListShadowrunes)
                 {
-                    if (itr->IsAIEnabled)
-                        itr->GetAI()->Reset();
+                    if (!l_Itr)
+                        continue;
+
+                    if (l_Itr->IsAIEnabled)
+                        l_Itr->GetAI()->Reset();
                 }
             }
-
             /// Delete all ground markers nearby.
             std::list<AreaTrigger*> l_listAreaTriggers;
             me->GetAreatriggerListInRange(l_listAreaTriggers, 300.0f);
-
             if (!l_listAreaTriggers.empty())
             {
-                for (auto itr : l_listAreaTriggers)
+                for (AreaTrigger* l_Itr : l_listAreaTriggers)
                 {
-                    if (itr->GetSpellId() != eSadanaSpells::SpellDaggerFallGroundMarker)
+                    if (!l_Itr)
                         continue;
 
-                    itr->Remove(500);
+                    if (l_Itr->GetSpellId() != eSadanaSpells::SpellDaggerFallGroundMarker)
+                        continue;
+
+                    l_Itr->Remove(1 * TimeConstants::IN_MILLISECONDS);
                 }
             }
 
-            me->CastSpell(me, eSadanaSpells::SpellShadowRitual);
-
-            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC 
-                | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+			/// Attempt to forcely reset the defiled spirits.
+			std::list<Creature*> l_ListDefiledSpirit;
+			me->GetCreatureListWithEntryInGrid(l_ListDefiledSpirit, eSadanaCreatures::CreatureDefiledSpiritSadanaEncounter, 300.0f);
+			if (!l_ListDefiledSpirit.empty())
+			{
+				for (Creature* l_Itr : l_ListDefiledSpirit)
+				{
+					l_Itr->DespawnOrUnsummon();
+				}
+			}
+			SummonPathsDefiledSpirits();
+            if (me->GetMap())
+                me->GetMap()->SetObjectVisibility(1000.0f);
         }
 
         void JustReachedHome() override
         {
             _JustReachedHome();
-            summons.DespawnAll();
-
-            DespawnCreaturesInArea(eSadanaCreatures::CreatureDefiledSpiritSadanaEncounter, me);
-            DespawnCreaturesInArea(eSadanaCreatures::CreatureDaggerFall, me);
-            DespawnCreaturesInArea(eSadanaCreatures::CreatureShadowRune, me);
-            DespawnCreaturesInArea(eSadanaCreatures::CreatureEclipseTrigger, me);
-
-            if (m_Instance != nullptr)
+            if (m_First)
             {
-                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossSadana, EncounterState::FAIL);
-            }
+                HandleDoorCombatActivation();
+                DespawnCreaturesInArea(eSadanaCreatures::CreatureDaggerFall, me);
+                /// A removal method which doesn't crash the momma of the server. Yes'ir
+                std::list<Creature*> l_SadanaSpirits;
+                me->GetCreatureListInGrid(l_SadanaSpirits, 300.0f);
+                if (!l_SadanaSpirits.empty())
+                {
+                    for (Creature* l_itr : l_SadanaSpirits)
+                    {
+                        l_itr->Respawn();
+                    }
+                }
+                /// Delete all ground markers nearby.
+                std::list<AreaTrigger*> l_listAreaTriggers;
+                me->GetAreatriggerListInRange(l_listAreaTriggers, 300.0f);
+                if (!l_listAreaTriggers.empty())
+                {
+                    for (AreaTrigger* l_Itr : l_listAreaTriggers)
+                    {
+                        if (!l_Itr)
+                            continue;
 
-            HandleDoorCombatActivation();
+                        if (l_Itr->GetSpellId() != eSadanaSpells::SpellDaggerFallGroundMarker)
+                            continue;
+
+                        l_Itr->Remove(1 * TimeConstants::IN_MILLISECONDS);
+                    }
+                }
+            }
         }
 
         void JustSummoned(Creature* p_Summon) override
@@ -275,10 +330,12 @@ public:
                         p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                         p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         break;
-                    case eSadanaCreatures::CreatureEclipseTrigger:
+                    case eShadowmoonBurialGroundsCreatures::CreatureEclipseTrigger:
                         p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                         p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                        break;             
+                        break;         
+                    default:
+                        break;
                 }
             }
         }
@@ -289,7 +346,7 @@ public:
             {
                 if (GameObject* l_SadanaDoor = m_Instance->instance->GetGameObject(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataSadanaFightDoor)))
                 {
-                    // Activate
+                    /// Activate
                     l_SadanaDoor->SetLootState(LootState::GO_READY);
                     l_SadanaDoor->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, me);
                 }
@@ -302,7 +359,7 @@ public:
             {
                 if (GameObject* l_SadanaFightDoor = m_Instance->instance->GetGameObject(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataStoneDoorSadana)))
                 {
-                    // Activate
+                    /// Activate
                     l_SadanaFightDoor->SetLootState(LootState::GO_READY);
                     l_SadanaFightDoor->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, me);
                 }
@@ -311,54 +368,43 @@ public:
 
         void SummonPathsDefiledSpirits()
         {
-            for (uint8 l_i = 0; l_i <= 30; l_i++)
+            for (uint16 l_I = 0; l_I <= 30; l_I++)
             {
                 Position l_Position;
-                me->GetRandomNearPosition(l_Position, 40.0f);
-                l_Position.m_positionZ = frand(261.391f, 284.058f);
-
+                me->GetRandomNearPosition(l_Position, 10.0f);
+                l_Position.m_positionZ = frand(279.636f, 284.058f);
                 me->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureDefliedSpirit01, l_Position, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
             }
         }
 
         void SummonEclipseTriggers()
         {
-            for (uint8 l_i = 0; l_i <= 7; l_i++)
-            {
-                me->SummonCreature(eSadanaCreatures::CreatureEclipseTrigger, g_PositionCircles[l_i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-            }
+            DespawnCreaturesInArea(eShadowmoonBurialGroundsCreatures::CreatureEclipseTrigger, me);
+
+            for (uint8 l_I = 0; l_I <= 7; l_I++)
+                me->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureEclipseTrigger, g_PositionCircles[l_I], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
         }
 
         void EnterCombat(Unit* p_Who) override
         {
-            _EnterCombat();
-
-            me->RemoveAura(eSadanaSpells::SpellShadowRitual);
-
-            SummonEclipseTriggers();
-
-            Talk(eSadanaTalks::TalkAggro);
-
             if (m_Instance != nullptr)
-            {
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
-                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossSadana, EncounterState::IN_PROGRESS);
 
-                DoZoneInCombat();
-            }
-
+            _EnterCombat();
+            SummonEclipseTriggers();
             HandleDoorCombatActivation();
-
+            Talk(eSadanaTalks::TalkAggro);
+            me->RemoveAura(eSadanaSpells::SpellShadowRitual);                
             events.ScheduleEvent(eSadanaEvents::EventDeathSpike, 8 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eSadanaEvents::EventDaggerFall, 12 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eSadanaEvents::EventWhisperOfTheDarkStar, 20 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eSadanaEvents::EventDarkCommunion, 37 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eSadanaEvents::EventDarkCommunion, 30 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eSadanaEvents::EventDarkEclipse, 60 * TimeConstants::IN_MILLISECONDS);
         }
 
         void KilledUnit(Unit* p_Who) override
         {
-            if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
+            if (p_Who && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
                 if (roll_chance_i(50))
                     Talk(eSadanaTalks::TalkKill01);
@@ -370,24 +416,45 @@ public:
         void JustDied(Unit* /*p_Killer*/) override
         {
             _JustDied();
-
-            Talk(eSadanaTalks::TalkDeath);
-            summons.DespawnAll();
-
-            HandleDoorCombatActivation();
+            Talk(eSadanaTalks::TalkDeath);     
+            HandleDoorCombatActivation(); 
             HandleDoorEncounterFinishActivation();
-
+            DespawnCreaturesInArea(eSadanaCreatures::CreatureShadowRune, me);
             DespawnCreaturesInArea(eSadanaCreatures::CreatureDaggerFall, me);
-            DespawnCreaturesInArea(eSadanaCreatures::CreatureDefiledSpiritSadanaEncounter, me);
-
-            if (m_Instance != nullptr)
+            DespawnCreaturesInArea(eShadowmoonBurialGroundsCreatures::CreatureEclipseTrigger, me);       
+            /// A removal method which doesn't crash the momma of the server. Yes'ir
+            std::list<Creature*> l_SadanaSpirits;
+            me->GetCreatureListWithEntryInGrid(l_SadanaSpirits, eShadowmoonBurialGroundsCreatures::CreatureDefliedSpirit01 ,300.0f);
+            if (!l_SadanaSpirits.empty())
             {
-                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossSadana, EncounterState::DONE);
+                for (Creature* l_Itr : l_SadanaSpirits)
+                {
+                    l_Itr->SetDisplayId(11686);
+                    l_Itr->RemoveAllAuras();
+                    l_Itr->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                }
+            }
+
+            /// Delete all ground markers nearby.
+            std::list<AreaTrigger*> l_listAreaTriggers;
+            me->GetAreatriggerListInRange(l_listAreaTriggers, 300.0f);
+            if (!l_listAreaTriggers.empty())
+            {
+                for (AreaTrigger* l_Itr : l_listAreaTriggers)
+                {
+                    if (!l_Itr)
+                        continue;
+
+                    if (l_Itr->GetSpellId() != eSadanaSpells::SpellDaggerFallGroundMarker)
+                        continue;
+
+                    l_Itr->Remove(1 * TimeConstants::IN_MILLISECONDS);
+                }
             }
 
             if (Creature* l_WorldTrigger = me->FindNearestCreature(eShadowmoonBurialGroundsCreatures::CreatureWorldTriggerSadanaRp, 200.0f, true))
             {
-                if (Creature* l_WeepingSoul = me->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureWeepingSpirit, l_WorldTrigger->GetPositionX(), l_WorldTrigger->GetPositionY(), l_WorldTrigger->GetPositionZ(), l_WorldTrigger->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS))
+                if (Creature* l_WeepingSoul = me->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureWeepingSpirit, l_WorldTrigger->GetPositionX(), l_WorldTrigger->GetPositionY(), l_WorldTrigger->GetPositionZ(), l_WorldTrigger->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS))
                 {
                     if (l_WeepingSoul->IsAIEnabled)
                         l_WeepingSoul->AI()->Talk(eShadowmoonBurialGroundsTalks::TalkUnknown01);
@@ -403,16 +470,14 @@ public:
             events.Update(p_Diff);
 
             /// Dark Communion - (needs to be above then unit_state_casting so it can still work with the cast itself)
-            if (m_CommunionGuid && m_CommunionInRange)
+            if (m_CommunionGuid != 0 && m_CommunionInRange)
             {
                 if (Creature* l_Creature = Creature::GetCreature(*me, m_CommunionGuid))
                 {
-                    l_Creature->UpdatePosition(l_Creature->GetPositionX(), l_Creature->GetPositionY(), l_Creature->GetPositionZ(), l_Creature->GetOrientation(), true);
-           
-                    if (me->IsWithinDistInMap(l_Creature, 4.0f))
+                    l_Creature->UpdatePosition(l_Creature->GetPositionX(), l_Creature->GetPositionY(), l_Creature->GetPositionZ(), l_Creature->GetOrientation(), true);  
+                    if (me->IsWithinDistInMap(l_Creature, 3.5f))
                     {           
-                        m_CommunionInRange = false;
-
+                        m_CommunionInRange = false;    
                         l_Creature->DespawnOrUnsummon();
                         me->CastSpell(me, eSadanaSpells::SpellDarkCommunionBuff, false);
                     }
@@ -432,18 +497,16 @@ public:
                     /// Delete all ground markers nearby.
                     std::list<AreaTrigger*> l_listAreaTriggers;
                     me->GetAreatriggerListInRange(l_listAreaTriggers, 300.0f);
-
                     if (!l_listAreaTriggers.empty())
                     {
-                        for (auto itr : l_listAreaTriggers)
+                        for (AreaTrigger* l_Itr : l_listAreaTriggers)
                         {
-                            if (itr->GetSpellId() != eSadanaSpells::SpellDaggerFallGroundMarker)
+                            if (!l_Itr || l_Itr->GetSpellId() != eSadanaSpells::SpellDaggerFallGroundMarker)
                                 continue;
 
-                            itr->Remove(500);
+                            l_Itr->Remove(1 * TimeConstants::IN_MILLISECONDS);
                         }
-                    }
-              
+                    }          
                     for (uint8 l_I = 0; l_I < 2; l_I++)
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true, -eSadanaSpells::SpellDaggerFallGroundMarker))
@@ -452,100 +515,102 @@ public:
                                 l_Target->CastSpell(l_Target, eSadanaSpells::SpellDaggerFallGroundMarker);     
                         }
                     }
-
                     events.ScheduleEvent(eSadanaEvents::EventDaggerFall, 20 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eSadanaEvents::EventWhisperOfTheDarkStar:
                     me->CastSpell(me, eSadanaSpells::SpellWhisperOfTheDarkStarTriggerSpell);
-
                     events.ScheduleEvent(eSadanaEvents::EventWhisperOfTheDarkStar, 30 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eSadanaEvents::EventDarkCommunion:
                     if (Creature* l_NearestDefiledSpirit = me->FindNearestCreature(eShadowmoonBurialGroundsCreatures::CreatureDefliedSpirit01, 100.0f, true))
-                    {
-                        m_CommunionGuid = NULL;
-
+                    {               
                         l_NearestDefiledSpirit->AddAura(eSadanaSpells::SpellCosmeticStrangulateState, l_NearestDefiledSpirit);
                         me->CastSpell(l_NearestDefiledSpirit, eSadanaSpells::SpellDarkCommunion);
+                        m_CommunionGuid = 0;
                         m_CommunionGuid = l_NearestDefiledSpirit->GetGUID();
-
                         m_CommunionInRange = true;
                         m_CommunionInAction = true;
                     }
-
-                    events.ScheduleEvent(eSadanaEvents::EventDarkCommunion, 45 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eSadanaEvents::EventDarkCommunion, 30 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eSadanaEvents::EventDeathSpike:
                     me->CastSpell(me, eSadanaSpells::SpellDeathSpikeFull);
-
                     events.ScheduleEvent(eSadanaEvents::EventDeathSpike, 15 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eSadanaEvents::EventDarkEclipse:
                 {
-                    me->NearTeleportTo(1795.788f, -26.7637f, 261.3088f, 4.629905f); // To the Middle.
-                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                    me->SetReactState(ReactStates::REACT_PASSIVE);
-
+                    events.Reset();
                     /// Activate shadow runes;
                     std::list<Creature*> l_ListShadowrunes;
                     me->GetCreatureListWithEntryInGrid(l_ListShadowrunes, eSadanaCreatures::CreatureShadowRune, 200.0f);
-
                     if (!l_ListShadowrunes.empty())
                     {
-                        std::list<Creature*>::const_iterator l_it = l_ListShadowrunes.begin();
-                        std::advance(l_it, urand(0, l_ListShadowrunes.size() - 6));
+                        std::list<Creature*>::const_iterator l_It = l_ListShadowrunes.begin();
+                        std::advance(l_It, urand(0, l_ListShadowrunes.size() - 6));
 
-                        if ((*l_it)->IsAIEnabled)
-                            (*l_it)->GetAI()->DoAction(eSadanaActions::ActionActivateLunarTriggersActivate);
+                        if ((*l_It)->IsAIEnabled)
+                            (*l_It)->GetAI()->DoAction(eSadanaActions::ActionActivateLunarTriggersActivate);
                     }
-
                     /// Eclipse triggers = functional: adds the friendly buff upon standing on the rune itself and getting immuned to the eclipse damage within seconds.
                     std::list<Creature*> l_ListTriggersLunars;
-                    me->GetCreatureListWithEntryInGrid(l_ListTriggersLunars, eSadanaCreatures::CreatureEclipseTrigger, 200.0f);
-
+                    me->GetCreatureListWithEntryInGrid(l_ListTriggersLunars, eShadowmoonBurialGroundsCreatures::CreatureEclipseTrigger, 200.0f);
                     if (!l_ListTriggersLunars.empty())
                     {
-                        for (auto itr : l_ListTriggersLunars)
+                        for (Creature* l_Itr : l_ListTriggersLunars)
                         {
-                            if (itr->IsAIEnabled)
-                                itr->GetAI()->DoAction(eSadanaActions::ActionActivateLunarTriggersActivate);
+                            if (!l_Itr)
+                                continue;
+
+                            if (l_Itr->IsAIEnabled)
+                                l_Itr->GetAI()->DoAction(eSadanaActions::ActionActivateLunarTriggersActivate);
                         }
                     }
+                    me->NearTeleportTo(1795.788f, -26.7637f, 261.3088f, 4.629905f); /// To the Middle.
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                    me->AttackStop();
+                    me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                    DoCast(eSadanaSpells::SpellDarkEclipsePeriodicDummy);
+                    if (InstanceScript* l_Instance = me->GetInstanceScript())
+                    {
+                        if (Creature* l_NearestEclipseTrigger = l_Instance->instance->GetCreature(l_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataSadanaEclipseTrigger)))
+                            l_NearestEclipseTrigger->AddAura(eSadanaSpells::SpellDarkEclipsePeriodicDummy, l_NearestEclipseTrigger); /// Please work
+                    }
+                
                     events.ScheduleEvent(eSadanaEvents::EventDarkEclipse, 60 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(eSadanaEvents::EventDarkEclipseFinish, 17 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eSadanaEvents::EventDarkEclipseFinish, 27 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eSadanaEvents::EventDarkEclipseFinish:
                 {
+                    events.ScheduleEvent(eSadanaEvents::EventDeathSpike, 8 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eSadanaEvents::EventDaggerFall, 12 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eSadanaEvents::EventWhisperOfTheDarkStar, 20 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eSadanaEvents::EventDarkCommunion, 30 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eSadanaEvents::EventDarkEclipse, 60 * TimeConstants::IN_MILLISECONDS);
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-
-                    // Activate shadow runes - cosmetic;
+                    /// Activate shadow runes - cosmetic;
                     std::list<Creature*> l_ListTriggersRunes;
                     me->GetCreatureListWithEntryInGrid(l_ListTriggersRunes, eSadanaCreatures::CreatureShadowRune, 100.0f);
-
                     if (!l_ListTriggersRunes.empty())
                     {
-                        for (auto itr : l_ListTriggersRunes)
+                        for (Creature* l_Itr : l_ListTriggersRunes)
                         {
-                            if (itr->IsAIEnabled)
-                                itr->GetAI()->DoAction(eSadanaActions::ActionActivateLunarTriggersDeactivate);
+                            if (l_Itr->IsAIEnabled)
+                                l_Itr->GetAI()->DoAction(eSadanaActions::ActionActivateLunarTriggersDeactivate);
                         }
                     }
-
-                    // Eclipse triggers = functional: adds the friendly buff upon standing on the rune itself and getting immuned to the eclipse damage within seconds.
+                    /// Eclipse triggers = functional: adds the friendly buff upon standing on the rune itself and getting immuned to the eclipse damage within seconds.
                     std::list<Creature*> l_ListTriggersLunars;
-                    me->GetCreatureListWithEntryInGrid(l_ListTriggersLunars, eSadanaCreatures::CreatureEclipseTrigger, 100.0f);
-
+                    me->GetCreatureListWithEntryInGrid(l_ListTriggersLunars, eShadowmoonBurialGroundsCreatures::CreatureEclipseTrigger, 100.0f);
                     if (!l_ListTriggersLunars.empty())
                     {
-                        for (auto itr : l_ListTriggersLunars)
+                        for (Creature* l_Itr : l_ListTriggersLunars)
                         {
-                            if (itr->IsAIEnabled)
-                                itr->GetAI()->DoAction(eSadanaActions::ActionActivateLunarTriggersDeactivate);
+                            if (l_Itr->IsAIEnabled)
+                                l_Itr->GetAI()->DoAction(eSadanaActions::ActionActivateLunarTriggersDeactivate);
                         }
                     }
                     break;
@@ -565,45 +630,50 @@ public:
 };
 
 /// Defiled Spirit - 75966 [The spirits that flies around in circles, responsible for dark communion spell]
-class shadowmoon_burial_grounds_creature_defiled_spirit : public CreatureScript
+class shadowmoon_burial_grounds_sadana_creature_defiled_spirit : public CreatureScript
 {
-public:
+	public:
 
-    shadowmoon_burial_grounds_creature_defiled_spirit() : CreatureScript("shadowmoon_burial_grounds_creature_defiled_spirit") {}
+    shadowmoon_burial_grounds_sadana_creature_defiled_spirit() : CreatureScript("shadowmoon_burial_grounds_sadana_creature_defiled_spirit") {}
 
-    struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
+    struct shadowmoon_burial_grounds_sadana_creature_defiled_spiritAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : ScriptedAI(creature)
+        shadowmoon_burial_grounds_sadana_creature_defiled_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
-            m_Instance = creature->GetInstanceScript();
+            m_Instance = p_Creature->GetInstanceScript();
         }
 
         InstanceScript* m_Instance;
-        uint8 m_MovementIndentifier;
+        uint32 m_MovementIndentifier;
         bool m_StartEvent;
         bool m_Activation;
 
         void Reset() override
         {
             events.Reset();
-
-            m_MovementIndentifier = 0;
+            me->SetCanFly(true);
             m_Activation = false;
-
-            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, frand(0.3f, 1.2f));
-
-            me->setFaction(HostileFaction);
+            m_MovementIndentifier = 0;
+            me->SetDisableGravity(true);
+            me->setFaction(HostileFaction);           
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->CastSpell(me, eSadanaSpells::SpellTenebreuxViolet);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.9f);              
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC); 
+            if (me->GetMap())
+                me->GetMap()->SetObjectVisibility(1000.0f);
 
-            me->SetDisableGravity(true);
-            me->SetCanFly(true);
+            Movement::MoveSplineInit init(me);
+            FillCirclePath(g_PositionSpiritHomePoint, me->GetDistance2d(g_PositionSpiritHomePoint.GetPositionX(), g_PositionSpiritHomePoint.GetPositionY()), g_PositionSpiritHomePoint.GetPositionZ(), init.Path(), true);
+            init.SetWalk(true);
+            init.SetCyclic();
+            init.Launch();      
 
+			/*
             Position l_Position;
             l_Position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
-
-            me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), l_Position.GetPositionZ() + frand(2.0f, 10.0f));
+            me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), 286.785f + frand(2.0f, 10.0f));
+			*/
         }
 
         void DoAction(int32 const p_Action) override
@@ -616,38 +686,65 @@ public:
                         return;
 
                     events.Reset();
-
                     m_Activation = true;
                     me->StopMoving();
-
-                    me->SetSpeed(UnitMoveType::MOVE_RUN, 0.2f, true);
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 0.5f, true);
+					me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 1.2f, true);
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
 
-                    /// Reset handling - encounter.
-                    if (Creature * l_Sadana = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossSadana)))
+                    if (m_Instance != nullptr)
                     {
-                        me->GetMotionMaster()->MoveFollow(l_Sadana, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
+                        ///< Reset handling - encounter.
+                        if (Creature * l_Sadana = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossSadana)))
+                            me->GetMotionMaster()->MoveFollow(l_Sadana, 0, 0);
                     }
                     break;
                 }
+				case eSadanaActions::ActionSadanaReset:
+				{
+					break;
+				}
+                default:
+                    break;
             }
         }
 
-        void MovementInform(uint32 /*p_Type*/, uint32 id) override
+        void FillCirclePath(Position const& p_CenterPos, float p_Radius, float p_Z, Movement::PointsArray& p_Path, bool p_Clockwise)
         {
-            if (id == m_MovementIndentifier)
+            float m_Step   =  p_Clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
+            float m_Angle  =  p_CenterPos.GetAngle(me->GetPositionX(), me->GetPositionY());
+            float m_Radius = p_Radius * 1.4300;
+
+            for (uint8 i = 0; i < 16; m_Angle += m_Step, ++i)
             {
-                /// Movement handler.
-                m_MovementIndentifier++;
-
-                if (m_MovementIndentifier >= 8)
-                    m_MovementIndentifier = 0;
-
-                Position l_Position;
-                l_Position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
-                me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), l_Position.GetPositionZ() + frand(2.0f, 10.0f));
+                G3D::Vector3 l_Point;
+                l_Point.x = p_CenterPos.GetPositionX() + m_Radius * cosf(m_Angle);
+                l_Point.y = p_CenterPos.GetPositionY() + m_Radius * sinf(m_Angle);
+                l_Point.z = 283.294f;
+                p_Path.push_back(l_Point);
             }
         }
+
+		/*
+        void MovementInform(uint32 p_Type, uint32 p_Id) override
+        {
+            if (me && me->IsInWorld() && me->isAlive())
+            {
+                if (p_Id == m_MovementIndentifier)
+                {
+                    m_MovementIndentifier++;
+
+                    /// Movement handler.
+                    if (m_MovementIndentifier >= 8)
+                        m_MovementIndentifier = 0;
+
+                    Position l_Position;
+                    l_Position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
+					me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), 286.785f + frand(2.0f, 10.0f));
+                }
+            }
+        }
+		*/
 
         void JustDied(Unit* /*p_Killer*/) override
         {
@@ -662,8 +759,7 @@ public:
                         {
                             l_LinkAI->m_CommunionGuid = 0;
                             l_LinkAI->m_CommunionInRange = false;
-
-                            me->DespawnOrUnsummon(500);
+                            me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
                             l_Sadana->SetReactState(ReactStates::REACT_AGGRESSIVE);
                             l_Sadana->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                             l_Sadana->CastStop();
@@ -675,44 +771,31 @@ public:
 
         void UpdateAI(uint32 const p_Diff) override
         {
-            if (m_Activation) // Creature is activated;
-                return;
-
             events.Update(p_Diff);
-
-            switch (events.ExecuteEvent())
-            {
-                case eSadanaEvents::EventDefiledSpirtMovement + 1:
-                    me->GetMotionMaster()->MoveTargetedHome();
-                    break;
-                default:
-                    break;
-            }
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(creature);
+        return new shadowmoon_burial_grounds_sadana_creature_defiled_spiritAI(p_Creature);
     }
 };
 
 /// Falling Dagger - 75981 [Falling dagger]
-class shadowmoon_burial_grounds_creature_falling_dagger : public CreatureScript
+class shadowmoon_burial_grounds_sadana_creature_falling_dagger : public CreatureScript
 {
-public:
+	public:
 
-    shadowmoon_burial_grounds_creature_falling_dagger() : CreatureScript("shadowmoon_burial_grounds_creature_falling_dagger") {}
+    shadowmoon_burial_grounds_sadana_creature_falling_dagger() : CreatureScript("shadowmoon_burial_grounds_sadana_creature_falling_dagger") {}
 
-    struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
+    struct shadowmoon_burial_grounds_sadana_creature_falling_daggerAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : ScriptedAI(creature)
+        shadowmoon_burial_grounds_sadana_creature_falling_daggerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
-            m_Instance = creature->GetInstanceScript();
+            m_Instance = p_Creature->GetInstanceScript();
             m_CanDamage = false;
         }
 
-        EventMap m_Events;
         InstanceScript* m_Instance;
         bool m_StartEvent;
         bool m_CanDamage;
@@ -720,17 +803,14 @@ public:
         void Reset() override
         {
             events.Reset();
-
             me->setFaction(HostileFaction);
-            me->SetReactState(ReactStates::REACT_PASSIVE);          
+            me->SetCanFly(true);
+            me->SetDisableGravity(true);
+            me->SetReactState(ReactStates::REACT_PASSIVE);     
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
             me->SetFlag(EUnitFields::UNIT_FIELD_LEVEL, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-            me->CastSpell(me, eSadanaSpells::SpellDaggerAuraFunctioning);
-
-            me->SetDisableGravity(true);
-            me->SetCanFly(true);
-
-            events.ScheduleEvent(eSadanaEvents::EventDaggerFallMovement, 4 * TimeConstants::IN_MILLISECONDS);
+            me->CastSpell(me, eSadanaSpells::SpellDaggerAuraFunctioning);        
+            events.ScheduleEvent(eSadanaEvents::EventDaggerFallMovement, 2 * TimeConstants::IN_MILLISECONDS);
         }
 
         void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
@@ -738,7 +818,9 @@ public:
             switch (p_Id)
             {
                 case eSadanaMovements::MovementDaggerFallReachedAlttitude: /// Damage starts ticking once dagger is in player's alttitude.
-                    events.ScheduleEvent(eSadanaEvents::EventDaggerFallActivation, 1 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eSadanaEvents::EventDaggerFallActivation, 500);
+                    break;
+                default:
                     break;
             }
         }
@@ -751,10 +833,8 @@ public:
             {
                 case eSadanaEvents::EventDaggerFallActivation:               
                     m_CanDamage = true;
-
                     me->CastSpell(me, eSadanaSpells::SpellDaggerAlttitudeVisual); /// The visual when the daggerfall reaches the ground
-
-                    events.ScheduleEvent(eSadanaEvents::EventDaggerFall, 1 * TimeConstants::IN_MILLISECONDS); /// Activates hardcoded damage intervals
+                    events.ScheduleEvent(eSadanaEvents::EventDaggerFall, 100); /// Activates hardcoded damage intervals
                     break;
                 case eSadanaEvents::EventDaggerFallMovement:
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 2.0f);
@@ -762,7 +842,6 @@ public:
                     break;
                 case eSadanaEvents::EventDaggerFall: /// Responsible for damage ticking, disabling the automatic damage from spelldbc
                     DoCastAOE(eSadanaSpells::SpellDaggerFallDamage);
-
                     events.ScheduleEvent(eSadanaEvents::EventDaggerFall, 1 * TimeConstants::IN_MILLISECONDS);
                     break;
                 default:
@@ -771,54 +850,65 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(creature);
+        return new shadowmoon_burial_grounds_sadana_creature_falling_daggerAI(p_Creature);
     }
 };
 
 /// Shadow Rune - 75778 [Responsible for the cosmetic shadow runes changing to lunars when eclipse starts]
-class shadowmoon_burial_grounds_creature_shadow_rune : public CreatureScript
+class shadowmoon_burial_grounds_sadana_creature_shadow_rune : public CreatureScript
 {
-public:
+	public:
 
-    shadowmoon_burial_grounds_creature_shadow_rune() : CreatureScript("shadowmoon_burial_grounds_creature_shadow_rune") {}
+    shadowmoon_burial_grounds_sadana_creature_shadow_rune() : CreatureScript("shadowmoon_burial_grounds_sadana_creature_shadow_rune") {}
 
-    struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
+    struct shadowmoon_burial_grounds_sadana_creature_shadow_runeAI : public Scripted_NoMovementAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        shadowmoon_burial_grounds_sadana_creature_shadow_runeAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
         {
-            m_Instance = creature->GetInstanceScript();
+            m_Instance = p_Creature->GetInstanceScript();
             m_HasBeenActivated = false;
         }
 
-        EventMap m_Events;
+        enum eShadowRuneSpells
+        {
+            SpellLunarPurityAreaTrigger        = 164974,
+            SpellLunarPurityDamageModification = 162652,
+            SpellShadowRitual                  = 152158,
+            SpellLunarRitual                   = 164693,
+            SpellShadowRuneVisual              = 152684,
+            SpellShadowRuneVisual01            = 152691,
+            SpellShadowRuneVisual02            = 152695,
+            SpellLunarRuneVisual               = 164693,
+            SpellLunarRuneVisual01             = 164695,
+            SpellLunarRuneVisual02             = 164696
+        };
+
         InstanceScript* m_Instance;
         bool m_HasBeenActivated;
 
         void Reset() override
         {
             events.Reset();
-
-            me->RemoveAllAuras();
-
-            switch (urand(0, 2))
-            {
-                case 0:
-                    me->CastSpell(me, eSadanaSpells::SpellShadowRuneVisual);
-                    break;
-                case 1:
-                    me->CastSpell(me, eSadanaSpells::SpellShadowRuneVisual01);
-                    break;
-                case 2:
-                    me->CastSpell(me, eSadanaSpells::SpellShadowRuneVisual02);
-                    break;
-            }
-
             me->setFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            switch (urand(0, 2))
+            {
+                case 0:
+                    me->CastSpell(me, eShadowRuneSpells::SpellShadowRuneVisual);
+                    break;
+                case 1:
+                    me->CastSpell(me, eShadowRuneSpells::SpellShadowRuneVisual01);
+                    break;
+                case 2:
+                    me->CastSpell(me, eShadowRuneSpells::SpellShadowRuneVisual02);
+                    break;
+                default:
+                    break;
+            }
         }
 
         void DoAction(int32 const p_Action) override
@@ -830,22 +920,21 @@ public:
                     switch (urand(0, 2))
                     {
                         case 0:
-                            me->CastSpell(me, eSadanaSpells::SpellLunarRuneVisual);
+                            me->CastSpell(me, eShadowRuneSpells::SpellLunarRuneVisual);
                             break;
                         case 1:
-                            me->CastSpell(me, eSadanaSpells::SpellLunarRuneVisual01);
+                            me->CastSpell(me, eShadowRuneSpells::SpellLunarRuneVisual01);
                             break;
                         case 2:
-                            me->CastSpell(me, eSadanaSpells::SpellLunarRuneVisual02);
+                            me->CastSpell(me, eShadowRuneSpells::SpellLunarRuneVisual02);
                             break;
-                    }
-
-                    for (uint32 l_I = 0; l_I < 4; l_I++)
-                        me->RemoveAura(l_ShadowRuneEntries[l_I]);
-
+                        default:
+                            break;
+                    }        
                     m_HasBeenActivated = true;
-
-                    me->CastSpell(me, eSadanaSpells::SpellLunarPurityAreaTrigger);
+                    me->CastSpell(me, eShadowRuneSpells::SpellLunarPurityAreaTrigger);
+                    for (uint8 l_I = 0; l_I < 3; l_I++)
+                        me->RemoveAura(g_ShadowRuneEntries[l_I]);
                     break;
                 }
                 case eSadanaActions::ActionActivateLunarTriggersDeactivate:
@@ -856,21 +945,21 @@ public:
                     switch (urand(0, 2))
                     {
                         case 0:
-                            me->CastSpell(me, eSadanaSpells::SpellShadowRuneVisual);
+                            me->CastSpell(me, eShadowRuneSpells::SpellShadowRuneVisual);
                             break;
                         case 1:
-                            me->CastSpell(me, eSadanaSpells::SpellShadowRuneVisual01);
+                            me->CastSpell(me, eShadowRuneSpells::SpellShadowRuneVisual01);
                             break;
                         case 2:
-                            me->CastSpell(me, eSadanaSpells::SpellShadowRuneVisual02);
+                            me->CastSpell(me, eShadowRuneSpells::SpellShadowRuneVisual02);
+                            break;
+                        default:
                             break;
                     }
-
-                    for (uint32 l_I = 0; l_I < 4; l_I++)
-                        me->RemoveAura(l_LunarRuneEntries[l_I]);
-
-                    me->RemoveAura(eSadanaSpells::SpellLunarRitual);
                     m_HasBeenActivated = false;
+                    me->RemoveAura(eShadowRuneSpells::SpellLunarRitual);                 
+                    for (uint8 l_I = 0; l_I < 3; l_I++)
+                        me->RemoveAura(g_LunarRuneEntries[l_I]);            
                     break;
                 }
                 default:
@@ -879,25 +968,30 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(creature);
+        return new shadowmoon_burial_grounds_sadana_creature_shadow_runeAI(p_Creature);
     }
 };
 
 /// Eclipse Trigger - 76052 [Responsible for the eclipse trigger, searching targets when activated to grant them a buff
-class shadowmoon_burial_grounds_creature_eclipse_trigger : public CreatureScript
+class shadowmoon_burial_grounds_sadana_creature_eclipse_trigger : public CreatureScript
 {
-public:
+	public:
 
-    shadowmoon_burial_grounds_creature_eclipse_trigger() : CreatureScript("shadowmoon_burial_grounds_creature_eclipse_trigger") {}
+    shadowmoon_burial_grounds_sadana_creature_eclipse_trigger() : CreatureScript("shadowmoon_burial_grounds_sadana_creature_eclipse_trigger") {}
 
-    struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
+    struct shadowmoon_burial_grounds_sadana_creature_eclipse_triggerAI : public Scripted_NoMovementAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        shadowmoon_burial_grounds_sadana_creature_eclipse_triggerAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
         {
-            m_Instance = creature->GetInstanceScript();
+            m_Instance = p_Creature->GetInstanceScript();
         }
+
+        enum eEclispeSpells
+        {
+            SpellLunarPurityDamageModification = 162652
+        };
 
         InstanceScript* m_Instance;
         bool m_ReadyForAction;
@@ -907,10 +1001,9 @@ public:
         {
             events.Reset();
             m_ReadyForAction = false;
-            m_ActionDiff = 2 * TimeConstants::IN_MILLISECONDS;
-
             me->setFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
+            m_ActionDiff = 2 * TimeConstants::IN_MILLISECONDS;
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
         }
@@ -925,6 +1018,8 @@ public:
                 case eSadanaActions::ActionActivateLunarTriggersDeactivate:
                     m_ReadyForAction = false;
                     break;
+                default:
+                    break;
             }
         }
 
@@ -932,20 +1027,17 @@ public:
         {
             events.Update(p_Diff);
 
-            // Lunar Purity
+            ///< Lunar Purity
             if (m_ReadyForAction)
             {
                 if (m_ActionDiff <= p_Diff)
                 {
                     std::list<Player*> l_PlayerList;
                     me->GetPlayerListInGrid(l_PlayerList, 1.2f);
-
-                    if (l_PlayerList.empty())
-                        return;
-
-                    for (auto itr : l_PlayerList)
+                    if (!l_PlayerList.empty())
                     {
-                        itr->CastSpell(itr, eSadanaSpells::SpellLunarPurityDamageModification); 
+                        for (Player* l_Itr : l_PlayerList)
+                            l_Itr->CastSpell(l_Itr, eEclispeSpells::SpellLunarPurityDamageModification);
                     }
 
                     m_ActionDiff = 2 * TimeConstants::IN_MILLISECONDS;
@@ -954,61 +1046,60 @@ public:
                     m_ActionDiff -= p_Diff;
             }
         }
-
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(creature);
+        return new shadowmoon_burial_grounds_sadana_creature_eclipse_triggerAI(p_Creature);
     }
 };
 
 /// Shadow Burn - 153224 [Ticking damage spell from daggerfall proc]
-class spell_shadowmoon_burial_grounds_shadow_burn : public SpellScriptLoader 
+class shadowmoon_burial_grounds_sadana_spell_shadow_burn : public SpellScriptLoader
 {
-public:
+	public:
 
-    spell_shadowmoon_burial_grounds_shadow_burn() : SpellScriptLoader("spell_shadowmoon_burial_grounds_shadow_burn") { }
+    shadowmoon_burial_grounds_sadana_spell_shadow_burn() : SpellScriptLoader("shadowmoon_burial_grounds_sadana_spell_shadow_burn") { }
 
-    class spell_shadowmoon_burial_grounds_shadow_burn_SpellScript : public SpellScript
+    class shadowmoon_burial_grounds_sadana_spell_shadow_burn_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_shadowmoon_burial_grounds_shadow_burn_SpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_sadana_spell_shadow_burn_SpellScript);
 
         SpellCastResult CheckCaster()
         {
             if (!GetCaster())
-                return SpellCastResult::SPELL_FAILED_DONT_REPORT;
-       
+                return SpellCastResult::SPELL_FAILED_DONT_REPORT; 
+
             if (GetCaster()->GetPositionZ() > 262.0f)
                 return SpellCastResult::SPELL_FAILED_DONT_REPORT;
-            else
-                return SpellCastResult::SPELL_CAST_OK;        
+
+            return SpellCastResult::SPELL_CAST_OK;        
         }
 
         void Register()
         {
-            OnCheckCast += SpellCheckCastFn(spell_shadowmoon_burial_grounds_shadow_burn_SpellScript::CheckCaster);
+            OnCheckCast += SpellCheckCastFn(shadowmoon_burial_grounds_sadana_spell_shadow_burn_SpellScript::CheckCaster);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
-        return new spell_shadowmoon_burial_grounds_shadow_burn_SpellScript;
+        return new shadowmoon_burial_grounds_sadana_spell_shadow_burn_SpellScript;
     }
 };
 
 /// Dark Communion - 153153  [ Responisble for making the ghost stop moving, and start following the boss ]
-class spell_shadowmoon_burial_grounds_dark_communion : public SpellScriptLoader
+class shadowmoon_burial_grounds_sadana_spell_dark_communion : public SpellScriptLoader
 {
-public:
+	public:
 
-    spell_shadowmoon_burial_grounds_dark_communion() : SpellScriptLoader("spell_shadowmoon_burial_grounds_dark_communion") { }
+    shadowmoon_burial_grounds_sadana_spell_dark_communion() : SpellScriptLoader("shadowmoon_burial_grounds_sadana_spell_dark_communion") { }
 
-    class spell_shadowmoon_burial_grounds_dark_communion_AuraScript : public AuraScript
+    class shadowmoon_burial_grounds_sadana_spell_dark_communion_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_shadowmoon_burial_grounds_dark_communion_AuraScript);
+        PrepareAuraScript(shadowmoon_burial_grounds_sadana_spell_dark_communion_AuraScript);
 
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (!GetTarget())
                 return;
@@ -1017,12 +1108,10 @@ public:
                 return;
 
             if (GetTarget()->IsAIEnabled)
-            {
                 GetTarget()->GetAI()->DoAction(eSadanaActions::ActionActivateDefiledSpirit);
-            }
         }
 
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -1032,19 +1121,16 @@ public:
                         return;
 
                     l_Target->ToCreature()->DespawnOrUnsummon();
-
                     if (InstanceScript* l_Instance = l_Caster->GetInstanceScript())
                     {
                         if (Creature* l_Sadana = l_Instance->instance->GetCreature(l_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossSadana)))
                         {
                             if (l_Sadana->IsAIEnabled)
                             {
-                                if (boss_sadana_bloodfury::boss_sadana_bloodfuryAI* linkAI = CAST_AI(boss_sadana_bloodfury::boss_sadana_bloodfuryAI, l_Sadana->GetAI()))
+                                if (boss_sadana_bloodfury::boss_sadana_bloodfuryAI* l_LinkAI = CAST_AI(boss_sadana_bloodfury::boss_sadana_bloodfuryAI, l_Sadana->GetAI()))
                                 {
-                                    if (linkAI && linkAI->m_CommunionInAction)
-                                    {
-                                        linkAI->m_CommunionInAction = false;
-                                    }
+                                    if (l_LinkAI && l_LinkAI->m_CommunionInAction)
+                                        l_LinkAI->m_CommunionInAction = false;
                                 }
                             }
                         }
@@ -1055,39 +1141,29 @@ public:
 
         void Register()
         {
-            AfterEffectApply += AuraEffectApplyFn(spell_shadowmoon_burial_grounds_dark_communion_AuraScript::OnApply, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_DUMMY, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_shadowmoon_burial_grounds_dark_communion_AuraScript::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_DUMMY, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+            AfterEffectApply += AuraEffectApplyFn(shadowmoon_burial_grounds_sadana_spell_dark_communion_AuraScript::OnApply,    SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_DUMMY, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(shadowmoon_burial_grounds_sadana_spell_dark_communion_AuraScript::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_DUMMY, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
         }
     };
 
     AuraScript* GetAuraScript() const override
     {
-        return new spell_shadowmoon_burial_grounds_dark_communion_AuraScript();
+        return new shadowmoon_burial_grounds_sadana_spell_dark_communion_AuraScript();
     }
 };
 
 /// Dark Eclipse - 164685  [Handles the trigger deactivation, and somethign with the damage]
-class spell_shadowmoon_burial_grounds_dark_eclipse : public SpellScriptLoader
+class shadowmoon_burial_grounds_sadana_spell_dark_eclipse : public SpellScriptLoader
 {
-public:
+	public:
+    
+    shadowmoon_burial_grounds_sadana_spell_dark_eclipse() : SpellScriptLoader("shadowmoon_burial_grounds_sadana_spell_dark_eclipse") { }
 
-    spell_shadowmoon_burial_grounds_dark_eclipse() : SpellScriptLoader("spell_shadowmoon_burial_grounds_dark_eclipse") { }
-
-    class spell_shadowmoon_burial_grounds_dark_eclipse_AuraScript : public AuraScript
+    class shadowmoon_burial_grounds_sadana_spell_dark_eclipse_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_shadowmoon_burial_grounds_dark_eclipse_AuraScript);
+        PrepareAuraScript(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_AuraScript);
 
-        bool Load()
-        {
-            if (!GetSpellInfo())
-                return false;
-
-            SpellInfo* l_Spell = const_cast<SpellInfo*>(GetSpellInfo());
-            l_Spell->Effects[0].Amplitude = 4 * TimeConstants::IN_MILLISECONDS;
-            return true;
-        }
-
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (!GetCaster())
                 return;
@@ -1095,17 +1171,13 @@ public:
             GetCaster()->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
 
-        void HandlePeriodic(constAuraEffectPtr aurEff)
+        void HandlePeriodic(AuraEffect const* p_AurEff)
         {
             PreventDefaultAction();
-
             if (GetCaster())
             {
                 if (!GetSpellInfo())
                     return;
-
-                SpellInfo* l_Spell = const_cast<SpellInfo*>(GetSpellInfo());
-                l_Spell->Effects[0].Amplitude = 600;
 
                 GetCaster()->CastSpell(GetCaster(), eSadanaSpells::SpellDarkEclipseDamage);
             }
@@ -1113,89 +1185,63 @@ public:
 
         void Register()
         {
-            AfterEffectApply += AuraEffectApplyFn(spell_shadowmoon_burial_grounds_dark_eclipse_AuraScript::OnApply,           SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_DUMMY, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);       
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_shadowmoon_burial_grounds_dark_eclipse_AuraScript::HandlePeriodic, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_DUMMY);
+            AfterEffectApply += AuraEffectApplyFn(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_AuraScript::OnApply, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_DUMMY, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+            OnEffectPeriodic += AuraEffectPeriodicFn(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_AuraScript::HandlePeriodic, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_DUMMY);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
-        return new spell_shadowmoon_burial_grounds_dark_eclipse_AuraScript();
-    }
-
-    class spell_shadowmoon_burial_grounds_dark_eclipse_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_shadowmoon_burial_grounds_dark_eclipse_SpellScript);
-
-        void CorrectTargets(std::list<WorldObject*>& targets)
-        {
-            if (!GetCaster())
-                return;
-
-            Unit* l_Caster = GetCaster();
-
-            if (targets.empty())
-                return;
-
-            targets.remove_if(JadeCore::ObjectTypeIdCheck(TYPEID_PLAYER, false));
-        }
-
-        void Register()
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_shadowmoon_burial_grounds_dark_eclipse_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_NEARBY_ENTRY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_shadowmoon_burial_grounds_dark_eclipse_SpellScript();
+        return new shadowmoon_burial_grounds_sadana_spell_dark_eclipse_AuraScript();
     }
 };
 
 /// Dark Eclipse damage - 164686 [Makes every damage coming from eclipse set to 0 if you have the eclipse immunity from standing in the lunars]
-class spell_shadowmoon_burial_grounds_dark_eclipse_damage : public SpellScriptLoader
+class shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damage : public SpellScriptLoader
 {
-public:
+	public:
 
-    spell_shadowmoon_burial_grounds_dark_eclipse_damage() : SpellScriptLoader("spell_shadowmoon_burial_grounds_dark_eclipse_damage") { }
+    shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damage() : SpellScriptLoader("shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damage") { }
 
-    class spell_shadowmoon_burial_grounds_dark_eclipse_damage_SpellScript : public SpellScript
+    class shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damageSpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_shadowmoon_burial_grounds_dark_eclipse_damage_SpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damageSpellScript);
 
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+        enum eEclipseSpells
+        {
+            SpellLunaryPurtiyBuff = 162652
+        };
+
+        void HandleDamage(SpellEffIndex /*p_EffIndex*/)
         {
             if (!GetCaster() || !GetHitUnit())
                 return;
 
-            if (GetCaster()->HasAura(eSadanaSpells::SpellLunaryPurtiyBuff))
+            if (GetHitUnit()->HasAura(eEclipseSpells::SpellLunaryPurtiyBuff))
                 SetHitDamage(0);
         }
 
         void Register()
         {
-            OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_burial_grounds_dark_eclipse_damage_SpellScript::HandleDamage, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnEffectHitTarget += SpellEffectFn(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damageSpellScript::HandleDamage, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
-        return new spell_shadowmoon_burial_grounds_dark_eclipse_damage_SpellScript();
+        return new shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damageSpellScript();
     }
 };
 
-
-void AddSC_sadana()
-{
-    /*
-    new boss_sadana_bloodfury();
-    new shadowmoon_burial_grounds_creature_defiled_spirit();
-    new shadowmoon_burial_grounds_creature_falling_dagger();
-    new shadowmoon_burial_grounds_creature_shadow_rune();
-    new shadowmoon_burial_grounds_creature_eclipse_trigger();
-    new spell_shadowmoon_burial_grounds_dark_communion();
-    new spell_shadowmoon_burial_grounds_dark_eclipse();
-    new spell_shadowmoon_burial_grounds_dark_eclipse_damage();
-    new spell_shadowmoon_burial_grounds_shadow_burn();
-    */
+void AddSC_boss_sadana()
+{   
+    new boss_sadana_bloodfury();                                      ///< 75509
+    new shadowmoon_burial_grounds_sadana_creature_shadow_rune();      ///< 75778
+    new shadowmoon_burial_grounds_sadana_creature_defiled_spirit();   ///< 75966
+    new shadowmoon_burial_grounds_sadana_creature_falling_dagger();   ///< 75981
+    new shadowmoon_burial_grounds_sadana_creature_eclipse_trigger();  ///< 76052
+    new shadowmoon_burial_grounds_sadana_spell_shadow_burn();         ///< 153224
+    new shadowmoon_burial_grounds_sadana_spell_dark_eclipse();        ///< 164685
+    new shadowmoon_burial_grounds_sadana_spell_dark_communion();      ///< 153153
+    new shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damage(); ///< 16468
 }

@@ -101,11 +101,11 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get shipment ID for specific building & player
-    uint32 ShipmentManager::GetShipmentIDForBuilding(uint32 p_BuildingID, Player * p_Target, bool p_ForStartWorkOrder)
+    uint32 ShipmentManager::GetShipmentIDForBuilding(uint32 p_BuildingID, Player* p_Target, bool p_ForStartWorkOrder)
     {
         uint32 l_BuildingType = 0;
 
-        const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(p_BuildingID);
+        const GarrBuildingEntry* l_Entry = sGarrBuildingStore.LookupEntry(p_BuildingID);
 
         if (!l_Entry)
         {
@@ -115,11 +115,13 @@ namespace MS { namespace Garrison
 
         l_BuildingType = l_Entry->Type;
 
-        if (!p_ForStartWorkOrder)
+        if (l_BuildingType == BuildingType::TradingPost)
+            return p_Target->GetCharacterWorldStateValue(CharWorldStateGarrisonTradingPostDailyRandomShipment);
+        else if (!p_ForStartWorkOrder)
             return m_ShipmentPerBuildingType[l_BuildingType];
         else
         {
-            const CharShipmentEntry * l_ShipmentEntry = sCharShipmentStore.LookupEntry(m_QuestShipmentPerBuildingType[l_BuildingType]);
+            const CharShipmentEntry* l_ShipmentEntry = sCharShipmentStore.LookupEntry(m_QuestShipmentPerBuildingType[l_BuildingType]);
 
             if (!l_ShipmentEntry)
                 return m_ShipmentPerBuildingType[l_BuildingType];
@@ -146,7 +148,7 @@ namespace MS { namespace Garrison
                             return p_Order.ShipmentID == m_QuestShipmentPerBuildingType[l_BuildingType];
                         });
 
-                        if (l_Objective->ObjectID == l_QuestItem && !p_Target->HasItemCount(l_QuestItem, 1, false) && !l_Count)
+                        if (l_Objective->ObjectID == l_QuestItem && !p_Target->HasItemCount(l_QuestItem, 1, false) && !l_Count) ///< Comparison of integers of different signs: 'const uint32' (aka 'const unsigned int') and 'const int32' (aka 'const int')
                             return m_QuestShipmentPerBuildingType[l_BuildingType];
                     }
                 }

@@ -263,7 +263,7 @@ class boss_xt002 : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_SLAY);
             }
 
@@ -862,7 +862,7 @@ class spell_xt002_searing_light_spawn_life_spark: public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* player = GetOwner()->ToPlayer())
                     if (Unit* xt002 = GetCaster())
@@ -900,7 +900,7 @@ class spell_xt002_gravity_bomb_aura: public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* player = GetOwner()->ToPlayer())
                     if (Unit* xt002 = GetCaster())
@@ -910,7 +910,7 @@ class spell_xt002_gravity_bomb_aura: public SpellScriptLoader
                                     xt002->ToCreature()->CastSpell(player, SPELL_SUMMON_VOID_ZONE, true);    // TODO: Check if casting this spell works as intended, may have problems due to target selection
             }
 
-            void OnPeriodic(constAuraEffectPtr aurEff)
+            void OnPeriodic(AuraEffect const* aurEff)
             {
                 Unit* xt002 = GetCaster();
                 if (!xt002)
@@ -1258,7 +1258,7 @@ void AddSC_boss_xt002()
     new spell_xt002_gravity_bomb_aura();
     new spell_xt002_gravity_bomb_aura_target();
     new spell_xt002_gravity_bomb_damage();
-    new spell_xt002_heart_overload_periodic();
+    //new spell_xt002_heart_overload_periodic();
     new spell_xt002_tympanic_tantrum();
     new spell_xt002_submerged();
     new spell_xt002_stand();

@@ -246,7 +246,7 @@ class BattlegroundSM : public Battleground
         void PostUpdateImpl(uint32 p_Diff);
         void UpdateTeamScore(uint32 p_Team);
         void EndBattleground(uint32 p_Winner);
-        void UpdatePlayerScore(Player* p_Player, uint32 p_Type, uint32 p_Value, bool p_AddHonor = true);
+        void UpdatePlayerScore(Player* p_Player, uint32 p_Type, uint32 p_Value, bool p_AddHonor = true); ///< 'BattlegroundSM::UpdatePlayerScore' hides overloaded virtual function
         void FillInitialWorldStates(ByteBuffer& p_Data);
         void EventPlayerClickedOnFlag(Player* p_Player, Unit* p_Target);
 
@@ -277,9 +277,9 @@ class BattlegroundSM : public Battleground
         uint32 GetMineCartTeamKeeper(uint8 p_MineCart);
         uint32 m_HonorScoreTics[2];
 
-        uint32 m_MineCartsTrigger[SM_MINE_CART_MAX];
+        uint32 m_MineCartsTrigger[SM_MINE_CART_MAX]; ///< m_MineCartsTrigger is not used
         int32 m_MineCartsProgressBar[SM_MINE_CART_MAX];
-        uint32 m_MineCartTeamKeeper[SM_MINE_CART_MAX]; // keepers team
+        uint32 m_MineCartTeamKeeper[SM_MINE_CART_MAX]; // keepers team ///< m_MineCartTeamKeeper is not used
         int32 m_FirstMineCartSummonTimer;
         int32 m_MineCartCheckTimer;
         int32 m_DepotCloseTimer[4];

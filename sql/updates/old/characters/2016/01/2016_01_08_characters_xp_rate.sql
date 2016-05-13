@@ -1,0 +1,1 @@
+ALTER TABLE `characters` ADD COLUMN `xprate` FLOAT UNSIGNED DEFAULT '5' NOT NULL AFTER `LegacyRaidDifficuly`; 

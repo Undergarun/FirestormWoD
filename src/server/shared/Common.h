@@ -131,7 +131,6 @@
 #define snprintf _snprintf
 #define atoll _atoi64
 #define vsnprintf _vsnprintf
-#define finite(X) _finite(X)
 #define llabs _abs64
 
 #else
@@ -298,5 +297,18 @@ extern ACE_Based::LockedQueue<ArenaLog*,  ACE_Thread_Mutex> ArenaLogQueue;
 # define TRINITY_READ_GUARD(MUTEX, LOCK) \
   ACE_Read_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
     if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
+
+namespace std
+{
+    template<class K, class V>
+    struct hash<std::pair<K, V>>
+    {
+    public:
+        size_t operator()(std::pair<K, V> const& key) const
+        {
+            return std::hash<K>()(key.first) ^ std::hash<V>()(key.second);
+        }
+    };
+}
 
 #endif

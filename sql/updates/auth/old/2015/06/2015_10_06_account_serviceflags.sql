@@ -1,1 +1,0 @@
-ALTER TABLE `account` ADD COLUMN `service_flags` INT(10) UNSIGNED NOT NULL AFTER `bnet2_salt`; 

@@ -186,7 +186,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             return false;
         }
         else    // attempt to downscale
-            mapDiff = GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty);
+            mapDiff = GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty); ///< mapDiff is never read 01/18/16
     }
 
     //Bypass checks for GMs
@@ -246,19 +246,6 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             if (Map* boundMap = sMapMgr->FindMap(mapid, boundInstance->save->GetInstanceId()))
                 if (!loginCheck && !boundMap->CanEnter(player))
                     return false;
-            /*
-                This check has to be moved to InstanceMap::CanEnter()
-                // Player permanently bounded to different instance than groups one
-                InstancePlayerBind* playerBoundedInstance = player->GetBoundInstance(mapid, player->GetDifficulty(entry));
-                if (playerBoundedInstance && playerBoundedInstance->perm && playerBoundedInstance->save &&
-                    boundedInstance->save->GetInstanceId() != playerBoundedInstance->save->GetInstanceId())
-                {
-                    //TODO: send some kind of error message to the player
-                    return false;
-                }*/
-
-        if (!group->CanEnterInInstance())
-            return false;
     }
 
     // players are only allowed to enter 5 instances per hour
@@ -324,7 +311,7 @@ void MapManager::Update(uint32 diff)
 
     sObjectAccessor->Update(uint32(i_timer.GetCurrent()));
 
-    std::queue<std::function<void()>> l_Operations;
+    std::queue<std::function<bool()>> l_Operations;
     m_CriticalOperationLock.acquire();
 
     l_Operations = m_CriticalOperation;
@@ -334,12 +321,27 @@ void MapManager::Update(uint32 diff)
 
     m_CriticalOperationLock.release();
 
+    std::queue<std::function<bool()>> l_CriticalOperationFallBack;
     while (!l_Operations.empty())
     {
         if (l_Operations.front())
-            l_Operations.front()();
+        {
+            if (!(l_Operations.front()()))
+                l_CriticalOperationFallBack.push(l_Operations.front());
+        }
 
         l_Operations.pop();
+    }
+
+    if (!l_CriticalOperationFallBack.empty())
+    {
+        m_CriticalOperationLock.acquire();
+        while (!l_CriticalOperationFallBack.empty())
+        {
+            m_CriticalOperation.push(l_CriticalOperationFallBack.front());
+            l_CriticalOperationFallBack.pop();
+        }
+        m_CriticalOperationLock.release();
     }
 
     i_timer.SetCurrent(0);

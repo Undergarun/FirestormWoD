@@ -350,7 +350,7 @@ class instance_heart_of_fear : public InstanceMapScript
                             }
 
                             std::list<GameObject*> l_DoorList;
-                            GetGameObjectListWithEntryInGrid(l_DoorList, l_Garalon, GOB_DOOR_TO_MELJARAK, 500.0f);
+                            GetGameObjectListWithEntryInGrid(l_DoorList, l_Garalon, GOB_DOOR_TO_MELJARAK, 200.0f);
 
                             for (GameObject* l_Door : l_DoorList)
                                 l_Door->SetGoState(GO_STATE_ACTIVE);

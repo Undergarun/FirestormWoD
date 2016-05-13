@@ -336,7 +336,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                     Talk(SAY_KILL);
             };
 
@@ -357,7 +357,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         whelpcount++;
                         if (whelpcount == 8)
                         {
-                            if (AuraPtr aura = me->GetAura(SPELL_DRAGON_VENGEANCE))
+                            if (Aura* aura = me->GetAura(SPELL_DRAGON_VENGEANCE))
                                 aura->SetStackAmount(aura->GetStackAmount() + 1);
                             else
                                 me->AddAura(SPELL_DRAGON_VENGEANCE, me);
@@ -730,7 +730,7 @@ class spell_halfus_stone_grip: public SpellScriptLoader
         {
             PrepareAuraScript(spell_halfus_stone_grip_AuraScript) 
 
-            void OnPereodic(constAuraEffectPtr /*aurEff*/) 
+            void OnPereodic(AuraEffect const* /*aurEff*/) 
             {
                 PreventDefaultAction();
 

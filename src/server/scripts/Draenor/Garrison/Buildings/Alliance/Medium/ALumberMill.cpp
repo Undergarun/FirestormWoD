@@ -49,6 +49,7 @@ namespace MS { namespace Garrison
     npc_JustinTimberLordAI::npc_JustinTimberLordAI(Creature* p_Creature)
         : SimpleSequenceCosmeticScriptAI(p_Creature)
     {
+        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
     }
 
     bool npc_JustinTimberLord::OnGossipHello(Player* p_Player, Creature* p_Creature)
@@ -74,7 +75,7 @@ namespace MS { namespace Garrison
                 return true;
             }
 
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultWorkOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
         }
         else if (p_Player->GetQuestStatus(Quests::Alliance_EasingIntoLumberjacking) == QUEST_STATUS_NONE)
@@ -90,17 +91,15 @@ namespace MS { namespace Garrison
 
     bool npc_JustinTimberLord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
-        CreatureAI* l_AI = p_Creature->AI();
-        p_Player->PlayerTalkClass->ClearMenus();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
         if (l_AI == nullptr)
             return true;
 
+        p_Player->PlayerTalkClass->ClearMenus();
+
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player);
-        }
+            l_AI->SendShipmentCrafterUI(p_Player);
 
         return true;
     }

@@ -22,7 +22,11 @@ project(WoDCore)
 # Set RPATH-handing (CMake parameters)
 set(CMAKE_SKIP_BUILD_RPATH 0)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH 0)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+if ( CMAKE_INSTALL_PREFIX MATCHES "/usr/local" )
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/firestorm")
+else()
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif()
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -55,14 +59,17 @@ find_package(OpenSSL REQUIRED)
 find_package(curl REQUIRED)
 find_package(EasyJSon REQUIRED)
 # FIND_PACKAGE(msFramework REQUIRED)
-if( NOT USE_MYSQL_SOURCES )
-  find_package(MySQL REQUIRED)
-endif()
+find_package(MySQL REQUIRED)
+
 
 if( UNIX )
   find_package(Readline)
   find_package(ZLIB)
   find_package(BZip2)
+endif()
+
+if( NOT DISABLEGITCHECK )
+  find_package(Git)
 endif()
 
 # Find revision ID and hash of the sourcetree

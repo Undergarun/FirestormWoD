@@ -538,13 +538,13 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
             void AttackStart(Unit* target)
             {
-                if (target->GetTypeId() == TYPEID_PLAYER)
+                if (target->IsPlayer())
                     BossAI::AttackStart(target);
             }
 
             bool CanAIAttack(Unit const* target) const
             {
-                return target->GetTypeId() == TYPEID_PLAYER;
+                return target->IsPlayer();
             }
 
             void JustReachedHome()
@@ -582,7 +582,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 // check if there is any player on threatlist, if not - evade
                 for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
                     if (Unit* target = (*itr)->getTarget())
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                             return; // found any player, return
 
                 EnterEvadeMode();
@@ -1138,7 +1138,7 @@ class spell_dreamwalker_mana_void: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dreamwalker_mana_void_AuraScript);
 
-            void PeriodicTick(constAuraEffectPtr aurEff)
+            void PeriodicTick(AuraEffect const* aurEff)
             {
                 // first 3 ticks have amplitude 1 second
                 // remaining tick every 500ms
@@ -1174,7 +1174,7 @@ class spell_dreamwalker_decay_periodic_timer: public SpellScriptLoader
                 return true;
             }
 
-            void DecayPeriodicTimer(AuraEffectPtr aurEff)
+            void DecayPeriodicTimer(AuraEffect* aurEff)
             {
                 int32 timer = aurEff->GetPeriodicTimer();
                 if (timer <= 5)
@@ -1255,7 +1255,7 @@ class spell_dreamwalker_summon_suppresser: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dreamwalker_summon_suppresser_AuraScript);
 
-            void PeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 Unit* caster = GetCaster();
@@ -1401,7 +1401,7 @@ class spell_dreamwalker_nightmare_cloud: public SpellScriptLoader
                 return _instance != NULL;
             }
 
-            void PeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 if (_instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) != IN_PROGRESS)
                     PreventDefaultAction();

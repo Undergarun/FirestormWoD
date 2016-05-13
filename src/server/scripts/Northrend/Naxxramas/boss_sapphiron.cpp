@@ -306,7 +306,7 @@ public:
                             std::vector<Unit*> targets;
                             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                             for (; i != me->getThreatManager().getThreatList().end(); ++i)
-                                if ((*i)->getTarget()->GetTypeId() == TYPEID_PLAYER && !(*i)->getTarget()->HasAura(SPELL_ICEBOLT))
+                                if ((*i)->getTarget()->IsPlayer() && !(*i)->getTarget()->HasAura(SPELL_ICEBOLT))
                                     targets.push_back((*i)->getTarget());
 
                             if (targets.empty())

@@ -89,6 +89,48 @@ namespace MS { namespace Garrison
         };
     }
 
+    namespace MissionType
+    {
+        enum : uint8
+        {
+            Combat         = 3,
+            Generic        = 4,
+            Salvage        = 5,
+            Logistics      = 6,
+            Wildlife       = 7,
+            Trading        = 8,
+            Construction   = 9,
+            Provision      = 10,
+            Recruitement   = 11,
+            Training       = 12,
+            Patrol         = 13,
+            Research       = 14,
+            Defense        = 15,
+            Exploration    = 16,
+            Siege          = 17,
+            Alchemy        = 18,
+            BlackSmithing  = 19,
+            Enchanting     = 20,
+            Engineering    = 21,
+            Inscription    = 22,
+            JewelCrafting  = 23,
+            LeatherWorking = 24,
+            Tailoring      = 25,
+            Treasure       = 35,
+            PetBattle      = 36,
+            ShipCombat     = 37,
+            ShipOil        = 38,
+            ShipTraining   = 39,
+            ShipTreasure   = 40,
+            ShipSiegeA     = 41,
+            ShipSiegeH     = 42,
+            ShipBonus      = 47,
+            ShipLegendary  = 48,
+            ShipSiegeIHA   = 49,
+            ShipSiegeIHH   = 50
+        };
+    }
+
     namespace MissionFlags
     {
         enum : uint8
@@ -120,7 +162,8 @@ namespace MS { namespace Garrison
             Mine            = 4,
             FishingHut      = 5,
             PetMenagerie    = 6,
-            Max             = 7
+            Shipyard        = 7,
+            Max             = 8
         };
     }
 
@@ -263,48 +306,48 @@ namespace MS { namespace Garrison
     {
         enum
         {
-            DwarvenBunker__WarMill_Level1               = 8,
-            DwarvenBunker__WarMill_Level2               = 9,
-            DwarvenBunker__WarMill_Level3               = 10,
-            Barracks__Barracks_Level1                   = 26,
-            Barracks__Barracks_Level2                   = 27,
-            Barracks__Barracks_Level3                   = 28,
-            Storehouse__Storehouse_Level1               = 51,
-            Storehouse__Storehouse_Level2               = 142,
-            Storehouse__Storehouse_Level3               = 143,
-            TheForge__TheForge_Level1                   = 60,
-            TheForge__TheForge_Level2                   = 117,
-            TheForge__TheForge_Level3                   = 118,
-            TradingPost__TradingPost_Level1             = 111,
-            TradingPost__TradingPost_Level2             = 144,
-            TradingPost__TradingPost_Level3             = 145,
+            DwarvenBunker_WarMill_Level1                = 8,
+            DwarvenBunker_WarMill_Level2                = 9,
+            DwarvenBunker_WarMill_Level3                = 10,
+            Barracks_Barracks_Level1                    = 26,
+            Barracks_Barracks_Level2                    = 27,
+            Barracks_Barracks_Level3                    = 28,
+            Storehouse_Storehouse_Level1                = 51,
+            Storehouse_Storehouse_Level2                = 142,
+            Storehouse_Storehouse_Level3                = 143,
+            TheForge_TheForge_Level1                    = 60,
+            TheForge_TheForge_Level2                    = 117,
+            TheForge_TheForge_Level3                    = 118,
+            TradingPost_TradingPost_Level1              = 111,
+            TradingPost_TradingPost_Level2              = 144,
+            TradingPost_TradingPost_Level3              = 145,
             TailoringEmporium_TailoringEmporium_Level1  = 94,
-            TailoringEmporium__TailoringEmporium_Level2 = 127,
-            TailoringEmporium__TailoringEmporium_Level3 = 128,
-            AlchemyLab__AlchemyLab_Level1               = 76,
-            AlchemyLab__AlchemyLab_Level2               = 119,
-            AlchemyLab__AlchemyLab_Level3               = 120,
+            TailoringEmporium_TailoringEmporium_Level2  = 127,
+            TailoringEmporium_TailoringEmporium_Level3  = 128,
+            AlchemyLab_AlchemyLab_Level1                = 76,
+            AlchemyLab_AlchemyLab_Level2                = 119,
+            AlchemyLab_AlchemyLab_Level3                = 120,
             TheTannery_TheTannery_Level1                = 90,
-            TheTannery__TheTannery_Level2               = 121,
-            TheTannery__TheTannery_Level3               = 122,
+            TheTannery_TheTannery_Level2                = 121,
+            TheTannery_TheTannery_Level3                = 122,
             EnchanterStudy_EnchanterStudy_Level1        = 93,
             EnchanterStudy_EnchanterStudy_Level2        = 125,
             EnchanterStudy_EnchanterStudy_Level3        = 126,
             GemBoutique_GemBoutique_Level1              = 96,
-            GemBoutique__GemBoutique_Level2             = 131,
-            GemBoutique__GemBoutique_Level3             = 132,
-            EngineeringWorks__EngineeringWorks_Level1   = 91,
-            EngineeringWorks__EngineeringWorks_Level2   = 123,
-            EngineeringWorks__EngineeringWorks_Level3   = 124,
-            ScribesQuarters__ScribesQuarters_Level1     = 95,
-            ScribesQuarters__ScribesQuarters_Level2     = 129,
-            ScribesQuarters__ScribesQuarters_Level3     = 130,
-            HerbGarden__HerbGarden_Level1               = 29,
-            HerbGarden__HerbGarden_Level2               = 136,
-            HerbGarden__HerbGarden_Level3               = 137,
-            Barn__Barn_Level1                           = 24,
-            Barn__Barn_Level2                           = 25,
-            Barn__Barn_Level3                           = 133,
+            GemBoutique_GemBoutique_Level2              = 131,
+            GemBoutique_GemBoutique_Level3              = 132,
+            EngineeringWorks_EngineeringWorks_Level1    = 91,
+            EngineeringWorks_EngineeringWorks_Level2    = 123,
+            EngineeringWorks_EngineeringWorks_Level3    = 124,
+            ScribesQuarters_ScribesQuarters_Level1      = 95,
+            ScribesQuarters_ScribesQuarters_Level2      = 129,
+            ScribesQuarters_ScribesQuarters_Level3      = 130,
+            HerbGarden_HerbGarden_Level1                = 29,
+            HerbGarden_HerbGarden_Level2                = 136,
+            HerbGarden_HerbGarden_Level3                = 137,
+            Barn_Barn_Level1                            = 24,
+            Barn_Barn_Level2                            = 25,
+            Barn_Barn_Level3                            = 133,
             SalvageYard_SalvageYard_Level1              = 52,
             SalvageYard_SalvageYard_Level2              = 140,
             SalvageYard_SalvageYard_Level3              = 141,
@@ -325,7 +368,13 @@ namespace MS { namespace Garrison
             Stables_Stables_Level3                      = 67,
             GladiatorsSanctum_GladiatorsSanctum_Level1  = 159,
             GladiatorsSanctum_GladiatorsSanctum_Level2  = 160,
-            GladiatorsSanctum_GladiatorsSanctum_Level3  = 161
+            GladiatorsSanctum_GladiatorsSanctum_Level3  = 161,
+            GnomishGearworks_GoblinWorkshop_Level1      = 162,
+            GnomishGearworks_GoblinWorkshop_Level2      = 163,
+            GnomishGearworks_GoblinWorkshop_Level3      = 164,
+            FishingShack_FishingShack_Level1            = 64,
+            FishingShack_FishingShack_Level2            = 134,
+            FishingShack_FishingShack_Level3            = 135
         };
     }
 
@@ -350,7 +399,7 @@ namespace MS { namespace Garrison
             PetMenagerie        = 7,
             Barracks            = 8,
             Orchard             = 9,    ///< Unused 2
-            Armory              = 10,
+            Armory              = 10,   ///< War mill/Dwarven Bunker
             Stable              = 11,
             Academy             = 12,
             MageTower           = 13,
@@ -431,6 +480,7 @@ namespace MS { namespace Garrison
         232425,     ///< PlotTypes::Mine
         233083,     ///< PlotTypes::FishingHut
         233083,     ///< PlotTypes::PetMenagerie
+        0,          ///< PlotTypes::Shipyard
         /// Alliance
         229501,     ///< PlotTypes::Small
         232283,     ///< PlotTypes::Medium
@@ -438,7 +488,8 @@ namespace MS { namespace Garrison
         232283,     ///< PlotTypes::Farm
         232283,     ///< PlotTypes::Mine
         229501,     ///< PlotTypes::FishingHut
-        229501      ///< PlotTypes::PetMenagerie
+        229501,     ///< PlotTypes::PetMenagerie
+        0           ///< PlotTypes::Shipyard
     };
 
     static const uint32 gGarrisonBuildingPlotGameObject[PlotTypes::Max * FactionIndex::Max] =
@@ -448,17 +499,19 @@ namespace MS { namespace Garrison
         232373,     ///< PlotTypes::Medium
         232410,     ///< PlotTypes::Large
         232373,     ///< PlotTypes::Farm          same as PlotTypes::Medium
-        232373,     ///< PlotTypes::Mine          same as PlotTypes::Medium
-        233958,     ///< PlotTypes::FishingHut    same as PlotTypes::Small
-        233958,     ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0,          ///< PlotTypes::Mine          same as PlotTypes::Medium
+        0,          ///< PlotTypes::FishingHut    same as PlotTypes::Small
+        0,          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0,          ///< PlotTypes::Shipyard
         /// Alliance
         233957,     ///< PlotTypes::Small
         232409,     ///< PlotTypes::Medium
         232411,     ///< PlotTypes::Large
-        232409,     ///< PlotTypes::Farm          same as PlotTypes::Medium
-        232409,     ///< PlotTypes::Mine          same as PlotTypes::Medium
-        233957,     ///< PlotTypes::FishingHut    same as PlotTypes::Small
-        233957      ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0,          ///< PlotTypes::Farm          same as PlotTypes::Medium
+        0,          ///< PlotTypes::Mine          same as PlotTypes::Medium
+        0,          ///< PlotTypes::FishingHut    same as PlotTypes::Small
+        0,          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0           ///< PlotTypes::Shipyard
     };
 
     static const float gGarrisonBuildingPlotAABBDiminishReturnFactor[PlotTypes::Max * FactionIndex::Max] =
@@ -471,14 +524,16 @@ namespace MS { namespace Garrison
         0,          ///< PlotTypes::Mine          same as PlotTypes::Medium
         0,          ///< PlotTypes::FishingHut    same as PlotTypes::Small
         0,          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0,          ///< PlotTypes::Shipyard
         /// Alliance
         10,         ///< PlotTypes::Small
         16,         ///< PlotTypes::Medium
         24,         ///< PlotTypes::Large
-        16,         ///< PlotTypes::Farm          same as PlotTypes::Medium
-        16,         ///< PlotTypes::Mine          same as PlotTypes::Medium
-        10,         ///< PlotTypes::FishingHut    same as PlotTypes::Small
-        10          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0,          ///< PlotTypes::Farm          same as PlotTypes::Medium
+        0,          ///< PlotTypes::Mine          same as PlotTypes::Medium
+        0,          ///< PlotTypes::FishingHut    same as PlotTypes::Small
+        0,          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0           ///< PlotTypes::Shipyard
     };
 
     static const uint32 gGarrisonBuildingActivationGameObject[FactionIndex::Max] =

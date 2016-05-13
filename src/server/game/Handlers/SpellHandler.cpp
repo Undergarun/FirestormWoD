@@ -37,12 +37,6 @@
 
 void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 {
-    time_t l_Now = time(nullptr);
-    if (l_Now - m_TimeLastUseItem < 1)
-        return;
-    else
-        m_TimeLastUseItem = l_Now;
-
     // TODO: add targets.read() check
     Player* pUser = m_Player;
 
@@ -65,9 +59,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     float l_MissibleTrajectorySpeed = 0.00f;
     float l_MissibleTrajectoryPitch = 0.00f;
 
-    uint8   * l_SpellWeightType     = nullptr;
-    uint32  * l_SpellWeightID       = nullptr;
-    uint32  * l_SpellWeightQuantity = nullptr;
+    uint8* l_SpellWeightType      = nullptr;
+    uint32* l_SpellWeightID       = nullptr;
+    uint32* l_SpellWeightQuantity = nullptr;
 
     uint32 l_SpellID            = 0;
     uint32 l_TargetFlags        = 0;
@@ -137,7 +131,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 
     p_RecvPacket.readPackGUID(l_UnkGUID);
 
-    l_SendCastFlag      = p_RecvPacket.ReadBits(5);
+    l_SendCastFlag      = p_RecvPacket.ReadBits(5); ///< l_SendCastFlag is never read 01/18/16
     l_HasMovementInfos  = p_RecvPacket.ReadBit();
     l_SpellWeightCount  = p_RecvPacket.ReadBits(2);
 
@@ -198,6 +192,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
                 l_IsGlyph = true;
                 break;
             case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
+                l_TargetGUID = pUser->GetGUID();
+                break;
+            case SPELL_EFFECT_FINISH_GARRISON_MISSION:
                 l_TargetGUID = pUser->GetGUID();
                 break;
             default:
@@ -284,8 +281,21 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         }
     }
 
+    if (l_TargetFlags & SpellCastTargetFlags::TARGET_FLAG_GARRISON_MISSION && l_Misc[0])
+    {
+        if (MS::Garrison::Manager* l_GarrisonMgr = pUser->GetGarrison())
+        {
+            if (!l_GarrisonMgr->HasPendingMission(l_Misc[0]))
+            {
+                /// Need to find appropriate equip error
+                pUser->SendEquipError(InventoryResult::EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
+                return;
+            }
+        }
+    }
+
     Unit* mover = pUser->m_mover;
-    if (mover != pUser && mover->GetTypeId() == TYPEID_PLAYER)
+    if (mover != pUser && mover->IsPlayer())
         return;
 
     SpellCastTargets targets;
@@ -323,7 +333,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
         return;
     }
 
-    const ItemTemplate * l_ItemTemplate = l_Item->GetTemplate();
+    const ItemTemplate* l_ItemTemplate = l_Item->GetTemplate();
 
     if (!l_ItemTemplate)
     {
@@ -355,7 +365,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
     {
         if (l_LockID)
         {
-            const LockEntry * l_LockInfo = sLockStore.LookupEntry(l_LockID);
+            const LockEntry* l_LockInfo = sLockStore.LookupEntry(l_LockID);
 
             if (!l_LockInfo)
             {
@@ -464,9 +474,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     float l_MissibleTrajectorySpeed = 0.00f;
     float l_MissibleTrajectoryPitch = 0.00f;
 
-    uint8   * l_SpellWeightType     = nullptr;
-    uint32  * l_SpellWeightID       = nullptr;
-    uint32  * l_SpellWeightQuantity = nullptr;
+    uint8* l_SpellWeightType      = nullptr;
+    uint32* l_SpellWeightID       = nullptr;
+    uint32* l_SpellWeightQuantity = nullptr;
 
     uint32 l_SpellID            = 0;
     uint32 l_Misc[2]            = {0, 0};
@@ -530,7 +540,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     p_RecvPacket.readPackGUID(l_UnkGUID);
 
-    l_SendCastFlag      = p_RecvPacket.ReadBits(5);
+    l_SendCastFlag      = p_RecvPacket.ReadBits(5); ///< l_SendCastFlag is never read 01/18/16
     l_HasMovementInfos  = p_RecvPacket.ReadBit();
     l_SpellWeightCount  = p_RecvPacket.ReadBits(2);
 
@@ -581,7 +591,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     // ignore for remote control state (for player case)
     Unit* mover = m_Player->m_mover;
-    if (mover != m_Player && mover->GetTypeId() == TYPEID_PLAYER)
+    if (mover != m_Player && mover->IsPlayer())
     {
         p_RecvPacket.rfinish(); // prevent spam at ignore packet
         return;
@@ -622,7 +632,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         }
     }
 
-    if (mover->GetTypeId() == TYPEID_PLAYER)
+    if (mover->IsPlayer())
     {
         if (mover->ToPlayer()->GetEmoteState())
             mover->ToPlayer()->SetEmoteState(0);
@@ -648,10 +658,11 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         caster = m_Player;
     }
 
-    if (caster->GetTypeId() == TYPEID_PLAYER &&
-        !caster->ToPlayer()->HasActiveSpell(l_SpellID) && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS) &&
-        l_SpellID != 101603 && // Hack for Throw Totem, Echo of Baine
-        l_SpellID != 1843 && !spellInfo->IsRaidMarker()) // Hack for disarm. Client sends the spell instead of gameobjectuse.
+    if (caster->IsPlayer()
+        && !caster->ToPlayer()->HasActiveSpell(l_SpellID) 
+        && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS) 
+        && !spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_ALWAYS_ACTIVE) 
+        && !spellInfo->IsRaidMarker())
     {
         // GameObject Use
         if (IS_GAMEOBJECT_GUID(l_TargetGUID))
@@ -687,8 +698,22 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
             // cheater? kick? ban?
             else if(!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
             {
-                p_RecvPacket.rfinish(); // prevent spam at ignore packet
-                return;
+                bool l_ModNextSpell = false;
+                Unit::AuraEffectList const& l_AurasModNextSpell = caster->GetAuraEffectsByType(SPELL_AURA_MOD_NEXT_SPELL);
+                for (auto l_Aura : l_AurasModNextSpell)
+                {
+                    if (l_Aura->GetSpellEffectInfo()->TriggerSpell == l_SpellID)
+                    {
+                        l_ModNextSpell = true;
+                        break;
+                    }
+                }
+
+                if (!l_ModNextSpell)
+                {
+                    p_RecvPacket.rfinish(); // prevent spam at ignore packet
+                    return;
+                }
             }
         }
     }
@@ -707,7 +732,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
                 if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo((*itr)->GetAmount()))
                 {
                     spellInfo = newInfo;
-                    l_SpellID = newInfo->Id;
+                    l_SpellID = newInfo->Id; ///< l_SpellID is never read 01/18/16
                 }
                 break;
             }
@@ -855,8 +880,8 @@ void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
     recvData.read_skip<uint32>();
 
     /// ignore for remote control state (for player case)
-    Unit * l_Mover = m_Player->m_mover;
-    if (l_Mover != m_Player && l_Mover->GetTypeId() == TYPEID_PLAYER)
+    Unit* l_Mover = m_Player->m_mover;
+    if (l_Mover != m_Player && l_Mover->IsPlayer())
         return;
 
     l_Mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
@@ -906,10 +931,10 @@ void WorldSession::HandleSpellClick(WorldPacket& p_Packet)
     bool l_TryAutoDismount = false;
 
     p_Packet.readPackGUID(l_NpcGuid);
-    l_TryAutoDismount = p_Packet.ReadBit();
+    l_TryAutoDismount = p_Packet.ReadBit(); ///< l_tryAutoDismount is never read 01/18/16
 
     // this will get something not in world. crash
-    Creature * l_Unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, l_NpcGuid);
+    Creature* l_Unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, l_NpcGuid);
 
     if (!l_Unit)
         return;
@@ -928,7 +953,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     uint64 guid;
 
     recvData.readPackGUID(guid);
-    uint32 displayId = recvData.read<uint32>();
+    uint32 displayId = recvData.read<uint32>(); ///< displayId is never read 01/18/16
 
     // Get unit for which data is needed by client
     Unit* unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);
@@ -948,7 +973,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 
     WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 76);
 
-    if (creator->GetTypeId() == TYPEID_PLAYER)
+    if (creator->IsPlayer())
     {
         Player* player = creator->ToPlayer();
         Guild* guild = NULL;
@@ -1074,9 +1099,9 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
     float l_MissibleTrajectorySpeed = 0.00f;
     float l_MissibleTrajectoryPitch = 0.00f;
 
-    uint8   * l_SpellWeightType = nullptr;
-    uint32  * l_SpellWeightID = nullptr;
-    uint32  * l_SpellWeightQuantity = nullptr;
+    uint8* l_SpellWeightType      = nullptr;
+    uint32* l_SpellWeightID       = nullptr;
+    uint32* l_SpellWeightQuantity = nullptr;
 
     uint32 l_SpellID = 0;
     uint32 l_TargetFlags = 0;
@@ -1141,7 +1166,7 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
 
     p_RecvData.readPackGUID(l_UnkGUID);
 
-    l_SendCastFlag = p_RecvData.ReadBits(5);
+    l_SendCastFlag = p_RecvData.ReadBits(5); ///< l_SendCastFlag is never read 01/18/16
     l_HasMovementInfos = p_RecvData.ReadBit();
     l_SpellWeightCount = p_RecvData.ReadBits(2);
 
@@ -1192,7 +1217,7 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
 
     // ignore for remote control state (for player case)
     Unit* l_Mover = m_Player->m_mover;
-    if (l_Mover != m_Player && l_Mover->GetTypeId() == TYPEID_PLAYER)
+    if (l_Mover != m_Player && l_Mover->IsPlayer())
     {
         p_RecvData.rfinish();
         return;
@@ -1202,6 +1227,32 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
     if (!l_SpellInfo)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown spell id %u", l_SpellID);
+        p_RecvData.rfinish();
+        return;
+    }
+
+    ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(l_ItemID);
+    if (!l_ItemProto)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown item id %u", l_ItemID);
+        p_RecvData.rfinish();
+        return;
+    }
+
+    bool l_Found = false;
+    for (int l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
+    {
+        if (l_ItemProto->Spells[l_I].SpellId == l_SpellID)
+        {
+            l_Found = true;
+            break;
+        }
+    }
+
+    /// Cheater?
+    if (!l_Found)
+    {
+        sLog->outAshran("HandleUseToyOpcode: Player %s [%u] Trying to spoof packet and cast spell %u", m_Player->GetName(), m_Player->GetGUIDLow(), l_SpellID);
         p_RecvData.rfinish();
         return;
     }

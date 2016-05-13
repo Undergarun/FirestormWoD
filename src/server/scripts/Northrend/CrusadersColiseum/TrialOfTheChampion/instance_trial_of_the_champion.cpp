@@ -186,6 +186,7 @@ public:
                             announcer->GetMotionMaster()->MovePoint(0, 742.742f, 630.207f, 411.172f);
                             announcer->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             announcer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000000);
+                            UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, 68572, nullptr);
                         }
                     }
                     break;
@@ -303,7 +304,7 @@ public:
             return 0;
         }
 
-        bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
+        bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint64 /*miscvalue1*/)
         {
             switch(criteria_id)
             {

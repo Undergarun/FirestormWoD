@@ -472,7 +472,7 @@ public:
     {
         PrepareAuraScript(spell_auras)
 
-        void OnPeriodic(constAuraEffectPtr p_AurEff)
+        void OnPeriodic(AuraEffect const* p_AurEff)
         {
             if (Unit* l_Target = GetTarget())
             {
@@ -521,7 +521,7 @@ public:
     {
         PrepareAuraScript(auchindon_auras);
 
-        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (!GetCaster())
                 return;
@@ -544,7 +544,7 @@ public:
             }
         }
 
-        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (!GetCaster())
                 return;
@@ -623,7 +623,7 @@ public:
                 }
                 else
                 {
-                    AuraPtr l_Aura = (*it)->GetAura(eAzzakelSpells::SpellFelPoolDebuffDmg);
+                    Aura* l_Aura = (*it)->GetAura(eAzzakelSpells::SpellFelPoolDebuffDmg);
 
                     if (l_Aura)
                     {

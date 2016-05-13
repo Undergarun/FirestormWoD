@@ -25,25 +25,46 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel3;
 
         extern char ScriptName[];
-
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_MurneGreenhoof = ProfessionBuilding_SkillNPC<npc_MurneGreenhoofAIData::ScriptName, SKILL_LEATHERWORKING, Quests::Horde_YourFirstLeatherworkingWorkOrder, &npc_MurneGreenhoofAIData::Recipes, &npc_MurneGreenhoofAIData::FnLevel1, &npc_MurneGreenhoofAIData::FnLevel2, &npc_MurneGreenhoofAIData::FnLevel3>;
+    using npc_MurneGreenhoof = ProfessionBuilding_SkillNPC<npc_MurneGreenhoofAIData::ScriptName, SKILL_LEATHERWORKING, Quests::Horde_YourFirstLeatherworkingWorkOrder, 79834, &npc_MurneGreenhoofAIData::FnLevel1, &npc_MurneGreenhoofAIData::FnLevel2, &npc_MurneGreenhoofAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79833 - Yanney                                                    ////
     //////////////////////////////////////////////////////////////////////////
-    namespace npc_YanneyAIData
+
+    class npc_Yanney : public CreatureScript
     {
-        extern InitSequenceFunction FnLevel1;
-        extern InitSequenceFunction FnLevel2;
-        extern InitSequenceFunction FnLevel3;
+        public:
+            /// Constructor
+            npc_Yanney();
 
-        extern char ScriptName[];
-    }
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_Creature   : Target GameObject instance
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
 
-    using npc_Yanney = ProfessionBuilding_WorkOrderNPC<npc_YanneyAIData::ScriptName, SKILL_LEATHERWORKING, Quests::Horde_YourFirstLeatherworkingWorkOrder, &npc_YanneyAIData::FnLevel1, &npc_YanneyAIData::FnLevel2, &npc_YanneyAIData::FnLevel3>;
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            virtual CreatureAI* GetAI(Creature* p_Creature) const override;
+
+            /// Creature AI
+            struct npc_YanneyAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_YanneyAI(Creature* p_Creature);
+
+                uint64 m_OwnerGuid = 0;
+
+                void SetGUID(uint64 p_Guid, int32 p_Id) override;
+
+                /// When the PlotInstance ID is set
+                /// @p_BuildingID : Set plot instance ID
+                virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
+            };
+    };
 
 }   ///< namespace Garrison
 }   ///< namespace MS

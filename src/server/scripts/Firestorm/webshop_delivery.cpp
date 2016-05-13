@@ -10,24 +10,25 @@ namespace WebShop
         GoldAdded           = 3002,
         DontHaveEnoughSpace = 3003
     };
-
+    
+    /// ...of Draenor Spell
     enum ProfessionBookSpells
     {
-        Alchemy = 156614,
-        Blacksmithing = 169923,
-        Enchanting = 161788,
-        Engineering = 161787,
-        Inscription = 161789,
-        JewelCrafting = 169926,
-        LeatherWorking = 169925,
-        Tailoring = 169924,
-        FirstAid = 160329,
-        Cooking = 160360,
-        Herbalism = 158745,
-        Mining = 158754,
-        Skinning = 158756,
-        Archaeology = 158762,
-        Fishing = 160326
+        Alchemy         = 156614,
+        Blacksmithing   = 169923,
+        Enchanting      = 161788,
+        Engineering     = 161787,
+        Inscription     = 161789,
+        JewelCrafting   = 169926,
+        LeatherWorking  = 169925,
+        Tailoring       = 169924,
+        FirstAid        = 160329,
+        Cooking         = 160360,
+        Herbalism       = 160319,
+        Mining          = 160315,
+        Skinning        = 160321,
+        Archaeology     = 158762,
+        Fishing         = 160326
     };
 
     enum ProfessionAdditionalSpells
@@ -71,6 +72,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::ItemDelivery);
                     return;
                 }
 
@@ -97,13 +99,19 @@ namespace WebShop
                     for (Tokenizer::const_iterator l_Iter = l_Tokens.begin(); l_Iter != l_Tokens.end(); ++l_Iter)
                         l_BonusesID.push_back(uint32(atol(*l_Iter)));
 
-                    p_Player->AddItem(l_ItemID, l_ItemCount, l_BonusesID);
-                    CharacterDatabase.PExecute("UPDATE webshop_delivery_item SET delivery = 1 WHERE transaction = %u", l_Transaction);
+                    Item* l_Item = p_Player->AddItem(l_ItemID, l_ItemCount, l_BonusesID);
+                    if (l_Item != nullptr)
+                    {
+                        l_Item->SetCustomFlags(ItemCustomFlags::FromStore);
+                        l_Item->SetState(ItemUpdateState::ITEM_CHANGED, p_Player);
+                        CharacterDatabase.PExecute("UPDATE webshop_delivery_item SET delivery = 1 WHERE transaction = %u", l_Transaction);
+                    }
                 } 
                 while (l_Result->NextRow());
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::ItemDelivery);
             }
     };
 
@@ -143,6 +151,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::GoldDelivery);
                     return;
                 }
 
@@ -172,6 +181,7 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::GoldDelivery);
             }
     };
 
@@ -211,6 +221,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::CurrencyDelivery);
                     return;
                 }
 
@@ -234,6 +245,7 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::CurrencyDelivery);
             }
     };
 
@@ -273,6 +285,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::LevelDelivery);
                     return;
                 }
 
@@ -290,6 +303,7 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::LevelDelivery);
             }
     };
 
@@ -332,6 +346,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::ProfessionDelivery);
                     return;
                 }
 
@@ -404,6 +419,30 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::ProfessionDelivery);
+            }
+    };
+
+    class Delivery_Save : public PlayerScript
+    {
+        public:
+            Delivery_Save() : PlayerScript("WebshopDelivery_Save")
+            {
+            }
+
+            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            {
+                if (p_Player->IsStoreDeliverySaved())
+                    return;
+
+                for (uint8 l_I = 0; l_I < StoreCallback::MaxDelivery; l_I++)
+                {
+                    if (!p_Player->IsStoreDeliveryProccesed((StoreCallback)l_I))
+                        return;
+                }
+
+                p_Player->SaveToDB();
+                p_Player->SetStoreDeliverySaved();
             }
     };
 }
@@ -415,4 +454,5 @@ void AddSC_Webshop_Delivery()
     new WebShop::Delivery_Currency();
     new WebShop::Delivery_Level();
     new WebShop::Delivery_Profession();
+    new WebShop::Delivery_Save();
 };

@@ -9,8 +9,6 @@
 #ifndef BATTLEGROUND_INVITATIONS_MGR_HPP
 # define BATTLEGROUND_INVITATIONS_MGR_HPP
 
-# include "BattlegroundScheduler.hpp"
-
 namespace MS
 {
     namespace Battlegrounds
@@ -79,10 +77,8 @@ namespace MS
         class BGQueueInviteEvent : public BasicEvent
         {
         public:
-            BGQueueInviteEvent(uint64 pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime) :
-                m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_ArenaType(arenaType), m_RemoveTime(removeTime), BasicEvent()
-            {
-            }
+            BGQueueInviteEvent(uint64 pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime)
+                : m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_ArenaType(arenaType), m_RemoveTime(removeTime), BasicEvent() {}
 
             virtual ~BGQueueInviteEvent() {};
 
@@ -104,9 +100,7 @@ namespace MS
         {
         public:
             BGQueueRemoveEvent(uint64 pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, BattlegroundType::Type p_BgType, uint32 removeTime)
-                : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgType(p_BgType), BasicEvent()
-            {
-            }
+                : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgType(p_BgType), BasicEvent() {}
 
             virtual ~BGQueueRemoveEvent() {}
 

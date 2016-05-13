@@ -310,13 +310,13 @@ class boss_tayak : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (!entranceDone && me->IsWithinDistInMap(who, 50) && who->GetTypeId() == TYPEID_PLAYER)
+                if (!entranceDone && me->IsWithinDistInMap(who, 50) && who->IsPlayer())
                 {
                     Talk(SAY_ENTER_ROOM);
                     entranceDone = true;
                 }
 
-                if (entranceDone && !introDone && me->IsWithinDistInMap(who, 30) && who->GetTypeId() == TYPEID_PLAYER && CheckTrash())
+                if (entranceDone && !introDone && me->IsWithinDistInMap(who, 30) && who->IsPlayer() && CheckTrash())
                 {
                     Talk(SAY_INTRO);
                     introDone = true;
@@ -372,7 +372,7 @@ class boss_tayak : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_SLAY);
             }
 
@@ -1003,7 +1003,7 @@ class mob_gale_winds_stalker : public CreatureScript
                                 Position pos = {tayak->GetPositionX(), tayak->GetPositionY(), tayak->GetPositionZ(), 0.0f};
 
                                 std::list<Player*> playerList;
-                                GetPlayerListInGrid(playerList, me, 500.0f);
+                                GetPlayerListInGrid(playerList, me, 200.0f);
 
                                 for (Player* player : playerList)
                                 {
@@ -1109,7 +1109,7 @@ class spell_tayak_wind_step: public SpellScriptLoader
         {
             PrepareAuraScript(spell_tayak_wind_stepAuraScript);
 
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->AddAura(SPELL_WIND_STEP_DUMMY, caster);
@@ -1133,26 +1133,26 @@ class spell_unseen_strike_aura : public SpellScriptLoader
     public:
         spell_unseen_strike_aura() : SpellScriptLoader("spell_unseen_strike") { }
 
-        class spell_unseen_strike_auraAuraScript : public AuraScript
+        class spell_unseen_strike_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_unseen_strike_auraAuraScript);
+            PrepareSpellScript(spell_unseen_strike_SpellScript);
 
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleHit(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
-                    if (Unit* target = GetTarget())
-                        caster->AddAura(SPELL_UNSEEN_STRIKE_TR, target);
+                if (Unit* target = GetHitUnit())
+                    caster->AddAura(SPELL_UNSEEN_STRIKE_TR, target);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_unseen_strike_auraAuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectHitTarget += SpellEffectFn(spell_unseen_strike_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_unseen_strike_auraAuraScript();
+            return new spell_unseen_strike_SpellScript();
         }
 };
 
@@ -1284,7 +1284,7 @@ class spell_tempest_slash : public SpellScriptLoader
         {
             PrepareAuraScript(spell_tempest_slash_AuraScript);
 
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->AddAura(SPELL_TEMP_SLASH_DAMAGE, caster);
@@ -1312,7 +1312,7 @@ class spell_tayak_su_visual : public SpellScriptLoader
         {
             PrepareAuraScript(spell_tayak_su_visualAuraScript);
 
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->AddAura(SPELL_STORM_UNLEASHED_D, caster);
@@ -1340,7 +1340,7 @@ class spell_su_dummy_visual : public SpellScriptLoader
         {
             PrepareAuraScript(spell_su_dummy_visualAuraScript);
 
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->AddAura(SPELL_SU_DUMMY_VIS, caster);
@@ -1352,7 +1352,7 @@ class spell_su_dummy_visual : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScrpt() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_su_dummy_visualAuraScript();
         }
@@ -1368,7 +1368,7 @@ class spell_gale_winds : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gale_windsAuraScript);
 
-            void Apply(constAuraEffectPtr /*aurEff*/)
+            void Apply(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->AddAura(SPELL_GALE_FORCE_WINDS, caster);
@@ -1386,17 +1386,17 @@ class spell_gale_winds : public SpellScriptLoader
         }
 };
 
-// 123600 - Storm unleashed
+/// 123600 - Storm unleashed
 class spell_su_dummy : public SpellScriptLoader
 {
     public:
         spell_su_dummy() : SpellScriptLoader("spell_su_dummy") { }
 
-        class spell_su_dummyAuraScript : public AuraScript
+        class spell_su_dummy_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_su_dummyAuraScript);
+            PrepareSpellScript(spell_su_dummy_SpellScript);
 
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleHit(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1409,28 +1409,27 @@ class spell_su_dummy : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_su_dummyAuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectHitTarget += SpellEffectFn(spell_su_dummy_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_su_dummyAuraScript();
+            return new spell_su_dummy_SpellScript();
         }
-
 };
 
-// 123616 - Storm unleashed
+/// 123616 - Storm unleashed
 class spell_su_dumaura : public SpellScriptLoader
 {
     public:
         spell_su_dumaura() : SpellScriptLoader("spell_su_dumaura") { }
 
-        class spell_su_dumauraAuraScript : public AuraScript
+        class spell_su_dumaura_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_su_dumauraAuraScript);
+            PrepareSpellScript(spell_su_dumaura_SpellScript);
 
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleHit(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1444,13 +1443,13 @@ class spell_su_dumaura : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_su_dumauraAuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectHit += SpellEffectFn(spell_su_dumaura_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_su_dumauraAuraScript();
+            return new spell_su_dumaura_SpellScript();
         }
 };
 

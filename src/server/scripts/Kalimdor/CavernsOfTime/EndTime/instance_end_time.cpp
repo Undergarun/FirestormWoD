@@ -51,7 +51,7 @@ class instance_end_time : public InstanceMapScript
             void OnPlayerEnter(Player* pPlayer)
             {
                 if (!uiTeamInInstance)
-				    uiTeamInInstance = pPlayer->GetTeam();
+                    uiTeamInInstance = pPlayer->GetTeam();
             }
 
             void OnGameObjectCreate(GameObject* pGo)
@@ -79,7 +79,7 @@ class instance_end_time : public InstanceMapScript
                     default:
                         break;
                 }
-		    }
+            }
 
             void OnCreatureCreate(Creature* pCreature)
             {
@@ -118,7 +118,7 @@ class instance_end_time : public InstanceMapScript
                                 break;
                         }
                         jaina_event = data;
-			            break;
+                        break;
                     case DATA_FRAGMENTS:
                         uiFragmentsCollected = data;
                         return; // Don't save instance if data equals 3
@@ -205,8 +205,8 @@ class instance_end_time : public InstanceMapScript
 
             bool SetBossState(uint32 type, EncounterState state)
             {
-			    if (!InstanceScript::SetBossState(type, state))
-				    return false;
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
 
                 switch (type)
                 {
@@ -230,7 +230,7 @@ class instance_end_time : public InstanceMapScript
                         break;
                 }
 
-			    return true;
+                return true;
             }
 
             void FillInitialWorldStates(ByteBuffer& data)
@@ -277,13 +277,13 @@ class instance_end_time : public InstanceMapScript
                 if (dataHead1 == 'E' && dataHead2 == 'T')
                 {
                     for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-				    {
-					    uint32 tmpState;
-					    loadStream >> tmpState;
-					    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-						    tmpState = NOT_STARTED;
-					    SetBossState(i, EncounterState(tmpState));
-				    }
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
 
                     uint32 temp_echo1 = 0;
                     loadStream >> temp_echo1;
@@ -308,17 +308,17 @@ class instance_end_time : public InstanceMapScript
                     uint32 temp_event = 0;
                     loadStream >> temp_event;
                     if (temp_event == IN_PROGRESS || temp_event > SPECIAL)
-						temp_event = NOT_STARTED;
+                        temp_event = NOT_STARTED;
                     tyrande_event = temp_event;
 
                     for (uint8 i = 0; i < 4; ++i)
-				    {
-					    uint32 tmpDialog;
-					    loadStream >> tmpDialog;
-					    if (tmpDialog == IN_PROGRESS || tmpDialog > SPECIAL)
-						    tmpDialog = NOT_STARTED;
-					    nozdormu_dialog[i] = tmpDialog;
-				    }
+                    {
+                        uint32 tmpDialog;
+                        loadStream >> tmpDialog;
+                        if (tmpDialog == IN_PROGRESS || tmpDialog > SPECIAL)
+                            tmpDialog = NOT_STARTED;
+                        nozdormu_dialog[i] = tmpDialog;
+                    }
 
                 } else OUT_LOAD_INST_DATA_FAIL;
 

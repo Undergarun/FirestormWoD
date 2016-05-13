@@ -25,7 +25,7 @@ namespace MS { namespace Garrison
     /// @t_SetupLevel1  : Function pour initializing sequence for level 1 building
     /// @t_SetupLevel2  : Function pour initializing sequence for level 2 building
     /// @t_SetupLevel3  : Function pour initializing sequence for level 3 building
-    template<char const* t_ScriptName, SkillType t_Skill, uint32 t_QuestIDA, uint32 t_QuestIDH, InitSequenceFunction * t_SetupLevel1, InitSequenceFunction * t_SetupLevel2, InitSequenceFunction * t_SetupLevel3> 
+    template<char const* t_ScriptName, SkillType t_Skill, uint32 t_QuestIDA, uint32 t_QuestIDH, InitSequenceFunction* t_SetupLevel1, InitSequenceFunction* t_SetupLevel2, InitSequenceFunction* t_SetupLevel3> 
     class MultiFactionalBuilding_WorkOrderNPC : public SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>
     {
         public:
@@ -33,17 +33,16 @@ namespace MS { namespace Garrison
             MultiFactionalBuilding_WorkOrderNPC()
                 : SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>()
             {
-
             }
 
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance
             /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
             {
                 uint32 l_QuestID = GET_QUEST_ID(p_Player);
 
-                if (!l_QuestID && p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
+                if (!l_QuestID && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
                 {
                     reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
                     return true;
@@ -65,9 +64,9 @@ namespace MS { namespace Garrison
             /// @p_Creature : Target creature instance
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override
             {
-                if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
+                if (p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
                     reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
 
                 return true;
@@ -85,7 +84,7 @@ namespace MS { namespace Garrison
     /// @t_SetupLevel1  : Function pour initializing sequence for level 1 building
     /// @t_SetupLevel2  : Function pour initializing sequence for level 2 building
     /// @t_SetupLevel3  : Function pour initializing sequence for level 3 building
-    template<char const* t_ScriptName, SkillType t_Skill, uint32 t_QuestIDA, uint32 t_QuestIDH, std::vector<SkillNPC_RecipeEntry> * t_RecipeEntries, InitSequenceFunction * t_SetupLevel1, InitSequenceFunction * t_SetupLevel2, InitSequenceFunction * t_SetupLevel3>
+    template<char const* t_ScriptName, SkillType t_Skill, uint32 t_QuestIDA, uint32 t_QuestIDH, uint32 t_CreatureEntry, InitSequenceFunction* t_SetupLevel1, InitSequenceFunction* t_SetupLevel2, InitSequenceFunction* t_SetupLevel3>
     class MultiFactionalBuilding_SkillNPC : public SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>
     {
         public:
@@ -93,13 +92,12 @@ namespace MS { namespace Garrison
             MultiFactionalBuilding_SkillNPC()
                 : SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>()
             {
-
             }
 
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance
             /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
             {
                 uint32 l_QuestID = GET_QUEST_ID(p_Player);
 
@@ -110,9 +108,7 @@ namespace MS { namespace Garrison
                 }
 
                 if (p_Player->IsQuestRewarded(l_QuestID) && p_Player->HasSkill(t_Skill) && t_Skill)
-                {
                     p_Player->GetSession()->SendListInventory(p_Creature->GetGUID());
-                }
                 else
                 {
                     if (!p_Player->HasQuest(l_QuestID) && !p_Player->IsQuestRewarded(l_QuestID))
@@ -132,22 +128,25 @@ namespace MS { namespace Garrison
             /// @p_Creature : Target creature instance
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override
             {
                 p_Player->CLOSE_GOSSIP_MENU();
 
                 if (t_Skill && !p_Player->HasSkill(t_Skill))
                 {
-                    if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
+                    if (p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
                     {
                         GarrisonNPCAI* l_AI = reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI());
-                        l_AI->SetRecipes(t_RecipeEntries, t_Skill);
+                        l_AI->SetRecipes(m_Recipes, t_Skill);
                         l_AI->SendTradeSkillUI(p_Player);
                     }
                 }
 
                 return true;
             }
+
+        private:
+            std::vector<RecipesConditions> m_Recipes;
 
     };
 

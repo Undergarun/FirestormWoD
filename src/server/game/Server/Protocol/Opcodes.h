@@ -200,6 +200,7 @@ enum Opcodes
         SMSG_TALENTS_INVOLUNTARILY_RESET            = 0x035F, ///< 6.2.3 20726
         SMSG_SET_ITEM_PURCHASE_DATA                 = 0x165B, ///< 6.2.3 20726
         SMSG_SHOW_TRADE_SKILL_RESPONSE              = 0x0B77, ///< 6.2.3 20726
+        SMSG_FORCED_DEATH_UPDATE                    = 0x074C, ///< 6.2.3 20779
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0254, ///< 6.2.3 20726
@@ -384,19 +385,37 @@ enum Opcodes
         SMSG_SET_PET_SPECIALIZATION                         = 0x1B7F, ///< 6.2.3 20726
         SMSG_STABLE_RESULT                                  = 0x03C3, ///< 6.2.3 20726
 
+        /// Battle pet opcodes
+        SMSG_BATTLE_PET_UPDATES                             = 0x02FF,   ///< 6.2.3 20726 (unsued)
+        SMSG_BATTLE_PET_TRAP_LEVEL                          = 0x13FB,   ///< 6.2.3 20726
+        SMSG_BATTLE_PET_JOURNAL_LOCK_ACQUIRED               = 0x1BCB,   ///< 6.2.3 20726
+        SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED                 = 0x13D7,   ///< 6.2.3 20726
+        SMSG_BATTLE_PET_JOURNAL                             = 0x13E7,   ///< 6.2.3 20726
+        SMSG_BATTLE_PET_DELETED                             = 0x17EC,   ///< 6.2.3 20726 (unsued)
+        SMSG_BATTLE_PET_REVOKED                             = 0x0E47,   ///< 6.2.3 20726 (unsued)
+        SMSG_BATTLE_PET_RESTORED                            = 0x12DF,   ///< 6.2.3 20726 (unsued)
+        SMSG_BATTLE_PETS_HEALED                             = 0x1B5F,   ///< 6.2.3 20726 (unsued)
+        SMSG_BATTLE_PET_LICENSE_CHANGED                     = 0x0247,   ///< 6.2.3 20726 (unsued)
+        SMSG_BATTLE_PET_ERROR                               = 0x1A7C,   ///< 6.2.3 20726 (unsued)
+        SMSG_BATTLE_PET_CAGE_DATE_ERROR                     = 0x1A74,   ///< 6.2.3 20726 (unsued)
+        SMSG_QUERY_BATTLE_PET_NAME_RESPONSE                 = 0x0800,   ///< 6.2.3 20726
+
         /// Pet Battle opcodes
-        SMSG_BATTLE_PET_JOURNAL                             = 0x13E7, ///< 6.2.3 20726
-        SMSG_QUERY_PET_NAME_RESPONSE                        = 0x0800, ///< 6.2.3 20726
-        SMSG_PETBATTLE_REQUEST_FAILED                       = 0x12F0, ///< 6.2.3 20726
-        SMSG_PETBATTLE_FIRST_ROUND                          = 0x03E3, ///< 6.2.3 20726
-        SMSG_PETBATTLE_FULL_UPDATE                          = 0x0B80, ///< 6.2.3 20726
-        SMSG_PETBATTLE_FINALIZE_LOCATION                    = 0x165F, ///< 6.2.3 20726
-        SMSG_PETBATTLE_FINAL_ROUND                          = 0x02CF, ///< 6.2.3 20726
-        SMSG_PETBATTLE_FINISHED                             = 0x02F8, ///< 6.2.3 20726
-        SMSG_PET_BATTLE_SLOT_UPDATES                        = 0x0FCB, ///< 6.2.3 20726
-        SMSG_PETBATTLE_PVP_CHALLENGE                        = 0x0000,
-        SMSG_PETBATTLE_ROUND_RESULT                         = 0x0EC8, ///< 6.2.3 20726
-        SMSG_PETBATTLE_REPLACEMENTS_MADE                    = 0x0000,
+        SMSG_PET_BATTLE_SLOT_UPDATES                        = 0x0FCB,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_REQUEST_FAILED                      = 0x12F0,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_PVPCHALLENGE                        = 0x0A63,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_FINALIZE_LOCATION                   = 0x165F,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_INITIAL_UPDATE                      = 0x0B80,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_FIRST_ROUND                         = 0x03E3,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_ROUND_RESULT                        = 0x0EC8,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_REPLACEMENTS_MADE                   = 0x1360,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_FINAL_ROUND                         = 0x02CF,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_FINISHED                            = 0x02F8,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_CHAT_RESTRICTED                     = 0x1B48,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_MAX_GAME_LENGTH_WARNING             = 0x1AC8,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH                 = 0x03D3,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_QUEUE_STATUS                        = 0x1BD3,   ///< 6.2.3 20726
+        SMSG_PET_BATTLE_DEBUG_QUEUE_DUMP_RESPONSE           = 0x0377,   ///< 6.2.3 20726
 
         /// Instances
         SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT                     = 0x06D4, ///< 6.2.3 20726
@@ -513,10 +532,11 @@ enum Opcodes
         SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE               = 0x1674, ///< 6.2.3 20726
         SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE              = 0x0A6B, ///< 6.2.3 20726
         SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE          = 0x17F0, ///< 6.2.3 20726
-        SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE                 = 0x11BE, ///< 6.2.3 20726
-        SMSG_BATTLE_PAY_PURCHASE_UPDATE                         = 0x0BC3, ///< 6.2.3 20726
+        SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE                 = 0x0BC3, ///< 6.2.3 20726
+        SMSG_BATTLE_PAY_PURCHASE_UPDATE                         = 0x0A5B, ///< 6.2.3 20726
         SMSG_BATTLE_PAY_CONFIRM_PURCHASE                        = 0x16DC, ///< 6.2.3 20726
 
+        /// Black Market
         SMSG_BLACK_MARKET_OPEN_RESULT                           = 0x1760, ///< 6.2.3 20726
         SMSG_BLACK_MARKET_OUTBID                                = 0x164F, ///< 6.2.3 20726
         SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT                  = 0x0B68, ///< 6.2.3 20726
@@ -949,8 +969,8 @@ enum Opcodes
         SMSG_GARRISON_START_MISSION_RESULT                              = 0x1C1A, ///< 6.2.3 20726
         SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x149D, ///< 6.2.3 20726
         SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x14B2, ///< 6.2.3 20726
-        SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT                = 0x0000,
-        SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x0000,
+        SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT                = 0x1931, ///< 6.2.3 20726 (0x149D for 20779)
+        SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x1036, ///< 6.2.3 20779
         SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
         SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,
         SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x119E, ///< 6.2.3 20726
@@ -993,8 +1013,8 @@ enum Opcodes
     CMSG_GARRISON_PORT_CHEAT                                = 0x0000,
     CMSG_GARRISON_ADD_FOLLOWER_XPCHEAT                      = 0x0000,
     CMSG_GARRISON_SET_FOLLOWER_ITEM_LEVEL_CHEAT             = 0x0000,
-    CMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING               = 0x0000,
-    CMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING             = 0x0000,
+    CMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING               = 0x0583,
+    CMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING             = 0x100A, ///< 6.2.3 20726
     CMSG_GARRISON_CHANGE_FOLLOWER_ACTIVATION_STATE          = 0x08B0, ///< 6.2.3 20726
     CMSG_SHOW_GARRISON_TRANSFER                             = 0x0000,
     CMSG_GARRISON_ADD_UNIQUE_FOLLOWER_CHEAT                 = 0x0000,
@@ -1224,6 +1244,7 @@ enum Opcodes
     CMSG_SUMMON_RESPONSE                        = 0x0577, ///< 6.2.3 20726
     CMSG_SET_FACTION_ATWAR                      = 0x1582, ///< 6.2.3 20726
     CMSG_UNSET_FACTION_ATWAR                    = 0x077D, ///< 6.2.3 20726
+    CMSG_USE_CRITTER_ITEM                       = 0x0408, ///< 6.2.3 20779
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1253,7 +1274,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_SET_TAXI_BENCHMARK_MODE                = 0x0455, ///< 6.2.3 20726
     CMSG_ENABLE_TAXI_NODE                       = 0x190D, ///< 6.2.3 20726
-    CMSG_TAXI_HELLO                             = 0x0336, ///< 6.2.3 20726
+    CMSG_TAXI_QUERY_AVAILABLE_NODES             = 0x0336, ///< 6.2.3 20726
     CMSG_ACTIVATE_TAXI                          = 0x037A, ///< 6.2.3 20726
     CMSG_TAXI_NODE_STATUS_QUERY                 = 0x1DAD, ///< 6.2.3 20726
     CMSG_TAXI_REQUEST_EARLY_LANDING             = 0x0755, ///< 6.2.3 20726
@@ -1284,13 +1305,15 @@ enum Opcodes
     /// Chat
     //////////////////////////////////////////////////////////////////////////
     /// Addon chat
-    CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT       = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_WHISPER             = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_GUILD               = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_OFFICER             = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_RAID                = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_PARTY               = 0x0000, ///<
-    CMSG_ADDON_REGISTERED_PREFIXES              = 0x0000, ///<
+    CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT       = 0x17FA, ///< 6.2.3 20779
+    CMSG_CHAT_ADDON_MESSAGE_WHISPER             = 0x16D9, ///< 6.2.3 20779
+    CMSG_CHAT_ADDON_MESSAGE_GUILD               = 0x03FE, ///< 6.2.3 20779
+    CMSG_CHAT_ADDON_MESSAGE_OFFICER             = 0x16FD, ///< 6.2.3 20779
+    CMSG_CHAT_ADDON_MESSAGE_RAID                = 0x07B1, ///< 6.2.3 20779
+    CMSG_CHAT_ADDON_MESSAGE_PARTY               = 0x02BE, ///< 6.2.3 20779
+    CMSG_CHAT_ADDON_MESSAGE_CHANNEL             = 0x03D6, ///< 6.2.3 20779
+    CMSG_CHAT_REGISTER_ADDON_PREFIXES           = 0x0692, ///< 6.2.3 20779
+    CMSG_CHAT_UNREGISTER_ALL_ADDON_PREFIXES     = 0x03F9, ///< 6.2.3 20779
 
     /// Chat
     CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x0EF9, ///< 6.2.3 20726
@@ -1374,22 +1397,22 @@ enum Opcodes
     CMSG_MOVE_STOP_PITCH                        = 0x1519, ///< 6.2.3 20726
 
     /// ACK
-    CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x1436, ///< 6.2.3 20726
-    CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT          = 0x1832, ///< 6.2.3 20726
-    CMSG_MOVE_SET_WALK_SPEED_CHEAT              = 0x15BE, ///< 6.2.3 20726
-    CMSG_MOVE_SET_SWIM_SPEED_CHEAT              = 0x1931, ///< 6.2.3 20726
-    CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT         = 0x14B6, ///< 6.2.3 20726
-    CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT            = 0x1431, ///< 6.2.3 20726
-    CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT       = 0x103D, ///< 6.2.3 20726
-    CMSG_MOVE_SET_TURN_SPEED_CHEAT              = 0x1112, ///< 6.2.3 20726
-    CMSG_MOVE_SET_PITCH_SPEED_CHEAT             = 0x10B2, ///< 6.2.3 20726
-    CMSG_MOVE_KNOCK_BACK_ACK                    = 0x159E, ///< 6.2.3 20726
-    CMSG_MOVE_SET_CAN_FLY_ACK                   = 0x1411, ///< 6.2.3 20726
-    CMSG_MOVE_FEATHER_FALL_ACK                  = 0x11BE, ///< 6.2.3 20726
-    CMSG_MOVE_WATER_WALK_ACK                    = 0x18B2, ///< 6.2.3 20726
-    CMSG_MOVE_HOVER_ACK                         = 0x111D, ///< 6.2.3 20726
-    CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK          = 0x1195, ///< 6.2.3 20779
-    CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK         = 0x141E, ///< 6.2.3 20779
+    CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK         = 0x1436, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK    = 0x1832, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK        = 0x15BE, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK        = 0x1931, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK   = 0x14B6, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK      = 0x1431, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK = 0x103D, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK         = 0x1112, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK        = 0x10B2, ///< 6.2.3 20726
+    CMSG_MOVE_KNOCK_BACK_ACK                     = 0x159E, ///< 6.2.3 20726
+    CMSG_MOVE_SET_CAN_FLY_ACK                    = 0x1411, ///< 6.2.3 20726
+    CMSG_MOVE_FEATHER_FALL_ACK                   = 0x11BE, ///< 6.2.3 20726
+    CMSG_MOVE_WATER_WALK_ACK                     = 0x18B2, ///< 6.2.3 20726
+    CMSG_MOVE_HOVER_ACK                          = 0x111D, ///< 6.2.3 20726
+    CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK           = 0x1195, ///< 6.2.3 20779
+    CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK          = 0x141E, ///< 6.2.3 20779
 
     //////////////////////////////////////////////////////////////////////////
     /// Group
@@ -1521,7 +1544,7 @@ enum Opcodes
     CMSG_GUILD_REPLACE_GUILD_MASTER                = 0x08D5, ///< 6.2.3 20726
     CMSG_GUILD_CHANGE_NAME_REQUEST                 = 0x0000, ///<  (unused)
     CMSG_GUILD_PERMISSIONS_QUERY                   = 0x018D, ///< 6.2.3 20726
-    CMSG_GUILD_EVENT_LOG_QUERY                     = 0x088E, ///< 6.2.3 20726
+    CMSG_GUILD_EVENT_LOG_QUERY                     = 0x0896, ///< 6.2.3 20726
     CMSG_GUILD_NEWS_UPDATE_STICKY                  = 0x0C8A, ///< 6.2.3 20726
     CMSG_GUILD_QUERY_NEWS                          = 0x09C6, ///< 6.2.3 20726
     CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE            = 0x0000, ///< (unused)
@@ -1542,20 +1565,40 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet opcodes
     //////////////////////////////////////////////////////////////////////////
-    CMSG_SUMMON_COMPANION                          = 0x007B,   ///< 6.2.3 20726
-    CMSG_PETBATTLE_QUERY_JOURNAL                   = 0x0123,   ///< 6.2.3 20726
-    CMSG_PETBATTLE_SET_ABILITY                     = 0x0538,   ///< 6.2.3 20726
-    CMSG_PETBATTLE_RENAME                          = 0x00E3,   ///< 6.2.3 20726
-    CMSG_PETBATTLE_CAGE_PET                        = 0x0000,
-    CMSG_PETBATTLE_QUERY_NAME                      = 0x0CE1,   ///< 6.2.3 20726
-    CMSG_PETBATTLE_REQUEST_WILD                    = 0x05AE,   ///< 6.2.3 20726
-    CMSG_PETBATTLE_REQUEST_PVP                     = 0x0000,
-    CMSG_PETBATTLE_JOIN_QUEUE                      = 0x0000,
-    CMSG_PETBATTLE_REQUEST_UPDATE                  = 0x0000,
-    CMSG_PETBATTLE_CANCEL_REQUEST_PVP_MATCHMAKING  = 0x0000,
-    CMSG_PETBATTLE_INPUT                           = 0x01FC,   ///< 6.2.3 20726
-    CMSG_PETBATTLE_INPUT_NEW_FRONT_PET             = 0x0000,
-    CMSG_BATTLEPET_SET_BATTLESLOT                  = 0x106C,   ///< 6.2.3 20726
+    CMSG_QUERY_BATTLE_PET_NAME                     = 0x0CE1,   ///< 6.2.3 20726
+
+    CMSG_BATTLE_PETS_RECONVERT                     = 0x0000,   ///< Internal
+    CMSG_BATTLE_PET_UPDATE_NOTIFY                  = 0x1085,   ///< 6.2.3 20726
+    CMSG_BATTLE_PET_REQUEST_JOURNAL_LOCK           = 0x116C,   ///< 6.2.3 20726
+    CMSG_BATTLE_PET_REQUEST_JOURNAL                = 0x0123,   ///< 6.2.3 20726
+    CMSG_BATTLE_PET_DELETE_PET                     = 0x0168,   ///< 6.2.3 20726
+    CMSG_BATTLE_PET_DELETE_PET_CHEAT               = 0x0600,   ///< 6.2.3 20726
+    CMSG_BATTLE_PET_DELETE_JOURNAL                 = 0x0000,   ///< Internal
+    CMSG_BATTLE_PET_MODIFY_NAME                    = 0x00E3,   ///< 6.2.3 20726
+    CMSG_BATTLE_PET_SUMMON                         = 0x007B,   ///< 6.2.3 20726
+    CMSG_BATTLE_PET_SET_LEVEL                      = 0x0000,   ///< Internal
+    CMSG_BATTLE_PET_SET_BATTLE_SLOT                = 0x106C,   ///< 6.2.3 20726
+    CMSG_BATTLE_PET_SET_COLLAR                     = 0x0000,   ///< Internal
+    CMSG_BATTLE_PET_SET_FLAGS                      = 0x0538,   ///< 6.2.3 20726
+    CMSG_RESTORE_BATTLE_PETS_HEALTH                = 0x0000,   ///< Internal
+    CMSG_ADD_BATTLE_PET                            = 0x0000,   ///< Internal
+    CMSG_CHEAT_BATTLE_PET_SET_QUALITY              = 0x0000,   ///< Internal
+    CMSG_CAGE_BATTLE_PET                           = 0x10A2,   ///< 6.2.3 20726
+
+    CMSG_JOIN_PET_BATTLE_QUEUE                     = 0x140D,   ///< 6.2.3 20726
+    CMSG_LEAVE_PET_BATTLE_QUEUE                    = 0x04F6,   ///< 6.2.3 20726
+    CMSG_PET_BATTLE_REQUEST_WILD                   = 0x05AE,   ///< 6.2.3 20726
+    CMSG_PET_BATTLE_WILD_LOCATION_FAIL             = 0x0000,
+    CMSG_PET_BATTLE_REQUEST_PVP                    = 0x1422,   ///< 6.2.3 20726
+    CMSG_PET_BATTLE_REQUEST_UPDATE                 = 0x0CBE,   ///< 6.2.3 20726
+    CMSG_PET_BATTLE_QUIT_NOTIFY                    = 0x1029,   ///< 6.2.3 20726
+    CMSG_PET_BATTLE_FINAL_NOTIFY                   = 0x1025,   ///< 6.2.3 20726
+    CMSG_PET_BATTLE_SCRIPT_ERROR_NOTIFY            = 0x0000,   ///< Internal
+    CMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH_RESULT     = 0x1C02,   ///< 6.2.3 20726
+    CMSG_PET_BATTLE_INPUT_FIRST_PET                = 0x0000,   ///< Internal
+    CMSG_PET_BATTLE_INPUT                          = 0x01FC,   ///< 6.2.3 20726
+    CMSG_PET_BATTLE_REPLACE_FRONT_PET              = 0x1137,   ///< 6.2.3 20726
+    CMSG_PET_BATTLE_DEBUG_QUEUE_DUMP               = 0x0000,   ///< Internal
 
     //////////////////////////////////////////////////////////////////////////
     /// Battle pay
@@ -1835,17 +1878,6 @@ enum Opcodes
     SMSG_MOVE_CHARACTER_CHEAT_FAILURE                   = 0x0000,
     SMSG_MOVE_CHARACTER_CHEAT_SUCCESS                   = 0x0000,
     SMSG_PENDING_RAID_LOCK                              = 0x0000, //
-    SMSG_PET_BATTLE_CHAT_RESTRICTED                     = 0x0000,
-    SMSG_PET_BATTLE_DEBUG_QUEUE_DUMP_RESPONSE           = 0x0000,
-    SMSG_PET_BATTLE_FINAL_ROUND                         = 0x0000,
-    SMSG_PET_BATTLE_FINISHED                            = 0x0000,
-    SMSG_PET_BATTLE_FIRST_ROUND                         = 0x0000,
-    SMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH                 = 0x0000,
-    SMSG_PET_BATTLE_QUEUE_STATUS                        = 0x0000,
-    SMSG_PET_BATTLE_ROUND_RESULT                        = 0x0000,
-    SMSG_PET_BATTLE_REPLACEMENTS_MADE                   = 0x0000,
-    SMSG_PET_BATTLE_REQUEST_FAILED                      = 0x0000,
-    SMSG_PET_BATTLE_SLOT_UPDATE                         = 0x0000,
     SMSG_PLAYER_NOT_FOUND_FAILURE                       = 0x0000,
     SMSG_REFRESH_COMPONENT                              = 0x0000,
     SMSG_RESET_WEEKLY_CURRENCY                          = 0x0000,
@@ -1868,7 +1900,6 @@ enum Opcodes
     SMSG_ARENA_ERROR                                    = 0x0000,
     SMSG_AVERAGE_ITEM_LEVEL_INFORM                      = 0x0000,
     SMSG_BATTLEGROUND_INFO_THROTTLED                    = 0x0000,
-    SMSG_BATTLEPET_JOURNAL                              = 0x0000,
     SMSG_CAMERA_SHAKE                                   = 0x0000,
     SMSG_CHARACTER_LOGIN_FAILED                         = 0x0000,
     SMSG_CLEAR_BOSS_EMOTES                              = 0x0000,
@@ -1883,7 +1914,6 @@ enum Opcodes
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR            = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                     = 0x0000,
     SMSG_FAILED_PLAYER_CONDITION                        = 0x0000,
-    SMSG_FORCED_DEATH_UPDATE                            = 0x0000,
     SMSG_GAMEOBJECT_RESET_STATE                         = 0x0000,
     SMSG_GAME_SPEED_SET                                 = 0x0000,
     SMSG_GAME_TIME_SET                                  = 0x0000,

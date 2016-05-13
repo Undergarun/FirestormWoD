@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET ScriptName='spell_npc_black_ox_statue' WHERE entry=61146;

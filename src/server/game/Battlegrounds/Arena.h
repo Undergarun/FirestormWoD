@@ -203,7 +203,7 @@ namespace Arena
         return 1.0f / (1.0f + exp(log(10.0f) * (float)((float)opponentRating - (float)ownRating) / 650.0f));
     }
 
-    inline int32 GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won /*, float confidence_factor*/)
+    inline int32 GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won /*, float confidence_factor*/, bool rbg = false)
     {
         // 'Chance' calculation - to beat the opponent
         // This is a simulation. Not much info on how it really works
@@ -212,6 +212,16 @@ namespace Arena
 
         // Calculate the rating modification
         float mod;
+
+        if (rbg)
+        {
+            if (won && ownRating < 1500)
+                mod = 192.0f * (won_mod - chance);
+            else
+                mod = 24.0f * (won_mod - chance);
+
+            return (int32)ceil(mod);
+        }
 
         // TODO: Replace this hack with using the confidence factor (limiting the factor to 2.0f)
         if (won && ownRating < 1300)

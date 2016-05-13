@@ -9,9 +9,8 @@ SDComment:
 SDCategory: Npc
 EndScriptData */
 
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
 #include "Group.h"
+#include "ScriptedEscortAI.h"
 
 enum ePoints
 {

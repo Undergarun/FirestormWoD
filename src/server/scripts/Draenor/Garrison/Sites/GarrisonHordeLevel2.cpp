@@ -13,13 +13,20 @@
 #include "Spell.h"
 #include "../GarrisonScriptData.hpp"
 
-enum
-{
-    GARRISON_PHASE_BASE = 0x0001,
-};
-
 namespace MS { namespace Garrison { namespace Sites
 {
+    enum GarrisonPhases
+    {
+        GarrisonPhaseBase               = 0x00000001,
+        PhaseMagePortalFrostfireRidge   = 0x00000010,
+        PhaseMagePortalSpiresOfArak     = 0x00000020,
+        PhaseMagePortalTalador          = 0x00000040,
+        PhaseMagePortalNagrand          = 0x00000080,
+        PhaseMagePortalShadowmoon       = 0x00000100,
+        PhaseMagePortalGorgrond         = 0x00000200,
+        PhaseLostInTransitionQuest      = 0x00000400
+    };
+
     /// Constructor
     InstanceMapScript_GarrisonHordeLevel2::InstanceMapScript_GarrisonHordeLevel2()
         : InstanceMapScript("instance_Garrison_H2", MapIDs::MapGarrisonHordeLevel2)
@@ -75,6 +82,23 @@ namespace MS { namespace Garrison { namespace Sites
         /// Achievement "More Plots" horde side
         if (p_Owner->GetTeamId() == TEAM_HORDE && !p_Owner->GetAchievementMgr().HasAchieved(9545))
             p_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(9545), nullptr);
+
+        /// Build your Barracks quest
+        if (p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
+        {
+            Manager* l_GarrisonMgr = p_Owner->GetGarrison();
+
+            if (l_GarrisonMgr == nullptr)
+                return;
+
+            if (p_Owner->GetGarrison()->GetBuildingWithType(BuildingType::Barracks).BuildingID)
+            {
+                p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Start Construction
+                p_Owner->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Find Blueprint
+                p_Owner->QuestObjectiveSatisfy(39012, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Learn Blueprint
+                p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Plot Finalize
+            }
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -85,7 +109,6 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Quest : Started quest
     void InstanceScript_GarrisonHordeLevel2::OnQuestStarted(Player* p_Owner, const Quest* p_Quest)
     {
-
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
@@ -107,9 +130,32 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// Get phase mask
     /// @p_Owner : Garrison owner
-    uint32 InstanceScript_GarrisonHordeLevel2::GetPhaseMask(Player* p_Owner)
+    uint32 InstanceScript_GarrisonHordeLevel2::GetPhaseMask(Player* p_Player)
     {
-        uint32 l_PhaseMask = GARRISON_PHASE_BASE;
+        uint32 l_PhaseMask = GarrisonPhases::GarrisonPhaseBase;
+        Manager* l_GarrisonMgr = p_Player->GetGarrison();
+
+        if (l_GarrisonMgr == nullptr)
+            return 0;
+
+        if (p_Player->HasQuest(Quests::Alliance_LostInTransition) || p_Player->HasQuest(Quests::Horde_LostInTransition))
+            l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+
+        if (l_GarrisonMgr->HasBuildingType(BuildingType::MageTower))
+        {
+            if (p_Player->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestFrostfireRidge))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalFrostfireRidge;
+            if (p_Player->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestGorgrond))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalGorgrond;
+            if (p_Player->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestNagrand))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalNagrand;
+            if (p_Player->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestShadowmoon))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalShadowmoon;
+            if (p_Player->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestSpiresOfArak))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalSpiresOfArak;
+            if (p_Player->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestTalador))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalTalador;
+        }
 
         return l_PhaseMask;
     }
@@ -142,7 +188,13 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Garrison owner
     void InstanceScript_GarrisonHordeLevel2::OnUpgrade(Player* p_Owner)
     {
+        GarrSiteLevelEntry const* l_Entry = p_Owner->GetGarrison()->GetGarrisonSiteLevelEntry();
 
+        if (!l_Entry)
+            return;
+
+        p_Owner->AddMovieDelayedTeleport(l_Entry->MovieID, l_Entry->MapID, 5622.5063f, 4465.5161f, 130.1637f, 0.0f);
+        p_Owner->SendMovieStart(l_Entry->MovieID);
     }
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -165,6 +217,14 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_BaseTime   : Default build time
     uint32 InstanceScript_GarrisonHordeLevel2::OnPrePurchaseBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
     {
+        if (p_BuildingID == Buildings::TradingPost_TradingPost_Level2)
+        {
+            uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
+            FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
+
+            if (l_Entry != nullptr)
+                p_Owner->GetReputationMgr().SetReputation(l_Entry, 0);
+        }
         return p_BaseTime;
     }
     /// When a construction start
@@ -179,7 +239,95 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_BuildingID : Purchased building ID
     void InstanceScript_GarrisonHordeLevel2::OnBuildingActivated(Player* p_Owner, uint32 p_BuildingID)
     {
+        if (MS::Garrison::Manager* l_GarrisonMgr = p_Owner->GetGarrison())
+        {
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingID);
 
+            if (l_BuildingEntry)
+            {
+                uint8 l_BuildingLevel = l_BuildingEntry->Level;
+
+                switch (p_BuildingID)
+                {
+                    case Buildings::LumberMill_LumberMill_Level1:
+                    case Buildings::LumberMill_LumberMill_Level2:
+                    case Buildings::LumberMill_LumberMill_Level3:
+                        p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
+                        break;
+                    case Buildings::Barn_Barn_Level2:
+                        if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
+                            p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                        break;
+                    case Buildings::Barn_Barn_Level3:
+                        if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
+                            p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                        if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
+                            p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+    /// When a building from the same type with higher level is purchased
+    /// @p_Owner      : Garrison owner
+    /// @p_BuildingID : Purchased building ID
+    void InstanceScript_GarrisonHordeLevel2::OnUpgradeBuilding(Player* p_Owner, uint32 p_BuildingID)
+    {
+        if (MS::Garrison::Manager* l_GarrisonMgr = p_Owner->GetGarrison())
+        {
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingID);
+
+            if (l_BuildingEntry)
+            {
+                uint8 l_BuildingLevel = l_BuildingEntry->Level;
+
+                switch (p_BuildingID)
+                {
+                    case Buildings::LumberMill_LumberMill_Level1:
+                    case Buildings::LumberMill_LumberMill_Level2:
+                    case Buildings::LumberMill_LumberMill_Level3:
+                        p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
+                        break;
+                    case Buildings::Barn_Barn_Level2:
+                        if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
+                            p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                        break;
+                    case Buildings::Barn_Barn_Level3:
+                        if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
+                            p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                        if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
+                            p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    void InstanceScript_GarrisonHordeLevel2::OnDeleteBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BuildingType, bool p_RemoveForUpgrade)
+    {
+        if (p_RemoveForUpgrade)
+            return;
+
+        switch (p_BuildingType)
+        {
+            case BuildingType::Type::LumberMill:
+                p_Owner->SetSkill(SkillType::SKILL_LOGGING, 0, 0, 0);
+                break;
+            case BuildingType::Type::Barn:
+                if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
+                    p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
+                    p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemDeadlyIronTrap))
+                    p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                break;
+            default:
+                break;
+        }
     }
 
 }   ///< namespace Sites

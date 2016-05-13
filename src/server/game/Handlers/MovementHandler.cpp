@@ -146,7 +146,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         {
             // short preparations to continue flight
             FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
-            flight->Initialize(*GetPlayer());
+            flight->Initialize(GetPlayer());
             return;
         }
 
@@ -190,7 +190,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 newzone, newarea;
-    m_Player->GetZoneAndAreaId(newzone, newarea);
+    m_Player->GetZoneAndAreaId(newzone, newarea, true);
     m_Player->UpdateZone(newzone, newarea);
 
     for (uint8 i = 0; i < 9; ++i)
@@ -239,7 +239,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 
     uint32 l_NewZone, l_NewArea;
 
-    l_MoverPlayer->GetZoneAndAreaId(l_NewZone, l_NewArea);
+    l_MoverPlayer->GetZoneAndAreaId(l_NewZone, l_NewArea, true);
     l_MoverPlayer->UpdateZone(l_NewZone, l_NewArea);
 
     // new zone
@@ -292,24 +292,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     MovementInfo l_MovementInfo;
     ReadMovementInfo(p_Packet, &l_MovementInfo);
 
-    if (l_OpCode == CMSG_MOVE_SET_RUN_SPEED_CHEAT
-        || l_OpCode == CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT
-        || l_OpCode == CMSG_MOVE_SET_WALK_SPEED_CHEAT
-        || l_OpCode == CMSG_MOVE_SET_SWIM_SPEED_CHEAT
-        || l_OpCode == CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT
-        || l_OpCode == CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT
-        || l_OpCode == CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT
-        || l_OpCode == CMSG_MOVE_SET_TURN_SPEED_CHEAT
-        || l_OpCode == CMSG_MOVE_SET_PITCH_SPEED_CHEAT)
-    {
-        uint32 l_AckIndex   = p_Packet.read<uint32>();
-        float  l_Speed      = p_Packet.read<float>();
-    }
-
     if (l_OpCode == CMSG_MOVE_FEATHER_FALL_ACK
      || l_OpCode == CMSG_MOVE_WATER_WALK_ACK)
     {
-        uint32 l_AckIndex = p_Packet.read<uint32>();
+        uint32 l_AckIndex = p_Packet.read<uint32>(); ///< l_AckIndex is never read 01/18/16
     }
 
     // prevent tampered movement data
@@ -436,50 +422,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     l_MovementInfo.time = l_MovementInfo.time + m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
 
     WorldSession::WriteMovementInfo(data, &l_MovementInfo);
-
-    switch (l_OpCode)
-    {
-        case CMSG_MOVE_SET_RUN_SPEED_CHEAT:
-            data.SetOpcode(SMSG_MOVE_UPDATE_RUN_SPEED);
-            data << float(l_Mover->GetSpeed(MOVE_RUN));
-            break;
-        case CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT:
-            data.SetOpcode(SMSG_MOVE_UPDATE_RUN_BACK_SPEED);
-            data << float(l_Mover->GetSpeed(MOVE_RUN_BACK));
-            break;
-        case CMSG_MOVE_SET_WALK_SPEED_CHEAT:
-            data.SetOpcode(SMSG_MOVE_UPDATE_WALK_SPEED);
-            data << float(l_Mover->GetSpeed(MOVE_WALK));
-            break;
-        case CMSG_MOVE_SET_SWIM_SPEED_CHEAT:
-            data.SetOpcode(SMSG_MOVE_UPDATE_SWIM_SPEED);
-            data << float(l_Mover->GetSpeed(MOVE_SWIM));
-            break;
-        case CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT:
-            data.SetOpcode(SMSG_MOVE_UPDATE_SWIM_BACK_SPEED);
-            data << float(l_Mover->GetSpeed(MOVE_SWIM_BACK));
-            break;
-        case CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT:
-            data.SetOpcode(SMSG_MOVE_UPDATE_FLIGHT_SPEED);
-            data << float(l_Mover->GetSpeed(MOVE_FLIGHT));
-            break;
-        case CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT:
-            data.SetOpcode(SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED);
-            data << float(l_Mover->GetSpeed(MOVE_FLIGHT_BACK));
-            break;
-        case CMSG_MOVE_SET_TURN_SPEED_CHEAT:
-            data.SetOpcode(SMSG_MOVE_UPDATE_TURN_RATE);
-            data << float(l_Mover->GetSpeed(MOVE_TURN_RATE));
-            break;
-        case CMSG_MOVE_SET_PITCH_SPEED_CHEAT:
-            data.SetOpcode(SMSG_MOVE_UPDATE_PITCH_RATE);
-            data << float(l_Mover->GetSpeed(MOVE_PITCH_RATE));
-            break;
-    }
-
     l_Mover->SendMessageToSet(&data, m_Player);
 
     l_Mover->m_movementInfo = l_MovementInfo;
+    l_Mover->m_movementInfoLastTime = l_MSTime - GetLatency();
 
     // this is almost never true (not sure why it is sometimes, but it is), normally use mover->IsVehicle()
     if (l_Mover->GetVehicle())
@@ -494,7 +440,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     {
         l_PlayerMover->UpdateFallInformationIfNeed(l_MovementInfo, l_OpCode);
 
-        float l_MaxDepth = -500.0f;
+        /*float l_MaxDepth = -500.0f;
 
         /// Eye of the Cyclone
         if (l_PlayerMover->GetMapId() == 566)
@@ -513,8 +459,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
             default:
                 break;
         }
-
-        if (l_MovementInfo.pos.GetPositionZ() < l_MaxDepth)
+        */
+        if (l_MovementInfo.pos.GetPositionZ() < l_PlayerMover->GetMap()->GetMinHeight(l_MovementInfo.pos.GetPositionX(), l_MovementInfo.pos.GetPositionY()))
         {
             if (!(l_PlayerMover->GetBattleground() && l_PlayerMover->GetBattleground()->HandlePlayerUnderMap(m_Player)))
             {
@@ -523,6 +469,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
                 // TODO: discard movement packets after the player is rooted
                 if (l_PlayerMover->isAlive())
                 {
+                    ///l_PlayerMover->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
                     l_PlayerMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
                     // player can be alive if GM/etc
                     // change the death state to CORPSE to prevent the death timer from
@@ -535,64 +482,63 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     }
 }
 
-void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
+void WorldSession::HandleForceSpeedChangeAck(WorldPacket& p_Packet)
 {
-    uint32 opcode = recvData.GetOpcode();
+    MovementInfo l_MovementInfo;
+    ReadMovementInfo(p_Packet, &l_MovementInfo);
 
-    /* extract packet */
-    uint64 guid;
-    uint32 unk1;
-    float  newspeed;
-
-    recvData.readPackGUID(guid);
-
-    // now can skip not our packet
-    if (m_Player->GetGUID() != guid)
-    {
-        recvData.rfinish();                   // prevent warnings spam
+    if (l_MovementInfo.guid != m_Player->GetGUID())
         return;
-    }
 
-    // continue parse packet
-
-    recvData >> unk1;                                      // counter or moveEvent
-
-    MovementInfo movementInfo;
-    movementInfo.guid = guid;
-    ReadMovementInfo(recvData, &movementInfo);
-
-    recvData >> newspeed;
-    /*----------------*/
+    uint32 l_AckIndex = p_Packet.read<uint32>();
+    float  l_Speed    = p_Packet.read<float>();
 
     // client ACK send one packet for mounted/run case and need skip all except last from its
     // in other cases anti-cheat check can be fail in false case
-    UnitMoveType move_type       = MOVE_WALK;
-    UnitMoveType force_move_type = MOVE_WALK;
+    UnitMoveType l_MoveType       = MOVE_WALK;
 
-    static char const* move_type_name[MAX_MOVE_TYPE] = {  "Walk", "Run", "RunBack", "Swim", "SwimBack", "TurnRate", "Flight", "FlightBack", "PitchRate" };
-
-    // skip all forced speed changes except last and unexpected
-    // in run/mounted case used one ACK and it must be skipped.m_forced_speed_changes[MOVE_RUN} store both.
-    if (m_Player->m_forced_speed_changes[force_move_type] > 0)
+    Opcodes l_Opcode = p_Packet.GetOpcode();
+    switch (l_Opcode)
     {
-        --m_Player->m_forced_speed_changes[force_move_type];
-        if (m_Player->m_forced_speed_changes[force_move_type] > 0)
+        case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:        l_MoveType = MOVE_WALK;        break;
+        case CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK:         l_MoveType = MOVE_RUN;         break;
+        case CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK:    l_MoveType = MOVE_RUN_BACK;    break;
+        case CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK:        l_MoveType = MOVE_SWIM;        break;
+        case CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:   l_MoveType = MOVE_SWIM_BACK;   break;
+        case CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK:         l_MoveType = MOVE_TURN_RATE;   break;
+        case CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK:      l_MoveType = MOVE_FLIGHT;      break;
+        case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK: l_MoveType = MOVE_FLIGHT_BACK; break;
+        case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:        l_MoveType = MOVE_PITCH_RATE;  break;
+
+        default:
+            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", l_Opcode);
             return;
     }
 
-    if (!m_Player->GetTransport() && fabs(m_Player->GetSpeed(move_type) - newspeed) > 0.01f)
+    static char const* l_MoveTypeName[MAX_MOVE_TYPE] = {  "Walk", "Run", "RunBack", "Swim", "SwimBack", "TurnRate", "Flight", "FlightBack", "PitchRate" };
+
+    // skip all forced speed changes except last and unexpected
+    // in run/mounted case used one ACK and it must be skipped.m_forced_speed_changes[MOVE_RUN} store both.
+    if (m_Player->m_forced_speed_changes[l_MoveType] > 0)
     {
-        if (m_Player->GetSpeed(move_type) > newspeed)         // must be greater - just correct
+        --m_Player->m_forced_speed_changes[l_MoveType];
+        if (m_Player->m_forced_speed_changes[l_MoveType] > 0)
+            return;
+    }
+
+    if (!m_Player->GetTransport() && fabs(m_Player->GetSpeed(l_MoveType) - l_Speed) > 0.01f)
+    {
+        if (m_Player->GetSpeed(l_MoveType) > l_Speed)         // must be greater - just correct
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "%sSpeedChange player %s is NOT correct (must be %f instead %f), force set to correct value",
-                move_type_name[move_type], m_Player->GetName(), m_Player->GetSpeed(move_type), newspeed);
-            m_Player->SetSpeed(move_type, m_Player->GetSpeedRate(move_type), true);
+                l_MoveTypeName[l_MoveType], m_Player->GetName(), m_Player->GetSpeed(l_MoveType), l_Speed);
+            m_Player->SetSpeed(l_MoveType, m_Player->GetSpeedRate(l_MoveType), true);
         }
         else                                                // must be lesser - cheating
         {
             sLog->outDebug(LOG_FILTER_GENERAL, "Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
-                m_Player->GetName(), m_Player->GetSession()->GetAccountId(), m_Player->GetSpeed(move_type), newspeed);
-            m_Player->GetSession()->KickPlayer();
+                m_Player->GetName(), m_Player->GetSession()->GetAccountId(), m_Player->GetSpeed(l_MoveType), l_Speed);
+            /*m_Player->GetSession()->KickPlayer();*/
         }
     }
 }
@@ -627,7 +573,8 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
 {
     HandleMovementOpcodes(recvData);
 
-    recvData.read_skip<uint32>();                          /// ACK Index
+    if (recvData.rpos() != recvData.size())
+        recvData.read_skip<uint32>();                          /// ACK Index
 }
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
@@ -824,7 +771,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
                 break;
 
             case MSEHasSpline:
-                l_HasSpline = p_Data.ReadBit();
+                l_HasSpline = p_Data.ReadBit(); ///< l_HasSpline is never read 01/18/16
                 break;
 
             case MSEFlushBits:

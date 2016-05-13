@@ -175,9 +175,18 @@ enum SellResult
     SELL_ERR_ONLY_EMPTY_BAG                      = 6        // can only do with empty bags
 };
 
-enum eItemsModifiedFlags
+enum eItemModifiers
 {
-    ITEM_TRANSMOGRIFIED = 0x02
+    TransmogAppearanceMod,
+    TransmogItemID,
+    UpgradeID,
+    BattlePetSpeciesID,
+    BattlePetBreedData,
+    BattlePetLevel,
+    BattlePetDisplayID,
+    EnchantIllusion,
+
+    MaxItemModifiers
 };
 
 // -1 from client enchantment slot number
@@ -258,6 +267,14 @@ namespace ItemBonus
             PrismaticSocket = 523
         };
     }
+}
+
+namespace ItemCustomFlags
+{
+    enum
+    {
+        FromStore       = 0x01,
+    };
 }
 
 
@@ -360,11 +377,11 @@ class Item : public Object
         * @param p_MapDifficulty: Information about the current difficulty we are to determine the right bonus to apply
         * @param p_ItemBonus: Vector of bonus to fill
         */
-        static void GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus);
+        static void GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus, bool p_OnlyDifficulty = false);
 
         static ItemContext GetItemContextFromDifficulty(Difficulty p_Difficulty);
 
-        static void BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item);
+        static void BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item, ItemContext p_Context = ItemContext::None);
         static void BuildDynamicItemDatas(ByteBuffer& p_Datas, Item const* p_Item);
         static void BuildDynamicItemDatas(WorldPacket& p_Datas, VoidStorageItem const p_Item);
         static void BuildDynamicItemDatas(ByteBuffer& p_Datas, LootItem const p_Item);
@@ -378,6 +395,7 @@ class Item : public Object
         uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
         uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
         uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
+        uint32 GetEnchantItemVisualId(EnchantmentSlot p_Slot) const;
 
         std::string const& GetText() const { return m_text; }
         inline void SetText(std::string const& text)
@@ -397,6 +415,11 @@ class Item : public Object
                 }
             }
         }
+
+        void SetCustomFlags(uint32 p_Flags) { m_CustomFlags = p_Flags; }
+        void ApplyCustomFlags(uint32 p_Flags) { m_CustomFlags |= p_Flags; }
+        uint32 GetCustomFlags() const { return m_CustomFlags; }
+        bool HasCustomFlags(uint32 p_Flags) const { return m_CustomFlags & p_Flags; }
 
         void SendTimeUpdate(Player* owner);
         void UpdateDuration(Player* owner, uint32 diff);
@@ -449,6 +472,7 @@ class Item : public Object
         bool CheckSoulboundTradeExpire();
 
         void BuildUpdate(UpdateDataMapType&);
+        void BuildDynamicValuesUpdate(uint8 p_UpdateType, ByteBuffer* p_Data, Player* p_Target) const override;
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 
@@ -457,12 +481,14 @@ class Item : public Object
         static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
 
-        uint32 GetVisibleEntry() const
-        {
-            if (uint32 transmogrification = GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0))
-                return transmogrification;
-            return GetEntry();
-        }
+        uint16 GetVisibleAppearanceModID() const;
+        uint16 GetAppearanceModID() const;
+        uint32 GetVisibleEntry() const;
+        uint32 GetVisibleEnchantmentId() const;
+        uint16 GetVisibleItemVisual() const;
+
+        uint32 GetModifier(eItemModifiers p_Modifier) const { return m_Modifiers[p_Modifier]; }
+        void SetModifier(eItemModifiers p_Modifier, uint32 p_Value);
 
         static uint32 GetSellPrice(ItemTemplate const* proto, bool& success);
 
@@ -482,8 +508,6 @@ class Item : public Object
         uint32 GetItemLevelBonusFromItemBonuses() const;
         std::vector<uint32> const& GetAllItemBonuses() const;
 
-        uint32 GetAppearanceModID() const;
-
         static bool SubclassesCompatibleForRandomWeapon(ItemTemplate const* p_Transmogrified, ItemTemplate const* p_Transmogrifier);
         static bool CanTransmogrifyIntoRandomWeapon(ItemTemplate const* p_Transmogrifier, ItemTemplate const* p_Transmogrified);
         void RandomWeaponTransmogrificationFromPrimaryBag(Player* p_Player, Item* p_Transmogrified, bool p_Apply);
@@ -499,6 +523,9 @@ class Item : public Object
         uint32 m_refundRecipient;
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
+        uint32 m_CustomFlags;
         AllowedLooterSet allowedGUIDs;
+
+        uint32 m_Modifiers[eItemModifiers::MaxItemModifiers];
 };
 #endif

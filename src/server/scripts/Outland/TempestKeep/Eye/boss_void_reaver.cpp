@@ -128,7 +128,7 @@ class boss_void_reaver : public CreatureScript
                         if (!target)
                             continue;
                         // exclude pets & totems, 18 yard radius minimum
-                        if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive() && !target->IsWithinDist(me, 18, false))
+                        if (target->IsPlayer() && target->isAlive() && !target->IsWithinDist(me, 18, false))
                             target_list.push_back(target);
                         target = NULL;
                     }
@@ -139,7 +139,7 @@ class boss_void_reaver : public CreatureScript
                         target = me->getVictim();
 
                     if (target)
-                        me->CastSpell(target, SPELL_ARCANE_ORB, false, NULL, NULLAURA_EFFECT, 0);
+                        me->CastSpell(target, SPELL_ARCANE_ORB, false, NULL, nullptr, 0);
                     ArcaneOrb_Timer = 3000;
                 }
                 else

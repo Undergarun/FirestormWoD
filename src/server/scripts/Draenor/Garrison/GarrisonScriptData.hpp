@@ -31,14 +31,50 @@ namespace MS { namespace Garrison
         MapGarrisonAllianceShipyard = 1473
     };
 
+    namespace GarrisonGossipMenus
+    {
+        enum MenuID
+        {
+            DefaultMenuGreetings = 1
+        };
+
+        enum GossipOption
+        {
+            DefaultWorkOrder              = 0,
+            BarnOrderSomptuousFur         = 1,
+            BarnOrderRawBeastHide         = 2,
+            BarnOrderSavageFeast          = 3,
+            BarnOrderFurSavageBlood       = 4,
+            BarnOrderBeastHideSavageBlood = 5,
+            BarnOrderSavageFeastBlood     = 6,
+            DefaultTrader                 = 7,
+            DefaultBanker                 = 8,
+            HerbFrostweed                 = 9,
+            HerbStarflower                = 10,
+            HerbFireweed                  = 11,
+            HerbTaladorOrchid             = 12,
+            HerbGorgrondFlytrap           = 13,
+            HerbNagrandArrowbloom         = 14,
+            ArmoryWeeklySeal              = 15,
+            MineDefaultOrder              = 16,
+            DefaultSomething              = 17,
+            GarrisonCreation              = 18,
+            ShellyQuestGossip1            = 19,
+            ShellyQuestGossip2            = 20,
+            GazloweQuestGossip1           = 21
+        };
+
+    }
+
     enum GarrisonPhases
     {
-        PhaseMagePortalFrostfireRidge = 0x00000008,
-        PhaseMagePortalSpiresOfArak   = 0x00000010,
-        PhaseMagePortalTalador        = 0x00000020,
-        PhaseMagePortalNagrand        = 0x00000040,
-        PhaseMagePortalShadowmoon     = 0x00000080,
-        PhaseMagePortalGorgrond       = 0x00000100,
+        PhaseMagePortalFrostfireRidge = 0x00000010,
+        PhaseMagePortalSpiresOfArak   = 0x00000020,
+        PhaseMagePortalTalador        = 0x00000040,
+        PhaseMagePortalNagrand        = 0x00000080,
+        PhaseMagePortalShadowmoon     = 0x00000100,
+        PhaseMagePortalGorgrond       = 0x00000200,
+        PhaseLostInTransitionQuest    = 0x00000400
     };
 
     /// Instance data common IDs
@@ -52,20 +88,25 @@ namespace MS { namespace Garrison
     /// Garrison common spells
     enum Spells
     {
-        SPELL_GARRISON_HEARTHSTONE             = 171253,
-        SPELL_RELIEVED                         = 162410,
-        SPELL_LEFT_ROPE                        = 164400,
-        SPELL_RIGHT_ROPE                       = 164422,
-        SPELL_COMESTIC_SLEEP                   = 162907,
-        SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329,
-        MultiShot                              = 18651,
-        Disengage                              = 82707,
-        Shoot                                  = 6660,
-        SpellArming                            = 167920,
-        SpellIronTrap                          = 180609,
-        SpellApprenticeLogging                 = 167911,
-        SpellSummonStump                       = 170079,
-        SpellGarrisonPortal                    = 182464
+        SPELL_GARRISON_HEARTHSTONE             = 171253, ///< Misc
+        SPELL_RELIEVED                         = 162410, ///< Misc
+        SPELL_LEFT_ROPE                        = 164400, ///< Misc
+        SPELL_RIGHT_ROPE                       = 164422, ///< Misc
+        SPELL_COMESTIC_SLEEP                   = 162907, ///< Misc
+        SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329, ///< Misc
+        MultiShot                              = 18651,  ///< Misc
+        Disengage                              = 82707,  ///< Misc
+        Shoot                                  = 6660,   ///< Misc
+        SpellArming                            = 167920, ///< Barn
+        SpellIronTrap                          = 180609, ///< Barn
+        SpellImprovedIronTrap                  = 180610, ///< Barn
+        SpellDeadlyIronTrap                    = 180606, ///< Barn
+        SpellApprenticeLogging                 = 167911, ///< Lumber Mill
+        SpellJourneymanLogging                 = 167946, ///< Lumber Mill
+        SpellSummonStump                       = 170079, ///< Lumber Mill
+        SpellGarrisonPortal                    = 182464, ///< Mage Tower/Spirit Lodge
+        SpellAuraRunesOfPower                  = 178777, ///< Mage Tower/Spirit Lodge
+        SpellAuraAmperialConstructVisual       = 166094  ///< Mage Tower/Spirit Lodge
     };
 
     enum DisplayIDs
@@ -84,8 +125,12 @@ namespace MS { namespace Garrison
             QUEST_KEEPING_IT_TOGETHER                   = 35176,
             QUEST_SHIP_SALVAGE                          = 35166,
             QUEST_PALE_MOONLIGHT                        = 35174,
+            Alliance_BuildYourBarracks                  = 34587,
             Alliance_LostInTransition                   = 37087,
             Alliance_BiggerIsBetter                     = 36592,
+            Alliance_AshranAppearance                   = 36624,
+            Alliance_QianaMoonshadow                    = 34646,
+
             /// Small profession building quests
             Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
             Alliance_YourFirstAlchemyWorkOrder          = 36641,
@@ -94,10 +139,13 @@ namespace MS { namespace Garrison
             Alliance_YourFirstJewelcraftingWorkOrder    = 36644,
             Alliance_YourFirstEngineeringWorkOrder      = 36646,
             Alliance_YourFirstInscriptionWorkOrder      = 36647,
+            Alliance_YourFirstTailoringWorkOrder        = 36643,
             /// Herb garden
             Alliance_ClearingTheGarden                  = 36404,
             /// Barn
             Alliance_BreakingIntoTheTrapGame            = 36271,
+            Alliance_FeedingAnArmy                      = 36272,
+            Alliance_BiggerTrapBetterRewards            = 36274,
             /// Lumber Mill
             Alliance_EasingIntoLumberjacking            = 36189,
             Alliance_TurningTimberIntoProfit            = 36192,
@@ -107,13 +155,22 @@ namespace MS { namespace Garrison
             Alliance_PortablePortals                    = 38354,
             /// Gladiator's Sanctum
             Alliance_WarlordOfDraenor                   = 36876,
+            /// Fishing Hut
+            Alliance_AnglinInOurGarrison                = 36202,
+            /// Gnomish Gearworks
+            Alliance_UnconventionalInventions           = 37091,
+            /// Trading Post
+            Alliance_TricksOfTheTrade                   = 37088,
+            Alliance_AuctionningForParts                = 36948,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
             QUEST_WHAT_WE_GOT                           = 34824,
-            QUEST_BUILD_YOUR_BARRACKS                   = 34461,
+            Horde_BuildYourBarracks                     = 34461,
             Horde_LostInTransition                      = 37060,
             Horde_BiggerIsBetter                        = 36567,
+            Horde_MissionProbable                       = 34775,
+            Horde_AshranAppearance                      = 36706,
             /// Small profession building quests
             Horde_YourFirstBlacksmithingWorkOrder       = 37569,
             Horde_YourFirstTailoringWorkOrder           = 37575,
@@ -127,16 +184,27 @@ namespace MS { namespace Garrison
             Horde_ClearingTheGarden                     = 34193,
             /// Barn
             Horde_BreakingIntoTheTrapGame               = 36345,
+            Horde_FeedingAnArmy                         = 36344,
+            Horde_BiggerTrapBetterRewards               = 36346,
             /// Lumber Mill
             Horde_EasingIntoLumberjacking               = 36137,
             Horde_TurningTimberIntoProfit               = 36138,
             /// Frostwall Mines
             Horde_ThingsAreNotGorenOurWay               = 35154,
-            Horde_MissionProbable                       = 34775,
             /// Spirit Lodge
             Horde_PortablePortals                       = 38351,
             /// Gladiator's Sanctum
             Horde_WarlordOfDraenor                      = 36874,
+            /// Fishing Hut
+            Horde_AnglinInOurGarrison                   = 36132,
+            /// Goblin Workshop
+            Horde_UnconventionalInventions              = 37044,
+            /// Trading Post
+            Horde_TricksOfTheTrade                      = 37062,
+            Horde_AuctionningForParts                   = 37014,
+
+            /// Both factions
+            Quest_FishFight                             = 34846,
 
             None                                        = 0
         };
@@ -165,6 +233,8 @@ namespace MS { namespace Garrison
         LunarfallRaccoon                                = 85341,
         NpcFrostwallNibbler                             = 81967,
         TrapL1QuestKillCredit                           = 84882,
+        TrapL2QuestKillCredit                           = 84883,
+        TrapL3QuestKillCredit                           = 84884,
         NpcFarmerLokLubSummon                           = 85093,
         NpcHomerStonefield                              = 83967,
         NpcTommyJoeStonefield                           = 83968,
@@ -176,8 +246,140 @@ namespace MS { namespace Garrison
         NpcFrostwallGorenHatchling                      = 81398,
         NpcStonetooth                                   = 81396,
         NpcAllianceMiner                                = 77361,
-        NpcHordeMiner                                   = 79837
+        NpcHordeMiner                                   = 79837,
+        NpcAllianceAncientTradingMechanismQuestGiver    = 87206,
+        NpcAllianceAncientTradingMechanismAuctioneer    = 87205,
+        NpcHordeAncientTradingMechanismQuestGiver       = 86806,
+        NpcHordeAncientTradingMechanismAuctioneer       = 87109,
+        NpcHordeJewelCraftingFollower                   = 88546,
+        NpcAllianceJewelCraftingFollower                = 88545
     };
+
+    namespace WorkshopGearworks
+    {
+        enum InventionsGobIDs
+        {
+            /// Level 1
+            GobStickyGrenades                   = 234146,
+            GobRoboBooster                      = 235078,
+            GobPneumaticPowerGauntlet           = 234095,
+            GobSkyTerrorPersonnalDeliverySystem = 233900,
+
+            /// Level 2
+            GobPrototypeMechanoHog              = 234018, ///< Guessed Horde
+            GobPrototypeMekgineersChopper       = 234019, ///< Guessed Alliance
+            GobNukularTargetPainter             = 235126,
+            GobXD57BullseyeGuidedRocketKit      = 233899,
+            GobGG117MicroJetpack                = 233901,
+            GobSentryTurretDispenser            = 234017,
+
+            /// Level 3
+            GobWorkshopWorkorder                = 238756
+        };
+
+        enum InventionItemIDs
+        {
+            /// Level 1
+            ItemStickyGrenades                   = 114983,
+            ItemRoboBooster                      = 119158,
+            ItemPneumaticPowerGauntlet           = 114974,
+            ItemSkyTerrorPersonnalDeliverySystem = 114246,
+
+            /// Level 2
+            ItemPrototypeMechanoHog           = 114925, ///< Guessed Horde
+            ItemPrototypeMekgineersChopper    = 114924, ///< Guessed Alliance
+            ItemNukularTargetPainter          = 115530,
+            ItemXD57BullseyeGuidedRocketKit   = 114633,
+            ItemGG117MicroJetpack             = 114244,
+            ItemSentryTurretDispenser         = 114744,
+
+            /// Level 3
+            ItemOverchargedSiegeEngine        = 119436,
+            ItemOverchargedDemolkisher        = 119437
+        };
+
+        static std::vector<uint32> const g_FirstLevelInventions =
+        {
+            GobStickyGrenades,
+            GobRoboBooster,
+            GobPneumaticPowerGauntlet,
+            GobSkyTerrorPersonnalDeliverySystem
+        };
+
+        static std::vector<uint32> const g_SecondLevelInventions =
+        {
+            GobPrototypeMechanoHog,
+            GobPrototypeMekgineersChopper,
+            GobNukularTargetPainter,
+            GobXD57BullseyeGuidedRocketKit,
+            GobGG117MicroJetpack,
+            GobSentryTurretDispenser,
+        };
+
+        static uint32 const g_ThirdLevelInvention = GobWorkshopWorkorder;
+        
+        static std::map<uint32, uint32> g_GobItemRelations = 
+        {
+            /// Level 1
+            { InventionsGobIDs::GobStickyGrenades,                   InventionItemIDs::ItemStickyGrenades },
+            { InventionsGobIDs::GobRoboBooster,                      InventionItemIDs::ItemRoboBooster },
+            { InventionsGobIDs::GobPneumaticPowerGauntlet,           InventionItemIDs::ItemPneumaticPowerGauntlet },
+            { InventionsGobIDs::GobSkyTerrorPersonnalDeliverySystem, InventionItemIDs::ItemSkyTerrorPersonnalDeliverySystem },
+
+            /// Level 2
+            { InventionsGobIDs::GobPrototypeMechanoHog,         InventionItemIDs::ItemPrototypeMechanoHog },
+            { InventionsGobIDs::GobPrototypeMekgineersChopper,  InventionItemIDs::ItemPrototypeMekgineersChopper },
+            { InventionsGobIDs::GobNukularTargetPainter,        InventionItemIDs::ItemNukularTargetPainter },
+            { InventionsGobIDs::GobXD57BullseyeGuidedRocketKit, InventionItemIDs::ItemXD57BullseyeGuidedRocketKit },
+            { InventionsGobIDs::GobGG117MicroJetpack,           InventionItemIDs::ItemGG117MicroJetpack },
+            { InventionsGobIDs::GobSentryTurretDispenser,       InventionItemIDs::ItemSentryTurretDispenser },
+
+            /// Level 3 needs custom handling, 1 gob 2 items
+        };
+    }
+
+    namespace LumberMillData
+    {
+        static std::vector<uint32> const g_SmallTimber =
+        {
+            234193,
+            234197,
+            233604,
+            234080,
+            234122,
+            234126,
+            234109,
+            234110,
+            233922,
+            234097
+        };
+
+        static std::vector<uint32> const g_MediumTimber =
+        {
+            234000,
+            234022,
+            234098,
+            234119,
+            234123,
+            234127,
+            234194,
+            234196,
+            234198,
+            233634
+        };
+
+        static std::vector<uint32> const g_LargeTimber =
+        {
+            234000,
+            234022,
+            234098,
+            234119,
+            234123,
+            234127,
+            234194,
+            234196
+        };
+    }
 
     namespace StablesData
     {
@@ -188,7 +390,28 @@ namespace MS { namespace Garrison
             float X, Y, Z, O;
         };
 
-        static const uint64 g_PendingQuestFlag = 0x40000000;
+        std::vector<G3D::Vector3> const g_CreaturesJumps =
+        {
+            /// meadowstomper - 86852
+            { 3419.6072f, 4388.9111f, 228.3024f },
+            { 3323.6699f, 4510.6533f, 180.0031f },
+            { 3322.0098f, 4475.1860f, 169.4178f },
+            /// snarler - 86851
+            { 2572.6372f, 6142.9878f, 80.2156f },
+            { 2515.4197f, 6132.1719f, 80.0046f },
+            { 2483.2539f, 6104.6841f, 83.2874f },
+            { 2576.8103f, 5949.7192f, 80.4125f },
+            { 2642.7153f, 5938.2900f, 84.2296f },
+            { 2641.6606f, 5977.7524f, 82.7445f },
+            { 2611.9395f, 6015.2808f, 78.9488f },
+            /// silverpelt - 86801
+            { 1511.6106f, -1065.3923f, 12.7051f },
+            { 1470.9410f, -1051.7019f, -4.3017f }
+        };
+
+        static const uint64 g_PendingQuestFlag  = 0x40000000;
+        static const uint32 g_LassoAllianceAura = 173686;
+        static const uint32 g_LassoHordeAura    = 174070;
 
         enum TrainingMountsAuras
         {
@@ -209,6 +432,16 @@ namespace MS { namespace Garrison
             DisplayTrainedSnarler       = 59757,
             DisplayTrainedRiverwallow   = 59743,
             DisplayTrainedSilverpelt    = 59365
+        };
+
+        enum eKillCredits
+        {
+            ElekkKillCredit          = 87009,
+            TalbukKillCredit         = 87007,
+            WolfKillCredit           = 87008,
+            RiverbeasttKillCredit    = 87010,
+            ClefthoofKillCredit      = 87011,
+            BoarKillCredit           = 87013
         };
 
         namespace Alliance
@@ -480,7 +713,7 @@ namespace MS { namespace Garrison
                 enum TalbukQuests
                 {
                     /// Initial Quest
-                    QuestTamingATalbuk = 36917,
+                    QuestTamingATalbuk    = 36917,
                     /// Progression Quests
                     TalbukTrainingQuest1  = 37093,
                     TalbukTrainingQuest2  = 37094,
@@ -611,6 +844,75 @@ namespace MS { namespace Garrison
 
     namespace GarrisonPortals
     {
+        static std::vector<std::vector<std::vector<Position>>> const g_GobPos =
+        {
+            /// Alliance
+            {
+                /// Level 1
+                {
+                    { 13.5690f, -5.1295f, 1.3013f, 2.1965f },
+                    { 9.88640f, -7.8239f, 1.2993f, 1.8823f },
+                    { 1.76120f, -6.5470f, 1.3018f, 0.7749f },
+                    { -0.8525f, -1.5060f, 1.3028f, 0.1977f },
+                    { 0.54270f, 6.00540f, 1.3089f, 5.6326f },
+                    { 9.68800f, 8.16940f, 1.3003f, 4.5645f },
+                },
+
+                /// Level 2
+                {
+                    { 7.15510f, -4.6149f, 1.0919f, 2.1715f },
+                    { 2.78940f, -6.1055f, 1.0927f, 1.6021f },
+                    { -1.2754f, -3.6913f, 1.0927f, 0.7185f },
+                    { -2.9137f, -0.0758f, 1.0927f, 0.0313f },
+                    { -1.6291f, 4.83730f, 1.0927f, 5.5095f },
+                    { 3.19270f, 6.77720f, 1.0927f, 4.5395f },
+                },
+
+                /// Level 3
+                {
+                    { 2.4348f, -5.3152f, 22.0779f, 0.6157f },
+                    { 0.8293f, -1.9244f, 22.0816f, 0.2662f },
+                    { 1.3369f, 1.94620f, 22.0800f, 5.7050f },
+                    { 5.0144f, 5.88490f, 22.0800f, 4.8521f },
+                    { 7.4165f, 5.74850f, 22.0800f, 4.4123f },
+                    { 10.5512f, 4.2319f, 22.0800f, 3.5797f },
+                },
+            },
+
+            /// Horde
+            {
+                /// Level 1
+                {
+                    { 7.73170f, -3.8722f, 1.8845f, 2.3378f },
+                    { 4.06240f, -4.6278f, 1.8839f, 1.5289f },
+                    { 1.09380f, -3.0149f, 1.8846f, 0.7906f },
+                    { -0.0707f, -0.1262f, 1.8841f, 6.2648f },
+                    { 0.89660f, 3.25760f, 1.8838f, 5.5030f },
+                    { 4.36360f, 4.51080f, 1.8847f, 4.7451f },
+                },
+
+                /// Level 2
+                {
+                    { 10.8699f, -6.2968f, 1.4459f, 2.3428f },
+                    { 3.83070f, -7.8079f, 1.4459f, 1.4671f },
+                    { -1.0515f, -5.2857f, 1.4459f, 0.7210f },
+                    { -3.5338f, -0.2027f, 1.4470f, 6.2266f },
+                    { -1.6294f, 5.27480f, 1.4461f, 5.5567f },
+                    { 4.08910f, 7.86270f, 1.4502f, 4.7752f },
+                },
+
+                /// Level 3
+                {
+                    { 8.2846f, -5.28290f, 28.5693f, 2.3263f },
+                    { 5.7219f, -6.13510f, 28.5601f, 1.8825f },
+                    { 2.9724f, -6.37400f, 28.5709f, 1.3995f },
+                    { -0.4703f, -4.2473f, 28.5654f, 0.7280f },
+                    { -1.9028f, -0.4023f, 28.5751f, 0.1154f },
+                    { -1.3891f, 2.42860f, 28.5747f, 5.7624f },
+                },
+            },
+        };
+
         enum DraenorZones : uint16
         {
             /// TODO : Handle Tanaan Jungle in build > 6.2
@@ -731,6 +1033,10 @@ namespace MS { namespace Garrison
         ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1 = 111956,
         ItemFurryCagedBeast                     = 119813,
         ItemLeatheryCagedBeast                  = 119814,
+        ItemMeatyCagedBeast                     = 119810,
+        ItemCagedMightyClefthoof                = 119819,
+        ItemCagedMightRiverbeast                = 119817,
+        ItemCagedMightyWolf                     = 119815,
         ItemFireWeed                            = 109125,
         ItemTaladorOrchid                       = 109129,
         ItemNagrandArrowbloom                   = 109128,
@@ -743,9 +1049,13 @@ namespace MS { namespace Garrison
         ItemTimber                              = 114781,
         ItemTimberSample                        = 114827,
         ItemGarrisonResources                   = 114677,
+        ItemSecondGarrisonResources             = 118111,
         ItemMine                                = 116055,
         ItemBlackrockOre                        = 109118,
-        ItemTrueIronOre                         = 109119
+        ItemTrueIronOre                         = 109119,
+        ItemIronTrap                            = 113991,
+        ItemImprovedIronTrap                    = 115009,
+        ItemDeadlyIronTrap                      = 115010
     };
 
     /// Waypoints
@@ -810,6 +1120,62 @@ namespace MS { namespace Garrison
         80572   ///< Frostwall wolf
     };
 
+    namespace ShipmentContainer
+    {
+        enum
+        {
+            ShipmentTest                    = 2, ///< Probably debug for Blizz
+            ShipmentUnk1                    = 3, ///< Maybe fishing ? dunno yet
+            ShipmentFishingHut              = 30,
+            ShipmentAlchemyLab              = 31,
+            ShipmentBarn                    = 32,
+            ShipmentLumberMill              = 36,
+            ShipmentTailoring               = 37,
+            ShipmentBlacksmitthing          = 49,
+            ShipmentLeathorworking          = 50,
+            ShipmentJewelCrafting           = 51,
+            ShipmentEnchanting              = 52,
+            ShipmentEngineering             = 53,
+            ShipmentInscription             = 54,
+            ShipmentHerbGarden              = 55,
+            ShipmentMine                    = 56,
+            ShipmentAlchemyUnk              = 57,
+            ShipmentBlacksmitthingUnk       = 58,
+            ShipmentEnchantingUnk           = 59,
+            ShipmentEngineeringUnk          = 60,
+            ShipmentInscriptionUnk          = 61,
+            ShipmentJewelCraftingUnk        = 62,
+            ShipmentLeathorworkingUnk       = 63,
+            ShipmentTailoringUnk            = 64,
+            ShipmentConquerorsTribute       = 65,
+            ShipmentTradingPost             = 66,
+            ShipmentTradingPostUnk          = 70,
+            ShipmentOverchargedDemolisher   = 74,
+            ShipmentOverchargedSiegeEngine  = 75,
+            ShipmentArmory                  = 77,
+            ShipmentArmoryUnk               = 78,
+            ShipmentMineUnk                 = 79,
+            ShipmentHerbGardenUnk           = 80,
+            ShipmentMageTower               = 100,
+            ShipmentMageTowerUnk            = 101,
+            ShipmentShipDestroyer           = 103, ///< Shipyard Related
+            ShipmentShipSubmarine           = 104, ///< Shipyard Related
+            ShipmentShipBattleship          = 105, ///< Shipyard Related
+            ShipmentShipTransport           = 106, ///< Shipyard Related
+            ShipmentShipCarrier             = 107, ///< Shipyard Related
+            ShipmentShipTransportUnk        = 109, ///< Shipyard Related
+            ShipmentShipSubmarineUnk        = 111, ///< Shipyard Related
+            ShipmentShipBattleshipUnk       = 112, ///< Shipyard Related
+            ShipmentShipDestroyerUnk        = 113, ///< Shipyard Related
+            ShipmentShipDestroyerUnk2       = 114, ///< Shipyard Related
+            ShipmentShipDestroyerUnk3       = 115, ///< Shipyard Related
+            ShipmentShipDestroyerUnk4       = 119, ///< Shipyard Related
+            ShipmentShipDestroyerUnk5       = 121, ///< Shipyard Related
+            ShipmentGladiatorsSanctum       = 137  ///< Data from Sovak, cannot find it
+        };
+
+    }
+
     namespace Barn
     {
         /// Creatures that can be tamed with the Iron Trap for the Barn building
@@ -828,94 +1194,26 @@ namespace MS { namespace Garrison
             AND ct.`family` IN (1, 43) ///< Wolf, Clefthoof
             AND ct.`rank` = 0          ///< Standard
             AND ct.`type` = 1          ///< Beast
-            ORDER BY entry ASC ;*/
-            static const uint32 gFirstLevel[] =
-            {
-                72162,
-                72991,
-                73132,
-                73205,
-                73234,
-                73284,
-                73571,
-                73619,
-                73766,
-                74169,
-                74600,
-                74698,
-                74712,
-                74748,
-                75680,
-                76241,
-                76337,
-                76542,
-                76575,
-                76576,
-                76593,
-                76597,
-                76660,
-                76705,
-                76707,
-                76710,
-                76711,
-                76732,
-                76822,
-                76869,
-                76889,
-                76895,
-                76897,
-                76901,
-                76902,
-                77669,
-                77886,
-                78196,
-                78364,
-                78406,
-                78570,
-                78571,
-                78572,
-                78574,
-                78575,
-                78576,
-                78798,
-                78918,
-                78919,
-                78920,
-                79034,
-                79755,
-                80261,
-                81718,
-                81774,
-                81898,
-                81902,
-                82119,
-                82205,
-                82209,
-                82308,
-                82535,
-                83829,
-                84044,
-                84045,
-                84662,
-                84793,
-                84798,
-                85974,
-                86000,
-                86414,
-                86656,
-                86730,
-                86839,
-                86847,
-                86851,
-                86931,
-                82452
-            };
+            ORDER BY entry ASC ;
+
+            Examples :
+
+            72162,
+            72991,
+            73132,
+            73205,
+            73234*/
         }
 
         enum ShipmentIDS
         {
-            ShipmentFur     = 82,
-            ShipmentLeather = 85
+            /// Some shipments are unk atm
+            ShipmentFurredBeast            = 82,
+            ShipmentPowerfulFurredBeast    = 83,
+            ShipmentLeatheredBeast         = 85,
+            ShipmentPowerfulLeatheredBeast = 86,
+            ShipmentMeatyBeast             = 88,
+            ShipmentPowerfulMeatyBeast     = 89,
         };
     }
 

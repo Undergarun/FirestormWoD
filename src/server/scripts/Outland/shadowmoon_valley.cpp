@@ -105,7 +105,7 @@ public:
             if (bCanEat || bIsEating)
                 return;
 
-            if (pCaster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_PLACE_CARCASS && !me->HasAura(SPELL_JUST_EATEN))
+            if (pCaster->IsPlayer() && spell->Id == SPELL_PLACE_CARCASS && !me->HasAura(SPELL_JUST_EATEN))
             {
                 uiPlayerGUID = pCaster->GetGUID();
                 bCanEat = true;
@@ -236,7 +236,7 @@ public:
             if (!caster)
                 return;
 
-            if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_HIT_FORCE_OF_NELTHARAKU && !Tapped)
+            if (caster->IsPlayer() && spell->Id == SPELL_HIT_FORCE_OF_NELTHARAKU && !Tapped)
             {
                 Tapped = true;
                 PlayerGUID = caster->GetGUID();
@@ -359,7 +359,7 @@ public:
             if (!caster)
                 return;
 
-            if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == 40468 && !Tapped)
+            if (caster->IsPlayer() && spell->Id == 40468 && !Tapped)
             {
                 PlayerGUID = caster->GetGUID();
 
@@ -1366,7 +1366,7 @@ public:
             {
                 case TYPEID_UNIT:
                     if (Unit* owner = killer->GetOwner())
-                        if (owner->GetTypeId() == TYPEID_PLAYER)
+                        if (owner->IsPlayer())
                             CAST_PLR(owner)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
                     break;
                 case TYPEID_PLAYER:
@@ -1608,7 +1608,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                         {
                             DoCast(target, SpawnCast[1].SpellId); //Focused Bursts
                             SpellTimer1 = SpawnCast[1].Timer2 + (rand()%5 * 1000);
@@ -1855,7 +1855,7 @@ public:
                      Summoned->GetMotionMaster()->MovePoint(0, totemOspirits->GetPositionX(), totemOspirits->GetPositionY(), Summoned->GetPositionZ());
 
                      Unit* Owner = totemOspirits->GetOwner();
-                     if (Owner && Owner->GetTypeId() == TYPEID_PLAYER)
+                     if (Owner && Owner->IsPlayer())
                          // DoCast(Owner, credit); -- not working!
                          CAST_PLR(Owner)->KilledMonsterCredit(credit, 0);
                      DoCast(totemOspirits, SPELL_SOUL_CAPTURED);
@@ -1886,7 +1886,7 @@ public:
 
         void HandleAfterHit()
         {
-            if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
+            if (GetCaster()->IsPlayer())
                 if (Creature* karynaku = GetCaster()->FindNearestCreature(NPC_KARYNAKU, 15.0f))
                     GetCaster()->ToPlayer()->CastedCreatureOrGO(NPC_KARYNAKU, karynaku->GetGUID(), GetSpellInfo()->Id);
         }

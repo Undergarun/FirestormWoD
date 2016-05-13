@@ -73,6 +73,11 @@ namespace MS { namespace Garrison
     {
     }
 
+    void npc_NaronBloomthistleAI::OnPlotInstanceUnload()
+    {
+        me->DespawnCreaturesInArea(NPCs::LunarfallRaccoon, 200.0f);
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -99,8 +104,8 @@ namespace MS { namespace Garrison
                 else
                 {
                     p_Player->PlayerTalkClass->ClearMenus();
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "I want to browse your goods.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to pick what we plant next.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultTrader, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+///                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to pick what we plant next.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                     p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 }
             }
@@ -119,7 +124,7 @@ namespace MS { namespace Garrison
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
         CreatureAI* l_AI = p_Creature->AI();
 
-        if (!p_Player || !p_Creature || !l_GarrisonMgr || !l_AI || p_Creature->GetScriptName() != CreatureScript::GetName())
+        if (!p_Player || !p_Creature || !l_GarrisonMgr || !l_AI )
             return true;
 
         p_Player->PlayerTalkClass->ClearMenus();
@@ -130,22 +135,24 @@ namespace MS { namespace Garrison
             {
                 p_Player->PlayerTalkClass->ClearMenus();
 
+                using namespace GarrisonGossipMenus;
+
                 /// Test for removing already selected option
 
                 uint32 l_Type = reinterpret_cast<GatheringBuildingMaster<&g_AllyHerbGardenFlowerPlot>*>(p_Creature->AI())->GetGatheringMiscData();
 
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Frostweed])
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Frostweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbFrostweed, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Starflower])
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Starflower.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbStarflower, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Fireweed])
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fireweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbFireweed, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::TaladorOrchid])
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Talador Orchid.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbTaladorOrchid, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::GorgrondFlytrap])
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Gorgrond Flytrap.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbGorgrondFlytrap, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::NagrandArrowbloom])
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nagrand Arrowbloom.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbNagrandArrowbloom, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
 
                 p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 break;
@@ -221,6 +228,12 @@ namespace MS { namespace Garrison
                 { 44.1797f,  10.6116f, -1.4195f, 0.9460f }
             };
             static const uint32 s_PositionCount = sizeof(s_Position) / sizeof(s_Position[0]);
+
+            std::list<Creature*> l_CreatureList;
+            me->GetCreatureListWithEntryInGrid(l_CreatureList, NPCs::LunarfallRaccoon, 65.f);
+
+            for (Creature* l_Creature : l_CreatureList)
+                l_Creature->DespawnOrUnsummon();
 
             for (uint32 l_I = 0; l_I < s_PositionCount; ++l_I)
             {

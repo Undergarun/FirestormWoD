@@ -169,7 +169,7 @@ public:
 
         void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 me->getThreatManager().resetAllAggro();
                 who->AddThreat(me, 1.0f);
@@ -250,7 +250,7 @@ public:
         //There is NO phase shift here!!!!
         void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 me->getThreatManager().resetAllAggro();
                 who->AddThreat(me, 1.0f);
@@ -365,7 +365,7 @@ public:
 
         void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 me->getThreatManager().resetAllAggro();
                 who->AddThreat(me, 1.0f);
@@ -776,7 +776,7 @@ public:
 
         void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 me->getThreatManager().resetAllAggro();
                 who->AddThreat(me, 1.0f);
@@ -848,7 +848,7 @@ public:
 
         void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 me->getThreatManager().resetAllAggro();
                 who->AddThreat(me, 1.0f);
@@ -911,7 +911,7 @@ public:
 
         void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 me->getThreatManager().resetAllAggro();
                 who->AddThreat(me, 1.0f);
@@ -2167,7 +2167,7 @@ public:
 
         void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 me->getThreatManager().resetAllAggro();
                 who->AddThreat(me, 1.0f);
@@ -2308,7 +2308,7 @@ public:
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 PlayerOn = true;
                 if (apply)
@@ -2326,6 +2326,8 @@ public:
         void WaypointReached(uint32 i)
         {
             Player* player = GetPlayerForEscort();
+            if (player == nullptr)
+                return;
 
             switch(i)
             {
@@ -2361,7 +2363,7 @@ public:
             npc_escortAI::UpdateAI(diff);
             Player* player = GetPlayerForEscort();
 
-            if (PlayerOn)
+            if (PlayerOn && player != nullptr)
             {
                 player->SetClientControl(me, 0);
                 PlayerOn = false;
@@ -2370,7 +2372,7 @@ public:
             if (KrennanOn) // Do Not yell for help after krennan is on
                 return;
 
-            if (krennansay <=diff)
+            if (krennansay <=diff && player != nullptr)
             {
                 if (Creature* krennan = me->FindNearestCreature(NPC_KRENNAN_ARANAS_TREE, 70.0f, true))
                 {
@@ -2575,13 +2577,13 @@ class spell_keg_placed: public SpellScriptLoader
 
             uint32 tick, tickcount;
 
-            void HandleEffectApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 tick = urand(1, 4);
                 tickcount = 0;
             }
 
-            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
@@ -2642,7 +2644,7 @@ public:
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 if (apply)
                 {
@@ -2801,7 +2803,7 @@ public:
             }
             else tEnrage -= diff;
 
-            if (me->getVictim()->GetTypeId() == TYPEID_PLAYER)
+            if (me->getVictim()->IsPlayer())
             {
                 Miss = false;
             }
@@ -2839,7 +2841,7 @@ public:
             {
                 Burning = true;
 
-                if(me->getVictim() && me->getVictim()->GetTypeId() == TYPEID_PLAYER)//We should ONLY switch our victim if we currently have the player targeted
+                if(me->getVictim() && me->getVictim()->IsPlayer())//We should ONLY switch our victim if we currently have the player targeted
                 {
                     me->getThreatManager().resetAllAggro();//We need to aggro on crowley's horse, not the player
                     horse->AddThreat(me, 1.0f);
@@ -2847,7 +2849,7 @@ public:
                     me->AI()->AttackStart(horse);
                 }
 
-                if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetQuestStatus(QUEST_SACRIFICES) == QUEST_STATUS_INCOMPLETE)
+                if (caster->IsPlayer() && caster->ToPlayer()->GetQuestStatus(QUEST_SACRIFICES) == QUEST_STATUS_INCOMPLETE)
                 {
                     caster->ToPlayer()->KilledMonsterCredit(NPC_BLOODFANG_STALKER_CREDIT, 0);
                 }

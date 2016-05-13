@@ -447,7 +447,7 @@ void SmartAI::RemoveAuras()
     Unit::AuraApplicationMap appliedAuras = me->GetAppliedAuras();
     for (Unit::AuraApplicationMap::iterator iter = appliedAuras.begin(); iter != appliedAuras.end(); ++iter)
     {
-        constAuraPtr aura = iter->second->GetBase();
+        Aura const* aura = iter->second->GetBase();
         if (!aura->GetSpellInfo()->IsPassive() && !aura->GetSpellInfo()->HasAura(SPELL_AURA_CONTROL_VEHICLE) && !aura->HasEffectType(SPELL_AURA_CLONE_CASTER) && aura->GetCaster() != me)
             me->RemoveAurasDueToSpell(aura->GetId());
     }
@@ -737,27 +737,18 @@ uint64 SmartAI::GetGUID(int32 id)
 
 void SmartAI::SetRun(bool run)
 {
-    if (run)
-        me->SetWalk(false);
-    else
-        me->SetWalk(true);
-
+    me->SetWalk(!run);
     mRun = run;
 }
 
 void SmartAI::SetFly(bool fly)
 {
     me->SetDisableGravity(fly);
-    me->SendMovementFlagUpdate();
 }
 
 void SmartAI::SetSwim(bool swim)
 {
-    if (swim)
-        me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-    else
-        me->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-    me->SendMovementFlagUpdate();
+    me->SetSwim(swim);
 }
 
 void SmartAI::sGossipHello(Player* player)

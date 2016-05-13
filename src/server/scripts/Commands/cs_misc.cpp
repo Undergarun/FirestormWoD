@@ -37,6 +37,7 @@
 #include "GarrisonMgr.hpp"
 #include "BattlegroundPacketFactory.hpp"
 #include "BattlegroundInvitationsMgr.hpp"
+#include "LFGMgr.h"
 
 class misc_commandscript: public CommandScript
 {
@@ -130,16 +131,21 @@ class misc_commandscript: public CommandScript
                 { "selectfaction",      SEC_ADMINISTRATOR,  false,  &HandleSelectFactionCommand,    "", NULL },
                 { "wargame",            SEC_GAMEMASTER,     false,  &HandleWargameCommand,          "", NULL },
                 { "chatfilter",         SEC_PLAYER,         false,  &HandleToggleChatFiltering,     "", NULL },
-                { "lastbuild",          SEC_MODERATOR,      false,  &HandleLastBuildCommand,        "", NULL },
+                { "initlfg",            SEC_ADMINISTRATOR,  false,  &HandleInitializeLFGCommand,    "", NULL },
                 { NULL,                 0,                  false,  NULL,                           "", NULL }
             };
             return commandTable;
         }
 
-        static bool HandleLastBuildCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleInitializeLFGCommand(ChatHandler* p_Handler, char const* p_Args)
         {
-            /// Get last build from last time modified information
-            p_Handler->PSendSysMessage("Last core build: %s", sWorld->GetLastBuildInfo().timeStr.data());
+            Player* l_Player = p_Handler->getSelectedPlayer();
+
+            if (!l_Player)
+                return false;
+
+            sLFGMgr->InitializeLockedDungeons(l_Player);
+
             return true;
         }
 
@@ -153,12 +159,12 @@ class misc_commandscript: public CommandScript
             if (l_PlayerSession->HasCustomFlags(AccountCustomFlags::NoChatLocaleFiltering))
             {
                 l_PlayerSession->UnsetCustomFlags(AccountCustomFlags::NoChatLocaleFiltering);
-                p_Handler->SendSysMessage(LANG_CHANNEL_CHAT_LOCALE_FILTERING_OFF);
+                p_Handler->SendSysMessage(TrinityStrings::ChatFilteringOff);
             }
             else
             {
                 l_PlayerSession->SetCustomFlags(AccountCustomFlags::NoChatLocaleFiltering);
-                p_Handler->SendSysMessage(LANG_CHANNEL_CHAT_LOCALE_FILTERING_ON);
+                p_Handler->SendSysMessage(TrinityStrings::ChatFilteringOn);
             }
 
             if (l_PlayerSession->GetPlayer())
@@ -412,6 +418,29 @@ class misc_commandscript: public CommandScript
                 cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
                 zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap);
 
+#ifdef WIN32
+            char   l_Buffer[120];
+            char * lPtrData = nullptr;
+
+            sprintf(l_Buffer, "%.4f, %.4f, %.4f, ", object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
+
+            HANDLE l_Handle;
+
+            int l_BufferSize = strlen(l_Buffer);
+
+            l_Handle = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, l_BufferSize + 1);
+
+            lPtrData = (char*)GlobalLock(l_Handle);
+            memcpy(lPtrData, l_Buffer, l_BufferSize + 1);
+
+            GlobalUnlock(l_Handle);
+
+            OpenClipboard(nullptr);
+            EmptyClipboard();
+            SetClipboardData(CF_TEXT, l_Handle);
+            CloseClipboard();
+#endif
+
             LiquidData liquidStatus;
             ZLiquidStatus status = map->getLiquidStatus(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), MAP_ALL_LIQUIDS, &liquidStatus);
 
@@ -466,7 +495,7 @@ class misc_commandscript: public CommandScript
                 target->RemoveAurasDueToSpell(spellId);
             else
             {
-                if (AuraPtr aura = target->GetAura(spellId))
+                if (Aura* aura = target->GetAura(spellId))
                     aura->SetDuration(duration);
                 else
                     return false;
@@ -501,7 +530,7 @@ class misc_commandscript: public CommandScript
                 target->RemoveAurasDueToSpell(spellId);
             else
             {
-                if (AuraPtr aura = target->GetAura(spellId))
+                if (Aura* aura = target->GetAura(spellId))
                     aura->SetCharges(charges);
                 else
                     return false;
@@ -905,7 +934,7 @@ class misc_commandscript: public CommandScript
                 return false;
             }
 
-            if (target->GetTypeId() == TYPEID_PLAYER)
+            if (target->IsPlayer())
             {
                 if (handler->HasLowerSecurity((Player*)target, 0, false))
                     return false;
@@ -2146,7 +2175,7 @@ class misc_commandscript: public CommandScript
                 return false;
             }
 
-            handler->PSendSysMessage(LANG_MOVEGENS_LIST, (unit->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), unit->GetGUIDLow());
+            handler->PSendSysMessage(LANG_MOVEGENS_LIST, (unit->IsPlayer() ? "Player" : "Creature"), unit->GetGUIDLow());
 
             MotionMaster* motionMaster = unit->GetMotionMaster();
             float x, y, z;
@@ -2181,14 +2210,14 @@ class misc_commandscript: public CommandScript
                 case CHASE_MOTION_TYPE:
                 {
                                           Unit* target = NULL;
-                                          if (unit->GetTypeId() == TYPEID_PLAYER)
+                                          if (unit->IsPlayer())
                                               target = static_cast<ChaseMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
                                           else
                                               target = static_cast<ChaseMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
 
                                           if (!target)
                                               handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
-                                          else if (target->GetTypeId() == TYPEID_PLAYER)
+                                          else if (target->IsPlayer())
                                               handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName(), target->GetGUIDLow());
                                           else
                                               handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName(), target->GetGUIDLow());
@@ -2197,14 +2226,14 @@ class misc_commandscript: public CommandScript
                 case FOLLOW_MOTION_TYPE:
                 {
                                            Unit* target = NULL;
-                                           if (unit->GetTypeId() == TYPEID_PLAYER)
+                                           if (unit->IsPlayer())
                                                target = static_cast<FollowMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
                                            else
                                                target = static_cast<FollowMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
 
                                            if (!target)
                                                handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);
-                                           else if (target->GetTypeId() == TYPEID_PLAYER)
+                                           else if (target->IsPlayer())
                                                handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName(), target->GetGUIDLow());
                                            else
                                                handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName(), target->GetGUIDLow());
@@ -2345,7 +2374,7 @@ class misc_commandscript: public CommandScript
                 return false;
             }
 
-            if (target->GetTypeId() == TYPEID_PLAYER)
+            if (target->IsPlayer())
             {
                 if (handler->HasLowerSecurity((Player*)target, 0, false))
                     return false;
@@ -2354,22 +2383,22 @@ class misc_commandscript: public CommandScript
             if (!target->isAlive())
                 return true;
 
-            char* damageStr = strtok((char*)args, " ");
+            char* damageStr = str;
             if (!damageStr)
                 return false;
 
-            int32 damage_int = atoi((char*)damageStr);
+            int32 damage_int = atoi(damageStr);
             if (damage_int <= 0)
                 return true;
 
             uint32 damage = damage_int;
 
-            char* schoolStr = strtok((char*)NULL, " ");
+            char* schoolStr = strtok(nullptr, " ");
 
             // flat melee damage without resistence/etc reduction
             if (!schoolStr)
             {
-                handler->GetSession()->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                handler->GetSession()->GetPlayer()->DealDamage(target, damage, nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                 if (target != handler->GetSession()->GetPlayer())
                     handler->GetSession()->GetPlayer()->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_HIT, 0);
                 return true;
@@ -2382,9 +2411,9 @@ class misc_commandscript: public CommandScript
             SpellSchoolMask schoolmask = SpellSchoolMask(1 << school);
 
             if (Unit::IsDamageReducedByArmor(schoolmask))
-                damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, NULL, WeaponAttackType::BaseAttack);
+                damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, nullptr, WeaponAttackType::BaseAttack);
 
-            char* spellStr = strtok((char*)NULL, " ");
+            char* spellStr = strtok(nullptr, " ");
 
             // melee damage by specific school
             if (!spellStr)
@@ -2400,7 +2429,7 @@ class misc_commandscript: public CommandScript
                 damage -= absorb + resist;
 
                 handler->GetSession()->GetPlayer()->DealDamageMods(target, damage, &absorb);
-                handler->GetSession()->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, schoolmask, NULL, false);
+                handler->GetSession()->GetPlayer()->DealDamage(target, damage, nullptr, DIRECT_DAMAGE, schoolmask, nullptr, false);
                 handler->GetSession()->GetPlayer()->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 1, schoolmask, damage, absorb, resist, VICTIMSTATE_HIT, 0);
                 return true;
             }
@@ -2706,7 +2735,7 @@ class misc_commandscript: public CommandScript
             Player* player = handler->GetSession()->GetPlayer();
             Creature* creatureTarget = handler->getSelectedCreature();
 
-            if (!creatureTarget || creatureTarget->isPet() || creatureTarget->GetTypeId() == TYPEID_PLAYER)
+            if (!creatureTarget || creatureTarget->isPet() || creatureTarget->IsPlayer())
             {
                 handler->PSendSysMessage(LANG_SELECT_CREATURE);
                 handler->SetSentErrorMessage(true);

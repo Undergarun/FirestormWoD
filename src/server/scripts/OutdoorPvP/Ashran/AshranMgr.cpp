@@ -882,10 +882,12 @@ void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
     {
         uint64 l_Guid = p_Player->GetGUID();
 
-        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+        sMapMgr->AddCriticalOperation([l_Guid]() -> bool
         {
             if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
                 l_Player->SwitchToPhasedMap(eAshranDatas::AshranNeutralMapID);
+
+            return true;
         });
     }
 
@@ -914,10 +916,12 @@ void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
         {
             uint64 l_Guid = p_Player->GetGUID();
 
-            sMapMgr->AddCriticalOperation([l_Guid]() -> void
+            sMapMgr->AddCriticalOperation([l_Guid]() -> bool
             {
                 if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
                     l_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
+
+                return true;
             });
         }
     }
@@ -1790,7 +1794,7 @@ bool OutdoorPvPAshran::HandleOpenGo(Player* p_Player, uint64 p_Guid)
     /// Handle Ancient Artifact opening
     if (m_Objects[eSpecialSpawns::AncientArtifactSpawn] == p_Guid)
     {
-        if (AuraPtr l_Aura = p_Player->AddAura(eAshranSpells::SpellAncientArtifact, p_Player))
+        if (Aura* l_Aura = p_Player->AddAura(eAshranSpells::SpellAncientArtifact, p_Player))
         {
             if (m_AncientArtifactTime > 0)
             {

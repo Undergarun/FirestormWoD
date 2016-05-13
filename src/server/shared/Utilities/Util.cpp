@@ -27,6 +27,8 @@
 typedef ACE_TSS<CRandomSFMT> SFMTRandTSS;
 static SFMTRandTSS sfmtRand;
 
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 void init_sfmt()
 {
     sfmtRand->RandomInit((int)(time(0)));

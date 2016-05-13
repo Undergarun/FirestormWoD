@@ -328,7 +328,7 @@ class boss_halion : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER && me->IsInRange(who, 0, 10, false) && !me->isInCombat())
+                if (who->IsPlayer() && me->IsInRange(who, 0, 10, false) && !me->isInCombat())
                 {
                     me->AI()->AttackStart(who);
                     me->AddThreat(who, 1.0f);
@@ -527,7 +527,7 @@ class boss_twilight_halion : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
 
                 // Victims should not be in the Twilight Realm
@@ -1439,7 +1439,7 @@ class npc_shadow_orb : public CreatureScript
 
             void DoAction(int32 const action)
             {
-                Movement::MoveSplineInit init(*me);
+                Movement::MoveSplineInit init(me);
                 FillCirclePath(HalionSpawnPos, me->GetDistance2d(HalionSpawnPos.GetPositionX(), HalionSpawnPos.GetPositionY()), me->GetPositionZ(), init.Path(), action);
                 init.SetWalk(true);
                 init.SetCyclic();
@@ -1521,7 +1521,7 @@ class spell_halion_meteor_strike_marker: public SpellScriptLoader
         {
             PrepareAuraScript(spell_halion_meteor_strike_marker_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster())
                     return;
@@ -1562,7 +1562,7 @@ class spell_halion_combustion_consumption: public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
                     return;
@@ -1571,12 +1571,12 @@ class spell_halion_combustion_consumption: public SpellScriptLoader
                     GetTarget()->RemoveAurasDueToSpell(_markSpell, 0, 0, AURA_REMOVE_BY_EXPIRE);
             }
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->CastSpell(GetTarget(), _markSpell, true);
             }
 
-            void AddMarkStack(constAuraEffectPtr /*aurEff*/)
+            void AddMarkStack(AuraEffect const* /*aurEff*/)
             {
                 GetTarget()->CastSpell(GetTarget(), _markSpell, true);
             }
@@ -1632,7 +1632,7 @@ class spell_halion_marks: public SpellScriptLoader
                         dispelledUnit->RemoveAurasDueToSpell(_removeSpellId, 0, 0, AURA_REMOVE_BY_EXPIRE);
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                     return;
@@ -1720,14 +1720,14 @@ class spell_halion_twilight_realm_handlers: public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*handle*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*handle*/)
             {
                 GetTarget()->RemoveAurasDueToSpell(SPELL_TWILIGHT_REALM);
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED);
             }
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*handle*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*handle*/)
             {
                 Unit* target = GetTarget();
                 if (!target)
@@ -1829,7 +1829,7 @@ class spell_halion_twilight_cutter: public SpellScriptLoader
                     return;
 
                 Unit* caster = GetCaster();
-                if (AuraPtr cutter = caster->GetAura(SPELL_TWILIGHT_CUTTER))
+                if (Aura* cutter = caster->GetAura(SPELL_TWILIGHT_CUTTER))
                 {
                     if (Unit* cutterCaster = cutter->GetCaster())
                     {
@@ -1929,8 +1929,15 @@ class spell_halion_summon_exit_portals: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_halion_summon_exit_portals_SpellScript::OnSummon, EFFECT_0, SPELL_EFFECT_SUMMON_OBJECT_WILD);
-                OnEffectLaunch += SpellEffectFn(spell_halion_summon_exit_portals_SpellScript::OnSummon, EFFECT_1, SPELL_EFFECT_SUMMON_OBJECT_WILD);
+                switch (m_scriptSpellId)
+                {
+                    case 74805:
+                        break;
+                    default:
+                        OnEffectLaunch += SpellEffectFn(spell_halion_summon_exit_portals_SpellScript::OnSummon, EFFECT_0, SPELL_EFFECT_SUMMON_OBJECT_WILD);
+                        OnEffectLaunch += SpellEffectFn(spell_halion_summon_exit_portals_SpellScript::OnSummon, EFFECT_1, SPELL_EFFECT_SUMMON_OBJECT_WILD);
+                    break;
+                }
             }
         };
 

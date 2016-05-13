@@ -109,13 +109,13 @@ Quest::Quest(Field* p_QuestRecord)
         RequiredSourceItemId[i] = p_QuestRecord[l_Index++].GetUInt32();
 
     for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        RequiredSourceItemCount[i] = p_QuestRecord[l_Index++].GetUInt16();
+        RequiredSourceItemCount[i] = p_QuestRecord[l_Index++].GetUInt32();
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        RewardCurrencyId[i] = p_QuestRecord[l_Index++].GetUInt16();
+        RewardCurrencyId[i] = p_QuestRecord[l_Index++].GetUInt32();
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        RewardCurrencyCount[i] = p_QuestRecord[l_Index++].GetUInt16();
+        RewardCurrencyCount[i] = p_QuestRecord[l_Index++].GetUInt32();
 
     QuestGiverTextWindow    = p_QuestRecord[l_Index++].GetString();
     QuestGiverTargetName    = p_QuestRecord[l_Index++].GetString();
@@ -271,6 +271,7 @@ bool Quest::IsAllowedInRaid() const
     return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_RAID);
 }
 
+/// remove this it's legacy
 uint32 Quest::CalculateHonorGain(uint8 level) const
 {
     if (level > GT_MAX_LEVEL)

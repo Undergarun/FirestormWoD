@@ -7,13 +7,21 @@ endif()
 
 # set default configuration directory
 if( NOT CONF_DIR )
-  set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/etc)
+  if( CMAKE_INSTALL_PREFIX MATCHES "/usr/local" )
+    set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/etc/firestorm)
+  else()
+    set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/etc)
+  endif()
   message(STATUS "UNIX: Using default configuration directory")
 endif()
 
 # set default library directory
 if( NOT LIBSDIR )
-  set(LIBSDIR ${CMAKE_INSTALL_PREFIX}/lib)
+  if( CMAKE_INSTALL_PREFIX MATCHES "/usr/local" )
+    set(LIBSDIR ${CMAKE_INSTALL_PREFIX}/lib/firestorm)
+  else()
+    set(LIBSDIR ${CMAKE_INSTALL_PREFIX}/lib)
+  endif()
   message(STATUS "UNIX: Using default library directory")
 endif()
 

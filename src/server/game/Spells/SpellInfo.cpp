@@ -344,7 +344,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 127
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 128
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,         TARGET_DIR_FRONT        },  ///< 129 TARGET_UNIT_CONE_ENEMY_129
-    { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 130
+    { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,         TARGET_DIR_FRONT        },  ///< 130 TARGET_UNIT_CONE_ENEMY_130
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 131
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 132
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 133
@@ -962,7 +962,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 200 SPELL_EFFECT_RESURECT_BATTLE_PETS
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 201 SPELL_EFFECT_CAN_PETBATTLE
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 202 SPELL_EFFECT_202
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 203 SPELL_EFFECT_203
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 203 SPELL_EFFECT_REMOVE_AURA_2
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 204 SPELL_EFFECT_204
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 205 SPELL_EFFECT_205
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 206 SPELL_EFFECT_206
@@ -1002,13 +1002,13 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 240 SPELL_EFFECT_240
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 241 SPELL_EFFECT_241
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 242 SPELL_EFFECT_242
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 243 SPELL_EFFECT_243
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM},          //< 243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 244 SPELL_EFFECT_244
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 245 SPELL_EFFECT_245
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 246 SPELL_EFFECT_246
 };
 
-SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
+SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty, SpellVisualMap&& p_Visuals)
 {
     Id = p_SpellEntry->Id;
     DifficultyID = p_Difficulty;
@@ -1197,7 +1197,53 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     ChainEntry = NULL;
 
     ResearchProject =  p_SpellEntry->ResearchProject;
-    FirstSpellXSpellVIsualID = 0;
+
+    FirstSpellXSpellVisualID = 0;
+
+    DifficultyEntry const* l_DiffEntry = sDifficultyStore.LookupEntry(DifficultyID);
+    while (l_DiffEntry)
+    {
+        auto l_Iter = p_Visuals.find(DifficultyID);
+        if (l_Iter != p_Visuals.end())
+        {
+            for (SpellXSpellVisualEntry const* l_Visual : l_Iter->second)
+            {
+                if (!l_Visual->ConditionID)
+                {
+                    FirstSpellXSpellVisualID = l_Visual->Id;
+
+                    SpellVisual[0] = l_Visual->VisualID[0];
+                    SpellVisual[1] = l_Visual->VisualID[1];
+                    break;
+                }
+            }
+        }
+
+        /// Stop looping if visual found
+        if (FirstSpellXSpellVisualID)
+            break;
+
+        l_DiffEntry = sDifficultyStore.LookupEntry(l_DiffEntry->FallbackDifficultyID);
+    }
+
+    if (!FirstSpellXSpellVisualID)
+    {
+        auto l_Iter = p_Visuals.find(Difficulty::DifficultyNone);
+        if (l_Iter != p_Visuals.end())
+        {
+            for (SpellXSpellVisualEntry const* l_Visual : l_Iter->second)
+            {
+                if (!l_Visual->ConditionID)
+                {
+                    FirstSpellXSpellVisualID = l_Visual->Id;
+
+                    SpellVisual[0] = l_Visual->VisualID[0];
+                    SpellVisual[1] = l_Visual->VisualID[1];
+                    break;
+                }
+            }
+        }
+    }
 }
 
 SpellInfo::~SpellInfo()
@@ -1285,10 +1331,9 @@ bool SpellInfo::IsExplicitDiscovery() const
 
 bool SpellInfo::IsLootCrafting() const
 {
-    return (Effects[0].Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
-        // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
-        (Effects[0].Effect == SPELL_EFFECT_CREATE_ITEM_2 &&
-        (TotemCategory[0] != 0 || Effects[0].ItemType == 0)));
+    return HasEffect(SPELL_EFFECT_CREATE_RANDOM_ITEM) ||
+    HasEffect(SPELL_EFFECT_CREATE_ITEM) ||
+    HasEffect(SPELL_EFFECT_CREATE_ITEM_2);
 }
 
 bool SpellInfo::IsQuestTame() const
@@ -1617,7 +1662,7 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
         return true;
 
     // these spells (Cyclone for example) can pierce all...         // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
-    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH || aura->Id == 48707))) ///< ...nor Anti-Magic Shell
+    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH || aura->Id == 48707 || aura->Id == 157913))) ///< ...nor Anti-Magic Shell nor Evanesce
         return true;
 
     return false;
@@ -1758,6 +1803,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SpellSpecificType::SpellSpecificCrowdFavorite:
         case SpellSpecificType::SpellSpecificDisposition:
         case SpellSpecificType::SpellSpecificTowerBuffs:
+        case SpellSpecificType::SpellSpecificWeeklyEventBuffs:
             return spellSpec1 == spellSpec2;
         case SpellSpecificType::SpellSpecificFood:
             return spellSpec2 == SpellSpecificType::SpellSpecificFood
@@ -2075,13 +2121,13 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
     Unit const* unitTarget = target->ToUnit();
 
-     // Custom MoP Script - Hack fix for Piercing Howl, Multi-Shot, Psychic Terror, Earthgrab Totem - it doesn't break stealth.
-     if ((Id == 12323 || Id == 2643 || Id == 113792 || Id == 3600 || Id == 64695) && (unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) || HasAura(SPELL_AURA_MOD_INVISIBILITY)) && unitTarget)
-         return SPELL_FAILED_BAD_TARGETS;
+    // Custom MoP Script - Hack fix for Piercing Howl, Multi-Shot, Psychic Terror, Earthgrab Totem - it doesn't break stealth.
+    if ((Id == 12323 || Id == 2643 || Id == 113792 || Id == 3600 || Id == 64695) && (unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) || HasAura(SPELL_AURA_MOD_INVISIBILITY)) && unitTarget)
+        return SPELL_FAILED_BAD_TARGETS;
 
-     // Custom MoP Script - Hack fix for Vanish immunity, players with 3 sec immunity can't be broken from the stealth
-     if (unitTarget && !unitTarget->IsFriendlyTo(caster) && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
-         return SPELL_FAILED_BAD_TARGETS;
+    // Custom MoP Script - Hack fix for Vanish immunity, players with 3 sec immunity can't be broken from the stealth
+    if (unitTarget && !unitTarget->IsFriendlyTo(caster) && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
+        return SPELL_FAILED_BAD_TARGETS;
 
     // creature/player specific target checks
     if (unitTarget)
@@ -2100,7 +2146,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
         if (caster != unitTarget)
         {
-            if (caster->GetTypeId() == TYPEID_PLAYER)
+            if (caster->IsPlayer())
             {
                 // Do not allow these spells to target creatures not tapped by us (Banish, Polymorph, many quest spells)
                 if (AttributesEx2 & SPELL_ATTR2_CANT_TARGET_TAPPED)
@@ -2110,7 +2156,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
                 if (AttributesCu & SPELL_ATTR0_CU_PICKPOCKET)
                 {
-                     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+                     if (unitTarget->IsPlayer())
                          return SPELL_FAILED_BAD_TARGETS;
                      else if ((unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
                          return SPELL_FAILED_TARGET_NO_POCKETS;
@@ -2119,7 +2165,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
                 // Not allow disarm unarmed player
                 if (Mechanic == MECHANIC_DISARM)
                 {
-                    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+                    if (unitTarget->IsPlayer())
                     {
                         Player const* player = unitTarget->ToPlayer();
                         if (!player->GetWeaponForAttack(WeaponAttackType::BaseAttack) || !player->IsUseEquipedWeapon(true))
@@ -2166,14 +2212,14 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
     if (!CheckTargetCreatureType(unitTarget))
     {
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        if (target->IsPlayer())
             return SPELL_FAILED_TARGET_IS_PLAYER;
         else
             return SPELL_FAILED_BAD_TARGETS;
     }
 
     // check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI) and negative spells
-    if (unitTarget != caster && (caster->IsControlledByPlayer() || !IsPositive()) && unitTarget->GetTypeId() == TYPEID_PLAYER)
+    if (unitTarget != caster && (caster->IsControlledByPlayer() || !IsPositive()) && unitTarget->IsPlayer())
     {
         if (!unitTarget->ToPlayer()->IsVisible())
             return SPELL_FAILED_BM_OR_INVISGOD;
@@ -2304,11 +2350,15 @@ bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
     if (SpellFamilyName == SPELLFAMILY_WARLOCK && GetCategory() == 1179)
     {
         // not allow cast at player
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        if (target->IsPlayer())
             return false;
         else
             return true;
     }
+    /// Hackfix : Potent Murloc Pheromones and Release Ebon Gargoyle on Player
+    if ((Id == 82799 || Id == 84009) && target->IsPlayer())
+        return false;
+
     uint32 creatureType = target->GetCreatureTypeMask();
     return !TargetCreatureType || !creatureType || (creatureType & TargetCreatureType);
 }
@@ -2526,6 +2576,12 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case 173541:    ///< Tower Defense
                 case 173549:    ///< Stand Fast
                     return SpellSpecificType::SpellSpecificTowerBuffs;
+                case 186400:    ///< Sign of Apexis
+                case 186401:    ///< Sign of the Skirmisher
+                case 186403:    ///< Sign of Battle
+                case 186404:    ///< Sign of the Emissary
+                case 186406:    ///< Sign of the Critter
+                    return SpellSpecificType::SpellSpecificWeeklyEventBuffs;
                 default:
                     break;
             }
@@ -2798,6 +2854,10 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
             l_CastTime /= 2;
     }
 
+    /// Glyph of Demon Training with Imp
+    if (p_Caster && p_Caster->GetEntry() == 416 && p_Caster->GetOwner() && p_Caster->GetOwner()->HasAura(56249) && Id == 3110)
+        l_CastTime /= 2;
+
     /// Flayer
     if (HasEffect(SPELL_EFFECT_SKINNING) && p_Caster->HasAura(68978))
         l_CastTime = CalculatePct(l_CastTime, 66);
@@ -2815,10 +2875,14 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
         }
     }
 
+    /// Loot bonus animation
+    if (HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS))
+        l_CastTime = 0;
+
     /// Elegon - Overloaded
     if (p_Caster && p_Caster->HasAura(117204))
     {
-        if (AuraPtr overloaded = p_Caster->GetAura(117204))
+        if (Aura* overloaded = p_Caster->GetAura(117204))
             l_CastTime -= CalculatePct(l_CastTime, (20 * overloaded->GetStackAmount()));
     }
 
@@ -2986,6 +3050,10 @@ void SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, in
 
         /// Hack fix: Wild Strike shouldn't take rage if warrior has Bloodsurge
         if (PowerType == POWER_RAGE && Id == 100130 && caster->HasAura(46916))
+            powerCost = 0;
+
+        /// Hack fix: Drain Life shouldn't take mana if warlock is on Metamorphis form
+        if (PowerType == POWER_MANA && Id == 689 && caster->HasAura(103958))
             powerCost = 0;
 
         m_powerCost[POWER_TO_INDEX(PowerType)] += powerCost;
@@ -3423,6 +3491,7 @@ bool SpellInfo::_IsPositiveTarget(uint32 p_TargetA, uint32 p_TargetB)
         case Targets::TARGET_UNIT_CONE_ENEMY_104:
         case Targets::TARGET_UNIT_CONE_ENEMY_110:
         case Targets::TARGET_UNIT_CONE_ENEMY_129:
+        case Targets::TARGET_UNIT_CONE_ENEMY_130:
         case Targets::TARGET_DEST_DYNOBJ_ENEMY:
         case Targets::TARGET_DEST_TARGET_ENEMY:
         case Targets::TARGET_ENNEMIES_AROUND_CASTER:
@@ -3600,10 +3669,10 @@ void SpellInfo::SetCastTimeIndex(uint32 index)
 
 void SpellInfo::_UnloadImplicitTargetConditionLists()
 {
-    // find the same instances of ConditionList and delete them.
+    // find the same instances of ConditionContainer and delete them.
     for (uint8 i = 0; i < EffectCount; ++i)
     {
-        ConditionList* cur = Effects[i].ImplicitTargetConditions;
+        ConditionContainer* cur = Effects[i].ImplicitTargetConditions;
         if (!cur)
             continue;
 
@@ -3916,7 +3985,6 @@ bool SpellInfo::CanTriggerBladeFlurry() const
         case 57841: // Killing Spree
         case 57842: // Killing Spree Off-Hand
         case 84617: // Revealing Strike
-        case 86392: // Main Gauche
         case 114014:// Shuriken Toss
         case 121411:// Crimson Tempest
         case 121473:// Shadow Blade
@@ -4084,6 +4152,7 @@ bool SpellInfo::IsCanBeStolen() const
         case 633:   ///< Lay on Hands
         case 22812: ///< Barkskin
         case 24275: ///< Hammer of Wrath
+        case 158392: ///< Hammer of Wrath
         case 31935: ///< Avenger's Shield
         case 53563: ///< Beacon of Light
             return false;
@@ -4394,14 +4463,15 @@ bool SpellInfo::IsNeedToCheckSchoolImmune() const
 
     switch (Id)
     {
-        case 879:   // Exorcism
-        case 24275: // Hammer of Wrath
-        case 25912: // Holy Shock damage
-        case 25914: // Holy Shock heal
-        case 35395: // Crusader Strike
-        case 42292: // Pvp Trinket
-        case 59752: // Every Man for Himself (racical)
-        case 82327: // Holy Radiance
+        /*case 879:   ///< Exorcism         ///< Need more research on this ones, should not bypassing Ice block, Divine shield etc...
+        case 24275: ///< Hammer of Wrath
+        case 158392: ///< Hammer of Wrath
+        case 35395: ///< Crusader Strike
+        case 25912: ///< Holy Shock damage*/
+        case 25914: ///< Holy Shock heal
+        case 42292: ///< Pvp Trinket
+        case 59752: ///< Every Man for Himself (racical)
+        case 82327: ///< Holy Radiance
             return false;
         default:
             break;
@@ -4451,6 +4521,9 @@ bool SpellInfo::DoesIgnoreGlobalCooldown(Unit* caster) const
 {
     switch (Id)
     {
+        case 5019:
+            return true;
+        break;
         case 85673: // Word of Glory
         case 114163:// Eternal Flame
         case 136494:// Word of Glory (other)
@@ -4599,10 +4672,47 @@ bool SpellInfo::IsAffectedByWodAuraSystem() const
     switch (Id)
     {
         case 158831: ///< Devouring Plague DOT
+        case 124280: ///< Touch of Karma
+        case 114635: ///< Ember Tap
             return false;
         default:
             return true;
     }
 
     return true;
+}
+
+bool SpellInfo::IsAuraNeedDynamicCalculation() const
+{
+    switch (Id)
+    {
+        case 1079:   ///< Rip
+        case 1943:   ///< Rupture
+        case 73651:  ///< Recuperate
+        case 113344: ///< Bloodbath (DOT)
+        case 114916: ///< Stay of Execution (damage)
+        case 114917: ///< Stay of Execution (heal)
+        case 154953: ///< Internal Bleeding
+        case 155722: ///< Rake
+            return false;
+        default:
+            return true;
+    }
+
+    return true;
+}
+
+bool SpellInfo::IsAuraNeedPandemicEffect() const
+{
+    switch (Id)
+    {
+        case 5171:   ///< Slice and Dice
+        case 84617:  ///< Revealing Strike 
+        case 125359: ///< Tiger Power
+            return true;
+        default:
+            return false;
+    }
+
+    return false;
 }

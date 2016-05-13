@@ -6,7 +6,7 @@ enum Yells
     SAY_AGGRO   = 0,
     SAY_DEATH   = 1,
     SAY_INTRO   = 2,
-	SAY_KILL    = 3,   
+    SAY_KILL    = 3,   
     SAY_SPELL   = 4,
 };
 
@@ -161,8 +161,8 @@ class boss_echo_of_jaina : public CreatureScript
                 Talk(SAY_KILL);
             }
 
-		    void JustSummoned(Creature* summon)
-		    {
+            void JustSummoned(Creature* summon)
+            {
                 BossAI::JustSummoned(summon);
 
                 switch(summon->GetEntry())
@@ -179,7 +179,7 @@ class boss_echo_of_jaina : public CreatureScript
                     default:
                         break;
                 }
-		    }
+            }
 
             void EnterCombat(Unit* /*who*/)
             {
@@ -340,8 +340,8 @@ class npc_echo_of_jaina_flarecore : public CreatureScript
                             DoCast(me, SPELL_TIME_EXPIRE_FLARE);
                             me->DespawnOrUnsummon(100);
                             break;
-					}
-				}
+                    }
+                }
             }
         };
 };

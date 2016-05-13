@@ -111,7 +111,7 @@ class ShellConcussionTargetSelector
 
         bool operator()(WorldObject* object) const
         {
-            return object->GetTypeId() == TYPEID_PLAYER || (object->ToUnit() && object->ToUnit()->IsControlledByPlayer());
+            return object->IsPlayer() || (object->ToUnit() && object->ToUnit()->IsControlledByPlayer());
         }
 };
 
@@ -728,13 +728,13 @@ class spell_shell_block: public SpellScriptLoader
         {
             PrepareAuraScript(spell_shell_block_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     target->CastSpell(target, SPELL_KICK_SHELL_OVERRIDER, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     target->RemoveAura(SPELL_KICK_SHELL_OVERRIDER);
@@ -763,13 +763,13 @@ class spell_kick_shell: public SpellScriptLoader
         {
             PrepareAuraScript(spell_kick_shell_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     target->CastSpell(target, SPELL_KICK_SHELL_ROOT, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -842,13 +842,13 @@ class spell_crystal_shell_damage_absorption: public SpellScriptLoader
         {
             PrepareAuraScript(spell_crystal_shell_damage_absorption_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 if (Unit* target = GetUnitOwner())
                     amount = target->CountPctFromMaxHealth(15);
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
             {
                 if (Unit* target = GetTarget())
                     target->RemoveAura(SPELL_CRYSTAL_SHELL_HEAL);
@@ -877,18 +877,18 @@ class spell_crystal_shell_heal_absorption: public SpellScriptLoader
         {
             PrepareAuraScript(spell_crystal_shell_heal_absorption_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 amount = -1;
             }
 
-            void OnAbsorb(AuraEffectPtr aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 if (Unit* target = GetTarget())
                 {
                     absorbAmount = dmgInfo.GetDamage();
 
-                    if (AuraEffectPtr damageAbsorb = target->GetAuraEffect(SPELL_CRYSTAL_SHELL_DMG, EFFECT_0))
+                    if (AuraEffect* damageAbsorb = target->GetAuraEffect(SPELL_CRYSTAL_SHELL_DMG, EFFECT_0))
                     {
                         uint32 amount = damageAbsorb->GetAmount();
                         uint32 maxAmount = target->CountPctFromMaxHealth(75);

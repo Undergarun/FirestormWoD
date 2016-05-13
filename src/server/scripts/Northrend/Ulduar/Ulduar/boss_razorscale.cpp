@@ -301,8 +301,11 @@ class boss_razorscale_controller : public CreatureScript
                         case EVENT_REBUILD_HARPOON:
                             if (instance->GetBossState(BOSS_RAZORSCALE) != IN_PROGRESS)
                                 return;
+
                             if (Creature* commander = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_EXPEDITION_COMMANDER) : 0))
-                                commander->AI()->DoAction(ACTION_FIRE_OUT);
+                                if (commander->IsAIEnabled)
+                                    commander->AI()->DoAction(ACTION_FIRE_OUT);
+
                             DoAction(ACTION_REMOVE_HARPOON);
                             DoAction(ACTION_PLACE_BROKEN_HARPOON);
                             if (Is25ManRaid())
@@ -687,8 +690,8 @@ class npc_expedition_commander : public CreatureScript
             bool Greet;
             uint32 AttackStartTimer;
             uint8  Phase;
-            Creature* Engineer[4];
-            Creature* Defender[4];
+            uint64 Engineer[4];
+            uint64 Defender[4];
 
             void Reset()
             {
@@ -700,7 +703,7 @@ class npc_expedition_commander : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (!Greet && me->IsWithinDistInMap(who, 10.0f) && who->GetTypeId() == TYPEID_PLAYER)
+                if (!Greet && me->IsWithinDistInMap(who, 10.0f) && who->IsPlayer())
                 {
                     Talk(SAY_GREET);
                     Greet = true;
@@ -727,7 +730,8 @@ class npc_expedition_commander : public CreatureScript
                         me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
                     case ACTION_FIRE_OUT:
-                        Engineer[0]->AI()->Talk(SAY_TURRETS);
+                        if (Creature* l_Creature = me->GetCreature(*me, Engineer[0]))
+                            l_Creature->AI()->Talk(SAY_TURRETS);
                         break;
                 }
             }
@@ -747,31 +751,47 @@ class npc_expedition_commander : public CreatureScript
                         case 2:
                             for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
                             {
-                                Engineer[n] = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                                Engineer[n]->SetWalk(false);
-                                Engineer[n]->SetSpeed(MOVE_RUN, 0.5f);
-                                Engineer[n]->SetHomePosition(PosEngRepair[n]);
-                                Engineer[n]->GetMotionMaster()->MoveTargetedHome();
+                                Creature* l_Creature = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                                if (l_Creature)
+                                {
+                                    Engineer[n] = l_Creature->GetGUID();
+                                    l_Creature->SetWalk(false);
+                                    l_Creature->SetSpeed(MOVE_RUN, 0.5f);
+                                    l_Creature->SetHomePosition(PosEngRepair[n]);
+                                    l_Creature->GetMotionMaster()->MoveTargetedHome();
+                                }
                             }
-                            Engineer[0]->AI()->Talk(SAY_READY);
+                            if (Creature* l_Creature = me->GetCreature(*me, Engineer[0]))
+                                l_Creature->AI()->Talk(SAY_READY);
                             Phase = 3;
                             AttackStartTimer = 14000;
                             break;
                         case 3:
                             for (uint8 n = 0; n < 4; n++)
                             {
-                                Defender[n] = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                                Defender[n]->SetWalk(false);
-                                Defender[n]->SetHomePosition(PosDefCombat[n]);
-                                Defender[n]->GetMotionMaster()->MoveTargetedHome();
+                                Creature* l_Creature = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                                if (l_Creature)
+                                {
+                                    Defender[n] = l_Creature->GetGUID();
+                                    l_Creature->SetWalk(false);
+                                    l_Creature->SetHomePosition(PosDefCombat[n]);
+                                    l_Creature->GetMotionMaster()->MoveTargetedHome();
+                                }
                             }
                             Phase = 4;
                             break;
                         case 4:
                             for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
-                                Engineer[n]->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_USE_STANDING);
+                            {
+                                if (Creature* l_Creature = me->GetCreature(*me, Engineer[n]))
+                                    l_Creature->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_USE_STANDING);
+                            }
                             for (uint8 n = 0; n < 4; ++n)
-                                Defender[n]->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2H);
+                            {
+                                if (Creature* l_Creature = me->GetCreature(*me, Defender[n]))
+                                    l_Creature->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2H);
+                            }
+
                             AttackStartTimer = 16000;
                             Phase = 5;
                             break;
@@ -781,7 +801,8 @@ class npc_expedition_commander : public CreatureScript
                                 Razorscale->AI()->DoAction(ACTION_EVENT_START);
                                 me->SetInCombatWith(Razorscale);
                             }
-                            Engineer[0]->AI()->Talk(SAY_PREPARED);
+                            if (Creature* l_Creature = me->GetCreature(*me, Engineer[0]))
+                                l_Creature->AI()->Talk(SAY_PREPARED);
                             Phase = 6;
                             break;
                     }

@@ -1879,7 +1879,7 @@ class spell_twilight_enforcer_meat_grinder: public SpellScriptLoader
         {
             PrepareAuraScript(spell_twilight_enforcer_meat_grinder_AuraScript);
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster())
                     return;
@@ -1951,12 +1951,12 @@ class spell_twilight_thundercaller_electric_blast: public SpellScriptLoader
 
                 if (GetCaster()->HasAura(SPELL_OVERCHARGE))
                 {
-                    if (AuraPtr _overcharge = GetCaster()->GetAura(SPELL_OVERCHARGE))
+                    if (Aura* _overcharge = GetCaster()->GetAura(SPELL_OVERCHARGE))
                         _stacks = _overcharge->GetStackAmount();
                 }
                 else if (GetCaster()->HasAura(SPELL_OVERCHARGE_H))
                 {
-                    if (AuraPtr _overcharge = GetCaster()->GetAura(SPELL_OVERCHARGE_H))
+                    if (Aura* _overcharge = GetCaster()->GetAura(SPELL_OVERCHARGE_H))
                         _stacks = _overcharge->GetStackAmount();
                 }
 

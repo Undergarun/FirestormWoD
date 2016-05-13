@@ -372,6 +372,8 @@ void RespawnBrothers(Creature* p_Source, InstanceScript* p_Instance)
         l_Other->Respawn();
         l_Other->GetMotionMaster()->MoveTargetedHome();
     }
+
+    p_Instance->DoCombatStopOnPlayers();
 }
 
 void StartBrothers(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instance)
@@ -385,6 +387,18 @@ void StartBrothers(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instanc
         if (l_Other->IsAIEnabled)
             l_Other->AI()->AttackStart(p_Target);
     }
+}
+
+Creature* GetBrother(Creature* p_Source, InstanceScript* p_Instance)
+{
+    if (p_Source == nullptr || p_Instance == nullptr)
+        return nullptr;
+
+    uint32 l_Entry = (p_Source->GetEntry() == eFoundryCreatures::BossFranzok) ? eFoundryCreatures::BossHansgar : eFoundryCreatures::BossFranzok;
+    if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
+        return l_Other;
+
+    return nullptr;
 }
 
 /// This class is used to activate Stamping Press

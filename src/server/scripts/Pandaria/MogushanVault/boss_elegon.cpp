@@ -525,7 +525,7 @@ class boss_elegon : public CreatureScript
                             titanCircle->SetGoState(GO_STATE_ACTIVE);
 
                         for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; entry++)
-                            if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
+                            if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 200.0f))
                                 moguRune->SetGoState(GO_STATE_ACTIVE);
 
                         // Reset Cho
@@ -558,7 +558,7 @@ class boss_elegon : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(TALK_SLAY);
             }
 
@@ -599,7 +599,7 @@ class boss_elegon : public CreatureScript
 
                 _JustDied();
 
-                if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 400.0f, true))
+                if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 200.0f, true))
                 {
                     cho->AI()->Talk(28);
                     cho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
@@ -786,7 +786,7 @@ class boss_elegon : public CreatureScript
                                     titanCircle->SetGoState(GO_STATE_ACTIVE);
 
                                 for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; entry++)
-                                    if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
+                                    if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 200.0f))
                                         moguRune->SetGoState(GO_STATE_ACTIVE);
                             }
                         }
@@ -823,7 +823,7 @@ class boss_elegon : public CreatureScript
                                     titanCircle->SetGoState(GO_STATE_READY);
 
                                 for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; ++entry)
-                                    if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
+                                    if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 200.0f))
                                         moguRune->SetGoState(GO_STATE_READY);
                             }
 
@@ -1471,7 +1471,7 @@ class mob_infinite_energy : public CreatureScript
                                 titanCircle->SetGoState(GO_STATE_READY);
 
                             for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; ++entry)
-                                if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
+                                if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 200.0f))
                                     moguRune->SetGoState(GO_STATE_READY);
 
                             events.ScheduleEvent(EVENT_CHECK_AURAS, 500);
@@ -1627,7 +1627,7 @@ class spell_spawn_flash_1_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_spawn_flash_1_periodic_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1658,7 +1658,7 @@ class spell_spawn_flash_2_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_spawn_flash_2_periodic_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1691,7 +1691,7 @@ class spell_spawn_flash_3_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_spawn_flash_3_periodic_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     if (target->GetAI())
@@ -1720,7 +1720,7 @@ class spell_touch_of_titans : public SpellScriptLoader
         {
             PrepareAuraScript(spell_touch_of_titans_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 if (!GetTarget())
                     return;
@@ -1737,7 +1737,7 @@ class spell_touch_of_titans : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1809,7 +1809,7 @@ class spell_draw_power : public SpellScriptLoader
         {
             PrepareAuraScript(spell_draw_power_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* elegon = GetCaster())
                 {
@@ -1840,7 +1840,7 @@ class spell_core_checker : public SpellScriptLoader
         {
             PrepareAuraScript(spell_core_checker_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 if (Unit* energyCharge = GetTarget())
                 {
@@ -1928,7 +1928,7 @@ class spell_destabilizing_energies : public SpellScriptLoader
         {
             PrepareAuraScript(spell_destabilizing_energies_AuraScript);
 
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1941,7 +1941,7 @@ class spell_destabilizing_energies : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_destabilizing_energies_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_destabilizing_energies_AuraScript::Apply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1965,13 +1965,8 @@ class spell_total_annihilation : public SpellScriptLoader
 
             bool Load()
             {
-                targetCount = 0;
+                targetCount = 1;
                 return true;
-            }
-
-            void CountTargets(std::list<WorldObject*>& targets)
-            {
-                targetCount = targets.size();
             }
 
             void CheckTargets()
@@ -1990,7 +1985,6 @@ class spell_total_annihilation : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_total_annihilation_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 AfterCast += SpellCastFn(spell_total_annihilation_SpellScript::CheckTargets);
             }
         };
@@ -2011,7 +2005,7 @@ class spell_unstable_energy : public SpellScriptLoader
         {
             PrepareAuraScript(spell_unstable_energy_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 if (Unit* elegon = GetTarget())
                     elegon->CastSpell(elegon, SPELL_UNSTABLE_ENERGY_DAMAGE, true);

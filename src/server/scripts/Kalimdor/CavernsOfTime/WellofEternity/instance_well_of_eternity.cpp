@@ -63,7 +63,7 @@ class instance_well_of_eternity : public InstanceMapScript
                     default:
                         break;
                 }                
-		    }
+            }
 
             void OnGameObjectCreate(GameObject* pGo)
             {
@@ -118,7 +118,7 @@ class instance_well_of_eternity : public InstanceMapScript
                         }
                         break;
                 }
-		    }
+            }
 
             void SetData(uint32 type, uint32 data)
             {
@@ -146,7 +146,7 @@ class instance_well_of_eternity : public InstanceMapScript
                     default:
                         break;
                 }
-		    }
+            }
 
             uint32 GetData(uint32 type)
             {
@@ -157,7 +157,7 @@ class instance_well_of_eternity : public InstanceMapScript
                     case DATA_EVENT_ILLIDAN_1: return uiEventIllidan1;
                     default: return 0;
                 }
-			    return 0;
+                return 0;
             }
 
             uint64 GetData64(uint32 type)
@@ -178,8 +178,8 @@ class instance_well_of_eternity : public InstanceMapScript
 
             bool SetBossState(uint32 type, EncounterState state)
             {
-			    if (!InstanceScript::SetBossState(type, state))
-				    return false;
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
 
                 if (type == DATA_PEROTHARN)
                 {
@@ -209,7 +209,7 @@ class instance_well_of_eternity : public InstanceMapScript
                     }
                 }
 
-			    return true;
+                return true;
             }
 
             std::string GetSaveData()
@@ -246,13 +246,13 @@ class instance_well_of_eternity : public InstanceMapScript
                 if (dataHead1 == 'W' && dataHead2 == 'o' && dataHead3 == 'E')
                 {
                     for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-				    {
-					    uint32 tmpState;
-					    loadStream >> tmpState;
-					    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-						    tmpState = NOT_STARTED;
-					    SetBossState(i, EncounterState(tmpState));
-				    }
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
 
                     uint32 tmpEvent1;
                     loadStream >> tmpEvent1;

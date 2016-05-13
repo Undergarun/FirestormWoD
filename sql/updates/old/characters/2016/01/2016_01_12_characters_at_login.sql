@@ -1,0 +1,1 @@
+ALTER TABLE `characters` CHANGE `at_login` `at_login` INT(10) UNSIGNED DEFAULT '0' NOT NULL;

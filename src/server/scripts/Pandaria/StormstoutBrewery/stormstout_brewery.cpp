@@ -54,7 +54,7 @@ class spell_stormstout_brewery_habanero_beer: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHit += SpellEffectFn(spell_stormstout_brewery_habanero_beer_SpellScript::HandleInstaKill, EFFECT_1, SPELL_EFFECT_INSTAKILL);
+                OnEffectHit += SpellEffectFn(spell_stormstout_brewery_habanero_beer_SpellScript::HandleInstaKill, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
                 AfterCast += SpellCastFn(spell_stormstout_brewery_habanero_beer_SpellScript::HandleAfterCast);
             }
         };

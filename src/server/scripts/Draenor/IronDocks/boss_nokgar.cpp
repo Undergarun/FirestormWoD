@@ -736,6 +736,11 @@ class iron_docks_nokgar_spell_intimidated : public SpellScriptLoader
                 OnCheckCast += SpellCheckCastFn(iron_docks_nokgar_spell_intimidated_SpellScript::CheckTarget);
             }
         };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new iron_docks_nokgar_spell_intimidated_SpellScript();
+        }
 };
 
 void AddSC_boss_nokgar()

@@ -1251,7 +1251,8 @@
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
-    <field type="int" name="field1" />
+    <field type="string" name="field1" />
+    <field type="int" name="newField" />
   </Phase>
   <QuestV2CliTask build="0">
     <index>
@@ -3244,17 +3245,17 @@
   </BattlePetVisual>
   <BattlePetSpecies build="0">
     <index>
-      <primary>field0</primary>
+      <primary>id</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
+    <field type="int" name="id" />
+    <field type="int" name="entry" />
+    <field type="int" name="iconId" />
+    <field type="int" name="spellId" />
+    <field type="int" name="type" />
+    <field type="int" name="obtainmentCategoryDescription" />
+    <field type="int" name="flags" />
+    <field type="string" name="source" />
+    <field type="string" name="description" />
   </BattlePetSpecies>
   <Cfg_Configs build="0">
     <index>
@@ -3818,6 +3819,7 @@
     <field type="int" name="field133" />
     <field type="int" name="field134" />
     <field type="int" name="field135" />
+    <field type="int" name="newField" />
   </PlayerCondition>
   <AreaPOI build="19243">
     <index>
@@ -6445,25 +6447,25 @@
   </LfgDungeonGroup>
   <LfgDungeons build="20182">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
-    <field type="int" name="field9" />
-    <field type="int" name="field10" />
-    <field type="int" name="field11" />
-    <field type="int" name="field12" />
-    <field type="int" name="field13" />
-    <field type="int" name="field14" />
-    <field type="int" name="field15" />
-    <field type="int" name="field16" />
+    <field type="int" name="ID" />
+    <field type="string" name="Name" />
+    <field type="int" name="minLevel" />
+    <field type="int" name="maxLevel" />
+    <field type="int" name="recLevel" />
+    <field type="int" name="recMinLevel" />
+    <field type="int" name="recMaxLevel" />
+    <field type="int" name="map" />
+    <field type="int" name="difficulty" />
+    <field type="int" name="flags" />
+    <field type="int" name="type" />
+    <field type="int" name="faction" />
+    <field type="string" name="texturefilename" />
+    <field type="int" name="exp" />
+    <field type="int" name="orderIndex" />
+    <field type="int" name="groupType" />
+    <field type="int" name="description" />
     <field type="int" name="field17" />
     <field type="int" name="field18" />
     <field type="int" name="field19" />
@@ -6904,4 +6906,174 @@
     <field type="int" name="itemupgradeid" />
     <field type="int" name="itemid" />
   </RulesetItemUpgrade>
+  <Scenario build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="string" name="field1" />
+    <field type="int" name="field2" />
+  </Scenario>
+  <ScenarioStep build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="string" name="field4" />
+    <field type="string" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+  </ScenarioStep>
+  <Movie build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+  </Movie>
+  <MovieFileData build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </MovieFileData>
+  <MovieVariation build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+  </MovieVariation>
+  <PhaseShiftZoneSounds build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+  </PhaseShiftZoneSounds>
+  <TerrainType build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+  </TerrainType>
+  <TerrainMaterial build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+  </TerrainMaterial>
+  <Map build="18464">
+    <field type="int" name="ID" />
+    <field type="string" name="Directory" />
+    <field type="int" name="InstanceType" />
+    <field type="int" name="Flags" />
+    <field type="int" name="newField" />
+    <field type="int" name="MapType" />
+    <field type="string" name="MapNameLang" />
+    <field type="int" name="AreaTableID" />
+    <field type="string" name="MapDescription0Lang" />
+    <field type="string" name="MapDescription1Lang" />
+    <field type="int" name="LoadingScreenID" />
+    <field type="float" name="MinimapIconScale" />
+    <field type="int" name="CorpseMapID" />
+    <field type="float" name="Corpse0" />
+    <field type="float" name="Corpse1" />
+    <field type="int" name="TimeOfDayOverride" />
+    <field type="int" name="ExpansionID" />
+    <field type="int" name="RaidOffset" />
+    <field type="int" name="MaxPlayers" />
+  </Map>
+  <TaxiNodes build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="string" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="string" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+  </TaxiNodes>
+  <TaxiPath build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+  </TaxiPath>
+  <TaxiPathNode build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+  </TaxiPathNode>
+  <VehicleUIIndicator build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </VehicleUIIndicator>
+  <VehicleUIIndSeat build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+  </VehicleUIIndSeat>
 </DBFilesClient>

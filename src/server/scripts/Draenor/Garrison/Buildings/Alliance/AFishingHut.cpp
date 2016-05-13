@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "AFishingHut.hpp"
 #include "AFishingHut_Level1Data.hpp"
+#include "../../Sites/GarrisonSiteBase.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -284,8 +285,65 @@ namespace MS { namespace Garrison
         {
 
         };
+    }
 
-        char gScriptName[] = "npc_RonAshton_Garr";
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_RonAshton::npc_RonAshton()
+        : CreatureScript("npc_RonAshton_Garr")
+    {
+
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_RonAshton::GetAI(Creature* p_Creature) const
+    {
+        return new npc_RonAshtonAI(p_Creature);
+    }
+
+    bool npc_RonAshton::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    {
+        Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)p_Creature->GetInstanceScript();
+
+        if (!l_GarrisonSite)
+        return true;
+
+        Player* l_Owner = l_GarrisonSite->GetOwner();
+
+        if (l_Owner != p_Player)
+            return true;
+
+        if (p_Quest->GetQuestId() == Quests::Alliance_AnglinInOurGarrison)
+        {
+            if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
+            {
+                GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+
+                if (l_AI == nullptr)
+                    return true;
+
+                if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Quest_FishFight))
+                {
+                    p_Player->AddQuest(l_Quest, p_Creature);
+                    p_Player->CompleteQuest(l_Quest->GetQuestId());
+                    p_Player->RewardQuest(l_Quest, 0, p_Creature, false);
+                }
+
+                GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_GarrisonMgr->GetBuildingWithType(BuildingType::Fishing).BuildingID);
+                Position l_Pos = *l_Owner;
+
+                if (l_BuildingEntry)
+                    l_Owner->PlayStandaloneScene(l_Owner->GetGarrison()->GetGarrisonFactionIndex() ? l_BuildingEntry->HordeActivationScenePackageID : l_BuildingEntry->AllianceActivationScenePackageID, 0, l_Pos);
+
+                l_GarrisonMgr->ActivateBuilding(l_AI->GetPlotInstanceID());
+            }
+        }
+
+        return true;
     }
 
 }   ///< namespace Garrison

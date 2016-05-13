@@ -120,7 +120,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    npc_HomerStonefield::npc_HomerStonefield()
+    npc_HomerStonefield_Garr::npc_HomerStonefield_Garr()
         : CreatureScript("npc_HomerStonefield_Garr")
     {
 
@@ -133,65 +133,132 @@ namespace MS { namespace Garrison
     {
     }
 
-    void npc_HomerStonefield::OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32 p_BuildingID)
+    void npc_HomerStonefield_Garr::OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32 p_BuildingID)
     {
-        if (p_BuildingID == 24) ///< Barn
+        switch (p_BuildingID)
         {
+        case Buildings::Barn_Barn_Level1:
             if (p_Player->GetQuestStatus(Quests::Alliance_BreakingIntoTheTrapGame) == QUEST_STATUS_INCOMPLETE)
                 p_Player->KilledMonsterCredit(40662);
+            break;
+        case Buildings::Barn_Barn_Level2:
+            if (p_Player->GetQuestStatus(Quests::Alliance_FeedingAnArmy) == QUEST_STATUS_INCOMPLETE)
+                p_Player->QuestObjectiveSatisfy(40672, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
+            break;
+        case Buildings::Barn_Barn_Level3:
+            if (p_Player->GetQuestStatus(Quests::Alliance_BiggerTrapBetterRewards) == QUEST_STATUS_INCOMPLETE)
+                p_Player->QuestObjectiveSatisfy(40695, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
+            break;
+        default:
+            break;
         }
     }
 
-    bool npc_HomerStonefield::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    bool npc_HomerStonefield_Garr::HandleGossipActions(Player* p_Player, Creature* p_Creature, uint32 p_QuestID, uint32 p_Action)
     {
-        Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Alliance_BreakingIntoTheTrapGame);
+        Quest const* l_Quest = sObjectMgr->GetQuestTemplate(p_QuestID);
 
         if (l_Quest == nullptr)
-            return true;
+            return false;
 
-        if (p_Player->IsQuestRewarded(Quests::Alliance_BreakingIntoTheTrapGame) ||
-           (p_Player->GetQuestStatus(Quests::Alliance_BreakingIntoTheTrapGame) == QUEST_STATUS_INCOMPLETE && !p_Player->GetQuestObjectiveCounter(276190)))
+        if (p_Player->IsQuestRewarded(p_QuestID) || (p_Player->GetQuestStatus(p_QuestID) == QUEST_STATUS_INCOMPLETE && !p_Player->GetQuestObjectiveCounter(276190)))
         {
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultWorkOrder, GOSSIP_SENDER_MAIN, p_Action);
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
         }
-        else if (p_Player->GetQuestStatus(Quests::Alliance_BreakingIntoTheTrapGame) == QUEST_STATUS_NONE)
-            p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-        else if (p_Player->GetQuestStatus(Quests::Alliance_BreakingIntoTheTrapGame) == QUEST_STATUS_COMPLETE)
-            p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
+        else
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
+
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
         return true;
     }
 
-    bool npc_HomerStonefield::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_HomerStonefield_Garr::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+
+        if (l_GarrisonMgr == nullptr || l_AI == nullptr)
+            return false;
+
+        uint32 l_PlotInstanceID = l_AI->GetPlotInstanceID();
+
+        if (!l_PlotInstanceID)
+            return false;
+
+        GarrisonBuilding l_Building = l_GarrisonMgr->GetBuilding(l_PlotInstanceID);
+
+        switch (l_Building.BuildingID)
+        {
+            case Buildings::Barn_Barn_Level1:
+                return HandleGossipActions(p_Player, p_Creature, Quests::Alliance_BreakingIntoTheTrapGame, GOSSIP_ACTION_INFO_DEF + 1);
+            case Buildings::Barn_Barn_Level2:
+                return HandleGossipActions(p_Player, p_Creature, Quests::Alliance_FeedingAnArmy, GOSSIP_ACTION_INFO_DEF + 2);
+            case Buildings::Barn_Barn_Level3:
+                return HandleGossipActions(p_Player, p_Creature, Quests::Alliance_BiggerTrapBetterRewards, GOSSIP_ACTION_INFO_DEF + 3);
+            default:
+                break;
+        }
+
+        return true;
+    }
+
+    bool npc_HomerStonefield_Garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         p_Player->PlayerTalkClass->ClearMenus();
-        MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
-        CreatureAI* l_AI = p_Creature->AI();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
         if (l_AI == nullptr)
             return true;
 
+        using namespace GarrisonGossipMenus;
+
         switch (p_Action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Sumptuous Fur.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Raw Beast Hide.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderSomptuousFur, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderRawBeastHide, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                 p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 2: ///< Send shipment for fur
-                if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
-                {
-                    l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentFur);
-                    reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentFur); ///< Fur
-                }
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderSomptuousFur, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderRawBeastHide, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderSavageFeast, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 3: ///< Send shipment for leather
-                if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
-                {
-                    l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentLeather);
-                    reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentLeather); ///< Leather
-                }
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderSomptuousFur, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderRawBeastHide, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderSavageFeast, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderFurSavageBlood, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderBeastHideSavageBlood, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderSavageFeastBlood, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
+                p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 4: ///< Send shipment for fur
+                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentFurredBeast);
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentFurredBeast); ///< Fur
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 5: ///< Send shipment for leather
+                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentLeatheredBeast);
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentLeatheredBeast); ///< Leather
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 6: ///< Send shipment for Meat
+                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentMeatyBeast);
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentMeatyBeast); ///< Meat
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 7: ///< Send shipment for more fur + savage blood
+                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulFurredBeast);
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulFurredBeast); ///< ShipmentPowerfulFurredBeast
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 8: ///< Send shipment for more leather + savage blood
+                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulLeatheredBeast);
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulLeatheredBeast); ///< ShipmentPowerfulLeatheredBeast
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 9: ///< Send shipment for more meat + savage blood
+                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulMeatyBeast);
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulMeatyBeast); ///< ShipmentPowerfulMeatyBeast
                 break;
             default:
                 break;
@@ -201,7 +268,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI* npc_HomerStonefield::GetAI(Creature* p_Creature) const
+    CreatureAI* npc_HomerStonefield_Garr::GetAI(Creature* p_Creature) const
     {
         return new npc_HomerStonefieldAI(p_Creature);
     }
@@ -216,15 +283,7 @@ namespace MS { namespace Garrison
 
     int npc_HomerStonefieldAI::OnShipmentIDRequest(Player* p_Player)
     {
-        switch (m_ProductionChosen)
-        {
-            case MS::Garrison::Barn::ShipmentIDS::ShipmentFur:
-                return MS::Garrison::Barn::ShipmentIDS::ShipmentFur;
-            case MS::Garrison::Barn::ShipmentIDS::ShipmentLeather:
-                return MS::Garrison::Barn::ShipmentIDS::ShipmentLeather;
-            default:
-                return -1;
-        }
+        return m_ProductionChosen ? m_ProductionChosen : -1;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -249,9 +308,6 @@ namespace MS { namespace Garrison
     {
         Talk(urand(0, 16));
         me->DespawnOrUnsummon(8 * IN_MILLISECONDS);
-
-        if (Creature* l_Tommy = GetClosestCreatureWithEntry(me, MS::Garrison::NPCs::NpcTommyJoeStonefield, 20.0f))
-            l_Tommy->DespawnOrUnsummon(8 * IN_MILLISECONDS);
     }
 
     CreatureAI* npc_HomerStonefield_Garr_Trap::GetAI(Creature* p_Creature) const

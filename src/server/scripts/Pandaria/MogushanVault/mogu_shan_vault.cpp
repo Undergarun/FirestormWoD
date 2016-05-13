@@ -211,7 +211,7 @@ class mob_cursed_mogu_sculpture : public CreatureScript
                 if (!who->IsWithinDist(me, 15.0f))
                     return;
 
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     playerActivate = who->GetGUID();
                     switch (me->GetEntry())
@@ -656,7 +656,7 @@ class spell_mogu_petrification : public SpellScriptLoader
 
             uint32 stack;
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -824,7 +824,7 @@ class npc_lorewalker_cho : public CreatureScript
                                 hasSaidIntro = true;
                                 Start(false, true, l_Player->GetGUID());
 
-                                if (GetClosestCreatureWithEntry(me, MOB_MENG, 500.0f, true))
+                                if (GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f, true))
                                 {
                                     me->SetOrientation(4.68f);
                                     me->SetFacingTo(4.68f);
@@ -944,7 +944,7 @@ class npc_lorewalker_cho : public CreatureScript
                     // Gossip to trigger the event before spirit kings
                     case 38:
                     {
-                        if (GetClosestCreatureWithEntry(me, MOB_MENG, 500.0f, true))
+                        if (GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f, true))
                         {
                             me->SetOrientation(4.68f);
                             me->SetFacingTo(4.68f);
@@ -1958,7 +1958,7 @@ class mob_meng : public CreatureScript
                         {
                             CAST_AI(npc_lorewalker_cho::npc_lorewalker_choAI, Cho->AI())->eventInProgress = false;
                             // If Spirit Kings are already down, Cho must go on
-                            Creature* sKing = GetClosestCreatureWithEntry(me, NPC_QIANG, 500.0f, true);
+                            Creature* sKing = GetClosestCreatureWithEntry(me, NPC_QIANG, 200.0f, true);
                             if (!sKing)
                             {
                                 // In case BossState is wrong for Spirit Kings...

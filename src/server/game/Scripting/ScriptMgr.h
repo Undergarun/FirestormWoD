@@ -103,6 +103,10 @@ class ScriptMgr
 
     /// CreatureScript
     public:
+        /// Get Creature script by ScriptID
+        /// @p_ScriptID : ScriptID from the creature template
+        CreatureScript* GetCreatureScriptByID(uint32 p_ScriptID);
+
         /// Called when a dummy spell effect is triggered on the creature.
         /// @p_Caster      : Spell Caster
         /// @p_SpellID     : Casted spell ID
@@ -344,7 +348,7 @@ class ScriptMgr
         /// @p_ItemOrMoney    : Item entry or gold amount
         /// @p_ItemStackCount : Item stack count
         /// @p_DestTabID      : Destination tab ID
-        void OnGuildBankEvent(Guild* p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint32 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID);
+        void OnGuildBankEvent(Guild* p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint64 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID);
 
     /// ItemScript
     public:
@@ -526,7 +530,7 @@ class ScriptMgr
         /// @p_Entry              : Auction who expired
         void OnAuctionExpire(AuctionHouseObject* p_AuctionHouseObject, AuctionEntry* p_Entry);
 
-        /// FormulaScript
+    /// FormulaScript
     public:
         /// Called after calculating honor.
         /// @p_Honor      : Dest honor
@@ -569,7 +573,7 @@ class ScriptMgr
         /// @p_IsRaid : Is a raid group
         void OnGroupRateCalculation(float& p_Rate, uint32 p_Count, bool p_IsRaid);
 
-        /// AchievementCriteriaScript
+    /// AchievementCriteriaScript
     public:
         /// Called when an additional criteria is checked.
         /// @p_ScriptID : Script ID
@@ -577,20 +581,29 @@ class ScriptMgr
         /// @p_Target   : Target instance
         bool OnCriteriaCheck(uint32 p_ScriptID, Player* p_Source, Unit* p_Target);
 
-        /// ConditionScript
+    /// ConditionScript
     public:
         /// Called when a single condition is checked for a player.
         /// @p_Condition  : Condition instance
         /// @p_SourceInfo : Condition  source
-        bool OnConditionCheck(Condition* p_Condition, ConditionSourceInfo& p_SourceInfo);
+        bool OnConditionCheck(Condition const* p_Condition, ConditionSourceInfo& p_SourceInfo);
 
-        /// PlayerScript
+    /// PlayerScript
     public:
-        
+
+        /// Called just before item is destroyed
+        /// @p_Item        : Item to be destroyed
+        /// @p_Player      : Player level
+        void OnItemDestroyed(Player* p_Player, Item* p_Item);
         /// Called when a player kills another player
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPVPKill(Player* p_Killer, Player* p_Killed);
+
+        /// Called when a player kills a Unit
+        /// @p_Killer : Killer instance
+        /// @p_Killed : Killed instance
+        void OnKill(Player* p_Killer, Unit* p_Killed);
         
         /// Called when a player kills a creature
         /// @p_Killer : Killer instance
@@ -609,6 +622,16 @@ class ScriptMgr
         /// @p_NewValue  : New value
         /// @p_Regen  : If it's a regen modification
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen);
+
+        /// Called when the player switch from indoors to outdoors or from outdoors to indoors
+        /// @p_Player : Player instance
+        /// @p_IsOutdoors : Bool setting whether player is indoors or outdoors
+        void OnSwitchOutdoorsState(Player* p_Player, bool p_IsOutdoors);
+
+        /// Called when specialisation is modify (SetSpecializationId)
+        /// @p_Player : Player instance
+        /// @p_NewSpec  : New Specialisation
+        void OnModifySpec(Player* p_Player, int32 p_NewSpec);
 
         /// Called when a player kills another player
         /// @p_Player : Player instance
@@ -756,6 +779,11 @@ class ScriptMgr
         /// Called when a player updates his movement
         /// @p_Player : Player instance
         void OnPlayerUpdateMovement(Player* p_Player);
+        /// Called when a spline step is done
+        /// @p_Player   : Player instance
+        /// @p_MoveType : Movement type
+        /// @p_ID       : Movement ID
+        void OnPlayerMovementInform(Player* p_Player, uint32 p_MoveType, uint32 p_ID);
 
         /// Called when player accepts some quest
         /// @p_Player : Player instance
@@ -815,6 +843,22 @@ class ScriptMgr
         /// @p_Player          : Player instance
         /// @p_SceneInstanceID : Standalone scene instance ID
         void OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId);
+
+        /// Called when a player enter in bg
+        /// @p_Player   : Player instance
+        /// @p_MapID    : Map ID
+        void OnEnterBG(Player* p_Player, uint32 p_MapID);
+
+        /// Called when a leave a bg
+        /// @p_Player   : Player instance
+        /// @p_MapID    : Map ID
+        void OnLeaveBG(Player* p_Player, uint32 p_MapID);
+
+        /// Called when a player finish a movement like a jump
+        /// @p_Player   : Player instance
+        /// @p_SpellID  : Spell ID
+        /// @p_TargetGUID : Target GUID
+        void OnFinishMovement(Player* p_Player, uint32 p_SpellID, uint64 const p_TargetGUID);
 
         /// Called when a player regen a power
         /// @p_Player         : Player instance
@@ -947,7 +991,7 @@ class ScriptMgr
         /// Registered script count
         uint32 m_ScriptCount;
         /// Atomic op counter for active scripts amount
-        ACE_Atomic_Op<ACE_Thread_Mutex, long> m_ScheduledScripts;
+        std::atomic<long> m_ScheduledScripts;
         /// Player condition scripts
         MS::Utilities::MutextedMap<uint32, PlayerConditionScript*> m_PlayerConditionScripts;
         /// Battle Pay Product Script

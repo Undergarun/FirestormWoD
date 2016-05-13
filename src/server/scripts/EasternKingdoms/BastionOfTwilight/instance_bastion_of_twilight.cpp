@@ -130,7 +130,7 @@ public:
 
         void OnUnitDeath(Unit* unit)
         {
-            if (unit->GetTypeId() == TYPEID_PLAYER && GetBossState(DATA_SINESTRA) == IN_PROGRESS)
+            if (unit->IsPlayer() && GetBossState(DATA_SINESTRA) == IN_PROGRESS)
             {
                 if (playerDied == 0)
                 {

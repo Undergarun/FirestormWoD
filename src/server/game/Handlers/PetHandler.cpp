@@ -95,7 +95,7 @@ void WorldSession::HandlePetAction(WorldPacket & p_RecvPacket)
     }
 
     //TODO: allow control charmed player?
-    if (l_Pet->GetTypeId() == TYPEID_PLAYER && !(l_Flag == ACT_COMMAND && l_SpellID == COMMAND_ATTACK))
+    if (l_Pet->IsPlayer() && !(l_Flag == ACT_COMMAND && l_SpellID == COMMAND_ATTACK))
         return;
 
     if (GetPlayer()->m_Controlled.size() == 1)
@@ -195,13 +195,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                     if (Unit* owner = pet->GetOwner())
                         if (!owner->IsValidAttackTarget(TargetUnit))
                             return;
-
-                    // Not let attack through obstructions
-                    if (sWorld->getBoolConfig(CONFIG_PET_LOS))
-                    {
-                        if (!pet->IsWithinLOSInMap(TargetUnit))
-                            return;
-                    }
 
                     pet->ClearUnitState(UNIT_STATE_FOLLOW);
                     // This is true if pet has no target or has target but targets differs.
@@ -363,18 +356,18 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                 if (unit_target)
                 {
                     pet->SetInFront(unit_target);
-                    if (unit_target->GetTypeId() == TYPEID_PLAYER)
+                    if (unit_target->IsPlayer())
                         pet->SendUpdateToPlayer((Player*)unit_target);
                 }
                 else if (Unit* unit_target2 = spell->m_targets.GetUnitTarget())
                 {
                     pet->SetInFront(unit_target2);
-                    if (unit_target2->GetTypeId() == TYPEID_PLAYER)
+                    if (unit_target2->IsPlayer())
                         pet->SendUpdateToPlayer((Player*)unit_target2);
                 }
 
                 if (Unit* powner = pet->GetCharmerOrOwner())
-                    if (powner->GetTypeId() == TYPEID_PLAYER)
+                    if (powner->IsPlayer())
                         pet->SendUpdateToPlayer(powner->ToPlayer());
 
                 result = SPELL_CAST_OK;
@@ -582,7 +575,7 @@ void WorldSession::HandlePetRename(WorldPacket & p_RecvPacket)
     std::string l_NewName;
 
     p_RecvPacket.readPackGUID(l_PetNumber);
-    l_Unknow           = p_RecvPacket.read<uint32>();
+    l_Unknow           = p_RecvPacket.read<uint32>(); ///< l_unknow is never read 01/18/16
     l_NewNameSize      = p_RecvPacket.ReadBits(8);
     l_HasDeclinedNames = p_RecvPacket.ReadBit();
 
@@ -622,7 +615,7 @@ void WorldSession::HandlePetRename(WorldPacket & p_RecvPacket)
     l_Pet->SetName(l_NewName);
 
     Unit* l_Owner = l_Pet->GetOwner();
-    if (l_Owner && (l_Owner->GetTypeId() == TYPEID_PLAYER) && l_Owner->ToPlayer()->GetGroup())
+    if (l_Owner && (l_Owner->IsPlayer()) && l_Owner->ToPlayer()->GetGroup())
         l_Owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
 
     l_Pet->RemoveByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 2, UNIT_CAN_BE_RENAMED);
@@ -768,7 +761,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     p_RecvPacket.readPackGUID(l_UnkGUID);
 
-    l_SendCastFlag = p_RecvPacket.ReadBits(5);
+    l_SendCastFlag = p_RecvPacket.ReadBits(5);  ///< l_SendCastFlag is never read 01/18/16
     l_HasMovementInfos = p_RecvPacket.ReadBit();
     l_SpellWeightCount = p_RecvPacket.ReadBits(2);
 
@@ -891,7 +884,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& p_RecvPacket)
     else
     {
         l_Caster->SendPetCastFail(l_SpellID, l_Result, l_CastCount);
-        if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+        if (l_Caster->IsPlayer())
         {
             if (!l_Caster->ToPlayer()->HasSpellCooldown(l_SpellID))
                 GetPlayer()->SendClearCooldown(l_SpellID, l_Caster);

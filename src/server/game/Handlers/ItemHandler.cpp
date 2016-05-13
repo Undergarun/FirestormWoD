@@ -29,6 +29,7 @@
 #include "SpellInfo.h"
 #include "GuildMgr.h"
 #include "Spell.h"
+#include "ScriptMgr.h"
 #include <vector>
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& p_RecvData)
@@ -358,7 +359,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& p_RecvData)
     }
 }
 
-void WorldSession::HandleDestroyItemOpcode(WorldPacket & p_Packet)
+void WorldSession::HandleDestroyItemOpcode(WorldPacket& p_Packet)
 {
     uint32 l_Count          = 0;
     uint8  l_ContainerId    = 0;
@@ -396,7 +397,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & p_Packet)
     }
 
     /// If trading
-    if (TradeData * l_TradeData = m_Player->GetTradeData())
+    if (TradeData* l_TradeData = m_Player->GetTradeData())
     {
         /// If current item is in trade window (only possible with packet spoofing - silent return)
         if (l_TradeData->GetTradeSlotForItem(l_Item->GetGUID()) != TRADE_SLOT_INVALID)
@@ -585,7 +586,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
                     m_Player->AddItemToBuyBackSlot(l_PlayerItem);
                 }
 
-                uint32 l_Money = l_PlayerItemTemplate->SellPrice * l_Amount;
+                int64 l_Money = l_PlayerItemTemplate->SellPrice * l_Amount;
                 m_Player->ModifyMoney(l_Money);
                 m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, l_Money);
             }
@@ -634,7 +635,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
         InventoryResult msg = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
         if (msg == EQUIP_ERR_OK)
         {
-            m_Player->ModifyMoney(-(int32)price);
+            m_Player->ModifyMoney(-(int64)price);
             m_Player->RemoveItemFromBuyBackSlot(slot, false);
             m_Player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
             m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, pItem->GetEntry(), pItem->GetCount());
@@ -770,6 +771,9 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
     if (l_Vendor->HasUnitState(UNIT_STATE_MOVING))
         l_Vendor->StopMoving();
 
+    int32 l_PriceMod = m_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES);
+    std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
+
     VendorItemData const* vendorItems = l_Vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
 
@@ -796,8 +800,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             uint32 l_AvailableInStock = !l_VendorItem->maxcount ? 0xFFFFFFFF : l_Vendor->GetVendorItemCurrentCount(l_VendorItem);
             if (!m_Player->isGameMaster()) // ignore conditions if GM on
             {
-                ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(l_Vendor->GetEntry(), l_VendorItem->item);
-                if (!sConditionMgr->IsObjectMeetToConditions(m_Player, l_Vendor, conditions))
+                if (!sConditionMgr->IsObjectMeetingVendorItemConditions(l_Vendor->GetEntry(), l_VendorItem->item, m_Player, l_Vendor))
                 {
                     sLog->outDebug(LOG_FILTER_CONDITIONSYS, "SendListInventory: conditions not met for creature entry %u item %u", l_Vendor->GetEntry(), l_VendorItem->item);
                     continue;
@@ -824,10 +827,9 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
                     (l_ItemTemplate->Flags2 & ITEM_FLAG2_ALLIANCE_ONLY && m_Player->GetTeam() == HORDE))
                     continue;
 
-                std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
                 bool guildRewardCheckPassed = true;
 
-                for (auto reward: rewards)
+                for (auto const& reward : rewards)
                 {
                     if (l_ItemTemplate->ItemId != reward.Entry)
                         continue;
@@ -888,10 +890,10 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             int32 l_Price = l_OverridePrice || l_VendorItem->IsGoldRequired(l_ItemTemplate) ? uint32(floor((l_OverridePrice ? l_OverridePrice : l_ItemTemplate->BuyPrice) * l_DiscountMod)) : 0;
 
             // reputation discount
-            if (int32 l_PriceMod = m_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
-                 l_Price -= CalculatePct(l_Price, l_PriceMod);
+            if (l_PriceMod)
+                l_Price -= CalculatePct(l_Price, l_PriceMod);
 
-            bool l_BypassFilter = l_ItemTemplate->HasSpec() || l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_BYPASS_VENDOR_FILTER;
+            bool l_BypassFilter = !(l_ItemTemplate->HasSpec() || l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_BYPASS_VENDOR_FILTER);
 
             l_ItemDataBuffer << uint32(l_Muid);
             l_ItemDataBuffer << uint32(ITEM_VENDOR_TYPE_ITEM);              ///< Item type
@@ -1210,7 +1212,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& p_RecvData)
         }
 
         m_Player->RemoveItem(l_PackSlot, l_Slot, true);
-        m_Player->StoreItem(l_Dest, l_Item, true);
+        l_Item = m_Player->StoreItem(l_Dest, l_Item, true);
         m_Player->ItemAddedQuestCheck(l_Item->GetEntry(), l_Item->GetCount());
     }
     // moving from inventory to bank
@@ -1847,8 +1849,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 
         if (!l_ItemIDs[l_I]) ///< Reset look
         {
-            l_ItemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
-            l_ItemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+            l_ItemTransmogrified->SetModifier(eItemModifiers::TransmogItemID, 0);
             m_Player->SetVisibleItemSlot(l_Slots[l_I], l_ItemTransmogrified);
         }
         else
@@ -1860,8 +1861,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
                 return;
 
             /// All okay, proceed
-            l_ItemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, l_Template->ItemId);
-            l_ItemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+            l_ItemTransmogrified->SetModifier(eItemModifiers::TransmogItemID, l_Template->ItemId);
             m_Player->SetVisibleItemSlot(l_Slots[l_I], l_ItemTransmogrified);
 
             l_ItemTransmogrified->UpdatePlayedTime(m_Player);
@@ -1878,7 +1878,10 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
                 l_ItemTransmogrifier->SetOwnerGUID(m_Player->GetGUID());
                 l_ItemTransmogrifier->SetNotRefundable(m_Player);
                 l_ItemTransmogrifier->ClearSoulboundTradeable(m_Player);
+                l_ItemTransmogrifier->SetState(ITEM_CHANGED, m_Player);
             }
+
+            l_ItemTransmogrified->SetState(ITEM_CHANGED, m_Player);
 
             cost += l_ItemTransmogrified->GetSpecialPrice();
         }
@@ -1913,7 +1916,7 @@ void WorldSession::SendItemUpgradeResult(bool success)
 
 void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
 {
-    /// Upgrade system is removed on WoD, on retail is used only for existed upgrade
+    /// Upgrade system will be implemented back because of WoD 6.1.2
     /*sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPGRADE_ITEM");
 
     ObjectGuid npcGuid;
@@ -2113,7 +2116,7 @@ namespace
     }
 
     /// Loop through all the bags to see if it can be stack or not.
-    void StoreItemInReagentBanks(Player* p_Player, Item* p_Item)
+    void StoreItemInReagentBanks(Player* p_Player, Item* p_Item) ///< StoreItemInReagentBanks is unused
     {
         for (uint32 l_I = REAGENT_BANK_SLOT_BAG_START; l_I < REAGENT_BANK_SLOT_BAG_END; l_I++)
         {
@@ -2134,7 +2137,7 @@ void WorldSession::HandleSortBags(WorldPacket& p_RecvData)
         return;
 
     /// First pass to stack items.
-    l_Player->ApplyOnBagsItems([](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    l_Player->ApplyOnBagsItems([](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8) ///< p_BagSlot is unused
     {
         StoreItemInBags(p_Player, p_Item);
         return true;
@@ -2145,7 +2148,7 @@ void WorldSession::HandleSortBags(WorldPacket& p_RecvData)
     std::multimap<uint32, Item*> l_Items;
 
     /// Second pass, we collect the informations for sorting.
-    l_Player->ApplyOnBagsItems([&l_Items, &l_ItemsQuality](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    l_Player->ApplyOnBagsItems([&l_Items, &l_ItemsQuality](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8) ///< p_BagSlot is unused
     {
         ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(p_Item->GetEntry());
         if (!l_Proto)
@@ -2165,7 +2168,7 @@ void WorldSession::HandleSortBags(WorldPacket& p_RecvData)
 
     /// Third pass to swap all the items correctly.
     auto l_Itr = std::begin(l_ResultMap);
-    l_Player->ApplyOnBagsItems([&l_ResultMap, &l_Itr](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8 p_ItemSlot)
+    l_Player->ApplyOnBagsItems([&l_ResultMap, &l_Itr](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8 p_ItemSlot) ///< p_Item is unused
     {
         if (l_Itr == std::end(l_ResultMap))
             return false;
@@ -2178,7 +2181,7 @@ void WorldSession::HandleSortBags(WorldPacket& p_RecvData)
     });
 }
 
-void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
+void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
 {
     WorldPacket data(SMSG_BAG_SORT_RESULT);
     this->SendPacket(&data);
@@ -2189,7 +2192,7 @@ void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
         return;
 
     /// First pass to stack items.
-    l_Player->ApplyOnBankItems([](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    l_Player->ApplyOnBankItems([](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8) ///< p_BagSlot is unused
     {
         StoreItemInBanks(p_Player, p_Item);
         return true;
@@ -2208,7 +2211,7 @@ void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
     std::multimap<uint32, Item*> l_ReagentBankItems;*/
 
     /// Second pass, we collect the informations for sorting.
-    l_Player->ApplyOnBankItems([&l_BankItems, &l_BankItemsQuality](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    l_Player->ApplyOnBankItems([&l_BankItems, &l_BankItemsQuality](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8) ///< p_BagSlot is unused
     {
         ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(p_Item->GetEntry());
         if (!l_Proto)
@@ -2245,7 +2248,7 @@ void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
 
     /// Third pass to swap all the items correctly.
     auto l_BankItr = std::begin(l_BankResultMap);
-    l_Player->ApplyOnBankItems([&l_BankResultMap, &l_BankItr](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8 p_ItemSlot)
+    l_Player->ApplyOnBankItems([&l_BankResultMap, &l_BankItr](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8 p_ItemSlot) ///< p_Item is unused
     {
         if (l_BankItr == std::end(l_BankResultMap))
             return false;
@@ -2269,4 +2272,24 @@ void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
 
         return true;
     });*/
+}
+
+void WorldSession::HandleUseCritterItemOpcode(WorldPacket& p_RecvData)
+{
+    uint64 l_ItemGuid = 0;
+
+    p_RecvData.readPackGUID(l_ItemGuid);
+
+    if (Item* l_Item = m_Player->GetItemByGuid(l_ItemGuid))
+    {
+        SpellCastTargets l_Targets;
+
+        l_Targets.Initialize(0, 0, 0, 0, WorldLocation(), 0, WorldLocation());
+        l_Targets.SetElevation(0.0f);
+        l_Targets.SetSpeed(0.0f);
+        l_Targets.Update(m_Player);
+
+        if (!sScriptMgr->OnItemUse(m_Player, l_Item, l_Targets))
+            m_Player->CastItemUseSpell(l_Item, l_Targets, 0, 0, 0);
+    }
 }

@@ -154,7 +154,7 @@ void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
     GetPlayer()->SetSkill(skillId, 0, 0, 0);
 }
 
-void WorldSession::HandleArcheologyRequestHistory(WorldPacket& p_RecvData)
+void WorldSession::HandleArcheologyRequestHistory(WorldPacket& p_RecvData) ///< p_RecvData is unused
 {
     WorldPacket l_Data(SMSG_SETUP_RESEARCH_HISTORY, 2048);
 
@@ -167,7 +167,7 @@ void WorldSession::HandleArcheologyRequestHistory(WorldPacket& p_RecvData)
     {
         for (MS::Skill::Archaeology::CompletedProjectMap::iterator l_Iter = l_Projects.begin(); l_Iter != l_Projects.end(); ++l_Iter)
         {
-            if (ResearchProjectEntry const* l_Project = sResearchProjectStore.LookupEntry((*l_Iter).first))
+            if (ResearchProjectEntry const* l_Project = sResearchProjectStore.LookupEntry((*l_Iter).first)) ///< l_Project is unused
             {
                 l_Data << uint32((*l_Iter).first);
                 l_Data << uint32((*l_Iter).second.FirstCompletedDate);

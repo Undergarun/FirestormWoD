@@ -70,7 +70,7 @@ public:
         {
             if (!(rand()%5))
                 DoScriptText(SAY_SLAY, me);
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
                 safetyDance = false;
         }
 

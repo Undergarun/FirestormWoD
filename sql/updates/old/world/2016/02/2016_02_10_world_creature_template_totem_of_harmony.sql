@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET ScriptName='spell_npc_totem_of_harmony' WHERE entry=65387;

@@ -190,7 +190,7 @@ struct boss_twin_baseAI : public BossAI
 
     void KilledUnit(Unit* who)
     {
-        if (who->GetTypeId() == TYPEID_PLAYER)
+        if (who->IsPlayer())
         {
             Talk(SAY_KILL_PLAYER);
             if (instance)
@@ -703,7 +703,7 @@ class spell_powering_up: public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    if (AuraPtr pAura = target->GetAura(SPELL_POWERING_UP))
+                    if (Aura* pAura = target->GetAura(SPELL_POWERING_UP))
                     {
                         if (pAura->GetStackAmount() >= 100)
                         {
@@ -747,7 +747,7 @@ class spell_valkyr_essences: public SpellScriptLoader
                 return true;
             }
 
-            void Absorb(AuraEffectPtr /*aurEff*/, DamageInfo & dmgInfo, uint32 & /*absorbAmount*/)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & /*absorbAmount*/)
             {
                 if (Unit* owner = GetUnitOwner())
                 {
@@ -767,7 +767,7 @@ class spell_valkyr_essences: public SpellScriptLoader
                             {
                                 if (dmgInfo.GetSpellInfo()->Id == darkVortex || dmgInfo.GetSpellInfo()->Id == lightVortex)
                                 {
-                                    AuraPtr pAura = owner->GetAura(poweringUp);
+                                    Aura* pAura = owner->GetAura(poweringUp);
                                     if (pAura)
                                     {
                                         pAura->ModStackAmount(stacksCount);
@@ -776,7 +776,7 @@ class spell_valkyr_essences: public SpellScriptLoader
                                     else
                                     {
                                         owner->CastSpell(owner, poweringUp, true);
-                                        if (AuraPtr pTemp = owner->GetAura(poweringUp))
+                                        if (Aura* pTemp = owner->GetAura(poweringUp))
                                             pTemp->ModStackAmount(stacksCount);
                                     }
                                 }
@@ -791,7 +791,7 @@ class spell_valkyr_essences: public SpellScriptLoader
                                 if (dmgInfo.GetSpellInfo()->Id == unleashedDark || dmgInfo.GetSpellInfo()->Id == unleashedLight)
                                 {
                                     // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
-                                    AuraPtr pAura = owner->GetAura(poweringUp);
+                                    Aura* pAura = owner->GetAura(poweringUp);
                                     if (pAura)
                                     {
                                         // 2 lines together add the correct amount of buff stacks
@@ -801,7 +801,7 @@ class spell_valkyr_essences: public SpellScriptLoader
                                     else
                                     {
                                         owner->CastSpell(owner, poweringUp, true);
-                                        if (AuraPtr pTemp = owner->GetAura(poweringUp))
+                                        if (Aura* pTemp = owner->GetAura(poweringUp))
                                             pTemp->ModStackAmount(stacksCount);
                                     }
                                 }
@@ -837,11 +837,11 @@ class spell_power_of_the_twins: public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            void HandleEffectApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
             }
 
-            void HandleEffectRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
             }
 

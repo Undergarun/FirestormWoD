@@ -11,6 +11,7 @@
 #include "Chat.h"
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
+#include <EasyJSon.hpp>
 
 namespace Battlepay
 {
@@ -96,7 +97,7 @@ namespace Battlepay
     {
         m_Products.clear();
 
-        QueryResult l_Result = WorldDatabase.PQuery("SELECT ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, ChoiceType, Flags, DisplayInfoID, ClassMask, ScriptName FROM battlepay_product");
+        QueryResult l_Result = WorldDatabase.PQuery("SELECT ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, WebsiteType, ChoiceType, Flags, DisplayInfoID, ClassMask, ScriptName FROM battlepay_product");
         if (!l_Result)
             return;
 
@@ -111,11 +112,12 @@ namespace Battlepay
             l_Product.NormalPriceFixedPoint  = l_Fields[1].GetUInt64();
             l_Product.CurrentPriceFixedPoint = l_Fields[2].GetUInt64();
             l_Product.Type                   = l_Fields[3].GetUInt8();
-            l_Product.ChoiceType             = l_Fields[4].GetUInt8();
-            l_Product.Flags                  = l_Fields[5].GetUInt32();
-            l_Product.DisplayInfoID          = l_Fields[6].GetUInt32();
-            l_Product.ClassMask              = l_Fields[7].GetUInt32();
-            l_Product.ScriptName             = l_Fields[8].GetString();
+            l_Product.WebsiteType            = l_Fields[4].GetUInt8();
+            l_Product.ChoiceType             = l_Fields[5].GetUInt8();
+            l_Product.Flags                  = l_Fields[6].GetUInt32();
+            l_Product.DisplayInfoID          = l_Fields[7].GetUInt32();
+            l_Product.ClassMask              = l_Fields[8].GetUInt32();
+            l_Product.ScriptName             = l_Fields[9].GetString();
 
             m_Products.insert(std::make_pair(l_Product.ProductID, l_Product));
         }
@@ -263,32 +265,12 @@ namespace Battlepay
             return;
 
         Battlepay::Product const& l_Product = sBattlepayMgr->GetProduct(p_Purchase->ProductID);
-        std::ostringstream l_ItemsText;
-
-        for (Battlepay::ProductItem const& l_ItemProduct : l_Product.Items)
-        {
-            if (!l_ItemsText.str().empty())
-                l_ItemsText << ",";
-
-            l_ItemsText << l_ItemProduct.ItemID;
-        }
-
-        Battlepay::DisplayInfo const* l_DisplayInfo = sBattlepayMgr->GetDisplayInfo(l_Product.DisplayInfoID);
-        std::string l_Type = "item";
-
-        std::string l_ProductName = "";
-        if (l_DisplayInfo != nullptr)
-        {
-            l_ProductName = l_DisplayInfo->Name1;
-            if (Battlepay::DisplayInfoLocale const* l_Locale = sBattlepayMgr->GetDisplayInfoLocale(l_Product.DisplayInfoID))
-                ObjectMgr::GetLocaleString(l_Locale->Name, p_Session->GetSessionDbLocaleIndex(), l_ProductName);
-        }
 
         PreparedStatement* l_Statement = WebDatabase.GetPreparedStatement(WEB_INS_PURCHASE);
         l_Statement->setUInt32(0, p_Session->GetAccountId());
         l_Statement->setUInt32(1, sLog->GetRealmID());
         l_Statement->setUInt32(2, p_Session->GetPlayer() ? p_Session->GetPlayer()->GetGUIDLow() : 0);
-        l_Statement->setString(3, "InGame Shop - " + l_Type + " - " + l_ProductName);
+        l_Statement->setString(3, l_Product.Serialize());
         l_Statement->setUInt32(4, 1);
         l_Statement->setUInt32(5, p_Purchase->CurrentPrice);
         l_Statement->setString(6, p_Session->GetRemoteAddress());
@@ -414,4 +396,70 @@ namespace Battlepay
         return l_Description;
     }
 
+    std::string Product::Serialize() const
+    {
+        EasyJSon::Node<std::string> l_Node;
+        l_Node["Expansion"] = std::to_string(5);    ///< WoD
+        l_Node["Type"]      = std::to_string(WebsiteType);
+        l_Node["Quantity"]  = std::to_string(1);
+
+        uint32 l_Idx = 0;
+        for (Battlepay::ProductItem const& l_ItemProduct : Items)
+        {
+            auto l_Item = sObjectMgr->GetItemTemplate(l_ItemProduct.ItemID);
+
+            std::string l_Icon = "";
+            if (l_Item)
+            {
+                uint32 l_FileDataId = 0;
+
+                auto l_Itr = g_ItemFileDataId.find(l_ItemProduct.ItemID);
+                if (l_Itr != g_ItemFileDataId.end())
+                    l_FileDataId = l_Itr->second;
+                else
+                    l_FileDataId = l_Item->DisplayInfoID;
+
+                if (auto l_FileData = sFileDataStore.LookupEntry(l_FileDataId))
+                    l_Icon = l_FileData->FileName;
+            }
+
+            if (WebsiteType == WebsiteType::Item)
+            {
+                l_Node["Item"]["ItemID"] = std::to_string(l_ItemProduct.ItemID);
+                l_Node["Item"]["Quality"] = std::to_string(l_Item ? l_Item->Quality : 1);
+                l_Node["Item"]["Icon"] = l_Icon;
+                break;
+            }
+
+            if (WebsiteType == WebsiteType::PackItems)
+            {
+                l_Node["Pack"]["Icon"] = l_Icon;
+                l_Node["Pack"]["ItemsEntry"][l_Idx] = std::to_string(l_ItemProduct.ItemID);
+            }
+
+            l_Idx++;
+        }
+
+        std::map<uint32, uint32> l_IngameToWebsiteLocale =
+        {
+            { LocaleConstant::LOCALE_enUS, 0 },
+            { LocaleConstant::LOCALE_frFR, 1 },
+            { LocaleConstant::LOCALE_deDE, 2 },
+            { LocaleConstant::LOCALE_esES, 3 },
+            { LocaleConstant::LOCALE_ruRU, 4 },
+            { LocaleConstant::LOCALE_itIT, 5 }
+        };
+
+        for (auto l_Itr : l_IngameToWebsiteLocale)
+        {
+            std::string l_Value = "";
+            if (Battlepay::DisplayInfoLocale const* l_Locale = sBattlepayMgr->GetDisplayInfoLocale(DisplayInfoID))
+                ObjectMgr::GetLocaleString(l_Locale->Name, l_Itr.first, l_Value);
+
+            l_Node["Name"][std::to_string(l_Itr.second)]["Locale"] = l_Itr.second;
+            l_Node["Name"][std::to_string(l_Itr.second)]["Value"]  = l_Value;
+        }
+
+        return l_Node.Serialize<std::ostringstream>(true);
+    }
 }

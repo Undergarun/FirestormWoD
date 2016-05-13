@@ -546,7 +546,7 @@ struct AchievementCriteriaData
     }
 
     bool IsValid(CriteriaEntry const* criteria);
-    bool Meets(uint32 criteria_id, Player const* source, Unit const* target, uint32 miscvalue1 = 0) const;
+    bool Meets(uint32 criteria_id, Player const* source, Unit const* target, uint64 miscvalue1 = 0) const;
 };
 
 struct AchievementCriteriaDataSet
@@ -554,7 +554,7 @@ struct AchievementCriteriaDataSet
         AchievementCriteriaDataSet() : criteria_id(0) {}
         typedef std::vector<AchievementCriteriaData> Storage;
         void Add(AchievementCriteriaData const& data) { storage.push_back(data); }
-        bool Meets(Player const* source, Unit const* target, uint32 miscvalue = 0) const;
+        bool Meets(Player const* source, Unit const* target, uint64 miscvalue = 0) const;
         void SetCriteriaId(uint32 id) {criteria_id = id;}
     private:
         uint32 criteria_id;
@@ -594,6 +594,13 @@ struct CompletedAchievementData
 typedef ACE_Based::LockedMap<uint32, CriteriaProgress> CriteriaProgressMap;
 typedef ACE_Based::LockedMap<uint32, CompletedAchievementData> CompletedAchievementMap;
 
+enum ProgressType
+{
+    PROGRESS_SET,
+    PROGRESS_ACCUMULATE,
+    PROGRESS_HIGHEST
+};
+
 template<class T>
 class AchievementMgr
 {
@@ -625,14 +632,15 @@ class AchievementMgr
         CompletedAchievementMap const& GetCompletedAchivements() const { return m_completedAchievements; }
         ACE_Thread_Mutex& GetCompletedAchievementLock() { return m_CompletedAchievementsLock; }
 
+        void SetCriteriaProgress(CriteriaEntry const* entry, uint64 changeValue, Player* referencePlayer, ProgressType ptype = PROGRESS_SET);
+        void SetCompletedAchievementsIfNeeded(CriteriaEntry const* p_Criteria, Player* p_RefPlayer, bool p_LoginCheck = false);
+
     private:
-        enum ProgressType { PROGRESS_SET, PROGRESS_ACCUMULATE, PROGRESS_HIGHEST };
         void SendAchievementEarned(AchievementEntry const* achievement) const;
         void SendCriteriaUpdate(CriteriaEntry const* p_Entry, CriteriaProgress const* p_Progress, uint32 p_TimeElapsed, bool p_TimedCompleted, bool p_UpdateAccount) const;
         CriteriaProgressMap* GetCriteriaProgressMap();
         CriteriaProgress* GetCriteriaProgress(uint32 entry);
         CriteriaProgress* GetCriteriaProgress(CriteriaEntry const* entry);
-        void SetCriteriaProgress(CriteriaEntry const* entry, uint64 changeValue, Player* referencePlayer, ProgressType ptype = PROGRESS_SET);
         void RemoveCriteriaProgress(CriteriaEntry const* entry);
         void CompletedCriteriaFor(AchievementEntry const* achievement, Player* referencePlayer, bool p_LoginCheck = false);
         bool CanCompleteCriteria(CriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);

@@ -118,7 +118,7 @@ public:
             if (someplayer)
             {
                 Unit* p = Unit::GetUnit(*me, someplayer);
-                if (p && p->GetTypeId() == TYPEID_PLAYER)
+                if (p && p->IsPlayer())
                 {
                     switch (me->GetEntry())
                     {
@@ -246,7 +246,7 @@ public:
                         if (someplayer)
                         {
                             Unit* u = Unit::GetUnit(*me, someplayer);
-                            if (u && u->GetTypeId() == TYPEID_PLAYER) DoScriptText(EMOTE_START, me, u);
+                            if (u && u->IsPlayer()) DoScriptText(EMOTE_START, me, u);
                         }
                         Event_Timer = 60000;
                         Wave = true;
@@ -274,7 +274,7 @@ public:
                         if (someplayer)
                         {
                             Unit* u = Unit::GetUnit(*me, someplayer);
-                            if (u && u->GetTypeId() == TYPEID_PLAYER)
+                            if (u && u->IsPlayer())
                                 CAST_PLR(u)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
                             DoCast(me, SPELL_DISABLE_VISUAL);
                         }
@@ -775,7 +775,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
                 PlayerGUID = who->GetGUID();
         }
 

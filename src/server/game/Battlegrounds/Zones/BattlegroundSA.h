@@ -39,7 +39,7 @@ enum BG_SA_WorldSafeLocs
     BG_SA_WORLDSAFELOC_ATTACKER_START = 1350
 };
 
-static const float g_BG_SA_AttackerPosition[2][4] =
+static const float g_BG_SA_AttackerPosition[2][4] = ///< this is unused !
 {
     { 2682.936f, -830.368f, 30.0f, 2.895f },
     { 2577.003f, 980.261f, 30.0f, 0.807f }
@@ -52,7 +52,8 @@ enum BG_SA_Status
     BG_SA_ROUND_ONE,
     BG_SA_SECOND_WARMUP,
     BG_SA_ROUND_TWO,
-    BG_SA_BONUS_ROUND
+    BG_SA_BONUS_ROUND,
+    BG_SA_END
 };
 
 enum BG_SA_GateState
@@ -555,7 +556,7 @@ class BattlegroundSA : public Battleground
 
         /* Scorekeeping */
         /// Update score board
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundSA::UpdatePlayerScore' hides overloaded virtual function
 
         // Achievement: Defense of the Ancients
         bool gateDestroyed;
@@ -567,7 +568,7 @@ class BattlegroundSA : public Battleground
         TeamId Attackers;
 
         /// No Clue how to award this ???? give silver to looser and gold to winner
-        uint32 GetTeamScore(uint32 p_TeamID) const { return 2; }
+        uint32 GetTeamScore(uint32 p_TeamID) const { return 2; } ///< p_TeamID is unused 22/02/16
         uint32 GetMaxScore() const { return 3; }
         bool IsScoreIncremental() const { return true; }
 

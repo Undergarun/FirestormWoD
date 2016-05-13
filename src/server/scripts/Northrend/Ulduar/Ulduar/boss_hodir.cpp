@@ -234,7 +234,7 @@ class npc_flash_freeze : public CreatureScript
                     // Freeze only players and helper npcs
                     bool freeze = false;
 
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->IsPlayer())
                         freeze = true;
 
                     if (target->GetTypeId() == TYPEID_UNIT)
@@ -249,7 +249,7 @@ class npc_flash_freeze : public CreatureScript
                         return;
 
                     DoCast(target, SPELL_BLOCK_OF_ICE, true);
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->IsPlayer())
                         if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                             Hodir->AI()->DoAction(ACTION_CHEESE_THE_FREEZE);
                 }
@@ -379,7 +379,7 @@ class boss_hodir : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_SLAY);
             }
 
@@ -532,8 +532,8 @@ class boss_hodir : public CreatureScript
                     std::list<HostileReference*> ThreatList = me->getThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                         if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
-                            if (AuraPtr BitingColdAura = target->GetAura(SPELL_BITING_COLD_TRIGGERED))
-                                if ((target->GetTypeId() == TYPEID_PLAYER) && (BitingColdAura->GetStackAmount() > 2))
+                            if (Aura* BitingColdAura = target->GetAura(SPELL_BITING_COLD_TRIGGERED))
+                                if ((target->IsPlayer()) && (BitingColdAura->GetStackAmount() > 2))
                                     gettingColdInHere = false;
 
                     gettingColdInHereTimer = 2000;
@@ -584,7 +584,7 @@ class boss_hodir : public CreatureScript
                         continue;
                     }
 
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->IsPlayer())
                         target->CastSpell(target, SPELL_SUMMON_BLOCK_OF_ICE, true);
                     else
                         target->CastSpell(target, SPELL_SUMMON_FLASH_FREEZE_HELPER, true);
@@ -1038,7 +1038,7 @@ class spell_biting_cold: public SpellScriptLoader
         {
             PrepareAuraScript(spell_biting_cold_AuraScript);
 
-            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 Unit* target = GetTarget();
                 bool found = false;
@@ -1055,7 +1055,7 @@ class spell_biting_cold: public SpellScriptLoader
                     }
                     else
                     {
-                        if (target->isMoving())
+                        if (target->IsMoving())
                             itr->second = 1;
                         else
                             itr->second++;
@@ -1094,7 +1094,7 @@ class spell_biting_cold_dot: public SpellScriptLoader
         {
             PrepareAuraScript(spell_biting_cold_dot_AuraScript);
 
-            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 Unit* caster = GetCaster();
                 if (!caster)
@@ -1103,7 +1103,7 @@ class spell_biting_cold_dot: public SpellScriptLoader
                 int32 damage = int32(200 * pow(2.0f, GetStackAmount()));
                 caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, NULL, NULL, true);
 
-                if (caster->isMoving())
+                if (caster->IsMoving())
                     caster->RemoveAuraFromStack(SPELL_BITING_COLD_TRIGGERED);
             }
 

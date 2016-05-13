@@ -162,7 +162,7 @@ bool Player::UpdateAllStats()
 
     // Custom MoP script
     // Jab Override Driver
-    if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MONK)
+    if (IsPlayer() && getClass() == CLASS_MONK)
     {
         Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
@@ -205,7 +205,7 @@ bool Player::UpdateAllStats()
         }
     }
     // Way of the Monk - 120277
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (IsPlayer())
     {
         if (getClass() == CLASS_MONK && HasAura(120277))
         {
@@ -230,23 +230,20 @@ bool Player::UpdateAllStats()
         }
     }
     // Assassin's Resolve - 84601
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (getClass() == CLASS_ROGUE && GetSpecializationId() == SPEC_ROGUE_ASSASSINATION)
     {
-        if (getClass() == CLASS_ROGUE && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION)
+        Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+        if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
         {
-            Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-            Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-            if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
-            {
-                if (HasAura(84601))
-                    RemoveAura(84601);
-
-                CastSpell(this, 84601, true);
-            }
-            else
+            if (HasAura(84601))
                 RemoveAura(84601);
+
+            CastSpell(this, 84601, true);
         }
+        else
+            RemoveAura(84601);
     }
 
     UpdateAllRatings();
@@ -360,7 +357,7 @@ void Player::UpdateMaxPower(Powers p_Power)
 
     AuraEffectList const& mModMaxPower = GetAuraEffectsByType(SPELL_AURA_MOD_MAX_POWER);
     for (AuraEffectList::const_iterator i = mModMaxPower.begin(); i != mModMaxPower.end(); ++i)
-        if (p_Power == (*i)->GetMiscValue())
+        if (p_Power == (*i)->GetMiscValue()) ///< Comparison of integers of different signs: 'Powers' and 'int32' (aka 'int')
             l_Value += float((*i)->GetAmount());
 
         l_Value = floor(l_Value + 0.5f);
@@ -390,8 +387,8 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     if (ranged)
     {
         index = UNIT_FIELD_RANGED_ATTACK_POWER;
-        index_mod_pos = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS;
-        index_mod_neg = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG;
+        index_mod_pos = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS; ///< index_mod_pos is never read 01/18/16
+        index_mod_neg = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG; ///< index_mod_neg is never read 01/18/16
         index_mult = UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER;
         val2 = GetStat(STAT_AGILITY) *  entry->RangedAttackPowerPerAgility;
     }
@@ -411,7 +408,12 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
 
     float base_attPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
-    float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+
+    float attPowerMultiplier = 1.0f;
+    if (ranged)
+        attPowerMultiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT) - 1.0f;
+    else
+        attPowerMultiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_ATTACK_POWER_PCT) - 1.0f;
 
     //add dynamic flat mods
     if (!ranged && HasAuraType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR))
@@ -433,8 +435,8 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     if (HasAuraType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT))
     {
         int32 ApBySpellPct = 0;
-        int32 spellPower = ToPlayer()->GetBaseSpellPowerBonus(); // SpellPower from Weapon
-        spellPower += std::max(0, int32(ToPlayer()->GetStat(STAT_INTELLECT)) - 10); // SpellPower from intellect
+        int32 spellPower = GetBaseSpellPowerBonus(); // SpellPower from Weapon
+        spellPower += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10); // SpellPower from intellect
 
         AuraEffectList const& mAPFromSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT);
         for (AuraEffectList::const_iterator i = mAPFromSpellPowerPct.begin(); i != mAPFromSpellPowerPct.end(); ++i)
@@ -564,7 +566,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     }
 }
 
-void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon)
+void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon) ///< attType is unused
 {
     float l_NormalizedSpeedCoef = 1.0f;
 
@@ -674,59 +676,139 @@ void Player::UpdateAllCritPercentages()
     UpdateCritPercentage(WeaponAttackType::RangedAttack);
 }
 
+const int8 k_constatBaseRaceStr[MAX_RACES] =
+{
+    0, ///< None
+    0, ///< Humain
+    3, ///< Orc
+    5, ///< Dwarf
+    -4, ///< Night Elfe
+    -1, ///< Undead
+    5, ///< Tauren
+    -5, ///< Gnome
+    1, ///< Troll
+    -3, ///< Goblin
+    -3, ///< BloodElfe
+    1, ///< Drenei
+    1, ///< Worgen
+    0, ///< Pandaren Neutral
+    0, ///< Pandaren Alli
+    0 ///< Pandaren Horde
+};
+
+const int8 k_constatBaseRaceAgi[MAX_RACES] =
+{
+    0, ///< None
+    0, ///< Humain
+    -3, ///< Orc
+    -4, ///< Dwarf
+    4, ///< Night Elfe
+    -2, ///< Undead
+    -4, ///< Tauren
+    2, ///< Gnome
+    2, ///< Troll
+    -3, ///< Goblin
+    2, ///< BloodElfe
+    1, ///< Drenei
+    3, ///< Worgen
+    -2, ///< Pandaren Neutral
+    -2, ///< Pandaren Alli
+    -2 ///< Pandaren Horde
+};
+
 const float k_constant[MAX_CLASSES] =
 {
-    0.9560f,  // Warrior
-    0.8860f,  // Paladin
-    0.9880f,  // Hunter
-    0.9880f,  // Rogue
-    0.9830f,  // Priest
-    0.9560f,  // DK
-    0.9880f,  // Shaman
-    0.9830f,  // Mage
-    0.9830f,  // Warlock
-    1.4220f,  // Monk
-    1.2220f   // Druid
+    0.634f,  /// Warrior
+    0.634f,  /// Paladin
+    1.000f,  /// Hunter
+    1.000f,  /// Rogue
+    1.000f,  /// Priest
+    0.634f,  /// DK
+    1.000f,  /// Shaman
+    1.000f,  /// Mage
+    1.000f,  /// Warlock
+    1.659f,  /// Monk
+    1.000f   /// Druid
+};
+
+const float k_DodgeFactor[MAX_CLASSES] =
+{
+    1.659f,  /// Warrior
+    2.259f,  /// Paladin
+    1.000f,  /// Hunter
+    1.000f,  /// Rogue
+    1.000f,  /// Priest
+    1.659f,  /// DK
+    1.000f,  /// Shaman
+    1.000f,  /// Mage
+    1.000f,  /// Warlock
+    0.300f,  /// Monk
+    1.000f   /// Druid
+};
+
+static float k_constantVerticalStretch[MAX_CLASSES] =
+{
+    0.00665f, /// Warrior
+    0.00665f, /// Paladin
+    0.00687f, /// Hunter
+    0.00687f, /// Rogue
+    0.00665f, /// Priest
+    0.00665f, /// DK
+    0.00687f, /// Shaman
+    0.00665f, /// Mage
+    0.00665f, /// Warlock
+    0.00665f, /// Monk
+    0.00665f  /// Druid
+};
+
+static float k_constantVHorizontalShift[MAX_CLASSES] =
+{
+    0.956f, /// Warrior
+    0.886f, /// Paladin
+    0.988f, /// Hunter
+    0.988f, /// Rogue
+    0.983f, /// Priest
+    0.956f, /// DK
+    0.988f, /// Shaman
+    0.983f, /// Mage
+    0.983f, /// Warlock
+    1.422f, /// Monk
+    1.222f  /// Druid
 };
 
 void Player::UpdateParryPercentage()
 {
-    const float parryCap[MAX_CLASSES] =
-    {
-        237.1860f,    // Warrior
-        237.1860f,    // Paladin
-        145.5604f,    // Hunter
-        145.5604f,    // Rogue
-        150.3759f,    // Priest
-        237.1860f,    // DK
-        145.5604f,    // Shaman
-        150.3759f,    // Mage
-        150.3759f,    // Warlock
-        90.6425f,     // Monk
-        150.3759f     // Druid
-    };
-
-    // No parry
+    /// No parry
     float value = 0.0f;
+    float l_Total = 0.0f;
     uint32 pClass = getClass() - 1;
 
     if (CanParry())
     {
-        float diminishing = 0.0f;
-        float nondiminishing = 3.0f;
+        /*http://www.sacredduty.net/2014/08/06/tc401-avoidance-diminishing-returns-in-wod/ */
+        float l_BaseParry = 3.0f;
 
-        // Parry from SPELL_AURA_MOD_PARRY_PERCENT aura
-        nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
-
-        // Parry from rating
-        diminishing = GetRatingBonusValue(CR_PARRY);
-
-        /// Parry from strength, just for paladin/dk/warrior
-        /*http://www.sacredduty.net/2014/08/06/tc401-avoidance-diminishing-returns-in-wod/
-        1% parry before diminishing returns = 176.3760684 strength
-        1 strength gives 1 / 176.3760684 = 0,0056697034301282*/
         if (getClass() == CLASS_PALADIN || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR)
-            diminishing += GetTotalStatValue(STAT_STRENGTH, false) * 0.00566970f;
+            l_BaseParry += (k_constatBaseRaceStr[getRace()] + 0.0739f) * (1 / 176.3760684f);
+
+        float l_BonusParry = (GetTotalStatValue(STAT_STRENGTH, false)  * (1 / 176.3760684f) + (GetRatingBonusValue(CR_PARRY) / 162));
+        l_Total += l_BaseParry + l_BonusParry / (l_BonusParry * k_constant[pClass] * k_constantVerticalStretch[pClass] + k_constantVHorizontalShift[pClass]);
+
+        l_Total += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
+
+        /// Apply parry from pct of critical strike from gear
+        l_Total += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING));
+
+        if (l_Total < 0.0f)
+            l_Total = 0.0f;
+
+        if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
+            l_Total = l_Total > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : l_Total;
+        /// Parry from strength, just for paladin/dk/warrior        
+        /*1% parry before diminishing returns = 176.3760684 strength
+        1 strength gives 1 / 176.3760684 = 0,0056697034301282*/
+       /* if (getClass() == CLASS_PALADIN || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR)
+            diminishing += (1.0f / 176.3760684f) / 100.0f) * GetTotalStatValue(STAT_STRENGTH, false); ///< Level 100 rating
 
         // apply diminishing formula to diminishing parry chance
         value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + (parryCap[pClass] * k_constant[pClass]));
@@ -738,35 +820,14 @@ void Player::UpdateParryPercentage()
             value = 0.0f;
 
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
-            value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : value;
+            value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : value;*/
     }
 
-    SetStatFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE, value);
+    SetStatFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE, l_Total);
 }
 
 void Player::UpdateDodgePercentage()
 {
-    const float dodgeCap[MAX_CLASSES] =
-    {
-        90.6425f,     // Warrior
-        66.5675f,     // Paladin
-        145.5604f,    // Hunter
-        145.5604f,    // Rogue
-        150.3759f,    // Priest
-        90.6425f,     // DK
-        145.5604f,    // Shaman
-        150.3759f,    // Mage
-        150.3759f,    // Warlock
-        501.2531f,    // Monk
-        150.3759f     // Druid
-    };
-
-    float diminishing = 0.0f;
-    float nondiminishing = 3.0f;
-
-    // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
-    nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
-
     /*
         3.36 + 1.25 (3.36 + 1.25 from 221 agi) on offi -- enhancement shaman -- ask sovak if you dont understand
 
@@ -778,21 +839,28 @@ void Player::UpdateDodgePercentage()
         221 agi = 1.245764057198927
         1 agi = 0.0056369414352893
     */
+    uint32 pClass = getClass() - 1;
 
     // Dodge from rating
-    diminishing += GetRatingBonusValue(CR_DODGE);
-    diminishing += GetTotalStatValue(STAT_AGILITY, false) * 0.0056369414352893f;
+    float l_BaseDodge = 3.0f;
+    float l_Total = 0.0f;
 
-    uint32 pClass = getClass() - 1;
-    // apply diminishing formula to diminishing dodge chance
-    float value = nondiminishing + (diminishing * dodgeCap[pClass] / (diminishing + (dodgeCap[pClass] * k_constant[pClass])));
-    if (value < 0.0f)
-        value = 0.0f;
+    // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
+    l_BaseDodge += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
+
+    if (getClass() == CLASS_MONK || getClass() == CLASS_DRUID || getClass() == CLASS_ROGUE || getClass() == CLASS_HUNTER || getClass() == CLASS_SHAMAN)
+        l_BaseDodge += (k_constatBaseRaceAgi[getRace()] * (1 / 176.3760684f));
+
+    float l_BonusDodge = (GetTotalStatValue(STAT_AGILITY, false)  * (1 / 176.3760684f) + (GetRatingBonusValue(CR_DODGE) / 162));
+    l_Total += l_BaseDodge + l_BonusDodge / (l_BonusDodge * k_DodgeFactor[pClass] * k_constantVerticalStretch[pClass] + k_constantVHorizontalShift[pClass]);
+
+    if (l_Total < 0.0f)
+        l_Total = 0.0f;
 
     if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
-        value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : value;
+        l_Total = l_Total > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : l_Total;
 
-    SetStatFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE, value);
+    SetStatFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE, l_Total);
 }
 
 void Player::UpdateBlockPercentage()
@@ -868,17 +936,32 @@ void Player::UpdateSpellCritChance(uint32 school)
 
 void Player::UpdateMasteryPercentage()
 {
-    // No mastery
-    float value = 0.0f;
+    /// No mastery
+    float l_Value = 0.0f;
     if (CanMastery() && getLevel() >= 80)
     {
-        // Mastery from SPELL_AURA_MASTERY aura
-        value += GetTotalAuraModifier(SPELL_AURA_MASTERY);
-        // Mastery from rating
-        value += GetRatingBonusValue(CR_MASTERY);
-        value = value < 0.0f ? 0.0f : value;
+        /// Mastery from SPELL_AURA_MASTERY aura
+        l_Value += GetTotalAuraModifier(SPELL_AURA_MASTERY);
+        float l_Modifier = 0;
+
+        /// Mastery from rating
+        float l_RatingValue = GetRatingBonusValue(CombatRating::CR_MASTERY);
+
+        ///< Add rating pct
+        AuraEffectList const& l_ModRatingPCT = GetAuraEffectsByType(AuraType::SPELL_AURA_INCREASE_RATING_PCT);
+        for (AuraEffectList::const_iterator l_Iter = l_ModRatingPCT.begin(); l_Iter != l_ModRatingPCT.end(); ++l_Iter)
+        {
+            if ((*l_Iter)->GetMiscValue() & (1 << CombatRating::CR_MASTERY))
+                l_Modifier += float((*l_Iter)->GetAmount());
+        }
+        AddPct(l_RatingValue, l_Modifier);
+
+        l_Value += l_RatingValue;
+        l_Value = l_Value < 0.0f ? 0.0f : l_Value;
     }
-    SetFloatValue(PLAYER_FIELD_MASTERY, value);
+    SetFloatValue(PLAYER_FIELD_MASTERY, l_Value);
+
+    bool l_MasteryCache = false;
 
     /// Update some mastery spells
     AuraApplicationMap& l_AppliedAuras = GetAppliedAuras();
@@ -887,18 +970,24 @@ void Player::UpdateMasteryPercentage()
         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter.first);
         if (l_SpellInfo != nullptr && l_SpellInfo->HasAttribute(SpellAttr8::SPELL_ATTR8_MASTERY_SPECIALIZATION))
         {
-            AuraPtr l_Aura = l_Iter.second->GetBase();
+            Aura* l_Aura = l_Iter.second->GetBase();
             for (uint8 l_I = 0; l_I < l_Aura->GetEffectCount(); ++l_I)
             {
-                if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
+                if (AuraEffect* l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
                     if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
-                        || l_SpellInfo->Id == 76856) ///< Mastery : Unshackled Fury
+                        || (l_SpellInfo->Id == 76856)) ///< Mastery : Unshackled Fury
                         l_AurEff->ChangeAmount(0, true, true);
                     else
                     {
-                        l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+                        l_AurEff->ChangeAmount((int32)(l_Value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+
+                        if (!l_MasteryCache)
+                        {
+                            m_MasteryCache = l_Value * l_SpellInfo->Effects[l_I].BonusMultiplier;
+                            l_MasteryCache = true;
+                        }
                     }
                 }
             }
@@ -917,7 +1006,7 @@ void Player::UpdateMultistrikePercentage()
     float value = GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_PCT);
     float effect = 30.f; // Default value
     value += GetRatingBonusValue(CR_MULTISTRIKE);
-    effect += GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT);
+    AddPct(effect, GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT));
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE, value);
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, effect / 100.f);
 }
@@ -975,48 +1064,92 @@ void Player::UpdateManaRegen()
     if (getPowerType() != POWER_MANA && !IsInFeralForm())
         return;
 
-    uint32 hp;
-    uint32 mana = 0;
-    float spiritRegen = OCTRegenMPPerSpirit();
-    float outOfCombatRegen;
-    float combatRegen;
+    /// See http://us.battle.net/wow/en/forum/topic/6794873160 .
 
-    sObjectMgr->GetPlayerClassLevelInfo(getClass(), getLevel(), hp, mana);
-    mana *= GetTotalAuraMultiplier(SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT);
+    uint8 l_PercentOfMana = 2;
+    float l_SpiritRegenIncrease = OCTRegenMPPerSpirit();   ///< Mana regen increase from spirit - per-point calculation * player stat.
 
-    if (GetRoleForGroup() != ROLE_HEALER)
+    float l_CombatRegenFromSpirit = 0;
+    float l_CombatRegenFromAurPct = 0;
+    float l_BaseRegenFromAurPct = 0;
+    float l_RegenFromModPowerRegen = /*GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f*/ 0.0f;
     {
-        combatRegen = 0.004f * mana + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
-        outOfCombatRegen = 0.02f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
+        std::map<SpellGroup, int32> l_SameEffectSpellGroup;
+
+        AuraEffectList const& l_List = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN);
+        for (auto const& l_Eff : l_List)
+        {
+            if (l_Eff->GetMiscValue() == POWER_MANA)
+            {
+                if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(l_Eff->GetSpellInfo(), l_Eff->GetAmount(), l_SameEffectSpellGroup))
+                {
+                    auto l_Base = l_Eff->GetBase();
+                    if (l_Base && l_Base->GetMaxDuration() == 3600000) ///< is one-hour aura
+                        l_RegenFromModPowerRegen += l_Eff->GetAmount();
+                    else
+                        l_RegenFromModPowerRegen += l_Eff->GetAmount() / 5.0f;
+                }
+            }
+        }
+
+        for (auto const& l_Kvp :l_SameEffectSpellGroup)
+        {
+            l_RegenFromModPowerRegen += l_Kvp.second / 5.0f;
+        }
     }
-    else
-    {
-        combatRegen = spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
-        outOfCombatRegen = 0.02f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
-    }
 
-    /// Warlocks mana regen 5% of maximum mana - blizzlike
-    if (getClass() == CLASS_WARLOCK)
-    {
-        combatRegen *= 2.5f;
-        outOfCombatRegen *= 2.5f;
-    }
+    /// Warlocks and Mages have 5% of maximum mana in base mana regen - blizzlike
+    if (getClass() == CLASS_WARLOCK || getClass() == CLASS_MAGE)
+        l_PercentOfMana = 5;
 
-    if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT))
-        combatRegen *= 1.5f; // Allows 50% of your mana regeneration from Spirit to continue while in combat.
+    /// 2% of base mana each 5 seconds.
+    float l_Combat_regen = float(CalculatePct(GetMaxPower(POWER_MANA), l_PercentOfMana));
+    float l_Base_regen = float(CalculatePct(GetMaxPower(POWER_MANA), l_PercentOfMana));
 
-    outOfCombatRegen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
-    combatRegen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
-
-    if (HasAuraType(AuraType::SPELL_AURA_MOD_MANA_REGEN_BY_HASTE))
+    if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_BY_HASTE))
     {
         float l_HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
-        outOfCombatRegen *= l_HastePct;
-        combatRegen *= l_HastePct;
+
+        l_Combat_regen *= l_HastePct;
+        l_Base_regen *= l_HastePct;
     }
 
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, combatRegen);
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, outOfCombatRegen);
+    /// Try to get aura with spirit addition to combat mana regen.
+    /// Meditation: Allows 50% of your mana regeneration from Spirit to continue while in combat.
+    int32 l_PercentAllowCombatRegenBySpirit = 0;
+    Unit::AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
+    for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
+        l_PercentAllowCombatRegenBySpirit += (*i)->GetAmount();
+
+    if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT) && l_PercentAllowCombatRegenBySpirit != 0)
+        l_CombatRegenFromSpirit += (float(l_PercentAllowCombatRegenBySpirit) / 100) * l_SpiritRegenIncrease; ///< Allows you mana regeneration from Spirit to continue while in combat.
+
+    /// Increase mana regen.
+    int32 l_PercentIncreaseManaRegen = 0;
+    int32 l_IncreaseManaRegen = l_Combat_regen;
+
+    /// Increase mana from SPELL_AURA_MOD_POWER_REGEN_PERCENT
+    Unit::AuraEffectList const& ModRegenPct = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (AuraEffectList::const_iterator i = ModRegenPct.begin(); i != ModRegenPct.end(); ++i)
+        if (Powers((*i)->GetMiscValue()) == POWER_MANA)
+            l_IncreaseManaRegen += l_IncreaseManaRegen * ((*i)->GetAmount() / 100.0f);
+
+    /// If IncreaseManaRegen is bigger then combat_regen we have increased mana regen by auras, so we should add it
+    if (HasAuraType(SPELL_AURA_MOD_POWER_REGEN_PERCENT) || HasAuraType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT) && l_IncreaseManaRegen > l_Combat_regen)
+    {
+        l_IncreaseManaRegen -= l_Combat_regen;
+        l_BaseRegenFromAurPct = l_IncreaseManaRegen;
+        l_CombatRegenFromAurPct = l_IncreaseManaRegen;
+    }
+
+    /// Calculate for 1 second, the client multiplies the field values by 5.
+    l_Base_regen = ((l_Base_regen + l_BaseRegenFromAurPct + l_RegenFromModPowerRegen) / 5.0f) + l_SpiritRegenIncrease;
+    l_Combat_regen = ((l_Combat_regen + l_CombatRegenFromAurPct + l_RegenFromModPowerRegen) / 5.0f) + l_CombatRegenFromSpirit;
+
+    /// Out of Combat
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, l_Base_regen);
+    /// In Combat
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, l_Combat_regen);
 }
 
 void Player::UpdateEnergyRegen()
@@ -1036,6 +1169,7 @@ void Player::UpdateEnergyRegen()
         l_RegenFlatMultiplier += l_AuraEffect->GetAmount() / 100.0f;
     }
     SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + l_PowerIndex, GetRegenForPower(Powers::POWER_ENERGY) - (GetRegenForPower(Powers::POWER_ENERGY) / l_RegenFlatMultiplier));
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + l_PowerIndex, GetRegenForPower(Powers::POWER_ENERGY) - (GetRegenForPower(Powers::POWER_ENERGY) / l_RegenFlatMultiplier));
 }
 
 void Player::UpdateFocusRegen()
@@ -1044,6 +1178,7 @@ void Player::UpdateFocusRegen()
         return;
 
     SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_FOCUS));
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_FOCUS));
 }
 
 void Player::UpdateAllRunesRegen()
@@ -1217,7 +1352,7 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
+void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields) ///< l_NoLongerDualWields is unused
 {
     float l_Variance = 1.f;
     UnitMods l_UnitMod;
@@ -1252,6 +1387,11 @@ void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     float l_TotalValue       = GetModifierValue(l_UnitMod, TOTAL_VALUE);
     float l_TotalPct         = GetModifierValue(l_UnitMod, TOTAL_PCT);
     float l_DmgMultiplier    = GetCreatureTemplate()->dmg_multiplier;
+
+    /// Since WoD, there is no need to add specific template for each difficulty (except for LFR and Mythic modes)
+    /// Then for heroic mode we must increase the dmg_multiplier by 20% (guessed from creature_groupsizestats changes)
+    if (GetCreatureTemplate()->expansion == Expansion::EXPANSION_WARLORDS_OF_DRAENOR && GetMap()->GetDifficultyID() == Difficulty::DifficultyRaidHeroic && isWorldBoss())
+        l_DmgMultiplier *= 1.2f;
 
     if (!CanUseAttackType(p_AttType))
     {
@@ -1307,7 +1447,7 @@ bool Guardian::UpdateStats(Stats p_Stat)
     {
         case STAT_STAMINA:
         {
-            l_Mod = 0.3f;
+            l_Mod = 0.3f; ///< l_mod is never read 01/18/16
 
             if (IsPetGhoul() || IsPetGargoyle())
                 l_Mod = 0.45f;
@@ -1487,7 +1627,9 @@ void Guardian::UpdateMaxHealth()
     AuraEffectList const& l_ModPetStats = l_Owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
     for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
     {
-        if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*l_Iterator)->GetMiscValueB() && (int32)GetEntry() == (*l_Iterator)->GetMiscValueB())
+        if ((*l_Iterator)->GetMiscValueB() && (int32)GetEntry() != (*l_Iterator)->GetMiscValueB())
+            continue;
+        if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT)
             l_Amount += float((*l_Iterator)->GetAmount());
     }
 
@@ -1571,7 +1713,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, l_BaseAttackPower);
 
-    if (l_Owner->GetTypeId() == TYPEID_PLAYER)
+    if (l_Owner->IsPlayer() && GetEntry() != ENTRY_FROZEN_ORB)
         l_Owner->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, l_SpellPower);
 
     l_BaseAttackPower      *= GetModifierValue(l_UnitMod, BASE_PCT);
@@ -1593,8 +1735,8 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
         UpdateDamagePhysical(WeaponAttackType::OffAttack);
 }
 
-// WoD updated
-void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
+/// WoD updated
+void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields) ///< l_NoLongerDualWields is unused
 {
     UnitMods l_UnitMod;
     switch (p_AttType)
@@ -1612,9 +1754,6 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     }
 
     float l_AttackSpeed = float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
-    /// Hunter's pets got 2.8 from normalized ranged weapons speed
-    if (isHunterPet())
-        l_AttackSpeed = 2.8f;
 
     float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
 

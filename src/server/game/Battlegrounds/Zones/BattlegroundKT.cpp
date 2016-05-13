@@ -17,7 +17,6 @@
 
 #include "Object.h"
 #include "Player.h"
-#include "Battleground.h"
 #include "BattlegroundKT.h"
 #include "Creature.h"
 #include "GameObject.h"
@@ -87,7 +86,7 @@ void BattlegroundKT::PostUpdateImpl(uint32 diff)
                         if (Player* player = ObjectAccessor::FindPlayer(guid))
                         {
                             AccumulateScore(player->GetBGTeam() == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE, m_playersZone[guid]);
-                            UpdatePlayerScore(player, SCORE_ORB_SCORE, m_playersZone[guid]);
+                            UpdatePlayerScore(player, SCORE_ORB_SCORE, BG_KT_TickPoints[m_playersZone[guid]]);
                         }
                     }
                 }
@@ -216,8 +215,11 @@ void BattlegroundKT::EventPlayerDroppedOrb(Player* source)
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
-void BattlegroundKT::RemovePlayer(Player* plr, ObjectGuid guid)
+void BattlegroundKT::RemovePlayer(Player* plr, uint64 guid, uint32 /*team*/)
 {
+    if (plr == nullptr)
+        return;
+
     EventPlayerDroppedOrb(plr);
     m_playersZone.erase(plr->GetGUID());
 }

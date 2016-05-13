@@ -732,7 +732,7 @@ class mob_ik_thik_terrorclaw : public CreatureScript
                 if (!player)
                     return;
 
-                switch (player->GetSpecializationId(player->GetActiveSpec()))
+                switch (player->GetSpecializationId())
                 {
                     case SPEC_DK_BLOOD:
                     case SPEC_DK_FROST:

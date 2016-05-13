@@ -16,6 +16,7 @@ endif ()
 file(GLOB_RECURSE sources_Management Management/*.cpp Management/*.h)
 file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
 file(GLOB_RECURSE sources_Models Models/*.cpp Models/*.h)
+file(GLOB_RECURSE sources_Pathfinding Pathfinding/*.cpp Pathfinding/*.h)
 file(GLOB sources_localdir *.cpp *.h)
 
 if (USE_COREPCH)
@@ -28,6 +29,7 @@ set(collision_STAT_SRCS
   ${sources_Management}
   ${sources_Maps}
   ${sources_Models}
+  ${sources_Pathfinding}
   ${sources_localdir}
 )
 
@@ -55,7 +57,10 @@ set(collision_STAT_SRCS
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
-  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast/Include
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast/
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Configuration
   ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
@@ -97,6 +102,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Management
   ${CMAKE_CURRENT_SOURCE_DIR}/Maps
   ${CMAKE_CURRENT_SOURCE_DIR}/Models
+  ${CMAKE_CURRENT_SOURCE_DIR}/Pathfinding
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
 )

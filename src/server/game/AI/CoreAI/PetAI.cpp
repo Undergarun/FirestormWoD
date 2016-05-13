@@ -104,8 +104,13 @@ void PetAI::UpdateAI(const uint32 diff)
             return;
         }
 
-        if (owner && !owner->isInCombat())
-            owner->SetInCombatWith(me->getVictim());
+        if (owner != nullptr)
+        {
+            if (!owner->isInCombat())
+                owner->SetInCombatWith(me->getVictim());
+            else if (owner->ToPlayer() && owner->ToPlayer()->GetSelectedUnit() && owner->ToPlayer()->GetSelectedUnit()->GetGUID() != me->getVictim()->GetGUID() && me->IsValidAttackTarget(owner->ToPlayer()->GetSelectedUnit()) && CanAttack(owner->ToPlayer()->GetSelectedUnit()))
+                AttackStart(owner->ToPlayer()->GetSelectedUnit());
+        }
 
         if (CanAttack(me->getVictim()))
             DoMeleeAttackIfReady();
@@ -129,6 +134,10 @@ void PetAI::UpdateAI(const uint32 diff)
         else
             HandleReturnMovement();
     }
+
+    /// Special case for Singe Magic of warlock pet Imp, should always trigger on caster, even if spell is not not on active state
+    if (!me->HasUnitState(UNIT_STATE_CASTING) && me->HasSpell(89808) && owner && owner->HasAuraType(SPELL_AURA_MOD_SILENCE))
+        me->CastSpell(owner, 89808, true);
 
     // Autocast (casted only in combat or persistent spells in any state)
     if (!me->HasUnitState(UNIT_STATE_CASTING))
@@ -241,10 +250,10 @@ void PetAI::UpdateAI(const uint32 diff)
             if (!me->HasInArc(M_PI, target))
             {
                 me->SetInFront(target);
-                if (target && target->GetTypeId() == TYPEID_PLAYER)
+                if (target && target->IsPlayer())
                     me->SendUpdateToPlayer(target->ToPlayer());
 
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner && owner->IsPlayer())
                     me->SendUpdateToPlayer(owner->ToPlayer());
             }
 
@@ -257,10 +266,9 @@ void PetAI::UpdateAI(const uint32 diff)
     }
 
     // Update speed as needed to prevent dropping too far behind and despawning
-    // This not need to call every update.
-    //me->UpdateSpeed(MOVE_RUN, true);
-    //me->UpdateSpeed(MOVE_WALK, true);
-    //me->UpdateSpeed(MOVE_FLIGHT, true);
+    me->UpdateSpeed(MOVE_RUN, true);
+    me->UpdateSpeed(MOVE_WALK, true);
+    me->UpdateSpeed(MOVE_FLIGHT, true);
 }
 
 void PetAI::UpdateAllies()
@@ -272,7 +280,7 @@ void PetAI::UpdateAllies()
         return;
 
     Group* group = NULL;
-    if (owner->GetTypeId() == TYPEID_PLAYER)
+    if (owner->IsPlayer())
         group = owner->ToPlayer()->GetGroup();
 
     //only pet and owner/not in group->ok

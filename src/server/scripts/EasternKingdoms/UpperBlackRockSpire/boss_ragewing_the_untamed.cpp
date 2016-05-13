@@ -387,7 +387,7 @@ class boss_ragewing_the_untamed : public CreatureScript
                     if (p_Player == nullptr)
                         return true;
 
-                    if (AuraPtr l_Aura = p_Player->GetAura(eSpells::SpellEngulfingFireConfuse, me->GetGUID()))
+                    if (Aura* l_Aura = p_Player->GetAura(eSpells::SpellEngulfingFireConfuse, me->GetGUID()))
                     {
                         if (l_Aura->GetDuration() > 500)
                             return true;

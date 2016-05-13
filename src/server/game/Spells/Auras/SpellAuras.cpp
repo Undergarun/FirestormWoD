@@ -37,7 +37,7 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 
-AuraApplication::AuraApplication(Unit* target, Unit* caster, AuraPtr aura, uint32 effMask):
+AuraApplication::AuraApplication(Unit* target, Unit* caster, Aura* aura, uint32 effMask):
 _target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), m_Slot(MAX_AURAS),
 _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectMask(0)
 {
@@ -190,7 +190,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
 
 void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
 {
-    AuraEffectPtr aurEff = GetBase()->GetEffect(effIndex);
+    AuraEffect* aurEff = GetBase()->GetEffect(effIndex);
     ASSERT(aurEff);
     ASSERT(HasEffect(effIndex) == (!apply));
     ASSERT((1<<effIndex) & _effectsToApply);
@@ -216,7 +216,7 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
 
 void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint32 p_OverrideSpellID) const
 {
-    constAuraPtr l_Base = GetBase();
+    Aura const* l_Base = GetBase();
 
     uint32 l_Flags = _flags;
 
@@ -230,7 +230,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
     for (uint8 l_I = 0; l_I < l_Base->GetEffectCount(); ++l_I)
     {
         /// NULL if effect flag not set
-        if (constAuraEffectPtr l_Effect = l_Base->GetEffect(l_I))
+        if (AuraEffect const* l_Effect = l_Base->GetEffect(l_I))
         {
             if (!HasEffect(l_I))
                 continue;
@@ -253,7 +253,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
         return;
 
     p_Data << uint32(p_OverrideSpellID ? p_OverrideSpellID : l_Base->GetId());                                  ///< SpellID
-    p_Data << uint32(l_Base->GetSpellInfo()->FirstSpellXSpellVIsualID);                                         ///< SpellVisuals
+    p_Data << uint32(l_Base->GetSpellInfo()->FirstSpellXSpellVisualID);                                         ///< SpellVisuals
     p_Data << uint8(l_Flags);                                                                                   ///< Flags
     p_Data << uint32(l_Mask);                                                                                   ///< Active Flags
     p_Data << uint16(l_Base->GetCasterLevel());                                                                 ///< Cast Level
@@ -272,9 +272,9 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
                 continue;
 
             /// NULL if effect flag not set
-            if (constAuraEffectPtr l_Effect = l_Base->GetEffect(l_I))
+            if (AuraEffect* l_Effect = l_Base->GetEffect(l_I))
             {
-                p_Data << float(const_cast<AuraEffect*>(l_Effect.get())->GetCalculatedAmountForClient_First());
+                p_Data << float(l_Effect->GetCalculatedAmountForClient_First());
             }
         }
     }
@@ -287,9 +287,9 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
                 continue;
 
             /// NULL if effect flag not set
-            if (constAuraEffectPtr l_Effect = l_Base->GetEffect(l_I))
+            if (AuraEffect* l_Effect = l_Base->GetEffect(l_I))
             {
-                p_Data << float(const_cast<AuraEffect*>(l_Effect.get())->GetCalculatedAmountForClient_Second());
+                p_Data << float(l_Effect->GetCalculatedAmountForClient_Second());
             }
         }
     }
@@ -324,7 +324,7 @@ void AuraApplication::ClientUpdate(bool p_Remove)
 
     _target->SendMessageToSet(&l_Data, true);
 
-    AuraPtr l_AuraBase = GetBase();
+    Aura* l_AuraBase = GetBase();
     if (l_AuraBase == nullptr || p_Remove)
         return;
 
@@ -389,7 +389,7 @@ uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibl
     return effMask & avalibleEffectMask;
 }
 
-AuraPtr Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, bool* refresh /*= NULL*/)
+Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, bool* refresh /*= NULL*/)
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -399,19 +399,19 @@ AuraPtr Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEff
         *refresh = false;
     uint32 effMask = Aura::BuildEffectMaskForOwner(spellproto, tryEffMask, owner);
     if (!effMask)
-        return NULLAURA;
+        return nullptr;
 
-    AuraPtr foundAura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, caster, baseAmount, castItem, casterGUID);
-    if (foundAura != NULLAURA)
+    Aura* foundAura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, caster, baseAmount, castItem, casterGUID);
+    if (foundAura != nullptr)
     {
         // we've here aura, which script triggered removal after modding stack amount
         // check the state here, so we won't create new Aura object
         if (foundAura->IsRemoved())
-            return NULLAURA;
+            return nullptr;
 
         // Earthgrab Totem : Don't refresh root
         if (foundAura->GetId() == 64695)
-            return NULLAURA;
+            return nullptr;
 
         if (refresh)
             *refresh = true;
@@ -421,7 +421,7 @@ AuraPtr Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEff
         return Create(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
 }
 
-AuraPtr Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
+Aura* Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -429,11 +429,11 @@ AuraPtr Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObj
     ASSERT(tryEffMask <= MAX_EFFECT_MASK);
     uint32 effMask = Aura::BuildEffectMaskForOwner(spellproto, tryEffMask, owner);
     if (!effMask)
-        return NULLAURA;
+        return nullptr;
     return Create(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
 }
 
-AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID)
+Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID)
 {
     ASSERT(effMask);
     ASSERT(spellproto);
@@ -456,20 +456,20 @@ AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* o
         if (!owner->IsInWorld() || ((Unit*)owner)->IsDuringRemoveFromWorld())
             // owner not in world so don't allow to own not self casted single target auras
             if (casterGUID != owner->GetGUID() && spellproto->IsSingleTarget())
-                return NULLAURA;
+                return nullptr;
 
-    AuraPtr aura = NULLAURA;
+    Aura* aura = nullptr;
     switch (owner->GetTypeId())
     {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
-            aura = AuraPtr(new UnitAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID));
-            aura->GetUnitOwner()->_AddAura(TO_UNITAURA(aura), caster);
+            aura = new UnitAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
+            aura->GetUnitOwner()->_AddAura((UnitAura*)aura, caster);
             aura->LoadScripts();
             aura->_InitEffects(effMask, caster, baseAmount);
             break;
         case TYPEID_DYNAMICOBJECT:
-            aura = AuraPtr(new DynObjAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID));
+            aura = new DynObjAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
             aura->GetDynobjOwner()->SetAura(aura);
             aura->_InitEffects(effMask, caster, baseAmount);
 
@@ -480,11 +480,11 @@ AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* o
             break;
         default:
             ASSERT(false);
-            return NULLAURA;
+            return nullptr;
     }
     // aura can be removed in Unit::_AddAura call
     if (aura->IsRemoved())
-        return NULLAURA;
+        return nullptr;
     return aura;
 }
 
@@ -531,7 +531,7 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
     {
         if (effMask & (uint8(1) << i))
         {
-            m_effects[i] = AuraEffectPtr(new AuraEffect(shared_from_this(), i, baseAmount ? baseAmount + i : NULL, caster));
+            m_effects[i] = new AuraEffect((Aura*)this, i, baseAmount ? baseAmount + i : NULL, caster);
 
             /// @todo: the following should be in AuraEffect::AuraEffect, but something is worng with shared_ptr
             m_effects[i]->CalculatePeriodic(caster, true, false);
@@ -542,7 +542,7 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
             m_EffectCount = i + 1;
         }
         else
-            m_effects[i] = NULLAURA_EFFECT;
+            m_effects[i] = nullptr;
     }
 }
 
@@ -718,7 +718,7 @@ void Aura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp
     m_applications[target->GetGUID()] = auraApp;
 
     // set infinity cooldown state for spells
-    if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+    if (caster && caster->IsPlayer())
     {
         if (m_spellInfo->IsCooldownStartedOnEvent())
         {
@@ -765,7 +765,7 @@ void Aura::_UnapplyForTarget(Unit* p_Target, Unit* p_Caster, AuraApplication * p
     m_removedApplications.push_back(p_AuraApp);
 
     // reset cooldown state for spells
-    if (p_Caster && p_Caster->GetTypeId() == TYPEID_PLAYER)
+    if (p_Caster && p_Caster->IsPlayer())
     {
         bool l_MisdirectionGlyph = (GetSpellInfo()->Id == 34477 && p_Caster->HasAura(56829) && (p_Caster->GetPetGUID() == p_Target->GetGUID()));
 
@@ -883,7 +883,7 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
                     // this one prevents unwanted usefull buff loss because of stacking and prevents overriding auras periodicaly by 2 near area aura owners
                     for (Unit::AuraApplicationMap::iterator iter = itr->first->GetAppliedAuras().begin(); iter != itr->first->GetAppliedAuras().end(); ++iter)
                     {
-                        constAuraPtr aura = iter->second->GetBase();
+                        Aura const* aura = iter->second->GetBase();
                         if (!CanStackWith(aura))
                         {
                             addUnit = false;
@@ -906,7 +906,7 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
                     itr->first->GetName(), itr->first->IsInWorld() ? itr->first->GetMap()->GetId() : uint32(-1));
                 ASSERT(false);
             }
-            itr->first->_CreateAuraApplication(shared_from_this(), itr->second);
+            itr->first->_CreateAuraApplication(this, itr->second);
             ++itr;
         }
     }
@@ -949,7 +949,7 @@ void Aura::_ApplyEffectForTargets(uint8 effIndex)
         {
             // owner has to be in world, or effect has to be applied to self
             ASSERT((!GetOwner()->IsInWorld() && GetOwner() == *itr) || GetOwner()->IsInMap(*itr));
-            (*itr)->_ApplyAuraEffect(shared_from_this(), effIndex);
+            (*itr)->_ApplyAuraEffect(this, effIndex);
         }
     }
 }
@@ -1130,7 +1130,7 @@ void Aura::RefreshTimers()
         int32 l_MinAmplitude = m_maxDuration;
         for (uint8 i = 0; i < m_EffectCount; ++i)
         {
-            if (constAuraEffectPtr l_Effect = GetEffect(i))
+            if (AuraEffect const* l_Effect = GetEffect(i))
             {
                 if (int32 l_Amplitude = l_Effect->GetAmplitude())
                     l_MinAmplitude = std::min(l_Amplitude, l_MinAmplitude);
@@ -1146,17 +1146,21 @@ void Aura::RefreshTimers()
     }
 
     /// In WoD blizzards have made "Pandemic" system for all auras, check if we need to use it
-    if (GetSpellInfo() && GetSpellInfo()->IsAffectedByWodAuraSystem())
+    if (GetCaster() && GetCaster()->IsPlayer() && GetSpellInfo()->IsAffectedByWodAuraSystem())
     {
         for (uint8 i = 0; i < m_EffectCount; ++i)
         {
-            if (constAuraEffectPtr l_Effect = GetEffect(i))
+            if (AuraEffect const* l_Effect = GetEffect(i))
             {
                 /// If it's a DoT or a HoT we should apply "Pandemic" system for it
                 if (l_Effect->GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE || l_Effect->GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
                     l_IsAffectedByPandemic = true;
             }
         }
+
+        /// Some auras doesn't have PERIODIC_DAMAGE or PERIODIC_HEAL effects, but should be affected by new pandemic system too
+        if (GetSpellInfo()->IsAuraNeedPandemicEffect())
+            l_IsAffectedByPandemic = true;
     }
 
     if (l_IsAffectedByPandemic)
@@ -1197,7 +1201,7 @@ void Aura::SetModCharges(int16 charges)
     SetCharges(charges);
     for (uint8 i = EFFECT_0; i < EFFECT_2; ++i)
     {
-        if (AuraEffectPtr eff = GetEffect(i))
+        if (AuraEffect* eff = GetEffect(i))
             if (SpellModifier* mod = eff->GetSpellModifier())
                 mod->charges = charges;
     }
@@ -1319,7 +1323,7 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 
         // FIXME: not a best way to synchronize charges, but works
         for (uint8 i = 0; i < m_EffectCount; ++i)
-            if (AuraEffectPtr aurEff = GetEffect(i))
+            if (AuraEffect* aurEff = GetEffect(i))
                 if (aurEff->GetAuraType() == SPELL_AURA_ADD_FLAT_MODIFIER || aurEff->GetAuraType() == SPELL_AURA_ADD_PCT_MODIFIER)
                     if (SpellModifier* mod = aurEff->GetSpellModifier())
                         mod->charges = GetCharges();
@@ -1332,7 +1336,7 @@ void Aura::RefreshSpellMods()
 {
     for (Aura::ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
         if (Player* player = appIter->second->GetTarget()->ToPlayer())
-            player->RestoreAllSpellMods(0, shared_from_this());
+            player->RestoreAllSpellMods(0, this);
 }
 
 bool Aura::IsArea() const
@@ -1460,7 +1464,7 @@ void Aura::UnregisterSingleTarget()
         caster = ObjectAccessor::GetObjectInOrOutOfWorld(GetCasterGUID(), (Unit*)NULL);
 
     if (caster)
-        caster->GetSingleCastAuras().remove(shared_from_this());
+        caster->GetSingleCastAuras().remove(this);
 
     SetIsSingleTarget(false);
 }
@@ -1613,7 +1617,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             target->RemoveAurasDueToSpell(-(*itr));
                     }
                     else if (removeMode != AURA_REMOVE_BY_DEATH)
-                        target->CastSpell(target, *itr, true, NULL, NULLAURA_EFFECT, GetCasterGUID());
+                        target->CastSpell(target, *itr, true, NULL, nullptr, GetCasterGUID());
                 }
             }
             if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
@@ -1636,8 +1640,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
                 if (*itr > 0)
                 {
-                    AuraPtr triggeredAura = target->GetAura(*itr, GetCasterGUID());
-                    if (triggeredAura != NULLAURA)
+                    Aura* triggeredAura = target->GetAura(*itr, GetCasterGUID());
+                    if (triggeredAura != nullptr)
                         triggeredAura->ModStackAmount(GetStackAmount() - triggeredAura->GetStackAmount());
                 }
         }
@@ -1653,12 +1657,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 {
                     // PvP Trinket
                     case 42292:
-                        if (target && target->GetTypeId() == TYPEID_PLAYER)
+                        if (target && target->IsPlayer())
                             target->CastSpell(target, (target->ToPlayer()->GetTeam() == ALLIANCE ? 97403 : 97404), true);
                         break;
                     // Magma, Echo of Baine
                     case 101619:
-                        if (target && target->GetTypeId() == TYPEID_PLAYER && !target->HasAura(101866))
+                        if (target && target->IsPlayer() && !target->HasAura(101866))
                             target->CastSpell(target, 101866, true);
                         break;
                     // Burning Rage, Item - Warrior T12 DPS 2P Bonus
@@ -1669,7 +1673,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
 
                         uint32 max_duration = 12000;
 
-                        if (constAuraEffectPtr aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARRIOR, 47, EFFECT_1))
+                        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARRIOR, 47, EFFECT_1))
                             max_duration -= 6000 * (0.01f * aurEff->GetAmount());
 
                         SetDuration(max_duration);
@@ -1677,7 +1681,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     // Blazing Power, Alysrazor
                     case 99461:
-                        if (AuraPtr aur = target->GetAura(98619))
+                        if (Aura* aur = target->GetAura(98619))
                             aur->RefreshDuration();
 
                         if (!target->HasAura(100029) && aurApp->GetBase()->GetStackAmount() >= 25)
@@ -1693,7 +1697,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->RemoveAurasDueToSpell(83500);
                         break;
                     case 32474: // Buffeting Winds of Susurrus
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                             target->ToPlayer()->ActivateTaxiPathTo(506, GetId());
                         break;
                     case 33572: // Gronn Lord's Grasp, becomes stoned
@@ -1705,7 +1709,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             target->CastSpell(target, 50812, true);
                         break;
                     case 60970: // Heroic Fury (remove Intercept cooldown)
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                             target->ToPlayer()->RemoveSpellCooldown(20252, true);
                         break;
                     case 105785:    // Stolen Time mage T13 set bonus
@@ -1753,35 +1757,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                         }
-                        break;
-                    }
-                    case 44457: // Living Bomb
-                    {
-                        UnitList targets;
-                        JadeCore::AnyUnitHavingBuffInObjectRangeCheck u_check(caster, caster, 300.0f, 44457, false);
-                        JadeCore::UnitListSearcher<JadeCore::AnyUnitHavingBuffInObjectRangeCheck> searcher(caster, targets, u_check);
-                        caster->VisitNearbyObject(300.0f, searcher);
-                        if (targets.size() >= 4)
-                        {
-                            std::list<AuraPtr> auras;
-                            for (UnitList::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                                if (AuraPtr aur = (*itr)->GetAura(44457, caster->GetGUID()))
-                                    auras.push_back(aur);
-
-                            if (auras.size() >= 4)
-                            {
-                                auras.sort(JadeCore::DurationOrderPred(false));
-                                auras.pop_front();
-                                auras.pop_front();
-                                auras.pop_front();
-                                for (std::list<AuraPtr>::iterator itr = auras.begin(); itr != auras.end();)
-                                {
-                                    (*itr)->Remove();
-                                    itr = auras.erase(itr);
-                                }
-                            }
-                        }
-
                         break;
                     }
                     // Ring of Frost - 2.5 sec immune
@@ -1844,7 +1819,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     case 108212:// Burst of Speed
                     {
-                        target->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+                        target->RemoveEffectsByType(SPELL_AURA_MOD_DECREASE_SPEED);
                         break;
                     }
                 }
@@ -1994,7 +1969,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     case 72369:
                         if (caster)
                         {
-                            if (AuraEffectPtr aurEff = GetEffect(0))
+                            if (AuraEffect* aurEff = GetEffect(0))
                             {
                                 int32 remainingDamage = aurEff->GetAmount() * (aurEff->GetTotalTicks() - aurEff->GetTickNumber());
                                 if (remainingDamage > 0)
@@ -2018,7 +1993,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             break;
 
                         // Mage water elemental gains invisibility as mage
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                             if (Pet* pet = target->ToPlayer()->GetPet())
                                 pet->CastSpell(pet, 32612, true, NULL, GetEffect(1));
 
@@ -2033,7 +2008,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     case 32612: // Invisibility (triggered)
                     {
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                             if (Pet* pet = target->ToPlayer()->GetPet())
                                 if (pet->HasAura(32612))
                                     pet->RemoveAurasDueToSpell(32612);
@@ -2102,24 +2077,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (caster && caster->HasAura(56845))
                         target->CastSpell(target, 61394, true);
                 }
-
-                switch (GetSpellInfo()->Id)
-                {
-                    case 51753: ///< Camouflage
-                    {
-                        if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
-                            break;
-
-                        if (Pet* l_Pet = caster->ToPlayer()->GetPet())
-                        {
-                            l_Pet->RemoveAura(GetSpellInfo()->Id);
-                            l_Pet->RemoveAura(80325);
-                        }
-
-                        break;
-                    }
-                }
-
                 break;
             }
             case SPELLFAMILY_SHAMAN:
@@ -2222,20 +2179,20 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00400800)
             {
                 // Master of subtlety
-                if (constAuraEffectPtr aurEff = target->GetAuraEffectOfRankedSpell(31223, 0))
+                if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(31223, 0))
                 {
                     if (apply)
                     {
                         int32 basepoints0 = aurEff->GetAmount();
 
                         /// Enhanced Stealth
-                        if (constAuraEffectPtr enhancedStealth = target->GetAuraEffect(157704, 0))
+                        if (AuraEffect const* enhancedStealth = target->GetAuraEffect(157704, 0))
                             basepoints0 += enhancedStealth->GetAmount();
 
                         target->CastCustomSpell(target, 31665, &basepoints0, NULL, NULL , true);
                     }
                     else if (!target->GetAuraEffect(SPELL_AURA_MOD_SHAPESHIFT, SPELLFAMILY_ROGUE, 0x400800, 0, 0))
-                        if (AuraPtr aur=target->GetAura(31665))
+                        if (Aura* aur=target->GetAura(31665))
                             aur->SetAuraTimer(6000);
                 }
                 // Overkill
@@ -2246,7 +2203,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->CastSpell(target,58427,true);
                     }
                     else if (!target->GetAuraEffect(SPELL_AURA_MOD_SHAPESHIFT, SPELLFAMILY_ROGUE, 0x400800, 0, 0))
-                        if (AuraPtr aur=target->GetAura(58427))
+                        if (Aura* aur=target->GetAura(58427))
                             aur->SetAuraTimer(20000);
                 }
                 break;
@@ -2391,10 +2348,10 @@ bool Aura::CheckAreaTarget(Unit* target)
     return CallScriptCheckAreaTargetHandlers(target);
 }
 
-bool Aura::CanStackWith(constAuraPtr existingAura) const
+bool Aura::CanStackWith(Aura const* existingAura) const
 {
     // Can stack with self
-    if (this == existingAura.get())
+    if (this == existingAura)
         return true;
 
     // Dynobj auras always stack - Same for Swiftmend
@@ -2418,6 +2375,10 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
             return true;
     }
 
+    /// Actually raid buff are stacking when it should not, we need to fine a better way to fix it
+    /*if (IsSameRaidBuff(existingAura))
+        return false;*/
+
     // check spell specific stack rules
     if (m_spellInfo->IsAuraExclusiveBySpecificWith(existingSpellInfo)
         || (sameCaster && m_spellInfo->IsAuraExclusiveBySpecificPerCasterWith(existingSpellInfo)))
@@ -2437,7 +2398,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     if (GetCaster() && existingAura->GetCaster())
     {
         if (GetCaster()->isPet() || existingAura->GetCaster()->isPet())
-            casterIsPet = true;
+            casterIsPet = true; ///< casterisPet is never read 01/18/16
     }
 
     if (!sameCaster)
@@ -2616,6 +2577,36 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     return true;
 }
 
+bool Aura::IsSameRaidBuff(Aura const* p_ExistingAura) const
+{
+    SpellInfo const* l_SpellInfoNew = GetSpellInfo();
+    SpellInfo const* l_SpellInfoExisting = p_ExistingAura->GetSpellInfo();
+
+    if (l_SpellInfoNew == nullptr || l_SpellInfoExisting == nullptr)
+        return false;
+
+    if (SpellInfo const* l_SpellInfo = GetSpellInfo())
+    if (!l_SpellInfoNew->HasAttribute(SpellAttr7::SPELL_ATTR7_CONSOLIDATED_RAID_BUFF))
+        return false;
+
+    if (!l_SpellInfoExisting->HasAttribute(SpellAttr7::SPELL_ATTR7_CONSOLIDATED_RAID_BUFF))
+        return false;
+
+    for (uint8 l_I = 0; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
+    {
+        if (l_SpellInfoNew->Effects[l_I].ApplyAuraName != 0 && l_SpellInfoNew->Effects[l_I].ApplyAuraName == l_SpellInfoExisting->Effects[l_I].ApplyAuraName)
+        {
+            if ((l_SpellInfoNew->Effects[l_I].MiscValueB != 0 && l_SpellInfoExisting->Effects[l_I].MiscValueB != 0) &&
+                (l_SpellInfoNew->Effects[l_I].MiscValueB & l_SpellInfoExisting->Effects[l_I].MiscValueB))
+                return true;
+            else if (l_SpellInfoNew->Effects[l_I].MiscValueB == 0 && l_SpellInfoExisting->Effects[l_I].MiscValueB == 0)
+                return true;
+        }
+    }
+
+    return false;
+}
+
 void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
     bool prepare = CallScriptPrepareProcHandlers(aurApp, eventInfo);
@@ -2649,9 +2640,7 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
         return false;
 
     // do checks using conditions table
-    ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_PROC, GetId());
-    ConditionSourceInfo condInfo = ConditionSourceInfo(eventInfo.GetActor(), eventInfo.GetActionTarget());
-    if (!sConditionMgr->IsObjectMeetToConditions(condInfo, conditions))
+    if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPELL_PROC, GetId(), eventInfo.GetActor(), eventInfo.GetActionTarget()))
         return false;
 
     // AuraScript Hook
@@ -2668,7 +2657,7 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
     // do that only for passive spells
     // TODO: this needs to be unified for all kinds of auras
     Unit* target = aurApp->GetTarget();
-    if (IsPassive() && target->GetTypeId() == TYPEID_PLAYER)
+    if (IsPassive() && target->IsPlayer())
     {
         if (GetSpellInfo()->EquippedItemClass == ITEM_CLASS_WEAPON)
         {
@@ -2750,7 +2739,7 @@ void Aura::LoadScripts()
     sScriptMgr->CreateAuraScripts(m_spellInfo->Id, m_loadedScripts);
     for (std::list<AuraScript*>::iterator itr = m_loadedScripts.begin(); itr != m_loadedScripts.end();)
     {
-        if (!(*itr)->_Load(shared_from_this()))
+        if (!(*itr)->_Load(this))
         {
             std::list<AuraScript*>::iterator bitr = itr;
             ++itr;
@@ -2819,7 +2808,7 @@ void Aura::CallScriptAfterDispel(DispelInfo* dispelInfo)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-bool Aura::CallScriptEffectApplyHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
+bool Aura::CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
     uint32 scriptExecuteTime = getMSTime();
 
@@ -2845,7 +2834,7 @@ bool Aura::CallScriptEffectApplyHandlers(constAuraEffectPtr aurEff, AuraApplicat
     return preventDefault;
 }
 
-bool Aura::CallScriptEffectRemoveHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
+bool Aura::CallScriptEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
     uint32 scriptExecuteTime = getMSTime();
     bool preventDefault = false;
@@ -2870,7 +2859,7 @@ bool Aura::CallScriptEffectRemoveHandlers(constAuraEffectPtr aurEff, AuraApplica
     return preventDefault;
 }
 
-void Aura::CallScriptAfterEffectApplyHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
+void Aura::CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
     uint32 scriptExecuteTime = getMSTime();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -2890,7 +2879,7 @@ void Aura::CallScriptAfterEffectApplyHandlers(constAuraEffectPtr aurEff, AuraApp
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-void Aura::CallScriptAfterEffectRemoveHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
+void Aura::CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
     uint32 scriptExecuteTime = getMSTime();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -2910,7 +2899,7 @@ void Aura::CallScriptAfterEffectRemoveHandlers(constAuraEffectPtr aurEff, AuraAp
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-bool Aura::CallScriptEffectPeriodicHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp)
+bool Aura::CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp)
 {
     uint32 scriptExecuteTime = getMSTime();
     bool preventDefault = false;
@@ -2952,7 +2941,7 @@ void Aura::CallScriptAuraUpdateHandlers(uint32 diff)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-void Aura::CallScriptEffectUpdateHandlers(uint32 diff, AuraEffectPtr aurEff)
+void Aura::CallScriptEffectUpdateHandlers(uint32 diff, AuraEffect* aurEff)
 {
     uint32 scriptExecuteTime = getMSTime();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -2972,7 +2961,7 @@ void Aura::CallScriptEffectUpdateHandlers(uint32 diff, AuraEffectPtr aurEff)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffectPtr aurEff)
+void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff)
 {
     uint32 scriptExecuteTime = getMSTime();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -2992,7 +2981,7 @@ void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffectPtr aurEff)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-void Aura::CallScriptEffectCalcAmountHandlers(constAuraEffectPtr aurEff, int32 & amount, bool & canBeRecalculated)
+void Aura::CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated)
 {
     uint32 scriptExecuteTime = getMSTime();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -3012,7 +3001,7 @@ void Aura::CallScriptEffectCalcAmountHandlers(constAuraEffectPtr aurEff, int32 &
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-void Aura::CallScriptEffectCalcPeriodicHandlers(constAuraEffectPtr aurEff, bool & isPeriodic, int32 & amplitude)
+void Aura::CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool & isPeriodic, int32 & amplitude)
 {
     uint32 scriptExecuteTime = getMSTime();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -3032,7 +3021,7 @@ void Aura::CallScriptEffectCalcPeriodicHandlers(constAuraEffectPtr aurEff, bool 
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-void Aura::CallScriptEffectCalcSpellModHandlers(constAuraEffectPtr aurEff, SpellModifier* & spellMod)
+void Aura::CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellModifier* & spellMod)
 {
     uint32 scriptExecuteTime = getMSTime();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -3052,7 +3041,7 @@ void Aura::CallScriptEffectCalcSpellModHandlers(constAuraEffectPtr aurEff, Spell
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-void Aura::CallScriptEffectAbsorbHandlers(AuraEffectPtr aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool& defaultPrevented)
+void Aura::CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool& defaultPrevented)
 {
     uint32 scriptExecuteTime = getMSTime();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -3074,7 +3063,7 @@ void Aura::CallScriptEffectAbsorbHandlers(AuraEffectPtr aurEff, AuraApplication 
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffectPtr aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount)
+void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount)
 {
     uint32 scriptExecuteTime = getMSTime();
 
@@ -3095,7 +3084,7 @@ void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffectPtr aurEff, AuraApplica
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-void Aura::CallScriptEffectManaShieldHandlers(AuraEffectPtr aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & /*defaultPrevented*/)
+void Aura::CallScriptEffectManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & /*defaultPrevented*/)
 {
     uint32 scriptExecuteTime = getMSTime();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -3115,7 +3104,7 @@ void Aura::CallScriptEffectManaShieldHandlers(AuraEffectPtr aurEff, AuraApplicat
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-void Aura::CallScriptEffectAfterManaShieldHandlers(AuraEffectPtr aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount)
+void Aura::CallScriptEffectAfterManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount)
 {
     uint32 scriptExecuteTime = getMSTime();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -3224,7 +3213,7 @@ void Aura::CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventI
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
-bool Aura::CallScriptEffectProcHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo)
+bool Aura::CallScriptEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
     uint32 scriptExecuteTime = getMSTime();
     bool preventDefault = false;
@@ -3249,7 +3238,7 @@ bool Aura::CallScriptEffectProcHandlers(constAuraEffectPtr aurEff, AuraApplicati
     return preventDefault;
 }
 
-void Aura::CallScriptAfterEffectProcHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo)
+void Aura::CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
     uint32 scriptExecuteTime = getMSTime();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -3319,14 +3308,14 @@ void UnitAura::Remove(AuraRemoveMode removeMode)
 {
     if (IsRemoved())
         return;
-    GetUnitOwner()->RemoveOwnedAura(shared_from_this(), removeMode);
+    GetUnitOwner()->RemoveOwnedAura(this, removeMode);
 }
 
 void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
 {
     for (uint8 effIndex = 0; effIndex < m_EffectCount; ++effIndex)
     {
-        if (!HasEffect(effIndex))
+        if (!m_effects[effIndex])
             continue;
         UnitList targetList;
         // non-area aura
@@ -3336,7 +3325,7 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
         }
         else if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET)
         {
-            if (GetUnitOwner()->GetTypeId() == TYPEID_PLAYER)
+            if (GetUnitOwner()->IsPlayer())
             {
                 Pet* l_Pet = GetUnitOwner()->ToPlayer()->GetPet();
                 if (l_Pet != nullptr)
@@ -3457,4 +3446,15 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* /*caster
                 targets[*itr] = 1<<effIndex;
         }
     }
+}
+
+void Aura::Delink()
+{
+    for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
+    {
+        delete m_effects[i];
+        m_effects[i] = nullptr;
+    }
+
+    _DeleteRemovedApplications();
 }

@@ -175,7 +175,7 @@ void BlackMarketMgr::LoadAuctions()
 
 void BlackMarketMgr::Update()
 {
-    uint32 curTime = time(NULL);
+    uint32 curTime = time(NULL); ///< curTime is never read 01/18/16
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -332,7 +332,7 @@ std::string BMAuctionEntry::BuildAuctionMailBody(uint32 lowGuid)
     return strm.str();
 }
 
-void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* p_Auction, uint64 p_NewPrice, Player* p_NewBidder, SQLTransaction& p_Transaction)
+void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* p_Auction, uint64 p_NewPrice, Player* p_NewBidder, SQLTransaction& p_Transaction) ///< p_NewPrice & p_NewBidder is unused
 {
     Player* l_Bidder = sObjectAccessor->FindPlayer(MAKE_NEW_GUID(p_Auction->bidder, 0, HIGHGUID_PLAYER));
     ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(p_Auction->bm_template->itemEntry);

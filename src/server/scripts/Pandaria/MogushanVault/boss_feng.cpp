@@ -480,7 +480,7 @@ class boss_feng : public CreatureScript
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
-                if (AuraPtr inversion = target->GetAura(115911))
+                if (Aura* inversion = target->GetAura(115911))
                 {
                     if (Unit* caster = inversion->GetCaster())
                     {
@@ -509,7 +509,7 @@ class boss_feng : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(TALK_SLAY);
             }
 
@@ -1236,7 +1236,7 @@ class spell_mogu_wildfire_spark : public SpellScriptLoader
         }
 };
 
-// Wildfire spark - 116784
+/// Wildfire spark - 116784
 class spell_wildfire_spark : public SpellScriptLoader
 {
     public:
@@ -1246,14 +1246,24 @@ class spell_wildfire_spark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_wildfire_spark_AuraScript);
 
-            void Cast(constAuraEffectPtr /*AurEff*/)
+            void Cast(AuraEffect const* /*AurEff*/)
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* target = GetTarget())
                         caster->CastSpell(target, 116583, true);
             }
 
-            void ApplyAura(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_wildfire_spark_AuraScript::Cast, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        class spell_wildfire_spark_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_wildfire_spark_SpellScript);
+
+            void HandleHit(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->AddAura(SPELL_WILDFIRE_SPARK, caster);
@@ -1261,15 +1271,19 @@ class spell_wildfire_spark : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_wildfire_spark_AuraScript::Cast, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-                OnEffectApply += AuraEffectApplyFn(spell_wildfire_spark_AuraScript::ApplyAura, EFFECT_1, SPELL_EFFECT_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-
-            AuraScript* GetAuraScript() const
-            {
-                return new spell_wildfire_spark_AuraScript();
+                OnEffectHit += SpellEffectFn(spell_wildfire_spark_SpellScript::HandleHit, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_wildfire_spark_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_wildfire_spark_AuraScript();
+        }
 };
 
 // Wildfire Infusion (stacks) - 116821
@@ -1282,13 +1296,13 @@ class spell_wildfire_infusion_stacks : public SpellScriptLoader
         {
             PrepareAuraScript(spell_wildfire_infusion_stacks_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget())
                     GetTarget()->AddAura(SPELL_WILDFIRE_INFUSION, GetTarget());
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget())
                     GetTarget()->RemoveAura(SPELL_WILDFIRE_INFUSION);
@@ -1320,7 +1334,7 @@ class spell_mogu_wildfire_infusion : public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Unit* caster = GetCaster())
-                    if (AuraPtr aura = caster->GetAura(SPELL_WILDFIRE_INFUSION_STACK))
+                    if (Aura* aura = caster->GetAura(SPELL_WILDFIRE_INFUSION_STACK))
                         aura->ModStackAmount(-1);
             }
 
@@ -1460,13 +1474,13 @@ class spell_mogu_inversion : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mogu_inversion_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget())
                     GetTarget()->RemoveAurasDueToSpell(SPELL_INVERSION);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget())
                     GetTarget()->CastSpell(GetTarget(), SPELL_INVERSION, true);

@@ -288,7 +288,7 @@ class boss_shekzeer : public CreatureScript
                 if (introDone)
                     return;
 
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     if (who->GetDistance(me) < 240.7f)
                     {
@@ -392,7 +392,7 @@ class boss_shekzeer : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_SLAY);
             }
 
@@ -919,7 +919,7 @@ void ShekzeerBuffAdds(Creature* me)
     // If buff should be applied, we have to check that we have the right number of stacks
     if (buff)
     {
-        if (AuraPtr aura = me->AddAura(SPELL_BAND_OF_VALOR, me))
+        if (Aura* aura = me->AddAura(SPELL_BAND_OF_VALOR, me))
         {
             if (aura->GetStackAmount() != stacks)
                 aura->SetStackAmount(stacks);
@@ -1409,7 +1409,7 @@ class mob_dissonance_field : public CreatureScript
             // Can't be wounded directly by player attacks
             void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
             {
-                if (attacker->GetTypeId() == TYPEID_PLAYER || attacker->GetEntry() == me->GetEntry())
+                if (attacker->IsPlayer() || attacker->GetEntry() == me->GetEntry())
                     damage = 0;
             }
 
@@ -1682,7 +1682,7 @@ class spell_eyes_of_the_empress : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    AuraPtr empressAura = target->GetAura(SPELL_EYES_OF_THE_EMPRESS);
+                    Aura* empressAura = target->GetAura(SPELL_EYES_OF_THE_EMPRESS);
                     if (empressAura->GetStackAmount() == 5)
                     {
                         if (Unit* caster = GetCaster())
@@ -1708,33 +1708,33 @@ class spell_eyes_of_the_empress : public SpellScriptLoader
         }
 };
 
-// 123713 - Servant of the Empress
+/// 123713 - Servant of the Empress
 class spell_servant_of_the_empress : public SpellScriptLoader
 {
-public:
-    spell_servant_of_the_empress() : SpellScriptLoader("spell_servant_of_the_empress") { }
+    public:
+        spell_servant_of_the_empress() : SpellScriptLoader("spell_servant_of_the_empress") { }
 
-    class spell_servant_of_the_empress_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_servant_of_the_empress_SpellScript);
-
-        void Charm(SpellEffIndex /*effIndex*/)
+        class spell_servant_of_the_empress_SpellScript : public SpellScript
         {
-            if (Unit* caster = GetCaster())
+            PrepareSpellScript(spell_servant_of_the_empress_SpellScript);
+
+            void Charm(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
                 if (Unit* target = GetHitUnit())
                     target->CastSpell(caster, SPELL_SERVANT_OF_THE_EMPRESS, false);
-        }
+            }
 
-        void Register()
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_servant_of_the_empress_SpellScript::Charm, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectLaunch += SpellEffectFn(spell_servant_of_the_empress_SpellScript::Charm, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            return new spell_servant_of_the_empress_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_servant_of_the_empress_SpellScript();
-    }
 };
 
 // 123792 - Cry of Terror
@@ -1772,7 +1772,7 @@ class spell_cry_of_terror : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_cry_of_terror_SpellScript::Cancel, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_cry_of_terror_SpellScript::Cancel, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
@@ -1821,7 +1821,7 @@ class spell_amassing_darkness : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_amassing_darkness_SpellScript::ScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectLaunch += SpellEffectFn(spell_amassing_darkness_SpellScript::ScriptEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

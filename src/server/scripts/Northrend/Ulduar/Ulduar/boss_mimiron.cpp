@@ -1633,7 +1633,7 @@ class spell_rapid_burst: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rapid_burst_AuraScript);
 
-            void HandleDummyTick(constAuraEffectPtr aurEff)
+            void HandleDummyTick(AuraEffect const* aurEff)
             {
                 if (!GetTarget())
                     return;

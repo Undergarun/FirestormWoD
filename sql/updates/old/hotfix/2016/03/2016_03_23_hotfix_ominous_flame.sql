@@ -1,0 +1,5 @@
+DELETE FROM _hotfixs WHERE Entry = 1335 AND HASH = 1821637041;
+INSERT INTO _hotfixs (Entry, HASH, DATE, COMMENT) VALUE
+(1335, 1821637041, UNIX_TIMESTAMP(), "BattlePetSpecies");
+
+UPDATE battle_pet_species SET SpellID = 148062 WHERE ID = 1335;

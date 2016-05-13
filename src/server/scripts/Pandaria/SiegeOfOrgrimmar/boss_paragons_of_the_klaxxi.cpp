@@ -44,22 +44,22 @@ class boss_kilruk_the_wind_reaver : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
             }
-			
+            
             EventMap events;
             InstanceScript* pInstance;
-			
+            
             void Reset()
             {
                 Reset();
-				
+                
                 events.Reset();
-				
+                
                 summons.DespawnAll();
-				
+                
                 if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
-			
+            
             void JustReachedHome()
             {
                 _JustReachedHome();
@@ -67,7 +67,7 @@ class boss_kilruk_the_wind_reaver : public CreatureScript
                 if (pInstance)
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
-			
+            
             void EnterCombat(Unit* attacker)
             {
                 // @TODO: Set in combat for other protectors
@@ -77,7 +77,7 @@ class boss_kilruk_the_wind_reaver : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, IN_PROGRESS);
                 }
             }
-			
+            
             void JustSummoned(Creature* summon)
             {
             summons.Summon(summon);
@@ -87,11 +87,11 @@ class boss_kilruk_the_wind_reaver : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
+            
             void KilledUnit(Unit* who)
             {
             }
-			
+            
             void JustDied(Unit* killer)
             {
                 _JustDied();
@@ -102,7 +102,7 @@ class boss_kilruk_the_wind_reaver : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, DONE);
                 }
             }
-			
+            
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
@@ -132,22 +132,22 @@ class boss_xaril_the_poisoned_mind : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
             }
-			
+            
             EventMap events;
             InstanceScript* pInstance;
-			
+            
             void Reset()
             {
                 Reset();
-				
+                
                 events.Reset();
-				
+                
                 summons.DespawnAll();
-				
+                
                 if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
-			
+            
             void JustReachedHome()
             {
                 _JustReachedHome();
@@ -155,7 +155,7 @@ class boss_xaril_the_poisoned_mind : public CreatureScript
                 if (pInstance)
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
-			
+            
             void EnterCombat(Unit* attacker)
             {
                 // @TODO: Set in combat for other protectors
@@ -165,7 +165,7 @@ class boss_xaril_the_poisoned_mind : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, IN_PROGRESS);
                 }
             }
-			
+            
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -175,11 +175,11 @@ class boss_xaril_the_poisoned_mind : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
+            
             void KilledUnit(Unit* who)
             {
             }
-			
+            
             void JustDied(Unit* killer)
             {
                 _JustDied();
@@ -190,7 +190,7 @@ class boss_xaril_the_poisoned_mind : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, DONE);
                 }
             }
-			
+            
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
@@ -220,22 +220,22 @@ class boss_kaztik_the_manipulator : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
             }
-			
+            
             EventMap events;
             InstanceScript* pInstance;
-			
+            
             void Reset()
             {
                 Reset();
-				
+                
                 events.Reset();
-				
+                
                 summons.DespawnAll();
-				
+                
                 if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
-			
+            
             void JustReachedHome()
             {
                 _JustReachedHome();
@@ -243,7 +243,7 @@ class boss_kaztik_the_manipulator : public CreatureScript
                 if (pInstance)
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
-			
+            
             void EnterCombat(Unit* attacker)
             {
                 // @TODO: Set in combat for other protectors
@@ -253,7 +253,7 @@ class boss_kaztik_the_manipulator : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, IN_PROGRESS);
                 }
             }
-			
+            
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -263,11 +263,11 @@ class boss_kaztik_the_manipulator : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
+            
             void KilledUnit(Unit* who)
             {
             }
-			
+            
             void JustDied(Unit* killer)
             {
             _JustDied();
@@ -278,7 +278,7 @@ class boss_kaztik_the_manipulator : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, DONE);
                 }
             }
-			
+            
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
@@ -308,22 +308,22 @@ class boss_korven_the_prime : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
             }
-			
+            
             EventMap events;
             InstanceScript* pInstance;
-			
+            
             void Reset()
             {
                 Reset();
-				
+                
                 events.Reset();
-				
+                
                 summons.DespawnAll();
-				
+                
                 if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
-			
+            
             void JustReachedHome()
             {
                 _JustReachedHome();
@@ -331,7 +331,7 @@ class boss_korven_the_prime : public CreatureScript
                 if (pInstance)
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
-			
+            
             void EnterCombat(Unit* attacker)
             {
                 // @TODO: Set in combat for other protectors
@@ -341,7 +341,7 @@ class boss_korven_the_prime : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, IN_PROGRESS);
                 }
             }
-			
+            
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -351,11 +351,11 @@ class boss_korven_the_prime : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
+            
             void KilledUnit(Unit* who)
             {
             }
-			
+            
             void JustDied(Unit* killer)
             {
                 _JustDied();
@@ -366,7 +366,7 @@ class boss_korven_the_prime : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, DONE);
                 }
             }
-			
+            
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
@@ -396,22 +396,22 @@ class boss_iyyokuk_the_lucid : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
             }
-			
+            
             EventMap events;
             InstanceScript* pInstance;
-			
+            
             void Reset()
             {
                 Reset();
-				
+                
                 events.Reset();
-				
+                
                 summons.DespawnAll();
-				
+                
                 if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
-			
+            
             void JustReachedHome()
             {
                 _JustReachedHome();
@@ -419,7 +419,7 @@ class boss_iyyokuk_the_lucid : public CreatureScript
                 if (pInstance)
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
-			
+            
             void EnterCombat(Unit* attacker)
             {
                 // @TODO: Set in combat for other protectors
@@ -429,7 +429,7 @@ class boss_iyyokuk_the_lucid : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, IN_PROGRESS);
                 }
             }
-			
+            
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -439,11 +439,11 @@ class boss_iyyokuk_the_lucid : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
+            
             void KilledUnit(Unit* who)
             {
             }
-			
+            
             void JustDied(Unit* killer)
             {
                 _JustDied();
@@ -454,7 +454,7 @@ class boss_iyyokuk_the_lucid : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, DONE);
                 }
             }
-			
+            
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
@@ -484,22 +484,22 @@ class boss_karoz_the_locust : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
             }
-			
+            
             EventMap events;
             InstanceScript* pInstance;
-			
+            
             void Reset()
             {
                 Reset();
-				
+                
                 events.Reset();
-				
+                
                 summons.DespawnAll();
-				
+                
                 if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
-			
+            
             void JustReachedHome()
             {
                 _JustReachedHome();
@@ -507,7 +507,7 @@ class boss_karoz_the_locust : public CreatureScript
                 if (pInstance)
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
-			
+            
             void EnterCombat(Unit* attacker)
             {
                 // @TODO: Set in combat for other protectors
@@ -517,7 +517,7 @@ class boss_karoz_the_locust : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, IN_PROGRESS);
                 }
             }
-			
+            
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -527,11 +527,11 @@ class boss_karoz_the_locust : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
+            
             void KilledUnit(Unit* who)
             {
             }
-			
+            
             void JustDied(Unit* killer)
             {
                 _JustDied();
@@ -542,7 +542,7 @@ class boss_karoz_the_locust : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, DONE);
                 }
             }
-			
+            
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
@@ -572,22 +572,22 @@ class boss_skeer_the_bloodseeker : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
             }
-			
+            
             EventMap events;
             InstanceScript* pInstance;
-			
+            
             void Reset()
             {
                 Reset();
-				
+                
                 events.Reset();
-				
+                
                 summons.DespawnAll();
-				
+                
                 if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
-			
+            
             void JustReachedHome()
             {
                 _JustReachedHome();
@@ -595,7 +595,7 @@ class boss_skeer_the_bloodseeker : public CreatureScript
                 if (pInstance)
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
-			
+            
             void EnterCombat(Unit* attacker)
             {
                 // @TODO: Set in combat for other protectors
@@ -605,7 +605,7 @@ class boss_skeer_the_bloodseeker : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, IN_PROGRESS);
                 }
             }
-			
+            
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -615,11 +615,11 @@ class boss_skeer_the_bloodseeker : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
+            
             void KilledUnit(Unit* who)
             {
             }
-			
+            
             void JustDied(Unit* killer)
             {
                 _JustDied();
@@ -630,7 +630,7 @@ class boss_skeer_the_bloodseeker : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, DONE);
                 }
             }
-			
+            
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
@@ -660,22 +660,22 @@ class boss_rikkal_the_dissector : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
             }
-			
+            
             EventMap events;
             InstanceScript* pInstance;
-			
+            
             void Reset()
             {
                 Reset();
-				
+                
                 events.Reset();
-				
+                
                 summons.DespawnAll();
-				
+                
                 if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
-			
+            
             void JustReachedHome()
             {
                 _JustReachedHome();
@@ -683,7 +683,7 @@ class boss_rikkal_the_dissector : public CreatureScript
                 if (pInstance)
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
-			
+            
             void EnterCombat(Unit* attacker)
             {
                 // @TODO: Set in combat for other protectors
@@ -693,7 +693,7 @@ class boss_rikkal_the_dissector : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, IN_PROGRESS);
                 }
             }
-			
+            
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -703,11 +703,11 @@ class boss_rikkal_the_dissector : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
+            
             void KilledUnit(Unit* who)
             {
             }
-			
+            
             void JustDied(Unit* killer)
             {
             _JustDied();
@@ -718,7 +718,7 @@ class boss_rikkal_the_dissector : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, DONE);
                 }
             }
-			
+            
             void UpdateAI(const uint32 diff)
             {
             if (!UpdateVictim())
@@ -748,22 +748,22 @@ class boss_hisek_the_swarmkeeper : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
             }
-			
+            
             EventMap events;
             InstanceScript* pInstance;
-			
+            
             void Reset()
             {
                 Reset();
-				
+                
                 events.Reset();
-				
+                
                 summons.DespawnAll();
-				
+                
                 if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
-			
+            
             void JustReachedHome()
             {
                 _JustReachedHome();
@@ -771,7 +771,7 @@ class boss_hisek_the_swarmkeeper : public CreatureScript
                 if (pInstance)
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
-			
+            
             void EnterCombat(Unit* attacker)
             {
                 // @TODO: Set in combat for other protectors
@@ -781,7 +781,7 @@ class boss_hisek_the_swarmkeeper : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, IN_PROGRESS);
                 }
             }
-			
+            
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -791,11 +791,11 @@ class boss_hisek_the_swarmkeeper : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
+            
             void KilledUnit(Unit* who)
             {
             }
-			
+            
             void JustDied(Unit* killer)
             {
                 _JustDied();
@@ -806,7 +806,7 @@ class boss_hisek_the_swarmkeeper : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, DONE);
                 }
             }
-			
+            
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())

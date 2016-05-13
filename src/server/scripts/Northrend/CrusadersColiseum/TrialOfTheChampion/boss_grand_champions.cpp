@@ -235,7 +235,7 @@ struct npc_mounted_championAI : ScriptedAI
 
         if (buffTimer <= uiDiff)
         {
-            AuraPtr defend = me->GetAura(SPELL_SHIELD);
+            Aura* defend = me->GetAura(SPELL_SHIELD);
             if (!defend || defend->GetStackAmount() < 3)
             {
                 DoCast(SPELL_SHIELD);
@@ -958,7 +958,7 @@ public:
             // Shoot instead of meele swing
             if (me->isAttackReady())
             {
-                if(AuraPtr lArrows = me->GetAura(SPELL_LIGHTNING_ARROWS))
+                if(Aura* lArrows = me->GetAura(SPELL_LIGHTNING_ARROWS))
                 {
                     DoCast(me->getVictim(), SPELL_LIGHTNING_ARROWS_DAMAGE, true);
                     lArrows->ModCharges(-1);
@@ -1179,7 +1179,7 @@ class spell_toc5_ride_mount: public SpellScriptLoader
         {
             PrepareAuraScript(spell_toc5_ride_mount_AuraScript);
 
-            void HandleOnEffect(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleOnEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     target->RemoveAurasDueToSpell(SPELL_DEFEND);
@@ -1235,7 +1235,7 @@ class spell_toc5_hex_mending: public SpellScriptLoader
         {
             PrepareAuraScript(spell_toc5_hex_mending_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -1246,7 +1246,7 @@ class spell_toc5_hex_mending: public SpellScriptLoader
                 GetTarget()->IsAIEnabled = true;
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->GetTypeId() != TYPEID_PLAYER)
                     return;

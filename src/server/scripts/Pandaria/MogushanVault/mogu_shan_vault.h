@@ -185,8 +185,8 @@ enum eCreatures
     MOB_ZIAN                        = 61421,
     MOB_QIANG                       = 61423,
 
-    NPC_GENERAL_PURPOSE_BUNNY_JMF	= 55091,
-    NPC_ANCIENT_MOGU_MACHINE		= 60648
+    NPC_GENERAL_PURPOSE_BUNNY_JMF   = 55091,
+    NPC_ANCIENT_MOGU_MACHINE        = 60648
 };
 
 enum eGameObjects

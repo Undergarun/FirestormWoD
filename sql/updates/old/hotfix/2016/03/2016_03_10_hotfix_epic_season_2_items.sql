@@ -1,0 +1,1709 @@
+DELETE FROM _custom_items WHERE ID IN (
+124675,
+124676,
+124677,
+124678,
+124679,
+124680,
+124681,
+124682,
+124683,
+124684,
+124685,
+124686,
+124687,
+124688,
+124689,
+124690,
+124691,
+124692,
+124693,
+124694,
+124695,
+124696,
+124697,
+124698,
+124699,
+124700,
+124701,
+124702,
+124703,
+124704,
+124705,
+124706,
+124707,
+124708,
+124709,
+124710,
+124711,
+124712,
+124713,
+124714,
+124715,
+124716,
+124717,
+124718,
+124719,
+124720,
+124721,
+124722,
+124723,
+124724,
+124725,
+124726,
+124727,
+124728,
+124729,
+124730,
+124731,
+124732,
+124733,
+124734,
+124735,
+124736,
+124737,
+124738,
+124739,
+124740,
+124741,
+124742,
+124743,
+124744,
+124745,
+124746,
+124747,
+124748,
+124749,
+124750,
+124751,
+124752,
+124753,
+124754,
+124755,
+124756,
+124757,
+124758,
+124759,
+124760,
+124761,
+124762,
+124763,
+124764,
+124765,
+124766,
+124767,
+124768,
+124769,
+124770,
+124771,
+124772,
+124773,
+124774,
+124775,
+124776,
+124777,
+124778,
+124779,
+124780,
+124781,
+124782,
+124783,
+124784,
+124785,
+124786,
+124787,
+124788,
+124789,
+124790,
+124791,
+124792,
+124793,
+124794,
+124795,
+124796,
+124797,
+124798,
+124799,
+124800,
+124801,
+124802,
+124803,
+124804,
+124805,
+124806,
+124807,
+124808,
+124809,
+124810,
+124811,
+124812,
+124813,
+124814,
+124815,
+124816,
+124817,
+124818,
+124819,
+124820,
+124821,
+124822,
+124823,
+124824,
+124825,
+124826,
+124827,
+124828,
+124829,
+124830,
+124831,
+124832,
+124833,
+124834,
+124835,
+124836,
+124837,
+124838,
+124839,
+124840,
+124841,
+124842,
+124843,
+124844,
+124845,
+124846,
+124847,
+124848,
+124849,
+124850,
+124851,
+124852,
+124853,
+124854,
+124855,
+124856,
+124857,
+124858,
+124859,
+124860,
+124861,
+124862,
+124863,
+124864,
+124865,
+124866,
+124867,
+124868,
+124869,
+124870,
+124871,
+124872,
+124873,
+124874,
+124875,
+124876,
+124877,
+124878,
+124879,
+124880,
+124881,
+124882,
+124883,
+124884,
+125154,
+125155,
+125156,
+125157,
+125158,
+125159,
+125160,
+125161,
+125162,
+125163,
+125164,
+125165,
+125166,
+125167,
+125168,
+125169,
+125170,
+125171,
+125172,
+125173,
+125174,
+125175,
+125176,
+125177,
+125178,
+125179,
+125180,
+125181,
+125182,
+125183,
+125184,
+125185,
+125186,
+125187,
+125188,
+125189,
+125190,
+125191,
+125192,
+125193,
+125194,
+125195,
+125196,
+125197,
+125198,
+125199,
+125200,
+125201,
+125202,
+125203,
+125204,
+125205,
+125206,
+125207,
+125208,
+125209,
+125210,
+125211,
+125212,
+125213,
+125214,
+125215,
+125216,
+125217,
+125218,
+125219,
+125220,
+125221,
+125222,
+125223,
+125224,
+125225,
+125226,
+125227,
+125228,
+125229,
+125230,
+125231,
+125232,
+125233,
+125234,
+125235,
+125236,
+125237,
+125238,
+125239,
+125240,
+125241,
+125242,
+125243,
+125244,
+125245,
+125246,
+125247,
+125248,
+125249,
+125250,
+125251,
+125252,
+125253,
+125254,
+125255,
+125256,
+125257,
+125258,
+125259,
+125260,
+125261,
+125262,
+125263,
+125264,
+125265,
+125266,
+125267,
+125268,
+125269,
+125270,
+125271,
+125272,
+125273,
+125274,
+125275,
+125276,
+125277,
+125278,
+125279,
+125280,
+125281,
+125282,
+125283,
+125284,
+125285,
+125286,
+125287,
+125288,
+125289,
+125290,
+125291,
+125292,
+125293,
+125294,
+125295,
+125296,
+125297,
+125298,
+125299,
+125300,
+125301,
+125302,
+125303,
+125304,
+125305,
+125306,
+125307,
+125308,
+125309,
+125310,
+125311,
+125312,
+125313,
+125314,
+125315,
+125316,
+125317,
+125318,
+125319,
+125320,
+125321,
+125322,
+125323,
+125324,
+125325,
+125326,
+125327,
+125328,
+125329,
+125330,
+125331,
+125332,
+125333,
+125334,
+125335,
+125336,
+125337,
+125338,
+125339,
+125340,
+125341,
+125342,
+125343,
+125344,
+125345,
+125346,
+125347,
+125348,
+125349,
+125350,
+125351,
+125352,
+125353,
+125354,
+125355,
+125356,
+125357,
+125358,
+125359,
+125360,
+125361,
+127123,
+127124,
+129934,
+129935,
+127374,
+127375,
+127365,
+127366);
+
+INSERT INTO _custom_items VALUES
+(124675),
+(124676),
+(124677),
+(124678),
+(124679),
+(124680),
+(124681),
+(124682),
+(124683),
+(124684),
+(124685),
+(124686),
+(124687),
+(124688),
+(124689),
+(124690),
+(124691),
+(124692),
+(124693),
+(124694),
+(124695),
+(124696),
+(124697),
+(124698),
+(124699),
+(124700),
+(124701),
+(124702),
+(124703),
+(124704),
+(124705),
+(124706),
+(124707),
+(124708),
+(124709),
+(124710),
+(124711),
+(124712),
+(124713),
+(124714),
+(124715),
+(124716),
+(124717),
+(124718),
+(124719),
+(124720),
+(124721),
+(124722),
+(124723),
+(124724),
+(124725),
+(124726),
+(124727),
+(124728),
+(124729),
+(124730),
+(124731),
+(124732),
+(124733),
+(124734),
+(124735),
+(124736),
+(124737),
+(124738),
+(124739),
+(124740),
+(124741),
+(124742),
+(124743),
+(124744),
+(124745),
+(124746),
+(124747),
+(124748),
+(124749),
+(124750),
+(124751),
+(124752),
+(124753),
+(124754),
+(124755),
+(124756),
+(124757),
+(124758),
+(124759),
+(124760),
+(124761),
+(124762),
+(124763),
+(124764),
+(124765),
+(124766),
+(124767),
+(124768),
+(124769),
+(124770),
+(124771),
+(124772),
+(124773),
+(124774),
+(124775),
+(124776),
+(124777),
+(124778),
+(124779),
+(124780),
+(124781),
+(124782),
+(124783),
+(124784),
+(124785),
+(124786),
+(124787),
+(124788),
+(124789),
+(124790),
+(124791),
+(124792),
+(124793),
+(124794),
+(124795),
+(124796),
+(124797),
+(124798),
+(124799),
+(124800),
+(124801),
+(124802),
+(124803),
+(124804),
+(124805),
+(124806),
+(124807),
+(124808),
+(124809),
+(124810),
+(124811),
+(124812),
+(124813),
+(124814),
+(124815),
+(124816),
+(124817),
+(124818),
+(124819),
+(124820),
+(124821),
+(124822),
+(124823),
+(124824),
+(124825),
+(124826),
+(124827),
+(124828),
+(124829),
+(124830),
+(124831),
+(124832),
+(124833),
+(124834),
+(124835),
+(124836),
+(124837),
+(124838),
+(124839),
+(124840),
+(124841),
+(124842),
+(124843),
+(124844),
+(124845),
+(124846),
+(124847),
+(124848),
+(124849),
+(124850),
+(124851),
+(124852),
+(124853),
+(124854),
+(124855),
+(124856),
+(124857),
+(124858),
+(124859),
+(124860),
+(124861),
+(124862),
+(124863),
+(124864),
+(124865),
+(124866),
+(124867),
+(124868),
+(124869),
+(124870),
+(124871),
+(124872),
+(124873),
+(124874),
+(124875),
+(124876),
+(124877),
+(124878),
+(124879),
+(124880),
+(124881),
+(124882),
+(124883),
+(124884),
+(125154),
+(125155),
+(125156),
+(125157),
+(125158),
+(125159),
+(125160),
+(125161),
+(125162),
+(125163),
+(125164),
+(125165),
+(125166),
+(125167),
+(125168),
+(125169),
+(125170),
+(125171),
+(125172),
+(125173),
+(125174),
+(125175),
+(125176),
+(125177),
+(125178),
+(125179),
+(125180),
+(125181),
+(125182),
+(125183),
+(125184),
+(125185),
+(125186),
+(125187),
+(125188),
+(125189),
+(125190),
+(125191),
+(125192),
+(125193),
+(125194),
+(125195),
+(125196),
+(125197),
+(125198),
+(125199),
+(125200),
+(125201),
+(125202),
+(125203),
+(125204),
+(125205),
+(125206),
+(125207),
+(125208),
+(125209),
+(125210),
+(125211),
+(125212),
+(125213),
+(125214),
+(125215),
+(125216),
+(125217),
+(125218),
+(125219),
+(125220),
+(125221),
+(125222),
+(125223),
+(125224),
+(125225),
+(125226),
+(125227),
+(125228),
+(125229),
+(125230),
+(125231),
+(125232),
+(125233),
+(125234),
+(125235),
+(125236),
+(125237),
+(125238),
+(125239),
+(125240),
+(125241),
+(125242),
+(125243),
+(125244),
+(125245),
+(125246),
+(125247),
+(125248),
+(125249),
+(125250),
+(125251),
+(125252),
+(125253),
+(125254),
+(125255),
+(125256),
+(125257),
+(125258),
+(125259),
+(125260),
+(125261),
+(125262),
+(125263),
+(125264),
+(125265),
+(125266),
+(125267),
+(125268),
+(125269),
+(125270),
+(125271),
+(125272),
+(125273),
+(125274),
+(125275),
+(125276),
+(125277),
+(125278),
+(125279),
+(125280),
+(125281),
+(125282),
+(125283),
+(125284),
+(125285),
+(125286),
+(125287),
+(125288),
+(125289),
+(125290),
+(125291),
+(125292),
+(125293),
+(125294),
+(125295),
+(125296),
+(125297),
+(125298),
+(125299),
+(125300),
+(125301),
+(125302),
+(125303),
+(125304),
+(125305),
+(125306),
+(125307),
+(125308),
+(125309),
+(125310),
+(125311),
+(125312),
+(125313),
+(125314),
+(125315),
+(125316),
+(125317),
+(125318),
+(125319),
+(125320),
+(125321),
+(125322),
+(125323),
+(125324),
+(125325),
+(125326),
+(125327),
+(125328),
+(125329),
+(125330),
+(125331),
+(125332),
+(125333),
+(125334),
+(125335),
+(125336),
+(125337),
+(125338),
+(125339),
+(125340),
+(125341),
+(125342),
+(125343),
+(125344),
+(125345),
+(125346),
+(125347),
+(125348),
+(125349),
+(125350),
+(125351),
+(125352),
+(125353),
+(125354),
+(125355),
+(125356),
+(125357),
+(125358),
+(125359),
+(125360),
+(125361),
+(127123),
+(127124),
+(129934),
+(129935),
+(127374),
+(127375),
+(127365),
+(127366);
+
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124675;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124676;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124677;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124678;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124679;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124680;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124681;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124682;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124683;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124684;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124685;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124686;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124687;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124688;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124689;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124690;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124691;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124692;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124693;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124694;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124695;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124696;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124697;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124698;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124699;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124700;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124701;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124702;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124703;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124704;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124705;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124706;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124707;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124708;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124709;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124710;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124711;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124712;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124713;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124714;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124715;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124716;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124717;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124718;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124719;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124720;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124721;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124722;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124723;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124724;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124725;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124726;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124727;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124728;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124729;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124730;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124731;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124732;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124733;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124734;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124735;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124736;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124737;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124738;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124739;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124740;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124741;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124742;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124743;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124744;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124745;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124746;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124747;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124748;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124749;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124750;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124751;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124752;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124753;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124754;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124755;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124756;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124757;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124758;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124759;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124760;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124761;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124762;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124763;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124764;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124765;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124766;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124767;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124768;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124769;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124770;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124771;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124772;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124773;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124774;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124775;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124776;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124777;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124778;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124779;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124780;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124781;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124782;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124783;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124784;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124785;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124786;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124787;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124788;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124789;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124790;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124791;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124792;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124793;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124794;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124795;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124796;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124797;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124798;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124799;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124800;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124801;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124802;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124803;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124804;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124805;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124806;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124807;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124808;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124809;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124810;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124811;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124812;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124813;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124814;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124815;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124816;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124817;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124818;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124819;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124820;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124821;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124822;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124823;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124824;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124825;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124826;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124827;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124828;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124829;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124830;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124831;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124832;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124833;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124834;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124835;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124836;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124837;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124838;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124839;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124840;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124841;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124842;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124843;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124844;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124845;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124846;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124847;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124848;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124849;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124850;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124851;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124852;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124853;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124854;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124855;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124856;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124857;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124858;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124859;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124860;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124861;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124862;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124863;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124864;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124865;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124866;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124867;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124868;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124869;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124870;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124871;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124872;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124873;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124874;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124875;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124876;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124877;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124878;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124879;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124880;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124881;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124882;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124883;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 124884;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125154;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125155;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125156;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125157;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125158;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125159;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125160;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125161;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125162;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125163;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125164;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125165;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125166;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125167;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125168;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125169;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125170;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125171;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125172;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125173;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125174;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125175;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125176;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125177;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125178;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125179;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125180;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125181;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125182;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125183;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125184;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125185;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125186;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125187;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125188;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125189;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125190;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125191;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125192;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125193;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125194;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125195;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125196;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125197;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125198;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125199;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125200;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125201;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125202;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125203;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125204;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125205;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125206;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125207;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125208;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125209;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125210;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125211;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125212;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125213;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125214;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125215;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125216;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125217;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125218;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125219;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125220;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125221;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125222;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125223;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125224;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125225;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125226;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125227;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125228;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125229;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125230;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125231;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125232;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125233;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125234;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125235;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125236;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125237;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125238;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125239;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125240;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125241;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125242;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125243;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125244;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125245;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125246;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125247;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125248;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125249;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125250;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125251;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125252;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125253;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125254;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125255;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125256;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125257;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125258;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125259;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125260;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125261;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125262;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125263;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125264;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125265;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125266;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125267;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125268;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125269;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125270;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125271;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125272;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125273;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125274;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125275;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125276;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125277;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125278;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125279;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125280;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125281;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125282;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125283;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125284;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125285;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125286;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125287;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125288;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125289;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125290;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125291;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125292;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125293;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125294;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125295;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125296;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125297;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125298;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125299;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125300;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125301;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125302;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125303;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125304;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125305;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125306;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125307;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125308;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125309;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125310;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125311;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125312;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125313;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125314;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125315;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125316;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125317;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125318;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125319;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125320;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125321;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125322;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125323;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125324;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125325;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125326;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125327;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125328;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125329;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125330;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125331;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125332;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125333;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125334;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125335;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125336;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125337;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125338;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125339;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125340;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125341;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125342;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125343;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125344;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125345;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125346;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125347;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125348;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125349;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125350;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125351;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125352;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125353;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125354;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125355;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125356;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125357;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125358;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125359;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125360;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 125361;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 127123;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 127124;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 129934;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 129935;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 127374;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 127375;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 127365;
+UPDATE item_sparse SET ItemLevel = 670 WHERE ID = 127366;
+
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124675;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124676;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124677;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124678;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124679;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124680;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124681;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124682;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124683;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124684;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124685;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124686;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124687;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124688;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124689;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124690;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124691;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124692;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124693;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124694;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124695;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124696;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124697;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124698;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124699;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124700;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124701;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124702;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124703;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124704;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124705;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124706;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124707;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124708;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124709;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124710;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124711;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124712;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124713;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124714;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124715;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124716;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124717;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124718;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124719;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124720;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124721;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124722;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124723;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124724;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124725;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124726;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124727;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124728;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124729;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124730;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124731;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124732;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124733;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124734;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124735;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124736;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124737;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124738;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124739;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124740;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124741;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124742;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124743;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124744;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124745;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124746;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124747;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124748;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124749;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124750;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124751;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124752;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124753;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124754;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124755;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124756;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124757;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124758;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124759;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124760;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124761;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124762;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124763;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124764;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124765;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124766;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124767;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124768;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124769;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124770;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124771;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124772;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124773;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124774;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124775;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124776;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124777;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124778;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124779;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124780;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124781;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124782;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124783;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124784;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124785;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124786;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124787;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124788;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124789;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124790;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124791;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124792;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124793;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124794;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124795;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124796;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124797;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124798;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124799;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124800;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124801;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124802;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124803;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124804;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124805;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124806;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124807;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124808;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124809;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124810;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124811;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124812;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124813;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124814;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124815;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124816;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124817;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124818;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124819;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124820;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124821;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124822;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124823;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124824;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124825;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124826;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124827;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124828;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124829;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124830;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124831;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124832;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124833;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124834;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124835;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124836;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124837;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124838;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124839;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124840;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124841;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124842;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124843;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124844;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124845;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124846;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124847;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124848;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124849;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124850;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124851;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124852;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124853;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124854;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124855;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124856;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124857;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124858;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124859;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124860;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124861;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124862;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124863;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124864;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124865;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124866;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124867;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124868;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124869;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124870;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124871;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124872;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124873;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124874;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124875;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124876;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124877;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124878;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124879;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124880;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124881;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124882;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124883;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 124884;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125154;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125155;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125156;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125157;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125158;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125159;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125160;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125161;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125162;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125163;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125164;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125165;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125166;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125167;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125168;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125169;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125170;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125171;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125172;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125173;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125174;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125175;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125176;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125177;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125178;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125179;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125180;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125181;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125182;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125183;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125184;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125185;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125186;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125187;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125188;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125189;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125190;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125191;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125192;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125193;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125194;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125195;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125196;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125197;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125198;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125199;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125200;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125201;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125202;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125203;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125204;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125205;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125206;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125207;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125208;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125209;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125210;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125211;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125212;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125213;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125214;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125215;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125216;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125217;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125218;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125219;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125220;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125221;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125222;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125223;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125224;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125225;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125226;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125227;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125228;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125229;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125230;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125231;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125232;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125233;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125234;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125235;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125236;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125237;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125238;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125239;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125240;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125241;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125242;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125243;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125244;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125245;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125246;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125247;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125248;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125249;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125250;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125251;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125252;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125253;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125254;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125255;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125256;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125257;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125258;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125259;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125260;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125261;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125262;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125263;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125264;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125265;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125266;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125267;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125268;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125269;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125270;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125271;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125272;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125273;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125274;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125275;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125276;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125277;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125278;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125279;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125280;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125281;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125282;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125283;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125284;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125285;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125286;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125287;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125288;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125289;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125290;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125291;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125292;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125293;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125294;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125295;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125296;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125297;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125298;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125299;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125300;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125301;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125302;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125303;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125304;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125305;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125306;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125307;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125308;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125309;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125310;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125311;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125312;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125313;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125314;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125315;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125316;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125317;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125318;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125319;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125320;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125321;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125322;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125323;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125324;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125325;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125326;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125327;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125328;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125329;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125330;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125331;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125332;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125333;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125334;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125335;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125336;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125337;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125338;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125339;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125340;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125341;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125342;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125343;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125344;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125345;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125346;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125347;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125348;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125349;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125350;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125351;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125352;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125353;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125354;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125355;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125356;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125357;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125358;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125359;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125360;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 125361;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 127123;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 127124;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 129934;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 129935;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 127374;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 127375;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 127365;
+UPDATE pvp_item SET ILvl = 30 WHERE ItemID = 127366;

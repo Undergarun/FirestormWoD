@@ -14,8 +14,8 @@ class mob_shadow_of_doubt : public CreatureScript
 {
     public:
         mob_shadow_of_doubt() : CreatureScript("mob_shadow_of_doubt") 
-		{ 
-		}
+        {
+        }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -2750,7 +2750,7 @@ class mob_chi_ji_student : public CreatureScript
 
             void EnterCombat(Unit* attacker)
             {
-                if (attacker->GetTypeId() == TYPEID_PLAYER)
+                if (attacker->IsPlayer())
                     playerGuid = CAST_PLR(attacker)->GetGUID();
             }
 

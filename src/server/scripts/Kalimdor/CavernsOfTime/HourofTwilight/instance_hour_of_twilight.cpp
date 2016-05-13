@@ -41,14 +41,14 @@ class instance_hour_of_twilight : public InstanceMapScript
                     default:
                         break;
                 }
-		    }
+            }
 
             bool SetBossState(uint32 type, EncounterState state)
             {
-			    if (!InstanceScript::SetBossState(type, state))
-				    return false;                    
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;                    
 
-			    return true;
+                return true;
             }
 
             std::string GetSaveData()
@@ -84,13 +84,13 @@ class instance_hour_of_twilight : public InstanceMapScript
                 if (dataHead1 == 'H' && dataHead2 == 'o' && dataHead3 == 'T')
                 {
                     for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-				    {
-					    uint32 tmpState;
-					    loadStream >> tmpState;
-					    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-						    tmpState = NOT_STARTED;
-					    SetBossState(i, EncounterState(tmpState));
-				    }
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
                 } else OUT_LOAD_INST_DATA_FAIL;
 
                 OUT_LOAD_INST_DATA_COMPLETE;

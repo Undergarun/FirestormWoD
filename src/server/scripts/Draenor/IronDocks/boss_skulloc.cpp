@@ -964,7 +964,7 @@ class iron_docks_skulloc_spell_cannon_barrage : public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -980,7 +980,7 @@ class iron_docks_skulloc_spell_cannon_barrage : public SpellScriptLoader
                 }
             }
 
-            void PeriodicTick(constAuraEffectPtr /*p_AurEff*/)
+            void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
                 PreventDefaultAction();
 
@@ -1024,7 +1024,7 @@ class iron_docks_skulloc_spell_berserker_jump : public SpellScriptLoader
         {
             PrepareAuraScript(iron_docks_skulloc_spell_berserker_jump_AuraScript);
 
-            void HandlePeriodic(constAuraEffectPtr /*p_AurEff*/)
+            void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 PreventDefaultAction();
 

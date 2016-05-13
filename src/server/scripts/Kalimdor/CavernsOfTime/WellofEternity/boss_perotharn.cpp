@@ -207,7 +207,7 @@ class boss_perotharn : public CreatureScript
             
             void KilledUnit(Unit* who)
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -442,13 +442,13 @@ class spell_perotharn_drain_essence: public SpellScriptLoader
         {
             PrepareAuraScript(spell_perotharn_drain_essence_AuraScript);
 
-            void OnApply(constAuraEffectPtr, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const*, AuraEffectHandleModes /*mode*/)
             {
                 if (GetUnitOwner())
                     GetUnitOwner()->SetControlled(true, UNIT_STATE_STUNNED);
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes /*mode*/)
             {
                 if (GetUnitOwner()) 
                     GetUnitOwner()->SetControlled(false, UNIT_STATE_STUNNED);
@@ -513,7 +513,7 @@ class spell_perotharn_punishing_flames_dmg: public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_perotharn_punishing_flames_dmg_SpellScript::FilterTargets, EFFECT_0,TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_perotharn_punishing_flames_dmg_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
             }
 
         private:

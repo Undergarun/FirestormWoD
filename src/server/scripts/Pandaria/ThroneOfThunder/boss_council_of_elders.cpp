@@ -610,7 +610,7 @@ class boss_king_malakk : public CreatureScript
                                         }
 
                                         /// For first LFR part, this door should not be opened
-                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 500.0f))
+                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 200.0f))
                                             l_Door->SetGoState(GO_STATE_READY);
                                     }
                                 }
@@ -944,7 +944,7 @@ class boss_kazra_jin : public CreatureScript
                                         }
 
                                         /// For first LFR part, this door should not be opened
-                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 500.0f))
+                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 200.0f))
                                             l_Door->SetGoState(GO_STATE_READY);
                                     }
                                 }
@@ -1414,7 +1414,7 @@ class boss_sul_the_sandcrawler : public CreatureScript
                                     }
 
                                     /// For first LFR part, this door should not be opened
-                                    if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 500.0f))
+                                    if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 200.0f))
                                         l_Door->SetGoState(GO_STATE_READY);
                                 }
                             }
@@ -1977,7 +1977,7 @@ class boss_high_priestress_mar_li : public CreatureScript
                                         }
 
                                         /// For first LFR part, this door should not be opened
-                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 500.0f))
+                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 200.0f))
                                             l_Door->SetGoState(GO_STATE_READY);
                                     }
                                 }
@@ -2501,7 +2501,7 @@ class spell_reckless_charge_rolling : public SpellScriptLoader
         {
             PrepareAuraScript(spell_reckless_charge_rolling_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster() || !GetTarget())
                     return;
@@ -2531,7 +2531,7 @@ class spell_reckless_charge_rolling : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_reckless_charge_rolling_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_reckless_charge_rolling_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2596,9 +2596,9 @@ class spell_frigid_assault : public SpellScriptLoader
         {
             PrepareAuraScript(spell_frigid_assault_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (AuraPtr frigidAssault = aurEff->GetBase())
+                if (Aura* frigidAssault = aurEff->GetBase())
                     if (frigidAssault->GetStackAmount() == 15)
                     {
                         if (Unit* caster = GetCaster())
@@ -2619,7 +2619,7 @@ class spell_frigid_assault : public SpellScriptLoader
                     }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -2633,8 +2633,8 @@ class spell_frigid_assault : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_frigid_assault_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_frigid_assault_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_frigid_assault_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_frigid_assault_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
@@ -2654,7 +2654,7 @@ class spell_lingering_presence : public SpellScriptLoader
         {
             PrepareAuraScript(spell_lingering_presence_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 uint32 coefficient = 2 * 10 / 100;
 
@@ -2763,9 +2763,9 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
 
             InstanceScript* pInstance;
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (AuraPtr frostBite = aurEff->GetBase())
+                if (Aura* frostBite = aurEff->GetBase())
                 {
                     if (uint8 stack = frostBite->GetStackAmount())
                     {
@@ -2794,7 +2794,7 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
                 }
             }
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -2815,7 +2815,7 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -2848,13 +2848,13 @@ class spell_overload_discharge_kazra_jin : public SpellScriptLoader
         {
             PrepareAuraScript(spell_overload_discharge_kazra_jin_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->AddAura(SPELL_GENERIC_STUN, caster);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->RemoveAura(SPELL_GENERIC_STUN);
@@ -2862,8 +2862,17 @@ class spell_overload_discharge_kazra_jin : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_overload_discharge_kazra_jin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_overload_discharge_kazra_jin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                switch (m_scriptSpellId)
+                {
+                case 137166:
+                    OnEffectApply += AuraEffectApplyFn(spell_overload_discharge_kazra_jin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_overload_discharge_kazra_jin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                    break;
+                default:
+                    OnEffectApply += AuraEffectApplyFn(spell_overload_discharge_kazra_jin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_overload_discharge_kazra_jin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                    break;
+                }
             }
         };
 
@@ -2883,9 +2892,9 @@ class spell_ensnared : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ensnared_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (AuraPtr ensnared = aurEff->GetBase())
+                if (Aura* ensnared = aurEff->GetBase())
                 {
                     if (uint8 stack = ensnared->GetStackAmount())
                     {
@@ -2929,7 +2938,7 @@ class spell_sandstorm : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sandstorm_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -3011,7 +3020,7 @@ class spell_soul_fragment : public SpellScriptLoader
 
             InstanceScript* instance;
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -3028,7 +3037,7 @@ class spell_soul_fragment : public SpellScriptLoader
 
             void Register()
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_soul_fragment_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_soul_fragment_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
@@ -3106,7 +3115,7 @@ class spell_first_twisted_fate : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_first_twisted_fate_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnEffectLaunch += SpellEffectFn(spell_first_twisted_fate_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3116,7 +3125,7 @@ class spell_first_twisted_fate : public SpellScriptLoader
         }
 };
 
-// Twisted Fate (second) - 137964
+/// Twisted Fate (second) - 137964
 class spell_second_twisted_fate : public SpellScriptLoader
 {
     public:
@@ -3144,7 +3153,7 @@ class spell_second_twisted_fate : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_second_twisted_fate_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnEffectHit += SpellEffectFn(spell_second_twisted_fate_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

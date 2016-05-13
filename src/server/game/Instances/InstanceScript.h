@@ -23,6 +23,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "AchievementMgr.h"
 #include "Reporter.hpp"
 #include <EasyJSon.hpp>
 //#include "GameObject.h"
@@ -228,6 +229,11 @@ enum eInstanceSpells
     HunterInsanity              = 95809,
     MageTemporalDisplacement    = 80354,
     ShamanExhaustion            = 57723,
+    Bloodlust                   = 2825,
+    Heroism                     = 32182,
+    TempralDisplacement         = 80354,
+    AncientHysteria             = 90355,
+    MaxBloodlustSpells          = 4,
     /// Battle resurrection spells
     Rebirth                     = 20484,
     Soulstone                   = 20707,
@@ -246,6 +252,14 @@ uint32 const g_BattleResSpells[eInstanceSpells::MaxBattleResSpells] =
     eInstanceSpells::EternalGuardian,
     eInstanceSpells::GiftOfChiJi,
     eInstanceSpells::DustOfLife
+};
+
+uint32 const g_BloodlustSpells[eInstanceSpells::MaxBloodlustSpells] =
+{
+    eInstanceSpells::Bloodlust,
+    eInstanceSpells::Heroism,
+    eInstanceSpells::TempralDisplacement,
+    eInstanceSpells::AncientHysteria
 };
 
 class InstanceScript : public ZoneScript
@@ -337,6 +351,12 @@ class InstanceScript : public ZoneScript
         /// Remove cooldown for spell on all players in instance
         void DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID);
 
+        /// Do combat stop on all players in instance
+        void DoCombatStopOnPlayers();
+
+        /// Set progress on a criteria for all players
+        void SetCriteriaProgressOnPlayers(CriteriaEntry const* p_Criteria, uint64 p_ChangeValue, ProgressType p_Type);
+
         // Return wether server allow two side groups or not
         bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
 
@@ -346,7 +366,7 @@ class InstanceScript : public ZoneScript
 
         // Achievement criteria additional requirements check
         // NOTE: not use this if same can be checked existed requirement types from AchievementCriteriaRequirementType
-        virtual bool CheckAchievementCriteriaMeet(uint32 /*criteria_id*/, Player const* /*source*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
+        virtual bool CheckAchievementCriteriaMeet(uint32 /*criteria_id*/, Player const* /*source*/, Unit const* /*target*/ = NULL, uint64 /*miscvalue1*/ = 0);
 
         // Checks boss requirements (one boss required to kill other)
         virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = NULL) const;
@@ -358,6 +378,8 @@ class InstanceScript : public ZoneScript
         void SendEncounterEnd(uint32 p_EncounterID, bool p_Success);
         uint32 GetEncounterIDForBoss(Creature* p_Boss) const;
 
+        void SaveEncounterLogs(Creature* p_Creature, uint32 p_EncounterID);
+
         // Used only during loading
         void SetCompletedEncountersMask(uint32 newMask) { m_CompletedEncounters = newMask; }
 
@@ -365,6 +387,9 @@ class InstanceScript : public ZoneScript
         uint32 GetCompletedEncounterMask() const { return m_CompletedEncounters; }
 
         virtual void OnGameObjectRemove(GameObject* p_Go);
+
+        /// Called when falling damage are calculated for player
+        virtual bool IsPlayerImmuneToFallDamage(Player* p_Player) const { return false; }
 
         /// Add timed delayed operation
         /// @p_Timeout  : Delay time
@@ -527,7 +552,7 @@ class InstanceScript : public ZoneScript
         void SaveChallengeDatasIfNeeded();
         void SaveNewGroupChallenge(uint32 p_GuildID = 0);
         uint32 RewardChallengers();
-        void RewardChallengersTitles(RealmCompletedChallenge* p_OldChallenge = nullptr);
+        void RewardNewRealmRecord(RealmCompletedChallenge* p_OldChallenge = nullptr);
 
         bool   m_ChallengeStarted;
         bool   m_ConditionCompleted;
@@ -542,7 +567,7 @@ class InstanceScript : public ZoneScript
         //////////////////////////////////////////////////////////////////////////
 
         // Called when a creature is killed by a player
-        virtual void OnCreatureKilled(Creature* p_Creature, Player* p_Player) { }
+        virtual void OnCreatureKilled(Creature* p_Creature, Player* p_Player) { } ///< p_Creature & p_Player is unused
 
         // Check if all players are dead (except gamemasters)
         virtual bool IsWipe();

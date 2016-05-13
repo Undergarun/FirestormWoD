@@ -136,7 +136,7 @@ class mob_master_shang_xi : public CreatureScript
             {
                 if (pSpell->Id == 114746) // Attraper la flamme
                 {
-                    if (caster->GetTypeId() == TYPEID_PLAYER)
+                    if (caster->IsPlayer())
                     {
                         if (caster->ToPlayer()->GetQuestStatus(29408) == QUEST_STATUS_INCOMPLETE)
                         {
@@ -242,8 +242,8 @@ public:
     
     struct mob_training_targetAI : public ScriptedAI
     {
-    	mob_training_targetAI(Creature* creature) : ScriptedAI(creature) {}
-    	
+        mob_training_targetAI(Creature* creature) : ScriptedAI(creature) {}
+        
         void Reset()
         {
             me->SetReactState(REACT_PASSIVE);
@@ -296,7 +296,7 @@ class mob_tushui_trainee : public CreatureScript
                 {
                     me->setFaction(35);
 
-                    if(attacker && attacker->GetTypeId() == TYPEID_PLAYER)
+                    if(attacker && attacker->IsPlayer())
                         attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
 
                     damage = 0;
@@ -352,8 +352,10 @@ class mob_tushui_trainee : public CreatureScript
                         punch3 -= diff;
                 }
 
-                if (me->GetPositionX() == 1446.322876f && me->GetPositionY() == 3389.027588f && me->GetPositionZ() == 173.782471f)
-                    me->ForcedDespawn(1000);
+                if (me->GetPositionX() >= 1446.0f  && me->GetPositionX() <= 1447.0f &&
+                    me->GetPositionY() >= 3389.0f && me->GetPositionY() <= 3390.0f)
+
+                me->DespawnOrUnsummon();
             }
         };
 };
@@ -410,6 +412,7 @@ public:
             m_HasSaidIntro = false;
             m_HasScheduledFalcon = false;
             me->HandleEmoteCommand(EMOTE_STATE_SIT);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
             m_PlayerGuid = 0;
         }
@@ -543,7 +546,7 @@ public:
                         break;
                     case EVENT_RESET: // Comes back to initial pos
                         Reset();
-                    	break;
+                        break;
                     case EVENT_CHECK_AREA:
                         if (me->GetAreaId() != 5843) // Grotte Paisible (unk ?)
                             Reset();
@@ -567,8 +570,8 @@ public:
     
     struct mob_attacker_dimwindAI : public ScriptedAI
     {
-    	mob_attacker_dimwindAI(Creature* creature) : ScriptedAI(creature) {}
-    	
+        mob_attacker_dimwindAI(Creature* creature) : ScriptedAI(creature) {}
+        
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
         {
             if(me->GetHealthPct() < 90 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54785)
@@ -692,8 +695,8 @@ public:
                     {
                         if(VerifyMobs()) // No more mobs, objective completed
                         {
-                    	    me->HandleEmoteCommand(EMOTE_STATE_STAND);
-                    	    me->MonsterYell("Thank you!", LANG_UNIVERSAL, 0);
+                            me->HandleEmoteCommand(EMOTE_STATE_STAND);
+                            me->MonsterYell("Thank you!", LANG_UNIVERSAL, 0);
                         
                             std::list<Player*> PlayerList;
                             GetPlayerListInGrid(PlayerList, me, 20.0f);
@@ -811,7 +814,7 @@ public:
     
     struct mob_aysaAI : public ScriptedAI
     {
-    	EventMap events;
+        EventMap events;
         std::list<Player*> playersInvolved;
         uint64 lifeiGUID;
         bool inCombat;
@@ -858,7 +861,7 @@ public:
                 GetCreatureListWithEntryInGrid(unitlist, me, 59637, 50.0f);
                 for (auto creature: unitlist)
                     me->Kill(creature);
-                	
+                    
                 events.ScheduleEvent(EVENT_START, 20000);
                 events.CancelEvent(EVENT_SPAWN_MOBS);
                 events.CancelEvent(EVENT_PROGRESS);
@@ -911,7 +914,7 @@ public:
                 {
                     case EVENT_START: //Begin script if playersInvolved is not empty
                     {
-                    	updatePlayerList();
+                        updatePlayerList();
                         if(playersInvolved.empty())
                             events.ScheduleEvent(1, 600);
                         else
@@ -935,7 +938,7 @@ public:
                                 if (temp->AI())
                                     temp->AI()->AttackStart(me);
 
-			                    temp->AddThreat(me, 250.0f);
+                                temp->AddThreat(me, 250.0f);
                                 temp->GetMotionMaster()->Clear();
                                 temp->GetMotionMaster()->MoveChase(me);
                             }
@@ -1074,12 +1077,12 @@ public:
                 switch(eventId)
                 {
                     case 1:
-                    	me->CastSpell(me->getVictim(), 108693);
-                    	break;
+                        me->CastSpell(me->getVictim(), 108693);
+                        break;
                     case 2:
-                    	me->CastSpell(me->getVictim(), 73212);
-                    	events.ScheduleEvent(2, 5000);
-                    	break;
+                        me->CastSpell(me->getVictim(), 73212);
+                        events.ScheduleEvent(2, 5000);
+                        break;
                 }
             }
 
@@ -1202,7 +1205,7 @@ public:
                 me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                 me->DespawnOrUnsummon(2000);
 
-                if (attacker->GetTypeId() == TYPEID_PLAYER)
+                if (attacker->IsPlayer())
                     if (Player* player = attacker->ToPlayer())
                     {
                             player->KilledMonsterCredit(54734, 0);
@@ -1215,7 +1218,7 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim->IsPlayer())
             {
                 victim->ToPlayer()->SetQuestStatus(QUEST_ONLY_THE_WORTHY_SHALL_PASS, QUEST_STATUS_FAILED);
 
@@ -1260,21 +1263,21 @@ public:
                     }
                     case EVENT_FEET_OF_FURY:
                         if(me->getVictim())
-                    	    me->CastSpell(me->getVictim(), 108958);
+                            me->CastSpell(me->getVictim(), 108958);
 
                         events.ScheduleEvent(EVENT_FEET_OF_FURY, 5000);
-                    	break;
+                        break;
                     case EVENT_SHADOW_KICK:
                         if(me->getVictim())
-                    	    me->CastSpell(me->getVictim(), 108936);
+                            me->CastSpell(me->getVictim(), 108936);
 
-                    	events.ScheduleEvent(EVENT_SHADOW_KICK_STUN, 2500);
-                    	events.ScheduleEvent(EVENT_SHADOW_KICK, 30000);
-                    	break;
+                        events.ScheduleEvent(EVENT_SHADOW_KICK_STUN, 2500);
+                        events.ScheduleEvent(EVENT_SHADOW_KICK, 30000);
+                        break;
                     case EVENT_SHADOW_KICK_STUN:
                         if(me->getVictim())
-                    	    me->CastSpell(me->getVictim(), 108944);
-                    	break;
+                            me->CastSpell(me->getVictim(), 108944);
+                        break;
                 }
             }
             
@@ -1293,7 +1296,7 @@ class spell_huo_benediction: public SpellScriptLoader
         {
             PrepareAuraScript(spell_huo_benediction_AuraScript);
             
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
 
@@ -1316,7 +1319,7 @@ class spell_huo_benediction: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
 
@@ -1584,14 +1587,15 @@ class mob_huojin_trainee : public CreatureScript
                 if (me->HealthBelowPctDamaged(16.67f, damage))
                 {
                     damage = 0;
-                    if(attacker && attacker->GetTypeId() == TYPEID_PLAYER)
-                        attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
                     me->CombatStop();
                     me->setFaction(35);
                     isInCombat = false;
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                     Talk(urand(0, 7));
                     me->GetMotionMaster()->MovePoint(0, 1446.322876f, 3389.027588f, 173.782471f);
+
+                    if (attacker && attacker->IsPlayer())
+                        attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
                 }
             }
 
@@ -1624,8 +1628,9 @@ class mob_huojin_trainee : public CreatureScript
                         punch -= diff;
                 }
 
-                if (me->GetPositionX() == 1446.322876f && me->GetPositionY() == 3389.027588f && me->GetPositionZ() == 173.782471f)
-                    me->ForcedDespawn(1000);
+                if (me->GetPositionX() >= 1446.0f  && me->GetPositionX() <= 1447.0f &&
+                    me->GetPositionY() >= 3389.0f && me->GetPositionY() <= 3390.0f)
+                    me->DespawnOrUnsummon();
             }
         };
 };

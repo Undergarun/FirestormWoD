@@ -93,7 +93,7 @@ namespace MS { namespace Garrison
 
         char ScriptName[] = "npc_AuriaIrondreamer_Garr";
 
-        std::vector<SkillNPC_RecipeEntry> Recipes
+        std::vector<RecipesConditions> Recipes
         {
             { 171692,     0 },
             { 171693,     0 },
@@ -146,8 +146,116 @@ namespace MS { namespace Garrison
         {
 
         };
+    }
 
-        char ScriptName[] = "npc_YuliaSamras_Garr";
+    /// Constructor
+    npc_YuliaSamras::npc_YuliaSamras()
+        : CreatureScript("npc_YuliaSamras_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a player opens a gossip dialog with the GameObject.
+    /// @p_Player     : Source player instance
+    /// @p_Creature   : Target GameObject instance
+    bool npc_YuliaSamras::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        if (p_Player->HasQuest(Quests::Alliance_YourFirstBlacksmithingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstBlacksmithingWorkOrder))
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstBlacksmithingWorkOrder, 4);
+
+        if (p_Player->HasQuest(Quests::Alliance_YourFirstBlacksmithingWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YourFirstBlacksmithingWorkOrder))
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultWorkOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+
+        return true;
+    }
+
+    /// Called when a player selects a gossip item in the creature's gossip menu.
+    /// @p_Player   : Source player instance
+    /// @p_Creature : Target creature instance
+    /// @p_Sender   : Sender menu
+    /// @p_Action   : Action
+    bool npc_YuliaSamras::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+
+        if (l_AI == nullptr)
+            return true;
+
+        l_AI->SendShipmentCrafterUI(p_Player);
+
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_YuliaSamras::GetAI(Creature* p_Creature) const
+    {
+        return new npc_YuliaSamrasAI(p_Creature);
+    }
+
+    /// Constructor
+    npc_YuliaSamras::npc_YuliaSamrasAI::npc_YuliaSamrasAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+        SetAIObstacleManagerEnabled(true);
+    }
+
+    void npc_YuliaSamras::npc_YuliaSamrasAI::SetGUID(uint64 p_Guid, int32 p_Id)
+    {
+        if (p_Id == CreatureAIDataIDs::OwnerGuid)
+            m_OwnerGuid = p_Guid;
+    }
+
+    void npc_YuliaSamras::npc_YuliaSamrasAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    {
+        if (Player* l_Owner = HashMapHolder<Player>::Find(m_OwnerGuid))
+        {
+            if (Manager* l_GarrisonMgr = l_Owner->GetGarrison())
+            {
+                if (l_GarrisonMgr->HasRequiredFollowerAssignedAbility(p_PlotInstanceID))
+                {
+                    GarrisonFollower* l_Follower = l_GarrisonMgr->GetAssignedFollower(p_PlotInstanceID);
+
+                    if (l_Follower == nullptr)
+                        return;
+
+                    GarrFollowerEntry const* l_GarrFollEntry = l_Follower->GetEntry();
+
+                    if (l_GarrFollEntry == nullptr)
+                        return;
+
+                    switch (GetBuildingID())
+                    {
+                        case Buildings::TheForge_TheForge_Level2:
+                            if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[1], -1.6759f, -1.1615f, 0.7728f, 6.2240f, TEMPSUMMON_MANUAL_DESPAWN))
+                            {
+                                l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                AddSummonGUID(l_Creature->GetGUID());
+                            }
+                            break;
+                        case Buildings::TheForge_TheForge_Level3:
+                            if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[1], -3.0387f, -0.3201f, 0.7725f, 0.1411f, TEMPSUMMON_MANUAL_DESPAWN))
+                            {
+                                l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                AddSummonGUID(l_Creature->GetGUID());
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
     }
 
 }   ///< namespace Garrison

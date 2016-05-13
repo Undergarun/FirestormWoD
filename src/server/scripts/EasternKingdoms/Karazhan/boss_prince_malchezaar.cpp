@@ -327,7 +327,7 @@ public:
             std::advance(itr, 1);
             for (; itr != t_list.end(); ++itr) //store the threat list in a different container
                 if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
-                    if (target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->isAlive() && target->IsPlayer())
                         targets.push_back(target);
 
             //cut down to size if we have more than 5 targets

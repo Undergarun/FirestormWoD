@@ -21,7 +21,6 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "Arena.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.hpp"
 #include "Creature.h"
@@ -593,7 +592,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 {
                     // BG Status packet
                     WorldPacket status;
-                    MS::Battlegrounds::BattlegroundType::Type l_BgType = MS::Battlegrounds::GetTypeFromId(m_TypeID, GetArenaType(), IsSkirmish());
+                    MS::Battlegrounds::BattlegroundType::Type l_BgType = MS::Battlegrounds::GetTypeFromId(m_TypeID, GetArenaType(), IsSkirmish()); ///< l_BgType is never read 01/18/16
                     uint32 queueSlot = l_Player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(m_TypeID));
                     MS::Battlegrounds::PacketFactory::Status(&status, this, l_Player, queueSlot, STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
                     l_Player->GetSession()->SendPacket(&status);
@@ -615,21 +614,28 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                             l_Player->GetSession()->SendPacket(&l_Data);
                         }
                     }
+                    std::list<Unit*> l_ListUnit;
+                    l_ListUnit.push_back(l_Player);
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_ListUnit.push_back(l_Pet);
 
-                    // remove auras with duration lower than 30s
-                    Unit::AuraApplicationMap & auraMap = l_Player->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
+                    for (Unit* l_Unit : l_ListUnit)
                     {
-                        AuraApplication * aurApp = iter->second;
-                        AuraPtr aura = aurApp->GetBase();
-                        if (!aura->IsPermanent()
-                            && aura->GetDuration() <= 30*IN_MILLISECONDS
-                            && aurApp->IsPositive()
-                            && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
-                            && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
-                            l_Player->RemoveAura(iter);
-                        else
-                            ++iter;
+                        // remove auras with duration lower than 30s
+                        Unit::AuraApplicationMap & auraMap = l_Unit->GetAppliedAuras();
+                        for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
+                        {
+                            AuraApplication * aurApp = iter->second;
+                            Aura* aura = aurApp->GetBase();
+                            if (!aura->IsPermanent()
+                                && aura->GetDuration() <= 30 * IN_MILLISECONDS
+                                && aurApp->IsPositive()
+                                && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+                                && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
+                                l_Unit->RemoveAura(iter);
+                            else
+                                ++iter;
+                        }
                     }
                 }
 
@@ -654,7 +660,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                         for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
                         {
                             AuraApplication * aurApp = iter->second;
-                            AuraPtr aura = aurApp->GetBase();
+                            Aura* aura = aurApp->GetBase();
                             if (!aura->IsPermanent()
                                 && aura->GetDuration() <= 30 * IN_MILLISECONDS
                                 && aurApp->IsPositive()
@@ -705,7 +711,7 @@ inline void Battleground::_ProcessLeave(uint32 diff)
     }
 }
 
-inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const char* context) const
+inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const char* context) const ///< context is unused
 {
     Player* player = NULL;
     if (!offlineRemove)
@@ -809,11 +815,13 @@ void Battleground::YellToAll(Creature* creature, const char* text, uint32 langua
         }
 }
 
-void Battleground::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
+void Battleground::RewardHonorToTeam(uint32 p_Honor, uint32 TeamID, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType /* = None */)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayerForTeam(TeamID, itr, "RewardHonorToTeam"))
-            UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, Honor);
+    {
+        if (Player* l_Player = _GetPlayerForTeam(TeamID, itr, "RewardHonorToTeam"))
+            UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, p_Honor, p_RewardCurrencyType);
+    }
 }
 
 void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID)
@@ -932,9 +940,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
 
         if (winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
         {
-            loser_team_rating = loser_team->GetRating(slot);
             loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(p_Winner), slot);
-            winner_team_rating = winner_team->GetRating(slot);
             winner_matchmaker_rating = GetArenaMatchmakerRating(p_Winner, slot);
 
             winner_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change, slot);
@@ -1026,12 +1032,22 @@ void Battleground::EndBattleground(uint32 p_Winner)
         {
             if (l_Player->GetArenaPersonalRating(SLOT_RBG) < l_Player->GetArenaMatchMakerRating(SLOT_RBG))
             {
-                int32 l_RatingChange = Arena::GetRatingMod(l_Player->GetArenaPersonalRating(SLOT_RBG), l_Team == p_Winner ? loser_matchmaker_rating : winner_matchmaker_rating, l_Team == p_Winner);
+                int32 l_RatingChange = Arena::GetRatingMod(l_Player->GetArenaPersonalRating(SLOT_RBG), l_Team == p_Winner ? loser_matchmaker_rating : winner_matchmaker_rating, l_Team == p_Winner, true);
                 l_Player->SetArenaPersonalRating(SLOT_RBG, std::max(0, (int)l_Player->GetArenaPersonalRating(SLOT_RBG) + l_RatingChange));
             }
 
             if (l_Team == p_Winner)
             {
+                uint32 l_BattleHardened[2] = { 38929, 38927 };
+
+                if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_BattleHardened[l_Player->GetTeamId()]))
+                {
+                    if (!l_Player->HasQuest(l_Quest->GetQuestId()) && l_Player->CanTakeQuest(l_Quest, false))
+                        l_Player->AddQuest(l_Quest, l_Player);
+
+                    l_Player->KilledMonsterCredit(66623);
+                }
+
                 l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD));
 
                 int32 MMRating_mod = Arena::GetMatchmakerRatingMod(winner_matchmaker_rating, loser_matchmaker_rating, true);
@@ -1063,16 +1079,27 @@ void Battleground::EndBattleground(uint32 p_Winner)
         {
             if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())))
             {
-                UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, winner_bonus, !IsWargame());
+                UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, winner_bonus, !IsWargame(), MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundWin);
                 if (!l_Player->GetRandomWinner() && !IsWargame())
                 {
                     // 100cp awarded for the first rated battleground won each day
-                    l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST);
+                    l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundWin);
+
                     l_Player->SetRandomWinner(true);
                 }
             }
             else if (!isArena() && !IsRatedBG()) // 50cp awarded for each non-rated battleground won
-                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_LAST);
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_LAST, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundWin);
+
+            if (IsSkirmish())
+            {
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, ArenaSkirmishRewards::ConquestPointsWinner, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
+
+                uint32 l_HonorReward = ArenaSkirmishRewards::HonorPointsWinnerBase;
+                l_HonorReward += ArenaSkirmishRewards::HonorPointsWinnerBonusPerMinute * (GetElapsedTime() / (IN_MILLISECONDS * MINUTE));
+
+                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, l_HonorReward, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
+            }
 
             l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
             if (!guildAwarded)
@@ -1096,6 +1123,9 @@ void Battleground::EndBattleground(uint32 p_Winner)
                 if (!IsWargame())
                     l_Player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_HONOR_POINTS, loser_bonus);
             }
+
+            if (IsSkirmish())
+                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, ArenaSkirmishRewards::HonorPointLoser, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
         }
 
         l_Player->ResetAllPowers();
@@ -1106,7 +1136,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
         MS::Battlegrounds::PacketFactory::PvpLogData(&data, this);
         l_Player->GetSession()->SendPacket(&data);
 
-        MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(GetTypeID(), GetArenaType(), IsSkirmish());
+        MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(GetTypeID(), GetArenaType(), IsSkirmish()); ///< bgQueueTypeId is never read 01/18/16
         MS::Battlegrounds::PacketFactory::Status(&data, this, l_Player, l_Player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(GetTypeID())), STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
         l_Player->GetSession()->SendPacket(&data);
 
@@ -1365,7 +1395,7 @@ void Battleground::BuildArenaOpponentSpecializations(WorldPacket* p_Packet, uint
     {
         if (Player * l_Player = _GetPlayerForTeam(p_Team, l_It, "BuildArenaOpponentSpecializations"))
         {
-            *p_Packet << uint32(l_Player->GetSpecializationId(l_Player->GetActiveSpec()));
+            *p_Packet << uint32(l_Player->GetSpecializationId());
             *p_Packet << uint32(0);
             p_Packet->appendPackGUID(l_Player->GetGUID());
         }
@@ -1410,6 +1440,11 @@ void Battleground::AddPlayer(Player* player)
     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
     player->RemoveAurasByType(SPELL_AURA_FLY);
     player->ResetAllPowers();
+
+    sScriptMgr->OnEnterBG(player, GetMapId());
+
+    if (IsRatedBG())
+        player->RemoveArenaSpellCooldowns(true);
 
     // add arena specific auras
     if (isArena())
@@ -1605,7 +1640,7 @@ bool Battleground::HasFreeSlots() const
     return GetPlayersSize() < GetMaxPlayers();
 }
 
-void Battleground::UpdatePlayerScore(Player* Source, Player* victim, uint32 type, uint32 value, bool doAddHonor)
+void Battleground::UpdatePlayerScore(Player* Source, Player* victim, uint32 type, uint32 value, bool doAddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType)
 {
     //this procedure is called from virtual function implemented in bg subclass
     BattlegroundScoreMap::const_iterator itr = PlayerScores.find(Source->GetGUID());
@@ -1624,12 +1659,18 @@ void Battleground::UpdatePlayerScore(Player* Source, Player* victim, uint32 type
             itr->second->HonorableKills += value;
             break;
         case SCORE_BONUS_HONOR:                             // Honor bonus
-            // do not add honor in arenas
-            if (isBattleground())
+            // do not add honor in arenas (only skirmish)
+            if (isBattleground() || IsSkirmish())
             {
                 // reward honor instantly
                 if (doAddHonor)
-                    Source->RewardHonor(NULL, 1, value);    // RewardHonor calls UpdatePlayerScore with doAddHonor = false
+                {
+                    /// RewardHonor calls UpdatePlayerScore with doAddHonor = false
+                    if (isBattleground())
+                        Source->RewardHonor(NULL, 1, value, false, p_RewardCurrencyType);
+                    else
+                        Source->RewardHonor(NULL, 1, value, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
+                }
                 else
                     itr->second->BonusHonor += value;
             }
@@ -2284,6 +2325,7 @@ void Battleground::AwardTeams(uint32 p_Winner)
     if (IsSkirmish() && p_Winner)
     {
         AwardTeamsWithRewards(AWARD_NONE, AWARD_NONE, p_Winner);
+        RewardHonorToTeam(40, p_Winner);
         return;
     }
 

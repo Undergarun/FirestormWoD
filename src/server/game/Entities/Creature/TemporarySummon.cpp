@@ -184,7 +184,7 @@ void TempSummon::InitStats(uint32 duration)
     {
         setFaction(owner->getFaction());
         SetLevel(owner->getLevel());
-        if (owner->GetTypeId() == TYPEID_PLAYER)
+        if (owner->IsPlayer())
             m_ControlledByPlayer = true;
     }
 
@@ -345,7 +345,7 @@ void Guardian::InitStats(uint32 duration)
     {
         InitStatsForLevel(l_Owner->getLevel());
 
-        if (l_Owner->GetTypeId() == TYPEID_PLAYER && HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
+        if (l_Owner->IsPlayer() && HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
             m_charmInfo->InitCharmCreateSpells();
     }
 
@@ -360,7 +360,7 @@ void Guardian::InitSummon()
     if (l_Owner == nullptr)
         return;
 
-    if (l_Owner->GetTypeId() == TYPEID_PLAYER
+    if (l_Owner->IsPlayer()
         && l_Owner->GetMinionGUID() == GetGUID()
         && !l_Owner->GetCharmGUID())
         l_Owner->ToPlayer()->CharmSpellInitialize();
@@ -381,7 +381,7 @@ PetStatInfo const* Guardian::GetPetStat(bool p_Force) const
 
 Puppet::Puppet(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false) //maybe true?
 {
-    ASSERT(owner->GetTypeId() == TYPEID_PLAYER);
+    ASSERT(owner->IsPlayer());
     m_owner = (Player*)owner;
     m_unitTypeMask |= UNIT_MASK_PUPPET;
 }

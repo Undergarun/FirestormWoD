@@ -165,7 +165,7 @@ class boss_omor_the_unscarred : public CreatureScript
                             temp = me->getVictim();
                         else temp = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-                        if (temp && temp->GetTypeId() == TYPEID_PLAYER)
+                        if (temp && temp->IsPlayer())
                         {
                             DoCast(temp, SPELL_ORBITAL_STRIKE);
                             OrbitalStrike_Timer = 14000+rand()%2000;

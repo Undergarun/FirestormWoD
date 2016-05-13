@@ -278,7 +278,7 @@ class boss_sindragosa : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -417,7 +417,7 @@ class boss_sindragosa : public CreatureScript
 
                     if (spellId == spell->Id)
                     {
-                        if (constAuraPtr mysticBuffet = target->GetAura(spell->Id))
+                        if (Aura const* mysticBuffet = target->GetAura(spell->Id))
                             _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
 
                         return;
@@ -439,7 +439,7 @@ class boss_sindragosa : public CreatureScript
                             {
                                 if (!player->HasAura(SPELL_FROST_IMBUED_BLADE) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE)
                                 {
-                                    if (AuraPtr infusion = player->GetAura(SPELL_FROST_INFUSION))
+                                    if (Aura* infusion = player->GetAura(SPELL_FROST_INFUSION))
                                     {
                                         if (infusion->GetStackAmount() == 3)
                                         {
@@ -1237,7 +1237,7 @@ class spell_sindragosa_instability: public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                     GetTarget()->CastCustomSpell(SPELL_BACKLASH, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff, GetCasterGUID());
@@ -1271,7 +1271,7 @@ class spell_sindragosa_frost_beacon: public SpellScriptLoader
                 return true;
             }
 
-            void PeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
@@ -1333,7 +1333,7 @@ class spell_sindragosa_ice_tomb: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sindragosa_ice_tomb_AuraScript);
 
-            void PeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
             }
@@ -1380,7 +1380,7 @@ class spell_sindragosa_icy_grip: public SpellScriptLoader
 
                 if (unit && caster)
                 {
-                    if (caster->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && caster->getVictim() && !unit->HasAura(SPELL_FROST_BEACON))
+                    if (caster->GetTypeId() == TYPEID_UNIT && unit->IsPlayer() && caster->getVictim() && !unit->HasAura(SPELL_FROST_BEACON))
                     {
                         if (caster->getVictim()->GetGUID() != unit->GetGUID())
                         {
@@ -1578,7 +1578,7 @@ class spell_frostwarden_handler_focus_fire: public SpellScriptLoader
         {
             PrepareAuraScript(spell_frostwarden_handler_focus_fire_AuraScript);
 
-            void PeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())

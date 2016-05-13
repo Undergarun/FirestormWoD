@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
 #include "Common.h"
 #include "Log.h"
 #include "WorldPacket.h"
@@ -115,7 +116,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
     recvData.readPackGUID(guid);
     recvData >> questId;
-    unk1 = recvData.ReadBit();
+    unk1 = recvData.ReadBit(); ///< unk1 is never read 01/18/16
 
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT|TYPEMASK_ITEM|TYPEMASK_PLAYER);
 
@@ -124,15 +125,19 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
     // no or incorrect quest giver (probably missing quest relation)
     if ((object->GetTypeId() != TYPEID_PLAYER && !object->hasQuest(questId)) ||
-        (object->GetTypeId() == TYPEID_PLAYER && object != m_Player && !object->ToPlayer()->CanShareQuest(questId)))
+        (object->IsPlayer() && object != m_Player && !object->ToPlayer()->CanShareQuest(questId)))
     {
         m_Player->PlayerTalkClass->SendCloseGossip();
         m_Player->SaveToDB();
         m_Player->SetDivider(0);
+
+        if (m_Player->m_IsDebugQuestLogs)
+            ChatHandler(m_Player).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_NO_QUESTGIVER);
+
         return;
     }
 
-    if (object && object->GetTypeId() == TYPEID_PLAYER && object->ToPlayer()->GetQuestStatus(questId) == QUEST_STATUS_NONE)
+    if (object && object->IsPlayer() && object->ToPlayer()->GetQuestStatus(questId) == QUEST_STATUS_NONE)
         return;
 
     // some kind of WPE protection
@@ -149,7 +154,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             return;
         }
 
-        if (object && object->GetTypeId() == TYPEID_PLAYER && !quest->HasFlag(QUEST_FLAGS_SHARABLE))
+        if (object && object->IsPlayer() && !quest->HasFlag(QUEST_FLAGS_SHARABLE))
             return;
 
         if (m_Player->GetDivider() != 0)
@@ -224,7 +229,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                     for (QuestObjective l_Objective : quest->QuestObjectives)
                     {
                         if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM &&
-                            (l_Objective.ObjectID == ((Item*)object)->GetEntry()) && (((Item*)object)->GetTemplate()->MaxCount > 0))
+                            (l_Objective.ObjectID == ((Item*)object)->GetEntry()) && (((Item*)object)->GetTemplate()->MaxCount > 0)) ///< Comparison of integers of different signs: 'int32' (aka 'int') and 'uint32' (aka 'unsigned int')
                         {
                             destroyItem = false;
                             break;
@@ -321,6 +326,12 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             return;
         }
     }
+    else
+    {
+        /// Quest template is missing
+        if (m_Player->m_IsDebugQuestLogs)
+            ChatHandler(m_Player).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_NO_TEMPLATE);
+    }
 
     m_Player->PlayerTalkClass->SendCloseGossip();
 }
@@ -333,7 +344,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
 
     p_RecvData.readPackGUID(l_Guid);
     p_RecvData >> l_QuestId;
-    l_RespondToGiver = p_RecvData.ReadBit(); ///< @todo l_RespondToGiver is unused !
+    l_RespondToGiver = p_RecvData.ReadBit(); ///< l_RespondToGiver is never read 01/18/16
 
     // Verify that the guid is valid and is a questgiver or involved in the requested quest
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);
@@ -421,7 +432,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
         }
     }
 
-    if (!l_Quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT))
+    if (!l_Quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT | QUEST_FLAGS_AUTOCOMPLETE))
     {
         l_Object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
         if (!l_Object || !l_Object->hasInvolvedQuest(l_QuestId))
@@ -618,7 +629,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(l_QuestID))
     {
-        if (autoCompleteMode && !quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT))
+        if (autoCompleteMode && !quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT | QUEST_FLAGS_AUTOCOMPLETE))
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "Possible hacking attempt: Player %s [playerGuid: %u] tried to complete questId [entry: %u] by auto-submit flag for quest witch not suport it.",
                 m_Player->GetName(), m_Player->GetGUIDLow(), l_QuestID);
@@ -776,8 +787,7 @@ uint32 WorldSession::getDialogStatus(Player* player, Object* questgiver, uint32 
         if (!quest)
             continue;
 
-        ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK, quest->GetQuestId());
-        if (!sConditionMgr->IsObjectMeetToConditions(player, conditions))
+        if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK, quest->GetQuestId(), player))
             continue;
 
         QuestStatus status = player->GetQuestStatus(quest_id);
@@ -804,8 +814,7 @@ uint32 WorldSession::getDialogStatus(Player* player, Object* questgiver, uint32 
         if (!quest)
             continue;
 
-        ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK, quest->GetQuestId());
-        if (!sConditionMgr->IsObjectMeetToConditions(player, conditions))
+        if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK, quest->GetQuestId(), player))
             continue;
 
         QuestStatus status = player->GetQuestStatus(quest_id);

@@ -263,12 +263,386 @@ namespace MS { namespace Garrison
         return new spell_garrison_shipyard_SpellScript();
     }
 
+    /// Stables Lassos - 173686/174070
+    class spell_garrison_stables_lasso : public SpellScriptLoader
+    {
+        public:
+            uint32 g_LassoBreakSpellID;
+            spell_garrison_stables_lasso() : SpellScriptLoader("spell_garrison_stables_lasso") { g_LassoBreakSpellID = 173702; }
+
+            class spell_garrison_stables_lasso_AuraScript : public AuraScript
+            {
+                PrepareAuraScript(spell_garrison_stables_lasso_AuraScript);
+
+                void OnTick(AuraEffect const* p_AurEff)
+                {
+                    Unit* l_Caster = GetCaster();
+                    WorldObject* l_Target = GetOwner();
+
+                    if (l_Caster == nullptr || l_Target == nullptr)
+                        return;
+
+                    if (l_Caster->GetDistance2d(l_Target) >= 15.0f)
+                    {
+                        if (Creature* l_Creature = l_Target->ToCreature())
+                            l_Creature->CastSpell(l_Creature, 173702, true);
+                    }
+                }
+
+                void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+                {
+                    WorldObject* l_Target = GetOwner();
+
+                    if (l_Target == nullptr)
+                        return;
+
+                    if (Creature* l_Creature = l_Target->ToCreature())
+                        l_Creature->DespawnOrUnsummon();
+                }
+
+                void Register() override
+                {
+                    OnEffectPeriodic += AuraEffectPeriodicFn(spell_garrison_stables_lasso_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_garrison_stables_lasso_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                }
+            };
+
+            AuraScript* GetAuraScript() const
+            {
+                return new spell_garrison_stables_lasso_AuraScript();
+            }
+
+            class spell_garrison_stables_lasso_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_garrison_stables_lasso_SpellScript);
+
+                enum eEntries
+                {
+                    NpcSnarler       = 86851,
+                    NpcIcehoof       = 86847,
+                    NpcMeadowstomper = 86852,
+                    NpcRiverwallow   = 86848,
+                    NpcRocktusk      = 86850,
+                    NpcSilverpelt    = 86801
+                };
+
+                void HandleBeforeCast()
+                {
+                    Unit* l_Target = GetExplTargetUnit();
+
+                    if (Creature* l_Creature = l_Target->ToCreature())
+                    {
+                        switch (l_Creature->GetEntry())
+                        {
+                            case eEntries::NpcSnarler:
+                            case eEntries::NpcIcehoof:
+                            case eEntries::NpcMeadowstomper:
+                            case eEntries::NpcRiverwallow:
+                            case eEntries::NpcRocktusk:
+                            case eEntries::NpcSilverpelt:
+                                break;
+                            default:
+                                FinishCast(SpellCastResult::SPELL_FAILED_BAD_TARGETS);
+                                break;
+                        }
+                    }
+                    else
+                        FinishCast(SpellCastResult::SPELL_FAILED_BAD_TARGETS);
+                }
+
+                void Register()
+                {
+                    BeforeCast += SpellCastFn(spell_garrison_stables_lasso_SpellScript::HandleBeforeCast);
+                }
+            };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_garrison_stables_lasso_SpellScript();
+            }
+    };
+
+    /// 168655 / Sticky Grenade
+    class spell_aura_sticky_grenade : public SpellScriptLoader
+    {
+        public:
+            spell_aura_sticky_grenade() : SpellScriptLoader("spell_aura_sticky_grenade") { }
+
+            class spell_aura_sticky_grenade_AuraScript : public AuraScript
+            {
+                PrepareAuraScript(spell_aura_sticky_grenade_AuraScript);
+
+                enum eDatas
+                {
+                    SpellStickyGrenadeTargetDmg = 168659
+                };
+
+                void OnRemove(AuraEffect const* /*m_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
+                {
+                    if (Unit* l_Caster = GetCaster())
+                        l_Caster->CastSpell(l_Caster, eDatas::SpellStickyGrenadeTargetDmg, true);
+                }
+
+                void Register()
+                {
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_aura_sticky_grenade_AuraScript::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+                }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_aura_sticky_grenade_AuraScript();
+        }
+    };
+
+    /// Pneumatic Power Gauntlet - 168555
+    class spell_pneumatic_power_gauntlet : public SpellScriptLoader
+    {
+        public:
+            spell_pneumatic_power_gauntlet() : SpellScriptLoader("spell_pneumatic_power_gauntlet") { }
+
+            class spell_pneumatic_power_gauntlet_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_pneumatic_power_gauntlet_SpellScript);
+
+                void OnSpellHit(SpellEffIndex)
+                {
+                    Unit* l_Caster = GetCaster();
+                    Unit* l_Target = GetExplTargetUnit();
+
+                    if (l_Caster == nullptr || l_Target == nullptr)
+                        return;
+
+                    l_Target->GetMotionMaster()->MoveJump(l_Caster->m_positionX, l_Caster->m_positionY, l_Caster->m_positionZ, 15.0f, 10.0f);
+                }
+
+                void Register()
+                {
+                    OnEffectHitTarget += SpellEffectFn(spell_pneumatic_power_gauntlet_SpellScript::OnSpellHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                }
+            };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_pneumatic_power_gauntlet_SpellScript();
+            }
+    };
+
+    class spell_GarrisonRouseTrader : public SpellScriptLoader
+    {
+        public:
+            spell_GarrisonRouseTrader() : SpellScriptLoader("spell_GarrisonRouseTrader") { }
+
+            class spell_GarrisonRouseTrader_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_GarrisonRouseTrader_SpellScript);
+
+                SpellCastResult CheckCast()
+                {
+                    Unit* l_Target = GetExplTargetUnit();
+
+                    if (Creature* l_Creature = l_Target->ToCreature())
+                    {
+                        if (!l_Creature->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR))
+                            return SPELL_FAILED_BAD_TARGETS;
+                    }
+                    else
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    return SPELL_CAST_OK;
+                }
+
+                void OnSpellHit(SpellEffIndex /*p_EffIndex*/)
+                {
+                    Unit* l_Caster = GetCaster();
+
+                    if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                        l_Caster->ToPlayer()->KilledMonsterCredit(87254);
+                }
+
+                void Register()
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_GarrisonRouseTrader_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_GarrisonRouseTrader_SpellScript::OnSpellHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                }
+            };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_GarrisonRouseTrader_SpellScript();
+            }
+    };
+
+    /// Well-rested - 172425
+    class spell_garrison_well_rested : public SpellScriptLoader
+    {
+        public:
+            spell_garrison_well_rested() : SpellScriptLoader("spell_garrison_well_rested") { }
+
+            class spell_garrison_well_rested_AuraScript : public AuraScript
+            {
+                PrepareAuraScript(spell_garrison_well_rested_AuraScript);
+
+                enum eSpells
+                {
+                    SpellWellRestedTrackingAura = 172424
+                };
+
+                void OnAuraApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+                {
+                    Unit* l_Owner = GetUnitOwner();
+
+                    if (l_Owner == nullptr)
+                        return;
+
+                    if (l_Owner->HasAura(eSpells::SpellWellRestedTrackingAura))
+                        l_Owner->RemoveAura(eSpells::SpellWellRestedTrackingAura);
+                }
+
+                void Register() override
+                {
+                    OnEffectApply += AuraEffectApplyFn(spell_garrison_well_rested_AuraScript::OnAuraApply, EFFECT_0, SPELL_AURA_MOD_PERCENT_STAT, AURA_EFFECT_HANDLE_REAL);
+                }
+            };
+
+            AuraScript* GetAuraScript() const override
+            {
+                return new spell_garrison_well_rested_AuraScript();
+            }
+    };
+
+    class spell_garrison_tent_spawn : public SpellScriptLoader
+    {
+        public:
+            spell_garrison_tent_spawn() : SpellScriptLoader("spell_garrison_tent_spawn") { }
+
+            class spell_garrison_tent_spawn_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_garrison_tent_spawn_SpellScript);
+
+                SpellCastResult CheckCast()
+                {
+                    Unit* l_Caster = GetCaster();
+
+                    /// Only in Draenor map or Garrison
+                    if (l_Caster->GetMapId() != 1116 && (l_Caster->GetTypeId() == TYPEID_PLAYER && !l_Caster->ToPlayer()->IsInGarrison()))
+                        return SPELL_FAILED_INCORRECT_AREA;
+
+                    return SPELL_CAST_OK;
+                }
+
+                void Register()
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_garrison_tent_spawn_SpellScript::CheckCast);
+                }
+            };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_garrison_tent_spawn_SpellScript();
+            }
+    };
+
+    /// Well-rested - 172425
+    class spell_aura_garrison_skyterror_falling : public SpellScriptLoader
+    {
+        public:
+            spell_aura_garrison_skyterror_falling() : SpellScriptLoader("spell_aura_garrison_skyterror_falling") { }
+
+            class spell_aura_garrison_skyterror_falling_AuraScript : public AuraScript
+            {
+                PrepareAuraScript(spell_aura_garrison_skyterror_falling_AuraScript);
+
+                void OnUpdate(uint32 p_Diff)
+                {
+                    Unit* l_Owner = GetUnitOwner();
+
+                    if (l_Owner == nullptr)
+                        return;
+
+                    /// Awaits for hardcpp's PR validation...
+///                    if (!l_Owner->IsFalling())
+///                        Remove();
+                }
+
+                void Register() override
+                {
+                    OnAuraUpdate += AuraUpdateFn(spell_aura_garrison_skyterror_falling_AuraScript::OnUpdate);
+                }
+            };
+
+            AuraScript* GetAuraScript() const override
+            {
+                return new spell_aura_garrison_skyterror_falling_AuraScript();
+            }
+    };
+
+    /// Pneumatic Power Gauntlet - 168555
+    class spell_garrison_combine_scribe_items : public SpellScriptLoader
+    {
+        public:
+            spell_garrison_combine_scribe_items() : SpellScriptLoader("spell_garrison_combine_scribe_items") { }
+
+            class spell_garrison_combine_scribe_items_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_garrison_combine_scribe_items_SpellScript);
+
+                void OnSpellHit(SpellEffIndex)
+                {
+                    Unit* l_Caster = GetCaster();
+
+                    if (l_Caster == nullptr || l_Caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    uint32 l_RewardID = 119027;
+                    uint32 l_Chance = urand(0, 99);
+
+                    if (l_Chance <= 20)
+                        l_RewardID = 119028;
+                    else if (l_Chance > 20 && l_Chance <= 50)
+                        l_RewardID = 119023;
+
+                    /// check space and find places
+                    uint32 l_NoSpaceForCount = 0;
+                    ItemPosCountVec l_Destination;
+
+                    InventoryResult l_Message = l_Caster->ToPlayer()->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardID, 1, &l_NoSpaceForCount);
+
+                    if (l_Message == EQUIP_ERR_OK)
+                    {
+                        if (Item* l_Item = l_Caster->ToPlayer()->StoreNewItem(l_Destination, l_RewardID, true, Item::GenerateItemRandomPropertyId(l_RewardID)))
+                            l_Caster->ToPlayer()->SendNewItem(l_Item, 1, true, false, false);
+                    }
+                    else
+                        l_Caster->ToPlayer()->SendEquipError(l_Message, nullptr, nullptr, l_RewardID);
+                }
+
+                void Register()
+                {
+                    OnEffectHitTarget += SpellEffectFn(spell_garrison_combine_scribe_items_SpellScript::OnSpellHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                }
+            };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_garrison_combine_scribe_items_SpellScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
 void AddSC_Garrison()
 {
+    new MS::Garrison::spell_garrison_combine_scribe_items();
+    new MS::Garrison::spell_aura_garrison_skyterror_falling();
+    new MS::Garrison::spell_garrison_stables_lasso();
     new MS::Garrison::spell_garrison_hearthstone();
     new MS::Garrison::spell_garrison_portal();
     new MS::Garrison::spell_garrison_shipyard();
+    new MS::Garrison::spell_aura_sticky_grenade();
+    new MS::Garrison::spell_pneumatic_power_gauntlet();
+    new MS::Garrison::spell_GarrisonRouseTrader();
+    new MS::Garrison::spell_garrison_well_rested();
+    new MS::Garrison::spell_garrison_tent_spawn();
 }

@@ -23,7 +23,7 @@ class spell_ashran_blade_twister: public SpellScriptLoader
                 BladeTwisterDamage = 177167
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -79,7 +79,7 @@ class spell_ashran_emberfall_living_bomb: public SpellScriptLoader
                 LivingBombTriggered = 176673
             };
 
-            void AfterRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void AfterRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                 if (removeMode != AuraRemoveMode::AURA_REMOVE_BY_DEATH && removeMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)
@@ -238,7 +238,7 @@ class spell_ashran_curse_of_krong : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ashran_curse_of_krong_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->DealDamage(l_Target, l_Target->CountPctFromMaxHealth(p_AurEff->GetAmount()), nullptr, DOT);
@@ -266,7 +266,7 @@ class spell_ashran_artifacts_collected : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ashran_artifacts_collected_AuraScript);
 
-            void UpdateCurrentCount(uint32, AuraEffectPtr p_AurEff)
+            void UpdateCurrentCount(uint32, AuraEffect* p_AurEff)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -318,7 +318,7 @@ class spell_ashran_artifacts_collected : public SpellScriptLoader
                 }
             }
 
-            void SetMaxCount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void SetMaxCount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -377,7 +377,7 @@ class spell_ashran_stone_empowerment : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ashran_stone_empowerment_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -492,7 +492,7 @@ class spell_ashran_vile_blood : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ashran_vile_blood_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -644,7 +644,7 @@ class spell_ashran_darkness_within : public SpellScriptLoader
                 SpellDarknessWithinSearcher = 158844
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::SpellDarknessWithinSearcher, true);
@@ -725,7 +725,7 @@ class spell_ashran_preserved_discombobulator_ray : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ashran_preserved_discombobulator_ray_AuraScript);
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->Dismount();
@@ -807,7 +807,7 @@ class spell_ashran_ancient_artifact : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ashran_ancient_artifact_AuraScript);
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (Unit* l_Target = GetTarget())
@@ -876,7 +876,7 @@ class spell_ashran_horde_and_alliance_racer : public SpellScriptLoader
 
                             if (l_PlayerList.empty())
                             {
-                                if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                                if (AuraEffect* l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
                                     l_AurEff->ChangeAmount(0);
 
                                 return;
@@ -898,7 +898,7 @@ class spell_ashran_horde_and_alliance_racer : public SpellScriptLoader
 
                             if (l_PlayerList.empty())
                             {
-                                if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                                if (AuraEffect* l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
                                     l_AurEff->ChangeAmount(0);
 
                                 return;
@@ -906,7 +906,7 @@ class spell_ashran_horde_and_alliance_racer : public SpellScriptLoader
 
                             /// The riders move very slowly, but for each player of their faction within their vicinity their speed is increased by 30%,
                             /// allowing them to outstrip their competitor.
-                            if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                            if (AuraEffect* l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
                                 l_AurEff->ChangeAmount(std::min(((int32)l_PlayerList.size() * eDatas::SpeedPCTPerPlayer), (int32)eDatas::MaxSpeedPCT));
                         }
                         else

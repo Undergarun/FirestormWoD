@@ -37,50 +37,50 @@ enum eSays
 
 class boss_spoils_of_pandaria : public CreatureScript
 {
-	public:
-		boss_spoils_of_pandaria() : CreatureScript("boss_spoils_of_pandaria") { }
+    public:
+        boss_spoils_of_pandaria() : CreatureScript("boss_spoils_of_pandaria") { }
 
-		struct boss_spoils_of_pandariaAI : public BossAI
-		{
-			boss_spoils_of_pandariaAI(Creature* creature) : BossAI(creature, DATA_SPOILS_OF_PANDARIA)
-			{
-				pInstance = creature->GetInstanceScript();
-			}
-			
-			EventMap events;
-			InstanceScript* pInstance;
-			
-			void Reset()
-			{
-				Reset();
-				
-				events.Reset();
-				
-				summons.DespawnAll();
-				
-				if (pInstance)
+        struct boss_spoils_of_pandariaAI : public BossAI
+        {
+            boss_spoils_of_pandariaAI(Creature* creature) : BossAI(creature, DATA_SPOILS_OF_PANDARIA)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
+            
+            EventMap events;
+            InstanceScript* pInstance;
+            
+            void Reset()
+            {
+                Reset();
+                
+                events.Reset();
+                
+                summons.DespawnAll();
+                
+                if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-			}
-			
-			void JustReachedHome()
+            }
+            
+            void JustReachedHome()
             {
                 _JustReachedHome();
 
                 if (pInstance)
                     pInstance->SetBossState(DATA_SPOILS_OF_PANDARIA, FAIL);
             }
-			
-			void EnterCombat(Unit* attacker)
+            
+            void EnterCombat(Unit* attacker)
             {
-				// @TODO: Set in combat for other protectors
+                // @TODO: Set in combat for other protectors
                 if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                     pInstance->SetBossState(DATA_SPOILS_OF_PANDARIA, IN_PROGRESS);
                 }
             }
-			
-			void JustSummoned(Creature* summon)
+            
+            void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
             }
@@ -89,12 +89,12 @@ class boss_spoils_of_pandaria : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
-			void KilledUnit(Unit* who)
+            
+            void KilledUnit(Unit* who)
             {
             }
-			
-			void JustDied(Unit* killer)
+            
+            void JustDied(Unit* killer)
             {
                 _JustDied();
 
@@ -104,8 +104,8 @@ class boss_spoils_of_pandaria : public CreatureScript
                     pInstance->SetBossState(DATA_SPOILS_OF_PANDARIA, DONE);
                 }
             }
-			
-			void UpdateAI(const uint32 diff)
+            
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -114,13 +114,13 @@ class boss_spoils_of_pandaria : public CreatureScript
                     return;
 
                 events.Update(diff);
-			}
-		};
+            }
+        };
 
         CreatureAI* GetAI(Creature* pCreature) const
-		{
-			return new boss_spoils_of_pandariaAI(pCreature);
-		}
+        {
+            return new boss_spoils_of_pandariaAI(pCreature);
+        }
 };
 
 class mob_secured_stockpile_of_spoils : public CreatureScript
@@ -554,7 +554,7 @@ class mob_namelesse_windwallker_spirit : public CreatureScript
 
 void AddSC_spoils_of_pandaria()
 {
-	new boss_spoils_of_pandaria();
+    new boss_spoils_of_pandaria();
     new mob_secured_stockpile_of_spoils();
     new mob_modified_anima_golem();
     new mob_mogu_shadow_ritualist();

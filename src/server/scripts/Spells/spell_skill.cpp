@@ -277,7 +277,7 @@ namespace MS { namespace Skill
                                 162812, 162821, 162854, 162873, 162864, 162883,
                                 162865, 162852, 162827, 162838, 162874, 162853,
                                 162867, 162866, 162876, 175186, 178448, 162823,
-                                162839
+                                162839, 57160,  57152,  57190
                             };
                             break;
                         case SpellIDs::ResearchMoonglowInk:
@@ -816,6 +816,11 @@ namespace MS { namespace Skill
                                 m_Count     = 1;
                                 m_ItemID    = ItemIDs::TemporalCrystal;
                             }
+                        }
+                        else
+                        {
+                            m_ItemID = ItemIDs::TemporalCrystal;
+                            m_Count = 1;
                         }
 
                         ItemPosCountVec l_Destination;
@@ -1404,106 +1409,6 @@ namespace MS { namespace Skill
             }
     };
 
-    /// Upgrade Armor - Ensorcelled Tarot - 187537
-    class spell_skill_ensorcelled_tarot_upgrade : public SpellScriptLoader
-    {
-        public:
-            spell_skill_ensorcelled_tarot_upgrade() : SpellScriptLoader("spell_skill_ensorcelled_tarot_upgrade") { }
-
-            class spell_skill_ensorcelled_tarot_upgrade_SpellScript : public SpellScript
-            {
-                PrepareSpellScript(spell_skill_ensorcelled_tarot_upgrade_SpellScript);
-
-                enum eUpgradeSpells
-                {
-                    FirstUpgrade    = 165836,
-                    SecondUpgrade   = 178247,
-                    ThirdUpgrade    = 181411
-                };
-
-                SpellCastResult CheckCast()
-                {
-                    if (Item* l_ItemTarget = GetExplTargetItem())
-                    {
-                        if (Player* l_Player = GetCaster()->ToPlayer())
-                        {
-                            switch (l_ItemTarget->GetTemplate()->InventoryType)
-                            {
-                                case InventoryType::INVTYPE_HOLDABLE:
-                                    if (l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget) >= (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
-                                        return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
-                                    break;
-                                case InventoryType::INVTYPE_TRINKET:
-                                    if (l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget) >= (uint32)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
-                                        return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-
-                    return SpellCastResult::SPELL_CAST_OK;
-                }
-
-                void HandleChangeBonuses(SpellEffIndex p_EffIndex)
-                {
-                    PreventHitDefaultEffect(p_EffIndex);
-
-                    if (Item* l_ItemTarget = GetExplTargetItem())
-                    {
-                        if (Player* l_Player = GetCaster()->ToPlayer())
-                        {
-                            uint32 l_Triggered = 0;
-                            uint32 l_ItemLevel = l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget);
-
-                            switch (l_ItemTarget->GetTemplate()->InventoryType)
-                            {
-                                case InventoryType::INVTYPE_HOLDABLE:
-                                {
-                                    if (l_ItemLevel >= 670)
-                                        l_Triggered = eUpgradeSpells::ThirdUpgrade;
-                                    else if (l_ItemLevel >= 655)
-                                        l_Triggered = eUpgradeSpells::SecondUpgrade;
-                                    else if (l_ItemLevel >= 640)
-                                        l_Triggered = eUpgradeSpells::FirstUpgrade;
-
-                                    break;
-                                }
-                                case InventoryType::INVTYPE_TRINKET:
-                                {
-                                    if (l_ItemLevel >= 660)
-                                        l_Triggered = eUpgradeSpells::ThirdUpgrade;
-                                    else if (l_ItemLevel >= 645)
-                                        l_Triggered = eUpgradeSpells::SecondUpgrade;
-                                    else if (l_ItemLevel >= 630)
-                                        l_Triggered = eUpgradeSpells::FirstUpgrade;
-
-                                    break;
-                                }
-                                default:
-                                    break;
-                            }
-
-                            if (l_Triggered)
-                                l_Player->CastSpell(l_ItemTarget, l_Triggered, true);
-                        }
-                    }
-                }
-
-                void Register() override
-                {
-                    OnCheckCast += SpellCheckCastFn(spell_skill_ensorcelled_tarot_upgrade_SpellScript::CheckCast);
-                    OnEffectHitTarget += SpellEffectFn(spell_skill_ensorcelled_tarot_upgrade_SpellScript::HandleChangeBonuses, EFFECT_0, SPELL_EFFECT_CHANGE_ITEM_BONUSES);
-                }
-            };
-
-            SpellScript* GetSpellScript() const override
-            {
-                return new spell_skill_ensorcelled_tarot_upgrade_SpellScript();
-            }
-    };
-
     /// Upgrade Armor - Hexweave Essence - 187539
     class spell_skill_hexweave_essence_upgrade : public SpellScriptLoader
     {
@@ -1600,6 +1505,5 @@ void AddSC_spell_skill()
     new MS::Skill::spell_skill_true_iron_trigger_upgrade();
     new MS::Skill::spell_skill_linkgrease_locksprocket_upgrade();
     new MS::Skill::spell_skill_weapon_crystal_upgrade();
-    new MS::Skill::spell_skill_ensorcelled_tarot_upgrade();
     new MS::Skill::spell_skill_hexweave_essence_upgrade();
 }

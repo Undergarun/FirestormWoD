@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET ScriptName = 'npc_doomguard' WHERE ScriptName = 'spell_npc_warl_doomguard';

@@ -67,7 +67,7 @@ class LootTemplate::LootGroup                               // A set of loot def
         void CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const;
         LootStoreItemList* GetExplicitlyChancedItemList() { return &ExplicitlyChanced; }
         LootStoreItemList* GetEqualChancedItemList() { return &EqualChanced; }
-        void CopyConditions(ConditionList conditions);
+        void CopyConditions(ConditionContainer conditions);
     private:
         LootStoreItemList ExplicitlyChanced;                // Entries with chances defined in DB
         LootStoreItemList EqualChanced;                     // Zero chances - every entry takes the same chance
@@ -201,7 +201,7 @@ void LootStore::ResetConditions()
 {
     for (LootTemplateMap::iterator itr = m_LootTemplates.begin(); itr != m_LootTemplates.end(); ++itr)
     {
-        ConditionList empty;
+        ConditionContainer empty;
         (*itr).second->CopyConditions(empty);
     }
 }
@@ -260,7 +260,7 @@ void LootStore::ReportNotExistedId(uint32 id) const
 
 // Checks if the entry (quest, non-quest, reference) takes it's chance (at loot generation)
 // RATE_DROP_ITEMS is no longer used for all types of entries
-bool LootStoreItem::Roll(bool rate) const
+bool LootStoreItem::Roll(bool rate, Player const* p_Player) const
 {
     if (chance >= 100.0f)
         return true;
@@ -275,7 +275,11 @@ bool LootStoreItem::Roll(bool rate) const
         return roll_chance_f(chance*qualityModifier);
     }
     else if (type == LOOT_ITEM_TYPE_CURRENCY)
+    {
+        if ((sCurrencyTypesStore.LookupEntry(itemid)->Category == CURRENCY_TYPE_APEXIS_CRYSTAL) && p_Player->HasAura(186400))
+            return roll_chance_f(chance * 2);
         return roll_chance_f(chance);
+    }
 
     return false;
 }
@@ -396,7 +400,7 @@ LootItem::LootItem(LootStoreItem const& p_LootItem, ItemContext p_Context, Loot*
         randomSuffix        = GenerateEnchSuffixFactor(itemid);
         randomPropertyId    = Item::GenerateItemRandomPropertyId(itemid);
 
-        Item::GenerateItemBonus(itemid, p_Context, itemBonuses);
+        Item::GenerateItemBonus(itemid, p_Context, itemBonuses, !(l_ItemTemplate && l_ItemTemplate->HasStats()));
     }
 
     count               = urand(p_LootItem.mincountOrRef, p_LootItem.maxcount);     // constructor called for mincountOrRef > 0 only
@@ -450,6 +454,24 @@ bool LootItem::AllowedForPlayer(Player const* p_Player) const
         // check quest requirements
         if (!(l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (l_ItemTemplate->StartQuest && p_Player->GetQuestStatus(l_ItemTemplate->StartQuest) != QUEST_STATUS_NONE)) && !p_Player->HasQuestForItem(itemid)))
             return false;
+
+        if (l_ItemTemplate->Quality > ItemQualities::ITEM_QUALITY_UNCOMMON)
+        {
+            WorldObject* l_LootSourceObject = nullptr;
+            if (IS_GAMEOBJECT_GUID(currentLoot->source))
+                l_LootSourceObject = p_Player->GetMap()->GetGameObject(currentLoot->source);
+            else if (IS_CREATURE_GUID(currentLoot->source))
+                l_LootSourceObject = p_Player->GetMap()->GetCreature(currentLoot->source);
+
+            if (l_LootSourceObject)
+            {
+                /// If worldobject is quest tracked and player have the quest, player isn't allowed to loot more than green quality
+                auto l_TrackingQuestId = Vignette::GetTrackingQuestIdFromWorldObject(l_LootSourceObject);
+                uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+                if (l_TrackingQuestId && p_Player->IsQuestBitFlaged(l_QuestBit))
+                    return false;
+            }
+        }
     }
     else if (type == LOOT_ITEM_TYPE_CURRENCY)
     {
@@ -556,7 +578,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     Items.reserve(MAX_NR_LOOT_ITEMS);
     QuestItems.reserve(MAX_NR_QUEST_ITEMS);
 
-    tab->Process(*this, store.IsRatesAllowed(), lootMode);          // Processing is done there, callback via Loot::AddItem()
+    tab->Process(*this, store.IsRatesAllowed(), lootMode, lootOwner);          // Processing is done there, callback via Loot::AddItem()
 
     // Setting access rights for group loot case
     Group* group = lootOwner->GetGroup();
@@ -1450,22 +1472,22 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     switch (lv.permission)
                     {
                         case MASTER_PERMISSION:
-                            slottype = uint8(LOOT_SLOT_TYPE_MASTER);
+                            slottype = uint8(LOOT_SLOT_TYPE_MASTER); ///< slottype is never read 01/18/16
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
                             if (!item.is_blocked)
-                                slottype = uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
+                                slottype = uint8(LOOT_SLOT_TYPE_ALLOW_LOOT); ///< slottype is never read 01/18/16
                             else
-                                slottype = uint8(LOOT_SLOT_TYPE_ROLL_ONGOING);
+                                slottype = uint8(LOOT_SLOT_TYPE_ROLL_ONGOING); ///< slottype is never read 01/18/16
                             break;
                         default:
-                            slottype = uint8(slotType);
+                            slottype = uint8(slotType); ///< slottype is never read 01/18/16
                             break;
                     }
                 }
                 else
-                    slottype = uint8(slotType);
+                    slottype = uint8(slotType); ///< slottype is never read 01/18/16
 
                 uint8 l_ItemListType = LOOT_LIST_ITEM;
 
@@ -1603,7 +1625,7 @@ bool LootTemplate::LootGroup::HasQuestDropForPlayer(Player const* player) const
     return false;
 }
 
-void LootTemplate::LootGroup::CopyConditions(ConditionList /*conditions*/)
+void LootTemplate::LootGroup::CopyConditions(ConditionContainer /*conditions*/)
 {
     for (LootStoreItemList::iterator i = ExplicitlyChanced.begin(); i != ExplicitlyChanced.end(); ++i)
     {
@@ -1803,15 +1825,9 @@ float LootTemplate::LootGroup::TotalChance() const
 void LootTemplate::LootGroup::Verify(LootStore const& lootstore, uint32 id, uint8 group_id) const
 {
     float chance = RawTotalChance();
-    if (chance > 101.0f)                                    // TODO: replace with 100% when DBs will be ready
-    {
-        sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %u group %d has total chance > 100%% (%f)", lootstore.GetName(), id, group_id, chance);
-    }
-
+    
     if (chance >= 100.0f && !EqualChanced.empty())
-    {
         sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %u group %d has items with chance=0%% but group total chance >= 100%% (%f)", lootstore.GetName(), id, group_id, chance);
-    }
 }
 
 void LootTemplate::LootGroup::CheckLootRefs(LootTemplateMap const& /*store*/, LootIdSet* ref_set) const
@@ -1856,7 +1872,7 @@ void LootTemplate::AddEntry(LootStoreItem& item)
         Entries.push_back(item);
 }
 
-void LootTemplate::CopyConditions(ConditionList conditions)
+void LootTemplate::CopyConditions(ConditionContainer conditions)
 {
     for (LootStoreItemList::iterator i = Entries.begin(); i != Entries.end(); ++i)
         i->conditions.clear();
@@ -1866,7 +1882,7 @@ void LootTemplate::CopyConditions(ConditionList conditions)
 }
 
 // Rolls for every item in the template and adds the rolled items the the loot
-void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId) const
+void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, Player const* lootOwner, uint8 groupId) const
 {
     if (groupId)                                            // Group reference uses own processing of the group
     {
@@ -1883,7 +1899,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
         if (i->lootmode &~ lootMode)                          // Do not add if mode mismatch
             continue;
 
-        if (!i->Roll(rate))
+        if (!i->Roll(rate, lootOwner))
             continue;                                         // Bad luck for the entry
 
         if (i->type == LOOT_ITEM_TYPE_ITEM)
@@ -1915,7 +1931,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
 
             uint32 maxcount = uint32(float(i->maxcount) * sWorld->getRate(RATE_DROP_ITEM_REFERENCED_AMOUNT));
             for (uint32 loop = 0; loop < maxcount; ++loop)    // Ref multiplicator
-                Referenced->Process(loot, rate, lootMode, i->group);
+                Referenced->Process(loot, rate, lootMode, lootOwner, i->group);
         }
         else                                                  // Plain entries (not a reference, not grouped)
             loot.AddItem(*i);                                 // Chance is already checked, just add
@@ -2416,7 +2432,8 @@ void LoadLootTemplates_Spell()
             // ignore 61756 (Northrend Inscription Research (FAST QA VERSION) for example
             if (!(spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT) || (spellInfo->Attributes & SPELL_ATTR0_TRADESPELL))
             {
-                LootTemplates_Spell.ReportNotExistedId(spell_id);
+                if (!spellInfo->Effects[0].ItemType)
+                    LootTemplates_Spell.ReportNotExistedId(spell_id);
             }
         }
         else

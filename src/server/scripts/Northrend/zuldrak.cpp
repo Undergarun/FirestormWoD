@@ -700,7 +700,7 @@ public:
                 if (Creature* pWhisker = me->GetCreature(*me, uiWhisker))
                     pWhisker->RemoveFromWorld();
 
-            if (killer->GetTypeId() == TYPEID_PLAYER)
+            if (killer->IsPlayer())
                 killer->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON, killer);
 
         }
@@ -866,10 +866,10 @@ public:
                     }
                 }
                 if (evadeMode)
-		{
+        {
                    EnterEvadeMode();
-	           return;
-		}
+               return;
+        }
             }
 
             if (uiCleaveTimer <= uiDiff)
@@ -993,9 +993,9 @@ public:
                                 me->AddThreat(unit, 5.0f);
                                 break;
                             }
-                            EnterEvadeMode();
                         }
                     }
+                    EnterEvadeMode();
                 }
             }
 
@@ -1409,8 +1409,8 @@ public:
             player->CLOSE_GOSSIP_MENU();
             creature->CastSpell(player, SPELL_QUEST_CREDIT, true);
             CAST_AI(npc_crusade_recruit::npc_crusade_recruitAI, (creature->AI()))->m_uiPhase = 1;
-            creature->SetInFront(player);
-            creature->SendMovementFlagUpdate();
+            creature->SetFacingToObject(player);
+            //creature->SendMovementFlagUpdate();
         }
 
         return true;

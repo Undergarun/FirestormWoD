@@ -199,7 +199,7 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim->IsPlayer())
                 DoScriptText(RAND(SAY_KILL_PLAYER_1, SAY_KILL_PLAYER_2), me);
         }
 
@@ -803,7 +803,7 @@ public:
         {
             if (spell->Id == 91277)
             {
-                if (AuraPtr aura = me->GetAura(62214))
+                if (Aura* aura = me->GetAura(62214))
                 {
                     aura->SetDuration(5000);
                     return;
@@ -813,7 +813,7 @@ public:
                 me->GetPosition(x, y, z);
 
                 if (Creature* soul = me->SummonCreature(49219, x, y, z, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5000))
-                    if (AuraPtr aura = soul->AddAura(62214, me))
+                    if (Aura* aura = soul->AddAura(62214, me))
                         aura->SetDuration(5000);
             }
         }
@@ -1033,7 +1033,7 @@ class spell_copy_melee_weapon: public SpellScriptLoader
                 return true;
             }
 
-            void ApplyEffect(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 PreventDefaultAction();
                 Unit* caster = GetCaster();
@@ -1053,7 +1053,7 @@ class spell_copy_melee_weapon: public SpellScriptLoader
                     target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS));
             }
 
-            void RemoveEffect(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 PreventDefaultAction();
                 Unit* target = GetTarget();
@@ -1066,8 +1066,8 @@ class spell_copy_melee_weapon: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_copy_melee_weapon_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_copy_melee_weapon_AuraScript::RemoveEffect, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_copy_melee_weapon_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_MOD_DISARM, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_copy_melee_weapon_AuraScript::RemoveEffect, EFFECT_0, SPELL_AURA_MOD_DISARM, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1086,7 +1086,7 @@ class spell_repentance_player_kneel: public SpellScriptLoader
         {
             PrepareAuraScript(spell_repentance_player_kneel_AuraScript)
 
-            void DecayPeriodicTimer(AuraEffectPtr aurEff)
+            void DecayPeriodicTimer(AuraEffect* aurEff)
             {
                 aurEff->SetPeriodic(false);
             }

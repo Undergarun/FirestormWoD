@@ -96,7 +96,7 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     {
         for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
         {
-            AreaTriggerTemplate const l_AreaTriggerTemplate = *l_Itr;
+            AreaTriggerTemplate const& l_AreaTriggerTemplate = *l_Itr;
             if (l_AreaTriggerTemplate.m_EffIndex == p_EffIndex)
                 m_Templates.push_back(l_AreaTriggerTemplate);
         }
@@ -105,10 +105,10 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     {
         // Create default template
         AreaTriggerTemplate l_DefaultAreaTriggerTemplate;
-        l_DefaultAreaTriggerTemplate.m_Entry = p_SpellInfo->Id;
-        l_DefaultAreaTriggerTemplate.m_Flags |= AREATRIGGER_FLAG_AREATRIGGER_SPHERE;
-        l_DefaultAreaTriggerTemplate.m_ScaleX = 1;
-        l_DefaultAreaTriggerTemplate.m_ScaleY = 1;
+        l_DefaultAreaTriggerTemplate.m_Entry    = p_SpellInfo->Id;
+        l_DefaultAreaTriggerTemplate.m_Flags    |= AREATRIGGER_FLAG_AREATRIGGER_SPHERE;
+        l_DefaultAreaTriggerTemplate.m_ScaleX   = 1;
+        l_DefaultAreaTriggerTemplate.m_ScaleY   = 1;
 
         m_Templates.push_back(l_DefaultAreaTriggerTemplate);
     }
@@ -120,9 +120,9 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     sScriptMgr->InitScriptEntity(this);
     m_Flags = l_MainTemplate->m_Flags;
 
-    if (p_Caster->GetVehicleKit() && m_Flags & AREATRIGGER_FLAG_ATTACHED)
+    if (m_Flags & AREATRIGGER_FLAG_ATTACHED)
     {
-        m_updateFlag |= UPDATEFLAG_HAS_SERVER_TIME;
+        m_updateFlag |= UPDATEFLAG_HAS_TRANSPORT_POSITION;
         m_movementInfo.t_guid = p_Caster->GetGUID();
         m_movementInfo.t_seat = 0;
     }
@@ -221,7 +221,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
     SetTrajectory(AREATRIGGER_INTERPOLATION_NONE);
     SetUpdateTimerInterval(60);
 
-    if (p_Duration != -1)
+    if (p_Duration != -1) ///< Comparison of integers of different signs: 'uint32' (aka 'unsigned int') and 'int'
         SetUInt32Value(AREATRIGGER_FIELD_DURATION, p_Duration);
 
     SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE));
@@ -230,6 +230,15 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
         return false;
 
     sScriptMgr->OnCreateAreaTriggerEntity(this);
+
+    switch (GetSpellId())
+    {
+        case 153690: ///< Necrotic Pitch
+            this->SummonCreature(76191, *this, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60 * TimeConstants::IN_MILLISECONDS);
+            break;
+        default:
+            break;
+    }
 
     return true;
 }
@@ -249,6 +258,7 @@ void AreaTrigger::Update(uint32 p_Time)
     if (!l_SpellInfo)
         return;
 
+    /// Must be done before...
     if (!GetCaster())
     {
         Remove(p_Time);
@@ -256,6 +266,13 @@ void AreaTrigger::Update(uint32 p_Time)
     }
 
     sScriptMgr->OnUpdateAreaTriggerEntity(this, p_Time);
+
+    /// And after the update, just in case it would be modified in a script
+    if (!GetCaster())
+    {
+        Remove(p_Time);
+        return;
+    }
 
     m_UpdateTimer.Update(p_Time);
 
@@ -273,6 +290,13 @@ void AreaTrigger::Update(uint32 p_Time)
             /// Check if AreaTrigger is arrived to Dest pos
             if (IsNearPosition(&m_Destination, 0.1f))
                 sScriptMgr->OnDestinationReached(this);
+        }
+        else if (GetMainTemplate()->HasAttached())
+        {
+            m_positionX     = m_Caster->m_positionX;
+            m_positionY     = m_Caster->m_positionY;
+            m_positionZ     = m_Caster->m_positionZ;
+            m_orientation   = m_Caster->m_orientation;
         }
     }
 }
@@ -328,18 +352,6 @@ void AreaTrigger::UnbindFromCaster()
         m_Caster->_UnregisterAreaTrigger(this);
         m_Caster = NULL;
     }
-}
-
-void AreaTrigger::SendMovementUpdate()
-{
-    WorldPacket l_Data(SMSG_AREA_TRIGGER_MOVEMENT_UPDATE, 24);
-
-    // startX
-    // startY
-    // endY
-    // endZ
-    // startZ
-    // endX
 }
 
 void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
@@ -512,14 +524,14 @@ void AreaTrigger::CastSpell(Unit* p_Target, uint32 p_SpellId)
         l_Trigger->setFaction(l_Owner->getFaction());
         // needed for GO casts for proper target validation checks
         l_Trigger->SetGuidValue(UNIT_FIELD_SUMMONED_BY, l_Owner->GetGUID());
-        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, NULLAURA_EFFECT, l_Owner->GetGUID());
+        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, nullptr, l_Owner->GetGUID());
     }
     else
     {
         l_Trigger->setFaction(14);
         // Set owner guid for target if no owner available - needed by trigger auras
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
-        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, NULLAURA_EFFECT, p_Target ? p_Target->GetGUID() : 0);
+        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, nullptr, p_Target ? p_Target->GetGUID() : 0);
     }
 }
 

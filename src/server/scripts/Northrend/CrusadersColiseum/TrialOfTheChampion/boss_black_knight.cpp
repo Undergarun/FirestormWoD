@@ -169,7 +169,7 @@ public:
 
         void KilledUnit(Unit* target)
         {
-            if (target->GetTypeId() == TYPEID_PLAYER)
+            if (target->IsPlayer())
                 Talk(SAY_KILL);
         }
 
@@ -483,7 +483,7 @@ public:
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool /*apply*/)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
                 who->ExitVehicle();
         }
 

@@ -1045,6 +1045,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3); }
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3, animprogress); }
 
+        bool IsInGarrison() const { return GetMapId() == 1152 || GetMapId() == 1153 || GetMapId() == 1474 || GetMapId() == 1330 || GetMapId() == 1331 || GetMapId() == 1159; }
+
         void SetGameobjectTransparence(uint8 transparency) { SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 0, transparency); }
 
         static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
@@ -1148,8 +1150,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         GameObjectModel * m_model;
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL) const;
 
-        Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport*>(this); else return NULL; }
-        Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return NULL; }
+        Transport* ToTransport();
+        Transport const* ToTransport() const;
 
         float GetStationaryX() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionX(); return GetPositionX(); }
         float GetStationaryY() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionY(); return GetPositionY(); }

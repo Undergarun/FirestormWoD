@@ -351,7 +351,7 @@ void BattlegroundTP::EventPlayerCapturedFlag(Player *Source)
         RewardReputationToTeam(1172, m_ReputationCapture, HORDE);
     }
     //for flag capture is reward 2 honorable kills
-    RewardHonorToTeam(GetBonusHonorFromKill(2), Source->GetBGTeam());
+    RewardHonorToTeam(GetBonusHonorFromKill(2), Source->GetBGTeam(), MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
 
     SpawnBGObject(BG_TP_OBJECT_H_FLAG, BG_TP_FLAG_RESPAWN_TIME);
     SpawnBGObject(BG_TP_OBJECT_A_FLAG, BG_TP_FLAG_RESPAWN_TIME);
@@ -631,7 +631,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player *Source, GameObject* target
     Source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
-void BattlegroundTP::RemovePlayer(Player *player, uint64 guid)
+void BattlegroundTP::RemovePlayer(Player *player, uint64 guid, uint32 /*team*/)
 {
     // sometimes flag auras are not removed :(
     if (IsAllianceFlagPickedup() && _flagKeepers[TEAM_ALLIANCE] == guid)
@@ -882,7 +882,7 @@ WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveYard(Player* player)
             if (dist < nearest)
             {
                 closest = ret;
-                nearest = dist;
+                nearest = dist; ///< nearest is never read 01/18/16
             }
 
             return closest;

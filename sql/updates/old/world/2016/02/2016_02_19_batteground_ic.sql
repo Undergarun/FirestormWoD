@@ -1,0 +1,3 @@
+UPDATE creature SET spawnMask = 2 WHERE map = 628;
+UPDATE gameobject_template SET flags = 32 WHERE entry IN (195314, 195313, 195315, 195316);
+UPDATE creature_template SET EXP = 5 WHERE entry IN(34924, 34922, 34918, 34919, 34944, 34775, 34776, 34793, 35273, 35069, 34929, 34935, 34802);

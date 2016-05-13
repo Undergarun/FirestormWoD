@@ -59,12 +59,13 @@
 #include "TicketMgr.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
+#include "../Garrison/GarrisonMgr.hpp"
 
 #include "BattlegroundPacketFactory.hpp"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& p_RecvData)
 {
-    bool l_CheckInstance = p_RecvData.ReadBit();
+    bool l_CheckInstance = p_RecvData.ReadBit(); ///< l_checkInstance is never read 01/18/16
 
     if (m_Player->isAlive() || m_Player->HasFlag(EPlayerFields::PLAYER_FIELD_PLAYER_FLAGS, PlayerFlags::PLAYER_FLAGS_GHOST))
         return;
@@ -220,9 +221,9 @@ void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
     l_GuildVirtualRealmNameLen = p_RecvData.ReadBits(9);                    ///< guild realm
     l_WordsCount               = p_RecvData.ReadBits(3);                    ///< Words count
 
-    l_Unk1                     = p_RecvData.ReadBit();
-    l_Unk2                     = p_RecvData.ReadBit();
-    l_Bit725                   = p_RecvData.ReadBit();
+    l_Unk1                     = p_RecvData.ReadBit();                      ///< is never read 01/18/16
+    l_Unk2                     = p_RecvData.ReadBit();                      ///< is never read 01/18/16
+    l_Bit725                   = p_RecvData.ReadBit();                      ///< is never read 01/18/16
     l_HasWhoRequestServerInfo  = p_RecvData.ReadBit();                      ///< HasWhoRequestServerInfo
 
     p_RecvData.ResetBitReading();
@@ -525,7 +526,7 @@ void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& recvData)
 
     uint32 unk = 0;
     if (unkBit)
-        unk = recvData.read<uint32>();
+        unk = recvData.read<uint32>(); ///< unk is never read 01/18/16
 }
 
 void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
@@ -593,7 +594,7 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket& recvData)
 
     // use server size data
     uint32 newzone, newarea;
-    GetPlayer()->GetZoneAndAreaId(newzone, newarea);
+    GetPlayer()->GetZoneAndAreaId(newzone, newarea, true);
     GetPlayer()->UpdateZone(newzone, newarea);
     //GetPlayer()->SendInitWorldStates(true, newZone);
 }
@@ -897,19 +898,31 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& p_RecvData)
     p_RecvData.readPackGUID(l_Guid);
     uint32 l_Status = p_RecvData.read<uint32>();
 
-    if (GetPlayer()->isAlive())
-        return;
-
-    if (l_Status == 1)
+    if (m_Player->isAlive())
     {
-        GetPlayer()->ClearResurrectRequestData();           // reject
+        /// Resurrecting - 60s aura preventing client from new res spells
+        m_Player->RemoveAura(160029);
         return;
     }
 
-    if (!GetPlayer()->IsRessurectRequestedBy(l_Guid))
-        return;
+    /// Accept: 0, Decline: 1, Timeout: 2
+    if (l_Status != 0)
+    {
+        /// Resurrecting - 60s aura preventing client from new res spells
+        m_Player->RemoveAura(160029);
 
-    GetPlayer()->ResurectUsingRequestData();
+        m_Player->ClearResurrectRequestData();           // reject
+        return;
+    }
+
+    if (!m_Player->IsRessurectRequestedBy(l_Guid))
+    {
+        /// Resurrecting - 60s aura preventing client from new res spells
+        m_Player->RemoveAura(160029);
+        return;
+    }
+
+    m_Player->ResurectUsingRequestData();
 }
 
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& p_RecvData)
@@ -920,7 +933,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& p_RecvData)
 
     p_RecvData >> l_ID;
     l_Enter = p_RecvData.ReadBit();
-    l_FromClient = p_RecvData.ReadBit();
+    l_FromClient = p_RecvData.ReadBit(); ///< l_fromclient is never read 01/18/16
 
     Player* l_Player = GetPlayer();
     if (l_Player->isInFlight())
@@ -1179,7 +1192,7 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
 {
 }
 
-void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet)
+void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet) ///< p_Packet is unused
 {
     if (!m_Player || m_Player->CurrentPlayedMovie == 0)
         return;
@@ -1601,7 +1614,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
+void WorldSession::HandleComplainOpcode(WorldPacket& recvData) ///< recvData is unused
 {
     // recvData is not empty, but all data are unused in core
     // NOTE: all chat messages from this spammer automatically ignored by spam reporter until logout in case chat spam.
@@ -1901,6 +1914,12 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
         return;
     }
 
+    if (MS::Garrison::Manager* l_GarrisonMgr = m_Player->GetGarrison())
+    {
+        if (l_GarrisonMgr->IsTrainingMount())
+            return;
+    }
+
     if (m_Player->isInFlight())                               // not blizz like; no any messages on blizz
     {
         ChatHandler(this).SendSysMessage(LANG_YOU_IN_FLIGHT);
@@ -1925,7 +1944,7 @@ void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
 
 void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
 {
-    bool mode = recvData.ReadBit();
+    bool mode = recvData.ReadBit(); ///< mode is unused
 }
 
 void WorldSession::HandleQueryInspectAchievements(WorldPacket& p_RecvData)
@@ -1963,13 +1982,13 @@ void WorldSession::HandleUndeleteCharacter(WorldPacket& /*p_RecvData*/)
     SendAccountDataTimes(GLOBAL_CACHE_MASK);
 }
 
-///< @todo refactor me with new data
+///< @todo refactor me with new data stillnot done 22/02/16
 void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const std::set<uint32> & p_TerrainSwaps, const std::set<uint32> & p_InactiveTerrainSwap)
 {
-    ObjectGuid guid = m_Player->GetGUID();
+    ObjectGuid guid = m_Player->GetGUID(); ///< guid is unused
     uint32 unkValue = 0;
 
-    uint32 inactiveSwapsCount = 0;
+    uint32 inactiveSwapsCount = 0; ///< inactiveSwapsCount is unused
 
     WorldPacket l_ShiftPacket(SMSG_SET_PHASE_SHIFT, 500);
     l_ShiftPacket.appendPackGUID(m_Player->GetGUID());      ///< CLientGUID
@@ -2191,7 +2210,7 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
     m_Player->SendMovieStart(116);
 }
 
-void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket) ///< recvPacket is unused
 {
     Unit::AuraEffectList const& list = GetPlayer()->GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
 
@@ -2199,7 +2218,7 @@ void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
     data.WriteBits<int>(list.size(), 21);
     for (Unit::AuraEffectList::const_iterator itr = list.begin(); itr != list.end(); ++itr)
     {
-        AuraEffectPtr effect = *itr;
+        AuraEffect* effect = *itr;
         if (!effect)
             continue;
 
@@ -2315,7 +2334,7 @@ void WorldSession::HandleMountSetFavoriteOpcode(WorldPacket & p_Packet)
     m_Player->MountSetFavorite(l_MountSpellID, l_IsFavorite);
 }
 
-void WorldSession::HandleRequestTwitterStatus(WorldPacket& p_RecvData)
+void WorldSession::HandleRequestTwitterStatus(WorldPacket& p_RecvData) ///< p_RecvData is unused 
 {
     SendTwitterStatus(true);
 }

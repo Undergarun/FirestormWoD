@@ -109,10 +109,10 @@ class boss_hadronox : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 9.0f);
                 me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 9.0f);
-				me->GetMotionMaster()->Clear();
-				me->GetMotionMaster()->MovePoint(50,me->GetHomePosition());
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MovePoint(50,me->GetHomePosition());
 
-				_WaveCount = 0;
+                _WaveCount = 0;
                 _wpCount = 0;
                 _wpReached = false;
                 _movementStarted = false;
@@ -268,9 +268,9 @@ class boss_hadronox : public CreatureScript
                             break;
                         case EVENT_SPAWN:
                             me->SummonCreature(RAND(NPC_ADD_CHAMPION, NPC_ADD_CRYPT_FIEND, NPC_ADD_NECROMANCER), AddWaypoints[0]);
-							_WaveCount++;
-							if (_WaveCount <= 50 )  //prevent too much spawn & freeze serv
-								_events.ScheduleEvent(EVENT_SPAWN, urand(1500, 3000));
+                            _WaveCount++;
+                            if (_WaveCount <= 50 )  //prevent too much spawn & freeze serv
+                                _events.ScheduleEvent(EVENT_SPAWN, urand(1500, 3000));
                             break;
                         case EVENT_FORCEMOVE:
                             me->SetReactState(REACT_PASSIVE);
@@ -300,7 +300,7 @@ class boss_hadronox : public CreatureScript
             EventMap _events;
             Position _home;
             uint8 _wpCount;
-			uint8 _WaveCount;
+            uint8 _WaveCount;
             bool _wpReached;
             bool _movementStarted;
             bool _engaged;
@@ -332,8 +332,8 @@ class npc_anubar_crusher : public CreatureScript
                 if (_instance)
                     _instance->SetData(DATA_HADRONOX_EVENT, NOT_STARTED);
 
-				if (Creature* Hadronox = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HADRONOX)))
-					Hadronox->AI()->Reset();
+                if (Creature* Hadronox = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HADRONOX)))
+                    Hadronox->AI()->Reset();
 
                 if (Creature* champion = GetClosestCreatureWithEntry(me, NPC_ANUBAR_CHAMPION, 200.0f, false))
                     champion->Respawn();
@@ -476,7 +476,7 @@ class spell_hadronox_leech_poison: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hadronox_leech_poison_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* caster = GetCaster();
                 if (caster && caster->isAlive() && GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)

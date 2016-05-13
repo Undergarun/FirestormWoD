@@ -34,7 +34,7 @@ bool LFGListMgr::Insert(LFGListEntry* p_LFGEntry, Player* p_Requester)
         return false;
     }
 
-    uint32 l_GroupId = 0;
+    uint32 l_GroupId = 0; ///< l_GroupId is unused
     Group* l_Group = p_Requester->GetGroup();
     if (l_Group && l_Group->isBGGroup())
         l_Group = p_Requester->GetOriginalGroup();
@@ -126,7 +126,7 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* p_LFGEntry, WorldSession*
 
     if (p_WorldSession)
         p_WorldSession->SendPacket(&l_Data);
-    else if (Group* l_Group = p_LFGEntry->m_Group)
+    else if (Group* l_Group = p_LFGEntry->m_Group) ///< l_Group is unused
         p_LFGEntry->BroadcastPacketToGrop(&l_Data);
 }
 
@@ -186,7 +186,7 @@ std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 p_ActivityCate
     {
         LFGListEntry const* l_ListEntry = l_Iter.second;
 
-        if (l_ListEntry->m_ActivityEntry->CategoryID != p_ActivityCategory)
+        if (l_ListEntry->m_ActivityEntry->CategoryID != p_ActivityCategory) ///< Comparison of integers of different signs: 'const int32' (aka 'const int') and 'uint32' (aka 'unsigned int')
             continue;
 
         if (p_FilterString.length() && l_ListEntry->m_Name.length())
@@ -231,7 +231,8 @@ void LFGListMgr::OnPlayerApplyForGroup(LFGListEntry::LFGListApplicationEntry p_A
     if (l_Entry->m_Applications.find(p_Application.m_ID) != l_Entry->m_Applications.end())
         return;
 
-    l_Entry->m_Applications.insert({ p_Application.m_ID, p_Application });
+    l_Entry->m_Applications.insert(std::make_pair(p_Application.m_ID, p_Application));
+    
     LFGListEntry::LFGListApplicationEntry* l_Application = &l_Entry->m_Applications.find(p_Application.m_ID)->second;
 
     l_Application->m_Error = CanQueueFor(l_Application->m_Owner, l_Player);
@@ -456,7 +457,7 @@ bool LFGListEntry::Update(uint32 const p_Diff)
     return m_Timeout > time(nullptr);
 }
 
-bool LFGListEntry::LFGListApplicationEntry::Update(uint32 const p_Diff)
+bool LFGListEntry::LFGListApplicationEntry::Update(uint32 const p_Diff) ///< p_Diff is unused
 {
     return m_Timeout > time(nullptr); ///< Bye bye
 }
@@ -550,6 +551,9 @@ bool LFGListMgr::IsActivityPvP(GroupFinderActivityEntry const* p_Activity) const
 
 float LFGListMgr::GetPlayerItemLevelForActivity(GroupFinderActivityEntry const* p_Activity, Player* p_Player) const
 {
+    if (p_Player == nullptr)
+        return 0.0f;
+
     return p_Player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + (IsActivityPvP(p_Activity)  ?  PlayerAvgItemLevelOffsets::PvPAvgItemLevel : PlayerAvgItemLevelOffsets::NonPvPAvgItemLevel));
 }
 

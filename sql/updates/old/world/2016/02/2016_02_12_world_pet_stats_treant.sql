@@ -1,0 +1,2 @@
+DELETE FROM `pet_stats` WHERE entry=54983;
+INSERT INTO `pet_stats` (entry, powerstatbase, apsp_coef, damage_coef, secondarystat_coef, powertype, createpower, COMMENT) VALUES (54983, 1, 0.85, 0.85, 0.85, 0, 0, 'Force of Nature (treant resto)');

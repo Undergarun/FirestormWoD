@@ -97,7 +97,7 @@ class npc_world_boss_gossip : public CreatureScript
 
             for (Unit* l_GroupMember : l_PlayerList)
             {
-                if (l_GroupMember->GetTypeId() == TYPEID_PLAYER)
+                if (l_GroupMember->IsPlayer())
                 {
                     switch (p_Destination)
                     {
@@ -500,8 +500,224 @@ class npc_pve_tests_manager : public CreatureScript
         }
 };
 
+/// Boris <Season 2 Premade Master> - 179317
+class npc_season_2_premade_master : public CreatureScript
+{
+    public:
+        npc_season_2_premade_master() : CreatureScript("npc_season_2_premade_master") { }
+
+        enum eOptions
+        {
+            LevelUp,
+            FullEquipment
+        };
+
+        enum eItems
+        {
+            HexweaveBag                     = 114821,
+            TomeOfTheClearMind              = 79249,
+            ReinsOfTheIllidariFelstalker    = 128425
+        };
+
+        enum eMenuIDs
+        {
+            MenuBaseLevel   = 179317,
+            MenuBaseStuff   = 179318,
+            MenuUnable      = 179319
+        };
+
+        enum eTalks
+        {
+            TalkSpec,
+            TalkError,
+            TalkNoSpace,
+            TalkStuffOK,
+            TalkLevelOK
+        };
+
+        enum eVisual
+        {
+            MountID = 29344
+        };
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        {
+            if (!p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Gold) &&
+                !p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Item))
+            {
+                p_Player->PlayerTalkClass->ClearMenus();
+                p_Player->SEND_GOSSIP_MENU(eMenuIDs::MenuUnable, p_Creature->GetGUID());
+                return true;
+            }
+
+            if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Gold))
+            {
+                p_Player->PlayerTalkClass->ClearMenus();
+                p_Player->ADD_GOSSIP_ITEM_DB(eMenuIDs::MenuBaseLevel, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                p_Player->SEND_GOSSIP_MENU(eMenuIDs::MenuBaseLevel, p_Creature->GetGUID());
+                return true;
+            }
+            else if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Item))
+            {
+                p_Player->PlayerTalkClass->ClearMenus();
+                p_Player->ADD_GOSSIP_ITEM_DB(eMenuIDs::MenuBaseStuff, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                p_Player->SEND_GOSSIP_MENU(eMenuIDs::MenuBaseStuff, p_Creature->GetGUID());
+                return true;
+            }
+
+            return false;
+        }
+
+        struct npc_season_2_premade_masterAI : public ScriptedAI
+        {
+            npc_season_2_premade_masterAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset() override
+            {
+                me->SetUInt32Value(EUnitFields::UNIT_FIELD_MOUNT_DISPLAY_ID, eVisual::MountID);
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+            }
+
+            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            {
+                if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Gold))
+                {
+                    /// Player doesn't have enough space
+                    if (p_Player->GetBagsFreeSlots() < 6)
+                    {
+                        Talk(eTalks::TalkNoSpace, p_Player->GetGUID());
+                        p_Player->PlayerTalkClass->SendCloseGossip();
+                        return;
+                    }
+
+                    p_Player->GiveLevel(MAX_LEVEL);
+                    p_Player->ModifyMoney(50000 * MoneyConstants::GOLD);
+
+                    p_Player->AddItem(eItems::HexweaveBag, 4);
+                    p_Player->AddItem(eItems::TomeOfTheClearMind, 200);
+                    p_Player->AddItem(eItems::ReinsOfTheIllidariFelstalker, 1);
+
+                    p_Player->GetSession()->UnsetServiceFlags(ServiceFlags::Season2Gold);
+                    Talk(eTalks::TalkLevelOK, p_Player->GetGUID());
+                }
+                else if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Item))
+                {
+                    if (!p_Player->GetSpecializationId())
+                    {
+                        Talk(eTalks::TalkSpec, p_Player->GetGUID());
+                        p_Player->PlayerTalkClass->SendCloseGossip();
+                        return;
+                    }
+
+                    if (!GiveFullPvPEquipment(p_Player))
+                    {
+                        p_Player->PlayerTalkClass->SendCloseGossip();
+                        return;
+                    }
+
+                    p_Player->GetSession()->UnsetServiceFlags(ServiceFlags::Season2Item);
+                    Talk(eTalks::TalkStuffOK, p_Player->GetGUID());
+                }
+
+                p_Player->PlayerTalkClass->SendCloseGossip();
+            }
+
+            bool GiveFullPvPEquipment(Player* p_Player)
+            {
+                LootStore& l_LootStore = LootTemplates_Creature;
+                LootTemplate const* l_LootTemplate = l_LootStore.GetLootFor(me->GetCreatureTemplate()->lootid);
+                if (l_LootTemplate == nullptr)
+                {
+                    Talk(eTalks::TalkError, p_Player->GetGUID());
+                    return false;
+                }
+
+                std::list<ItemTemplate const*>      l_LootTable;
+                std::vector<std::vector<uint32>>    l_Items;
+                std::set<uint32>                    l_ItemsToAdd;
+
+                l_LootTemplate->FillAutoAssignationLoot(l_LootTable, p_Player, false);
+
+                uint32 l_SpecID     = p_Player->GetSpecializationId();
+                uint32 l_ItemCount  = 0;
+
+                l_Items.resize(InventoryType::MAX_INVTYPE);
+
+                /// Fill possible equipment for each slots
+                for (uint8 l_Iter = 0; l_Iter < InventoryType::MAX_INVTYPE; ++l_Iter)
+                {
+                    l_Items[l_Iter].clear();
+
+                    for (ItemTemplate const* l_Template : l_LootTable)
+                    {
+                        if (l_Template->InventoryType != l_Iter)
+                            continue;
+
+                        if (p_Player->CanUseItem(l_Template) != InventoryResult::EQUIP_ERR_OK)
+                            continue;
+
+                        if (!l_Template->HasSpec((SpecIndex)l_SpecID, p_Player->getLevel()))
+                            continue;
+
+                        l_Items[l_Iter].push_back(l_Template->ItemId);
+                    }
+
+                    std::random_shuffle(l_Items[l_Iter].begin(), l_Items[l_Iter].end());
+                }
+
+                for (uint8 l_Iter = 0; l_Iter < InventoryType::MAX_INVTYPE; ++l_Iter)
+                {
+                    uint8 l_Count = 1;
+
+                    switch (l_Iter)
+                    {
+                        case InventoryType::INVTYPE_FINGER:
+                        case InventoryType::INVTYPE_TRINKET:
+                        case InventoryType::INVTYPE_WEAPON:
+                            l_Count++;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    for (uint32 l_Item : l_Items[l_Iter])
+                    {
+                        if (!l_Count)
+                            break;
+
+                        if (l_ItemsToAdd.find(l_Item) != l_ItemsToAdd.end())
+                            continue;
+
+                        l_ItemsToAdd.insert(l_Item);
+                        --l_Count;
+                        ++l_ItemCount;
+                    }
+                }
+
+                /// Player doesn't have enough space
+                if (p_Player->GetBagsFreeSlots() < l_ItemCount)
+                {
+                    Talk(eTalks::TalkNoSpace, p_Player->GetGUID());
+                    return false;
+                }
+
+                for (uint32 l_Item : l_ItemsToAdd)
+                    p_Player->AddItem(l_Item, 1);
+
+                return true;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_season_2_premade_masterAI(p_Creature);
+        }
+};
+
 void AddSC_npc_custom()
 {
-    new npc_world_boss_gossip();
+///    new npc_world_boss_gossip();
     new npc_pve_tests_manager();
+    new npc_season_2_premade_master();
 }

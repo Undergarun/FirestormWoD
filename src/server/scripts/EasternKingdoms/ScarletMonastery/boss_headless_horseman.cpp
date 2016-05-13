@@ -505,7 +505,7 @@ public:
 
         void KilledUnit(Unit* player)
         {
-            if (player->GetTypeId() == TYPEID_PLAYER)
+            if (player->IsPlayer())
             {
                 if (withhead)
                     SaySound(SAY_PLAYER_DEATH);

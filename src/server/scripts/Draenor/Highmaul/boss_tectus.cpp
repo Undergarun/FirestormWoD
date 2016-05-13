@@ -392,9 +392,6 @@ class boss_tectus : public CreatureScript
 
             void JustDied(Unit* p_Killer) override
             {
-                if (me->GetEntry() == eHighmaulCreatures::Tectus)
-                    _JustDied();
-
                 me->RemoveAllAreasTrigger();
 
                 if (m_Instance != nullptr)
@@ -403,6 +400,16 @@ class boss_tectus : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellCrystallineBarrage);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrystallineBarrageDoT);
+
+                    if (me->GetEntry() == eHighmaulCreatures::Tectus)
+                    {
+                        _JustDied();
+
+                        if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                            me->SetLootRecipient(nullptr);
+                        else
+                            CastSpellToPlayers(me->GetMap(), me, eSpells::TectusBonus, true);
+                    }
 
                     Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
                     if (l_PlayerList.isEmpty())
@@ -417,8 +424,6 @@ class boss_tectus : public CreatureScript
                                 l_Player->CombatStop();
                         }
                     }
-
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::TectusBonus, true);
                 }
 
                 std::list<Creature*> l_Creatures;
@@ -588,6 +593,12 @@ class boss_tectus : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                if (me->GetDistance(me->GetHomePosition()) >= 70.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 m_Events.Update(p_Diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
@@ -628,7 +639,13 @@ class boss_tectus : public CreatureScript
                     case eEvents::EventCrystallineBarrage:
                     {
                         /// Crystalline Barrage should not select Main Tank or Off Tank
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                        Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true);
+                        if (!l_Target)
+                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true);
+                        if (!l_Target)
+                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true);
+
+                        if (l_Target != nullptr)
                         {
                             Talk(eTalks::CrystallineBarrage, l_Target->GetGUID());
 
@@ -711,7 +728,13 @@ class boss_tectus : public CreatureScript
                     }
                     case eEvents::EventEarthenPillar:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                        Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true);
+                        if (!l_Target)
+                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true);
+                        if (!l_Target)
+                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true);
+
+                        if (l_Target != nullptr)
                         {
                             float l_X = l_Target->GetPositionX();
                             float l_Y = l_Target->GetPositionY();
@@ -807,7 +830,13 @@ class boss_tectus : public CreatureScript
 
             void SpawnAdd(uint32 p_Entry)
             {
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
+                Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true);
+                if (!l_Target)
+                    l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true);
+                if (!l_Target)
+                    l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true);
+
+                if (l_Target != nullptr)
                 {
                     float l_O = frand(0, 2 * M_PI);
                     float l_Range = 5.0f;
@@ -1573,7 +1602,7 @@ class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
                 ScheduleTectonicUpheaval
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Creature* l_Target = GetTarget()->ToCreature())
                 {
@@ -1630,7 +1659,7 @@ class spell_highmaul_earthen_pillar_timer : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_earthen_pillar_timer_AuraScript);
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Creature* l_Target = GetTarget()->ToCreature())
                 {
@@ -1669,7 +1698,7 @@ class spell_highmaul_accretion : public SpellScriptLoader
                 return true;
             }
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -1712,13 +1741,13 @@ class spell_highmaul_tectonic_upheaval : public SpellScriptLoader
                 Petrification = 163809
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, -10, Powers::POWER_ENERGY);
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1753,7 +1782,7 @@ class spell_highmaul_spawn_dust_cloud : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_spawn_dust_cloud_AuraScript);
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -1845,7 +1874,7 @@ class spell_highmaul_petrification : public SpellScriptLoader
                 Petrification = 163809
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -1945,51 +1974,61 @@ class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
             CrystallineBarrage = 162370
         };
 
+        std::set<uint64> m_AffectedPlayers;
+
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 10.0f;
+                float l_Radius = 2.0f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
-                for (Unit* l_Unit : l_TargetList)
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
                 {
-                    if (l_Unit->GetDistance(p_AreaTrigger) <= 2.0f)
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::CrystallineBarrage))
                     {
-                        if (!l_Unit->HasAura(eSpell::CrystallineBarrage))
-                            l_Caster->CastSpell(l_Unit, eSpell::CrystallineBarrage, true);
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Iter->CastSpell(l_Iter, eSpell::CrystallineBarrage, true);
                     }
-                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 2.0f))
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
                     {
-                        if (l_Unit->HasAura(eSpell::CrystallineBarrage))
-                            l_Unit->RemoveAura(eSpell::CrystallineBarrage);
+                        ++l_Iter;
+                        continue;
                     }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::CrystallineBarrage);
+
+                        continue;
+                    }
+
+                    ++l_Iter;
                 }
             }
         }
-        
+
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 10.0f;
-
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-                
-                for (Unit* l_Unit : l_TargetList)
+                for (uint64 l_Guid : m_AffectedPlayers)
                 {
-                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 2.0f))
-                    {
-                        if (l_Unit->HasAura(eSpell::CrystallineBarrage))
-                            l_Unit->RemoveAura(eSpell::CrystallineBarrage);
-                    }
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                        l_Unit->RemoveAura(eSpell::CrystallineBarrage);
                 }
             }
         }
@@ -2034,7 +2073,7 @@ class areatrigger_highmaul_gift_of_earth : public AreaTriggerEntityScript
                 {
                     p_AreaTrigger->SetDuration(1);
 
-                    if (AuraPtr l_Accretion = l_Tectus->GetAura(eSpells::Accretion) ? l_Tectus->GetAura(eSpells::Accretion) : l_Tectus->AddAura(eSpells::Accretion, l_Tectus))
+                    if (Aura* l_Accretion = l_Tectus->GetAura(eSpells::Accretion) ? l_Tectus->GetAura(eSpells::Accretion) : l_Tectus->AddAura(eSpells::Accretion, l_Tectus))
                     {
                         l_Accretion->ModStackAmount(10);
                         l_Accretion->RefreshDuration();

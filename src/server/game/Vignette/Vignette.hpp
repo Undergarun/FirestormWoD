@@ -46,7 +46,7 @@ namespace Vignette
     * Work only for Creature and Gameobject
     * @param p_Target : WorldObject for which we wanna get the vignette entry
     */
-    static VignetteEntry const* GetVignetteEntryFromWorldObject(WorldObject const* p_Target)
+    static VignetteEntry const* GetVignetteEntryFromWorldObject(WorldObject const* p_Target) ///<  Unused function 'GetVignetteEntryFromWorldObject'
     {
         uint32 l_VignetteId = 0;
 
@@ -66,7 +66,7 @@ namespace Vignette
     * Work only for Creature and Gameobject
     * @param p_Target : WorldObject for which we wanna get the tracking quest
     */
-    static uint32 GetTrackingQuestIdFromWorldObject(WorldObject const* p_Target)
+    static uint32 GetTrackingQuestIdFromWorldObject(WorldObject const* p_Target) ///<  Unused function 'GetTrackingQuestIdFromWorldObject'
     {
         uint32 l_TrackingQuest = 0;
 
@@ -83,7 +83,7 @@ namespace Vignette
     * Work only for Creature and Gameobject
     * @param p_Target : WorldObject for which we wanna get the default vignette type
     */
-    static Vignette::Type GetDefaultVignetteTypeFromWorldObject(WorldObject const* p_Target)
+    static Vignette::Type GetDefaultVignetteTypeFromWorldObject(WorldObject const* p_Target) ///<  Unused function 'GetDefaultVignetteTypeFromWorldObject'
     {
         switch (p_Target->GetTypeId())
         {
@@ -102,7 +102,7 @@ namespace Vignette
     * Work only for Creature and Gameobject
     * @param p_Target : WorldObject for which we wanna get the tracking vignette type
     */
-    static Vignette::Type GetTrackingVignetteTypeFromWorldObject(WorldObject const* p_Target)
+    static Vignette::Type GetTrackingVignetteTypeFromWorldObject(WorldObject const* p_Target) ///< Unused function  GetTrackingVignetteTypeFromWorldObject
     {
         switch (p_Target->GetTypeId())
         {

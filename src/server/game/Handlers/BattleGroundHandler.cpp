@@ -88,7 +88,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
     l_JoinAsGroup = p_Packet.ReadBit();
 
     uint32  l_BGTypeID_  = 0;
-    uint32  l_InstanceID = 0;
+    uint32  l_InstanceID = 0; ///< l_InstanceID is unused
     Group*  l_Group      = nullptr;
     bool    l_IsPremade  = false;
 
@@ -208,7 +208,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
             return;
 
         l_Error = l_Group->CanJoinBattlegroundQueue(l_BG, l_BGQueueTypeID, 0);
-        l_IsPremade = (l_Group->GetMembersCount() >= l_BG->GetMinPlayersPerTeam());
+        l_IsPremade = (l_Group->GetMembersCount() >= l_BG->GetMinPlayersPerTeam()); ///< l_ispremade is never read 01/18/16
 
         GroupQueueInfo* ginfo = NULL;
         uint32 avgTime = 0;
@@ -454,7 +454,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     }
 }
 
-void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
+void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData) ///< recvData is unused
 {
     if (m_Player->InArena())
         if (m_Player->GetBattleground()->GetStatus() == STATUS_WAIT_JOIN)
@@ -478,7 +478,7 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
         if (l_BGQueueTypeID == MS::Battlegrounds::BattlegroundType::End)
             continue;
 
-        BattlegroundTypeId l_BGTypeId = MS::Battlegrounds::GetIdFromType(l_BGQueueTypeID);
+        BattlegroundTypeId l_BGTypeId = MS::Battlegrounds::GetIdFromType(l_BGQueueTypeID); ///< l_bgtypeid is never read 01/18/16
         uint8 l_ArenaType = MS::Battlegrounds::BGArenaType(l_BGQueueTypeID);
         
         if (MS::Battlegrounds::GetIdFromType(l_BGQueueTypeID) == m_Player->GetBattlegroundTypeId())
@@ -673,7 +673,7 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
     bool  l_Unknow;
 
     l_JoinAsGroup = p_Packet.ReadBit();
-    l_Unknow      = p_Packet.ReadBit();     ///< Unused, always sended at 0 client-side
+    l_Unknow      = p_Packet.ReadBit();     ///< Unused, always sended at 0 client-side ///< l_unknow is never read 01/18/16
     l_Roles       = p_Packet.read<uint8>();
     l_Bracket     = p_Packet.read<uint8>();
 
@@ -835,7 +835,7 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
     //sBattlegroundMgr->ScheduleQueueUpdate(0, l_ArenaType, l_BGQueueTypeID, l_BGTypeId, l_BracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet)
+void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet) ///< p_Packet is unused
 {
     // ignore if we already in BG or BG queue
     if (m_Player->InBattleground())
@@ -935,7 +935,7 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet)
     }
 }
 
-void WorldSession::HandleBattleFieldRequestScoreData(WorldPacket & p_Packet)
+void WorldSession::HandleBattleFieldRequestScoreData(WorldPacket & p_Packet) ///< p_Packet is unused
 {
     if (!m_Player || !m_Player->GetBattleground())
         return;

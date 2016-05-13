@@ -20,7 +20,7 @@ public:
 
     bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
     {
-        if (m_Obj && m_Obj->GetTypeId() == TYPEID_PLAYER)
+        if (m_Obj && m_Obj->IsPlayer())
         {
                 switch (m_Modifier)
                 {
@@ -45,14 +45,14 @@ private:
 class instance_auchindon : public InstanceMapScript
 {
 public:
-	instance_auchindon()
+    instance_auchindon()
         : InstanceMapScript("instance_auchindon", 1182)
-	{
-	}
+    {
+    }
 
-	struct instance_auchindon_InstanceMapScript : public InstanceScript
-	{
-		instance_auchindon_InstanceMapScript(Map* map) : InstanceScript(map)
+    struct instance_auchindon_InstanceMapScript : public InstanceScript
+    {
+        instance_auchindon_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             m_KaatharDied = false;
             m_TuulaniSummoned = true;
@@ -60,7 +60,7 @@ public:
 
         InstanceScript* m_Instance = this;
 
-		uint32 m_auiEncounter[4];
+        uint32 m_auiEncounter[4];
         // Creatures
 
         uint64 m_NyamiGuid;
@@ -99,8 +99,8 @@ public:
         // Dispensor
         std::list<uint64> m_Dispensor;
 
-		void Initialize() override
-		{           
+        void Initialize() override
+        {           
             // Creatures
             m_NyamiGuid = 0;
             m_Tuulani02 = 0;
@@ -128,7 +128,7 @@ public:
             m_SoulTransport03Guid = 0;
             // Triggers
             m_TriggerBubbleMiddleNyamiGuid = 0;
-		}
+        }
 
         void OnPlayerEnter(Player* p_Player) override
         {
@@ -149,9 +149,9 @@ public:
         }
 
         void OnGameObjectCreate(GameObject* go) override
-		{
-			switch (go->GetEntry())
-			{
+        {
+            switch (go->GetEntry())
+            {
                 case eAuchindonObjects::GameobjectHolyBarrier:
                     m_HolyBarrierKathaarObjectGuid = go->GetGUID();
                         break;          
@@ -173,13 +173,13 @@ public:
                 case eAuchindonObjects::GameobjectSoulTransport3:
                     m_SoulTransport03Guid = go->GetGUID();
                         break;
-			}
-		}
+            }
+        }
 
         void OnCreatureCreate(Creature* p_Creature) override
-		{
+        {
             switch (p_Creature->GetEntry())
-			{
+            {
                 case eAuchindonCreatures::CreatureSoulBinderTuulani01:
                     m_Tuulani02 = p_Creature->GetGUID();
                     break;
@@ -231,8 +231,8 @@ public:
                 case eAuchindonCreatures::CreatureDuragTheDominator:
                     m_DuragGuid = p_Creature->GetGUID();
                         break;
-			}
-		}
+            }
+        }
 
         void OnUnitDeath(Unit* p_Unit) override
         {
@@ -410,17 +410,17 @@ public:
                     break;
             }
             return 0;
-		}
-	};
+        }
+    };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
-	{
-		return new instance_auchindon_InstanceMapScript(map);
-	}
+    {
+        return new instance_auchindon_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_auchindon()
 {
-	new instance_auchindon;
+    new instance_auchindon;
 }
 

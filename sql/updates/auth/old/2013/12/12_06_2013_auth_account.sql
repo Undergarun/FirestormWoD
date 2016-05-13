@@ -1,1 +1,0 @@
-ALTER TABLE `account` CHANGE `locked` `locked` TINYINT(3) DEFAULT '0' NOT NULL;

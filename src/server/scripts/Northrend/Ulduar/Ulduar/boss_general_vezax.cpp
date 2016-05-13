@@ -192,7 +192,7 @@ class boss_general_vezax : public CreatureScript
 
             void SpellHitTarget(Unit* who, SpellInfo const* spell)
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_SHADOW_CRASH_HIT)
+                if (who && who->IsPlayer() && spell->Id == SPELL_SHADOW_CRASH_HIT)
                     _shadowDodger = false;
             }
 
@@ -452,7 +452,7 @@ class spell_aura_of_despair_aura: public SpellScriptLoader // Spell 62692
                 return true;
             }
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -465,7 +465,7 @@ class spell_aura_of_despair_aura: public SpellScriptLoader // Spell 62692
                 target->CastSpell(target, SPELL_AURA_OF_DESPAIR_EFFECT_DESPAIR, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -506,7 +506,7 @@ class spell_mark_of_the_faceless: public SpellScriptLoader
                 return true;
             }
 
-            void HandleEffectPeriodic(constAuraEffectPtr aurEff)
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
                 if (Unit* caster = GetCaster())
                     caster->CastCustomSpell(SPELL_MARK_OF_THE_FACELESS_DAMAGE, SPELLVALUE_BASE_POINT1, aurEff->GetAmount(), GetTarget(), true);
@@ -559,7 +559,7 @@ class spell_saronite_vapors: public SpellScriptLoader // Spell 63323
         {
             PrepareAuraScript(spell_saronite_vapors_AuraScript);
 
-            void HandleUpdatePeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandleUpdatePeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* caster = ObjectAccessor::FindUnit(_caster))
                 {
@@ -579,7 +579,7 @@ class spell_saronite_vapors: public SpellScriptLoader // Spell 63323
                             }
 
                             uint8 stackCount = 0;
-                            if (AuraPtr vaporaura = player->GetAura(SPELL_SARONITE_VAPOR_AURA))
+                            if (Aura* vaporaura = player->GetAura(SPELL_SARONITE_VAPOR_AURA))
                                 stackCount = vaporaura->GetStackAmount() + 1; // #old stacks +1 (which will be applied now)
                             else
                                 stackCount = 1; // On first apply.
@@ -596,7 +596,7 @@ class spell_saronite_vapors: public SpellScriptLoader // Spell 63323
                 }
             }
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {

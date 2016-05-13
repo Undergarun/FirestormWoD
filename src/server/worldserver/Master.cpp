@@ -25,7 +25,7 @@
 #include <ace/Sig_Handler.h>
 
 #include "Common.h"
-#include "SystemConfig.h"
+#include "GitRevision.h"
 #include "SignalHandler.h"
 #include "World.h"
 #include "WorldRunnable.h"
@@ -46,8 +46,6 @@
 #include "TCSoap.h"
 #include "Timer.h"
 #include "Util.h"
-#include "AuthSocket.h"
-#include "RealmList.h"
 
 #include "BigNumber.h"
 #include "Reporter.hpp"
@@ -56,6 +54,19 @@
 #include "ServiceWin32.h"
 extern int m_ServiceStatus;
 #endif
+
+enum RealmFlags
+{
+    REALM_FLAG_NONE                              = 0x00,
+    REALM_FLAG_INVALID                           = 0x01,
+    REALM_FLAG_OFFLINE                           = 0x02,
+    REALM_FLAG_SPECIFYBUILD                      = 0x04,
+    REALM_FLAG_UNK1                              = 0x08,
+    REALM_FLAG_UNK2                              = 0x10,
+    REALM_FLAG_RECOMMENDED                       = 0x20,
+    REALM_FLAG_NEW                               = 0x40,
+    REALM_FLAG_FULL                              = 0x80
+};
 
 /// Handle worldservers's termination signals
 class WorldServerSignalHandler : public JadeCore::SignalHandler
@@ -82,39 +93,69 @@ class WorldServerSignalHandler : public JadeCore::SignalHandler
 class FreezeDetectorRunnable : public ACE_Based::Runnable
 {
 public:
-    FreezeDetectorRunnable() { _delaytime = 0; }
+    FreezeDetectorRunnable()
+    {
+        m_Delaytime = 0;
+        m_CanStop = false;
+    }
+
     uint32 m_loops, m_lastchange;
     uint32 w_loops, w_lastchange;
-    uint32 _delaytime;
-    void SetDelayTime(uint32 t) { _delaytime = t; }
+    uint32 m_Delaytime;
+
+    bool m_CanStop;
+
+    void SetDelayTime(uint32 t) { m_Delaytime = t; }
+    void SetCanStop() { m_CanStop = true; }
+
     void run(void)
     {
-        if (!_delaytime)
+        if (!m_Delaytime)
             return;
-        sLog->outInfo(LOG_FILTER_WORLDSERVER, "Starting up anti-freeze thread (%u seconds max stuck time)...", _delaytime/1000);
+
+        sLog->outInfo(LOG_FILTER_WORLDSERVER, "Starting up anti-freeze thread (%u seconds max stuck time)...", m_Delaytime/1000);
+
         m_loops = 0;
         w_loops = 0;
         m_lastchange = 0;
         w_lastchange = 0;
+
+        /// Protect against freeze in world loop
         while (!World::IsStopped())
         {
             ACE_Based::Thread::Sleep(1000);
             uint32 curtime = getMSTime();
             // normal work
-            uint32 worldLoopCounter = World::m_worldLoopCounter.value();
+            uint32 worldLoopCounter = World::m_worldLoopCounter;
             if (w_loops != worldLoopCounter)
             {
                 w_lastchange = curtime;
                 w_loops = worldLoopCounter;
             }
             // possible freeze
-            else if (getMSTimeDiff(w_lastchange, curtime) > _delaytime)
+            else if (getMSTimeDiff(w_lastchange, curtime) > m_Delaytime)
             {
                 sLog->outError(LOG_FILTER_WORLDSERVER, "World Thread hangs, kicking out server!");
                 assert(false);
                 abort();
             }
         }
+
+        /// Protect against freeze on shutdown
+        uint32 l_WorldStopTime = time(nullptr);
+
+        while (!m_CanStop)
+        {
+            ACE_Based::Thread::Sleep(1000);
+
+            if ((time(nullptr) - l_WorldStopTime) > 60)
+            {
+                sLog->outError(LOG_FILTER_WORLDSERVER, "Freeze on shutdown, kill the server!");
+                assert(false);
+                abort();
+            }
+        }
+
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "Anti-freeze thread exiting without problems.");
     }
 };
@@ -203,7 +244,7 @@ public:
                     last_ip = fields_ip[0].GetString();
                 }
 
-                if (command->accountID[1] == 0 && command->characterID == 0)
+                if (command->accountID[1] == 0 && command->characterID == 0) ///< Comparison of array 'command->characterID' equal to a null pointer is always false
                 {
                     command->accountID[1] = command->accountID[0];
                     command->characterID[1] = command->characterID[0];
@@ -372,14 +413,6 @@ const char* dumpTables[32] =
     "pet_spell_cooldown"
 };
 
-const char* ipTransfert[4] =
-{
-    "37.187.68.78",     // Rassharom
-    "37.187.68.57",     // Taran'Zhu
-    "37.187.68.57",     // Elegon
-    "37.187.68.78"      // Hellscream
-};
-
 Master::Master() { }
 
 Master::~Master() { }
@@ -391,7 +424,7 @@ int Master::Run()
     BigNumber seed1;
     seed1.SetRand(16 * 8);
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", _FULLVERSION);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", GitRevision::GetFullVersion());
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "               _                      _____                      ");
@@ -531,10 +564,12 @@ int Master::Run()
         soap_thread = new ACE_Based::Thread(runnable, "SoapRunnable");
     }
 
+    FreezeDetectorRunnable* fdr = nullptr;
+
     ///- Start up freeze catcher thread
     if (uint32 freeze_delay = ConfigMgr::GetIntDefault("MaxCoreStuckTime", 0))
     {
-        FreezeDetectorRunnable* fdr = new FreezeDetectorRunnable();
+        fdr = new FreezeDetectorRunnable();
         fdr->SetDelayTime(freeze_delay * 1000);
         ACE_Based::Thread freeze_thread(fdr, "FreezeDetector");
         freeze_thread.setPriority(ACE_Based::Highest);
@@ -554,7 +589,7 @@ int Master::Run()
     // set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, g_RealmID);
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon) ready...", _FULLVERSION);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     // when the main thread closes the singletons get unloaded
     // since worldrunnable uses them, it will crash if unloaded after master
@@ -632,6 +667,9 @@ int Master::Run()
     // for some unknown reason, unloading scripts here and not in worldrunnable
     // fixes a memory leak related to detaching threads from the module
     //UnloadScriptingModule();
+
+    if (fdr)
+        fdr->SetCanStop();
 
     // Exit the process with specified return value
     return World::GetExitCode();
@@ -809,7 +847,7 @@ bool Master::_StartDB()
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    ///- Get the realm Id from the configuration file
+    /// Get the realm Id from the configuration file
     g_RealmID = ConfigMgr::GetIntDefault("RealmID", 0);
     if (!g_RealmID)
     {
@@ -820,11 +858,11 @@ bool Master::_StartDB()
 
     sLog->SetRealmID(g_RealmID);
 
-    ///- Clean the database before starting
+    /// Clean the database before starting
     ClearOnlineAccounts();
 
-    ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", _FULLVERSION, _HASH);        // One-time query
+    /// Insert version info into DB
+    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", GitRevision::GetFullVersion(), GitRevision::GetHash());  ///< One-time query
 
     sWorld->LoadDBVersion();
 
@@ -880,7 +918,7 @@ void Master::ExecutePendingRequests()
         fclose(l_PendingRequestsFile);
 
         /// Clear file
-        if (l_PendingRequestsFile = fopen(PENDING_SQL_FILENAME, "w"))
+        if (l_PendingRequestsFile = fopen(PENDING_SQL_FILENAME, "w")) ///< Using the result of an assignment as a condition without parentheses
             fclose(l_PendingRequestsFile);
     }
     else

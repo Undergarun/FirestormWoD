@@ -937,7 +937,7 @@ class spell_arterial_cut: public SpellScriptLoader
         {
             PrepareAuraScript(spell_arterial_cut_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -1015,7 +1015,7 @@ class spell_life_drain_main: public SpellScriptLoader
         {
             PrepareAuraScript(spell_life_drain_main_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -1052,7 +1052,7 @@ class spell_life_drain_dummy: public SpellScriptLoader
         {
             PrepareAuraScript(spell_life_drain_dummy_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -1088,7 +1088,7 @@ class spell_colorblind_phase_link_visual: public SpellScriptLoader
         {
             PrepareAuraScript(spell_colorblind_phase_link_visual_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();

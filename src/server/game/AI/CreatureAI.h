@@ -23,12 +23,15 @@
 #include "UnitAI.h"
 #include "Common.h"
 #include "InstanceScript.h"
+#include "Player.h"
 
 class WorldObject;
 class Unit;
 class Creature;
 class Player;
 class SpellInfo;
+
+struct SpellDestination;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
@@ -111,7 +114,7 @@ class CreatureAI : public UnitAI
         virtual void KilledUnit(Unit* /*victim*/) {}
 
         // Called when the killer is rewarded with currencies
-        virtual void CurrenciesRewarder(bool& result) { }
+        virtual void CurrenciesRewarder(bool& result) { } ///< result is unused
 
         /// Called when check interact distance (for example: gossips)
         virtual bool CanByPassDistanceCheck() const { return false; }
@@ -125,10 +128,10 @@ class CreatureAI : public UnitAI
         virtual void IsSummonedBy(Unit* /*summoner*/) {}
 
         /// Called when the creature summons successfully AreaTriggers
-        virtual void AreaTriggerCreated(AreaTrigger* p_AreaTrigger) { }
+        virtual void AreaTriggerCreated(AreaTrigger* p_AreaTrigger) { } ///< p_AreaTrigger is unused
 
         /// Called when an AreaTrigger summoned by the creature despawns
-        virtual void AreaTriggerDespawned(AreaTrigger* p_AreaTrigger) { }
+        virtual void AreaTriggerDespawned(AreaTrigger* p_AreaTrigger) { } ///< p_AreaTrigger is unused
 
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) {}
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) {}
@@ -139,14 +142,17 @@ class CreatureAI : public UnitAI
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
 
+        /// Called when spell hits a destination
+        virtual void SpellHitDest(SpellDestination const* p_Dest, SpellInfo const* p_SpellInfo) { } ///< p_Dest & p_SpellInfo is unused
+
         /// Called when spell miss a target
-        virtual void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) { }
+        virtual void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) { } ///< p_Target & p_SpellInfo & p_MissInfo is unused
 
         /// Called when successful cast a spell
-        virtual void OnSpellCasted(SpellInfo const* p_SpellInfo) { }
+        virtual void OnSpellCasted(SpellInfo const* p_SpellInfo) { } ///< p_SpellInfo is unused
 
         /// Called when a spell is finished
-        virtual void OnSpellFinished(SpellInfo const* p_SpellInfo) { }
+        virtual void OnSpellFinished(SpellInfo const* p_SpellInfo) { } ///< p_SpellInfo is unused
 
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         //virtual void AttackedBy(Unit* attacker);
@@ -157,7 +163,7 @@ class CreatureAI : public UnitAI
         virtual void JustRespawned() { Reset(); }
 
         // Called at waypoint reached or point movement finished
-        virtual void MovementInform(uint32 /*type*/, uint32 id) {}
+        virtual void MovementInform(uint32 /*type*/, uint32 id) {} ///< id is unused
 
         void OnCharmed(bool apply);
 
@@ -177,25 +183,25 @@ class CreatureAI : public UnitAI
         virtual void OwnerAttacked(Unit* /*target*/) {}
 
         // Called when a creature regen one of his power
-        virtual void RegeneratePower(Powers power, int32& value) {}
+        virtual void RegeneratePower(Powers power, int32& value) {} ///< power & value is unused
 
         // Called when a creature has one of hi power modified
-        virtual void PowerModified(Powers p_Power, int32 p_Value) { }
+        virtual void PowerModified(Powers p_Power, int32 p_Value) {} ///< power & value is unused
 
         // Called when a creature has one of his power set
         virtual void SetPower(Powers power, int32 value) {}
 
         /// Called when taunted
-        virtual void OnTaunt(Unit* p_Taunter) { }
+        virtual void OnTaunt(Unit* p_Taunter) {} ///< p_Taunter is unused
 
         /// Called when a casting time is calculated
-        virtual void OnCalculateCastingTime(SpellInfo const* p_SpellInfo, int32& p_CastingTime) { }
+        virtual void OnCalculateCastingTime(SpellInfo const* p_SpellInfo, int32& p_CastingTime) {}
 
         // Called at any threat added from any attacker (before threat apply)
         virtual void OnAddThreat(Unit* /*victim*/, float& /*fThreat*/, SpellSchoolMask /*schoolMask*/, SpellInfo const* /*threatSpell*/) {}
 
         /// Called when at HandleGarrisonGetShipmentInfoOpcode() is received
-        virtual int OnShipmentIDRequest(Player* p_Player) { return -1; }
+        virtual int OnShipmentIDRequest(Player* p_Player) { return -1; } ///< p_Player is unused
 
         /// == Triggered Actions Requested ==================
 
@@ -224,11 +230,17 @@ class CreatureAI : public UnitAI
 
         virtual void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool /*apply*/) {}
 
-        virtual void OnVehicleExited(Unit* p_Vehicle) { }
+        virtual void OnVehicleExited(Unit* p_Vehicle) { } ///< p_Vehicle is unused
+
+        /// Called before _ExitVehicle with ExitPos parameter
+        virtual void OnExitVehicle(Unit* p_Vehicle, Position& p_ExitPos) { }
 
         virtual void OnSpellClick(Unit* /*clicker*/) { }
 
         virtual bool CanSeeAlways(WorldObject const* /*obj*/) { return false; }
+
+        /// Called when the attack distance range is calculated
+        virtual void OnCalculateAttackDistance(float& p_AttackDistance) { }
 
     protected:
         virtual void MoveInLineOfSight(Unit* /*who*/);

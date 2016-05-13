@@ -217,7 +217,7 @@ public:
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
                 Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
-                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
+                if (unit && (unit->IsPlayer()))
                     unit->CastSpell(unit, SPELL_TELEPORT_CENTER, true);
             }
             DoCast(me, SPELL_TELEPORT_CENTER, true);
@@ -229,9 +229,9 @@ public:
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
                 Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
-                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
+                if (unit && (unit->IsPlayer()))
                     // Knockback into the air
-                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_DOT, true, 0, NULLAURA_EFFECT, me->GetGUID());
+                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_DOT, true, 0, nullptr, me->GetGUID());
             }
         }
 
@@ -241,10 +241,10 @@ public:
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
                 Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
-                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
+                if (unit && (unit->IsPlayer()))
                 {
                     // Also needs an exception in spell system.
-                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, 0, NULLAURA_EFFECT, me->GetGUID());
+                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, 0, nullptr, me->GetGUID());
                     // Use packet hack
                     /// @todo update me or remove the hack
                     WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
@@ -273,7 +273,7 @@ public:
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
                 Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
-                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
+                if (unit && (unit->IsPlayer()))
                 {
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);

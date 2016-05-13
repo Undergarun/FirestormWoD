@@ -165,7 +165,7 @@ class boss_commander_springvale : public CreatureScript
                         break;
                     }
                 }
-                if (AuraPtr unholypower = me->GetAura(DUNGEON_MODE(SPELL_UNHOLY_POWER, SPELL_UNHOLY_POWER_H)))
+                if (Aura* unholypower = me->GetAura(DUNGEON_MODE(SPELL_UNHOLY_POWER, SPELL_UNHOLY_POWER_H)))
                 {
                     if (unholypower->GetStackAmount() >= 3)
                     {

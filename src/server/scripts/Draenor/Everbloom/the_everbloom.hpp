@@ -4,31 +4,38 @@
 ///  MILLENIUM-STUDIO
 ///  Copyright 2015 Millenium-studio SARL
 ///  All Rights Reserved.
-///
+///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
 
-# include "InstanceScript.h"
-
-enum eEverbloomDatas
+static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
 {
-    /// Common bosses
-    DataWitherbark,
-    DataAncientProtectors,
-    DataArchmageSol,
-    DataYalnu,
-    DataMaxBosses,
+    std::list<Creature*> l_CreaturesList;
+    GetCreatureListWithEntryInGrid(l_CreaturesList, p_Object, p_Entry, 2000.0f);
+    if (l_CreaturesList.empty())
+        return;
 
-    /// Optional boss
-    DataXeritac,
+    for (std::list<Creature*>::iterator l_Iter = l_CreaturesList.begin(); l_Iter != l_CreaturesList.end(); ++l_Iter)
+        (*l_Iter)->DespawnOrUnsummon();
+}
 
-    /// Misc datas
-    DataRpYalnu,
-    DataRpMage,
-    DataObjectVineWall,
-    DataObjectWebDoor,
+#define InvisibleDisplay 11686
+#define FriendlyFaction 35
+#define HostileFaction 16
+#define AttackableYetNotHostileFaction 7
+
+enum eEverbloomData
+{
+    DataWitherbark       = 1,
     DataLifeWardenGola,
     DataEarthshaperTelu,
-    DataDulhu
+    DataDulhu,
+    DataXeritac,
+    DataArchmageSol,
+    DataRpYalnu,
+    DataYalnu,
+    DataRpMage,
+    DataObjectVineWall,
+    DataObjectWebDoor
 };
 
 enum eEverbloomBosses
@@ -44,52 +51,42 @@ enum eEverbloomBosses
 
 enum eEverbloomGameObjects
 {
-    ObjectVineWall       = 235363,
+    ObjectVineWall       = 231970,
     ObjectWebDoor        = 195485
 };
 
-enum eEverbloomCreatures
+enum eEverbloomCreature
 {
-    // Everbloom General:
-    CreatureDreadpetalToxin        = 81864,
-    CreatureEverbloomNaturalist    = 81819,
-    CreatureEverbloomTender        = 81985,
-    CreatureMeldedBerserker        = 86372,
-    CreatureGnarlroot = 81984,
-    CreatureVerdantMandragora      = 81983,
-    CreatureEverbloomMender        = 81820,
-    CreatureTwistedAbomination     = 84767, 
-    
-    // Pre ArchmageSol:
-    CreatureInfestedIcecaller      = 84989,
-    CreatureAddledArcanomancer     = 84990,
-    CreaturePutridPyromancer       = 84957,
-
-    // Pre Xeritac
-    CreatureInfestedVenomfang      = 85232,
-    CreatureVenomSprayer           = 86547,
-    CreatureVenomCrazedPaleOne     = 84554,
-    CreatureToxicSpiderling        = 84552,
-    CreatureGorgendBusters         = 86552,
-  
-    // Witherbark
-    CreatureEnchanctedWater        = 88862,
-    CreatureGlobuleWater           = 81821,
-
-    // Role Playing
-    CreatureRpYalnu                = 84336,
-    CreatureTriggerFire            = 324234,
-    CreatureKirinTorBattleMage     = 84329,
-    CreatureUndermageKeasel        = 85496,
-
-    // Hacked Areatriggers
-    CreatureTriggerTeleportToYalnu = 324251,
-    CreatureLadyBayeu              = 84358,
-    TriggerTenderBeamTrigger       = 84677,
-    TriggerLivingLeaves            = 324266,
-    TriggerFrozenSnap              = 321432
+    CreatureDreadpetalToxin         = 81864,
+    CreatureEverbloomNaturalist     = 81819,
+    CreatureEverbloomTender         = 81985,
+    CreatureMeldedBerserker         = 86372,
+    CreatureGnarlroot               = 81984,
+    CreatureVerdantMandragora       = 81983,
+    CreatureEverbloomMender         = 81820,
+    CreatureTwistedAbomination      = 84767,   
+    CreatureInfestedIcecaller       = 84989,
+    CreatureAddledArcanomancer      = 84990,
+    CreaturePutridPyromancer        = 84957,
+    CreatureInfestedVenomfang       = 85232,
+    CreatureVenomSprayer            = 86547,
+    CreatureVenomCrazedPaleOne      = 84554,
+    CreatureToxicSpiderling         = 84552,
+    CreatureGorgendBusters          = 86552,
+    CreatureEnchanctedWater         = 88862,
+    CreatureGlobuleWater            = 81821,
+    CreatureRpYalnu                 = 84336,
+    CreatureTriggerFire             = 324234,
+    CreatureKirinTorBattleMage      = 84329,
+    CreatureUndermageKeasel         = 85496,
+    CreatureTriggerTeleportToYalnu  = 324251,
+    CreatureLadyBayeu               = 84358,
+    CreatureTenderBeamTrigger       = 84677,
+    CreatureLivingLeaves            = 324266,
+    CreatureFrozenSnap              = 321432
 };
 
+/*
 enum eEverbloomEvents
 {
     EventDreadpetalToxin    = 1,
@@ -122,7 +119,7 @@ enum eEverbloomEvents
     EventIceComet,
     EventPoisonousClaws,
     EventBoundingWhirl2,
-    EventBarrageOfLeaves = 100,
+    EventBarrageOfLeaves
 };
 
 enum eEverbloomSpells
@@ -146,33 +143,16 @@ enum eEverbloomSpells
     SpellToxicity                = 169219, 
     SpellVenomSprayDummy         = 173052,
     SpellVenomSprayDamage        = 172727,
-    SpellFrostbolt               = 169840,
-    SpellFrostbolt4Th            = 170028,
-    SpellFlamestrikeAura         = 169100,
-    SpellFlamestikeAreatriger    = 169094,
-    SpellIceComet                = 170032,
-    SpellArcaneBlast             = 169825,
-    SpellArcaneBlast4Th          = 170035,
-    SpellArcaneOrbDummy          = 167018,
-    SpellArcaneOrbAreatriger     = 170040,
-    SpellArcaneOrbDamage         = 170077,
-    SpellFireball                = 168666,
-    SpellDragonsBreath           = 169843,
-    SpellFireBall                = 169839,
     SpellTendonRip               = 169876, 
     SpellLasherVenom             = 173563, 
     SpellBlinkMageUponSummon     = 142193,
-    SpellNoxiousBreath           = 169878,
+
     SpellLumberingSwipe          = 169929,
     SpellEntanglementVisual      = 169192,
     SpellEntanglementStun        = 169240,
-    SpellLivingLeavesDummy       = 169494,
-    SpellLivingLeavesEffect      = 169495,
-    SpellLivingLeavesAreaTrigger = 169497,
     SpellPoisonousClaws          = 169657,
     SpellInfectedWounds          = 169658,
     SpellAbominationNoxiousErupt = 169445,
-
     // Cosmetic
     SpellBeamCosmetic            = 164850,
     SpellWitherbarkVisPreFight   = 164713,
@@ -182,13 +162,14 @@ enum eEverbloomSpells
     SpellSubmerge                = 175123,
     SpellNaturesChanneling       = 164850
 };
+*/
 
 enum eEverbloomActions
 {
-    ActionCountPre1StBossKill = 1,
-    ActionCounting            = 2,
-    ActionYalnuEvent          = 3,
-    ActionBoundingWhirlAura   = 4
+    ActionCountPre1StBossKill = 10,
+    ActionCounting,
+    ActionYalnuEvent,
+    ActionBoundingWhirlAura 
 };
 
 enum eEverbloomAchievements

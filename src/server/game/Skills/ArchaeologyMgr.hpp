@@ -1,21 +1,15 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2014-2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef ARCHAEOLOGY_MGR_HPP_INCLUDED
-#define ARCHAEOLOGY_MGR_HPP_INCLUDED
+# define ARCHAEOLOGY_MGR_HPP_INCLUDED
 
-#include <map>
-#include <string>
-
-#include "Common.h"
-#include <ace/Singleton.h>
-#include "DatabaseEnv.h"
-#include "DBCEnums.h"
-#include "DBCStores.h"
+# include "Containers.h"
 
 class Player;
 
@@ -156,7 +150,7 @@ namespace MS { namespace Skill { namespace Archaeology
         { Continents::Kalimdor,        Zones::Uldum,              0,          29,             450 },
         { Continents::Outland,         0,                        58,           0,             275 },
         { Continents::Northrend,       0,                        68,           0,             350 },
-        { Continents::Pandaria,        0,                        85,           0,             525 },
+        { Continents::Pandaria,        0,                        85,           0,             500 },
         { Continents::Draenor,         0,                        90,           0,               1 },
     };
 

@@ -28,7 +28,7 @@ enum BG_KT_NPC
 
 #define BG_KT_MAX_TEAM_SCORE        1500
 #define BG_KT_ORB_POINTS_MAX        1500
-#define BG_KT_POINTS_UPDATE_TIME    (8*IN_MILLISECONDS)
+#define BG_KT_POINTS_UPDATE_TIME    (5*IN_MILLISECONDS)
 #define BG_KT_EVENT_START_BATTLE    8563
 
 enum BG_KT_Objects
@@ -186,7 +186,7 @@ const static uint32 s_OrbsWorldStates[MAX_ORBS] =
 };
 
 //tick point according to which zone
-const static uint32 BG_KT_TickPoints[3] = { 1, 3, 5 };
+const static uint32 BG_KT_TickPoints[3] = { 3, 4, 5 };
 
 class BattlegroundKT : public Battleground
 {
@@ -209,7 +209,7 @@ class BattlegroundKT : public Battleground
         virtual void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj) { EventPlayerClickedOnOrb(source, target_obj); }
         void EventPlayerClickedOnOrb(Player* source, GameObject* target_obj);
 
-        void RemovePlayer(Player* plr, ObjectGuid guid);
+        void RemovePlayer(Player* plr, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player* source, uint32 trigger);
         void HandleKillPlayer(Player* player, Player* killer);
         bool SetupBattleground();
@@ -219,7 +219,7 @@ class BattlegroundKT : public Battleground
 
         void UpdateOrbState(Team team, uint32 value);
         void UpdateTeamScore(Team team);
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundKT::UpdatePlayerScore' hides overloaded virtual function
         virtual void FillInitialWorldStates(ByteBuffer& p_Data);
 
         /* Scorekeeping */

@@ -163,7 +163,7 @@ class boss_echo_of_sylvanas : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -459,7 +459,7 @@ class spell_echo_of_sylvanas_wracking_pain_dmg: public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_echo_of_sylvanas_wracking_pain_dmg_SpellScript::FilterTargets, EFFECT_0,TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_echo_of_sylvanas_wracking_pain_dmg_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
         private:
@@ -497,9 +497,9 @@ class spell_echo_of_sylvanas_death_grip_aoe: public SpellScriptLoader
             PrepareSpellScript(spell_echo_of_sylvanas_death_grip_aoe_SpellScript);
 
             void HandleScript(SpellEffIndex /*effIndex*/)
-			{
-				if(!GetCaster() || !GetHitUnit())
-					return;
+            {
+                if(!GetCaster() || !GetHitUnit())
+                    return;
 
                 GetHitUnit()->CastSpell(GetCaster(), SPELL_DEATH_GRIP, true);
             }
@@ -525,14 +525,14 @@ class spell_echo_of_sylvanas_seeping_shadows: public SpellScriptLoader
         {
             PrepareAuraScript(spell_echo_of_sylvanas_seeping_shadows_AuraScript);
 
-            void HandlePeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 if (!GetCaster())
                     return;
 
                 int32 amount = int32(0.2f * (100.0f - GetCaster()->GetHealthPct()));
 
-                if (AuraPtr aur = GetCaster()->GetAura(103182))
+                if (Aura* aur = GetCaster()->GetAura(103182))
                     aur->ModStackAmount(amount - aur->GetStackAmount());
                 else
                     GetCaster()->CastCustomSpell(103182, SPELLVALUE_AURA_STACK, amount, GetCaster(), true);

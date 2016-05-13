@@ -28,6 +28,7 @@
 extern std::map<uint32, DB2StorageBase*> sDB2PerHash;
 extern std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
 extern std::map<uint32, uint32> g_ItemDisplayIDs;
+extern std::map<uint32, uint32> g_ItemTemplateDisplayIDs;
 
 extern DB2Storage <AchievementEntry>                sAchievementStore;
 extern DB2Storage <CriteriaEntry>                   sCriteriaStore;
@@ -51,7 +52,10 @@ extern DB2Storage <ItemExtendedCostEntry>           sItemExtendedCostStore;
 extern DB2Storage <ItemSparseEntry>                 sItemSparseStore;
 extern DB2Storage <ItemEffectEntry>                 sItemEffectStore;
 extern DB2Storage <HeirloomEntry>                   sHeirloomStore;
+
 extern DB2Storage <PvpItemEntry>                    sPvpItemStore;
+extern std::map<uint32, uint32>                     g_PvPItemStoreLevels;
+
 extern DB2Storage <ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore;
 extern DB2Storage <ItemAppearanceEntry>             sItemAppearanceStore;
 extern DB2Storage <SpellReagentsEntry>              sSpellReagentsStore;
@@ -177,6 +181,13 @@ extern DB2Storage <TransportAnimationEntry>      sTransportAnimationStore;
 extern DB2Storage <TransportRotationEntry>       sTransportRotationStore;
 extern DB2Storage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 
+extern TaxiMask                                         sTaxiNodesMask;
+extern TaxiMask                                         sOldContinentsNodesMask;
+extern TaxiMask                                         sHordeTaxiNodesMask;
+extern TaxiMask                                         sAllianceTaxiNodesMask;
+extern TaxiPathSetBySource                              sTaxiPathSetBySource;
+extern TaxiPathNodesByPath                              sTaxiPathNodesByPath;
+
 extern uint8 GetPowerIndexByClass(uint8 p_Class, uint8 p_Power);
 
 SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
@@ -184,6 +195,9 @@ SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
 
 
 uint32 GetItemDisplayID(uint32 p_ItemID, uint32 p_AppearanceModID);
+
+uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
+HeirloomEntry const* GetHeirloomEntryByItemID(uint32 p_ItemID);
 
 typedef std::unordered_map<uint32, std::vector<uint32> > AreaGroupMemebersByID;
 extern std::vector<uint32> GetAreasForGroup(uint32 areaGroupId);
@@ -196,97 +210,5 @@ extern MountCapabilitiesMap sMountCapabilitiesMap;
 
 std::vector<ItemBonusEntry const*> const* GetItemBonusesByID(uint32 Id);
 void LoadDB2Stores(const std::string& dataPath);
-
-struct TaxiPathNodePtr
-{
-    TaxiPathNodePtr() : i_ptr(NULL) {}
-    TaxiPathNodePtr(TaxiPathNodeEntry const* ptr) : i_ptr(ptr) {}
-    TaxiPathNodeEntry const* i_ptr;
-    operator TaxiPathNodeEntry const& () const { return *i_ptr; }
-};
-
-typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
-typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
-
-extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
-uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
-HeirloomEntry const* GetHeirloomEntryByItemID(uint32 p_ItemID);
-std::vector<TaxiNodesEntry const*> const* GetTaxiNodesForMapId(uint32 l_MapID);
-
-enum TaxiPathResult
-{
-    TAXIPATH_RES_SUCCESS = 1,
-    TAXIPATH_RES_NO_LINKED_NODES,
-    TAXIPATH_RES_UNKNOWN_NODES, ///> unused 6.1.0
-    TAXIPATH_RES_NO_PATH,
-};
-
-class TaxiNode
-{
-    public:
-        TaxiNode() { }
-        TaxiNode(uint32 ID, uint32 map, Position& pos, LocalizedString const* name, uint32 cost) :
-            m_id(ID), m_mapID(map), m_name(name), m_position(pos), m_cost(cost) { }
-
-        uint32 GetID() { return m_id; }
-
-        void AddConnectedNode(uint32 node) { m_connectedNodes.insert(node); }
-        TaxiNode* GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, Player* player);
-        Position const* GetPosition() { return &m_position; }
-        uint32 GetCost() { return m_cost; }
-        TaxiNodesEntry const* GetTaxiNodesEntry() { return sTaxiNodesStore.LookupEntry(m_id); }
-
-    private:
-        uint32 m_id;
-        uint32 m_mapID;
-        Position m_position;
-        LocalizedString const* m_name;
-        uint32 m_cost;
-        std::set<uint32> m_connectedNodes;
-};
-typedef std::unordered_map<uint32, TaxiNode*> TaxiNodes;
-
-class TaxiPath : public std::vector<TaxiNode*>
-{
-public:
-    TaxiPath() { }
-    bool LoadExpress(std::vector<uint32> uNodes);
-    uint32 CalculateTaxiPath(uint32 startId, uint32 destId, Player* player);
-
-public:
-    uint32 GetCost()
-    {
-        uint32 cost = 0;
-        for (const_iterator itr = begin(); itr != end(); ++itr)
-            cost += (*itr)->GetCost();
-
-        return cost;
-    }
-};
-
-TaxiNode* GetTaxiNodeByID(uint32 ID);
-
-struct TaxiPathBySourceAndDestination
-{
-    TaxiPathBySourceAndDestination() : ID(0), price(0) {}
-    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) {}
-
-    uint32    ID;
-    uint32    price;
-};
-
-typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
-typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
-typedef std::unordered_map<uint32, std::vector<TaxiNodesEntry const*> > TaxiNodesByMap;
-
-#define TaxiMaskSize 215
-typedef uint8 TaxiMask[TaxiMaskSize];
-
-extern TaxiMask                                  sTaxiNodesMask;
-extern TaxiMask                                  sOldContinentsNodesMask;
-extern TaxiMask                                  sHordeTaxiNodesMask;
-extern TaxiMask                                  sAllianceTaxiNodesMask;
-extern TaxiMask                                  sDeathKnightTaxiNodesMask;
-extern TaxiPathSetBySource                       sTaxiPathSetBySource;
 
 #endif

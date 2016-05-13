@@ -514,7 +514,7 @@ public:
                     _despawned = false;
                     break;
                 case ACTION_CYCLIC_MOVEMENT:
-                    Movement::MoveSplineInit init(*me);
+                    Movement::MoveSplineInit init(me);
                     FillCirclePath(MalygosPositions[3], 120.0f, 283.2763f, init.Path(), true);
                     init.SetFly();
                     init.SetCyclic();
@@ -963,7 +963,7 @@ public:
                                 {
                                     if (Unit* passenger = drakeVehicle->GetPassenger(0))
                                     {
-                                        if (passenger->GetTypeId() == TYPEID_PLAYER)
+                                        if (passenger->IsPlayer())
                                         {
                                             Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger->GetGUID());
                                             DoCast(tempSurgeTarget, SPELL_SURGE_OF_POWER_PHASE_3_10, true);
@@ -1248,7 +1248,7 @@ public:
         void DoAction(int32 const /*action*/)
         {
             if (Vehicle* vehicleTemp = me->GetVehicleKit())
-                if (vehicleTemp->GetPassenger(0) && vehicleTemp->GetPassenger(0)->GetTypeId() == TYPEID_PLAYER)
+                if (vehicleTemp->GetPassenger(0) && vehicleTemp->GetPassenger(0)->IsPlayer())
                 {
                     vehicleTemp->RemoveAllPassengers();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -1336,7 +1336,7 @@ public:
         {
             if (action < ACTION_DELAYED_DESPAWN)
             {
-                Movement::MoveSplineInit init(*me);
+                Movement::MoveSplineInit init(me);
                 FillCirclePath(MalygosPositions[3], 35.0f, 282.3402f, init.Path(), true);
                 init.SetFly();
                 init.SetCyclic();
@@ -1687,13 +1687,13 @@ class spell_malygos_portal_beam: public SpellScriptLoader
                 return true;
             }
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
                     target->CastSpell(target, SPELL_PORTAL_OPENED);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
                     target->RemoveAura(SPELL_PORTAL_OPENED);
@@ -1887,7 +1887,7 @@ class spell_malygos_vortex_visual: public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* caster = GetCaster()->ToCreature())
                 {
@@ -2134,7 +2134,7 @@ class spell_malygos_destroy_platform_channel: public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
                     if (InstanceScript* instance = target->GetInstanceScript())
@@ -2245,7 +2245,7 @@ class spell_wyrmrest_skytalon_summon_red_dragon_buddy: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void ChangeSummonPos(SpellEffIndex /*effIndex*/)
@@ -2345,7 +2345,7 @@ class spell_malygos_surge_of_power_warning_selector_25: public SpellScriptLoader
 
                     if (Vehicle* vehicle = target->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(0))
-                            if (passenger->GetTypeId() == TYPEID_PLAYER)
+                            if (passenger->IsPlayer())
                                 caster->AI()->Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger->GetGUID());
                 }
             }
@@ -2441,13 +2441,13 @@ class spell_alexstrasza_gift_beam: public SpellScriptLoader
                 return true;
             }
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
                     target->CastSpell(target, SPELL_ALEXSTRASZAS_GIFT_BEAM_VISUAL);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
                     target->RemoveAura(SPELL_ALEXSTRASZAS_GIFT_BEAM_VISUAL);
@@ -2480,7 +2480,7 @@ class spell_alexstrasza_gift_beam_visual: public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
                 {
@@ -2491,7 +2491,7 @@ class spell_alexstrasza_gift_beam_visual: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
                     if (InstanceScript* instance = GetCaster()->GetInstanceScript())

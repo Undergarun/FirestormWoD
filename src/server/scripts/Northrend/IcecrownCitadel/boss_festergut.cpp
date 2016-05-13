@@ -151,7 +151,7 @@ class boss_festergut : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -398,7 +398,7 @@ class spell_festergut_gastric_bloat: public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                constAuraPtr aura = GetHitUnit()->GetAura(GetSpellInfo()->Id);
+                Aura const* aura = GetHitUnit()->GetAura(GetSpellInfo()->Id);
                 if (!(aura && aura->GetStackAmount() == 10))
                     return;
 
@@ -434,7 +434,7 @@ class spell_festergut_blighted_spores: public SpellScriptLoader
                 return true;
             }
 
-            void HandleEffectRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetDuration())
                     return;
@@ -442,7 +442,7 @@ class spell_festergut_blighted_spores: public SpellScriptLoader
                 GetTarget()->CastSpell(GetTarget(), SPELL_INOCULATED, true);
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
                     if (Creature* festergut = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_FESTERGUT)))
-                        if (AuraEffectPtr aurEff1 = GetTarget()->GetAuraEffect(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, SPELLFAMILY_GENERIC, 1614, EFFECT_0))
+                        if (AuraEffect* aurEff1 = GetTarget()->GetAuraEffect(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, SPELLFAMILY_GENERIC, 1614, EFFECT_0))
                             festergut->AI()->SetData(DATA_INOCULATED_STACK, aurEff1->GetBase()->GetStackAmount());
             }
 

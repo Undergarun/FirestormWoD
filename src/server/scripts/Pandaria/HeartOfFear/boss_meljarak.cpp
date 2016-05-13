@@ -272,7 +272,7 @@ public:
         {
             instance = creature->GetInstanceScript();
             introDone = false;
-			creature->AddAura(SPELL_WATCHFUL_EYE_1, creature);
+            creature->AddAura(SPELL_WATCHFUL_EYE_1, creature);
         }
 
         InstanceScript* instance;
@@ -292,7 +292,7 @@ public:
             for (uint8 i = 0; i < 4; ++i)
             {
                 std::list<Creature*> addList;
-                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 300.0f);
+                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 200.0f);
 
                 if (!addList.empty())
                     for (Creature* add : addList)
@@ -368,7 +368,7 @@ public:
 
             Talk(SAY_AGGRO);
             std::list<GameObject*> l_DoorList;
-            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 500.0f);
+            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 200.0f);
 
             for (GameObject* l_Door : l_DoorList)
                 l_Door->SetGoState(GO_STATE_READY);
@@ -398,7 +398,7 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim->IsPlayer())
                 Talk(SAY_SLAY);
         }
 
@@ -462,13 +462,13 @@ public:
             _EnterEvadeMode();
         }
 
-		void JustReachedHome()
-		{
-			DoCast(me, SPELL_WATCHFUL_EYE_1);
+        void JustReachedHome()
+        {
+            DoCast(me, SPELL_WATCHFUL_EYE_1);
             if (instance)
                 if (instance->GetBossState(DATA_MELJARAK) == TO_BE_DECIDED)
                     instance->SetBossState(DATA_MELJARAK, NOT_STARTED);
-		}
+        }
 
         void JustDied(Unit* /*killer*/)
         {
@@ -482,7 +482,7 @@ public:
             for (uint8 i = 0; i < 4; ++i)
             {
                 std::list<Creature*> addList;
-                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 300.0f);
+                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 200.0f);
 
                 if (!addList.empty())
                     for (Creature* add : addList)
@@ -499,7 +499,7 @@ public:
             _JustDied();
 
             std::list<GameObject*> l_DoorList;
-            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 500.0f);
+            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 200.0f);
 
             for (GameObject* l_Door : l_DoorList)
                 l_Door->SetGoState(GO_STATE_ACTIVE);
@@ -525,7 +525,7 @@ public:
             summons.Summon(summon);
             summon->setActive(true);
 
-			if (me->isInCombat())
+            if (me->isInCombat())
                 summon->AI()->DoZoneInCombat();
         }
 
@@ -661,7 +661,7 @@ public:
                     // Elite Battlemasters event:
                     case EVENT_KORTHIK_STRIKE:
                     {
-				        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
                         {
                             std::list<Creature*> battleMasters;
                             GetCreatureListWithEntryInGrid(battleMasters, me, NPC_KORTHIK_ELITE_BLADEMASTER, 150.0f);
@@ -683,13 +683,13 @@ public:
                     {
                         Talk(SAY_WHIRLING_BLADES);
                         Talk(ANN_WHIRLING_BLADES);
-				        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
                         {
                             target->CastSpell(target, SPELL_WB_SUMMON, false);
                             me->CastSpell(me, SPELL_WHIRLING_BLADE, true);
                         }
                         events.ScheduleEvent(EVENT_WHIRLING_BLADE, urand(48000, 64000));
-						break;
+                        break;
                     }
                     case EVENT_RAIN_OF_BLADES:
                     {
@@ -697,7 +697,7 @@ public:
                         Talk(ANN_RAIN_OF_BLADES);
                         DoCast(me, SPELL_RAIN_OF_BLADES);
                         events.ScheduleEvent(EVENT_RAIN_OF_BLADES, urand(48000, 64000));
-						break;
+                        break;
                     }
                     case EVENT_WIND_BOMB:
                     {
@@ -706,7 +706,7 @@ public:
                         events.ScheduleEvent(EVENT_WIND_BOMB, urand(18000, 24000));
                         break;
                     }
-					case EVENT_BERSERK_MELJARAK:
+                    case EVENT_BERSERK_MELJARAK:
                     {
                         me->AddAura(SPELL_BERSERK_MELJARAK, me);
                         break;
@@ -1307,11 +1307,11 @@ class npc_wind_bomb_meljarak : public CreatureScript
 class npc_corrosive_resin_pool : public CreatureScript
 {
 public:
-	npc_corrosive_resin_pool() : CreatureScript("npc_corrosive_resin_pool") { }
+    npc_corrosive_resin_pool() : CreatureScript("npc_corrosive_resin_pool") { }
 
-	struct npc_corrosive_resin_poolAI : public ScriptedAI
-	{
-		npc_corrosive_resin_poolAI(Creature* creature) : ScriptedAI(creature) { }
+    struct npc_corrosive_resin_poolAI : public ScriptedAI
+    {
+        npc_corrosive_resin_poolAI(Creature* creature) : ScriptedAI(creature) { }
 
         void IsSummonedBy(Unit* /*summoner*/)
         {
@@ -1321,12 +1321,12 @@ public:
 
             me->AddAura(SPELL_CORR_RESIN_POOL_A, me); // Damage aura.
         }
-	};
+    };
 
-	CreatureAI* GetAI(Creature* creature) const
-	{
-		return new npc_corrosive_resin_poolAI(creature);
-	}
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_corrosive_resin_poolAI(creature);
+    }
 };
 
 // Amber Prison: 62531.
@@ -1462,17 +1462,17 @@ class spell_meljarak_corrosive_resin : public SpellScriptLoader
         {
             PrepareAuraScript(spell_meljarak_corrosive_resin_AuraScript);
 
-            void PeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* owner = GetOwner()->ToUnit();
                 if (!owner)
                     return;
 
                 // Check target moving.
-                if (owner->isMoving())
+                if (owner->IsMoving())
                 {
                     // Check the aura.
-                    if (AuraPtr resinAura = owner->GetAura(SPELL_CORROSIVE_RESIN))
+                    if (Aura* resinAura = owner->GetAura(SPELL_CORROSIVE_RESIN))
                     {
                         // Remove the stacks.
                         if (resinAura->GetStackAmount() > 1)
@@ -1546,7 +1546,15 @@ public:
 
         void Register()
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mending_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            switch (m_scriptSpellId)
+            {
+                case 122193:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mending_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                    break;
+                default:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mending_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                break;
+            }
         }
 
         uint32 _targetCount;

@@ -299,13 +299,13 @@ class spell_quest_extincteur: public SpellScriptLoader
         {
             PrepareAuraScript(spell_quest_extincteur_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     GetCaster()->AddAura(SPELL_VISUAL_EXTINGUISHER, GetCaster());
             }
 
-            void OnPeriodic(constAuraEffectPtr /*aurEff*/)
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (!GetCaster())
                     return;
@@ -319,7 +319,7 @@ class spell_quest_extincteur: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 if (GetCaster())
                     GetCaster()->RemoveAurasDueToSpell(SPELL_VISUAL_EXTINGUISHER);

@@ -156,7 +156,7 @@ void AppenderConsole::ResetColor(bool stdout_stream)
 
 void AppenderConsole::_write(LogMessage& message)
 {
-    bool stdout_stream = message.level == LOG_LEVEL_ERROR || message.level == LOG_LEVEL_FATAL;
+    bool stdout_stream = !(message.level == LOG_LEVEL_ERROR || message.level == LOG_LEVEL_FATAL);
 
     if (_colored)
     {

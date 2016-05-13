@@ -184,7 +184,7 @@ class spell_ticking_time_bomb: public SpellScriptLoader
                 return (bool) sSpellMgr->GetSpellInfo(SPELL_TICKING_TIME_BOMB_EXPLODE);
             }
 
-            void HandleOnEffectRemove(constAuraEffectPtr /* aurEff */, AuraEffectHandleModes /* mode */)
+            void HandleOnEffectRemove(AuraEffect const* /* aurEff */, AuraEffectHandleModes /* mode */)
             {
                 if (GetCaster() == GetTarget())
                 {

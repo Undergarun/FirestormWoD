@@ -139,7 +139,7 @@ public:
                 {
                     Unit* target = NULL;
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target && target->GetTypeId() == TYPEID_PLAYER)
+                    if (target && target->IsPlayer())
                     {
                         DoCast(target, SPELL_ROOT);
 

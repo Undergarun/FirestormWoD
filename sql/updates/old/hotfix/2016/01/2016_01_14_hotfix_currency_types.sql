@@ -1,0 +1,1 @@
+UPDATE currency_types SET TotalCap = 20 WHERE ID = 994;

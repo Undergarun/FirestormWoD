@@ -125,7 +125,7 @@ class boss_echo_of_tyrande : public CreatureScript
         {
             boss_echo_of_tyrandeAI(Creature* creature) : BossAI(creature, DATA_ECHO_OF_TYRANDE)
             {
-				me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
@@ -328,7 +328,7 @@ class boss_echo_of_tyrande : public CreatureScript
                             break;
                         case EVENT_SUMMON_ADDS:
                         {
-                            if (Player* pPlayer = me->FindNearestPlayer(500.0f))
+                            if (Player* pPlayer = me->FindNearestPlayer(200.0f))
                             {
                                 Position pos;
                                 pPlayer->GetRandomNearPosition(pos, frand(15.0f, 20.0f));
@@ -538,9 +538,9 @@ class spell_echo_of_tyrande_tears_of_elune_script: public SpellScriptLoader
             PrepareSpellScript(spell_echo_of_tyrande_tears_of_elune_script_SpellScript);
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
-			{
-				if(!GetCaster() || !GetHitUnit())
-					return;
+            {
+                if(!GetCaster() || !GetHitUnit())
+                    return;
 
                 if (roll_chance_i(50))
                     GetCaster()->CastSpell(GetHitUnit(), SPELL_TEARS_OF_ELUNE_MISSILE, true);

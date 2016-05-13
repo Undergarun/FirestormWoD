@@ -43,12 +43,12 @@ class AuraApplication
 {
     friend void Unit::_ApplyAura(AuraApplication * aurApp, uint32 effMask);
     friend void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode);
-    friend void Unit::_ApplyAuraEffect(AuraPtr aura, uint32 effIndex);
+    friend void Unit::_ApplyAuraEffect(Aura* aura, uint32 effIndex);
     friend void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode);
-    friend AuraApplication * Unit::_CreateAuraApplication(AuraPtr aura, uint32 effMask);
+    friend AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint32 effMask);
     private:
         Unit* const _target;
-        constAuraPtr _base;
+        Aura const* _base;
         AuraRemoveMode _removeMode:8;                  // Store info for know remove aura reason
         uint8 m_Slot;                                  // Aura slot on unit
         uint8 _flags;                                  // Aura info flag
@@ -57,7 +57,7 @@ class AuraApplication
         bool _needClientUpdate:1;
         uint8 m_EffectCount;
 
-        explicit AuraApplication(Unit* target, Unit* caster, AuraPtr base, uint32 effMask);
+        explicit AuraApplication(Unit* target, Unit* caster, Aura* base, uint32 effMask);
         void _Remove();
     private:
         void _InitFlags(Unit* caster, uint32 effMask);
@@ -65,7 +65,7 @@ class AuraApplication
     public:
 
         Unit* GetTarget() const { return _target; }
-        AuraPtr GetBase() const { return std::const_pointer_cast<Aura>(_base); }
+        Aura* GetBase() const { return(Aura*) _base; }
 
         uint8 GetSlot() const { return m_Slot; }
         uint8 GetFlags() const { return _flags; }
@@ -86,16 +86,16 @@ class AuraApplication
         void SendFakeAuraUpdate(uint32 auraId, bool remove);
 };
 
-class Aura : public std::enable_shared_from_this<Aura>
+class Aura
 {
-    friend AuraPtr Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID);
+    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID);
     public:
         typedef std::map<uint64, AuraApplication *> ApplicationMap;
 
         static uint32 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibleEffectMask, WorldObject* owner);
-        static AuraPtr TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount = NULL, Item* castItem = NULL, uint64 casterGUID = 0, bool* refresh = NULL);
-        static AuraPtr TryCreate(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount = NULL, Item* castItem = NULL, uint64 casterGUID = 0);
-        static AuraPtr Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
+        static Aura* TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount = NULL, Item* castItem = NULL, uint64 casterGUID = 0, bool* refresh = NULL);
+        static Aura* TryCreate(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount = NULL, Item* castItem = NULL, uint64 casterGUID = 0);
+        static Aura* Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
         explicit Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, uint64 casterGUID);
         void _InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
         virtual ~Aura();
@@ -175,10 +175,10 @@ class Aura : public std::enable_shared_from_this<Aura>
         void SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint32 recalculateMask, int32 * amount);
 
         // helpers for aura effects
-        bool HasEffect(uint8 effIndex) const { return GetEffect(effIndex) != NULLAURA_EFFECT; }
+        bool HasEffect(uint8 effIndex) const { return GetEffect(effIndex) != nullptr; }
         bool HasEffectType(AuraType type) const;
         uint8 GetEffectIndexByType(AuraType type) const;
-        AuraEffectPtr GetEffect(uint8 effIndex) const { ASSERT(effIndex < SpellEffIndex::MAX_EFFECTS); return m_effects[effIndex]; }
+        AuraEffect* GetEffect(uint8 effIndex) const { ASSERT(effIndex < SpellEffIndex::MAX_EFFECTS); return m_effects[effIndex]; }
         uint8 GetEffectCount() const { return m_EffectCount; }
         uint32 GetEffectMask() const { uint32 effMask = 0; for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i) if (m_effects[i]) effMask |= 1 << i; return effMask; }
         void RecalculateAmountOfEffects(bool p_Force = false);
@@ -196,7 +196,8 @@ class Aura : public std::enable_shared_from_this<Aura>
         void HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* caster);
         bool CanBeAppliedOn(Unit* target);
         bool CheckAreaTarget(Unit* target);
-        bool CanStackWith(constAuraPtr existingAura) const;
+        bool CanStackWith(Aura const* existingAura) const;
+        bool IsSameRaidBuff(Aura const* existingAura) const;
 
         // Proc system
         // this subsystem is not yet in use - the core of it is functional, but still some research has to be done
@@ -210,26 +211,28 @@ class Aura : public std::enable_shared_from_this<Aura>
         void TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         SpellPowerEntry const* GetSpellPowerData() const { return m_spellPowerData; }
 
+        void Delink();
+
         // AuraScript
         void LoadScripts();
         bool CallScriptCheckAreaTargetHandlers(Unit* target);
         void CallScriptDispel(DispelInfo* dispelInfo);
         void CallScriptAfterDispel(DispelInfo* dispelInfo);
-        bool CallScriptEffectApplyHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
-        bool CallScriptEffectRemoveHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
-        void CallScriptAfterEffectApplyHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
-        void CallScriptAfterEffectRemoveHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
-        bool CallScriptEffectPeriodicHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp);
+        bool CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
+        bool CallScriptEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
+        void CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
+        void CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
+        bool CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp);
         void CallScriptAuraUpdateHandlers(uint32 diff);
-        void CallScriptEffectUpdateHandlers(uint32 diff, AuraEffectPtr aurEff);
-        void CallScriptEffectUpdatePeriodicHandlers(AuraEffectPtr aurEff);
-        void CallScriptEffectCalcAmountHandlers(constAuraEffectPtr aurEff, int32 & amount, bool & canBeRecalculated);
-        void CallScriptEffectCalcPeriodicHandlers(constAuraEffectPtr aurEff, bool & isPeriodic, int32 & amplitude);
-        void CallScriptEffectCalcSpellModHandlers(constAuraEffectPtr aurEff, SpellModifier* & spellMod);
-        void CallScriptEffectAbsorbHandlers(AuraEffectPtr aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & defaultPrevented);
-        void CallScriptEffectAfterAbsorbHandlers(AuraEffectPtr aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount);
-        void CallScriptEffectManaShieldHandlers(AuraEffectPtr aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & defaultPrevented);
-        void CallScriptEffectAfterManaShieldHandlers(AuraEffectPtr aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount);
+        void CallScriptEffectUpdateHandlers(uint32 diff, AuraEffect* aurEff);
+        void CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff);
+        void CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated);
+        void CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool & isPeriodic, int32 & amplitude);
+        void CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellModifier* & spellMod);
+        void CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & defaultPrevented);
+        void CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount);
+        void CallScriptEffectManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & defaultPrevented);
+        void CallScriptEffectAfterManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount);
         void SetScriptData(uint32 type, uint32 data);
         void SetScriptGuid(uint32 type, uint64 data);
         // Spell Proc Hooks
@@ -237,8 +240,8 @@ class Aura : public std::enable_shared_from_this<Aura>
         bool CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         void CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         void CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
-        bool CallScriptEffectProcHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
-        void CallScriptAfterEffectProcHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
+        bool CallScriptEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
+        void CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptCanRrefreshProcHandlers();
 
         std::list<AuraScript*> m_loadedScripts;
@@ -261,7 +264,7 @@ class Aura : public std::enable_shared_from_this<Aura>
         uint8 m_stackAmount;                                // Aura stack amount
 
         uint8 m_EffectCount;
-        AuraEffectPtr m_effects[SpellEffIndex::MAX_EFFECTS];
+        AuraEffect* m_effects[SpellEffIndex::MAX_EFFECTS];
         ApplicationMap m_applications;
 
         bool m_isRemoved:1;
@@ -275,7 +278,7 @@ class Aura : public std::enable_shared_from_this<Aura>
 
 class UnitAura : public Aura
 {
-    friend AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID);
+    friend Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID);
     protected:
         explicit UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID);
     public:
@@ -296,7 +299,7 @@ class UnitAura : public Aura
 
 class DynObjAura : public Aura
 {
-    friend AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID);
+    friend Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID);
     protected:
         explicit DynObjAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID);
     public:

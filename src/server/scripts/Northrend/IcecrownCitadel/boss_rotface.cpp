@@ -148,7 +148,7 @@ class boss_rotface : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -621,9 +621,9 @@ class spell_rotface_large_ooze_combine: public SpellScriptLoader
                 if (!(GetHitCreature() && GetHitCreature()->isAlive()))
                     return;
 
-                if (AuraPtr unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
+                if (Aura* unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
                 {
-                    if (AuraPtr targetAura = GetHitCreature()->GetAura(SPELL_UNSTABLE_OOZE))
+                    if (Aura* targetAura = GetHitCreature()->GetAura(SPELL_UNSTABLE_OOZE))
                         unstable->ModStackAmount(targetAura->GetStackAmount());
                     else
                         unstable->ModStackAmount(1);
@@ -681,7 +681,7 @@ class spell_rotface_large_ooze_buff_combine: public SpellScriptLoader
                 if (!(GetHitCreature() && GetHitCreature()->isAlive()))
                     return;
 
-                if (AuraPtr unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
+                if (Aura* unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
                 {
                     uint8 newStack = uint8(unstable->GetStackAmount()+1);
                     unstable->SetStackAmount(newStack);
@@ -808,7 +808,7 @@ class spell_rotface_unstable_ooze_explosion_suicide: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rotface_unstable_ooze_explosion_suicide_AuraScript);
 
-            void DespawnSelf(constAuraEffectPtr /*aurEff*/)
+            void DespawnSelf(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 Unit* target = GetTarget();

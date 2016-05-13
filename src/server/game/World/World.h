@@ -33,6 +33,7 @@
 #include "TimeDiffMgr.h"
 #include "DatabaseWorkerPool.h"
 
+#include <unordered_map>
 #include <map>
 #include <set>
 #include <list>
@@ -156,7 +157,6 @@ enum WorldBoolConfigs
     CONFIG_ARENA_LOG_EXTENDED_INFO,
     CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN,
     CONFIG_VMAP_INDOOR_CHECK,
-    CONFIG_PET_LOS,
     CONFIG_START_ALL_SPELLS,
     CONFIG_START_ALL_EXPLORED,
     CONFIG_START_ALL_REP,
@@ -216,6 +216,8 @@ enum WorldBoolConfigs
     CONFIG_LOG_PACKETS,
     CONFIG_BATTLEPAY_ENABLE,
     CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK,
+    CONFIG_IGNORE_RESEARCH_SITE,
+    CONFIG_ENABLE_MMAPS,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -413,6 +415,9 @@ enum WorldIntConfigs
     CONFIG_LAST_CLIENT_BUILD,
     CONFIG_BATTLEPAY_MIN_SECURITY,
     CONFIG_SPELLOG_FLAGS,
+    CONFIG_ACCOUNT_BIND_GROUP_MASK,
+    CONFIG_ACCOUNT_BIND_SHOP_GROUP_MASK,
+    CONFIG_ACCOUNT_BIND_ALLOWED_GROUP_MASK,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -632,25 +637,14 @@ struct CliCommandHolder
 
 typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
 
-struct CharacterNameData
+struct CharacterInfo
 {
-    std::string m_name;
-    uint8 m_class;
-    uint8 m_race;
-    uint8 m_gender;
-    uint8 m_level;
-    uint32 m_AccountId;
-};
-
-struct BuildInfo
-{
-    bool valid;
-    uint16 year;
-    uint8 month;
-    uint8 day;
-    uint8 hour;
-    uint8 minute;
-    std::string timeStr;
+    std::string Name;
+    uint32 AccountId;
+    uint8 Class;
+    uint8 Race;
+    uint8 Sex;
+    uint8 Level;
 };
 
 enum RecordDiffType
@@ -677,11 +671,20 @@ struct QueryHolderCallback
     std::function<void(SQLQueryHolder*)>   m_Callback;
 };
 
+
+struct MotdText
+{
+    std::string Text;
+    std::string TextFR;
+    std::string TextES;
+    std::string TextRU;
+};
+
 /// The World
 class World
 {
     public:
-        static ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_worldLoopCounter;
+        static std::atomic<unsigned int> m_worldLoopCounter;
 
         World();
         ~World();
@@ -741,14 +744,10 @@ class World
         void SetAllowMovement(bool allow) { m_allowMovement = allow; }
 
         void LoadDBMotd();
-        void SetDBMotd(const std::string&);
+        void SetDBMotd(MotdText p_MotdText);
 
-        /// Set a new Message of the Day
-        void SetMotd(const std::string& motd);
         /// Get the current Message of the Day
-        const char* GetMotd() const;
-        /// Get lines count of current Message of the Day
-        const uint32 GetMotdLineCount() const;
+        MotdText const& GetMotd() const;
 
         /// Set the string for new characters (first login)
         void SetNewCharString(std::string str) { m_newCharString = str; }
@@ -826,7 +825,7 @@ class World
         void ShutdownMsg(bool show = false, Player* player = NULL, const std::string& reason = std::string());
         static uint8 GetExitCode() { return m_ExitCode; }
         static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }
-        static bool IsStopped() { return m_stopEvent.value(); }
+        static bool IsStopped() { return m_stopEvent; }
 
         void Update(uint32 diff);
 
@@ -875,6 +874,7 @@ class World
             return index < INT_CONFIG_VALUE_COUNT ? m_int_configs[index] : 0;
         }
 
+        bool CanBeSaveInLoginDatabase() const;
         void setWorldState(uint32 index, uint64 value);
         uint64 getWorldState(uint32 index) const;
         void LoadWorldStates();
@@ -928,13 +928,13 @@ class World
 
         bool isEventKillStart;
 
-        CharacterNameData const* GetCharacterNameData(uint32 guid) const;
-        void AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, uint32 p_AccountID);
-        void UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
-        void UpdateCharacterNameDataLevel(uint32 guid, uint8 level);
-        void DeleteCharacterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }
-        bool HasCharacterNameData(uint32 guid) { return _characterNameDataMap.find(guid) != _characterNameDataMap.end(); }
-        uint64 GetCharacterGuidByName(std::string p_Name);
+        CharacterInfo const* GetCharacterInfo(uint32 guid) const;
+        void AddCharacterInfo(uint32 guid, std::string const& name, uint32 accountId, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
+        void UpdateCharacterInfo(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
+        void UpdateCharacterInfoLevel(uint32 guid, uint8 level);
+        void DeleteCharacterInfo(uint32 guid) { _characterInfoStore.erase(guid); }
+        bool HasCharacterInfo(uint32 guid) { return _characterInfoStore.find(guid) != _characterInfoStore.end(); }
+        uint64 GetCharacterGuidByName(std::string const& p_Name);
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
@@ -953,8 +953,6 @@ class World
         void ResetBossLooted();
 
         bool ModerateMessage(std::string l_Text);
-
-        const BuildInfo& GetLastBuildInfo() const { return m_LastBuild; }
 
         //////////////////////////////////////////////////////////////////////////
         /// New callback system
@@ -996,13 +994,14 @@ class World
         void InitGuildChallengesResetTime();
         void InitBossLootedResetTime();
         void ResetDailyQuests();
-        void ResetGarrisonDatas();
+        void ResetDailyGarrisonDatas();
         void ResetWeeklyQuests();
+        void ResetWeeklyGarrisonDatas();
         void ResetMonthlyQuests();
         void ResetRandomBG();
         //void AutoRestartServer();
     private:
-        static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
+        static std::atomic<bool> m_stopEvent;
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
         uint32 m_ShutdownMask;
@@ -1047,9 +1046,8 @@ class World
         uint32 m_availableDbcLocaleMask;                       // by loaded DBC
         void DetectDBCLang();
         bool m_allowMovement;
-        std::string m_motd;
         std::string m_dataPath;
-        BuildInfo m_LastBuild;
+        MotdText m_Motd;
 
         // for max speed access
         static float m_MaxVisibleDistanceOnContinents;
@@ -1085,10 +1083,19 @@ class World
         // used versions
         std::string m_DBVersion;
 
-        std::list<std::string> m_Autobroadcasts;
+        struct AutoBroadcastText
+        {
+            std::string Text;
+            std::string TextFR;
+            std::string TextRU;
+            std::string TextES;
+        };
 
-        std::map<uint32, CharacterNameData> _characterNameDataMap;
-        void LoadCharacterNameData();
+        std::list<AutoBroadcastText> m_Autobroadcasts;
+
+        typedef std::unordered_map<uint32, CharacterInfo> CharacterInfoContainer;
+        CharacterInfoContainer _characterInfoStore;
+        void LoadCharacterInfoStore();
 
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;

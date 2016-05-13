@@ -610,7 +610,7 @@ public:
                             std::list<HostileReference*> *threatList = &me->getThreatManager().getThreatList();
                             for (std::list<HostileReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
                             {
-                                if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
+                                if ((*itr)->getTarget()->IsPlayer()
                                     && (*itr)->getTarget()->getPowerType() == POWER_MANA
                                     && (*itr)->getTarget()->GetPower(POWER_MANA))
                                     unitList.push_back((*itr)->getTarget());
@@ -793,7 +793,7 @@ class spell_kelthuzad_detonate_mana: public SpellScriptLoader
                 return true;
             }
 
-            void HandleScript(constAuraEffectPtr aurEff)
+            void HandleScript(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
 

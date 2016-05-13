@@ -41,7 +41,7 @@ enum NameQueryResponse
 void WorldSession::SendNameQueryOpcode(uint64 guid)
 {
     Player* player = ObjectAccessor::FindPlayer(guid);
-    CharacterNameData const* nameData = sWorld->GetCharacterNameData(GUID_LOPART(guid));
+    CharacterInfo  const* nameData = sWorld->GetCharacterInfo(GUID_LOPART(guid));
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE);
 
@@ -51,7 +51,7 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
     if (nameData)
     {
         data.WriteBit(false);   ///< Is deleted
-        data.WriteBits(nameData->m_name.size(), 6);
+        data.WriteBits(nameData->Name.size(), 6);
 
         if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
         {
@@ -78,12 +78,12 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
         data.appendPackGUID(guid);
 
         data << uint32(g_RealmID);
-        data << uint8(nameData->m_race);
-        data << uint8(nameData->m_gender);
-        data << uint8(nameData->m_class);
-        data << uint8(nameData->m_level);
+        data << uint8(nameData->Race);
+        data << uint8(nameData->Sex);
+        data << uint8(nameData->Class);
+        data << uint8(nameData->Level);
 
-        data.WriteString(nameData->m_name);
+        data.WriteString(nameData->Name);
     }
 
     SendPacket(&data);
@@ -379,7 +379,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& p_Packet)
 
     GetPlayer()->SetSelection(l_Guid);
 
-    GossipText const* pGossip = sObjectMgr->GetGossipText(l_TextID);
+    GossipText const* pGossip = sObjectMgr->GetGossipText(l_TextID); ///< pGossip is never read 01/18/16
 
     bool l_Allow = true;
 
@@ -437,8 +437,8 @@ void WorldSession::SendBroadcastTextDb2Reply(uint32 p_Entry)
     {
         if (NpcTextLocale const* l_NpcTextLocale = sObjectMgr->GetNpcTextLocale(p_Entry))
         {
-            ObjectMgr::GetLocaleString(l_NpcTextLocale->Text_0[l_LocaleIndex], l_LocaleIndex, l_Text1);
-            ObjectMgr::GetLocaleString(l_NpcTextLocale->Text_1[l_LocaleIndex], l_LocaleIndex, l_Text2);
+            ObjectMgr::GetLocaleString(l_NpcTextLocale->Text_0[0], l_LocaleIndex, l_Text1);
+            ObjectMgr::GetLocaleString(l_NpcTextLocale->Text_1[0], l_LocaleIndex, l_Text2);
         }
     }
 

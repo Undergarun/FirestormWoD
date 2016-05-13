@@ -698,13 +698,13 @@ class spell_prey_time: public SpellScriptLoader
         {
             PrepareAuraScript(spell_prey_time_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster() && GetTarget())
                     GetTarget()->CastSpell(GetCaster(), SPELL_RIDE_VEHICLE, true);
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     GetCaster()->RemoveAurasDueToSpell(SPELL_RIDE_VEHICLE);

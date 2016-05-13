@@ -636,7 +636,7 @@ class boss_lulin : public CreatureScript
 
             void KilledUnit(Unit* p_Victim)
             {
-                if (p_Victim->GetTypeId() == TYPEID_PLAYER)
+                if (p_Victim->IsPlayer())
                     Talk(TALK_LULIN_SLAY);
             }
 
@@ -986,7 +986,7 @@ class boss_suen : public CreatureScript
 
             void KilledUnit(Unit* p_Victim)
             {
-                if (p_Victim->GetTypeId() == TYPEID_PLAYER)
+                if (p_Victim->IsPlayer())
                     Talk(TALK_SUEN_SLAY);
             }
 
@@ -2188,13 +2188,13 @@ class spell_cosmic_barrage : public SpellScriptLoader
         {
             PrepareAuraScript(spell_cosmic_barrage_AuraScript);
 
-            void SummonStar(constAuraEffectPtr /*p_AurEff*/)
+            void SummonStar(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, SPELL_COSMIC_BARRAGE_SUMMON, true);
             }
 
-            void LaunchStar(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void LaunchStar(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2239,7 +2239,7 @@ class spell_launch_star : public SpellScriptLoader
         {
             PrepareAuraScript(spell_launch_star_AuraScript);
 
-            void ReturnToNormal(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void ReturnToNormal(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2307,13 +2307,13 @@ class spell_tears_of_the_sun : public SpellScriptLoader
         {
             PrepareAuraScript(spell_tears_of_the_sun_AuraScript);
 
-            void PeriodicDamage(constAuraEffectPtr /*aurEff*/)
+            void PeriodicDamage(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, SPELL_TEARS_OF_THE_SUN_PER, true);
             }
 
-            void Invisible(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_mod*/)
+            void Invisible(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_mod*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2455,13 +2455,13 @@ class spell_blazing_radiance : public SpellScriptLoader
         {
             PrepareAuraScript(spell_blazing_radiance_AuraScript);
 
-            void PeriodicStack(constAuraEffectPtr /*p_AurEff*/)
+            void PeriodicStack(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Creature* l_Comet = GetClosestCreatureWithEntry(l_Caster, NPC_ICE_COMET, 8.0f))
                     {
-                        if (AuraPtr l_Blazing = l_Caster->GetAura(SPELL_BLAZING_RADIANCE_ST))
+                        if (Aura* l_Blazing = l_Caster->GetAura(SPELL_BLAZING_RADIANCE_ST))
                         {
                             if (l_Blazing->GetStackAmount())
                                 l_Blazing->SetStackAmount(l_Blazing->GetStackAmount() - 1);
@@ -2537,7 +2537,7 @@ class spell_tidal_force : public SpellScriptLoader
         {
             PrepareAuraScript(spell_tidal_force_AuraScript);
 
-            void Waves(constAuraEffectPtr /*p_AurEff*/)
+            void Waves(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2549,7 +2549,7 @@ class spell_tidal_force : public SpellScriptLoader
                 }
             }
 
-            void TidalEnd(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mod*/)
+            void TidalEnd(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mod*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2584,7 +2584,7 @@ class spell_invoke_celestial_spirit : public SpellScriptLoader
         {
             PrepareAuraScript(spell_invoke_celestial_spirit_AuraScript);
 
-            void ResetPhase(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void ResetPhase(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Player = GetUnitOwner())
                     l_Player->SetPhaseMask(1, true);

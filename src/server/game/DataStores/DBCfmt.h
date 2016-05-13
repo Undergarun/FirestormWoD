@@ -38,7 +38,7 @@ char const CreatureDisplayInfoExtrafmt[]      = "dixxxxxxxxxxxxxxxxxxxx";
 const char CreatureModelDatafmt[]             = "nixxxxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
 const char CreatureFamilyfmt[]                = "nfifiiiiixsx";
 const char DifficultyEntryfmt[]               = "niiiiiiiiiisix";
-const char DungeonEncounterfmt[]              = "iiiiisiii";
+const char DungeonEncounterfmt[]              = "niiiisiii";
 const char DurabilityCostsfmt[]               = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 const char EmotesEntryfmt[]                   = "nsiiiiii";
 const char EmotesTextEntryfmt[]               = "nxixxxxxxxxxxxxxxxx";
@@ -121,6 +121,7 @@ const char WorldSafeLocsEntryfmt[]            = "niffffx";
 const char GtBattlePetTypeDamageModfmt[]      = "xf";
 const char GtBattlePetXPfmt[]                 = "xf";
 const char WorldStateEntryfmt[]               = "n";
+char const WorldMapTransformsfmt[]            = "diffffffiffxxxf";
 const char WorldStateExpressionEntryfmt[]     = "ns";
 
 #endif

@@ -123,7 +123,7 @@ class ConditionScript : public ScriptObjectImpl<true>
         /// Called when a single condition is checked for a player.
         /// @p_Condition  : Condition instance
         /// @p_SourceInfo : Condition  source
-        virtual bool OnConditionCheck(Condition* p_Condition, ConditionSourceInfo& p_SourceInfo)
+        virtual bool OnConditionCheck(Condition const* p_Condition, ConditionSourceInfo& p_SourceInfo)
         {
             UNUSED(p_Condition);
             UNUSED(p_SourceInfo);
@@ -141,10 +141,27 @@ class PlayerScript : public ScriptObjectImpl<false>
         PlayerScript(const char* p_Name);
 
     public:
+        /// Called just before item is destroyed
+        /// @p_Item        : Item to be destroyed
+        /// @p_Player      : Player level
+        virtual void OnItemDestroyed(Player* p_Player, Item* p_Item)
+        {
+            UNUSED(p_Item);
+            UNUSED(p_Player);
+        }
         /// Called when a player kills another player
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         virtual void OnPVPKill(Player* p_Killer, Player* p_Killed)
+        {
+            UNUSED(p_Killer);
+            UNUSED(p_Killed);
+        }
+
+        /// Called when a player kills a Unit
+        /// @p_Killer : Killer instance
+        /// @p_Killed : Killed instance
+        virtual void OnKill(Player* p_Killer, Unit* p_Killed)
         {
             UNUSED(p_Killer);
             UNUSED(p_Killed);
@@ -181,6 +198,25 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_OldValue);
             UNUSED(p_NewValue);
             UNUSED(p_Regen);
+        }
+
+        /// Called when the player switch from indoors to outdoors or from outdoors to indoors
+        /// @p_Player : Player instance
+        /// @p_IsOutdoors : boolean setting whether player is indoors or outdoors
+        virtual void OnSwitchOutdoorsState(Player* p_Player, bool p_IsOutdoors)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_IsOutdoors);
+        }
+
+        /// Called when specialisation is modify (SetSpecializationId)
+        /// @p_Player : Player instance
+        /// @p_OldSpec  : Old Specialisation
+        /// @p_NewSpec  : New Specialisation
+        virtual void OnModifySpec(Player* p_Player, int32 p_NewSpec)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_NewSpec);
         }
 
         /// Called when a player kills another player
@@ -433,6 +469,17 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Diff);
         }
 
+        /// Called when a spline step is done
+        /// @p_Player   : Player instance
+        /// @p_MoveType : Movement type
+        /// @p_ID       : Movement ID
+        virtual void OnMovementInform(Player* p_Player, uint32 p_MoveType, uint32 p_ID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_MoveType);
+            UNUSED(p_ID);
+        }
+
         /// Called when a player is bound to an instance
         /// @p_Player     : Player instance
         /// @p_Difficulty : Instance Difficulty ID
@@ -586,7 +633,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_DamageEffectTyp : Damage type
         /// @p_Damage          : Amount of damage taken
         /// @p_SchoolMask      : school mask of the damage
-        virtual void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage)
+        virtual void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage) ///< p_SchoolMask is unused
         {
             UNUSED(p_Player);
             UNUSED(p_DamageEffectType);
@@ -612,6 +659,34 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_SceneInstanceId);
         }
 
+        /// Called when a player enter in bg
+        /// @p_Player   : Player instance
+        /// @p_MapID    : Map ID
+        virtual void OnEnterBG(Player* p_Player, uint32 p_MapID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_MapID);
+        }
+
+        /// Called when a leave a bg
+        /// @p_Player   : Player instance
+        /// @p_MapID    : Map ID
+        virtual void OnLeaveBG(Player* p_Player, uint32 p_MapID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_MapID);
+        }
+
+        /// Called when a player finish a movement like a jump
+        /// @p_Player   : Player instance
+        /// @p_SpellID  : Spell ID
+        /// @p_TargetGUID : Target GUID
+        virtual void OnFinishMovement(Player* p_Player, uint32 p_SpellID, uint64 const p_TargetGUID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_SpellID);
+            UNUSED(p_TargetGUID);
+        }
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER_HPP_INCLUDED

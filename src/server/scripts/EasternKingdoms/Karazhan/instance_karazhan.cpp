@@ -186,7 +186,7 @@ public:
          {
              switch (identifier)
              {
-             case DATA_IMAGE_OF_MEDIVH: ImageGUID = data;
+                 case DATA_IMAGE_OF_MEDIVH: ImageGUID = data;
              }
          }
 

@@ -287,7 +287,7 @@ void BattlegroundDG::UpdatePlayerScore(Player* p_Source, uint32 p_Type, uint32 p
     if (l_Iter == PlayerScores.end())
         return;
 
-    uint32 l_TeamIndex = GetTeamIndexByTeamId(p_Source->GetBGTeam());
+    uint32 l_TeamIndex = GetTeamIndexByTeamId(p_Source->GetBGTeam()); ///< l_TeamIndex is never read 01/18/16
     switch (p_Type)
     {
         case SCORE_CART_CAPTURES:
@@ -605,7 +605,7 @@ void BattlegroundDG::_postUpdateImpl_Flags(uint32 p_Diff)
             m_HonorScoreTics[l_Team] += BG_DG_TickPoints[l_Points];
             if (m_HonorScoreTics[l_Team] >= m_HonorTics)
             {
-                RewardHonorToTeam(GetBonusHonorFromKill(6), (l_Team == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
+                RewardHonorToTeam(GetBonusHonorFromKill(6), (l_Team == TEAM_ALLIANCE) ? ALLIANCE : HORDE, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
                 m_HonorScoreTics[l_Team] -= m_HonorTics;
             }
 
@@ -902,7 +902,7 @@ void BattlegroundDG::EventPlayerCapturedFlag(Player* p_Player)
         SpawnBGObject(BG_DG_OBJECT_CART_ALLIANCE, RESPAWN_IMMEDIATELY);
     }
     // For flag capture is reward 2 honorable kills
-    RewardHonorToTeam(GetBonusHonorFromKill(12), p_Player->GetBGTeam());
+    RewardHonorToTeam(GetBonusHonorFromKill(12), p_Player->GetBGTeam(), MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
 
     if (p_Player->GetBGTeam() == ALLIANCE)
         SendMessageToAll(LANG_BG_DG_CAPTURED_HORDE_CART, CHAT_MSG_BG_SYSTEM_ALLIANCE, p_Player);
@@ -1080,7 +1080,7 @@ class spell_mine_cart : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mine_cart_AuraScript);
 
-            void HandleOnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void HandleOnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 uint32 l_Entry = 0;
                 if (GetSpellInfo()->Id == BG_DG_HORDE_MINE_CART)
@@ -1139,7 +1139,7 @@ class npc_dg_cart : public CreatureScript
                 if (me->GetOwner())
                 {
                     me->SetSpeed(MOVE_RUN, (me->GetOwner()->GetSpeed(MOVE_RUN) + 1.f) / playerBaseMoveSpeed[MOVE_RUN], true);
-                    if (!me->isMoving() && m_Events.Empty())
+                    if (!me->IsMoving() && m_Events.Empty())
                         m_Events.ScheduleEvent(EVENT_NEW_WAYPOINT, 700);
                     if (m_Events.ExecuteEvent() == EVENT_NEW_WAYPOINT)
                         me->GetMotionMaster()->MoveChase(me->GetOwner(), frand(0.5f, 1.f), frand(0.f, 2.f * M_PI));

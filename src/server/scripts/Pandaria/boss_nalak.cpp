@@ -83,7 +83,7 @@ class boss_nalak : public CreatureScript
                 if (m_IntroDone)
                     return;
 
-                if (p_Mover->GetTypeId() == TYPEID_PLAYER)
+                if (p_Mover->IsPlayer())
                 {
                     Talk(TALK_INTRO);
                     m_IntroDone = true;
@@ -92,7 +92,7 @@ class boss_nalak : public CreatureScript
 
             void KilledUnit(Unit* p_Killed)
             {
-                if (p_Killed->GetTypeId() == TYPEID_PLAYER)
+                if (p_Killed->IsPlayer())
                     Talk(TALK_SLAY);
             }
 

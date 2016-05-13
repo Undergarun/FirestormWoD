@@ -14,12 +14,12 @@
 #include "BattlepayPacketFactory.h"
 #include "ScriptMgr.h"
 
-void WorldSession::HandleBattlepayGetPurchaseList(WorldPacket& p_RecvData)
+void WorldSession::HandleBattlepayGetPurchaseList(WorldPacket& p_RecvData) ///< p_RecvData is unused
 {
     Battlepay::PacketFactory::SendPurchaseList(this);
 }
 
-void WorldSession::HandleBattlepayGetProductListQuery(WorldPacket& p_RecvData)
+void WorldSession::HandleBattlepayGetProductListQuery(WorldPacket& p_RecvData) ///< p_RecvData is unused
 {
     if (!sBattlepayMgr->IsAvailable(this))
         return;
@@ -50,7 +50,7 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
     l_Purchase.TargetCharacter = l_TargetCharacter;
     l_Purchase.Status          = Battlepay::PacketFactory::UpdateStatus::Loading;
 
-    auto l_CharacterNameData = sWorld->GetCharacterNameData(GUID_LOPART(l_TargetCharacter));
+    auto l_CharacterNameData = sWorld->GetCharacterInfo(GUID_LOPART(l_TargetCharacter));
 
     /// The TargetCharacter guid sended by the client doesn't exist
     if (l_CharacterNameData == nullptr)
@@ -60,7 +60,7 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
     }
 
     /// The TargetCharacter guid sended by the client isn't owned by the current account
-    if (l_CharacterNameData->m_AccountId != GetAccountId())
+    if (l_CharacterNameData->AccountId != GetAccountId())
     {
         Battlepay::PacketFactory::SendStartPurchaseResponse(this, l_Purchase, Battlepay::PacketFactory::Error::Denied);
         return;

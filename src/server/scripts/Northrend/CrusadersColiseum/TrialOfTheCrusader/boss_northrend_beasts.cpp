@@ -229,9 +229,16 @@ class boss_gormok : public CreatureScript
             {
                 // despawn the remaining passengers on death
                 if (damage >= me->GetHealth())
+                {
                     for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
+                    {
                         if (Unit* pSnobold = me->GetVehicleKit()->GetPassenger(i))
-                            pSnobold->ToCreature()->DespawnOrUnsummon();
+                        {
+                            if (pSnobold->GetTypeId() == TYPEID_UNIT)
+                                pSnobold->ToCreature()->DespawnOrUnsummon();
+                        }
+                    }
+                }
             }
 
             void UpdateAI(uint32 const diff)
@@ -544,7 +551,7 @@ struct boss_jormungarAI : public BossAI
 
     void KilledUnit(Unit* who)
     {
-        if (who->GetTypeId() == TYPEID_PLAYER)
+        if (who->IsPlayer())
             if (instance)
                 instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
     }
@@ -945,7 +952,7 @@ class boss_icehowl : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     if (instance)
                         instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
@@ -961,7 +968,7 @@ class boss_icehowl : public CreatureScript
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
-                if (spell->Id == SPELL_TRAMPLE && target->GetTypeId() == TYPEID_PLAYER)
+                if (spell->Id == SPELL_TRAMPLE && target->IsPlayer())
                 {
                     if (!_trampleCasted)
                     {

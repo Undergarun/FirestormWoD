@@ -94,7 +94,7 @@ public:
 
         void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
-            if (done_by->GetTypeId() == TYPEID_PLAYER)
+            if (done_by->IsPlayer())
                 if (me->HealthBelowPctDamaged(30, damage))
             {
                 if (Group* group = CAST_PLR(done_by)->GetGroup())
@@ -177,7 +177,7 @@ public:
 
         void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
-            if (done_by && done_by->GetTypeId() == TYPEID_PLAYER)
+            if (done_by && done_by->IsPlayer())
                 if (me->GetHealth() <= damage)
                     if (rand()%100 < 75)
                         //Summon Wood Mites
@@ -225,7 +225,7 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 if (CAST_PLR(who)->GetQuestStatus(10898) == QUEST_STATUS_INCOMPLETE)
                 {
@@ -270,7 +270,7 @@ public:
 
         void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
-            if (done_by->GetTypeId() == TYPEID_PLAYER)
+            if (done_by->IsPlayer())
                 if (me->GetHealth() <= damage)
                     if (rand()%100 < 75)
                         //Summon Lots of Wood Mights
@@ -683,7 +683,7 @@ public:
                     me->SummonCreature(NPC_CABAL_SKRIMISHER, -2793.55f, 5412.79f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
                 case 11:
-                    if (player->GetTypeId() == TYPEID_PLAYER)
+                    if (player->IsPlayer())
                         player->GroupEventHappens(QUEST_ESCAPING_THE_TOMB, me);
                     break;
             }

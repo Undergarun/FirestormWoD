@@ -50,15 +50,13 @@ class Aura;
 
 void WorldSession::SendPartyResult(PartyCommand p_Command, const std::string& p_Name, PartyResult p_Result, uint32 p_ResultData /* = 0 */, uint64 p_ResultGuid /* = 0 */)
 {
-    uint64 l_ResultGuid = 0;    ///< player who caused error (in some cases).
-
     WorldPacket l_Data(SMSG_PARTY_COMMAND_RESULT, 4 + p_Name.size() + 1 + 4 + 4 + 8);
     l_Data.WriteBits(p_Name.length(), 9);
     l_Data.WriteBits(p_Command,       4);
     l_Data.WriteBits(p_Result,        6);
 
     l_Data << uint32(p_ResultData);
-    l_Data.appendPackGUID(l_ResultGuid);
+    l_Data.appendPackGUID(p_ResultGuid);
     l_Data.WriteString(p_Name);
 
     SendPacket(&l_Data);
@@ -144,7 +142,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
         return;
     }
 
-    ObjectGuid l_InvitedGuid = l_Player->GetGUID();
+    ObjectGuid l_InvitedGuid = l_Player->GetGUID(); ///< l_InvitedGuid is unused
 
     Group* group = GetPlayer()->GetGroup();
     if (group && group->isBGGroup())
@@ -321,12 +319,12 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& p_RecvData)
     bool   l_Accept;
     bool   l_HasRolesDesired;
 
-    l_PartyIndex      = p_RecvData.read<uint8>();
+    l_PartyIndex      = p_RecvData.read<uint8>(); ///< l_Partyindex is never read 01/18/16
     l_Accept          = p_RecvData.ReadBit();
     l_HasRolesDesired = p_RecvData.ReadBit();
 
     if (l_HasRolesDesired)
-        l_RolesDesired = p_RecvData.read<uint32>();
+        l_RolesDesired = p_RecvData.read<uint32>(); ///< l_RolesDesired is never read 01/18/16
 
     uint32 l_GroupGUID = GetPlayer()->GetGroupInvite();
 
@@ -457,7 +455,7 @@ void WorldSession::HandleSetPartyLeaderOpcode(WorldPacket& p_RecvData)
     uint64 l_Target;
     uint8  l_PartyIndex;
 
-    l_PartyIndex = p_RecvData.read<uint8>();
+    l_PartyIndex = p_RecvData.read<uint8>(); ///< l_PartyIndex is never read 01/18/16
     p_RecvData.readPackGUID(l_Target);
 
     Player* player = ObjectAccessor::FindPlayer(l_Target);
@@ -551,7 +549,7 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
 {
-    uint8 l_PartyIndex = p_RecvData.read<uint8>();
+    uint8 l_PartyIndex = p_RecvData.read<uint8>(); ///< L_partyIndex is never read 01/18/16
 
     Group* l_Group = m_Player->GetGroup();
     if (!l_Group)
@@ -767,7 +765,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     if (!group->HasFreeSlotSubGroup(groupNr))
         return;
 
-    if (Player* movedPlayer = sObjectAccessor->FindPlayer(guid))
+    if (Player* movedPlayer = sObjectAccessor->FindPlayer(guid)) ///< is unused movedPlayer
         group->ChangeMembersGroup(guid, groupNr);
 }
 
@@ -867,8 +865,8 @@ void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& p_RecvData)
     if (!l_Group->IsLeader(GetPlayer()->GetGUID()) && !l_Group->IsAssistant(GetPlayer()->GetGUID()) && !(l_Group->GetPartyFlags() & PARTY_FLAG_EVERYONE_IS_ASSISTANT))
         return;
 
-    ObjectGuid groupGUID = l_Group->GetGUID();
-    ObjectGuid leaderGUID = GetPlayer()->GetGUID();
+    ObjectGuid groupGUID = l_Group->GetGUID(); ///< is unused
+    ObjectGuid leaderGUID = GetPlayer()->GetGUID(); ///< is unused
 
     l_Group->SetReadyCheckCount(1);
 
@@ -919,7 +917,7 @@ void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& p_RecvData)
     }
 }
 
-void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint32 p_Mask, bool p_Ennemy /*= false*/)
+void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint32 p_Mask, bool p_Ennemy /*= false*/) ///< p_Mask is unused
 {
     assert(p_Player && p_Data);
 
@@ -1003,7 +1001,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                 {
                     for (uint8 l_Y = 0; l_Y < l_AuraApplication->GetEffectCount(); ++l_Y)
                     {
-                        if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                        if (AuraEffect const* l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                             l_EffectCount++;
                     }
                 }
@@ -1017,7 +1015,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                 {
                     for (uint8 l_Y = 0; l_Y < l_AuraApplication->GetEffectCount(); ++l_Y)
                     {
-                        if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                        if (AuraEffect const* l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                             *p_Data << float(l_Effect->GetAmount());
                     }
                 }
@@ -1065,7 +1063,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                 {
                     for (uint8 l_Y = 0; l_Y < l_AuraApplication->GetEffectCount(); ++l_Y)
                     {
-                        if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                        if (AuraEffect const* l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                             l_EffectCount++;
                     }
                 }
@@ -1079,7 +1077,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                 {
                     for (uint8 l_Y = 0; l_Y < l_AuraApplication->GetEffectCount(); ++l_Y)
                     {
-                        if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                        if (AuraEffect const* l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                             *p_Data << float(l_Effect->GetAmount());
                     }
                 }

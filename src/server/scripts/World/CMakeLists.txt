@@ -21,7 +21,7 @@ set(scripts_STAT_SRCS
   World/npc_professions.cpp
   World/npc_taxi.cpp
   World/npcs_special.cpp
-  World/PlayerCondition_Scripts.cpp
+  World/WeeklyEventBonusScripts.cpp
 )
 
 message("  -> Prepared: World")

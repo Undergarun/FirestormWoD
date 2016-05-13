@@ -988,14 +988,14 @@ class boss_spirit_kings : public CreatureScript
                         controler->AI()->DoAction(ACTION_SAY_INTRO_FOR_NEXT_SPIRIT_IF_ANY);
                 }
 
-                if (AuraPtr aura = me->GetAura(SPELL_COWARDICE))
+                if (Aura* aura = me->GetAura(SPELL_COWARDICE))
                 {
                     int32 percentage = me->GetPower(POWER_RAGE) / 10;
                     int32 bp = int32(CalculatePct(damage, percentage));
 
                     bp /= 5;
 
-                    if (AuraPtr cowardiceDot = attacker->GetAura(SPELL_COWARDICE_DOT))
+                    if (Aura* cowardiceDot = attacker->GetAura(SPELL_COWARDICE_DOT))
                         bp += attacker->GetRemainingPeriodicAmount(me->GetGUID(), SPELL_COWARDICE_DOT, SPELL_AURA_PERIODIC_DAMAGE);
 
                     me->CastCustomSpell(attacker, SPELL_COWARDICE_DOT, &bp, NULL, NULL, true);
@@ -1021,7 +1021,7 @@ class boss_spirit_kings : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     switch (me->GetEntry())
                     {
@@ -1568,14 +1568,14 @@ class spell_maddening_shout : public SpellScriptLoader
         {
             PrepareAuraScript(spell_maddening_shout_AuraScript);
 
-            void OnAbsorb(AuraEffectPtr aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 if (Unit* attacker = dmgInfo.GetAttacker())
                     if (attacker->GetTypeId() != TYPEID_PLAYER)
                         absorbAmount = 0;
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1607,13 +1607,13 @@ class spell_crazed_cowardice : public SpellScriptLoader
         {
             PrepareAuraScript(spell_crazed_cowardice_AuraScript);
 
-            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 
                 if (Unit* caster = GetCaster())
                 {
-                    if (AuraPtr aura = GetAura())
+                    if (Aura* aura = GetAura())
                     {
                         caster->EnergizeBySpell(caster, aura->GetId(), 10, POWER_RAGE);
 
@@ -1719,7 +1719,7 @@ class spell_crazy_thought : public SpellScriptLoader
                 {
                     caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 100, POWER_RAGE);
 
-                    if (AuraPtr cowardice = caster->GetAura(SPELL_COWARDICE))
+                    if (Aura* cowardice = caster->GetAura(SPELL_COWARDICE))
                     {
                         if (cowardice->GetEffect(1))
                         {
@@ -1727,7 +1727,7 @@ class spell_crazy_thought : public SpellScriptLoader
                             cowardice->SetNeedClientUpdateForTargets();
                         }
                     }
-                    else if (AuraPtr crazed = caster->GetAura(SPELL_CRAZED))
+                    else if (Aura* crazed = caster->GetAura(SPELL_CRAZED))
                     {
                         if (crazed->GetEffect(1))
                         {
@@ -1786,7 +1786,7 @@ class spell_coalescing_shadow : public SpellScriptLoader
         }
 };
 
-// 118162 - Sleight of hand
+/// 118163 - Sleight of hand
 class spell_sleight_of_hand : public SpellScriptLoader
 {
     public:
@@ -1796,13 +1796,13 @@ class spell_sleight_of_hand : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sleight_of_hand_AuraScript);
 
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, false);
             }
 
-            void Remove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Remove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
@@ -1810,8 +1810,8 @@ class spell_sleight_of_hand : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_sleight_of_hand_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_sleight_of_hand_AuraScript::Remove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_sleight_of_hand_AuraScript::Apply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_sleight_of_hand_AuraScript::Remove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1835,7 +1835,7 @@ class spell_shield_of_darkness : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    AuraPtr shieldDarkness = caster->GetAura(SPELL_SHIELD_OF_DARKNESS);
+                    Aura* shieldDarkness = caster->GetAura(SPELL_SHIELD_OF_DARKNESS);
                     shieldDarkness->SetCharges(5);
                 }
             }

@@ -96,6 +96,15 @@ namespace MS { namespace Garrison { namespace Sites
             /// @p_Owner      : Garrison owner
             /// @p_BuildingID : Purchased building ID
             virtual void OnBuildingActivated(Player * p_Owner, uint32 p_BuildingID) override;
+            /// When a building from the same type with higher level is purchased
+            /// @p_Owner      : Garrison owner
+            /// @p_BuildingID : Purchased building ID
+            virtual void OnUpgradeBuilding(Player* p_Owner, uint32 p_BuildingID) override;
+            /// When a building is deleted
+            /// @p_Owner        : Garrison owner
+            /// @p_BuildingID   : Deleted building ID
+            /// @p_BuildingType : Deleted Building Type
+            virtual void OnDeleteBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BuildingType, bool p_RemoveForUpgrade) override;
 
     };
 

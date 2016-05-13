@@ -418,7 +418,7 @@ class spell_oculus_ride_ruby_emerald_amber_drake_que: public SpellScriptLoader
         {
             PrepareAuraScript(spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript);
 
-            void HandlePeriodic(constAuraEffectPtr aurEff)
+            void HandlePeriodic(AuraEffect const* aurEff)
             {
                 // caster of the triggered spell is wrong for an unknown reason, handle it here correctly
                 PreventDefaultAction();
@@ -455,7 +455,7 @@ class spell_oculus_stop_time: public SpellScriptLoader
                 return true;
             }
 
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* caster = GetCaster();
                 if (!caster)
@@ -513,7 +513,7 @@ class spell_oculus_dream_funnel: public SpellScriptLoader
         {
             PrepareAuraScript(spell_oculus_dream_funnel_AuraScript);
 
-            void HandleEffectCalcAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& canBeRecalculated)
+            void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
             {
                 if (Unit* caster = GetCaster())
                     amount = int32(caster->CountPctFromMaxHealth(5));

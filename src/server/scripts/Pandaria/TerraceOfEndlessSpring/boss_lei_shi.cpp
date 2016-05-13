@@ -257,7 +257,7 @@ class boss_lei_shi : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(TALK_SLAY);
             }
 
@@ -276,7 +276,7 @@ class boss_lei_shi : public CreatureScript
                 {
                     if (me->HealthBelowPctDamaged(nextAfraidPct, damage))
                     {
-                        if (AuraEffectPtr afraid = me->GetAuraEffect(SPELL_AFRAID, EFFECT_0))
+                        if (AuraEffect* afraid = me->GetAuraEffect(SPELL_AFRAID, EFFECT_0))
                             afraid->ChangeAmount(afraid->GetAmount() + 8);
  
                         nextAfraidPct -= 10;
@@ -402,7 +402,7 @@ class boss_lei_shi : public CreatureScript
                     !spell->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL))
                     return;
 
-                if (AuraPtr hide = me->GetAura(SPELL_HIDE_STACKS))
+                if (Aura* hide = me->GetAura(SPELL_HIDE_STACKS))
                     hide->ModCharges(-1);
             }
 
@@ -706,19 +706,19 @@ class mob_lei_shi_hidden : public CreatureScript
                 {
                     if (Creature* leiShi = me->GetMap()->GetCreature(pInstance->GetData64(NPC_LEI_SHI)))
                     {
-                        AuraEffectPtr afraid = leiShi->GetAuraEffect(SPELL_AFRAID, EFFECT_0);
+                        AuraEffect* afraid = leiShi->GetAuraEffect(SPELL_AFRAID, EFFECT_0);
                         if (!afraid)
                             return;
 
                         if (!me->HasAura(SPELL_AFRAID))
                         {
-                            if (AuraPtr newAfraid = me->AddAura(SPELL_AFRAID, me))
+                            if (Aura* newAfraid = me->AddAura(SPELL_AFRAID, me))
                                 if (newAfraid->GetEffect(0))
                                     newAfraid->GetEffect(0)->ChangeAmount(afraid->GetAmount());
                         }
                         else
                         {
-                            if (AuraEffectPtr newAfraid = me->GetAuraEffect(SPELL_AFRAID, EFFECT_0))
+                            if (AuraEffect* newAfraid = me->GetAuraEffect(SPELL_AFRAID, EFFECT_0))
                                 newAfraid->ChangeAmount(afraid->GetAmount());
                         }
                     }
@@ -744,7 +744,7 @@ class mob_lei_shi_hidden : public CreatureScript
                             leiShiGuid = pInstance->GetData64(NPC_LEI_SHI);
 
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
-                            me->CastSpell(target, SPELL_SPRAY, false, NULL, NULLAURA_EFFECT, leiShiGuid);
+                            me->CastSpell(target, SPELL_SPRAY, false, NULL, nullptr, leiShiGuid);
                         events.ScheduleEvent(EVENT_HIDDEN_SPRAY, 400);
                         break;
                     }
@@ -770,7 +770,7 @@ class spell_get_away : public SpellScriptLoader
         {
             PrepareAuraScript(spell_get_away_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -810,7 +810,7 @@ class spell_get_away_damage : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (target->isMoving() && target->isInFront(caster))
+                        if (target->IsMoving() && target->isInFront(caster))
                             SetHitDamage(GetHitDamage() / 2);
                     }
                 }
@@ -838,7 +838,7 @@ class spell_hide : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hide_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -857,7 +857,7 @@ class spell_hide : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -890,7 +890,7 @@ class spell_hide_stacks : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hide_stacks_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -946,7 +946,7 @@ class spell_scary_fog_dot : public SpellScriptLoader
                 {
                     if (itr->ToUnit())
                     {
-                        if (AuraPtr scaryFog = GetCaster()->AddAura(SPELL_SCARY_FOG_STACKS, itr->ToUnit()))
+                        if (Aura* scaryFog = GetCaster()->AddAura(SPELL_SCARY_FOG_STACKS, itr->ToUnit()))
                         {
                             scaryFog->SetDuration(35000);
                             scaryFog->SetMaxDuration(35000);
@@ -970,7 +970,7 @@ class spell_scary_fog_dot : public SpellScriptLoader
         {
             PrepareAuraScript(spell_scary_fog_dot_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* target = GetTarget())
                     target->CastSpell(target, SPELL_SCARY_FOG_STACKS, true);
@@ -1005,11 +1005,11 @@ class spell_scary_fog_stacks : public SpellScriptLoader
                     if (!itr->ToUnit() || itr->ToUnit()->GetEntry() == NPC_LEI_SHI_HIDDEN || itr->GetDistance2d(GetCaster()) > 10.0f)
                         continue;
 
-                    if (AuraPtr scary = GetCaster()->GetAura(SPELL_SCARY_FOG_STACKS))
+                    if (Aura* scary = GetCaster()->GetAura(SPELL_SCARY_FOG_STACKS))
                     {
-                        if (AuraPtr scaryTarget = itr->ToUnit()->GetAura(SPELL_SCARY_FOG_STACKS))
+                        if (Aura* scaryTarget = itr->ToUnit()->GetAura(SPELL_SCARY_FOG_STACKS))
                             scaryTarget->SetStackAmount(scary->GetStackAmount());
-                        else if (AuraPtr scaryTarget = GetCaster()->AddAura(SPELL_SCARY_FOG_STACKS, itr->ToUnit()))
+                        else if (Aura* scaryTarget = GetCaster()->AddAura(SPELL_SCARY_FOG_STACKS, itr->ToUnit()))
                             scaryTarget->SetStackAmount(scary->GetStackAmount());
                     }
                 }

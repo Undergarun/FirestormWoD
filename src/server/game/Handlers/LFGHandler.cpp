@@ -38,10 +38,9 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& p_Packet)
     uint32 l_CommentLenght  = 0;
 
     uint8 l_PartyIndex = 0;
-
     bool l_QueueAsGroup = false;
 
-    l_QueueAsGroup  = p_Packet.ReadBit();
+    l_QueueAsGroup  = p_Packet.ReadBit(); ///> l_QueueAsGroup is never read 01/18/16
     l_CommentLenght = p_Packet.ReadBits(8);
 
     p_Packet >> l_PartyIndex;
@@ -226,15 +225,37 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
 
             if (l_Dungeon && l_Dungeon->expansion <= l_Expansion && l_Dungeon->minlevel <= l_Level && l_Level <= l_Dungeon->maxlevel)
             {
+                /// 12-02-2016
+                /// @TODO: Someday, it'll needs to be done properly...
                 if (l_Dungeon->flags & LfgFlags::LFG_FLAG_SEASONAL)
                 {
-                    if (HolidayIds l_Holiday = sLFGMgr->GetDungeonSeason(l_Dungeon->ID))
+                    uint8 l_EventEntry = 0;
+                    switch (l_Dungeon->ID)
                     {
-                        if (l_Holiday == HolidayIds::HOLIDAY_WOTLK_LAUNCH || !IsHolidayActive(l_Holiday))
-                            continue;
+                        case 285: ///< The Headless Horseman
+                            l_EventEntry = 12; ///< Hallow's End
+                            break;
+                        case 286: ///< The Frost Lord Ahune
+                            l_EventEntry = 1; ///< Midsummer Fire Festival
+                            break;
+                        case 287: ///< Coren Direbrew
+                            l_EventEntry = 26; ///< Brewfest
+                            break;
+                        case 288: ///< The Crown Chemical Co.
+                            l_EventEntry = 8; ///< Love is in the Air
+                            break;
+                        default:
+                            break;
                     }
+
+                    if (l_EventEntry && sGameEventMgr->IsActiveEvent(l_EventEntry))
+                        l_RandomDungeons.insert(l_Dungeon->ID);
+
+                    continue;
                 }
-                else if (l_Dungeon->type != LfgType::TYPEID_RANDOM_DUNGEON && l_Dungeon->type != LfgType::TYPEID_DUNGEON)
+                /// Mythic difficulty shouldn't be offered in LFG
+                else if ((l_Dungeon->type != LfgType::TYPEID_RANDOM_DUNGEON && l_Dungeon->type != LfgType::TYPEID_DUNGEON) ||
+                         (!l_Dungeon->grouptype && l_Dungeon->difficulty == Difficulty::DifficultyMythic))
                     continue;
 
                 l_RandomDungeons.insert(l_Dungeon->Entry());
@@ -565,7 +586,7 @@ void WorldSession::SendLfgQueueStatus(uint32 p_Dungeon, int32 p_WaitTime, int32 
     SendPacket(&l_Data);
 }
 
-void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 done, const LfgReward* reward, const Quest* p_Quest)
+void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 done, const LfgReward* reward, const Quest* p_Quest) ///< done & reward is unused
 {
     if (!rdungeonEntry || !sdungeonEntry || !p_Quest)
         return;

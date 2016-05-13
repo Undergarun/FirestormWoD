@@ -20,6 +20,7 @@
 #define TRINITY_DISABLEMGR_H
 
 #include "Define.h"
+#include "VMapManager2.h"
 
 class Unit;
 
@@ -31,7 +32,9 @@ enum DisableType
     DISABLE_TYPE_BATTLEGROUND           = 3,
     DISABLE_TYPE_ACHIEVEMENT_CRITERIA   = 4,
     DISABLE_TYPE_OUTDOORPVP             = 5,
-    DISABLE_TYPE_VMAP                   = 6
+    DISABLE_TYPE_VMAP                   = 6,
+    DISABLE_TYPE_GARRISON_MISSION       = 7,
+    DISABLE_TYPE_MMAP                   = 8
 };
 
 enum SpellDisableTypes
@@ -46,12 +49,9 @@ enum SpellDisableTypes
                                 SPELL_DISABLE_DEPRECATED_SPELL | SPELL_DISABLE_MAP | SPELL_DISABLE_AREA)
 };
 
-enum VmapDisableTypes
+enum MMapDisableTypes
 {
-    VMAP_DISABLE_AREAFLAG       = 0x1,
-    VMAP_DISABLE_HEIGHT         = 0x2,
-    VMAP_DISABLE_LOS            = 0x4,
-    VMAP_DISABLE_LIQUIDSTATUS   = 0x8
+    MMAP_DISABLE_PATHFINDING    = 0x0
 };
 
 namespace DisableMgr
@@ -59,6 +59,8 @@ namespace DisableMgr
     void LoadDisables();
     bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags = 0);
     void CheckQuestDisables();
+    bool IsVMAPDisabledFor(uint32 entry, uint8 flags);
+    bool IsPathfindingEnabled(uint32 mapId);
 }
 
 #endif //TRINITY_DISABLEMGR_H

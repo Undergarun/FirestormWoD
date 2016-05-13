@@ -179,6 +179,15 @@ class npc_highmaul_jhorn_the_mad : public CreatureScript
                         AddTimedDelayedOperation(16 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro2); });
                         AddTimedDelayedOperation(38 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro3); });
 
+                        AddTimedDelayedOperation(54 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (m_Instance != nullptr)
+                            {
+                                if (GameObject* l_InnerGate = GameObject::GetGameObject(*me, m_Instance->GetData64(eHighmaulGameobjects::GateArenaInner)))
+                                    l_InnerGate->SetGoState(GOState::GO_STATE_ACTIVE);
+                            }
+                        });
+
                         AddTimedDelayedOperation(55 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             Talk(eTalks::Intro4);
@@ -190,12 +199,12 @@ class npc_highmaul_jhorn_the_mad : public CreatureScript
                             }
                         });
 
-                        AddTimedDelayedOperation(56 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        AddTimedDelayedOperation(59 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             if (m_Instance != nullptr)
                             {
                                 if (GameObject* l_InnerGate = GameObject::GetGameObject(*me, m_Instance->GetData64(eHighmaulGameobjects::GateArenaInner)))
-                                    l_InnerGate->Use(me);
+                                    l_InnerGate->SetGoState(GOState::GO_STATE_READY);
                             }
                         });
 
@@ -2715,7 +2724,7 @@ class npc_highmaul_gorian_royal_guardsman : public CreatureScript
                 {
                     case eSpells::PulverizeStack:
                     {
-                        if (AuraPtr l_Aura = p_Target->GetAura(p_SpellInfo->Id, me->GetGUID()))
+                        if (Aura* l_Aura = p_Target->GetAura(p_SpellInfo->Id, me->GetGUID()))
                         {
                             if (l_Aura->GetStackAmount() >= 8)
                             {
@@ -3576,7 +3585,7 @@ class npc_highmaul_high_councilor_malgris : public CreatureScript
                     case eEvent::EventUnstableTempest:
                     {
                         CustomSpellValues l_Values;
-                        if (AuraPtr l_Aura = me->GetAura(eSpells::UnstableTempestAura))
+                        if (Aura* l_Aura = me->GetAura(eSpells::UnstableTempestAura))
                             l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, l_Aura->GetStackAmount());
                         else
                             l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, 1);
@@ -3763,7 +3772,7 @@ class spell_highmaul_chain_grip_aura : public SpellScriptLoader
                 ChainGripJumpDest = 151991
             };
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -3905,7 +3914,7 @@ class spell_highmaul_corrupted_blood_shield : public SpellScriptLoader
                 CorruptedBlood = 174473
             };
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)
@@ -3914,7 +3923,7 @@ class spell_highmaul_corrupted_blood_shield : public SpellScriptLoader
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetTarget())
-                        l_Target->CastSpell(l_Caster, eSpell::CorruptedBlood, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                        l_Target->CastSpell(l_Caster, eSpell::CorruptedBlood, true, nullptr, nullptr, l_Caster->GetGUID());
                 }
             }
 
@@ -4063,7 +4072,7 @@ class spell_highmaul_earthdevastating_slam : public SpellScriptLoader
                 ActionSlam
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -4181,7 +4190,7 @@ class spell_highmaul_arcane_barrage : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_arcane_barrage_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpells::ArcaneBarrageSecond, true);
@@ -4238,7 +4247,7 @@ class spell_highmaul_decimate : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_decimate_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -4307,7 +4316,7 @@ class spell_highmaul_time_stop : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_time_stop_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (p_AurEff->GetTickNumber() % 3)
                     return;
@@ -4339,6 +4348,8 @@ class areatrigger_highmaul_rune_of_disintegration : public AreaTriggerEntityScri
             RuneOfDisintegration = 175654
         };
 
+        std::set<uint64> m_AffectedPlayers;
+
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
@@ -4350,8 +4361,49 @@ class areatrigger_highmaul_rune_of_disintegration : public AreaTriggerEntityScri
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
-                for (Unit* l_Unit : l_TargetList)
-                    l_Caster->CastSpell(l_Unit, eSpell::RuneOfDisintegration, true);
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
+                {
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::RuneOfDisintegration))
+                    {
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Iter->CastSpell(l_Iter, eSpell::RuneOfDisintegration, true);
+                    }
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
+                    {
+                        ++l_Iter;
+                        continue;
+                    }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::RuneOfDisintegration);
+
+                        continue;
+                    }
+
+                    ++l_Iter;
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                for (uint64 l_Guid : m_AffectedPlayers)
+                {
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                        l_Unit->RemoveAura(eSpell::RuneOfDisintegration);
+                }
             }
         }
 

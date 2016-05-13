@@ -1589,7 +1589,7 @@ class iron_docks_spell_flurry_periodic : public SpellScriptLoader
                 SpellFlurryDamage = 178414
             };
 
-            void HandlePeriodic(constAuraEffectPtr p_AurEff)
+            void HandlePeriodic(AuraEffect const* p_AurEff)
             {
                 PreventDefaultAction();
 
@@ -1712,7 +1712,7 @@ class iron_docks_spell_lava_blast : public SpellScriptLoader
                 SpellLavaBlastTriggerMissile = 173516
             };
 
-            void HandlePeriodic(constAuraEffectPtr /*p_AurEff*/)
+            void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 PreventDefaultAction();
 
@@ -1754,7 +1754,7 @@ class iron_docks_spell_barbed_arrow_aura : public SpellScriptLoader
                 SpellBarbedArrowAreaTrigger = 164278
             };
 
-            void HandlePeriodic(constAuraEffectPtr /*p_AurEff*/)
+            void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 PreventDefaultAction();
 
@@ -1804,7 +1804,7 @@ class iron_docks_spell_barbed_arrow_dummy : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectLaunch += SpellEffectFn(iron_docks_spell_barbed_arrow_dummy_SpellScript::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
+                OnEffectLaunch += SpellEffectFn(iron_docks_spell_barbed_arrow_dummy_SpellScript::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -1884,7 +1884,7 @@ class iron_docks_spell_burning_arrow_aura : public SpellScriptLoader
                 SpellBurningArrowDoT         = 164632
             };
 
-            void HandlePeriodic(constAuraEffectPtr /*p_AurEff*/)
+            void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 PreventDefaultAction();
 

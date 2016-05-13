@@ -16,10 +16,10 @@ enum InstanceTeleporter
 {
     START_TELEPORT          = 1,
     JAINA_TELEPORT          = 2,
-	SYLVANAS_TELEPORT       = 3,
-	TYRANDE_TELEPORT        = 4,
-	BAINE_TELEPORT          = 5,
-	MUROZOND_TELEPORT       = 6,
+    SYLVANAS_TELEPORT       = 3,
+    TYRANDE_TELEPORT        = 4,
+    BAINE_TELEPORT          = 5,
+    MUROZOND_TELEPORT       = 6,
 };
 
 class go_end_time_teleport : public GameObjectScript
@@ -96,7 +96,7 @@ class go_end_time_teleport : public GameObjectScript
         }
 
         bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) 
-		{
+        {
             //player->PlayerTalkClass->ClearMenus();
             if (player->isInCombat())
                 return true;
@@ -106,7 +106,7 @@ class go_end_time_teleport : public GameObjectScript
                 return true;
             
             switch (action) 
-		    {
+            {
                 case START_TELEPORT:
                     player->CastSpell(player, SPELL_TELEPORT_TO_START, true);
                     player->CLOSE_GOSSIP_MENU();

@@ -85,7 +85,7 @@ class boss_faerlina : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (!_introDone && who->GetTypeId() == TYPEID_PLAYER)
+                if (!_introDone && who->IsPlayer())
                 {
                     DoScriptText(SAY_GREET, me);
                     _introDone = true;

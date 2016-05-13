@@ -168,11 +168,11 @@ void Transport::Update(uint32 diff)
 
         // Departure event
         if (_currentFrame->IsTeleportFrame())
-            TeleportTransport(_nextFrame->Node->mapid, _nextFrame->Node->x, _nextFrame->Node->y, _nextFrame->Node->z);
+            TeleportTransport(_nextFrame->Node->MapID, _nextFrame->Node->x, _nextFrame->Node->y, _nextFrame->Node->z);
 
-        sScriptMgr->OnRelocate(this, _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
+        sScriptMgr->OnRelocate(this, _currentFrame->Node->NodeIndex, _currentFrame->Node->MapID, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
 
-        sLog->outDebug(LOG_FILTER_TRANSPORTS, "Transport %u (%s) moved to node %u %u %f %f %f", GetEntry(), GetName(), _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
+        sLog->outDebug(LOG_FILTER_TRANSPORTS, "Transport %u (%s) moved to node %u %u %f %f %f", GetEntry(), GetName(), _currentFrame->Node->NodeIndex, _currentFrame->Node->MapID, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
     }
 
     // Add model to map after we are fully done with moving maps
@@ -243,6 +243,10 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
     creature->Relocate(x, y, z, o);
     creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
     creature->SetTransportHomePosition(creature->m_movementInfo.t_pos);
+
+    /// @HACK - transport models are not added to map's dynamic LoS calculations
+    ///         because the current GameObjectModel cannot be moved without recreating
+    creature->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
 
     if (!creature->IsPositionValid())
     {
@@ -509,10 +513,13 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     }
     else
     {
-        // Teleport players, they need to know it
-        for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
-            if ((*itr)->GetTypeId() == TYPEID_PLAYER)
-                (*itr)->ToUnit()->NearTeleportTo(x, y, z, GetOrientation());
+        /// That will be better to teleport it server-side too, but since 6.2.3 when we send SMSG_MOVE_TELEPORT with transport guid the client teleport the player to invalid position
+        /// The client will do the teleporation client-side and send the new position to the server anyway
+
+        /// Teleport players, they need to know it
+        /*for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
+            if ((*itr)->IsPlayer())
+                (*itr)->ToUnit()->NearTeleportTo(x, y, z, GetOrientation());*/
     }
 
     UpdatePosition(x, y, z, GetOrientation());
@@ -565,9 +572,9 @@ void Transport::UpdatePassengerPositions(std::set<WorldObject*>& passengers)
 
 void Transport::DoEventIfAny(KeyFrame const& node, bool departure)
 {
-    if (uint32 eventid = departure ? node.Node->departureEventID : node.Node->arrivalEventID)
+    if (uint32 eventid = departure ? node.Node->DepartureEventID : node.Node->ArrivalEventID)
     {
-        sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Taxi %s event %u of node %u of %s path", departure ? "departure" : "arrival", eventid, node.Node->index, GetName());
+        sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Taxi %s event %u of node %u of %s path", departure ? "departure" : "arrival", eventid, node.Node->NodeIndex, GetName());
         GetMap()->ScriptsStart(sEventScripts, eventid, this, this);
         EventInform(eventid);
     }

@@ -31,7 +31,7 @@ namespace FactorySelector
     CreatureAI* selectAI(Creature* creature)
     {
         const CreatureAICreator* ai_factory = NULL;
-        CreatureAIRegistry& ai_registry(*CreatureAIRepository::instance());
+        CreatureAIRegistry& ai_registry(*CreatureAIRegistry::instance());
 
         if (creature->isPet())
             ai_factory = ai_registry.GetRegistryItem("PetAI");
@@ -51,7 +51,7 @@ namespace FactorySelector
         {
             if (creature->IsVehicle())
                 ai_factory = ai_registry.GetRegistryItem("VehicleAI");
-            else if (creature->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN) && ((Guardian*)creature)->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+            else if (creature->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN) && ((Guardian*)creature)->GetOwner()->IsPlayer())
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
             else if (creature->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
@@ -101,7 +101,7 @@ namespace FactorySelector
 
     MovementGenerator* selectMovementGenerator(Creature* creature)
     {
-        MovementGeneratorRegistry& mv_registry(*MovementGeneratorRepository::instance());
+        MovementGeneratorRegistry& mv_registry(*MovementGeneratorRegistry::instance());
         ASSERT(creature->GetCreatureTemplate());
         const MovementGeneratorCreator* mv_factory = mv_registry.GetRegistryItem(creature->GetDefaultMovementType());
 
@@ -130,7 +130,7 @@ namespace FactorySelector
     GameObjectAI* SelectGameObjectAI(GameObject* go)
     {
         const GameObjectAICreator* ai_factory = NULL;
-        GameObjectAIRegistry& ai_registry(*GameObjectAIRepository::instance());
+        GameObjectAIRegistry& ai_registry(*GameObjectAIRegistry::instance());
 
         if (GameObjectAI* scriptedAI = sScriptMgr->GetGameObjectAI(go))
             return scriptedAI;

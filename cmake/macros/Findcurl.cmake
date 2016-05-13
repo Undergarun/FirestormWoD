@@ -30,13 +30,30 @@ MARK_AS_ADVANCED(CURL_ROOT_DIR)
 FIND_PATH(CURL_INCLUDE_DIR curl/curl.h
   ${CURL_ROOT_DIR}/include
 )
+if(PLATFORM EQUAL 64)
+# dynamic change for cURL 
+set(MSVC_EXPECTED_VERSION 19.0.0.0) # MSVC 2015 update 2
+if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER MSVC_EXPECTED_VERSION)
 
 FIND_LIBRARY(CURL_LIBRARIES
   NAMES
     libcurl curl curl_a libcurl_a
   PATHS
-    ${CURL_ROOT_DIR}/lib
+    ${CURL_ROOT_DIR}/lib/MSVC_2015/x64/
 )
+message(STATUS "MSVC:  CURL MSVC 2015 x64")
+
+else()
+
+FIND_LIBRARY(CURL_LIBRARIES
+  NAMES
+    libcurl curl curl_a libcurl_a
+  PATHS
+    ${CURL_ROOT_DIR}/lib/MSVC_2013/x64/
+)
+
+message(STATUS "MSVC: CURL MSVC 2013 x64")
+endif()
 
 MARK_AS_ADVANCED(CURL_LIBRARIES)
 
@@ -52,3 +69,43 @@ endif ( CURL_LIBRARIES )
 
 MARK_AS_ADVANCED(CURL_FOUND CURL_LIBRARIES CURL_INCLUDE_DIR )
 
+else()
+
+# dynamic change for cURL 
+set(MSVC_EXPECTED_VERSION 19.0.0.0) # MSVC 2015 update 2
+if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER MSVC_EXPECTED_VERSION)
+
+FIND_LIBRARY(CURL_LIBRARIES
+  NAMES
+    libcurl curl curl_a libcurl_a
+  PATHS
+    ${CURL_ROOT_DIR}/lib/MSVC_2015/x32/
+)
+message(STATUS "MSVC:  CURL MSVC 2015 x32")
+
+else()
+
+FIND_LIBRARY(CURL_LIBRARIES
+  NAMES
+    libcurl curl curl_a libcurl_a
+  PATHS
+    ${CURL_ROOT_DIR}/lib/MSVC_2013/x32/
+)
+
+message(STATUS "MSVC: CURL MSVC 2013 x32")
+endif()
+
+MARK_AS_ADVANCED(CURL_LIBRARIES)
+
+if ( CURL_LIBRARIES )
+    if ( CURL_INCLUDE_DIR )
+        SET( CURL_FOUND 1 )
+        MESSAGE(STATUS "Found CURL library: ${CURL_LIBRARIES}")
+        MESSAGE(STATUS "Found CURL headers: ${CURL_INCLUDE_DIR}")
+    else ( CURL_INCLUDE_DIR )
+        MESSAGE(FATAL_ERROR "Could not find CURL headers! Please install CURL libraries and headers")
+    endif ( CURL_INCLUDE_DIR )
+endif ( CURL_LIBRARIES )
+
+MARK_AS_ADVANCED(CURL_FOUND CURL_LIBRARIES CURL_INCLUDE_DIR )
+endif()

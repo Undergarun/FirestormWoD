@@ -23,6 +23,7 @@
 #include "SharedDefines.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
+#include "PathGenerator.h"
 
 class Unit;
 class Player;
@@ -510,8 +511,10 @@ public:
     void EffectLearnBluePrint(SpellEffIndex p_EffIndex);
     void EffectGarrisonFinalize(SpellEffIndex p_EffIndex);
     void EffectIncreaseSkill(SpellEffIndex p_EffIndex);
+    void EffectCreateGarrison(SpellEffIndex p_EffIndex);
     void EffectObtainFollower(SpellEffIndex p_EffIndex);
     void EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex);
+    void EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex);
     void EffectGiveExperience(SpellEffIndex p_EffIndex);
     void EffectResurectPetBattles(SpellEffIndex effIndex);
     void EffectUncagePetBattle(SpellEffIndex effIndex);
@@ -523,11 +526,13 @@ public:
     void EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex);
     void EffectStampede(SpellEffIndex p_EffIndex);
     void EffectCreateHeirloom(SpellEffIndex p_EffIndex);
+    void EffectApplyEnchantIllusion(SpellEffIndex p_EffIndex);
     void EffectLearnFollowerAbility(SpellEffIndex p_EffIndex);
     void EffectUpgradeHeirloom(SpellEffIndex p_EffIndex);
+    void EffectFinishGarrisonMission(SpellEffIndex p_EffIndex);
     void EffectChangeItemBonus(SpellEffIndex p_EffIndex);
 
-    typedef std::set<AuraPtr> UsedSpellMods;
+    typedef std::set<Aura*> UsedSpellMods;
 
     Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID = 0, bool skipCheck = false);
     ~Spell();
@@ -551,14 +556,14 @@ public:
 
     void SelectEffectTypeImplicitTargets(uint8 effIndex);
 
-    uint32 GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionList* condList);
+    uint32 GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionContainer* condList);
     template<class SEARCHER> void SearchTargets(SEARCHER& searcher, uint32 containerMask, Unit* referer, Position const* pos, float radius);
 
-    WorldObject* SearchNearbyTarget(float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionList* condList = NULL);
-    void SearchAreaTargets(std::list<WorldObject*>& targets, float range, Position const* position, Unit* referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionList* condList);
-    void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionList* condList, bool isChainHeal);
+    WorldObject* SearchNearbyTarget(float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer* condList = NULL);
+    void SearchAreaTargets(std::list<WorldObject*>& targets, float range, Position const* position, Unit* referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
+    void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionContainer* condList, bool isChainHeal);
 
-    void prepare(SpellCastTargets const* targets, constAuraEffectPtr triggeredByAura = NULLAURA_EFFECT);
+    void prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura = nullptr);
     void cancel();
     void update(uint32 difftime);
     void cast(bool skipCheck = false);
@@ -687,6 +692,8 @@ public:
     void CleanupTargetList();
 
     void SetSpellValue(SpellValueMod mod, int32 value);
+    int32 GetSpellValue(SpellValueMod p_Mod) const;
+
     Unit* GetUnitTarget() { return m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : unitTarget; }
 
     void SetPeriodicDamageModifier(float newModifier) { m_periodicDamageModifier = newModifier; }
@@ -760,7 +767,7 @@ protected:
     int32 damage;
     SpellEffectHandleMode effectHandleMode;
     // used in effects handlers
-    AuraPtr m_spellAura;
+    Aura* m_spellAura;
 
     // this is set in Spell Hit, but used in Apply Aura handler
     DiminishingLevels m_diminishLevel;
@@ -781,7 +788,7 @@ protected:
     uint32 m_procAttacker;                // Attacker trigger flags
     uint32 m_procVictim;                  // Victim   trigger flags
     uint32 m_procEx;
-    void   prepareDataForTriggerSystem(constAuraEffectPtr triggeredByAura);
+    void   prepareDataForTriggerSystem(AuraEffect const* triggeredByAura);
 
     // ******************************************
     // Spell custom values
@@ -909,6 +916,7 @@ protected:
 
     bool m_skipCheck;
     uint32 m_auraScaleMask;
+    PathGenerator m_preGeneratedPath;
 
     typedef std::map<uint32, SpellLogHelper> LogHelperMap;
     LogHelperMap m_effectExecuteData;
@@ -932,10 +940,10 @@ namespace JadeCore
         SpellInfo const* _spellInfo;
         SpellTargetCheckTypes _targetSelectionType;
         ConditionSourceInfo* _condSrcInfo;
-        ConditionList* _condList;
+        ConditionContainer* _condList;
 
         WorldObjectSpellTargetCheck(Unit* caster, Unit* referer, SpellInfo const* spellInfo,
-            SpellTargetCheckTypes selectionType, ConditionList* condList);
+            SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         ~WorldObjectSpellTargetCheck();
         bool operator()(WorldObject* target);
     };
@@ -945,7 +953,7 @@ namespace JadeCore
         float _range;
         Position const* _position;
         WorldObjectSpellNearbyTargetCheck(float range, Unit* caster, SpellInfo const* spellInfo,
-            SpellTargetCheckTypes selectionType, ConditionList* condList);
+            SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);
     };
 
@@ -954,7 +962,7 @@ namespace JadeCore
         float _range;
         Position const* _position;
         WorldObjectSpellAreaTargetCheck(float range, Position const* position, Unit* caster,
-            Unit* referer, SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionList* condList);
+            Unit* referer, SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);
     };
 
@@ -962,7 +970,7 @@ namespace JadeCore
     {
         float _coneAngle;
         WorldObjectSpellConeTargetCheck(float coneAngle, float range, Unit* caster,
-            SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionList* condList);
+            SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);
     };
 

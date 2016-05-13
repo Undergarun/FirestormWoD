@@ -9,9 +9,6 @@
 #ifndef BATTLEGROUND_PACKET_FACTORY_HPP
 # define BATTLEGROUND_PACKET_FACTORY_HPP
 
-# include "BattlegroundScheduler.hpp"
-
-# include "BattlegroundMgr.hpp"
 # include "BattlegroundAV.h"
 # include "BattlegroundAB.h"
 # include "BattlegroundDG.h"
@@ -43,7 +40,7 @@ namespace MS
         class PacketFactory
         {
         public:
-            static void Status(WorldPacket* p_Data, Battleground* p_BG, Player* p_Player, uint8 p_QueueSlot, uint8 p_StatusID, uint32 p_Time1, uint32 p_Time2, uint8 p_Arenatype, bool p_IsSkirmish)
+            static void Status(WorldPacket* p_Data, Battleground* p_BG, Player* p_Player, uint8 p_QueueSlot, uint8 p_StatusID, uint32 p_Time1, uint32 p_Time2, uint8 p_Arenatype, bool p_IsSkirmish) ///< p_Arenatype is unused
             {
                 /// we can be in 2 queues in same time...
                 if (!p_BG)
@@ -158,7 +155,7 @@ namespace MS
                         p_Data->FlushBits();
 
                         *p_Data << uint32(p_BG->GetMapId());                                      ///< Map Id
-                        *p_Data << uint32(p_BG->GetRemainingTime());                              ///< Time to Close
+                        *p_Data << uint32(0);                                                     ///< Time to Close
                         *p_Data << uint32(p_BG->GetElapsedTime());                                ///< Elapsed Time
                         p_Data->WriteBit(p_Player->GetBGTeam() == HORDE ? 0 : 1);                 ///< Battlefield Faction ( 0 horde, 1 alliance )
                         p_Data->WriteBit(false);                                                  ///< @TODO Left early
@@ -378,7 +375,7 @@ namespace MS
                             break;
                         case BATTLEGROUND_KT:
                             l_Buffer << uint32(((BattleGroundKTScore*)l_ScoreBeginIT->second)->OrbHandles);
-                            l_Buffer << uint32(((BattleGroundKTScore*)l_ScoreBeginIT->second)->Score * 10);
+                            l_Buffer << uint32(((BattleGroundKTScore*)l_ScoreBeginIT->second)->Score);
                             break;
                         case BATTLEGROUND_DG:
                             l_Buffer << uint32(((BattlegroundDGScore*)l_ScoreBeginIT->second)->m_AssaultedMines);
@@ -399,7 +396,7 @@ namespace MS
                     *p_Data << uint32(l_ScoreBeginIT->second->DamageDone);
                     *p_Data << uint32(l_ScoreBeginIT->second->HealingDone);
                     *p_Data << uint32(l_Buffer.size() / 4);                                         ///< Stats count
-                    *p_Data << int32(l_Player->GetSpecializationId(l_Player->GetActiveSpec()));     ///< PrimaryTalentTree
+                    *p_Data << int32(l_Player->GetSpecializationId());                              ///< PrimaryTalentTree
                     *p_Data << int32(l_Player->getGender());                                        ///< Gender
                     *p_Data << int32(l_Player->getRace());                                          ///< Race
 
@@ -484,7 +481,7 @@ namespace MS
                 Bracket const* l_Bracket = nullptr;
                 if (p_BGTypeID != BATTLEGROUND_AA)
                 {
-                    if (Battleground* l_BGTemplate = sBattlegroundMgr->GetBattlegroundTemplate(GetTypeFromId(p_BGTypeID, 0, false)))
+                    if (Battleground* l_BGTemplate = sBattlegroundMgr->GetBattlegroundTemplate(GetTypeFromId(p_BGTypeID, 0, false))) ///< l_BGTemplate is unused
                     {
                         /// Expected bracket entry
                         if (l_Bracket = Brackets::FindForLevel(p_Player->getLevel()))
@@ -529,7 +526,6 @@ namespace MS
             static void CheckWargameEntry(Player* p_Requester, Player* p_Target, uint64 p_QueueID, bool p_TournamentRules)
             {
                 uint32 l_Timeout         = 60;
-                bool   l_TournamentRules = false;
 
                 WorldPacket l_Data(SMSG_CHECK_WARGAME_ENTRY);
                 l_Data.appendPackGUID(p_Requester->GetGUID());
@@ -539,7 +535,7 @@ namespace MS
                 l_Data.appendPackGUID(0);           ///< BnetGuid, bypass bnet friend list check
                 l_Data << uint64(p_QueueID);
                 l_Data << uint32(l_Timeout);
-                l_Data.WriteBit(l_TournamentRules);
+                l_Data.WriteBit(p_TournamentRules);
 
                 p_Target->GetSession()->SendPacket(&l_Data);
             }

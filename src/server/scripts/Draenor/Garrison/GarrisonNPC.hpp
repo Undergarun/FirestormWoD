@@ -10,9 +10,11 @@
 
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
+#include "../../../game/AI/ScriptedAI/ScriptedEscortAI.h"
 #include <map>
-
 #include "ScriptedCosmeticAI.hpp"
+#include "Vehicle.h"
+#include "CombatAI.h"
 
 namespace MS { namespace Garrison 
 {
@@ -23,18 +25,11 @@ namespace MS { namespace Garrison
         float X, Y, Z, O;
     };
 
-    /// TradeSkill NPC recipes
-    struct SkillNPC_RecipeEntry
-    {
-        uint32 AbilitySpellID;
-        uint32 AbilitySpellIDPlayerCondition;
-    };
-
     class GarrisonNPCAI : public AI::CosmeticAI
     {
         public:
             /// Constructor
-            GarrisonNPCAI(Creature * p_Creature);
+            GarrisonNPCAI(Creature* p_Creature);
 
             /// Set to relative position from building
             /// @p_X : Relative X
@@ -48,12 +43,12 @@ namespace MS { namespace Garrison
             /// Set NPC recipes
             /// @p_Recipes          : Recipes
             /// @p_RecipesSkillID   : Skill line ID
-            void SetRecipes(std::vector<SkillNPC_RecipeEntry> * p_Recipes, uint32 p_RecipesSkillID);
+            void SetRecipes(std::vector<RecipesConditions> p_Recipes, uint32 p_RecipesSkillID);
 
             /// Show shipment crafter UI
             void SendShipmentCrafterUI(Player* p_Player, uint32 p_ShipmentID = 0);
             /// Show trade skill crafter UI
-            void SendTradeSkillUI(Player * p_Player);
+            void SendTradeSkillUI(Player* p_Player);
 
             /// Get building ID
             uint32 GetBuildingID();
@@ -65,7 +60,9 @@ namespace MS { namespace Garrison
             /// @p_SequenceTable    : Sequence table
             /// @p_SequenceSize     : Size of sequence table,
             /// @p_FirstMovePointID : First move point ID
-            void SetupActionSequence(SequencePosition * p_CoordTable, uint8 * p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID);
+            void SetupActionSequence(SequencePosition* p_CoordTable, uint8* p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID);
+
+            void AddSummonGUID(uint64 p_GUID) { m_Summons.push_back(p_GUID); }
             /// Do next sequence element
             virtual void DoNextSequenceAction();
 
@@ -77,6 +74,11 @@ namespace MS { namespace Garrison
             /// @p_RelO       : Relative orientation coord
             /// @p_SummonType : Summon type
             Creature* SummonRelativeCreature(uint32 p_Entry, float p_RelX, float p_RelY, float p_RelZ, float p_RelO, TempSummonType p_SummonType);
+            /// Spawn a creature with building relative coords
+            /// @p_Entry      : Creature entry
+            /// @p_Position   : Relative position of the creature
+            /// @p_SummonType : Summon type
+            Creature* SummonRelativeCreature(uint32 p_Entry, SequencePosition p_Position, TempSummonType p_SummonType);
             /// Spawn a gameobject with building relative coords
             /// @p_Entry      : GameObject entry
             /// @p_RelX       : X Relative coord
@@ -84,6 +86,10 @@ namespace MS { namespace Garrison
             /// @p_RelZ       : Z Relative coord
             /// @p_RelO       : Relative orientation coord
             GameObject* SummonRelativeGameObject(uint32 p_Entry, float p_RelX, float p_RelY, float p_RelZ, float p_RelO);
+            /// Spawn a gameobject with building relative coords
+            /// @p_Entry      : GameObject entry
+            /// @p_Position   : Relative coords
+            GameObject* SummonRelativeGameObject(uint32 p_Entry, const Position p_Position);
 
             /// Transform coord
             /// @p_X : X coord
@@ -101,7 +107,7 @@ namespace MS { namespace Garrison
             /// @p_BuildingID : Set plot instance ID
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID);
             /// When the daily garrison datas are reset
-            virtual void OnDataReset();
+            virtual void OnDailyDataReset();
             ///
             virtual void OnPlotInstanceUnload();
 
@@ -123,14 +129,15 @@ namespace MS { namespace Garrison
 
         private:
             Player* m_Owner;
-            SequencePosition * m_CoordTable;
-            uint8 * m_SequenceTable;
+            SequencePosition* m_CoordTable;
+            uint8* m_SequenceTable;
             uint32 m_SequenceSize;
             uint32 m_FirstMovePointID;
             uint8 m_SequencePosition;
 
         private:
-            std::vector<SkillNPC_RecipeEntry> * m_Recipes;
+            std::vector<uint64> m_Summons;
+            std::vector<RecipesConditions> m_Recipes;
             uint32 m_RecipesSkillID;
 
     };
@@ -145,11 +152,11 @@ namespace MS { namespace Garrison
     /// @t_SetupLevel1 : Function pour initializing sequence for level 1 building
     /// @t_SetupLevel2 : Function pour initializing sequence for level 2 building
     /// @t_SetupLevel3 : Function pour initializing sequence for level 3 building
-    template<InitSequenceFunction * t_SetupLevel1, InitSequenceFunction * t_SetupLevel2, InitSequenceFunction * t_SetupLevel3>
+    template<InitSequenceFunction* t_SetupLevel1, InitSequenceFunction* t_SetupLevel2, InitSequenceFunction* t_SetupLevel3>
     struct SimpleSequenceCosmeticScriptAI : public GarrisonNPCAI
     {
         /// Constructor
-        SimpleSequenceCosmeticScriptAI(Creature * p_Creature)
+        SimpleSequenceCosmeticScriptAI(Creature* p_Creature)
             : GarrisonNPCAI(p_Creature)
         {
             SetAIObstacleManagerEnabled(true);
@@ -192,7 +199,7 @@ namespace MS { namespace Garrison
     /// @t_SetupLevel1 : Function pour initializing sequence for level 1 building
     /// @t_SetupLevel2 : Function pour initializing sequence for level 2 building
     /// @t_SetupLevel3 : Function pour initializing sequence for level 3 building
-    template<const char * t_ScriptName, InitSequenceFunction * t_SetupLevel1, InitSequenceFunction * t_SetupLevel2, InitSequenceFunction * t_SetupLevel3>
+    template<const char* t_ScriptName, InitSequenceFunction* t_SetupLevel1, InitSequenceFunction* t_SetupLevel2, InitSequenceFunction* t_SetupLevel3>
     class SimpleSequenceCosmeticScript : public CreatureScript
     {
         public:
@@ -205,7 +212,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const override
+            CreatureAI* GetAI(Creature* p_Creature) const override
             {
                 return new SimpleSequenceCosmeticScriptAI<t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>(p_Creature);
             }
@@ -225,13 +232,13 @@ namespace MS { namespace Garrison
             /// Called when a player opens a gossip dialog with the creature.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
             /// Called when a player selects a gossip item in the creature's gossip menu.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
     };
 
@@ -244,13 +251,13 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
+            virtual CreatureAI* GetAI(Creature* p_Creature) const override;
 
             /// AI Script
             struct npc_CallToArmsAI : public CreatureAI
             {
                 /// Constructor
-                npc_CallToArmsAI(Creature * p_Creature);
+                npc_CallToArmsAI(Creature* p_Creature);
 
                 /// On reset
                 virtual void Reset() override;
@@ -258,7 +265,7 @@ namespace MS { namespace Garrison
                 /// @p_Diff : Time since last update
                 virtual void UpdateAI(const uint32 p_Diff) override;
 
-                Player * m_Owner;
+                Player* m_Owner;
                 bool m_Ranged;
             };
 
@@ -276,13 +283,13 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
+            virtual CreatureAI* GetAI(Creature* p_Creature) const override;
 
             /// AI Script
             struct npc_GarrisonCartRopeAI : public CreatureAI
             {
                 /// Constructor
-                npc_GarrisonCartRopeAI(Creature * p_Creature);
+                npc_GarrisonCartRopeAI(Creature* p_Creature);
 
                 /// On reset
                 virtual void Reset() override;
@@ -305,13 +312,13 @@ namespace MS { namespace Garrison
             /// Called when a player opens a gossip dialog with the creature.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
             /// Called when a player selects a gossip item in the creature's gossip menu.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
     };
 
@@ -326,12 +333,12 @@ namespace MS { namespace Garrison
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
             /// @p_Quest    : Accepted quest
-            virtual bool OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override;
+            virtual bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override;
             /// Called when a player completes a quest with the creature.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
             /// @p_Quest    : Completed quest
-            virtual bool OnQuestComplete(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override;
+            virtual bool OnQuestComplete(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override;
 
     };
 
@@ -345,13 +352,13 @@ namespace MS { namespace Garrison
             /// Called when a player opens a gossip dialog with the creature.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
             /// Called when a player selects a gossip item in the creature's gossip menu.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
     };
 
@@ -366,12 +373,12 @@ namespace MS { namespace Garrison
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
             /// @p_Quest    : Accepted quest
-            virtual bool OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override;
+            virtual bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override;
             /// Called when a player completes a quest with the creature.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
             /// @p_Quest    : Completed quest
-            virtual bool OnQuestComplete(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override;
+            virtual bool OnQuestComplete(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override;
 
     };
 
@@ -384,13 +391,13 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const;
+            virtual CreatureAI* GetAI(Creature* p_Creature) const;
 
             /// Creature AI
             struct npc_LunarfallLaborerAI : public CreatureAI
             {
                 /// Constructor
-                npc_LunarfallLaborerAI(Creature * p_Creature);
+                npc_LunarfallLaborerAI(Creature* p_Creature);
 
                 /// On AI Update
                 /// @p_Diff : Time since last update
@@ -419,7 +426,7 @@ namespace MS { namespace Garrison
             /// @p_Creature : Target creature instance
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
     };
 
@@ -433,7 +440,7 @@ namespace MS { namespace Garrison
             /// Called when a player opens a gossip dialog with the creature.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
 
     };
 
@@ -447,7 +454,7 @@ namespace MS { namespace Garrison
             /// Called when a player opens a gossip dialog with the creature.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
 
     };
 
@@ -461,23 +468,23 @@ namespace MS { namespace Garrison
             /// Called when a player opens a gossip dialog with the creature.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
             /// Called when a player selects a gossip item in the creature's gossip menu.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const; ///< 'GetAI' overrides a member function but is not marked 'override'
 
             /// Creature AI
             struct npc_SeniorPeonIIAI : public CreatureAI
             {
                 /// Constructor
-                npc_SeniorPeonIIAI(Creature * p_Creature);
+                npc_SeniorPeonIIAI(Creature* p_Creature);
 
                 /// Called at waypoint reached or point movement finished
                 /// @p_Type : Movement Type
@@ -502,13 +509,13 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const;
 
             /// Creature AI
             struct npc_GazloweAI : public CreatureAI
             {
                 /// Constructor
-                npc_GazloweAI(Creature * p_Creature);
+                npc_GazloweAI(Creature* p_Creature);
 
                 /// Called at waypoint reached or point movement finished
                 /// @p_Type : Movement Type
@@ -534,13 +541,13 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const;
 
             /// Creature AI
             struct npc_FrostwallPeonAI : public CreatureAI
             {
                 /// Constructor
-                npc_FrostwallPeonAI(Creature * p_Creature);
+                npc_FrostwallPeonAI(Creature* p_Creature);
 
                 /// Called at waypoint reached or point movement finished
                 /// @p_Type : Movement Type
@@ -604,7 +611,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const; ///< 'GetAI' overrides a member function but is not marked 'override'
     };
 
     class npc_garrison_atheeru_palestarAI : public GarrisonNPCAI
@@ -622,8 +629,6 @@ namespace MS { namespace Garrison
             void OnPlotInstanceUnload() override;
     };
 
-
-
     /// Amperial Construct
     class npc_garrison_amperial_construct : public CreatureScript
     {
@@ -639,10 +644,10 @@ namespace MS { namespace Garrison
             struct npc_garrison_amperial_constructAI : public GarrisonNPCAI
             {
                 uint64 m_OwnerGuid;
-                uint32 m_CheckTimer;
+                uint64 m_CheckTimer;
 
                 /// Constructor
-                npc_garrison_amperial_constructAI(Creature * p_Creature);
+                npc_garrison_amperial_constructAI(Creature* p_Creature);
 
                 virtual void OnSpellClick(Unit* p_Clicker) override;
 
@@ -652,7 +657,63 @@ namespace MS { namespace Garrison
 
                 virtual void UpdateAI(const uint32 p_Diff) override;
             };
+    };
 
+    /// Amperial Construct
+    class npc_GarrisonStablesCreatures : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_GarrisonStablesCreatures();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_GarrisonStablesCreaturesAI : public npc_escortAI
+            {
+                /// Constructor
+                npc_GarrisonStablesCreaturesAI(Creature* p_Creature);
+
+                enum eCreaturesEntries
+                {
+                    NpcIcehoof       = 86847,
+                    NpcRocktusk      = 86850,
+                    NpcSilverpelt    = 86801,
+                    NpcMeadowstomper = 86852,
+                    NpcRiverwallow   = 86848,
+                    NpcSnarler       = 86851
+                };
+
+                enum CreatureJumps
+                {
+                    MeadowstomperFirstJump = 1,
+                    MeadowstomperSecondJump,
+                    MeadowstomperThirdJump,
+                    SnarlerFirstJump,
+                    SnarlerSecondJump,
+                    SnarlerThirdJump,
+                    SnarlerFourthJump,
+                    SnarlerFifthJump,
+                    SnarlerSixthJump,
+                    SnarlerSeventhJump,
+                    SilverpeltFirstJump,
+                    SilverpeltSecondJump
+                };
+
+                virtual void Reset() override;
+
+                virtual void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) override;
+
+                virtual void MovementInform(uint32 p_Type, uint32 p_ID) override;
+
+                virtual void WaypointReached(uint32 p_PointId) override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+
+                void StopEscortEvent(uint32 p_KillCredit, uint32 p_SpellID);
+            };
     };
 
     // Fleet Command Talbe
@@ -661,6 +722,317 @@ namespace MS { namespace Garrison
         public:
             npc_FleetCommandTable();
             virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
+    };
+
+    /// Amperial Construct
+    class npc_AncientTradingMechanism_Garr : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_AncientTradingMechanism_Garr();
+
+            bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override;
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Followers Script
+    class npc_follower_generic_script : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_follower_generic_script();
+
+            enum eSpells
+            {
+                SpellSongOfTheAnvil  = 176458,
+                SpellSolaceOfTheForge = 176644
+            };
+
+            /// Called when a player opens a gossip dialog with the creature.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
+
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            virtual CreatureAI* GetAI(Creature* p_Creature) const override;
+
+            /// Creature AI
+            struct npc_follower_generic_scriptAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_follower_generic_scriptAI(Creature* p_Creature);
+
+                uint32 m_UpdateTimer;
+                uint64 m_OwnerGUID;
+
+                virtual void Reset() override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+
+                virtual void SetGUID(uint64 p_Guid, int32 p_Id) override;
+            };
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Fearsome Battle Standard (87594 / 86734)
+    class npc_FearsomeBattleStandard : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_FearsomeBattleStandard();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_FearsomeBattleStandardAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_FearsomeBattleStandardAI(Creature* p_Creature);
+
+                enum eEvents
+                {
+                    EventCheckPlayers = 1
+                };
+
+                enum eSpells
+                {
+                    SpellAuraFearsomeBattleStandardPeriodicDmg = 176302
+                };
+
+                EventMap m_Events;
+
+                virtual void Reset() override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+            };
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Inspiring Battle Standard (88277 / 88010)
+    class npc_InspiringBattleStandard : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_InspiringBattleStandard();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_InspiringBattleStandardAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_InspiringBattleStandardAI(Creature* p_Creature);
+
+                enum eEvents
+                {
+                    EventCheckPlayers = 1
+                };
+
+                enum eSpells
+                {
+                    SpellAuraInspiringBattleStandardPeriodicDmg = 176252
+                };
+
+                EventMap m_Events;
+
+                virtual void Reset() override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+            };
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Tent (86327, 86333, 86334, 86335, 86336, 86337, 86338, 86339, 86340, 86341, 86342, 86343, 86344, 86345, 86346, 86347, 86348, 86349, 86350, 86351, 86352, 86353, 86354
+    class npc_LeatherWorkingTent_Garr : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_LeatherWorkingTent_Garr();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_LeatherWorkingTent_GarrAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_LeatherWorkingTent_GarrAI(Creature* p_Creature);
+
+                enum eEvents
+                {
+                    EventCheckPlayers = 1
+                };
+
+                enum eSpells
+                {
+                    SpellAuraWellRestedTrackingAura = 172424
+                };
+
+                uint64 m_SummonerGuid;
+                EventMap m_Events;
+
+                virtual void Reset() override;
+
+                virtual void IsSummonedBy(Unit* p_Summoner) override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+            };
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    class npc_StablesTrainingMounts_Garr : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_StablesTrainingMounts_Garr() : CreatureScript("npc_StablesTrainingMounts_Garr")
+            {
+            }
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_StablesTrainingMounts_GarrAI : public VehicleAI
+            {
+                /// Constructor
+                npc_StablesTrainingMounts_GarrAI(Creature* creature) : VehicleAI(creature)
+                {
+                    m_SummonerGUID = 0;
+                }
+
+                enum eSpells
+                {
+                    SpellAuraRideVehicle = 178807
+                };
+
+                uint64 m_SummonerGUID;
+
+                virtual void IsSummonedBy(Unit* p_Summoner) override;
+
+                virtual void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override;
+
+                virtual void JustDied(Unit* p_Killer) override;
+            };            
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    class npc_robot_rooster : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_robot_rooster() : CreatureScript("npc_StablesTrainpc_robot_roosterningMounts_Garr")
+            {
+            }
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_robot_roosterAI : public ScriptedAI
+            {
+                /// Constructor
+                npc_robot_roosterAI(Creature* creature) : ScriptedAI(creature)
+                {
+                    m_Events.Reset();
+                }
+
+                enum eDatas
+                {
+                    EventBerserk     = 1,
+                    EventNitroBoosts = 2,
+                    SpellBerserk     = 168458,
+                    SpellNitroBoosts = 133022
+                };
+
+                EventMap m_Events;
+
+                virtual void EnterCombat(Unit* p_Attacker) override;
+
+                virtual void EnterEvadeMode() override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+            };            
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    class npc_GarrisonWalter : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_GarrisonWalter() : CreatureScript("npc_GarrisonWalter")
+            {
+            }
+
+            enum eData
+            {
+                DataOwnerGUID = 1
+            };
+
+            /// Called when a player opens a gossip dialog with the creature.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
+
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_GarrisonWalterAI : public VehicleAI
+            {
+                /// Constructor
+                npc_GarrisonWalterAI(Creature* creature) : VehicleAI(creature)
+                {
+                    m_SummonerGUID = 0;
+                }
+
+                uint64 m_SummonerGUID;
+
+                virtual void IsSummonedBy(Unit* p_Summoner) override;
+
+                virtual uint64 GetGUID(int32 p_ID) override;
+            };            
 
     };
 

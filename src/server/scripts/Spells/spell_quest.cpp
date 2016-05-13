@@ -104,7 +104,7 @@ class spell_q5206_test_fetid_skull: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spellEntry*/)
@@ -156,7 +156,7 @@ class spell_q6124_6129_apply_salve: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -234,14 +234,14 @@ class spell_q11396_11399_force_shield_arcane_purple_x3: public SpellScriptLoader
         {
             PrepareAuraScript(spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript);
 
-            void HandleEffectApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
                 target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 target->AddUnitState(UNIT_STATE_ROOT);
             }
 
-            void HandleEffectRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             }
@@ -431,7 +431,7 @@ class spell_q11730_ultrasonic_screwdriver: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
+                return GetCaster()->IsPlayer() && GetCastItem();
             }
 
             bool Validate(SpellInfo const* /*spellEntry*/)
@@ -635,7 +635,7 @@ class spell_q12851_going_bearback: public SpellScriptLoader
         {
             PrepareAuraScript(spell_q12851_going_bearback_AuraScript);
 
-            void HandleEffectApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -695,7 +695,7 @@ class spell_q12937_relief_for_the_fallen: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spellEntry*/)
@@ -833,7 +833,7 @@ class spell_q12659_ahunaes_knife: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -875,7 +875,7 @@ class spell_q9874_liquid_fire: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -918,7 +918,7 @@ class spell_q12805_lifeblood_dummy: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1045,7 +1045,7 @@ class spell_q9452_cast_net: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1082,7 +1082,7 @@ class spell_q12987_read_pronouncement: public SpellScriptLoader
         {
             PrepareAuraScript(spell_q12987_read_pronouncement_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // player must cast kill credit and do emote text, according to sniff
                 if (Player* target = GetTarget()->ToPlayer())
@@ -1337,7 +1337,7 @@ class spell_q11010_q11102_q11023_aggro_check_aura: public SpellScriptLoader
         {
             PrepareAuraScript(spell_q11010_q11102_q11023_aggro_check_aura_AuraScript);
 
-            void HandleTriggerSpell(constAuraEffectPtr /*aurEff*/)
+            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
                 // On trigger proccing
                 if (Unit* target = GetTarget())
@@ -1396,7 +1396,7 @@ class spell_q11010_q11102_q11023_aggro_burst: public SpellScriptLoader
         {
             PrepareAuraScript(spell_q11010_q11102_q11023_aggro_burst_AuraScript);
 
-            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 // On each tick cast Choose Loc to trigger summon
                 if (Unit* target = GetTarget())
@@ -1956,7 +1956,7 @@ class spell_quests_spell_hit: public SpellScriptLoader
 
             void HandleDummy()
            {
-                if (GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER)
+                if (GetCaster() && GetCaster()->IsPlayer())
                 {
                     GetCaster()->ToPlayer()->KilledMonsterCredit(44175, 0);
                 }

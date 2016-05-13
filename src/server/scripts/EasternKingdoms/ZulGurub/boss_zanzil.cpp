@@ -308,7 +308,7 @@ class spell_zanzil_fire: public SpellScriptLoader
                 return true;
             }
 
-            void PeriodicTick(constAuraEffectPtr aurEff)
+            void PeriodicTick(AuraEffect const* aurEff)
             {
                 if (!GetCaster())
                     return;

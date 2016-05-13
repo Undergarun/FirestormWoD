@@ -129,7 +129,7 @@ class boss_sha_of_anger : public CreatureScript
 
             void KilledUnit(Unit* u)
             {
-                if (u->GetTypeId() == TYPEID_PLAYER)
+                if (u->IsPlayer())
                     Talk(TALK_SLAY);
             }
 
@@ -348,7 +348,7 @@ class mob_sha_of_anger_bunny : public CreatureScript
                 if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
-                if (me->isMoving())
+                if (me->IsMoving())
                     me->StopMoving();
             }
         };
@@ -368,7 +368,7 @@ class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_of_anger_aggressive_behaviour_AuraScript);
 
-            void HandlePeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (Unit* target = GetTarget())
@@ -376,7 +376,7 @@ class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
                         this->Remove(AURA_REMOVE_BY_DEFAULT);
             }
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -390,7 +390,7 @@ class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
 
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {

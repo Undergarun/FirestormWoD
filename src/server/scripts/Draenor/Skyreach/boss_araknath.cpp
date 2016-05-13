@@ -218,6 +218,9 @@ namespace MS
                     else
                         m_InitializationTimer -= diff;
 
+                    if (me->GetDistance(me->GetHomePosition()) > 23.0f && !me->IsInEvadeMode())
+                        EnterEvadeMode();
+
                     if (!UpdateVictim())
                         return;
 

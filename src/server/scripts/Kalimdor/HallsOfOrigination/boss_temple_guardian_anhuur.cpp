@@ -95,17 +95,17 @@ class boss_temple_guardian_anhuur : public CreatureScript
             boss_temple_guardian_anhuurAI(Creature* pCreature) : BossAI(pCreature, DATA_TEMPLE_GUARDIAN_ANHUUR)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-			    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
 
             uint8 phase;
@@ -151,9 +151,9 @@ class boss_temple_guardian_anhuur : public CreatureScript
             }
 
             void JustReachedHome()
-		    {
-			    _JustReachedHome();
-		    }
+            {
+                _JustReachedHome();
+            }
 
             bool HasAchieved()
             {
@@ -174,13 +174,13 @@ class boss_temple_guardian_anhuur : public CreatureScript
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
-		    {
+            {
                 if (me->HasAura(SPELL_SHIELD_OF_LIGHT))
                     return;
 
                 if (spell->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))
-			        if (me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-				        if (me->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_spellInfo->Id == SPELL_REVERBERATING_HYMN)
+                    if (me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                        if (me->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_spellInfo->Id == SPELL_REVERBERATING_HYMN)
                         {
                             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                             phase++;
@@ -189,7 +189,7 @@ class boss_temple_guardian_anhuur : public CreatureScript
                             events.ScheduleEvent(EVENT_DIVINE_RECKONING, urand(3000, 10000));
                             events.ScheduleEvent(EVENT_SEARING_FLAME, urand(2000, 7000));
                         }
-		    }
+            }
 
             void JustSummoned(Creature* summon)
             {
@@ -235,7 +235,7 @@ class boss_temple_guardian_anhuur : public CreatureScript
 
                 events.Update(diff);
 
-			    while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
@@ -303,7 +303,7 @@ class npc_pit_snake : public CreatureScript
 
                 events.Update(diff);
 
-			    while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {

@@ -600,7 +600,7 @@ public:
                         return;
 
                     me->EnterVehicle(who, seat);
-                    me->SendMovementFlagUpdate();
+                    //me->SendMovementFlagUpdate();
                     hasEmptySeats = false;
                 }
             }
@@ -676,7 +676,7 @@ public:
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 if (apply)
                     Start(false, true, who->GetGUID());
@@ -783,7 +783,7 @@ class spell_close_rift: public SpellScriptLoader
                 return sSpellMgr->GetSpellInfo(SPELL_DESPAWN_RIFT);
             }
 
-            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (++_counter == 5)
                     GetTarget()->CastSpell((Unit*)NULL, SPELL_DESPAWN_RIFT, true);

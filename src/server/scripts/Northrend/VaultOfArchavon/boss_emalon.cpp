@@ -226,7 +226,7 @@ class mob_tempest_minion : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (constAuraPtr overchargedAura = me->GetAura(SPELL_OVERCHARGED))
+                if (Aura const* overchargedAura = me->GetAura(SPELL_OVERCHARGED))
                 {
                     if (overchargedAura->GetStackAmount() < 10)
                     {

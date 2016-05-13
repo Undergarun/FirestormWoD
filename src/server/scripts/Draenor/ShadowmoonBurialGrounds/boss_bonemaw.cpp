@@ -10,7 +10,6 @@
 
 enum eBoneMawSpells
 {
-    // Carrion Worm: 88769
     SpellNecroticPitchTriggerMissile    = 153689,
     SpellNecroticPitchAreatrigger       = 153690,
     SpellNecroticPitchDummy             = 153691,
@@ -18,7 +17,6 @@ enum eBoneMawSpells
     SpellCorpseBreathPeriodic           = 165578,
     SpellCorpseBreathDamage             = 165579,
     SpellFetidSpitDamage                = 153681,
-
     SpellBodySlam                       = 154175,
     SpellInhaleVisual                   = 153721,
     SpellInhalePeriodicChannel          = 153804,
@@ -26,13 +24,11 @@ enum eBoneMawSpells
     SpellInhaleAreaTrigger              = 153961,
     SpellInhaleSleep                    = 154010,
     SpellnhaleScreenEffect              = 154008,
-
     SpellVisualSubmerge                 = 177694
 };
 
 enum eBoneMawEvents
 {
-    // Carrion Worm: 88769
     EventNecroticPitch = 1,
     EventCorpseBreath,
     EventFetidSpit,
@@ -41,55 +37,43 @@ enum eBoneMawEvents
     EventCarrionWorm,
     EventCancelBodySlamFlags,
     EventCancelSubmerge,
-
-    // Cosmetic - Submerge for Bonemaw
-    EventSubmerge,
+    EventSubmerge
 };
 
 enum eBoneMawCreatures
 {
-    CreatureCarrionWorm    = 88769,
-    CreatureInhaleTrigger  = 76250,
-    CreatureNecroticPitchTrigger = 76191,
+    CreatureCarrionWorm          = 88769,
+    CreatureInhaleTrigger        = 76250,
+    CreatureNecroticPitchTrigger = 76191
 };
 
 enum eBoneMawGameObjects
 {
-    GameObjectBonemawDoors = 233988,
+    GameObjectBonemawDoors   = 233988,
     GameObjectBonemawDoors01 = 233989
 };
 
 enum eBoneMawActions
 {
-    ActionInhaleDeactivate = 1,
+    ActionInhaleDeactivate = 1
 };
 
-static void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
-{
-    std::list<Creature*> creatures;
-    GetCreatureListWithEntryInGrid(creatures, object, entry, 400.0f);
-    if (creatures.empty())
-        return;
-
-    for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-        (*iter)->DespawnOrUnsummon();
-}
-
 Position const l_PositionBoneMaw = { 1851.256f, -558.721f, 199.027f, 1.991077f };
+
 Position const l_PositionAdds[2] =
 {
     { 1801.369f, -521.248f, 196.795f, 0.030723f },
-    { 1860.075f, -497.532f, 196.796f, 4.054334f },
+    { 1860.075f, -497.532f, 196.796f, 4.054334f }
 };
 
-#define FriendlyFaction 35
-#define HostileFaction 16
-#define InvisibleDisplay 11686
+Position const g_PositionRespawnAfterDrowning = { 1837.41f, -504.11f, 201.653f, 4.845472f };
+Position const g_PositionRespawnAfterDrowningWhenBossNotInCombat = { 1796.62f, -382.900f, 201.382f, 4.231292f };
 
 /// Bonemaw - 75452
 class boss_bonemaw : public CreatureScript
 {
 public:
+
     boss_bonemaw() : CreatureScript("boss_bonemaw") { }
 
     struct boss_bonemawAI : public BossAI
@@ -97,46 +81,81 @@ public:
         boss_bonemawAI(Creature* p_Creature) : BossAI(p_Creature, eShadowmoonBurialGroundsDatas::DataBossBonemaw)
         {
             m_Instance = me->GetInstanceScript();
-
-
         }
+
+        enum eBoneMawSpells
+        {
+            SpellNecroticPitchTriggerMissile  = 153689,
+            SpellNecroticPitchAreatrigger     = 153690,
+            SpellNecroticPitchDummy           = 153691,
+            SpellNecroticPitchDebuff          = 153692,
+            SpellCorpseBreathPeriodic         = 165578,
+            SpellCorpseBreathDamage           = 165579,
+            SpellFetidSpitDamage              = 153681,
+            SpellBodySlam                     = 154175,
+            SpellInhaleVisual                 = 153721,
+            SpellInhalePeriodicChannel        = 153804,
+            SpellInhaleDamage                 = 153908,
+            SpellInhaleAreaTrigger            = 153961,
+            SpellInhaleSleep                  = 154010,
+            SpellnhaleScreenEffect            = 154008,
+            SpellVisualSubmerge               = 177694
+        };
+
+        enum eBoneMawEvents
+        {
+            EventNecroticPitch = 1,
+            EventCorpseBreath,
+            EventFetidSpit,
+            EventBodySlam,
+            EventInhale,
+            EventCarrionWorm,
+            EventCancelBodySlamFlags,
+            EventCancelSubmerge,
+            EventSubmerge
+        };
 
         InstanceScript* m_Instance;
         uint32 m_PoolDiff;
         uint32 m_InhaleDiff;
+		uint32 m_DrowningDiff;
         bool m_HasVictimOut;
         bool m_InhaleActivated;
 
         void Reset() override
         {
+            _Reset();
             events.Reset();
-
+            me->SetCanFly(true);
+            me->RemoveAllAuras();
             m_HasVictimOut = false;
             m_InhaleActivated = false;
-            m_PoolDiff = 3 * TimeConstants::IN_MILLISECONDS;;
-            m_InhaleDiff = 4 * TimeConstants::IN_MILLISECONDS;
-
             me->SetDisableGravity(true);
-            me->SetCanFly(true);
-
+			m_DrowningDiff = 4 * TimeConstants::IN_MILLISECONDS;
+            m_PoolDiff   = 3 * TimeConstants::IN_MILLISECONDS;;
+            m_InhaleDiff = 4 * TimeConstants::IN_MILLISECONDS;       
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);   
 
-            me->RemoveAllAuras();
+			if (m_Instance != nullptr)
+			{
+				if (Creature* l_BonemawMouth = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBonemawMouth)))
+				{			
+					l_BonemawMouth->SetReactState(ReactStates::REACT_PASSIVE);
+					l_BonemawMouth->NearTeleportTo(1712.96f, -819.96f, 73.736f, 3.056507f);
+					l_BonemawMouth->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+				}
+			}
         }
 
         void JustReachedHome() override
         {
             _JustReachedHome();
-
-            HandleEntranceDoorActivation();
             summons.DespawnAll();
-
+            HandleEntranceDoorActivation();
             if (m_Instance != nullptr)
-            {
                 m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossBonemaw, EncounterState::FAIL);
-            }
         }
 
         void HandleDoorActivation()
@@ -144,15 +163,17 @@ public:
             std::list<GameObject*> l_ListDoors;
             me->GetGameObjectListWithEntryInGrid(l_ListDoors, eBoneMawGameObjects::GameObjectBonemawDoors, 100.0f);
             me->GetGameObjectListWithEntryInGrid(l_ListDoors, eBoneMawGameObjects::GameObjectBonemawDoors01, 100.0f);
-
             if (l_ListDoors.empty())
                 return;
 
-            for (auto itr : l_ListDoors)
+            for (GameObject* l_Itr : l_ListDoors)
             {
+                if (!l_Itr)
+                    continue;
+
                 /// Activate
-                itr->SetLootState(LootState::GO_READY);
-                itr->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, me);
+                l_Itr->SetLootState(LootState::GO_READY);
+                l_Itr->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, me);
             }
         }
 
@@ -175,6 +196,13 @@ public:
             {
                 case eBoneMawActions::ActionInhaleDeactivate:
                     m_InhaleActivated = false;
+                    if (m_Instance != nullptr)
+                    {
+                        if (Creature* l_BonemawMouth = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBonemawMouth)))
+                            m_Instance->DoRemoveForcedMovementsOnPlayers(l_BonemawMouth->GetGUID());
+                    }
+                    break;
+                default:
                     break;
             }
         }
@@ -182,81 +210,72 @@ public:
         void EnterCombat(Unit* p_Who) override
         {
             _EnterCombat();
-
+            HandleEntranceDoorActivation();
             if (m_Instance != nullptr)
             {
+				if (Creature* l_BonemawMouth = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBonemawMouth)))
+					l_BonemawMouth->SetObjectScale(2.0f);
+
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
-                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossBonemaw, EncounterState::IN_PROGRESS);
-
-                DoZoneInCombat();
-            }
-
-            HandleEntranceDoorActivation();
-
+                if (m_Instance->instance->IsHeroic())
+                    events.ScheduleEvent(eBoneMawEvents::EventCarrionWorm, 70 * TimeConstants::IN_MILLISECONDS);
+            }     
             events.ScheduleEvent(eBoneMawEvents::EventNecroticPitch, 50 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eBoneMawEvents::EventBodySlam, 30 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eBoneMawEvents::EventCorpseBreath, 20 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eBoneMawEvents::EventInhale, 60 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(70 * TimeConstants::IN_MILLISECONDS, 100 * TimeConstants::IN_MILLISECONDS));
-
-            if (me->GetMap()->IsHeroic())
-            events.ScheduleEvent(eBoneMawEvents::EventCarrionWorm, 70 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(70 * TimeConstants::IN_MILLISECONDS, 100 * TimeConstants::IN_MILLISECONDS));     
         }
 
         void JustDied(Unit* /*p_Killer*/) override
         {
             _JustDied();
             summons.DespawnAll();
-
-            if (m_Instance != nullptr)
-            {
-                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossBonemaw, EncounterState::DONE);
-            }
-
-            HandleEntranceDoorActivation();
             HandleDoorActivation();
+            HandleEntranceDoorActivation();
+            if (m_Instance != nullptr)
+                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossBonemaw, EncounterState::DONE);    
         }
 
         void UpdateAI(uint32 const p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
 
-            /// Inhale mechanismActionInhaleDeactivate
+            events.Update(p_Diff);
+
+            /// Inhale mechanism ActionInhaleDeactivate
             if (m_InhaleActivated)
             {
                 if (m_InhaleDiff <= p_Diff)
                 {
                     std::list<Player*> l_ListPlayers;
                     me->GetPlayerListInGrid(l_ListPlayers, 100.0f);
-
-                    if (l_ListPlayers.empty())
-                        return;
-
-                    Position l_Position;
-                    me->GetPosition(&l_Position);
-
-                    for (auto itr : l_ListPlayers)
-                    {            
-                        if (Creature* l_BonemawMouth = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBonemawMouth)))
+                    if (!l_ListPlayers.empty())
+                    {
+                        Position l_Position;
+                        me->GetPosition(&l_Position);
+                        for (Player* l_Itr : l_ListPlayers)
                         {
-                            if (itr->IsWithinDistInMap(l_BonemawMouth, 4.0f))
+                            if (m_Instance != nullptr)
                             {
-                                itr->CastSpell(itr, eBoneMawSpells::SpellInhaleDamage);
-                            }
+                                if (Creature* l_BonemawMouth = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBonemawMouth)))
+                                {
+                                    if (l_Itr->IsWithinDistInMap(l_BonemawMouth, 3.0f))
+                                        l_Itr->AddAura(eBoneMawSpells::SpellInhaleDamage, l_Itr);
 
-                            if (itr->IsWithinDist(l_BonemawMouth, 100.0f, true))
-                            {
-                                if (itr->isAlive() && !itr->HasMovementForce(l_BonemawMouth->GetGUID()))
-                                    itr->SendApplyMovementForce(l_BonemawMouth->GetGUID(), true, l_Position, 3.0f, 1);
-                                else if (!itr->isAlive() && itr->HasMovementForce(l_BonemawMouth->GetGUID()))
-                                    itr->SendApplyMovementForce(l_BonemawMouth->GetGUID(), false, l_Position);
+                                    if (l_Itr->IsWithinDist(l_BonemawMouth, 100.0f, true))
+                                    {
+                                        if (l_Itr->isAlive() && !l_Itr->HasMovementForce(l_BonemawMouth->GetGUID()))
+                                            l_Itr->SendApplyMovementForce(l_BonemawMouth->GetGUID(), true, l_Position, 5.5f, 1);
+                                        else if (!l_Itr->isAlive() && l_Itr->HasMovementForce(l_BonemawMouth->GetGUID()))
+                                            l_Itr->SendApplyMovementForce(l_BonemawMouth->GetGUID(), false, l_Position);
+                                    }
+                                    else if (l_Itr->HasMovementForce(l_BonemawMouth->GetGUID()))
+                                        l_Itr->SendApplyMovementForce(l_BonemawMouth->GetGUID(), false, l_Position);
+                                }
                             }
-                            else if (itr->HasMovementForce(l_BonemawMouth->GetGUID()))
-                                itr->SendApplyMovementForce(l_BonemawMouth->GetGUID(), false, l_Position);
                         }
                     }
 
@@ -282,11 +301,8 @@ public:
                     if (m_PoolDiff <= p_Diff)
                     {
                         m_HasVictimOut = true;
-
                         events.CancelEvent(eBoneMawEvents::EventFetidSpit);
-
-                        if (Unit* l_Target = me->getVictim())
-                            DoCastAOE(eBoneMawSpells::SpellFetidSpitDamage, true);
+                        DoCastAOE(eBoneMawSpells::SpellFetidSpitDamage, true);
 
                         m_PoolDiff = 5 * TimeConstants::IN_MILLISECONDS;
                     }
@@ -303,30 +319,26 @@ public:
                 case eBoneMawEvents::EventFetidSpit:
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         me->CastSpell(l_Target, eBoneMawSpells::SpellFetidSpitDamage);
-
                     events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eBoneMawEvents::EventSubmerge:
-                    me->CastSpell(me, eBoneMawSpells::SpellVisualSubmerge);
                     events.Reset();
-
+					me->MonsterTextEmote("Bonemaw hisses, sinking back into the depths", me->GetGUID(), false);
+                    me->CastSpell(me, eBoneMawSpells::SpellVisualSubmerge);             
                     events.ScheduleEvent(eBoneMawEvents::EventCancelSubmerge, 8 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eBoneMawEvents::EventBodySlam:
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(l_Target, eBoneMawSpells::SpellBodySlam);
-
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                        me->CastSpell(*l_Target, eBoneMawSpells::SpellBodySlam, false);
                     events.ScheduleEvent(eBoneMawEvents::EventBodySlam, 20 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eBoneMawEvents::EventCarrionWorm:
                 {
+					me->MonsterTextEmote("Bonemaw's piercing screech attract nerby Carrion Worms!", me->GetGUID(), false);
                     me->CastSpell(me, eBoneMawSpells::SpellVisualSubmerge);
-
-                    for (int i = 0; i < 2; i++)
-                    {
-                        me->SummonCreature(eBoneMawCreatures::CreatureCarrionWorm, l_PositionAdds[i], TEMPSUMMON_MANUAL_DESPAWN);
-                    }
-
+                    for (uint8 l_I = 0; l_I < 2; l_I++)
+                        me->SummonCreature(eBoneMawCreatures::CreatureCarrionWorm, l_PositionAdds[l_I], TEMPSUMMON_MANUAL_DESPAWN);
                     events.ScheduleEvent(eBoneMawEvents::EventCancelSubmerge, 3 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
@@ -334,42 +346,36 @@ public:
                 {
                     std::list<Creature*> l_ListCarrionWorms;
                     me->GetCreatureListWithEntryInGrid(l_ListCarrionWorms, eBoneMawCreatures::CreatureCarrionWorm, 70.0f);
-
                     if (!l_ListCarrionWorms.empty())
                     {
-                        for (auto itr : l_ListCarrionWorms)
+                        for (Creature* l_Itr : l_ListCarrionWorms)
                         {
-                            if (itr->isAlive())
-                            {
-                                itr->RemoveAura(eBoneMawSpells::SpellVisualSubmerge);
-                            }
+                            if (l_Itr->isAlive())
+                                l_Itr->RemoveAura(eBoneMawSpells::SpellVisualSubmerge);
                         }
                     }
-
+                    me->RemoveAura(eBoneMawSpells::SpellVisualSubmerge);
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
                     /// Resets all events and then rescheduel them to prevent the events from running while submerged.
                     events.Reset();
-
                     events.ScheduleEvent(eBoneMawEvents::EventNecroticPitch, 50 * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eBoneMawEvents::EventBodySlam, 30 * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eBoneMawEvents::EventCorpseBreath, 20 * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eBoneMawEvents::EventInhale, 60 * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(30 * TimeConstants::IN_MILLISECONDS, 70 * TimeConstants::IN_MILLISECONDS));
-
-                    if (me->GetMap()->IsHeroic())
-                        events.ScheduleEvent(eBoneMawEvents::EventCarrionWorm, 70 * TimeConstants::IN_MILLISECONDS);
-
+                    if (m_Instance != nullptr)
+                    {
+                        if (m_Instance->instance->IsHeroic())
+                            events.ScheduleEvent(eBoneMawEvents::EventCarrionWorm, 70 * TimeConstants::IN_MILLISECONDS);
+                    }
                     events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(70 * TimeConstants::IN_MILLISECONDS, 100 * TimeConstants::IN_MILLISECONDS));
-
-                    me->RemoveAura(eBoneMawSpells::SpellVisualSubmerge);
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
                     break;
                 }
                 case eBoneMawEvents::EventCorpseBreath:
                 {
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         me->CastSpell(l_Target, eBoneMawSpells::SpellCorpseBreathPeriodic);
-
                     events.ScheduleEvent(eBoneMawEvents::EventCorpseBreath, 15 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
@@ -377,8 +383,8 @@ public:
                 {
                     m_InhaleActivated = true;
                     m_InhaleDiff = 2 * TimeConstants::IN_MILLISECONDS;
-
                     me->CastSpell(me, eBoneMawSpells::SpellInhalePeriodicChannel);
+					me->MonsterTextEmote("Bonemaw begins to |cffff0000[Inhale]|cfffaeb00! his enemies", me->GetGUID(), true);
                     events.ScheduleEvent(eBoneMawEvents::EventInhale, 55 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
@@ -386,10 +392,11 @@ public:
                 {
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         me->CastSpell(l_Target, eBoneMawSpells::SpellNecroticPitchTriggerMissile);
-
                     events.ScheduleEvent(eBoneMawEvents::EventNecroticPitch, 25 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
+                default:
+                    break;
             }
 
             DoMeleeAttackIfReady();
@@ -400,20 +407,31 @@ public:
     {
         return new boss_bonemawAI(p_Creature);
     }
-};
+}; /// Morgo, if you find this - you're a fat whore. <3.
 
 /// Carrion Worm - 76057
-class npc_shadowmoon_burial_grounds_creature_carrion_worm : public CreatureScript
+class shadowmoon_burial_grounds_bonemaw_creature_carrion_worm : public CreatureScript
 {
 public:
-    npc_shadowmoon_burial_grounds_creature_carrion_worm() : CreatureScript("npc_shadowmoon_burial_grounds_creature_carrion_worm") { }
+    shadowmoon_burial_grounds_bonemaw_creature_carrion_worm() : CreatureScript("shadowmoon_burial_grounds_bonemaw_creature_carrion_worm") { }
 
-    struct npc_shadowmoon_burial_grounds_creature_carrion_wormAI : public ScriptedAI
+    struct shadowmoon_burial_grounds_bonemaw_creature_carrion_wormAI : public ScriptedAI
     {
-        npc_shadowmoon_burial_grounds_creature_carrion_wormAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        shadowmoon_burial_grounds_bonemaw_creature_carrion_wormAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
+
+        enum eCarrionWormSpells
+        {
+            SpellFetidSpitDamage = 153681,
+            SpellVisualSubmerge  = 177694
+        };
+
+        enum eCarrionWormEvents
+        {
+            EventFetidSpit = 1
+        };
 
         InstanceScript* m_Instance;
         uint32 m_PoolDiff;
@@ -422,25 +440,20 @@ public:
         void Reset() override
         {
             events.Reset();
-
             DoZoneInCombat();
-
-            me->SetDisableGravity(true);
             me->SetCanFly(true);
-
             m_HasVictimOut = false;
+            me->SetDisableGravity(true);
             m_PoolDiff = 2 * TimeConstants::IN_MILLISECONDS;
-
+            me->AddAura(eCarrionWormSpells::SpellVisualSubmerge, me);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS,  eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-
-            me->AddAura(eBoneMawSpells::SpellVisualSubmerge, me);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);         
         }
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eCarrionWormEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*p_Killer*/) override
@@ -450,10 +463,10 @@ public:
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);
 
             /// Fetid Spit mechanism - hardcoded.
             if (Unit* l_Target = me->getVictim())
@@ -463,20 +476,16 @@ public:
                     if (m_HasVictimOut)
                     {
                         m_HasVictimOut = false;
-                        events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eCarrionWormEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
                     }
                 }
                 else
                 {
                     if (m_PoolDiff <= p_Diff)
-                    {
+                    {                
                         m_HasVictimOut = true;
-
-                        events.CancelEvent(eBoneMawEvents::EventFetidSpit);
-
-                        if (Unit* l_Target = me->getVictim())
-                            DoCastAOE(eBoneMawSpells::SpellFetidSpitDamage, true);
-
+                        DoCastAOE(eCarrionWormSpells::SpellFetidSpitDamage, true);               
+                        events.CancelEvent(eCarrionWormEvents::EventFetidSpit);
                         m_PoolDiff = 5 * TimeConstants::IN_MILLISECONDS;
                     }
                     else
@@ -489,12 +498,13 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eBoneMawEvents::EventFetidSpit:
-                    if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(l_Target, eBoneMawSpells::SpellFetidSpitDamage);
-
-                    events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
-                    break;
+                case eCarrionWormEvents::EventFetidSpit:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            me->CastSpell(l_Target, eCarrionWormSpells::SpellFetidSpitDamage);
+                        events.ScheduleEvent(eCarrionWormEvents::EventFetidSpit, 6 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
             }
 
             DoMeleeAttackIfReady();
@@ -503,22 +513,89 @@ public:
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new npc_shadowmoon_burial_grounds_creature_carrion_wormAI(p_Creature);
+        return new shadowmoon_burial_grounds_bonemaw_creature_carrion_wormAI(p_Creature);
     }
 };
 
-/// Necrotic Pitch - 76191
-class npc_shadowmoon_burial_grounds_necrotic_pitch : public CreatureScript
+/// Carrion Worm - 76057
+class shadowmoon_burial_grounds_bonemaw_creature_water_burst : public CreatureScript
 {
 public:
-    npc_shadowmoon_burial_grounds_necrotic_pitch() : CreatureScript("npc_shadowmoon_burial_grounds_necrotic_pitch") { }
+	shadowmoon_burial_grounds_bonemaw_creature_water_burst() : CreatureScript("shadowmoon_burial_grounds_bonemaw_creature_water_burst") { }
 
-    struct npc_shadowmoon_burial_grounds_necrotic_pitchAI : public Scripted_NoMovementAI
+	struct shadowmoon_burial_grounds_bonemaw_creature_water_burstAI : public ScriptedAI
+	{
+		shadowmoon_burial_grounds_bonemaw_creature_water_burstAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+		{
+			m_Instance = me->GetInstanceScript();
+		}
+
+		enum eWaterBurstSpells
+		{
+			SpellVisual = 158073
+		};
+
+		InstanceScript* m_Instance;
+        uint32 m_Timer;
+		bool m_HasVictimOut;
+
+		void Reset() override
+		{
+            m_Timer = 3 * TimeConstants::IN_MILLISECONDS;
+			me->CastSpell(me, eWaterBurstSpells::SpellVisual);
+			me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+			me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+			me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+		}
+
+        void UpdateAI(uint32 const p_Diff) override
+        {
+            if (m_Timer <= p_Diff)
+            {
+                std::list<Player*> l_ListPlayers;
+                me->GetPlayerListInGrid(l_ListPlayers, 1.0f);
+                if (!l_ListPlayers.empty())
+                {
+                    for (Player* l_Itr : l_ListPlayers)
+                    {
+                        float l_X = l_Itr->m_positionX + 20.0f * cos(l_Itr->m_orientation);
+                        float l_Y = l_Itr->m_positionY + 20.0f * sin(l_Itr->m_orientation);
+
+                        l_Itr->GetMotionMaster()->MoveJump(l_X, l_Y, 203.740f, 6.0f, 6.0f, 10.0f);
+                    }
+                }
+
+                m_Timer = 3 * TimeConstants::IN_MILLISECONDS;
+            }
+            else
+                m_Timer -= p_Diff;
+        }
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new shadowmoon_burial_grounds_bonemaw_creature_water_burstAI(p_Creature);
+	}
+};
+
+/// Necrotic Pitch - 76191
+class shadowmoon_burial_grounds_bonemaw_creature_necrotic_pitch : public CreatureScript
+{
+public:
+
+    shadowmoon_burial_grounds_bonemaw_creature_necrotic_pitch() : CreatureScript("shadowmoon_burial_grounds_bonemaw_creature_necrotic_pitch") { }
+
+    struct shadowmoon_burial_grounds_bonemaw_creature_necrotic_pitchAI : public Scripted_NoMovementAI
     {
-        npc_shadowmoon_burial_grounds_necrotic_pitchAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        shadowmoon_burial_grounds_bonemaw_creature_necrotic_pitchAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
         {
             m_Instance = p_Creature->GetInstanceScript();
         }
+
+        enum eNecroticPitchSpells
+        {
+            SpellNecroticPitchDebuff = 153692
+        };
 
         uint32 m_Timer;
         InstanceScript* m_Instance;
@@ -526,15 +603,12 @@ public:
         void Reset() override
         {
             events.Reset();
-
-            me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
             me->setFaction(FriendlyFaction);
             me->SetDisplayId(InvisibleDisplay);
-
             m_Timer = 2 * TimeConstants::IN_MILLISECONDS;
+            me->SetReactState(ReactStates::REACT_PASSIVE);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);                
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -545,42 +619,40 @@ public:
             {
                 std::list<Player*> l_ListPlayers;
                 me->GetPlayerListInGrid(l_ListPlayers, 1.12f);
-
-                if (l_ListPlayers.empty())
-                    return;
-
-                for (auto itr : l_ListPlayers)
+                if (!l_ListPlayers.empty())
                 {
-                    if (!itr->HasAura(eBoneMawSpells::SpellNecroticPitchDebuff))
-                    itr->AddAura(eBoneMawSpells::SpellNecroticPitchDebuff, itr);
+                    for (Player* l_Itr : l_ListPlayers)
+                    {
+                        if (!l_Itr->HasAura(eNecroticPitchSpells::SpellNecroticPitchDebuff))
+                            l_Itr->AddAura(eNecroticPitchSpells::SpellNecroticPitchDebuff, l_Itr);
+                    }
                 }
 
                 m_Timer = 2 * TimeConstants::IN_MILLISECONDS;
             }
             else
-            {
                 m_Timer -= p_Diff;
-            }
         }
     };
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new npc_shadowmoon_burial_grounds_necrotic_pitchAI(p_Creature);
+        return new shadowmoon_burial_grounds_bonemaw_creature_necrotic_pitchAI(p_Creature);
     }
 };
 
 /// Inhale - 153804 
-class spell_shadowmoon_burial_grounds_inhale : public SpellScriptLoader
+class shadowmoon_burial_grounds_bonemaw_spell_inhale : public SpellScriptLoader
 {
 public:
-    spell_shadowmoon_burial_grounds_inhale() : SpellScriptLoader("spell_inhale") { }
 
-    class spell_shadowmoon_burial_grounds_inhale_SpellScript : public AuraScript
+    shadowmoon_burial_grounds_bonemaw_spell_inhale() : SpellScriptLoader("shadowmoon_burial_grounds_bonemaw_spell_inhale") { }
+
+    class shadowmoon_burial_grounds_bonemaw_spell_inhale_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_shadowmoon_burial_grounds_inhale_SpellScript);
+        PrepareAuraScript(shadowmoon_burial_grounds_bonemaw_spell_inhale_AuraScript);
 
-        void OnRemove(constAuraEffectPtr /*m_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
+        void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -589,9 +661,7 @@ public:
                     if (Creature* l_Bonemaw = l_Instance->instance->GetCreature(l_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossBonemaw)))
                     {
                         if (l_Bonemaw->IsAIEnabled)
-                        {
                             l_Bonemaw->GetAI()->DoAction(eBoneMawActions::ActionInhaleDeactivate);
-                        }
                     }
                 }
             }
@@ -599,38 +669,45 @@ public:
 
         void Register()
         {     
-            AfterEffectRemove += AuraEffectRemoveFn(spell_shadowmoon_burial_grounds_inhale_SpellScript::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(shadowmoon_burial_grounds_bonemaw_spell_inhale_AuraScript::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
         }
-
     };
 
     AuraScript* GetAuraScript() const override
     {
-        return new spell_shadowmoon_burial_grounds_inhale_SpellScript();
+        return new shadowmoon_burial_grounds_bonemaw_spell_inhale_AuraScript();
     }
 };
 
 /// Body Slam - 153686
-class spell_shadowmoon_burial_grounds_body_slam : public SpellScriptLoader
+class shadowmoon_burial_grounds_bonemaw_spell_body_slam : public SpellScriptLoader
 {
 public:
-    spell_shadowmoon_burial_grounds_body_slam() : SpellScriptLoader("spell_shadowmoon_burial_grounds_body_slam") { }
 
-    class spell_shadowmoon_burial_grounds_body_slam_SpellScript : public SpellScript
+    shadowmoon_burial_grounds_bonemaw_spell_body_slam() : SpellScriptLoader("shadowmoon_burial_grounds_bonemaw_spell_body_slam") { }
+
+    class shadowmoon_burial_grounds_bonemaw_spell_body_slam_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_shadowmoon_burial_grounds_body_slam_SpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_bonemaw_spell_body_slam_SpellScript);
 
-        enum eSpell
+        
+        enum eBodySlamSpells
         {
-            TargetRestrict = 18748,
+            TargetRestrict = 18748
         };
+        
+        void HandleAfterCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+                GetCaster()->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+        }
 
         void CorrectTargets(std::list<WorldObject*>& p_Targets)
         {
             if (p_Targets.empty())
                 return;
 
-            SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
+            SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eBodySlamSpells::TargetRestrict);
             if (l_Restriction == nullptr)
                 return;
 
@@ -638,7 +715,7 @@ public:
             if (l_Caster == nullptr)
                 return;
 
-            float l_Radius = GetSpellInfo()->Effects[EFFECT_0].CalcRadius(l_Caster);
+            float l_Radius = GetSpellInfo()->Effects[SpellEffIndex::EFFECT_0].CalcRadius(l_Caster);
             p_Targets.remove_if([l_Radius, l_Caster, l_Restriction](WorldObject* p_Object) -> bool
             {
                 if (p_Object == nullptr)
@@ -653,148 +730,116 @@ public:
                 return false;
             });
         }
+        
 
         void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_shadowmoon_burial_grounds_body_slam_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CONE_ENEMY_129);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_shadowmoon_burial_grounds_body_slam_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CONE_ENEMY_129);
+        {  
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(shadowmoon_burial_grounds_bonemaw_spell_body_slam_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CONE_ENEMY_129);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(shadowmoon_burial_grounds_bonemaw_spell_body_slam_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CONE_ENEMY_129);
+            AfterCast += SpellCastFn(shadowmoon_burial_grounds_bonemaw_spell_body_slam_SpellScript::HandleAfterCast);
         }
     };
 
     SpellScript* GetSpellScript() const override
     {
-        return new spell_shadowmoon_burial_grounds_body_slam_SpellScript();
+        return new shadowmoon_burial_grounds_bonemaw_spell_body_slam_SpellScript();
     }
 };
 
 /// Corpse Breath - 165578  
-class spell_shadowmoon_burial_grounds_corpse_breath : public SpellScriptLoader
+class shadowmoon_burial_grounds_bonemaw_spell_corpse_breath : public SpellScriptLoader
 {
 public:
-    spell_shadowmoon_burial_grounds_corpse_breath() : SpellScriptLoader("spell_shadowmoon_burial_grounds_corpse_breath") { }
 
-    class spell_shadowmoon_burial_grounds_corpse_breath_SpellScript : public AuraScript
+    shadowmoon_burial_grounds_bonemaw_spell_corpse_breath() : SpellScriptLoader("shadowmoon_burial_grounds_bonemaw_spell_corpse_breath") { } /// Outside smoking ma Jointe
+
+    class shadowmoon_burial_grounds_bonemaw_spell_corpse_breath_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_shadowmoon_burial_grounds_corpse_breath_SpellScript);
+        PrepareAuraScript(shadowmoon_burial_grounds_bonemaw_spell_corpse_breath_AuraScript);
 
-        void OnApply(constAuraEffectPtr /*m_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
+        enum eCorpseBreathSpells
+        {
+            SpellCorpseBreathDamage = 165579
+        };
+
+        void OnApply(AuraEffect const * p_AurEff, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
                 if (l_Caster->IsAIEnabled)
                 {
                     if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                    {
-                        l_Caster->CastSpell(l_Target, eBoneMawSpells::SpellCorpseBreathDamage);
-                    }
+                        l_Caster->CastSpell(l_Target, eCorpseBreathSpells::SpellCorpseBreathDamage);
                 }
             }
         }
 
-        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const * p_AurEff, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
                 if (Unit* l_Target = GetTarget())
                 {
                     if (InstanceScript* l_Instance = l_Caster->GetInstanceScript())
-                    {
-                        l_Instance->DoRemoveAurasDueToSpellOnPlayers(eBoneMawSpells::SpellCorpseBreathDamage);
-                    }
+                        l_Instance->DoRemoveAurasDueToSpellOnPlayers(eCorpseBreathSpells::SpellCorpseBreathDamage);
                 }
             }
         }
 
         void Register()
         {
-            AfterEffectApply += AuraEffectApplyFn(spell_shadowmoon_burial_grounds_corpse_breath_SpellScript::OnApply, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_shadowmoon_burial_grounds_corpse_breath_SpellScript::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+            AfterEffectApply  += AuraEffectApplyFn(shadowmoon_burial_grounds_bonemaw_spell_corpse_breath_AuraScript::OnApply,   SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(shadowmoon_burial_grounds_bonemaw_spell_corpse_breath_AuraScript::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
         }
     };
 
     AuraScript* GetAuraScript() const override
     {
-        return new spell_shadowmoon_burial_grounds_corpse_breath_SpellScript();
-    }
-};
-
-/// Necrotic Pitch - 153689
-class spell_shadowmoon_burial_grounds_necrotic_pitch : public SpellScriptLoader
-{
-public:
-    spell_shadowmoon_burial_grounds_necrotic_pitch() : SpellScriptLoader("spell_shadowmoon_burial_grounds_necrotic_pitch") { }
-
-    class spell_shadowmoon_burial_grounds_necrotic_pitch_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_shadowmoon_burial_grounds_necrotic_pitch_SpellScript);
-
-        void HandleTriggerMissile(SpellEffIndex p_EffIndex)
-        {
-            PreventHitDefaultEffect(p_EffIndex);
-
-            if (!GetCaster())
-                return;
-
-            const WorldLocation* l_WorldLocation = GetExplTargetDest();
-
-            if (l_WorldLocation != nullptr)
-            GetCaster()->SummonCreature(eBoneMawCreatures::CreatureNecroticPitchTrigger, l_WorldLocation->GetPositionX(), l_WorldLocation->GetPositionY(), l_WorldLocation->GetPositionZ(), l_WorldLocation->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60 * TimeConstants::IN_MILLISECONDS);
-        }
-
-        void Register()
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_burial_grounds_necrotic_pitch_SpellScript::HandleTriggerMissile, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_TRIGGER_MISSILE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_shadowmoon_burial_grounds_necrotic_pitch_SpellScript();
+        return new shadowmoon_burial_grounds_bonemaw_spell_corpse_breath_AuraScript();
     }
 };
 
 /// Drowned - 154010  
-class spell_shadowmoon_burial_grounds_drowned : public SpellScriptLoader
+class shadowmoon_burial_grounds_bonemaw_spell_drowned : public SpellScriptLoader
 {
 public:
-    spell_shadowmoon_burial_grounds_drowned() : SpellScriptLoader("spell_shadowmoon_burial_grounds_drowned")
+
+    shadowmoon_burial_grounds_bonemaw_spell_drowned() : SpellScriptLoader("shadowmoon_burial_grounds_bonemaw_spell_drowned")
     {
     }
 
-    class spell_shadowmoon_burial_grounds_drowned_SpellScript : public SpellScript
+    class shadowmoon_burial_grounds_bonemaw_spell_drowned_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_shadowmoon_burial_grounds_drowned_SpellScript)
+        PrepareSpellScript(shadowmoon_burial_grounds_bonemaw_spell_drowned_SpellScript)
 
         void HandleScript(SpellEffIndex /*p_EffIndex*/)
         {
             if (!GetCaster())
                 return;
 
-            Unit* l_Caster = GetCaster();
-
-            l_Caster->NearTeleportTo(1830.360f, -505.889f, 201.652f, 5.194756f, true);          
+            GetCaster()->NearTeleportTo(1830.360f, -505.889f, 201.652f, 5.194756f, true);
         }
 
         void Register()
         {
-            OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_burial_grounds_drowned_SpellScript::HandleScript, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget += SpellEffectFn(shadowmoon_burial_grounds_bonemaw_spell_drowned_SpellScript::HandleScript, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
     SpellScript* GetSpellScript() const override
     {
-        return new spell_shadowmoon_burial_grounds_drowned_SpellScript();
+        return new shadowmoon_burial_grounds_bonemaw_spell_drowned_SpellScript();
     }
 };
 
-void AddSC_bonemaw()
+void AddSC_boss_bonemaw()
 {
-    new boss_bonemaw();
-    new npc_shadowmoon_burial_grounds_creature_carrion_worm();
-    new npc_shadowmoon_burial_grounds_necrotic_pitch();
-    new spell_shadowmoon_burial_grounds_body_slam();
-    new spell_shadowmoon_burial_grounds_inhale();
-    new spell_shadowmoon_burial_grounds_necrotic_pitch();
-    new spell_shadowmoon_burial_grounds_corpse_breath();
-    new spell_shadowmoon_burial_grounds_drowned();
+    new boss_bonemaw();                                                 ///< 75452
+    new shadowmoon_burial_grounds_bonemaw_creature_carrion_worm();      ///< 76057
+    new shadowmoon_burial_grounds_bonemaw_creature_necrotic_pitch();    ///< 76191
+	new shadowmoon_burial_grounds_bonemaw_creature_water_burst();		///< 77676
+    new shadowmoon_burial_grounds_bonemaw_spell_inhale();               ///< 153804
+    new shadowmoon_burial_grounds_bonemaw_spell_drowned();              ///< 154010
+    new shadowmoon_burial_grounds_bonemaw_spell_body_slam();            ///< 153686
+    new shadowmoon_burial_grounds_bonemaw_spell_corpse_breath();        ///< 165578
 }

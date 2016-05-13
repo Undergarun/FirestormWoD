@@ -24,6 +24,8 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "../Garrison/GarrisonMgrConstants.hpp"
+#include "../Garrison/GarrisonMgr.hpp"
 
 const int32 ReputationMgr::PointsInRank[MAX_REPUTATION_RANK] = {36000, 3000, 3000, 3000, 6000, 12000, 21000, 1000};
 
@@ -287,8 +289,13 @@ void ReputationMgr::Initialize()
 
 bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental)
 {
-    sScriptMgr->OnPlayerReputationChange(_player, factionEntry->ID, standing, incremental);
     bool res = false;
+
+    sScriptMgr->OnPlayerReputationChange(_player, factionEntry->ID, standing, incremental);
+
+    if (!standing)
+        return res;
+
     // if spillover definition exists in DB, override DBC
     if (const RepSpilloverTemplate* repTemplate = sObjectMgr->GetRepSpilloverTemplate(factionEntry->ID))
     {
@@ -298,6 +305,13 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
             {
                 if (_player->GetReputationRank(repTemplate->faction[i]) <= ReputationRank(repTemplate->faction_rank[i]))
                 {
+                    ///< Algorithm to add Trading Post bonus (+20% from each reputation earning when you have the building lvl 3)
+                    if (_player->GetGarrison() != nullptr)
+                    {
+                        if (_player->GetGarrison()->GetBuildingWithBuildingID(MS::Garrison::Buildings::TradingPost_TradingPost_Level3).BuildingID)
+                            standing *= 1.2;
+                    }
+
                     // bonuses are already given, so just modify standing by rate
                     int32 spilloverRep = int32(standing * repTemplate->faction_rate[i]);
                     SetOneFactionReputation(sFactionStore.LookupEntry(repTemplate->faction[i]), spilloverRep, incremental);

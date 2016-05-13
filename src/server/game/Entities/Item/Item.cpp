@@ -120,8 +120,11 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 {
     uint32 setid = proto->ItemSet;
 
-    ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
+    /// If set ID = 0, we don't need to search for ItemSetEntry
+    if (!setid)
+        return;
 
+    ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
     if (!set)
     {
         sLog->outError(LOG_FILTER_SQL, "Item set #%u for item #%u not found, mods not removed.", setid, proto->ItemId);
@@ -279,7 +282,11 @@ Item::Item()
     // Fuck default constructor, i don't trust it
     m_text = "";
 
+    m_CustomFlags = 0;
+
     _dynamicValuesCount = ITEM_DYNAMIC_END;
+
+    memset(m_Modifiers, 0, sizeof (m_Modifiers));
 }
 
 bool RemoveItemByDelete(Player* p_Player, Item* p_Item)
@@ -441,7 +448,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
 
 void Item::SaveToDB(SQLTransaction& trans)
 {
-    bool isInTransaction = !(trans.null());
+    bool isInTransaction = trans.get() != nullptr;
     if (!isInTransaction)
         trans = CharacterDatabase.BeginTransaction();
 
@@ -477,7 +484,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setString(++index, ssEnchants.str());
 
             stmt->setInt16 (++index, GetItemRandomPropertyId());
-            stmt->setUInt32(++index, GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0));
+            stmt->setUInt32(++index, GetModifier(eItemModifiers::TransmogItemID) | (GetModifier(eItemModifiers::TransmogAppearanceMod) << 24));
 
             std::ostringstream ssBonuses;
             std::vector<uint32> bonuses = GetAllItemBonuses();
@@ -490,10 +497,12 @@ void Item::SaveToDB(SQLTransaction& trans)
             }
 
             stmt->setString(++index, ssBonuses.str());
-            stmt->setUInt32(++index, 0/*GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 2)*/); // itemUpgrade Id
+            stmt->setUInt32(++index, GetModifier(eItemModifiers::UpgradeID));
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
+            stmt->setUInt32(++index, m_CustomFlags);
+            stmt->setUInt32(++index, GetModifier(eItemModifiers::EnchantIllusion));
             stmt->setUInt32(++index, guid);
 
             trans->Append(stmt);
@@ -538,8 +547,8 @@ void Item::SaveToDB(SQLTransaction& trans)
 
 bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry)
 {
-    //                                              0                1          2       3        4        5         6               7              8            9            10          11         12
-    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, bonuses, upgradeId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
+    //                                              0                1          2       3        4        5         6               7              8            9            10          11         12     13     14                15
+    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, bonuses, upgradeId, durability, playedTime, text, custom_flags, enchantIllusionId FROM item_instance WHERE guid = '%u'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -587,17 +596,20 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     std::string enchants = fields[6].GetString();
     _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET, false);
 
-    if (uint32 transmogId = fields[8].GetInt32())
+    if (uint32 l_TransmogID = fields[8].GetInt32())
     {
-        SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, transmogId);
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+        if (sObjectMgr->GetItemTemplate(l_TransmogID))
+        {
+            SetModifier(eItemModifiers::TransmogAppearanceMod, (l_TransmogID >> 24) & 0xFF);
+            SetModifier(eItemModifiers::TransmogItemID, l_TransmogID & 0xFFFFFF);
+        }
     }
 
     Tokenizer bonusTokens(fields[9].GetString(), ' ');
         for (uint8 i = 0; i < bonusTokens.size(); ++i)
             AddItemBonus(atoi(bonusTokens[i]));
 
-    // uint32 upgradeId = fields[10].GetUInt32(); @TODO: Remove this DB field
+    SetModifier(eItemModifiers::UpgradeID, fields[10].GetUInt32());
 
     SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[7].GetInt16());
     // recalculate suffix factor
@@ -616,6 +628,9 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[12].GetUInt32());
     SetText(fields[13].GetString());
+    SetCustomFlags(fields[14].GetUInt32());
+
+    SetModifier(eItemModifiers::EnchantIllusion, fields[15].GetUInt32());
 
     if (need_save)                                           // normal item changed state set not work at loading
     {
@@ -671,7 +686,7 @@ uint32 Item::GetSkill() const
     return GetTemplate()->GetSkill();
 }
 
-void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus)
+void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus, bool p_OnlyDifficulty /*= false*/)
 {
     auto l_ItemTemplate = sObjectMgr->GetItemTemplate(p_ItemId);
     if (l_ItemTemplate == nullptr)
@@ -761,7 +776,7 @@ void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector
             p_Context == ItemContext::RaidLfr)
             l_StatsBonus.push_back(ItemBonus::Stats::Indestructible);
 
-        if (roll_chance_f(ItemBonus::Chances::Stats))
+        if (roll_chance_f(ItemBonus::Chances::Stats) && !p_OnlyDifficulty)
         { 
             /// Could be a good thing to improve performance to declare one random generator somewhere and always use the same instead of declare it new one for each std::shuffle call
             /// Note for developers : std::random_shuffle is c based and will be removed soon (c++x14), so it's a good tips to always use std::shuffle instead 
@@ -776,11 +791,11 @@ void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector
     /// Step tree : Roll for Warforged & Prismatic Socket
     /// That roll happen only in heroic dungeons & raid
     /// Exaclty like stats, we don't know the chance to have that kind of bonus ...
-    if (p_Context == ItemContext::DungeonHeroic ||
+    if ((p_Context == ItemContext::DungeonHeroic ||
         p_Context == ItemContext::RaidNormal ||
         p_Context == ItemContext::RaidHeroic ||
         p_Context == ItemContext::RaidMythic ||
-        p_Context == ItemContext::RaidLfr)
+        p_Context == ItemContext::RaidLfr) && !p_OnlyDifficulty)
     {
         if (roll_chance_f(ItemBonus::Chances::Warforged))
             p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::Warforged);
@@ -790,7 +805,7 @@ void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector
     }
 }
 
-void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item)
+void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item, ItemContext p_Context /*= ItemContext::None*/)
 {
     if (p_Item == nullptr)
     {
@@ -816,7 +831,7 @@ void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item)
     /// Item bonuses
     if (l_Bonuses.size() != 0)
     {
-        p_Datas << uint8(0);                                ///< Context
+        p_Datas << uint8(p_Context);                        ///< Context
         p_Datas << uint32(l_Bonuses.size());
         for (auto& l_BonusId : l_Bonuses)
             p_Datas << uint32(l_BonusId);
@@ -1492,6 +1507,71 @@ void Item::BuildUpdate(UpdateDataMapType& data_map)
     ClearUpdateMask(false);
 }
 
+void Item::BuildDynamicValuesUpdate(uint8 p_UpdateType, ByteBuffer* p_Data, Player* p_Target) const
+{
+    if (p_Target == nullptr)
+        return;
+
+    ByteBuffer l_FieldBuffer;
+    UpdateMask l_UpdateMask;
+
+    l_UpdateMask.SetCount(_dynamicValuesCount);
+
+    uint32* l_Flags = nullptr;
+    uint32 l_VisibleFlags = GetDynamicUpdateFieldData(p_Target, l_Flags);
+
+    for (uint16 l_I = 0; l_I < _dynamicValuesCount; ++l_I)
+    {
+        ByteBuffer l_Buffer;
+        std::vector<uint32> const& l_Values = _dynamicValues[l_I];
+
+        if (_fieldNotifyFlags & l_Flags[l_I] ||
+            ((p_UpdateType == OBJECT_UPDATE_TYPE::UPDATETYPE_VALUES ? _dynamicChangesMask.GetBit(l_I) : !l_Values.empty()) && (l_Flags[l_I] & l_VisibleFlags)) ||
+            (l_I == EItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS &&
+            (p_UpdateType == OBJECT_UPDATE_TYPE::UPDATETYPE_VALUES ? _changesMask.GetBit(EItemFields::ITEM_FIELD_MODIFIERS_MASK) : GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK) != 0)))
+        {
+            l_UpdateMask.SetBit(l_I);
+
+            UpdateMask l_ArrayMask;
+            if (l_I != EItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS)
+            {
+                l_ArrayMask.SetCount(l_Values.size());
+
+                for (std::size_t l_J = 0; l_J < l_Values.size(); ++l_J)
+                {
+                    if (p_UpdateType != OBJECT_UPDATE_TYPE::UPDATETYPE_VALUES || _dynamicChangesArrayMask[l_I].GetBit(l_J))
+                    {
+                        l_ArrayMask.SetBit(l_J);
+                        l_Buffer << uint32(l_Values[l_J]);
+                    }
+                }
+            }
+            else
+            {
+                uint32 l_Count = 0;
+                l_ArrayMask.SetCount(eItemModifiers::MaxItemModifiers);
+
+                for (uint32 l_J = 0; l_J < eItemModifiers::MaxItemModifiers; ++l_J)
+                {
+                    if (uint32 l_Modifier = m_Modifiers[l_J])
+                    {
+                        l_ArrayMask.SetBit(l_Count++);
+                        l_Buffer << uint32(l_Modifier);
+                    }
+                }
+            }
+
+            l_FieldBuffer << uint8(l_ArrayMask.GetBlockCount());
+            l_ArrayMask.AppendToPacket(&l_FieldBuffer);
+            l_FieldBuffer.append(l_Buffer);
+        }
+    }
+
+    *p_Data << uint8(l_UpdateMask.GetBlockCount());
+    l_UpdateMask.AppendToPacket(p_Data);
+    p_Data->append(l_FieldBuffer);
+}
+
 void Item::SaveRefundDataToDB()
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -1512,7 +1592,7 @@ void Item::SaveRefundDataToDB()
 
 void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
 {
-    if (trans && !trans->null())
+    if (trans && trans->get() != nullptr)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
         stmt->setUInt32(0, GetGUIDLow());
@@ -1629,11 +1709,16 @@ bool Item::SubclassesCompatible(ItemTemplate const* p_Transmogrifier, ItemTempla
 
     /// Two-Handed
     /// Two-handed axes, maces, and swords can be Transmogrified to each other.
+    /// WoD Patch 6.0.2 (2014-10-14): Polearms and Staves can now be used to transmogrify Two-Handed Axes, Maces and Swords, and vice versa.
     if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
         p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_STAFF ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
         p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2) &&
         (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
         p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_STAFF ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
         p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2))
         return true;
 
@@ -1644,14 +1729,6 @@ bool Item::SubclassesCompatible(ItemTemplate const* p_Transmogrifier, ItemTempla
         (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
         p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
         p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW))
-        return true;
-
-    /// Polearm and Staff
-    /// Staves and polearms can be transmogrified to each other.
-    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
-        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_STAFF) &&
-        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
-        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_STAFF))
         return true;
 
     return false;
@@ -1851,7 +1928,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
                 break;
             }
             case INVTYPE_WEAPONMAINHAND:
-                wepType = 0;             // unk enum, fall back
+                wepType = 0;             // unk enum, fall back wepType is never read 01/18/16
             case INVTYPE_WEAPONOFFHAND:
                 wepType = 1;             // unk enum, fall back
             case INVTYPE_WEAPON:
@@ -2242,6 +2319,9 @@ uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
             if (SubClass == 0 || SubClass > 4)
                 return 0.0f;
 
+            if (armorQuality == nullptr || armorTotal == nullptr || armorLoc == nullptr)
+                return 0.0f;
+
             return (int)floor(armorQuality->Value[quality] * armorTotal->Value[SubClass - 1] * armorLoc->Value[SubClass - 1] + 0.5f);
         }
         return 0;
@@ -2249,6 +2329,9 @@ uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
     else
     {
         ItemArmorShieldEntry const* shieldEntry = sItemArmorShieldStore.LookupEntry(ilvl);
+        if (shieldEntry == nullptr)
+            return 0;
+
         return shieldEntry->Value[quality];
     }
 }
@@ -2395,7 +2478,15 @@ uint32 Item::GetItemLevelBonusFromItemBonuses() const
     return itemLevel;
 }
 
-uint32 Item::GetAppearanceModID() const
+uint16 Item::GetVisibleAppearanceModID() const
+{
+    if (GetModifier(eItemModifiers::TransmogItemID))
+        return uint16(GetModifier(eItemModifiers::TransmogAppearanceMod));
+
+    return uint16(GetAppearanceModID());
+}
+
+uint16 Item::GetAppearanceModID() const
 {
     uint32 l_Appearance = 0;
 
@@ -2416,7 +2507,40 @@ uint32 Item::GetAppearanceModID() const
         }
     }
 
-    return l_Appearance;
+    return (uint16)l_Appearance;
+}
+
+uint32 Item::GetVisibleEntry() const
+{
+    if (uint32 l_Transmogrification = GetModifier(eItemModifiers::TransmogItemID))
+        return l_Transmogrification;
+
+    return GetEntry();
+}
+
+uint32 Item::GetVisibleEnchantmentId() const
+{
+    if (uint32 l_EnchantIllusion = GetModifier(eItemModifiers::EnchantIllusion))
+        return l_EnchantIllusion;
+
+    return GetEnchantmentId(PERM_ENCHANTMENT_SLOT);
+}
+
+uint16 Item::GetVisibleItemVisual() const
+{
+    if (SpellItemEnchantmentEntry const* l_Enchant = sSpellItemEnchantmentStore.LookupEntry(GetVisibleEnchantmentId()))
+        return l_Enchant->itemVisualID;
+
+    return 0;
+}
+
+void Item::SetModifier(eItemModifiers p_Modifier, uint32 p_Value)
+{
+    if (p_Modifier >= eItemModifiers::MaxItemModifiers)
+        return;
+
+    m_Modifiers[p_Modifier] = p_Value;
+    ApplyModFlag(EItemFields::ITEM_FIELD_MODIFIERS_MASK, 1 << p_Modifier, p_Value != 0);
 }
 
 bool Item::SubclassesCompatibleForRandomWeapon(ItemTemplate const* p_Transmogrifier, ItemTemplate const* p_Transmogrified)
@@ -2516,8 +2640,7 @@ void Item::RandomWeaponTransmogrificationFromPrimaryBag(Player* p_Player, Item* 
             return;
 
         /// Apply transmogrification on weapon
-        p_Transmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, l_TransmogrifierTemplate->ItemId);
-        p_Transmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+        p_Transmogrified->SetModifier(eItemModifiers::TransmogItemID, l_TransmogrifiedTemplate->ItemId);
         p_Player->SetVisibleItemSlot(l_TransmogrifiedItemSlot, p_Transmogrified);
 
         p_Transmogrified->UpdatePlayedTime(p_Player);
@@ -2540,8 +2663,25 @@ void Item::RandomWeaponTransmogrificationFromPrimaryBag(Player* p_Player, Item* 
     /// Remove transmogrification from weapon
     else
     {
-        p_Transmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
-        p_Transmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+        p_Transmogrified->SetModifier(eItemModifiers::TransmogItemID, 0);
         p_Player->SetVisibleItemSlot(l_TransmogrifiedItemSlot, p_Transmogrified);
     }
+}
+
+uint32 Item::GetEnchantItemVisualId(EnchantmentSlot p_Slot) const
+{
+    SpellItemEnchantmentEntry const* l_Enchantement = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(p_Slot));
+    if (l_Enchantement == nullptr)
+        return 0;
+
+    /// Special handler for SPELL_EFFECT_APPLY_ENCHANT_ILLUSION that should change visual effect of item
+    SpellItemEnchantmentEntry const* l_EnchantementIllusion = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(BONUS_ENCHANTMENT_SLOT));
+    if (l_EnchantementIllusion != nullptr)
+    {
+        uint32 l_IllusionVisualID = l_EnchantementIllusion->itemVisualID;
+        if (l_IllusionVisualID != 0)
+            return l_IllusionVisualID;
+    }
+
+    return l_Enchantement->itemVisualID;
 }

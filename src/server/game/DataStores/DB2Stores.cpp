@@ -34,6 +34,7 @@ std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, s
 std::unordered_map<uint32 /*ItemID*/, HeirloomEntry const*> HeirloomEntryByItemID;
 std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
 std::map<uint32, uint32> g_ItemDisplayIDs;
+std::map<uint32, uint32> g_ItemTemplateDisplayIDs;
 
 DB2Storage <AchievementEntry>               sAchievementStore(Achievementfmt);
 DB2Storage <CriteriaEntry>                  sCriteriaStore(Criteriafmt);
@@ -63,9 +64,9 @@ DB2Storage <RulesetItemUpgradeEntry>        sRulesetItemUpgradeStore(RulesetItem
 DB2Storage <SceneScriptEntry>               sSceneScriptStore(SceneScriptEntryfmt);
 DB2Storage <SceneScriptPackageEntry>        sSceneScriptPackageStore(SceneScriptPackageEntryfmt);
 DB2Storage <SoundEntriesEntry>              sSoundEntriesStore(SoundEntriesfmt);
-DB2Storage <TaxiNodesEntry>                 sTaxiNodesStore(TaxiNodesEntryfmt);
-DB2Storage <TaxiPathEntry>                  sTaxiPathStore(TaxiPathEntryfmt);
-DB2Storage <TaxiPathNodeEntry>              sTaxiPathNodeStore(TaxiPathNodeEntryfmt);
+DB2Storage <TaxiNodesEntry>                 sTaxiNodesStore(TaxiNodesFormat);
+DB2Storage <TaxiPathEntry>                  sTaxiPathStore(TaxiPathFormat);
+DB2Storage <TaxiPathNodeEntry>              sTaxiPathNodeStore(TaxiPathNodeFormat);
 DB2Storage <SpellEffectGroupSizeEntry>      sSpellEffectGroupSizeStore(SpellEffectGroupSizefmt);
 DB2Storage <SpellRuneCostEntry>             sSpellRuneCostStore(SpellRuneCostfmt);
 DB2Storage <SpellCastingRequirementsEntry>  sSpellCastingRequirementsStore(SpellCastingRequirementsEntryfmt);
@@ -180,18 +181,18 @@ DB2Storage <TransportAnimationEntry>      sTransportAnimationStore(TransportAnim
 DB2Storage <TransportRotationEntry>       sTransportRotationStore(TransportRotationfmt);
 DB2Storage <WorldMapOverlayEntry>         sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
 
-std::vector<std::vector<uint8> >         sPowersByClassStore;
-NameGenVectorArraysMap                   sGenNameVectoArraysMap;
+std::vector<std::vector<uint8> >          sPowersByClassStore;
+NameGenVectorArraysMap                    sGenNameVectoArraysMap;
 
-// DBC used only for initialization sTaxiPathNodeStore at startup.
-TaxiPathSetBySource sTaxiPathSetBySource;
-TaxiPathNodesByPath sTaxiPathNodesByPath;
-TaxiNodesByMap      sTaxiNodesByMap;
-TaxiMask sTaxiNodesMask;
-TaxiMask sOldContinentsNodesMask;
-TaxiMask sHordeTaxiNodesMask;
-TaxiMask sAllianceTaxiNodesMask;
-TaxiMask sDeathKnightTaxiNodesMask;
+TaxiMask                                  sTaxiNodesMask;
+TaxiMask                                  sOldContinentsNodesMask;
+TaxiMask                                  sHordeTaxiNodesMask;
+TaxiMask                                  sAllianceTaxiNodesMask;
+TaxiPathSetBySource                       sTaxiPathSetBySource;
+TaxiPathNodesByPath                       sTaxiPathNodesByPath;
+
+std::set<ResearchSiteEntry const*>        sResearchSiteSet;
+std::set<ResearchProjectEntry const*>     sResearchProjectSet;
 
 SpellTotemMap       sSpellTotemMap;
 MountCapabilitiesMap sMountCapabilitiesMap;
@@ -199,6 +200,7 @@ std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
 std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
 std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
+std::map<uint32, uint32> g_PvPItemStoreLevels;
 
 AreaGroupMemebersByID sAreaGroupMemebersByIDStore;
 
@@ -354,7 +356,14 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2",              "item_appearance",              "ID");
     LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2",            "item_extended_cost",           "ID");
     LoadDB2(bad_db2_files, sHeirloomStore,                  db2Path, "Heirloom.db2"                                                         );
-    LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2"                                                          );
+    LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2",                     "pvp_item",                     "ID");
+
+    for (uint32 l_I = 0; l_I < sPvpItemStore.GetNumRows(); ++l_I)
+    {
+        if (PvpItemEntry const* l_Entry = sPvpItemStore.LookupEntry(l_I))
+            g_PvPItemStoreLevels[l_Entry->itemId] = l_Entry->ilvl;
+    }
+
     LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2"                                                      );
     LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2"                                               );
 
@@ -443,7 +452,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files,  sItemLimitCategoryStore,      db2Path, "ItemLimitCategory.db2");                                            // 17399
     LoadDB2(bad_db2_files,  sItemRandomPropertiesStore,   db2Path, "ItemRandomProperties.db2");                                         // 17399
     LoadDB2(bad_db2_files,  sItemRandomSuffixStore,       db2Path, "ItemRandomSuffix.db2");                                             // 17399
-    LoadDB2(bad_db2_files,  sItemSpecOverrideStore,       db2Path, "ItemSpecOverride.db2");                                             // 17399
+    LoadDB2(bad_db2_files,  sItemSpecOverrideStore,       db2Path, "ItemSpecOverride.db2", "item_spec_override","ID");                  // 17399
     LoadDB2(bad_db2_files,  sItemSpecStore,               db2Path, "ItemSpec.db2");                                                     // 19116
     LoadDB2(bad_db2_files,  sItemDisenchantLootStore,     db2Path, "ItemDisenchantLoot.db2");                                           // 17399
     LoadDB2(bad_db2_files,  sNameGenStore,                db2Path, "NameGen.db2");                                                      // 17399
@@ -481,9 +490,6 @@ void LoadDB2Stores(const std::string& dataPath)
 
     for (int l_Class = 0; l_Class < MAX_CLASSES; ++l_Class)
         std::sort(sPowersByClassStore[l_Class].begin(), sPowersByClassStore[l_Class].end());
-
-    std::set<ResearchSiteEntry const*> sResearchSiteSet;
-    std::set<ResearchProjectEntry const*> sResearchProjectSet;
 
     for (uint32 l_ID = 0; l_ID < sMountTypeStore.GetNumRows(); ++l_ID)
     {
@@ -543,7 +549,7 @@ void LoadDB2Stores(const std::string& dataPath)
                 }
 
                 if (ItemEntry* l_Entry = const_cast<ItemEntry*>(sItemStore.LookupEntry(l_ModifiedAppearanceEntry->ItemID)))
-                    l_Entry->DisplayId = l_DisplayID;
+                    g_ItemTemplateDisplayIDs[l_ModifiedAppearanceEntry->ItemID] = l_DisplayID;
             }
         }
     }
@@ -594,94 +600,88 @@ void LoadDB2Stores(const std::string& dataPath)
         sItemBonusTreeByID[l_ItemXBonusTree->ItemId].push_back(l_ItemXBonusTree);
     }
 
-    /// Initialize global taxinodes mask
-    /// Include existed nodes that have at least single not spell base (scripted) path
+    for (uint32 l_I = 0; l_I < sTaxiPathStore.GetNumRows(); l_I++)
     {
-        std::set<uint32> spellPaths;
-        for (uint32 i = 1; i < sSpellEffectStore.GetNumRows(); ++i)
-            if (SpellEffectEntry const* sInfo = sSpellEffectStore.LookupEntry (i))
-                if (sInfo->Effect == SPELL_EFFECT_SEND_TAXI)
-                    spellPaths.insert(sInfo->EffectMiscValue);
+        TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(l_I);
 
-        memset(sTaxiNodesMask, 0, sizeof(sTaxiNodesMask));
-        memset(sOldContinentsNodesMask, 0, sizeof(sOldContinentsNodesMask));
-        memset(sHordeTaxiNodesMask, 0, sizeof(sHordeTaxiNodesMask));
-        memset(sAllianceTaxiNodesMask, 0, sizeof(sAllianceTaxiNodesMask));
-        memset(sDeathKnightTaxiNodesMask, 0, sizeof(sDeathKnightTaxiNodesMask));
-        for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
-        {
-            TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
-            if (!node)
-                continue;
+        if (!entry)
+            continue;
 
-            /// Needed for getting the current flight path
-            sTaxiNodesByMap[node->map_id].push_back(node);
-
-            TaxiPathSetBySource::const_iterator src_i = sTaxiPathSetBySource.find(i);
-            if (src_i != sTaxiPathSetBySource.end() && !src_i->second.empty())
-            {
-                bool ok = false;
-                for (TaxiPathSetForSource::const_iterator dest_i = src_i->second.begin(); dest_i != src_i->second.end(); ++dest_i)
-                {
-                    /// Not spell path
-                    if (spellPaths.find(dest_i->second.ID) == spellPaths.end())
-                    {
-                        ok = true;
-                        break;
-                    }
-                }
-
-                if (!ok)
-                    continue;
-            }
-
-            /// Valid taxi network node
-            uint8  field   = (uint8)((i - 1) / 8);
-            uint32 submask = 1 << ((i-1) % 8);
-
-            sTaxiNodesMask[field] |= submask;
-            if (node->MountCreatureID[0] && node->MountCreatureID[0] != 32981)
-                sHordeTaxiNodesMask[field] |= submask;
-            if (node->MountCreatureID[1] && node->MountCreatureID[1] != 32981)
-                sAllianceTaxiNodesMask[field] |= submask;
-            if (node->MountCreatureID[0] == 32981 || node->MountCreatureID[1] == 32981)
-                sDeathKnightTaxiNodesMask[field] |= submask;
-
-            /// Old continent node (+ nodes virtually at old continents, check explicitly to avoid loading map files for zone info)
-            if (node->map_id < 2 || i == 82 || i == 83 || i == 93 || i == 94)
-                sOldContinentsNodesMask[field] |= submask;
-
-            /// Fix DK node at Ebon Hold and Shadow Vault flight master
-            if (i == 315 || i == 333)
-                ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
-        }
+        sTaxiPathSetBySource[entry->From][entry->To] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
     }
 
     uint32 pathCount = sTaxiPathStore.GetNumRows();
 
-    for (uint32 i = 1; i < pathCount; ++i)
-        if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
-            sTaxiPathSetBySource[entry->from][entry->to] = TaxiPathBySourceAndDestination(entry->ID, entry->price);
-
     /// Calculate path nodes count
     std::vector<uint32> pathLength;
     pathLength.resize(pathCount);                           ///< 0 and some other indexes not used
-    for (uint32 l_I = 1; l_I < sTaxiPathNodeStore.GetNumRows(); ++l_I)
-    if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(l_I))
+
+    for (uint32 l_I = 0; l_I < sTaxiPathNodeStore.GetNumRows(); l_I++)
     {
-        if (pathLength[entry->path] < entry->index + 1)
-            pathLength[entry->path] = entry->index + 1;
+        TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(l_I);
+
+        if (!entry)
+            continue;
+
+        if (pathLength[entry->PathID] < entry->NodeIndex + 1)
+            pathLength[entry->PathID] = entry->NodeIndex + 1;
     }
 
     /// Set path length
     sTaxiPathNodesByPath.resize(pathCount);                 ///< 0 and some other indexes not used
-    for (uint32 l_I = 1; l_I < sTaxiPathNodesByPath.size(); ++l_I)
-        sTaxiPathNodesByPath[l_I].resize(pathLength[l_I]);
+    for (uint32 i = 0; i < sTaxiPathNodesByPath.size(); ++i)
+        sTaxiPathNodesByPath[i].resize(pathLength[i]);
 
-    /// Fill data
-    for (uint32 l_I = 1; l_I < sTaxiPathNodeStore.GetNumRows(); ++l_I)
-        if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(l_I))
-            sTaxiPathNodesByPath[entry->path].set(entry->index, entry);
+    /// fill data
+    for (uint32 l_I = 0; l_I < sTaxiPathNodeStore.GetNumRows(); l_I++)
+    {
+        TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(l_I);
+
+        if (!entry)
+            continue;
+
+        sTaxiPathNodesByPath[entry->PathID][entry->NodeIndex] = entry;
+    }
+
+    /// Initialize global taxinodes mask
+    /// include existed nodes that have at least single not spell base (scripted) path
+    {
+        if (sTaxiNodesStore.GetNumRows())
+        {
+            WPError(TaxiMaskSize >= ((sTaxiNodesStore.GetNumRows() - 1) / 8) + 1,
+                "TaxiMaskSize is not large enough to contain all taxi nodes! (current value %d, required %d)"   );
+        }
+
+        sTaxiNodesMask.fill(0);
+        sOldContinentsNodesMask.fill(0);
+        sHordeTaxiNodesMask.fill(0);
+        sAllianceTaxiNodesMask.fill(0);
+        for (uint32 l_I = 0; l_I < sTaxiNodesStore.GetNumRows(); l_I++)
+        {
+            TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(l_I);
+
+            if (!node)
+                continue;
+
+            if (!(node->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE)))
+                continue;
+
+            /// Valid taxi network node
+            uint8  field = (uint8)((node->ID - 1) / 8);
+            uint32 submask = 1 << ((node->ID - 1) % 8);
+
+            sTaxiNodesMask[field] |= submask;
+            if (node->Flags & TAXI_NODE_FLAG_HORDE)
+                sHordeTaxiNodesMask[field] |= submask;
+            if (node->Flags & TAXI_NODE_FLAG_ALLIANCE)
+                sAllianceTaxiNodesMask[field] |= submask;
+
+            uint32 nodeMap;
+            DeterminaAlternateMapPosition(node->MapID, node->x, node->y, node->z, &nodeMap);
+            if (nodeMap < 2)
+                sOldContinentsNodesMask[field] |= submask;
+        }
+    }
 
     for (uint32 l_ID = 0; l_ID < sHeirloomStore.GetNumRows(); ++l_ID)
     {
@@ -791,128 +791,6 @@ HeirloomEntry const* GetHeirloomEntryByItemID(uint32 p_ItemID)
     std::unordered_map<uint32, HeirloomEntry const*>::const_iterator l_Iter =  HeirloomEntryByItemID.find(p_ItemID);
     return l_Iter != HeirloomEntryByItemID.end() ? l_Iter->second : nullptr;
 };
-
-std::vector<TaxiNodesEntry const*> const* GetTaxiNodesForMapId(uint32 l_MapID)
-{
-    TaxiNodesByMap::const_iterator l_Iter = sTaxiNodesByMap.find(l_MapID);
-    return l_Iter != sTaxiNodesByMap.end() ? &l_Iter->second : nullptr;
-}
-
-/// Basic pathing algorithm which paths from the start to the destination
-uint32 TaxiPath::CalculateTaxiPath(uint32 startId, uint32 destId, Player* player)
-{
-    clear();
-
-    uint32 res = 0;
-    TaxiNode* startNode = sObjectMgr->GetTaxiNodeByID(startId);
-    TaxiNode* destNode = sObjectMgr->GetTaxiNodeByID(destId);
-    if (!startNode || !destNode)
-    {
-        res |= TAXIPATH_RES_NO_LINKED_NODES;
-        return res;
-    }
-
-    push_back(startNode);
-
-    TaxiNode* currentNode = startNode;
-    std::set<uint32> closed;
-    while (1)
-    {
-        /// Path complete
-        if (currentNode == destNode)
-            break;
-
-        if (currentNode == startNode && !closed.empty())
-        {
-            res |= TAXIPATH_RES_NO_PATH;
-            break;
-        }
-
-        TaxiNode* nextNode = currentNode->GetClosestNodeTo(destNode, closed, player);
-
-        if (!nextNode)
-        {
-            closed.insert(currentNode->GetID());
-            currentNode = back();
-            pop_back();
-            continue;
-        }
-
-        closed.insert(currentNode->GetID());
-        push_back(nextNode);
-        currentNode = nextNode;
-    }
-
-    if (res & TAXIPATH_RES_NO_PATH)
-    {
-        clear();
-        push_back(startNode);
-        push_back(destNode);
-        return res;
-    }
-
-    res |= TAXIPATH_RES_SUCCESS;
-    ///push_back(destNode);
-
-    return res;
-}
-
-TaxiNode* TaxiNode::GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, Player* player)
-{
-    float dist = -1.f; ///GetPosition()->GetExactDist2d(node->GetPosition());
-    TaxiNode* heuristic = nullptr;
-    for (std::set<uint32>::iterator itr = m_connectedNodes.begin(); itr != m_connectedNodes.end(); ++itr)
-    {
-        TaxiNode* connectedNode = sObjectMgr->GetTaxiNodeByID(*itr);
-        TaxiNodesEntry const* l_TaxiNode = node->GetTaxiNodesEntry();
-
-        if (node == connectedNode)
-        {
-            dist = 0.0f;
-            heuristic = connectedNode;
-            break;
-        }
-
-        /// I don't think this is possible
-        if (!connectedNode || !l_TaxiNode)
-            continue;
-
-        uint8  field   = (uint8)((*itr - 1) / 8);
-        uint32 submask = 1 << ((*itr-1) % 8);
-
-        if (!l_TaxiNode->MountCreatureID[player->GetTeam() == ALLIANCE ? 1 : 0] && !(sDeathKnightTaxiNodesMask[field] & submask && player->getClass() == CLASS_DEATH_KNIGHT)) // dk flight)
-        {
-            closed.insert(connectedNode->GetID());
-            continue;
-        }
-
-        /// Skip not taxi network nodes
-        if ((sTaxiNodesMask[field] & submask) == 0)
-        {
-            closed.insert(connectedNode->GetID());
-            continue;
-        }
-
-        /// All taxi path with flag == 0 is quest taxi, event or transport, we can skip it
-        if (l_TaxiNode->m_Flags == 0)
-        {
-            closed.insert(connectedNode->GetID());
-            continue;
-        }
-
-        if (closed.find(*itr) != closed.end())
-            continue;
-
-        float nodeDist = connectedNode->GetPosition()->GetExactDist2d(node->GetPosition());
-
-        if (nodeDist < dist || dist < 0.f)
-        {
-            dist = nodeDist;
-            heuristic = connectedNode;
-        }
-    }
-    return heuristic;
-}
 
 const std::string* GetRandomCharacterName(uint8 race, uint8 gender)
 {

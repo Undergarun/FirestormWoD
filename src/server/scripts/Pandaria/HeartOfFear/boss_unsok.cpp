@@ -305,7 +305,7 @@ class boss_unsok : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(TALK_SLAY);
             }
 
@@ -331,7 +331,7 @@ class boss_unsok : public CreatureScript
                     EnterCombat(attacker);
 
                 // Damage taken from mutated construct leads to a 40 loss of power for the mutated construct
-                if (attacker->HasAura(SPELL_RESHAPE_LIFE) && attacker->GetTypeId() == TYPEID_PLAYER)
+                if (attacker->HasAura(SPELL_RESHAPE_LIFE) && attacker->IsPlayer())
                     attacker->ModifyPower(POWER_ALTERNATE_POWER, -40);
 
                 if (phase == 1 && me->HealthBelowPctDamaged(70, damage))
@@ -1041,7 +1041,7 @@ class mob_amber_globule : public CreatureScript
                 {
                     if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
                     {
-                        if (target->GetTypeId() == TYPEID_PLAYER && target->IsWithinDist2d(me, 1.5f))
+                        if (target->IsPlayer() && target->IsWithinDist2d(me, 1.5f))
                         {
                             me->GetMotionMaster()->Clear();
                             DoCast(SPELL_AMBERGEDDON);
@@ -1135,14 +1135,16 @@ class spell_amber_scalpel : public SpellScriptLoader
 
             void Summon()
             {
-                if (Unit* caster = GetCaster())
+                if (Creature* l_Caster = GetCaster()->ToCreature())
                 {
-                    Creature* scalpel = GetClosestCreatureWithEntry(caster, NPC_AMBER_SCALPEL, 200.0f);
-                    std::list<Creature*> amberList;
-                    GetCreatureListWithEntryInGrid(amberList, caster, NPC_LIVING_AMBER, 200.0f);
-                    if (amberList.size() < 7)
-                        if (urand(0, 1))
-                            caster->ToCreature()->SummonCreature(NPC_LIVING_AMBER, scalpel->GetPositionX(), scalpel->GetPositionY(), scalpel->GetPositionZ());
+                    if (Creature* l_Scalpel = GetClosestCreatureWithEntry(l_Caster, NPC_AMBER_SCALPEL, 200.0f))
+                    {
+                        std::list<Creature*> amberList;
+                        GetCreatureListWithEntryInGrid(amberList, l_Caster, NPC_LIVING_AMBER, 200.0f);
+                        if (amberList.size() < 7)
+                            if (urand(0, 1))
+                                l_Caster->SummonCreature(NPC_LIVING_AMBER, l_Scalpel->GetPositionX(), l_Scalpel->GetPositionY(), l_Scalpel->GetPositionZ());
+                    }
                 }
             }
 

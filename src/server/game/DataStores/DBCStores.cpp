@@ -147,9 +147,6 @@ DBCStorage <PvPDifficultyEntry>          sPvPDifficultyStore(PvPDifficultyfmt);
 DBCStorage <QuestFactionRewEntry>        sQuestFactionRewardStore(QuestFactionRewardfmt);
 DBCStorage <RandomPropertiesPointsEntry> sRandomPropertiesPointsStore(RandomPropertiesPointsfmt);
 
-std::set<ResearchSiteEntry const*>      sResearchSiteSet;
-std::set<ResearchProjectEntry const*>   sResearchProjectSet;
-
 DBCStorage <ScenarioStepEntry> sScenarioStepStore(ScenarioStepEntryfmt);
 
 DBCStorage <SkillLineEntry>              sSkillLineStore(SkillLinefmt);
@@ -160,37 +157,38 @@ DBCStorage <SpellEntry>                  sSpellStore(SpellEntryfmt);
 SpellSkillingList                        sSpellSkillingList;
 PetFamilySpellsStore                     sPetFamilySpellsStore;
 
-DBCStorage <SpellScalingEntry> sSpellScalingStore(SpellScalingEntryfmt);
+DBCStorage <SpellScalingEntry>           sSpellScalingStore(SpellScalingEntryfmt);
 DBCStorage <SpellTargetRestrictionsEntry> sSpellTargetRestrictionsStore(SpellTargetRestrictionsEntryfmt);
-DBCStorage <SpellLevelsEntry> sSpellLevelsStore(SpellLevelsEntryfmt);
-DBCStorage <SpellInterruptsEntry> sSpellInterruptsStore(SpellInterruptsEntryfmt);
-DBCStorage <SpellEquippedItemsEntry> sSpellEquippedItemsStore(SpellEquippedItemsEntryfmt);
-DBCStorage <SpellCooldownsEntry> sSpellCooldownsStore(SpellCooldownsEntryfmt);
-DBCStorage <SpellAuraOptionsEntry> sSpellAuraOptionsStore(SpellAuraOptionsEntryfmt);
+DBCStorage <SpellLevelsEntry>            sSpellLevelsStore(SpellLevelsEntryfmt);
+DBCStorage <SpellInterruptsEntry>        sSpellInterruptsStore(SpellInterruptsEntryfmt);
+DBCStorage <SpellEquippedItemsEntry>     sSpellEquippedItemsStore(SpellEquippedItemsEntryfmt);
+DBCStorage <SpellCooldownsEntry>         sSpellCooldownsStore(SpellCooldownsEntryfmt);
+DBCStorage <SpellAuraOptionsEntry>       sSpellAuraOptionsStore(SpellAuraOptionsEntryfmt);
 
-SpellEffectMap sSpellEffectMap;
-SpellReagentMap sSpellReagentMap;
+SpellEffectMap                           sSpellEffectMap;
+SpellReagentMap                          sSpellReagentMap;
 
-DBCStorage <SpellCategoriesEntry> sSpellCategoriesStore(SpellCategoriesEntryfmt);
-DBCStorage <SpellCategoryEntry> sSpellCategoryStore(SpellCategoryEntryfmt);
-DBCStorage <SpellEffectEntry> sSpellEffectStore(SpellEffectEntryfmt);
-DBCStorage <SpellEffectScalingEntry> sSpellEffectScalingStore(SpellEffectScalingEntryfmt);
-DBCStorage <SpellFocusObjectEntry> sSpellFocusObjectStore(SpellFocusObjectfmt);
-DBCStorage <SpellShapeshiftEntry> sSpellShapeshiftStore(SpellShapeshiftEntryfmt);
-DBCStorage <SpellShapeshiftFormEntry> sSpellShapeshiftFormStore(SpellShapeshiftFormfmt);
-DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore(SummonPropertiesfmt);
-DBCStorage <TalentEntry> sTalentStore(TalentEntryfmt);
-DBCStorage <VehicleEntry> sVehicleStore(VehicleEntryfmt);
-DBCStorage <VehicleSeatEntry> sVehicleSeatStore(VehicleSeatEntryfmt);
-DBCStorage <WMOAreaTableEntry> sWMOAreaTableStore(WMOAreaTableEntryfmt);
-DBCStorage <WorldMapAreaEntry> sWorldMapAreaStore(WorldMapAreaEntryfmt);
-DBCStorage <World_PVP_AreaEntry> sWorld_PVP_AreaStore(World_PVP_AreaEntryfmt);
-DBCStorage <WorldSafeLocsEntry> sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
-DBCStorage <PhaseEntry> sPhaseStores(PhaseEntryfmt);
-DBCStorage <GtBattlePetXPEntry>           sGtBattlePetXPStore(GtBattlePetXPfmt);
+DBCStorage <SpellCategoriesEntry>        sSpellCategoriesStore(SpellCategoriesEntryfmt);
+DBCStorage <SpellCategoryEntry>          sSpellCategoryStore(SpellCategoryEntryfmt);
+DBCStorage <SpellEffectEntry>            sSpellEffectStore(SpellEffectEntryfmt);
+DBCStorage <SpellEffectScalingEntry>     sSpellEffectScalingStore(SpellEffectScalingEntryfmt);
+DBCStorage <SpellFocusObjectEntry>       sSpellFocusObjectStore(SpellFocusObjectfmt);
+DBCStorage <SpellShapeshiftEntry>        sSpellShapeshiftStore(SpellShapeshiftEntryfmt);
+DBCStorage <SpellShapeshiftFormEntry>    sSpellShapeshiftFormStore(SpellShapeshiftFormfmt);
+DBCStorage <SummonPropertiesEntry>       sSummonPropertiesStore(SummonPropertiesfmt);
+DBCStorage <TalentEntry>                 sTalentStore(TalentEntryfmt);
+DBCStorage <VehicleEntry>                sVehicleStore(VehicleEntryfmt);
+DBCStorage <VehicleSeatEntry>            sVehicleSeatStore(VehicleSeatEntryfmt);
+DBCStorage <WMOAreaTableEntry>           sWMOAreaTableStore(WMOAreaTableEntryfmt);
+DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore(WorldMapAreaEntryfmt);
+DBCStorage<WorldMapTransformsEntry>      sWorldMapTransformsStore(WorldMapTransformsfmt);
+DBCStorage <World_PVP_AreaEntry>         sWorld_PVP_AreaStore(World_PVP_AreaEntryfmt);
+DBCStorage <WorldSafeLocsEntry>          sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
+DBCStorage <PhaseEntry>                  sPhaseStores(PhaseEntryfmt);
+DBCStorage <GtBattlePetXPEntry>          sGtBattlePetXPStore(GtBattlePetXPfmt);
 DBCStorage <GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore(GtBattlePetTypeDamageModfmt);
-DBCStorage <WorldStateEntry>              sWorldStateStore(WorldStateEntryfmt);
-DBCStorage <WorldStateExpressionEntry>    sWorldStateExpressionStore(WorldStateExpressionEntryfmt);
+DBCStorage <WorldStateEntry>             sWorldStateStore(WorldStateEntryfmt);
+DBCStorage <WorldStateExpressionEntry>   sWorldStateExpressionStore(WorldStateExpressionEntryfmt);
 
 typedef std::list<std::string> StoreProblemList;
 
@@ -547,7 +545,8 @@ void LoadDBCStores(const std::string& dataPath)
             sWMOAreaInfoByTripple.insert(WMOAreaInfoByTripple::value_type(WMOAreaTableTripple(entry->rootId, entry->adtId, entry->groupId), entry));
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapAreaStore,             dbcPath, "WorldMapArea.dbc");                                                 // 17399
-    LoadDBC(availableDbcLocales, bad_dbc_files, sWorld_PVP_AreaStore,           dbcPath, "World_PVP_Area.dbc");                                             // 19027
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapTransformsStore,       dbcPath, "WorldMapTransforms.dbc");                                           // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorld_PVP_AreaStore,           dbcPath, "World_PVP_Area.dbc");                                               // 19027
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldSafeLocsStore,            dbcPath, "WorldSafeLocs.dbc");                                                // 17399
 
     for (uint32 l_I = 0; l_I < sWorldSafeLocsStore.GetNumRows(); ++l_I)
@@ -673,6 +672,7 @@ SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent)
     return itr->second.reagents[reagent];
 }
 
+/// still usefull ?
 TalentSpellPos const* GetTalentSpellPos(uint32 spellId)
 {
     return NULL;
@@ -1529,7 +1529,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         p_Instructions.push_back("call GetWorldStateValue");
 #endif
 
-        if (p_Player && sWorldStateStore.LookupEntry(l_WorldStateID))
+        if (p_Player)
             return p_Player->GetWorldState(l_WorldStateID);
     }
     else if(l_OpType == WorldStateExpressionCustomOpType::CallFunction)
@@ -1541,7 +1541,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         int l_Arg2 = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
 
         if (l_FunctionID > (sizeof(g_WorldStateExpressionFunction) / sizeof(g_WorldStateExpressionFunction[0])))
-            return 0;
+            return (uint32)-1;
 
 #ifdef _MSC_VER
         p_Instructions.push_back("push " + std::to_string(l_Arg1));
@@ -1552,7 +1552,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         return g_WorldStateExpressionFunction[l_FunctionID](p_Player, l_Arg1, l_Arg2);
     }
 
-    return 0;
+    return (uint32)-1;
 #undef UNPACK_INT32
 #undef UNPACK_UINT8
 }
@@ -1787,4 +1787,60 @@ bool WorldStateExpressionEntry::Eval(Player* p_Player, std::vector<std::string> 
 
     return false;
 #undef UNPACK_UINT8
+}
+
+void DeterminaAlternateMapPosition(uint32 p_MapID, float p_X, float p_Y, float p_Z, uint32* p_NewMapID /*= nullptr*/, float* p_NewPosX /*= nullptr*/, float* p_NewPosY /*= nullptr*/)
+{
+    ASSERT(p_NewMapID || (p_NewPosX && p_NewPosY));
+
+    WorldMapTransformsEntry const* l_Transformation = nullptr;
+
+    for (uint32 l_I = 0; l_I < sWorldMapTransformsStore.GetNumRows(); ++l_I)
+    {
+        WorldMapTransformsEntry const* l_Transform = sWorldMapTransformsStore.LookupEntry(l_I);
+
+        if (!l_Transform)
+            continue;
+
+        if (l_Transform->MapID != p_MapID)
+            continue;
+
+        if (l_Transform->RegionMinX > p_X || l_Transform->RegionMaxX < p_X)
+            continue;
+        if (l_Transform->RegionMinY > p_Y || l_Transform->RegionMaxY < p_Y)
+            continue;
+        if (l_Transform->RegionMinZ > p_Z || l_Transform->RegionMaxZ < p_Z)
+            continue;
+
+        l_Transformation = l_Transform;
+        break;
+    }
+
+    if (!l_Transformation)
+    {
+        if (p_NewMapID)
+            *p_NewMapID = p_MapID;
+
+        if (p_NewPosX && p_NewPosY)
+        {
+            *p_NewPosX = p_X;
+            *p_NewPosY = p_Y;
+        }
+        return;
+    }
+
+    if (p_NewMapID)
+        *p_NewMapID = l_Transformation->NewMapID;
+
+    if (!p_NewPosX || !p_NewPosY)
+        return;
+
+    if (l_Transformation->RegionScale > 0.0f && l_Transformation->RegionScale < 1.0f)
+    {
+        p_X = (p_X - l_Transformation->RegionMinX) * l_Transformation->RegionScale + l_Transformation->RegionMinX;
+        p_Y = (p_Y - l_Transformation->RegionMinY) * l_Transformation->RegionScale + l_Transformation->RegionMinY;
+    }
+
+    *p_NewPosX = p_X + l_Transformation->RegionOffsetX;
+    *p_NewPosY = p_Y + l_Transformation->RegionOffsetY;
 }

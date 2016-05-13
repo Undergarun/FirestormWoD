@@ -98,6 +98,8 @@ class PreparedStatement
         void setString(const uint8 index, const char* value, uint32 length);
         void setString(const uint8 index, const nullable_string& value);
 
+        uint32 getIndex() const { return m_index; }
+
     protected:
         void BindParameters();
 

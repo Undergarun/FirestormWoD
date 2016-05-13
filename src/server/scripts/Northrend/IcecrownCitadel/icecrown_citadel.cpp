@@ -1597,7 +1597,7 @@ struct npc_argent_captainAI : public ScriptedAI
 
         void KilledUnit(Unit* victim)
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim->IsPlayer())
                 Talk(SAY_CAPTAIN_KILL);
         }
 
@@ -2075,7 +2075,7 @@ class spell_icc_stoneform: public SpellScriptLoader
         {
             PrepareAuraScript(spell_icc_stoneform_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
                 {
@@ -2085,7 +2085,7 @@ class spell_icc_stoneform: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
                 {
@@ -2160,7 +2160,7 @@ class spell_icc_sprit_alarm: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHit += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
+                OnEffectHit += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
         };
 
@@ -3108,8 +3108,12 @@ class npc_darkfallen_blood_knight : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 DoCastVictim(SPELL_BLOOD_MIRROR_DUMMY);
-                                me->getVictim()->CastSpell(target, SPELL_BLOOD_MIRROR_DAMAGE, true);
-                                me->CastSpell(me->getVictim(), SPELL_BLOOD_MIRROR_BUFF, true);
+
+                                if (Unit* victim = me->getVictim())
+                                {
+                                    victim->CastSpell(target, SPELL_BLOOD_MIRROR_DAMAGE, true);
+                                    me->CastSpell(victim, SPELL_BLOOD_MIRROR_BUFF, true);
+                                }
                             }
                             Events.ScheduleEvent(EVENT_MIRROR, urand(32000, 37000));
                             break;

@@ -478,7 +478,7 @@ class boss_sha_of_fear : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(TALK_SLAY);
             }
 
@@ -911,7 +911,7 @@ class boss_sha_of_fear : public CreatureScript
                             isInTeleport = false;
 
                             std::list<Player*> playerList;
-                            GetPlayerListInGrid(playerList, me, 500.0f);
+                            GetPlayerListInGrid(playerList, me, 200.0f);
 
                             for (Player* player : playerList)
                                 me->AddThreat(player, 0.0f);
@@ -1769,7 +1769,7 @@ class spell_conjure_terror_spawn : public SpellScriptLoader
         {
             PrepareAuraScript(spell_conjure_terror_spawn_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Creature* caster = GetCaster()->ToCreature())
                     caster->AI()->DoAction(ACTION_SPAWN_TERROR);
@@ -1818,7 +1818,7 @@ class spell_penetrating_bolt : public SpellScriptLoader
                     if (InstanceScript* instance = caster->GetInstanceScript())
                     {
                         if (Player* target = Player::GetPlayer(*caster, targetGuid))
-                            caster->CastSpell(target, SPELL_PENETRATING_BOLT_MISSILE, true, NULL, NULLAURA_EFFECT, instance->GetData64(NPC_SHA_OF_FEAR));
+                            caster->CastSpell(target, SPELL_PENETRATING_BOLT_MISSILE, true, NULL, nullptr, instance->GetData64(NPC_SHA_OF_FEAR));
                     }
                 }
             }
@@ -1957,7 +1957,7 @@ class spell_dread_spray : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dread_spray_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -2030,11 +2030,11 @@ class spell_dread_spray_stacks : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dread_spray_stacks_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
-                    if (AuraPtr dreadSpray = target->GetAura(SPELL_DREAD_SPRAY_STACKS))
+                    if (Aura* dreadSpray = target->GetAura(SPELL_DREAD_SPRAY_STACKS))
                     {
                         if (dreadSpray->GetStackAmount() > 1)
                         {
@@ -2098,7 +2098,7 @@ class spell_death_blossom_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_death_blossom_periodic_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -2243,7 +2243,7 @@ class spell_sha_waterspout : public SpellScriptLoader
                     return;
 
                 std::list<Player*> playerList;
-                GetPlayerListInGrid(playerList, caster, 500.0f);
+                GetPlayerListInGrid(playerList, caster, 200.0f);
 
                 if (playerList.empty())
                     return;

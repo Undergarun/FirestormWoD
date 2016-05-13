@@ -107,7 +107,7 @@ void Vehicle::InstallAllAccessories(bool evading)
     if (ArePassengersSpawnedByAI())
         return;
 
-    if (GetBase()->GetTypeId() == TYPEID_PLAYER || !evading)
+    if (GetBase()->IsPlayer() || !evading)
         RemoveAllPassengers();   // We might have aura's saved in the DB with now invalid casters - remove
 
     VehicleAccessoryList const* accessories = sObjectMgr->GetVehicleAccessoryList(this);
@@ -139,7 +139,7 @@ void Vehicle::Uninstall(bool dismount/* = false*/)
 void Vehicle::Reset(bool evading /*= false*/)
 {
     sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Reset Entry: %u, GuidLow: %u", _creatureEntry, _me->GetGUIDLow());
-    if (_me->GetTypeId() == TYPEID_PLAYER)
+    if (_me->IsPlayer())
     {
         if (_usableSeatNum)
             _me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
@@ -350,7 +350,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     if (unit->GetVehicle() != this)
         return false;
 
-    if (unit->GetTypeId() == TYPEID_PLAYER && unit->GetMap()->IsBattleArena())
+    if (unit->IsPlayer() && unit->GetMap()->IsBattleArena())
         return false;
 
     SeatMap::iterator seat;
@@ -389,7 +389,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         --_usableSeatNum;
         if (!_usableSeatNum)
         {
-            if (_me->GetTypeId() == TYPEID_PLAYER)
+            if (_me->IsPlayer())
                 _me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
             else
                 _me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
@@ -424,7 +424,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
             break;
     }
 
-    if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER &&
+    if (_me->GetTypeId() == TYPEID_UNIT && unit->IsPlayer() &&
         seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         ASSERT(_me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
 
@@ -433,7 +433,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         unit->SendClearTarget();                                 // SMSG_BREAK_TARGET
         unit->SetControlled(true, UNIT_STATE_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
                                                                  // also adds MOVEMENTFLAG_ROOT
-        Movement::MoveSplineInit init(*unit);
+        Movement::MoveSplineInit init(unit);
         init.DisableTransportPathTransformations();
         init.MoveTo(unit->m_movementInfo.t_pos.m_positionX, unit->m_movementInfo.t_pos.m_positionY, unit->m_movementInfo.t_pos.m_positionZ);
 
@@ -477,7 +477,7 @@ void Vehicle::RemovePassenger(Unit* unit)
     {
         if (!_usableSeatNum)
         {
-            if (_me->GetTypeId() == TYPEID_PLAYER)
+            if (_me->IsPlayer())
                 _me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
             else
                 _me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
@@ -487,7 +487,7 @@ void Vehicle::RemovePassenger(Unit* unit)
 
     unit->ClearUnitState(UNIT_STATE_ONVEHICLE);
 
-    if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
+    if (_me->GetTypeId() == TYPEID_UNIT && unit->IsPlayer() && seat->first == 0 && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         _me->RemoveCharmedBy(unit);
 
     if (_me->IsInWorld())

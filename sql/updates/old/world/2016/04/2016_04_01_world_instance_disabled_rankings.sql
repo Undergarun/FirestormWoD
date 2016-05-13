@@ -1,0 +1,1 @@
+UPDATE `instance_disabled_rankings` SET `DifficultyID` = 16 WHERE `DifficultyID` = 17;

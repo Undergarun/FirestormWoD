@@ -73,7 +73,7 @@ public:
     }
 };
 
-// OLDWorld Trigger (DO NOT DELETE) - 15384
+/// OLDWorld Trigger (DO NOT DELETE) - 15384
 class npc_world_invisible_trigger : public CreatureScript
 {
     public:
@@ -140,59 +140,7 @@ class npc_world_invisible_trigger : public CreatureScript
         }
 };
 
-// Dark Portal phasing
-class PlayerScript_DarkPortal_Phasing: public PlayerScript
-{
-    public:
-        PlayerScript_DarkPortal_Phasing() : PlayerScript("PlayerScript_DarkPortal_Phasing")
-        {
-            m_AlreadyInSwitchMapState = false;
-        }
-
-        bool m_AlreadyInSwitchMapState;
-
-        enum eMaps
-        {
-            BLASTED_LANDS_DRAENOR_PHASE = 1190,
-            EASTERN_KINGDOM_MAP_ID      = 0,
-            BLASTER_LANDS_ZONE_ID       = 4
-        };
-
-        void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
-        {
-            if (p_Player->GetMapId() == BLASTED_LANDS_DRAENOR_PHASE || p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID)
-            {
-                if (p_NewZoneID != p_OldZoneID && (p_NewZoneID == BLASTER_LANDS_ZONE_ID || p_OldZoneID == BLASTER_LANDS_ZONE_ID))
-                {
-                    uint64 l_PlayerGuid = p_Player->GetGUID();
-
-                    if (p_NewZoneID == BLASTER_LANDS_ZONE_ID && p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID)
-                    {
-                        sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> void
-                        {
-                            Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid);
-
-                            if (l_Player)
-                                l_Player->SwitchToPhasedMap(BLASTED_LANDS_DRAENOR_PHASE);
-                        });
-                    }
-
-                    if (p_NewZoneID != BLASTER_LANDS_ZONE_ID && p_Player->GetMapId() == BLASTER_LANDS_ZONE_ID)
-                    {
-                        sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> void
-                        {
-                            Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid);
-
-                            if (l_Player)
-                                l_Player->SwitchToPhasedMap(EASTERN_KINGDOM_MAP_ID);
-                        });
-                    }
-                }
-            }
-        }
-};
-
-// Archmage Khadgar - 76643
+/// Archmage Khadgar - 76643
 class npc_archmage_khadgar_gossip : public CreatureScript
 {
     public:
@@ -224,11 +172,139 @@ class npc_archmage_khadgar_gossip : public CreatureScript
         }
 };
 
+/// Zidormi - 88206
+class npc_blasted_lands_zidormi : public CreatureScript
+{
+    public:
+        npc_blasted_lands_zidormi() : CreatureScript("npc_blasted_lands_zidormi") { }
+
+        enum eSpell
+        {
+            TimeTravelling = 176111
+        };
+
+        enum eGossips
+        {
+            TraveledGossip  = 88207,
+            BaseGossip      = 88206
+        };
+
+        enum eMaps
+        {
+            NewBlastedLands = 1190,
+            EasternKingdoms = 0
+        };
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        {
+            p_Player->PlayerTalkClass->ClearMenus();
+            p_Player->TalkedToCreature(p_Creature->GetEntry(), p_Creature->GetGUID());
+            p_Player->PrepareGossipMenu(p_Creature, p_Player->HasAura(eSpell::TimeTravelling) ? eGossips::TraveledGossip : eGossips::BaseGossip, true);
+            p_Player->SendPreparedGossip(p_Creature);
+            return true;
+        }
+
+        struct npc_blasted_lands_zidormiAI : public ScriptedAI
+        {
+            npc_blasted_lands_zidormiAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            {
+                if (p_Player->HasAura(eSpell::TimeTravelling))
+                {
+                    p_Player->RemoveAura(eSpell::TimeTravelling);
+
+                    uint64 l_Guid = p_Player->GetGUID();
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                            l_Player->SwitchToPhasedMap(eMaps::NewBlastedLands);
+
+                        return true;
+                    });
+                }
+                else
+                {
+                    p_Player->CastSpell(p_Player, eSpell::TimeTravelling, true);
+
+                    uint64 l_Guid = p_Player->GetGUID();
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                            l_Player->SwitchToPhasedMap(eMaps::EasternKingdoms);
+
+                        return true;
+                    });
+                }
+
+                p_Player->PlayerTalkClass->SendCloseGossip();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_blasted_lands_zidormiAI(p_Creature);
+        }
+};
+
+/// Dark Portal phasing
+class PlayerScript_DarkPortal_Phasing: public PlayerScript
+{
+    public:
+        PlayerScript_DarkPortal_Phasing() : PlayerScript("PlayerScript_DarkPortal_Phasing")
+        {
+            m_AlreadyInSwitchMapState = false;
+        }
+
+        bool m_AlreadyInSwitchMapState;
+
+        enum eMaps
+        {
+            BLASTED_LANDS_DRAENOR_PHASE = 1190,
+            EASTERN_KINGDOM_MAP_ID      = 0,
+            BLASTER_LANDS_ZONE_ID       = 4
+        };
+
+        void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
+        {
+            if (p_Player->GetMapId() == BLASTED_LANDS_DRAENOR_PHASE || p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID)
+            {
+                if (p_NewZoneID != p_OldZoneID && (p_NewZoneID == BLASTER_LANDS_ZONE_ID || p_OldZoneID == BLASTER_LANDS_ZONE_ID))
+                {
+                    uint64 l_PlayerGuid = p_Player->GetGUID();
+
+                    if (p_NewZoneID == BLASTER_LANDS_ZONE_ID && p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID)
+                    {
+                        sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> bool
+                        {
+                            if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                                l_Player->SwitchToPhasedMap(BLASTED_LANDS_DRAENOR_PHASE);
+
+                            return true;
+                        });
+                    }
+
+                    if (p_NewZoneID != BLASTER_LANDS_ZONE_ID && p_Player->GetMapId() == BLASTER_LANDS_ZONE_ID)
+                    {
+                        sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> bool
+                        {
+                            if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                                l_Player->SwitchToPhasedMap(EASTERN_KINGDOM_MAP_ID);
+
+                            return true;
+                        });
+                    }
+                }
+            }
+        }
+};
+
 void AddSC_blasted_lands()
 {
     new npc_deathly_usher();
     new npc_world_invisible_trigger();
     new npc_archmage_khadgar_gossip();
+    new npc_blasted_lands_zidormi();
 
     /// Player script
     new PlayerScript_DarkPortal_Phasing();

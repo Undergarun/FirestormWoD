@@ -12,8 +12,8 @@ DoorData const g_DoorData[] =
 {
     { eHighmaulGameobjects::GateArenaExit,      eHighmaulDatas::BossKargathBladefist,   DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::EarthenPillar,      eHighmaulDatas::BossTheButcher,         DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
-    { eHighmaulGameobjects::FungalGiantDoor,    eHighmaulDatas::BossTheButcher,         DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
-    { eHighmaulGameobjects::WindDoor,           eHighmaulDatas::BossTheButcher,         DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::FungalGiantDoor,    eHighmaulDatas::BossKargathBladefist,   DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::WindDoor,           eHighmaulDatas::BossKargathBladefist,   DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::WindDoor,           eHighmaulDatas::BossBrackenspore,       DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::Earthwall1,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::Earthwall2,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
@@ -150,7 +150,7 @@ class instance_highmaul : public InstanceMapScript
                 SetBossNumber(eHighmaulDatas::MaxHighmaulBosses);
                 LoadDoorData(g_DoorData);
 
-                instance->SetObjectVisibility(500.0f);
+                instance->SetObjectVisibility(150.0f);
             }
 
             void OnCreatureCreate(Creature* p_Creature) override
@@ -828,6 +828,9 @@ class instance_highmaul : public InstanceMapScript
 
                             if (GameObject* l_Door = sObjectAccessor->FindGameObject(m_ColiseumLFRDoor))
                                 l_Door->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                            if (Creature* l_Margok = sObjectAccessor->FindCreature(m_MargokCosmeticGuid))
+                                l_Margok->DespawnOrUnsummon();
 
                             break;
                         }

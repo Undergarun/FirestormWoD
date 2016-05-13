@@ -338,7 +338,7 @@ void BattlegroundWS::EventPlayerCapturedFlag(Player* Source)
         RewardReputationToTeam(889, m_ReputationCapture, HORDE);
     }
     //for flag capture is reward 2 honorable kills
-    RewardHonorToTeam(GetBonusHonorFromKill(2), Source->GetBGTeam());
+    RewardHonorToTeam(GetBonusHonorFromKill(2), Source->GetBGTeam(), MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
 
     SpawnBGObject(BG_WS_OBJECT_H_FLAG, BG_WS_FLAG_RESPAWN_TIME);
     SpawnBGObject(BG_WS_OBJECT_A_FLAG, BG_WS_FLAG_RESPAWN_TIME);
@@ -370,7 +370,7 @@ void BattlegroundWS::EventPlayerCapturedFlag(Player* Source)
         UpdateWorldState(BG_WS_FLAG_STATE_HORDE, 1);
         UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 0);
 
-        RewardHonorToTeam(BG_WSG_Honor[m_HonorMode][BG_WSG_WIN], winner);
+        RewardHonorToTeam(BG_WSG_Honor[m_HonorMode][BG_WSG_WIN], winner, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundWin);
         EndBattleground(winner);
     }
     else

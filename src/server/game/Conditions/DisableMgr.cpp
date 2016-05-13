@@ -16,11 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
 #include "DisableMgr.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "SpellMgr.h"
+#include "World.h"
 #include "VMapManager2.h"
+#include "GarrisonMgr.hpp"
 
 namespace DisableMgr
 {
@@ -40,7 +43,7 @@ namespace
 
     DisableMap m_DisableMap;
 
-    uint8 MAX_DISABLE_TYPES = 7;
+    uint8 MAX_DISABLE_TYPES = 9;
 }
 
 void LoadDisables()
@@ -181,32 +184,71 @@ void LoadDisables()
                 switch (mapEntry->instanceType)
                 {
                     case MAP_COMMON:
-                        if (flags & VMAP_DISABLE_AREAFLAG)
+                        if (flags & VMAP::VMAP_DISABLE_AREAFLAG)
                             sLog->outInfo(LOG_FILTER_GENERAL, "Areaflag disabled for world map %u.", entry);
-                        if (flags & VMAP_DISABLE_LIQUIDSTATUS)
+                        if (flags & VMAP::VMAP_DISABLE_LIQUIDSTATUS)
                             sLog->outInfo(LOG_FILTER_GENERAL, "Liquid status disabled for world map %u.", entry);
                         break;
                     case MAP_INSTANCE:
                     case MAP_RAID:
-                        if (flags & VMAP_DISABLE_HEIGHT)
+                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
                             sLog->outInfo(LOG_FILTER_GENERAL, "Height disabled for instance map %u.", entry);
-                        if (flags & VMAP_DISABLE_LOS)
+                        if (flags & VMAP::VMAP_DISABLE_LOS)
                             sLog->outInfo(LOG_FILTER_GENERAL, "LoS disabled for instance map %u.", entry);
                         break;
                     case MAP_BATTLEGROUND:
-                        if (flags & VMAP_DISABLE_HEIGHT)
+                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
                             sLog->outInfo(LOG_FILTER_GENERAL, "Height disabled for battleground map %u.", entry);
-                        if (flags & VMAP_DISABLE_LOS)
+                        if (flags & VMAP::VMAP_DISABLE_LOS)
                             sLog->outInfo(LOG_FILTER_GENERAL, "LoS disabled for battleground map %u.", entry);
                         break;
                     case MAP_ARENA:
-                        if (flags & VMAP_DISABLE_HEIGHT)
+                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
                             sLog->outInfo(LOG_FILTER_GENERAL, "Height disabled for arena map %u.", entry);
-                        if (flags & VMAP_DISABLE_LOS)
+                        if (flags & VMAP::VMAP_DISABLE_LOS)
                             sLog->outInfo(LOG_FILTER_GENERAL, "LoS disabled for arena map %u.", entry);
                         break;
                     default:
                         break;
+                }
+                break;
+            }
+            case DISABLE_TYPE_MMAP:
+            {
+                MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
+                if (!mapEntry)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
+                    continue;
+                }
+                switch (mapEntry->instanceType)
+                {
+                    case MAP_COMMON:
+                        sLog->outInfo(LOG_FILTER_GENERAL, "Pathfinding disabled for world map %u.", entry);
+                        break;
+                    case MAP_INSTANCE:
+                    case MAP_RAID:
+                        sLog->outInfo(LOG_FILTER_GENERAL, "Pathfinding disabled for instance map %u.", entry);
+                        break;
+                    case MAP_BATTLEGROUND:
+                        sLog->outInfo(LOG_FILTER_GENERAL, "Pathfinding disabled for battleground map %u.", entry);
+                        break;
+                    case MAP_ARENA:
+                        sLog->outInfo(LOG_FILTER_GENERAL, "Pathfinding disabled for arena map %u.", entry);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case DISABLE_TYPE_GARRISON_MISSION:
+            {
+                GarrMissionEntry const* l_MissionEntry = sGarrMissionStore.LookupEntry(entry);
+
+                if (!l_MissionEntry)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Garrison mission entry %u from `disables` doesn't exist in dbc, skipped.", entry);
+                    continue;
                 }
                 break;
             }
@@ -220,7 +262,17 @@ void LoadDisables()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u disables in %u ms", total_count, GetMSTimeDiffToNow(oldMSTime));
+}
 
+bool IsVMAPDisabledFor(uint32 entry, uint8 flags)
+{
+    return IsDisabledFor(DISABLE_TYPE_VMAP, entry, NULL, flags);
+}
+
+bool IsPathfindingEnabled(uint32 mapId)
+{
+    return sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS)
+        && !IsDisabledFor(DISABLE_TYPE_MMAP, mapId, NULL, MMAP_DISABLE_PATHFINDING);
 }
 
 void CheckQuestDisables()
@@ -271,7 +323,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
             uint8 spellFlags = itr->second.flags;
             if (unit)
             {
-                if ((spellFlags & SPELL_DISABLE_PLAYER && unit->GetTypeId() == TYPEID_PLAYER) ||
+                if ((spellFlags & SPELL_DISABLE_PLAYER && unit->IsPlayer()) ||
                     (unit->GetTypeId() == TYPEID_UNIT && ((unit->ToCreature()->isPet() && spellFlags & SPELL_DISABLE_PET) || spellFlags & SPELL_DISABLE_CREATURE)))
                 {
                     if (spellFlags & SPELL_DISABLE_MAP)
@@ -330,15 +382,25 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
             }
             return false;
         case DISABLE_TYPE_QUEST:
+        {
             if (!unit)
                 return true;
-            if (Player const* player = unit->ToPlayer())
-                if (player->isGameMaster())
+
+            if (Player const* l_Player = unit->ToPlayer())
+            {
+                if (l_Player->isGameMaster())
                     return false;
+
+                if (l_Player->m_IsDebugQuestLogs && l_Player->GetSession())
+                    ChatHandler(l_Player->GetSession()).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_DISABLED);
+            }
+
             return true;
+        }
         case DISABLE_TYPE_BATTLEGROUND:
         case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
+        case DISABLE_TYPE_GARRISON_MISSION:
             return true;
         case DISABLE_TYPE_VMAP:
            return flags & itr->second.flags;

@@ -120,7 +120,7 @@ public:
         {
             if (!me->getVictim() && !EventActive && Spell->Id == SPELL_LUNCH)
             {
-                if (Caster->GetTypeId() == TYPEID_PLAYER)
+                if (Caster->IsPlayer())
                     PlayerGUID = Caster->GetGUID();
 
                 if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)

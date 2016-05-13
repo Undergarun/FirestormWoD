@@ -130,7 +130,7 @@ class boss_orebender_gorashan : public CreatureScript
 
             void KilledUnit(Unit* p_Who)
             {
-                if (p_Who->GetTypeId() == TYPEID_PLAYER)
+                if (p_Who->IsPlayer())
                     Talk(TALK_SLAY);
             }
 
@@ -457,9 +457,9 @@ class mob_ubrs_rune_of_power : public CreatureScript
                         {
                             if (Creature* l_Orebender = Creature::GetCreature(*l_Conductor, l_InstanceScript->GetData64(NPC_OREBENDER_GORASHAN)))
                             {
-                                if (AuraPtr l_Aura = l_Orebender->GetAura(SPELL_POWER_CONDUIT_VISUAL, me->GetGUID()))
+                                if (Aura* l_Aura = l_Orebender->GetAura(SPELL_POWER_CONDUIT_VISUAL, me->GetGUID()))
                                     l_Aura->Remove();
-                                if (AuraPtr l_ConduitAura = l_Orebender->GetAura(SPELL_POWER_CONDUIT_AURA))
+                                if (Aura* l_ConduitAura = l_Orebender->GetAura(SPELL_POWER_CONDUIT_AURA))
                                     l_ConduitAura->ModStackAmount(-1);
 
                                 me->CastSpell(me, SPELL_UNHARNESSED_POWER, true);
@@ -629,7 +629,7 @@ class spell_power_conduit_hangover: public SpellScriptLoader
         {
             PrepareAuraScript(spell_power_conduit_hangover_AuraScript);
 
-            void AfterRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, SPELL_POWER_CONDUIT_STUN, true);
@@ -637,7 +637,7 @@ class spell_power_conduit_hangover: public SpellScriptLoader
 
             void Register()
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_power_conduit_hangover_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_power_conduit_hangover_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

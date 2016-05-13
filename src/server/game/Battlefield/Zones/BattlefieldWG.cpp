@@ -544,7 +544,7 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
         case NPC_TAUNKA_SPIRIT_GUIDE:
         {
             TeamId teamId = (creature->GetEntry() == NPC_DWARVEN_SPIRIT_GUIDE ? TEAM_ALLIANCE : TEAM_HORDE);
-            uint8 graveyardId = GetSpiritGraveyardId(creature->GetAreaId());
+            uint8 graveyardId = GetSpiritGraveyardId(creature->GetAreaId(true));
             if (m_GraveyardList[graveyardId])
                 m_GraveyardList[graveyardId]->SetSpirit(creature, teamId);
             break;
@@ -691,7 +691,7 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
     bool again = false;
     TeamId killerTeam = killer->GetTeamId();
 
-    if (victim->GetTypeId() == TYPEID_PLAYER)
+    if (victim->IsPlayer())
     {
         for (GuidSet::const_iterator itr = m_PlayersInWar[killerTeam].begin(); itr != m_PlayersInWar[killerTeam].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
@@ -752,8 +752,8 @@ void BattlefieldWG::PromotePlayer(Player* killer)
     if (!m_isActive)
         return;
     // Updating rank of player
-    AuraPtr aur = killer->GetAura(SPELL_RECRUIT);
-    if (aur != NULLAURA)
+    Aura* aur = killer->GetAura(SPELL_RECRUIT);
+    if (aur != nullptr)
     {
         if (aur->GetStackAmount() >= 5)
         {
@@ -766,8 +766,8 @@ void BattlefieldWG::PromotePlayer(Player* killer)
     }
     else
     {
-        AuraPtr aur = killer->GetAura(SPELL_CORPORAL);
-        if (aur != NULLAURA)
+        Aura* aur = killer->GetAura(SPELL_CORPORAL);
+        if (aur != nullptr)
         {
             if (aur->GetStackAmount() >= 5)
             {

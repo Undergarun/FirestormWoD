@@ -127,7 +127,7 @@ class boss_jaraxxus : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     Talk(SAY_KILL_PLAYER);
                     if (instance)
@@ -513,7 +513,7 @@ class spell_mistress_kiss: public SpellScriptLoader
                 return false;
             }
 
-            void HandleDummyTick(constAuraEffectPtr /*aurEff*/)
+            void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* caster = GetCaster();
                 Unit* target = GetTarget();

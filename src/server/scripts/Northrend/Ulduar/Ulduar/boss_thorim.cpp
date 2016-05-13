@@ -461,7 +461,7 @@ class boss_thorim : public CreatureScript
                     if (Creature* MiniBoss = ObjectAccessor::GetCreature(*me, instance->GetData64(i)))
                         MiniBoss->Respawn(true);
 
-                if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 500.0f))
+                if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 200.0f))
                     go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 if (Creature* sif = me->FindNearestCreature(NPC_SIF, 100.0f))
@@ -472,7 +472,7 @@ class boss_thorim : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_SLAY);
             }
 
@@ -546,7 +546,7 @@ class boss_thorim : public CreatureScript
                     runic->AI()->DoAction(ACTION_DOSCHEDULE_RUNIC_SMASH);  // Signals runic smash rotation
                 }
 
-                if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 500.0f))
+                if (GameObject* go = me->FindNearestGameObject(GO_LEVER, 200.0f))
                     go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 me->SetFacingToObject(who);
@@ -565,7 +565,7 @@ class boss_thorim : public CreatureScript
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (spell->Id == 62466)
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->IsPlayer())
                         doNotStandInTheLighting = false;
             }
 

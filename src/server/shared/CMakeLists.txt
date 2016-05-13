@@ -76,6 +76,8 @@ set(shared_STAT_SRCS
 
 include_directories(
   ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
   ${CMAKE_SOURCE_DIR}/dep/SFMT
   ${CMAKE_SOURCE_DIR}/dep/sockets/include
   ${CMAKE_SOURCE_DIR}/dep/utf8cpp
@@ -111,6 +113,8 @@ target_link_libraries(shared
   ${ACE_LIBRARY}
   ${CURL_LIBRARY}
 )
+
+add_dependencies(shared revision_data.h)
 
 # Generate precompiled header
 if (USE_COREPCH)

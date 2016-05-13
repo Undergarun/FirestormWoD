@@ -20,15 +20,13 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "BattlegroundMgr.hpp"
-#include "Battleground.h"
 #include "BattlegroundEY.h"
 #include "Creature.h"
-#include "Language.h"
 #include "Object.h"
 #include "Player.h"
 #include "Util.h"
 
-// these variables aren't used outside of this file, so declare them only here
+// these variables aren't used outside of this file, so declare them only here ///< today it's unused !
 uint32 BG_EY_HonorScoreTicks[BG_HONOR_MODE_NUM] =
 {
     260, // normal honor
@@ -155,7 +153,7 @@ void BattlegroundEY::AddPoints(uint32 Team, uint32 Points)
     m_HonorScoreTics[team_index] += Points;
     if (m_HonorScoreTics[team_index] >= m_HonorTics)
     {
-        RewardHonorToTeam(GetBonusHonorFromKill(1), Team);
+        RewardHonorToTeam(GetBonusHonorFromKill(1), Team, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
         m_HonorScoreTics[team_index] -= m_HonorTics;
     }
     UpdateTeamScore(Team);

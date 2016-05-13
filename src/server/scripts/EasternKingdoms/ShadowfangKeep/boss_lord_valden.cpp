@@ -194,12 +194,12 @@ class spell_valden_toxic_coagulant: public SpellScriptLoader
         {
             PrepareAuraScript(spell_valden_toxic_coagulant_AuraScript);
             
-            void HandleTick(constAuraEffectPtr aurEff)
+            void HandleTick(AuraEffect const* aurEff)
             {
                 if (!GetTarget())
                     return;
 
-                if (GetTarget()->isMoving())
+                if (GetTarget()->IsMoving())
                     GetTarget()->RemoveAuraFromStack(SPELL_TOXIC_COAGULANT_DMG);
             }
 

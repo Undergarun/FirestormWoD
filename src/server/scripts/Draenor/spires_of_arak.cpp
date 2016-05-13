@@ -35,18 +35,20 @@ class boss_rukhmar : public CreatureScript
                 EventMove = 1
             };
 
+            enum eMovements
+            {
+                MovementUp    = 8000,
+                MovementDown  = 8001
+            };
+
             EventMap m_Events;
             float m_ZRef;
             float m_ZNew;
-            bool m_MovingUpToward;
-            bool m_MovingDownToward;
 
             void Reset()
             {
                 m_ZRef               = 0.0f;
                 me->m_CombatDistance = 90.0f;
-                m_MovingUpToward     = false;
-                m_MovingDownToward   = false;
                 me->SetCanFly(true);
                 m_Events.Reset();
 
@@ -80,25 +82,13 @@ class boss_rukhmar : public CreatureScript
                 summons.Despawn(p_Summon);
             }
 
-            bool CheckPosition(float p_Ref)
-            {
-                float l_ActualZPos = me->GetPositionZ();
-
-                if (p_Ref == m_ZNew) ///< m_ZNew is float
-                    return ((l_ActualZPos <= m_ZNew + 0.01f) && (l_ActualZPos >= m_ZNew - 0.01f));
-                else if (p_Ref == m_ZRef) ///< m_ZRef is float
-                    return ((l_ActualZPos <= m_ZRef + 0.01f) && (l_ActualZPos >= m_ZRef - 0.01f));
-
-                return false;
-            }
-
             void LaunchGroundEvents()
             {
                   m_Events.ScheduleEvent(SpiresOfArakEvents::EventSharpBeak, 3000);
                   m_Events.ScheduleEvent(SpiresOfArakEvents::EventBloodFeather, 7000);
                   m_Events.ScheduleEvent(SpiresOfArakEvents::EventSolarBreath, 12000);
                   m_Events.ScheduleEvent(SpiresOfArakEvents::EventBlazeOfGlory, 19000);
-                  m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 23000);
+                  m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 38000);
             }
 
             void EnterCombat(Unit* p_Who) override
@@ -127,6 +117,7 @@ class boss_rukhmar : public CreatureScript
                 CreatureAI::EnterEvadeMode();
                 summons.DespawnAll();
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->ClearUnitState(UNIT_STATE_ROOT);
                 m_Events.Reset();
 
                 std::list<Creature*> l_CreatureList;
@@ -146,13 +137,29 @@ class boss_rukhmar : public CreatureScript
                 if (p_Action == SpiresOfArakActions::ActionMoveDownToward)
                 {
                     m_Events.Reset();
-                    m_MovingDownToward = true;
 
                     if (m_ZRef)
-                        me->GetMotionMaster()->MoveCharge(me->m_positionX, me->m_positionY, m_ZRef, 3.0f);
+                    {
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                        me->ClearUnitState(UNIT_STATE_ROOT);
+                        me->GetMotionMaster()->Clear(true);
+                        me->GetMotionMaster()->MoveCharge(me->m_positionX, me->m_positionY, me->m_positionZ - 15.0f, 3.0f, eMovements::MovementDown);
+                        LaunchGroundEvents();
+                    }
                 }
-                else
-                    LaunchGroundEvents();
+            }
+
+            void MovementInform(uint32 p_MoveType, uint32 p_ID) override
+            {
+                switch (p_ID)
+                {
+                    case eMovements::MovementDown:
+                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventFlyOver, 800);
+                        break;
+                    case eMovements::MovementUp:
+                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventFlyDestReached, 800);
+                        break;
+                }
             }
 
             void SpellHitTarget(Unit* p_Victim, SpellInfo const* p_SpellInfo) override
@@ -172,17 +179,17 @@ class boss_rukhmar : public CreatureScript
                 uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
-                    return l_Unit && l_Unit->GetTypeId() == TYPEID_PLAYER;
+                    return l_Unit && l_Unit->IsPlayer();
                 });
 
-                if (AuraPtr l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
+                if (Aura* l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                     {
                         if ((SpiresOfArakDatas::DamageScalingCoeff * l_Count) != l_Damage->GetAmount())
                             l_Damage->ChangeAmount(SpiresOfArakDatas::DamageScalingCoeff * l_Count);
                     }
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                     {
                         if ((SpiresOfArakDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
                         l_Health->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
@@ -194,67 +201,57 @@ class boss_rukhmar : public CreatureScript
             {
                 m_Events.Update(p_Diff);
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 HandleHealthAndDamageScaling();
 
-                if (me->HasUnitState(UNIT_STATE_CASTING) || (m_MovingUpToward || m_MovingDownToward))
-                {
-                    if (m_MovingUpToward)
-                    {
-                        if (CheckPosition(m_ZNew))
-                        {
-                            std::list<Creature*> l_CreatureList;
-                            std::list<Creature*> l_PhoenixList;
-                            m_MovingUpToward = false;
-
-                            me->CastSpell(me, SpiresOfArakSpells::SpellLooseQuillsLauncher, true);
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                            me->AddUnitState(UNIT_STATE_ROOT);
-                            me->GetCreatureListWithEntryInGrid(l_CreatureList, SpiresOfArakCreatures::CreaturePileOfAsh, 150.0f);
-
-                            for (Creature* l_Creature : l_CreatureList)
-                            {
-                                me->GetCreatureListWithEntryInGrid(l_PhoenixList, SpiresOfArakCreatures::CreatureDepletedPhoenix, 150.0f);
-
-                                if (l_PhoenixList.size() >= 8)
-                                    break;
-
-                                l_Creature->DespawnOrUnsummon();
-                                me->SummonCreature(SpiresOfArakCreatures::CreatureDepletedPhoenix, l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ);
-                            }
-                        }
-                    }
-                    else if (m_MovingDownToward)
-                    {
-                        if (CheckPosition(m_ZRef))
-                        {
-                            m_ZRef = 0.0f;
-                            m_ZNew = 0.0f;
-                            m_MovingDownToward = false;
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                            me->ClearUnitState(UNIT_STATE_ROOT);
-                            LaunchGroundEvents();
-                        }
-                    }
-                    return;
-                }
-
                 switch (m_Events.ExecuteEvent())
                 {
+                    case SpiresOfArakEvents::EventFlyDestReached:
+                    {
+                        std::list<Creature*> l_CreatureList;
+                        std::list<Creature*> l_PhoenixList;
+
+                        me->CastSpell(me, SpiresOfArakSpells::SpellLooseQuillsLauncher, true);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                        me->AddUnitState(UNIT_STATE_ROOT);
+                        me->GetMotionMaster()->Clear(false);
+                        me->GetCreatureListWithEntryInGrid(l_CreatureList, SpiresOfArakCreatures::CreaturePileOfAsh, 150.0f);
+
+                        for (Creature* l_Creature : l_CreatureList)
+                        {
+                            me->GetCreatureListWithEntryInGrid(l_PhoenixList, SpiresOfArakCreatures::CreatureDepletedPhoenix, 150.0f);
+
+                            if (l_PhoenixList.size() >= 8)
+                                break;
+
+                            l_Creature->DespawnOrUnsummon();
+                            me->SummonCreature(SpiresOfArakCreatures::CreatureDepletedPhoenix, l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ);
+                        }
+
+                        break;
+                    }
+                    case SpiresOfArakEvents::EventFlyOver:
+                    {
+                        m_ZRef = 0.0f;
+                        m_ZNew = 0.0f;
+                        LaunchGroundEvents();
+                        break;
+                    }
                     case SpiresOfArakEvents::EventLooseQuills:
                     {
-                        m_MovingUpToward = true;
                         m_ZRef = me->GetPositionZ();
                         m_ZNew = m_ZRef + 15.0f;
                         m_Events.Reset();
 
-                        me->GetMotionMaster()->MoveCharge(me->m_positionX, me->m_positionY, m_ZNew, 3.0f);
-                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 90000);
+                        me->GetMotionMaster()->Clear(false);
+                        me->GetMotionMaster()->MoveCharge(me->m_positionX, me->m_positionY, m_ZNew, 3.0f, eMovements::MovementUp);
+                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 120000);
                         break;
                     }
                     case SpiresOfArakEvents::EventSharpBeak:
+                        me->GetMotionMaster()->Clear(false);
                         if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, SpiresOfArakSpells::SpellSharpBeak, false);
                         m_Events.ScheduleEvent(SpiresOfArakEvents::EventSharpBeak, 33000);
@@ -349,17 +346,17 @@ class npc_energized_phoenix : public CreatureScript
                 uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
-                    return l_Unit && l_Unit->GetTypeId() == TYPEID_PLAYER;
+                    return l_Unit && l_Unit->IsPlayer();
                 });
 
-                if (AuraPtr l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
+                if (Aura* l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                     {
                         if ((SpiresOfArakDatas::DamageScalingCoeff * l_Count) != l_Damage->GetAmount())
                             l_Damage->ChangeAmount(SpiresOfArakDatas::DamageScalingCoeff * l_Count);
                     }
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                     {
                         if ((SpiresOfArakDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
                             l_Health->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
@@ -512,7 +509,7 @@ class spell_rukhmar_loose_quills : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rukhmar_loose_quills_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 WorldObject* l_Owner = GetOwner();
 
@@ -548,7 +545,7 @@ class spell_aura_pierced_armor : public SpellScriptLoader
         {
             PrepareAuraScript(spell_aura_pierced_armor_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 WorldObject* l_Owner = GetOwner();
 

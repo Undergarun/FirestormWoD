@@ -198,7 +198,7 @@ class boss_anubarak_trial : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     Talk(SAY_KILL_PLAYER);
                     if (instance)
@@ -707,7 +707,7 @@ class mob_anubarak_spike : public CreatureScript
 
             bool CanAIAttack(Unit const* victim) const
             {
-                return victim->GetTypeId() == TYPEID_PLAYER;
+                return victim->IsPlayer();
             }
 
             void EnterCombat(Unit* who)

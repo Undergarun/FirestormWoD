@@ -131,7 +131,7 @@ public:
 
             if (consumptionJunction)
             {
-                AuraPtr ConsumeAura = me->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA, H_SPELL_CONSUME_AURA));
+                Aura* ConsumeAura = me->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA, H_SPELL_CONSUME_AURA));
                 if (ConsumeAura && ConsumeAura->GetStackAmount() > 9)
                     consumptionJunction = false;
             }

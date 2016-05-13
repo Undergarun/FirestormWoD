@@ -266,7 +266,7 @@ public:
 
         void AnnounceChampion(Unit* champion)
         {
-            if (champion->GetTypeId() == TYPEID_PLAYER)
+            if (champion->IsPlayer())
             {
                 if (!playersGUID.empty())
                 {
@@ -838,8 +838,8 @@ public:
                             {
                                 bossGUID[i] = boss->GetGUID();
                                 boss->SetTarget(stalkerGUID);
-								//we force faction due to interfaction
-								boss->setFaction(16); 
+                                //we force faction due to interfaction
+                                boss->setFaction(16); 
                                 // Save current boss entry to inst for achievement check
                                 instance->SetData64(DATA_GRAND_CHAMPION_GUID, boss->GetGUID());
                                 instance->SetData(DATA_GRAND_CHAMPION_ENTRY, boss->GetEntry());

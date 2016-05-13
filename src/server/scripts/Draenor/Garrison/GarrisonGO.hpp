@@ -63,6 +63,24 @@ namespace MS { namespace Garrison
             /// @p_GameObject : GameObject instance
             GameObjectAI* GetAI(GameObject * p_GameObject) const override;
 
+            struct ShipmentCurrency
+            {
+                uint32 CurrencyID     = 0;
+                uint32 CurrencyAmount = 0;
+            };
+
+            struct ItemReward
+            {
+                uint32 ItemID;
+                uint32 ItemCount;
+
+                ItemReward()
+                {
+                    ItemID = 0;
+                    ItemCount = 0;
+                }
+            };
+
             struct go_garrison_shipment_containerAI : public GameObjectAI
             {
                 /// Constructor
@@ -136,11 +154,11 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Garrison shipment container generic script
-    class go_garrison_small_timber : public GameObjectScript
+    class go_garrison_timber : public GameObjectScript
     {
         public:
             /// Constructor
-            go_garrison_small_timber();
+            go_garrison_timber();
 
             enum eDatas
             {
@@ -159,10 +177,10 @@ namespace MS { namespace Garrison
             /// @p_GameObject : Target GameObject instance
             bool OnGossipHello(Player * p_Player, GameObject * p_GameObject);
 
-            struct go_garrison_small_timberAI : public GameObjectAI
+            struct go_garrison_timberAI : public GameObjectAI
             {
                 /// Constructor
-                go_garrison_small_timberAI(GameObject * p_GameObject);
+                go_garrison_timberAI(GameObject * p_GameObject);
 
                 uint32 m_AnimTimer    = 0;
                 uint32 m_RefillTimer  = 0;
@@ -195,6 +213,43 @@ namespace MS { namespace Garrison
             virtual bool OnGameObjectSpellCasterUse(const GameObject* p_GameObject, Player* p_User) const override;
     };
 
+
+    //////////////////////////////////////////////////////////////////////////
+    /// 237335, 237132                                                     ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Garrison Enchanter's Study receptacle
+    class go_garrison_essence_font : public GameObjectScript
+    {
+        public:
+            /// Constructor
+            go_garrison_essence_font();
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_GameObject : Target GameObject instance
+            bool OnGossipHello(Player* p_Player, GameObject* p_GameObject);
+
+    };
+
+
+    //////////////////////////////////////////////////////////////////////////
+    /// 192628                                                             ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Garrison Enchanter's Study receptacle
+    class go_garrison_anvil : public GameObjectScript
+    {
+        public:
+            /// Constructor
+            go_garrison_anvil();
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_GameObject : Target GameObject instance
+            virtual void OnGameObjectStateChanged(const GameObject* p_GameObject, uint32 p_State) override;
+
+    };
 }   ///< namespace Garrison
 }   ///< namespace MS
 

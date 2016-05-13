@@ -45,7 +45,6 @@
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "OutdoorPvPMgr.h"
-#include "MovementPacketBuilder.h"
 #include "DynamicTree.h"
 #include "Unit.h"
 #include "Group.h"
@@ -212,12 +211,12 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     uint8  updateType = UPDATETYPE_CREATE_OBJECT;
     uint32 flags      = m_updateFlag;
 
-    uint32 valCount = m_valuesCount;
+    uint32 valCount = m_valuesCount; ///< valCount is never read 01/18/16
 
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_THIS_IS_YOU;
-    //else if (GetTypeId() == TYPEID_PLAYER && target != this)
+    //else if (IsPlayer() && target != this)
         //valCount = PLAYER_END_NOT_SELF;
 
     /// /!\ @TODO private player field are actually broadcasted /!\ FIX IT
@@ -305,7 +304,7 @@ void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
     data->AddOutOfRangeGUID(GetGUID());
 }
 
-void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
+void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const ///< p_OnDeath is unused
 {
     ASSERT(p_Target);
 
@@ -373,7 +372,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
     {
         uint32 l_MovementForceCount = 0;
 
-        bool l_HasSpline = l_Unit->movespline->Initialized();
+        bool l_HasSpline = l_Unit->IsSplineEnabled();
 
         /// Movement
         {
@@ -485,7 +484,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
             if (!l_Spline->isCyclic())
             {
-                Vector3 l_FinalDestination = l_Spline->FinalDestination();
+                Movement::Vector3 l_FinalDestination = l_Spline->FinalDestination();
 
                 *p_Data << float(l_FinalDestination.x);                     ///< Spline destination X
                 *p_Data << float(l_FinalDestination.y);                     ///< Spline destination Y
@@ -494,7 +493,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             else
             {
                 /// I've seen always the third points as Spline destination... Don't know why
-                Vector3 l_Destination = l_Spline->spline.last() > 2 ? l_Spline->spline.getPoint(2) : l_Spline->spline.getPoint(l_Spline->spline.last());
+                Movement::Vector3 l_Destination = l_Spline->spline.last() > 2 ? l_Spline->spline.getPoint(2) : l_Spline->spline.getPoint(l_Spline->spline.last());
 
                 *p_Data << float(l_Destination.x);                                        ///< Spline destination X
                 *p_Data << float(l_Destination.y);                                        ///< Spline destination Y
@@ -533,7 +532,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
                 p_Data->WriteBit(l_HasFilterKeys);                          ///< Has unk spline part
                 p_Data->FlushBits();
 
-                *p_Data << uint32(l_Spline->TimePassed());                  ///< Time passed
+                *p_Data << uint32(l_Spline->time_passed);                   ///< Time passed
                 *p_Data << uint32(l_Spline->Duration());                    ///< Total spline duration
                 *p_Data << float(1.0f);                                     ///< DurationMod
                 *p_Data << float(1.0f);                                     ///< DurationModNext
@@ -947,7 +946,7 @@ void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) cons
 
     if (iter == data_map.end())
     {
-        std::pair<UpdateDataMapType::iterator, bool> p = data_map.insert(UpdateDataMapType::value_type(player, UpdateData(player->GetMapId())));
+        std::pair<UpdateDataMapType::iterator, bool> p = data_map.emplace(player, UpdateData(player->GetMapId()));
         ASSERT(p.second);
         iter = p.first;
     }
@@ -1738,7 +1737,7 @@ void WorldObject::setActive(bool on)
     if (m_isActive == on)
         return;
 
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (IsPlayer())
         return;
 
     m_isActive = on;
@@ -1778,17 +1777,17 @@ void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
     m_phaseMask = phaseMask;
 }
 
-uint32 WorldObject::GetZoneId() const
+uint32 WorldObject::GetZoneId(bool /*forceRecalc*/) const
 {
     return GetBaseMap()->GetZoneId(m_positionX, m_positionY, m_positionZ);
 }
 
-uint32 WorldObject::GetAreaId() const
+uint32 WorldObject::GetAreaId(bool /*forceRecalc*/) const
 {
     return GetBaseMap()->GetAreaId(m_positionX, m_positionY, m_positionZ);
 }
 
-void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
+void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool /*forceRecalc*/) const
 {
     GetBaseMap()->GetZoneAndAreaId(zoneid, areaid, m_positionX, m_positionY, m_positionZ);
 }
@@ -1796,7 +1795,7 @@ void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
 InstanceScript* WorldObject::GetInstanceScript()
 {
     Map* map = GetMap();
-    return map->IsDungeon() ? ((InstanceMap*)map)->GetInstanceScript() : NULL;
+    return (map->IsDungeon() || map->IsScenario()) ? ((InstanceMap*)map)->GetInstanceScript() : NULL;
 }
 
 float WorldObject::GetDistanceZ(const WorldObject* obj) const
@@ -1852,7 +1851,7 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 
     // Hack fix for Alysrazor
     if (GetMapId() == 720 && GetAreaId() == 5766)
-        if ((GetTypeId() == TYPEID_PLAYER) || (obj->GetTypeId() == TYPEID_PLAYER))
+        if ((IsPlayer()) || (obj->IsPlayer()))
             return true;
 
     // AoE spells
@@ -2122,6 +2121,33 @@ bool WorldObject::IsInAxe(WorldObject const* p_Object, float p_Width, float p_Ra
 
     /// Not using sqrt() for performance
     return (p_Width * p_Width) >= GetExactDist2dSq(p_Object->GetPositionX() + cos(l_Angle) * l_Dist, p_Object->GetPositionY() + sin(l_Angle) * l_Dist);
+}
+
+bool WorldObject::IsInElipse(const WorldObject* p_Obj1, const WorldObject* p_Obj2, float p_With, float p_Thickness) const
+{
+    if (!p_Obj1 || !p_Obj2)
+        return false;
+
+    float l_HalfDist = p_Obj1->GetDistance(p_Obj2) / 2;
+    float l_CoefRadius = p_Obj1->GetDistance(this) - l_HalfDist;
+    if (l_CoefRadius < 0.0f)
+        l_CoefRadius *= -1;
+    else
+        l_CoefRadius = l_HalfDist - l_CoefRadius;
+
+    if (l_CoefRadius > l_HalfDist)
+        return false;
+
+    if (!IsInBetween(p_Obj1, p_Obj2, p_With + (p_Thickness / 2)))
+        return false;
+
+    l_CoefRadius /= l_HalfDist;
+
+    l_CoefRadius *= p_With;
+
+    if (l_CoefRadius && IsInBetween(p_Obj1, p_Obj2, l_CoefRadius + (p_Thickness / 2)) && !IsInBetween(p_Obj1, p_Obj2, l_CoefRadius - (p_Thickness / 2)))
+        return true;
+    return false;
 }
 
 bool WorldObject::isInFront(WorldObject const* target,  float arc) const
@@ -2520,7 +2546,7 @@ void WorldObject::SendPlaySound(uint32 p_SoundKitID, bool p_OnlySelf)
     l_Data << p_SoundKitID;
     l_Data.appendPackGUID(GetGUID());
 
-    if (p_OnlySelf && GetTypeId() == TYPEID_PLAYER)
+    if (p_OnlySelf && IsPlayer())
         ToPlayer()->GetSession()->SendPacket(&l_Data);
     else
         SendMessageToSet(&l_Data, true); ///< ToSelf ignored in this case
@@ -2882,7 +2908,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     if (summoner)
     {
         phase = summoner->GetPhaseMask();
-        if (summoner->GetTypeId() == TYPEID_PLAYER)
+        if (summoner->IsPlayer())
             team = summoner->ToPlayer()->GetTeam();
     }
 
@@ -2966,14 +2992,14 @@ void WorldObject::SetZoneScript()
             m_zoneScript = (ZoneScript*)((InstanceMap*)map)->GetInstanceScript();
         else if (!map->IsBattlegroundOrArena())
         {
-            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId(true)))
                 m_zoneScript = bf;
             else
             {
-                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId(true)))
                     m_zoneScript = bf;
                 else
-                    m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
+                    m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId(true));
             }
         }
     }
@@ -3041,7 +3067,7 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, pet, currentPet, l_PlayerGUID](SQLQueryHolder* p_QueryHolder) -> void
             {
                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-                if (!l_Player)
+                if (!l_Player || !p_QueryHolder)
                     return;
 
                 pet->LoadPetFromDB(l_Player, entry, 0, currentPet, l_LoadPetSlotID, stampeded, (PetQueryHolder*)p_QueryHolder, [entry, x, y, z, ang, petType, duration, slotID, l_LoadPetSlotID, stampeded, p_Callback, l_PlayerGUID](Pet* p_Pet, bool p_Result) -> void
@@ -3288,7 +3314,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     if (p_GarrisonPlotObject)
         go->SetDynamicValue(GAMEOBJECT_DYNAMIC_FIELD_ENABLE_DOODAD_SETS, 0, 1);
 
-    if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
+    if (IsPlayer() || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
         ToUnit()->AddGameObject(go);
     else
         go->SetSpawnedByDefault(false);
@@ -3319,7 +3345,7 @@ Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint3
         return NULL;
 
     //summon->SetName(GetName());
-    if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT)
+    if (IsPlayer() || GetTypeId() == TYPEID_UNIT)
     {
         summon->setFaction(((Unit*)this)->getFaction());
         summon->SetLevel(((Unit*)this)->getLevel());
@@ -3553,129 +3579,44 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
     JadeCore::NormalizeMapCoord(y);
 }
 
-void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const
+void WorldObject::GetNearPoint(WorldObject const* p_Searcher, float &p_InOutX, float &p_InOutY, float &p_InOutZ, float p_SearcherSize, float p_Distance2D, float p_AbsAngle) const
 {
-    GetNearPoint2D(x, y, distance2d+searcher_size, absAngle);
-    z = GetPositionZ();
-    if (!searcher || !searcher->ToCreature() || !searcher->GetMap()->Instanceable())
-        UpdateAllowedPositionZ(x, y, z);
-    /*
-    // if detection disabled, return first point
-    if (!sWorld->getIntConfig(CONFIG_DETECT_POS_COLLISION))
-    {
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
+    GetNearPoint2D(p_InOutX, p_InOutY, p_Distance2D + p_SearcherSize, p_AbsAngle);
+    p_InOutZ = GetPositionZ();
+
+    /// Should "searcher" be used instead of "this" when updating z coordinate ?
+    UpdateAllowedPositionZ(p_InOutX, p_InOutY, p_InOutZ);
+
+    /// if detection disabled, return first point
+    if (!sWorld->getBoolConfig(CONFIG_DETECT_POS_COLLISION))
         return;
-    }
 
-    // or remember first point
-    float first_x = x;
-    float first_y = y;
-    bool first_los_conflict = false;                        // first point LOS problems
-
-    // prepare selector for work
-    ObjectPosSelector selector(GetPositionX(), GetPositionY(), GetObjectSize(), distance2d+searcher_size);
-
-    // adding used positions around object
-    {
-        CellCoord p(JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY()));
-        Cell cell(p);
-        cell.SetNoCreate();
-
-        JadeCore::NearUsedPosDo u_do(*this, searcher, absAngle, selector);
-        JadeCore::WorldObjectWorker<JadeCore::NearUsedPosDo> worker(this, u_do);
-
-        TypeContainerVisitor<JadeCore::WorldObjectWorker<JadeCore::NearUsedPosDo>, GridTypeMapContainer  > grid_obj_worker(worker);
-        TypeContainerVisitor<JadeCore::WorldObjectWorker<JadeCore::NearUsedPosDo>, WorldTypeMapContainer > world_obj_worker(worker);
-
-        CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, grid_obj_worker,  *GetMap(), *this, distance2d);
-        cell_lock->Visit(cell_lock, world_obj_worker, *GetMap(), *this, distance2d);
-    }
-
-    // maybe can just place in primary position
-    if (selector.CheckOriginal())
-    {
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-
-        if (IsWithinLOS(x, y, z))
-            return;
-
-        first_los_conflict = true;                          // first point have LOS problems
-    }
-
-    float angle;                                            // candidate of angle for free pos
-
-    // special case when one from list empty and then empty side preferred
-    if (selector.FirstAngle(angle))
-    {
-        GetNearPoint2D(x, y, distance2d, absAngle+angle);
-        z = GetPositionZ();
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-
-        if (IsWithinLOS(x, y, z))
-            return;
-    }
-
-    // set first used pos in lists
-    selector.InitializeAngle();
-
-    // select in positions after current nodes (selection one by one)
-    while (selector.NextAngle(angle))                        // angle for free pos
-    {
-        GetNearPoint2D(x, y, distance2d, absAngle+angle);
-        z = GetPositionZ();
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-
-        if (IsWithinLOS(x, y, z))
-            return;
-    }
-
-    // BAD NEWS: not free pos (or used or have LOS problems)
-    // Attempt find _used_ pos without LOS problem
-
-    if (!first_los_conflict)
-    {
-        x = first_x;
-        y = first_y;
-
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
+    /// return if the point is already in LoS
+    if (IsWithinLOS(p_InOutX, p_InOutY, p_InOutZ))
         return;
-    }
 
-    // special case when one from list empty and then empty side preferred
-    if (selector.IsNonBalanced())
+    /// Remember first point
+    float l_FirstX = p_InOutX;
+    float l_FirstY = p_InOutY;
+    float l_FirstZ = p_InOutZ;
+
+    /// Loop in a circle to look for a point in LoS using small steps
+    for (float l_CurrentAngle = float(M_PI) / 8; l_CurrentAngle < float(M_PI) * 2; l_CurrentAngle += float(M_PI) / 8)
     {
-        if (!selector.FirstAngle(angle))                     // _used_ pos
-        {
-            GetNearPoint2D(x, y, distance2d, absAngle+angle);
-            z = GetPositionZ();
-            UpdateGroundPositionZ(x, y, z);                   // update to LOS height if available
+        GetNearPoint2D(p_InOutX, p_InOutY, p_Distance2D + p_SearcherSize, p_AbsAngle + l_CurrentAngle);
 
-            if (IsWithinLOS(x, y, z))
-                return;
-        }
-    }
+        p_InOutZ = GetPositionZ();
 
-    // set first used pos in lists
-    selector.InitializeAngle();
+        UpdateAllowedPositionZ(p_InOutX, p_InOutY, p_InOutZ);
 
-    // select in positions after current nodes (selection one by one)
-    while (selector.NextUsedAngle(angle))                    // angle for used pos but maybe without LOS problem
-    {
-        GetNearPoint2D(x, y, distance2d, absAngle+angle);
-        z = GetPositionZ();
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-
-        if (IsWithinLOS(x, y, z))
+        if (IsWithinLOS(p_InOutX, p_InOutY, p_InOutZ))
             return;
     }
 
-    // BAD BAD NEWS: all found pos (free and used) have LOS problem :(
-    x = first_x;
-    y = first_y;
-
-    UpdateGroundPositionZ(x, y, z);                           // update to LOS height if available
-    */
+    // Still not in LoS, give up and return first position found
+    p_InOutX = l_FirstX;
+    p_InOutY = l_FirstY;
+    p_InOutZ = l_FirstZ;
 }
 
 void WorldObject::MovePosition(Position &pos, float dist, float angle)
@@ -3686,7 +3627,7 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
     desty = pos.m_positionY + dist * std::sin(angle);
 
     // Prevent invalid coordinates here, position is unchanged
-    if (!JadeCore::IsValidMapCoord(destx, desty))
+    if (!JadeCore::IsValidMapCoord(destx, desty, pos.m_positionZ))
     {
         sLog->outFatal(LOG_FILTER_GENERAL, "WorldObject::MovePosition invalid coordinates X: %f and Y: %f were passed!", destx, desty);
         return;

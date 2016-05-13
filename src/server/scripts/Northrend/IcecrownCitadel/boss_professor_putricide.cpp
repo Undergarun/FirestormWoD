@@ -270,7 +270,7 @@ class boss_professor_putricide : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -480,7 +480,7 @@ class boss_professor_putricide : public CreatureScript
                                 {
                                     const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
                                     for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                                        if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER)
+                                        if ((*itr)->getTarget()->IsPlayer())
                                             targetList.push_back((*itr)->getTarget());
                                 }
 
@@ -830,7 +830,7 @@ class spell_putricide_gaseous_bloat: public SpellScriptLoader
         {
             PrepareAuraScript(spell_putricide_gaseous_bloat_AuraScript);
 
-            void HandleExtraEffect(constAuraEffectPtr /*aurEff*/)
+            void HandleExtraEffect(AuraEffect const* /*aurEff*/)
             {
                 Unit* target = GetTarget();
                 if (Unit* caster = GetCaster())
@@ -1158,7 +1158,7 @@ class spell_putricide_unbound_plague: public SpellScriptLoader
                 if (!instance)
                     return;
 
-                if (constAuraEffectPtr eff = GetCaster()->GetAuraEffect(SPELL_UNBOUND_PLAGUE_SEARCHER, EFFECT_0))
+                if (AuraEffect const* eff = GetCaster()->GetAuraEffect(SPELL_UNBOUND_PLAGUE_SEARCHER, EFFECT_0))
                     if (eff->GetTickNumber() < 5)
                         return;
 
@@ -1168,9 +1168,9 @@ class spell_putricide_unbound_plague: public SpellScriptLoader
                 {
                     if (Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     {
-                        if (AuraPtr oldPlague = GetCaster()->GetAura(plagueId, professor->GetGUID()))
+                        if (Aura* oldPlague = GetCaster()->GetAura(plagueId, professor->GetGUID()))
                         {
-                            if (AuraPtr newPlague = professor->AddAura(plagueId, GetHitUnit()))
+                            if (Aura* newPlague = professor->AddAura(plagueId, GetHitUnit()))
                             {
                                 newPlague->SetMaxDuration(oldPlague->GetMaxDuration());
                                 newPlague->SetDuration(oldPlague->GetDuration());
@@ -1224,7 +1224,7 @@ class spell_putricide_eat_ooze: public SpellScriptLoader
                 if (!target)
                     return;
 
-                if (AuraPtr grow = target->GetAura(uint32(GetEffectValue())))
+                if (Aura* grow = target->GetAura(uint32(GetEffectValue())))
                 {
                     if (grow->GetStackAmount() < 4)
                     {
@@ -1259,7 +1259,7 @@ class spell_putricide_mutated_plague: public SpellScriptLoader
         {
             PrepareAuraScript(spell_putricide_mutated_plague_AuraScript);
 
-            void HandleTriggerSpell(constAuraEffectPtr aurEff)
+            void HandleTriggerSpell(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
                 Unit* caster = GetCaster();
@@ -1281,7 +1281,7 @@ class spell_putricide_mutated_plague: public SpellScriptLoader
                 GetTarget()->CastCustomSpell(triggerSpell, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true, NULL, aurEff, GetCasterGUID());
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 uint32 healSpell = uint32(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
                 GetTarget()->CastSpell(GetTarget(), healSpell, true, NULL, NULL, GetCasterGUID());
@@ -1363,7 +1363,7 @@ class spell_putricide_mutation_init: public SpellScriptLoader
         {
             PrepareAuraScript(spell_putricide_mutation_init_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 uint32 spellId = 70311;
                 if (GetTarget()->GetMap()->GetSpawnMode() & 1)
@@ -1398,7 +1398,7 @@ class spell_putricide_mutated_transformation_dismiss: public SpellScriptLoader
         {
             PrepareAuraScript(spell_putricide_mutated_transformation_dismiss_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Vehicle* veh = GetTarget()->GetVehicleKit())
                     veh->RemoveAllPassengers();

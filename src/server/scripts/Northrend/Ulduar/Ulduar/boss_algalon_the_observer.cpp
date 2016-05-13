@@ -342,7 +342,7 @@ class boss_algalon_the_observer : public CreatureScript
                         DoCast(me, SPELL_RIDE_THE_LIGHTNING, true);
                         me->GetMotionMaster()->MovePoint(POINT_ALGALON_LAND, AlgalonLandPos);
                         me->SetHomePosition(AlgalonLandPos);
-                        Movement::MoveSplineInit init(*me);
+                        Movement::MoveSplineInit init(me);
                         init.MoveTo(AlgalonLandPos.GetPositionX(), AlgalonLandPos.GetPositionY(), AlgalonLandPos.GetPositionZ());
                         init.SetOrientationFixed(true);
                         init.Launch();
@@ -1040,7 +1040,7 @@ class spell_algalon_phase_punch: public SpellScriptLoader
         {
             PrepareAuraScript(spell_algalon_phase_punch_AuraScript);
 
-            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (GetStackAmount() != 1)
@@ -1050,7 +1050,7 @@ class spell_algalon_phase_punch: public SpellScriptLoader
                     Remove(AURA_REMOVE_BY_DEFAULT);
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 if (GetStackAmount() != 5)
                     GetTarget()->RemoveAurasDueToSpell(PhasePunchAlphaId[GetStackAmount() - 1]);
@@ -1165,7 +1165,7 @@ class spell_algalon_collapse: public SpellScriptLoader
         {
             PrepareAuraScript(spell_algalon_collapse_AuraScript);
 
-            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 GetTarget()->DealDamage(GetTarget(), GetTarget()->CountPctFromMaxHealth(1), NULL, NODAMAGE);
@@ -1233,7 +1233,7 @@ class spell_algalon_remove_phase: public SpellScriptLoader
         {
             PrepareAuraScript(spell_algalon_remove_phase_AuraScript);
 
-            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 GetTarget()->RemoveAurasByType(SPELL_AURA_PHASE);

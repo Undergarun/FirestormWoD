@@ -1,0 +1,1 @@
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_garalon_weak_points_cosmetic';

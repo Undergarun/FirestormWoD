@@ -117,7 +117,7 @@ void PhaseMgr::Recalculate()
 
 inline bool PhaseMgr::CheckDefinition(PhaseDefinition const* phaseDefinition)
 {
-    return sConditionMgr->IsObjectMeetToConditions(player, sConditionMgr->GetConditionsForPhaseDefinition(phaseDefinition->zoneId, phaseDefinition->entry));
+    return sConditionMgr->IsObjectMeetPhaseCondition(phaseDefinition->zoneId, phaseDefinition->entry, player);
 }
 
 bool PhaseMgr::NeedsPhaseUpdateWithData(PhaseUpdateData const updateData) const
@@ -127,12 +127,15 @@ bool PhaseMgr::NeedsPhaseUpdateWithData(PhaseUpdateData const updateData) const
     {
         for (PhaseDefinitionContainer::const_iterator phase = itr->second.begin(); phase != itr->second.end(); ++phase)
         {
-            ConditionList conditionList = sConditionMgr->GetConditionsForPhaseDefinition(phase->zoneId, phase->entry);
-            for (ConditionList::const_iterator condition = conditionList.begin(); condition != conditionList.end(); ++condition)
-                if (updateData.IsConditionRelated(*condition))
-                    return true;
+            if (ConditionContainer const* conditionList = sConditionMgr->GetConditionsForPhaseDefinition(phase->zoneId, phase->entry))
+            {
+                for (ConditionContainer::const_iterator condition = conditionList->begin(); condition != conditionList->end(); ++condition)
+                    if (updateData.IsConditionRelated(*condition))
+                        return true;
+            }
         }
     }
+
     return false;
 }
 

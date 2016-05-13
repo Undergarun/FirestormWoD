@@ -187,7 +187,7 @@ class boss_galion : public CreatureScript
 
             void KilledUnit(Unit* p_Killer)
             {
-                if (p_Killer->GetTypeId() == TYPEID_PLAYER)
+                if (p_Killer->IsPlayer())
                 {
                     if (Unit* l_ChiefSalyis = me->GetVehicleKit()->GetPassenger(2))
                         l_ChiefSalyis->ToCreature()->AI()->Talk(TALK_SLAY);

@@ -805,7 +805,7 @@ class spell_dust_flail: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dust_flail_AuraScript)
 
-            void ExtraEffectRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void ExtraEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     if (Creature* lockmaw = caster->ToCreature())

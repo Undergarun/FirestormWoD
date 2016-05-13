@@ -42,7 +42,7 @@ class BattlegroundRB : public Battleground
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundRB::UpdatePlayerScore' hides overloaded virtual function
 
     private:
 };

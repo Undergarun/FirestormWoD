@@ -1,0 +1,1 @@
+UPDATE `pet_stats` SET health_coef=0.20 WHERE entry=77726;

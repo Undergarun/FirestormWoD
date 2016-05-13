@@ -143,7 +143,7 @@ class boss_lord_marrowgar : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -213,7 +213,7 @@ class boss_lord_marrowgar : public CreatureScript
                             events.ScheduleEvent(EVENT_WARN_BONE_STORM, 90000);
                             break;
                         case EVENT_BONE_STORM_BEGIN:
-                            if (AuraPtr pStorm = me->GetAura(SPELL_BONE_STORM))
+                            if (Aura* pStorm = me->GetAura(SPELL_BONE_STORM))
                                 pStorm->SetDuration(int32(_boneStormDuration));
                             me->SetSpeed(MOVE_RUN, _baseSpeed*3.0f, true);
                             Talk(SAY_BONE_STORM);
@@ -426,7 +426,7 @@ class npc_bone_spike : public CreatureScript
                 /// @HACK - Change passenger offset to the one taken directly from sniffs
                 /// Remove this when proper calculations are implemented.
                 /// This fixes healing spiked people
-                Movement::MoveSplineInit init(*passenger);
+                Movement::MoveSplineInit init(passenger);
                 init.DisableTransportPathTransformations();
                 init.MoveTo(-0.02206125f, -0.02132235f, 5.514783f);
                 init.Launch();
@@ -538,12 +538,12 @@ class spell_marrowgar_coldflame_damage: public SpellScriptLoader
         {
             PrepareAuraScript(spell_marrowgar_coldflame_damage_AuraScript);
 
-            void OnPeriodic(constAuraEffectPtr /*aurEff*/)
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (DynamicObject* owner = GetDynobjOwner())
-                    if (GetTarget()->GetExactDist2d(owner) >= owner->GetRadius() || GetTarget()->HasAura(SPELL_IMPALED) || (GetTarget()->GetTypeId() == TYPEID_PLAYER && GetTarget()->ToPlayer()->HasSpellCooldown(69146)))
+                    if (GetTarget()->GetExactDist2d(owner) >= owner->GetRadius() || GetTarget()->HasAura(SPELL_IMPALED) || (GetTarget()->IsPlayer() && GetTarget()->ToPlayer()->HasSpellCooldown(69146)))
                         PreventDefaultAction();
-                    else if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                    else if (GetTarget()->IsPlayer())
                         GetTarget()->ToPlayer()->AddSpellCooldown(69146, 0, 1100);
             }
 

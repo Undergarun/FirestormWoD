@@ -176,13 +176,13 @@ public:
 
         uint32 timer;
         uint8 phase;
-        Unit* Passenger;
+        uint64 PassengerGUID;
         
         void Reset()
         {
             timer = 0;
             phase = 0;
-            Passenger = NULL;
+            PassengerGUID = 0;
             me->SetWalk(true);
         }
 
@@ -190,7 +190,7 @@ public:
         {
             timer = 3000;
             phase = 1;
-            Passenger = who;
+            PassengerGUID = who->GetGUID();
         }
 
         void MovementInform(uint32 type, uint32 id)
@@ -212,8 +212,8 @@ public:
                     for (auto canon : canonList)
                         canon->CastSpell(me, 1000, false);
 
-                    if (Passenger->ToPlayer())
-                        Passenger->ToPlayer()->AreaExploredOrEventHappens(27635); // Decontamination
+                    if (Player* player = sObjectAccessor->FindPlayer(PassengerGUID))
+                        player->AreaExploredOrEventHappens(27635); // Decontamination
 
                     break;
                 }
@@ -247,7 +247,8 @@ public:
                     me->GetMotionMaster()->MovePoint(2, -5173.97f, 716.153f, 293.668f);
                     break;
                 case 3:
-                    Passenger->RemoveAurasDueToSpell(SPELL_IRRADIE);
+                    if (Player* player = sObjectAccessor->FindPlayer(PassengerGUID))
+                        player->RemoveAurasDueToSpell(SPELL_IRRADIE);
                     me->GetMotionMaster()->MovePoint(3, -5175.65f, 699.32f, 293.668f);
                     break;
                 case 4:

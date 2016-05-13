@@ -1,0 +1,1 @@
+UPDATE `disables` SET flags=49 WHERE entry IN(32307, 92146, 40120, 33943);

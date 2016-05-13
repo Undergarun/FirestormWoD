@@ -36,6 +36,7 @@ class Quest;
 class Player;
 class WorldSession;
 class CreatureGroup;
+class CreatureScript;
 
 enum CreatureFlagsExtra
 {
@@ -52,9 +53,10 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_GUARD               = 0x00008000,       ///< Creature is guard
     CREATURE_FLAG_EXTRA_NO_CRIT             = 0x00020000,       ///< creature can't do critical strikes
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN        = 0x00040000,       ///< creature won't increase weapon skills
-    CREATURE_FLAG_EXTRA_TAUNT_DIMINISH      = 0x00080000,       ///< Taunt is a subject to diminishing returns on this creautre
+    CREATURE_FLAG_EXTRA_TAUNT_DIMINISH      = 0x00080000,       ///< Taunt is a subject to diminishing returns on this creautre·
     CREATURE_FLAG_EXTRA_ALL_DIMINISH        = 0x00100000,       ///< Creature is subject to all diminishing returns as player are
-    CREATURE_FLAG_EXTRA_DUNGEON_BOSS        = 0x10000000,       ///< creature is a dungeon boss (SET DYNAMICALLY, DO NOT ADD IN DB)
+    CREATURE_FLAG_EXTRA_LOG_GROUP_DMG       = 0x00200000,       ///< All damage done to the create will be logged into database, help to spot cheaters/exploit/usebug
+    CREATURE_FLAG_EXTRA_DUNGEON_BOSS        = 0x10000000,       ///< creature is a dungeon boss
     CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING  = 0x20000000,       ///< creature ignore pathfinding (NYI)
     CREATURE_FLAG_EXTRA_DUNGEON_END_BOSS    = 0x40000000        ///< Creature is the last boss of the dungeon where he is
 };
@@ -62,9 +64,9 @@ enum CreatureFlagsExtra
 #define CREATURE_FLAG_EXTRA_DB_ALLOWED (CREATURE_FLAG_EXTRA_INSTANCE_BIND | CREATURE_FLAG_EXTRA_CIVILIAN | \
     CREATURE_FLAG_EXTRA_NO_PARRY | CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN | CREATURE_FLAG_EXTRA_NO_BLOCK | \
     CREATURE_FLAG_EXTRA_NO_CRUSH | CREATURE_FLAG_EXTRA_NO_XP_AT_KILL | CREATURE_FLAG_EXTRA_TRIGGER | \
-    CREATURE_FLAG_EXTRA_NO_TAUNT | CREATURE_FLAG_EXTRA_WORLDEVENT | CREATURE_FLAG_EXTRA_NO_CRIT | \
+    CREATURE_FLAG_EXTRA_NO_TAUNT | CREATURE_FLAG_EXTRA_WORLDEVENT | CREATURE_FLAG_EXTRA_NO_CRIT | CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING | \
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN | CREATURE_FLAG_EXTRA_TAUNT_DIMINISH | CREATURE_FLAG_EXTRA_ALL_DIMINISH | \
-    CREATURE_FLAG_EXTRA_GUARD)
+    CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_DUNGEON_END_BOSS | CREATURE_FLAG_EXTRA_DUNGEON_BOSS | CREATURE_FLAG_EXTRA_LOG_GROUP_DMG)
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
 #if defined(__GNUC__)
@@ -94,6 +96,7 @@ enum CreatureFlagsExtra
 
 // Mage
 #define ENTRY_WATER_ELEMENTAL   510
+#define ENTRY_FROZEN_ORB        45322
 
 // Druid
 #define ENTRY_TREANT_GUARDIAN   54985
@@ -257,7 +260,7 @@ struct CreatureBaseStats
         return uint32((BaseArmor * info->ModArmor) + 0.5f);
     }
 
-    float GenerateBaseDamage(CreatureTemplate const* info) const
+    float GenerateBaseDamage(CreatureTemplate const* info) const ///< info unused parameter
     {
        return BaseDamage;
     }
@@ -290,6 +293,26 @@ struct CreatureGroupSizeStat
 };
 
 typedef std::map<uint32/*CreatureEntry*/, std::map<uint32/*Difficulty*/, CreatureGroupSizeStat>> CreatureGroupSizeStatsContainer;
+
+struct CreatureDamageLog
+{
+    uint32 Spell;
+    uint32 Damage;
+    uint32 AttackerGuid;
+    uint32 Time;
+};
+
+typedef std::list<CreatureDamageLog> CreatureDamageLogList;
+
+struct GroupDump
+{
+    std::string Dump;
+    time_t      Time;
+};
+
+typedef std::list<GroupDump> GroupDumpList;
+
+#define GROUP_DUMP_TIMER 60000
 
 struct CreatureLocale
 {
@@ -497,8 +520,6 @@ typedef std::map<uint32, time_t> CreatureSpellCooldowns;
 // max different by z coordinate for creature aggro reaction
 #define CREATURE_Z_ATTACK_RANGE 3
 
-#define MAX_VENDOR_ITEMS 450                                // Limitation in 4.x.x item count in SMSG_LIST_INVENTORY
-
 class Creature : public Unit, public GridObject<Creature>, public MapObject
 {
     public:
@@ -600,10 +621,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
         inline CreatureAI* AI() const { return (CreatureAI*)i_AI; }
 
-        bool SetWalk(bool enable);
-        bool SetDisableGravity(bool disable, bool packetOnly = false);
-        bool SetHover(bool enable);
-
         SpellSchoolMask GetMeleeDamageSchoolMask() const { return m_meleeDamageSchoolMask; }
         void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }
 
@@ -623,6 +640,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool HasSpell(uint32 spellID) const;
 
         bool UpdateEntry(uint32 entry, uint32 team = ALLIANCE, const CreatureData* data = nullptr);
+
+        void UpdateMovementFlags();
+
         bool UpdateStats(Stats stat);
         bool UpdateAllStats();
         void UpdateResistances(uint32 school);
@@ -648,6 +668,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         CreatureTemplate const* GetNativeTemplate() const { return m_NativeCreatureInfo; }
         CreatureData const* GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
+        CreatureScript* GetCreatureScript();
 
         std::string GetAIName() const;
         std::string GetScriptName() const;
@@ -662,7 +683,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         // override WorldObject function for proper name localization
         const char* GetNameForLocaleIdx(LocaleConstant locale_idx) const;
 
-        void setDeathState(DeathState s);                   // override virtual Unit::setDeathState
+        void setDeathState(DeathState s) override;
 
         bool LoadFromDB(uint32 guid, Map* map) { return LoadCreatureFromDB(guid, map, false); }
         bool LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap = true);
@@ -726,11 +747,14 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void DespawnOrUnsummon(uint32 msTimeToDespawn = 0);
         void DespawnCreaturesInArea(uint32 p_Entry, float p_Range = 100.0f);
         void DespawnCreaturesInArea(std::vector<uint32> p_Entry, float p_Range = 100.0f);
+        void DespawnAreaTriggersInArea(uint32 p_SpellID, float p_Range = 100.0f);
+        void DespawnAreaTriggersInArea(std::vector<uint32> p_SpellIDs, float p_Range = 100.0f);
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
         void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(NULL) + respawn : 0; }
         void Respawn(bool force = false);
+
         void SaveRespawnTime();
 
         uint32 GetRemoveCorpseDelay() const { return m_corpseRemoveTime; }
@@ -826,6 +850,33 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool m_LOSCheck_creature;
         bool m_LOSCheck_player;
 
+        void SetEncounterStartTime(time_t p_Time) { m_StartEncounterTime = p_Time; }
+        time_t GetEncounterStartTime() const { return m_StartEncounterTime; }
+
+        CreatureDamageLogList const& GetDamageLogs() { return m_DamageLogs; }
+        void AddDamageLog(CreatureDamageLog p_Log) { m_DamageLogs.push_back(p_Log); }
+        void ClearDamageLog() { m_DamageLogs.clear(); }
+
+        GroupDumpList const& GetGroupDumps() { return m_GroupDumps; }
+        void AddGroupDump(GroupDump p_Dump) { m_GroupDumps.push_back(p_Dump); }
+        void ClearGroupDumps() { m_GroupDumps.clear(); }
+
+        void DumpGroup();
+
+        void AddMovementInform(uint32 p_Type, uint32 p_ID)
+        {
+            m_MovementInform.push_back(std::make_pair(p_Type, p_ID));
+        }
+
+    private:
+        void DoRespawn();
+
+        bool m_NeedRespawn;
+        int m_RespawnFrameDelay;
+
+        int32 m_MovingUpdateTimer;
+        int32 m_NotMovingUpdateTimer;
+
     protected:
         bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data = nullptr);
         bool InitEntry(uint32 entry, uint32 team = ALLIANCE, const CreatureData* data = nullptr);
@@ -867,9 +918,10 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         bool DisableReputationGain;
 
-        CreatureTemplate const* m_creatureInfo;             ///< in difficulty mode > 0 can different from sObjectMgr->GetCreatureTemplate(GetEntry())
+        CreatureTemplate const* m_creatureInfo;             ///  0 can different from sObjectMgr->GetCreatureTemplate(GetEntry())
         CreatureTemplate const* m_NativeCreatureInfo;
         CreatureData const* m_creatureData;
+        CreatureScript* m_CreatureScript;
 
         uint16 m_LootMode;                                  ///< bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
         uint32 guid_transport;
@@ -880,6 +932,12 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool CanAlwaysSee(WorldObject const* obj) const;
     private:
 
+        CreatureDamageLogList m_DamageLogs;
+        time_t m_StartEncounterTime;
+
+        GroupDumpList m_GroupDumps;
+        uint32 m_DumpGroupTimer;
+
         //WaypointMovementGenerator vars
         uint32 m_waypointID;
         uint32 m_path_id;
@@ -887,6 +945,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         //Formation var
         CreatureGroup* m_formation;
         bool TriggerJustRespawned;
+
+        std::list<std::pair<uint32, uint32>> m_MovementInform;
 };
 
 class AssistDelayEvent : public BasicEvent

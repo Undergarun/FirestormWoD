@@ -207,7 +207,7 @@ public:
 
         void DamageTaken(Unit* pDoneBy, uint32& uiDamage, SpellInfo const* p_SpellInfo)
         {
-            if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+            if (uiDamage > me->GetHealth() && pDoneBy->IsPlayer())
             {
                 uiDamage = 0;
                 pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT, true);
@@ -458,7 +458,7 @@ class npc_tournament_training_dummy : public CreatureScript
                             }
                             case NPC_RANGED_TARGET:
                             {
-                                AuraPtr defend = me->GetAura(SPELL_RANGED_DEFEND);
+                                Aura* defend = me->GetAura(SPELL_RANGED_DEFEND);
                                 if (!defend || defend->GetStackAmount() < 3 || defend->GetDuration() <= 8000)
                                     DoCast(SPELL_RANGED_DEFEND);
                                 break;

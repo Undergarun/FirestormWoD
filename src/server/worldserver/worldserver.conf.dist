@@ -296,6 +296,21 @@ PlayerSave.Stats.MinLevel = 0
 PlayerSave.Stats.SaveOnlyOnLogout = 1
 
 #
+#    mmap.enablePathFinding
+#        Description: Enable/Disable pathfinding using mmaps
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+mmap.enablePathFinding = 1
+
+#
+#    mmap.ignoreMapIds
+#        Disable mmap pathfinding on the listed maps.
+#        List of map ids with delimiter ','
+
+mmap.ignoreMapIds = ""
+
+#
 #    vmap.enableLOS
 #    vmap.enableHeight
 #        Description: VMmap support for line of sight and height calculation.
@@ -314,14 +329,6 @@ vmap.enableHeight = 1
 #        Default:     "7720"
 
 vmap.ignoreSpellIds = "7720"
-
-#
-#    vmap.petLOS
-#        Description: Check line of sight for pets, to avoid them attacking through walls.
-#        Default:     1 - (Enabled, each pet attack will be checked for line of sight)
-#                     0 - (Disabled, somewhat less CPU usage)
-
-vmap.petLOS = 1
 
 #
 #    vmap.enableIndoorCheck
@@ -344,12 +351,12 @@ DetectPosCollision = 1
 #    TargetPosRecalculateRange
 #        Description: Max distance from movement target point (+moving unit size) and targeted
 #                     object (+size) after that new target movement point calculated.
-#        Range:       0.5-5.0
+#        Range:       0.5-1.5
 #        Default:     1.5
 #                     0.5 - (Minimum, Contact Range, More sensitive reaction to target movement)
-#                     5.0 - (Maximum, Melee attack range, Less CPU usage)
+#                     1.5 - (Maximum, Melee attack range, Less CPU usage)
 
-TargetPosRecalculateRange = 5.0
+TargetPosRecalculateRange = 1.5
 
 #
 #    UpdateUptimeInterval
@@ -2838,9 +2845,9 @@ PlayerDump.DisallowOverwrite = 1
 #
 
 Appender.Console=1,3,0
-Appender.Server=0,0,0
-Appender.GM=0,0,0
-Appender.DBErrors=0,0,0
+Appender.Server=2,2,0,Server.log,w
+Appender.GM=2,2,15,gm/gm_%s.log
+Appender.DBErrors=2,2,0,DBErrors.log,w
 Appender.Char=2,2,0,Char.log,w
 Appender.RA=2,2,0,RA.log
 Appender.Warden=2,4,0,Warden.log
@@ -2849,13 +2856,14 @@ Appender.CharDump=2,2,0,%s.log
 Appender.Arenas=2,2,0,Arena.log
 Appender.SQLDev=2,2,0,SQLDev.log
 Appender.SQLDriver=2,2,0,SQLDriver.log
+Appender.Profiling=2,5,0,Profiling.log,w
 
 #    Appenders
 #        Description: List of Appenders to read from config
 #                     (Using spaces as separator).
 #        Default:     "Console Server GM DBErrors Char RA Warden Chat"
 
-Appenders=Console Server GM DBErrors Char RA Warden Chat
+Appenders=Console Server GM DBErrors Char RA Warden Chat CharDump Arenas SQLDev SQLDriver Profiling
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -2909,6 +2917,7 @@ Appenders=Console Server GM DBErrors Char RA Warden Chat
 #                        39 - Battlefield
 #                        40 - Server Loading
 #                        41 - Opcodes (just id and name sent / received)
+#                        42 - Custom: Profiling
 #                     LogLevel
 #                         0 - (Disabled)
 #                         1 - (Trace)
@@ -2936,6 +2945,7 @@ Logger.SQLDev=37,3,SQLDev
 Logger.CharDump=38,3,CharDump
 Logger.Load=40,3,Console Server
 Logger.Opcodes=41,6,Console Server
+Logger.Profiling=42,5,Console Profiling
 
 #
 #    Loggers
@@ -2943,7 +2953,7 @@ Logger.Opcodes=41,6,Console Server
 #                     (Using spaces as separator).
 #        Default:     "Root Chat DBErrors GM RA Warden Character Load"
 
-Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer Opcodes
+Loggers=Root Chat DBErrors GM RA Warden WorldServer Character Arenas SQLDriver SQLDev CharDump Load Opcodes Profiling
 
 #
 ###################################################################################################
@@ -3175,6 +3185,14 @@ LogPackets = 1
 #                     1 - (Enabled, specialization check is disabled)
 
 DisableSpellSpecializationCheck = 0
+
+#
+#    IgnoreResearchSite
+#        Description: Ignore the load of reseach site.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+IgnoreResearchSite = 0
 
 ###################################################################################################
 # VIP CONFIG

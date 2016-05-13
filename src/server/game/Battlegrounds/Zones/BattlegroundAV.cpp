@@ -20,10 +20,9 @@
 #include "WorldPacket.h"
 #include "BattlegroundAV.h"
 
-#include "Battleground.h"
-#include "Miscellaneous/Formulas.h"
+#include "Formulas.h"
 #include "GameObject.h"
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 #include "Player.h"
 #include "SpellAuras.h"
 
@@ -77,7 +76,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
     {
         CastSpellOnTeam(23658, HORDE); //this is a spell which finishes a quest where a player has to kill the boss
         RewardReputationToTeam(729, BG_AV_REP_BOSS, HORDE);
-        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_BOSS), HORDE);
+        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_BOSS), HORDE, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
         EndBattleground(HORDE);
         DelCreature(AV_CPLACE_TRIGGER17);
     }
@@ -85,7 +84,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
     {
         CastSpellOnTeam(23658, ALLIANCE); //this is a spell which finishes a quest where a player has to kill the boss
         RewardReputationToTeam(730, BG_AV_REP_BOSS, ALLIANCE);
-        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_BOSS), ALLIANCE);
+        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_BOSS), ALLIANCE, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
         EndBattleground(ALLIANCE);
         DelCreature(AV_CPLACE_TRIGGER19);
     }
@@ -98,7 +97,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
         }
         m_CaptainAlive[0]=false;
         RewardReputationToTeam(729, BG_AV_REP_CAPTAIN, HORDE);
-        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_CAPTAIN), HORDE);
+        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_CAPTAIN), HORDE, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
         UpdateScore(ALLIANCE, (-1)*BG_AV_RES_CAPTAIN);
         //spawn destroyed aura
         for (uint8 i=0; i <= 9; i++)
@@ -117,7 +116,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
         }
         m_CaptainAlive[1]=false;
         RewardReputationToTeam(730, BG_AV_REP_CAPTAIN, ALLIANCE);
-        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_CAPTAIN), ALLIANCE);
+        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_CAPTAIN), ALLIANCE, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
         UpdateScore(HORDE, (-1)*BG_AV_RES_CAPTAIN);
         //spawn destroyed aura
         for (uint8 i=0; i <= 9; i++)
@@ -271,12 +270,12 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
         cinfoid=uint16(BG_AV_StaticCreaturePos[type][4]);
         creature = AddCreature(BG_AV_StaticCreatureInfo[cinfoid][0], (type+AV_CPLACE_MAX), BG_AV_StaticCreatureInfo[cinfoid][1], BG_AV_StaticCreaturePos[type][0], BG_AV_StaticCreaturePos[type][1], BG_AV_StaticCreaturePos[type][2], BG_AV_StaticCreaturePos[type][3]);
         level = (BG_AV_StaticCreatureInfo[cinfoid][2] == BG_AV_StaticCreatureInfo[cinfoid][3]) ? BG_AV_StaticCreatureInfo[cinfoid][2] : urand(BG_AV_StaticCreatureInfo[cinfoid][2], BG_AV_StaticCreatureInfo[cinfoid][3]);
-        isStatic = true;
+        isStatic = true; ///< level is never read 01/18/16
     }
     else
     {
         creature = AddCreature(BG_AV_CreatureInfo[cinfoid][0], type, BG_AV_CreatureInfo[cinfoid][1], BG_AV_CreaturePos[type][0], BG_AV_CreaturePos[type][1], BG_AV_CreaturePos[type][2], BG_AV_CreaturePos[type][3]);
-        level = (BG_AV_CreatureInfo[cinfoid][2] == BG_AV_CreatureInfo[cinfoid][3]) ? BG_AV_CreatureInfo[cinfoid][2] : urand(BG_AV_CreatureInfo[cinfoid][2], BG_AV_CreatureInfo[cinfoid][3]);
+        level = (BG_AV_CreatureInfo[cinfoid][2] == BG_AV_CreatureInfo[cinfoid][3]) ? BG_AV_CreatureInfo[cinfoid][2] : urand(BG_AV_CreatureInfo[cinfoid][2], BG_AV_CreatureInfo[cinfoid][3]); ///< level is never read 01/18/16
     }
     if (!creature)
         return NULL;
@@ -324,8 +323,8 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
     }
     else if (creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_H_BOSS][0])
     {
-        triggerSpawnID = AV_CPLACE_TRIGGER19;
-        newFaction = 83;
+        triggerSpawnID = AV_CPLACE_TRIGGER19; ///< triggerSpawnID is never read 01/18/16
+        newFaction = 83; ///< newFaction is never read 01/18/16
     }
     /*if (triggerSpawnID && newFaction)
     {
@@ -612,7 +611,7 @@ void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
 
         UpdateScore((owner == ALLIANCE) ? HORDE : ALLIANCE, (-1)*BG_AV_RES_TOWER);
         RewardReputationToTeam((owner == ALLIANCE)?730:729, BG_AV_REP_TOWER, owner);
-        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_TOWER), owner);
+        RewardHonorToTeam(GetBonusHonor(BG_AV_KILL_TOWER), owner, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
 
         SpawnBGObject(BG_AV_OBJECT_TAURA_A_DUNBALDAR_SOUTH+GetTeamIndexByTeamId(owner)+(2*tmp), RESPAWN_ONE_DAY);
         SpawnBGObject(BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH+GetTeamIndexByTeamId(owner)+(2*tmp), RESPAWN_ONE_DAY);

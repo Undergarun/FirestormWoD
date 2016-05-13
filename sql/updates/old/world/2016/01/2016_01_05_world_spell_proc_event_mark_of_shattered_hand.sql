@@ -1,0 +1,1 @@
+INSERT INTO `spell_proc_event` (entry, procFlags) VALUES (159239, 0x00000004 + 0x00000010);

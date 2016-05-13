@@ -44,77 +44,82 @@ namespace MS { namespace Garrison
 
     void npc_MadisonClarkAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
-        if (Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript())
+        if (Player* l_Player = GetOwner())
         {
-            if (Player* l_Player = l_GarrisonSite->GetOwner())
+            std::list<Creature*> l_CreatureList;
+            MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+
+            if (l_GarrisonMgr == nullptr)
+                return;
+
+            me->GetCreatureListInGrid(l_CreatureList, 30.0f);
+
+            for (Creature* l_Creature : l_CreatureList)
             {
-                std::list<Creature*> l_CreatureList;
-                me->GetCreatureListInGrid(l_CreatureList, 30.0f);
+                if (std::find(TavernDatas::g_QuestGiverEntries.begin(), TavernDatas::g_QuestGiverEntries.end(), l_Creature->GetEntry()) != TavernDatas::g_QuestGiverEntries.end())
+                    l_Creature->DespawnOrUnsummon();
+            }
 
-                for (Creature* l_Creature : l_CreatureList)
-                {
-                    if (std::find(TavernDatas::g_QuestGiverEntries.begin(), TavernDatas::g_QuestGiverEntries.end(), l_Creature->GetEntry()) != TavernDatas::g_QuestGiverEntries.end())
-                        l_Creature->DespawnOrUnsummon();
-                }
+            std::vector<uint32>& l_Entries = l_GarrisonMgr->GetGarrisonTavernDatas();
 
-                std::vector<uint32> l_Entries = l_Player->GetGarrisonTavernDatas();
-
-                if (l_Entries.size() == 1)
-                    SummonRelativeCreature(l_Entries[0],
-                    g_QuestGiverAlliancePositions[0].X,
-                    g_QuestGiverAlliancePositions[0].Y,
-                    g_QuestGiverAlliancePositions[0].Z,
-                    g_QuestGiverAlliancePositions[0].O,
+            if (l_Entries.size() == 1)
+                SummonRelativeCreature(l_Entries[0],
+                g_QuestGiverAlliancePositions[0].X,
+                g_QuestGiverAlliancePositions[0].Y,
+                g_QuestGiverAlliancePositions[0].Z,
+                g_QuestGiverAlliancePositions[0].O,
+                TEMPSUMMON_MANUAL_DESPAWN);
+            else if (l_Entries.size() > 1)
+            {
+                SummonRelativeCreature(l_Entries[0],
+                    g_QuestGiverAlliancePositions[1].X,
+                    g_QuestGiverAlliancePositions[1].Y,
+                    g_QuestGiverAlliancePositions[1].Z,
+                    g_QuestGiverAlliancePositions[1].O,
                     TEMPSUMMON_MANUAL_DESPAWN);
-                else if (l_Entries.size() > 1)
-                {
-                    SummonRelativeCreature(l_Entries[0],
-                        g_QuestGiverAlliancePositions[1].X,
-                        g_QuestGiverAlliancePositions[1].Y,
-                        g_QuestGiverAlliancePositions[1].Z,
-                        g_QuestGiverAlliancePositions[1].O,
-                        TEMPSUMMON_MANUAL_DESPAWN);
 
-                    SummonRelativeCreature(l_Entries[1],
-                        g_QuestGiverAlliancePositions[2].X,
-                        g_QuestGiverAlliancePositions[2].Y,
-                        g_QuestGiverAlliancePositions[2].Z,
-                        g_QuestGiverAlliancePositions[2].O,
-                        TEMPSUMMON_MANUAL_DESPAWN);
-                }
+                SummonRelativeCreature(l_Entries[1],
+                    g_QuestGiverAlliancePositions[2].X,
+                    g_QuestGiverAlliancePositions[2].Y,
+                    g_QuestGiverAlliancePositions[2].Z,
+                    g_QuestGiverAlliancePositions[2].O,
+                    TEMPSUMMON_MANUAL_DESPAWN);
             }
         }
     }
 
-    void npc_MadisonClarkAI::OnDataReset()
+    void npc_MadisonClarkAI::OnDailyDataReset()
     {
-        if (Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript())
+        if (Player* l_Player = GetOwner())
         {
-            if (Player* l_Player = l_GarrisonSite->GetOwner())
+            MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+
+            if (l_GarrisonMgr == nullptr)
+                return;
+
+            l_GarrisonMgr->CleanGarrisonTavernData();
+
+            if (roll_chance_i(50))
             {
-                if (roll_chance_i(50))
-                {
-                    uint32 l_Entry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
+                uint32 l_Entry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
 
-                    l_Player->CleanGarrisonTavernData();
-                    l_Player->AddGarrisonTavernData(l_Entry);
-                    OnSetPlotInstanceID(GetPlotInstanceID());
-                }
-                else
-                {
-                    uint32 l_FirstEntry  = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
-                    uint32 l_SecondEntry = 0;
-
-                    do
-                        l_SecondEntry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
-                    while (l_SecondEntry == l_FirstEntry);
-
-                    l_Player->CleanGarrisonTavernData();
-                    l_Player->AddGarrisonTavernData(l_FirstEntry);
-                    l_Player->AddGarrisonTavernData(l_SecondEntry);
-                    OnSetPlotInstanceID(GetPlotInstanceID());
-                }
+                l_GarrisonMgr->AddGarrisonTavernData(l_Entry);
             }
+            else
+            {
+                uint32 l_FirstEntry  = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
+                uint32 l_SecondEntry = 0;
+
+                do
+                    l_SecondEntry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
+                while (l_SecondEntry == l_FirstEntry);
+
+                l_GarrisonMgr->AddGarrisonTavernData(l_FirstEntry);
+                l_GarrisonMgr->AddGarrisonTavernData(l_SecondEntry);
+            }
+
+            OnSetPlotInstanceID(GetPlotInstanceID());
+            l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
         }
     }
 

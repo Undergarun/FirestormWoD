@@ -896,7 +896,7 @@ class BattlegroundIC : public Battleground
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundIC::UpdatePlayerScore' hides overloaded virtual function
 
         void FillInitialWorldStates(ByteBuffer& data);
 

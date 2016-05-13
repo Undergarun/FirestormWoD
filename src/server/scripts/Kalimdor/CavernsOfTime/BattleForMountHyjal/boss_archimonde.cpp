@@ -191,7 +191,7 @@ public:
         {
             //will update once TargetGUID is 0. In case noone actually moves(not likely) and this is 0
             //when UpdateAI needs it, it will be forced to select randomPoint
-            if (!TargetGUID && who->GetTypeId() == TYPEID_PLAYER)
+            if (!TargetGUID && who->IsPlayer())
                 TargetGUID = who->GetGUID();
         }
 
@@ -319,7 +319,7 @@ public:
         {
             Talk(SAY_SLAY);
 
-            if (victim && (victim->GetTypeId() == TYPEID_PLAYER))
+            if (victim && (victim->IsPlayer()))
                 GainSoulCharge(CAST_PLR(victim));
         }
 
@@ -412,7 +412,7 @@ public:
             if (summoned->GetEntry() == CREATURE_DOOMFIRE)
             {
                 summoned->CastSpell(summoned, SPELL_DOOMFIRE_SPAWN, false);
-                summoned->CastSpell(summoned, SPELL_DOOMFIRE, true, 0, NULLAURA_EFFECT, me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_DOOMFIRE, true, 0, nullptr, me->GetGUID());
 
                 if (Unit* DoomfireSpirit = Unit::GetUnit(*me, DoomfireSpiritGUID))
                 {

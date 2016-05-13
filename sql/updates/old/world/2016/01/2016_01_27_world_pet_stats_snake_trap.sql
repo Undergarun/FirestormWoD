@@ -1,0 +1,4 @@
+DELETE FROM `pet_stats` WHERE entry=19833;
+DELETE FROM `pet_stats` WHERE entry=19921;
+INSERT INTO `pet_stats` (`entry`, `speed`, `powerstatbase`, `armor_coef`, `apsp_coef`, `health_coef`, `damage_coef`, `attackspeed`, `powertype`, `createpower`, `secondarystat_coef`, `comment`) VALUES('19833','1.14','0','1','0','0','0','1.82','0','0','0','Snake Trap');
+INSERT INTO `pet_stats` (`entry`, `speed`, `powerstatbase`, `armor_coef`, `apsp_coef`, `health_coef`, `damage_coef`, `attackspeed`, `powertype`, `createpower`, `secondarystat_coef`, `comment`) VALUES('19921','1.14','0','1','0','0','0','1.82','0','0','0','Snake Trap');

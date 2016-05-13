@@ -241,7 +241,7 @@ class boss_garajal : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(TALK_SLAY);
             }
 
@@ -838,7 +838,7 @@ class spell_final_destination : public SpellScriptLoader
         {
             PrepareAuraScript(spell_final_destination_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 if (Unit* Garajal = GetCaster())
                 {
@@ -877,7 +877,7 @@ class spell_voodoo_doll : public SpellScriptLoader
         {
             PrepareAuraScript(spell_voodoo_doll_AuraScript);
 
-            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     target->AddAura(65371, target);

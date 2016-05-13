@@ -65,12 +65,12 @@ class SmartScript
 
         bool IsUnit(WorldObject* obj)
         {
-            return obj && (obj->GetTypeId() == TYPEID_UNIT || obj->GetTypeId() == TYPEID_PLAYER);
+            return obj && (obj->GetTypeId() == TYPEID_UNIT || obj->IsPlayer());
         }
 
         bool IsPlayer(WorldObject* obj)
         {
-            return obj && obj->GetTypeId() == TYPEID_PLAYER;
+            return obj && obj->IsPlayer();
         }
 
         bool IsCreature(WorldObject* obj)

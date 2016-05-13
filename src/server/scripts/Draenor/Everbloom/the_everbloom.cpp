@@ -3,159 +3,184 @@
 ///  MILLENIUM-STUDIO
 ///  Copyright 2015 Millenium-studio SARL
 ///  All Rights Reserved.
-///
+///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "the_everbloom.hpp"
 
-namespace
-{
-    void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
-    {
-        std::list<Creature*> creatures;
-        GetCreatureListWithEntryInGrid(creatures, object, entry, 10.0f);
-        if (creatures.empty())
-            return;
-
-        for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-            (*iter)->DespawnOrUnsummon();
-    }
-}
-
 /// Dreadpital toxin - 81864
-class the_everbloom_dreadpital_toxin : public CreatureScript
+class the_everbloom_mob_dreadpital_toxin : public CreatureScript
 {
 public:
-    the_everbloom_dreadpital_toxin() : CreatureScript("the_everbloom_Dreadpital_Toxin") { }
 
-    struct the_everbloom_creaturesAI : public ScriptedAI
+    the_everbloom_mob_dreadpital_toxin() : CreatureScript("the_everbloom_mob_Dreadpital_Toxin") { }
+
+    struct the_everbloom_mob_dreadpital_toxinAI : public ScriptedAI
     {
-        the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        the_everbloom_mob_dreadpital_toxinAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
 
         InstanceScript* m_Instance;
 
+        enum eDreadpetalEvents
+        {
+            EventDreadpetalToxin = 1
+        };
+
+        enum eDreadpetalSpells
+        {
+            SpellDreadpetalToxin = 164886
+        };
+
         void Reset() override
         {
             events.Reset();
-
-            me->setFaction(16);
+            me->setFaction(HostileFaction);
         }
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eEverbloomEvents::EventDreadpetalToxin, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eDreadpetalEvents::EventDreadpetalToxin, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
         }
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eEverbloomEvents::EventDreadpetalToxin:
+            case eDreadpetalEvents::EventDreadpetalToxin:
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
-                        me->CastSpell(l_Target, eEverbloomSpells::SpellDreadpetalToxin);
-
-                    events.ScheduleEvent(eEverbloomEvents::EventDreadpetalToxin, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+                        me->CastSpell(l_Target, eDreadpetalSpells::SpellDreadpetalToxin);
+                    events.ScheduleEvent(eDreadpetalEvents::EventDreadpetalToxin, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                default:
                     break;
             }
 
             DoMeleeAttackIfReady();
-
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new the_everbloom_creaturesAI(pCreature);
+        return new the_everbloom_mob_dreadpital_toxinAI(p_Creature);
     }
 };
 
 /// Everbloom Tender - 81985
-class the_everbloom_tender : public CreatureScript
+class the_everbloom_mob_everbloom_tender : public CreatureScript
 {
 public:
-    the_everbloom_tender() : CreatureScript("the_everbloom_tender") { }
 
-    struct the_everbloom_creaturesAI : public ScriptedAI
+    the_everbloom_mob_everbloom_tender() : CreatureScript("the_everbloom_mob_everbloom_tender") { }
+
+    struct the_everbloom_mob_everbloom_tenderAI : public ScriptedAI
     {
-        the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        the_everbloom_mob_everbloom_tenderAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
+
+        enum eTenderEvents
+        {
+            EventDancingThorns = 1,
+            EventEnragedGrowth
+        };
+
+        enum eTenderSpells
+        {
+            SpellDancingThorns = 164973,
+            SpellEnragedGrowth = 165213,
+            SpellSolarChannel  = 170594
+        };
 
         InstanceScript* m_Instance;
 
         void Reset() override
         {
             events.Reset();
-
-            me->CastSpell(me, eEverbloomSpells::SpellSolarChannel);
+            me->CastSpell(me, eTenderSpells::SpellSolarChannel);
         }
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eEverbloomEvents::EventDancingThorns, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eEverbloomEvents::EventEnragedGrowth, urand(7 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eTenderEvents::EventDancingThorns, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eTenderEvents::EventEnragedGrowth, urand(7 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
         }
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-            case eEverbloomEvents::EventDancingThorns:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                    me->CastSpell(l_Target, eEverbloomSpells::SpellDancingThorns);
-
-                events.ScheduleEvent(eEverbloomEvents::EventDancingThorns, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eEverbloomEvents::EventEnragedGrowth:
-                if (Creature* l_Petal = me->FindNearestCreature(eEverbloomCreatures::CreatureDreadpetalToxin, 20.0f, true))
-                    me->CastSpell(l_Petal, eEverbloomSpells::SpellEnragedGrowth);
-
-                events.ScheduleEvent(eEverbloomEvents::EventEnragedGrowth, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
-                break;
+                case eTenderEvents::EventDancingThorns:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eTenderSpells::SpellDancingThorns);
+                        events.ScheduleEvent(eTenderEvents::EventDancingThorns, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    case eTenderEvents::EventEnragedGrowth:
+                        if (Creature* l_Petal = me->FindNearestCreature(eEverbloomCreature::CreatureDreadpetalToxin, 20.0f, true))
+                            me->CastSpell(l_Petal, eTenderSpells::SpellEnragedGrowth);
+                        events.ScheduleEvent(eTenderEvents::EventEnragedGrowth, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    default:
+                        break;
             }
 
             DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new the_everbloom_creaturesAI(pCreature);
+        return new the_everbloom_mob_everbloom_tenderAI(p_Creature);
     }
 };
 
-///  Melder Berserker - 86372
-class the_everbloom_melded_berserker : public CreatureScript
+/// Melder Berserker - 86372
+class the_everbloom_mob_melded_berserker : public CreatureScript
 {
 public:
-    the_everbloom_melded_berserker() : CreatureScript("the_everbloom_melded_berserker") { }
 
-    struct the_everbloom_creaturesAI : public ScriptedAI
+    the_everbloom_mob_melded_berserker() : CreatureScript("the_everbloom_mob_melded_berserker") { }
+
+    struct the_everbloom_mob_melded_berserkerAI : public ScriptedAI
     {
-        the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        the_everbloom_mob_melded_berserkerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
+
+        enum eMeldedBerserkerEvents
+        {
+            EventVileBreath = 1,
+            EventBoundingWhirl,
+            EventBoundingWhirl2
+        };
+
+        enum eMeldedBerserkerSpells
+        {
+            SpellEnrage            = 38166,
+            SpellVileBreath        = 172588,
+            SpellBoundingWhirlAura = 172578,
+            SpellBoundingWhirlJump = 172577
+        };
 
         InstanceScript* m_Instance;
 
@@ -166,79 +191,88 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            me->CastSpell(me, eEverbloomSpells::SpellEnrage);
-
-            events.ScheduleEvent(eEverbloomEvents::EventVileBreath, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eEverbloomEvents::EventBoundingWhirl, 20 * TimeConstants::IN_MILLISECONDS);
+            me->CastSpell(me, eMeldedBerserkerSpells::SpellEnrage);
+            events.ScheduleEvent(eMeldedBerserkerEvents::EventVileBreath, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eMeldedBerserkerEvents::EventBoundingWhirl, 20 * TimeConstants::IN_MILLISECONDS);
         }
 
         void DoAction(int32 const p_Action) override
         {
             switch (p_Action)
             {
-            case eEverbloomActions::ActionBoundingWhirlAura:
-                me->CastSpell(me, eEverbloomSpells::SpellBoundingWhirlAura);
-                break;
+                case eEverbloomActions::ActionBoundingWhirlAura:
+                    me->CastSpell(me, eMeldedBerserkerSpells::SpellBoundingWhirlAura);
+                    break;
+                default:
+                    break;
             }
         }
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);      
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-            case eEverbloomEvents::EventVileBreath:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                    me->CastSpell(l_Target, eEverbloomSpells::SpellVileBreath);
-
-                events.ScheduleEvent(eEverbloomEvents::EventVileBreath, urand(12 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                break;
-
-            case eEverbloomEvents::EventBoundingWhirl:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                {
-                    me->CastSpell(me, eEverbloomSpells::SpellBoundingWhirlJump);
-                }
-
-                events.ScheduleEvent(eEverbloomEvents::EventBoundingWhirl, 20 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eEverbloomEvents::EventBoundingWhirl2, 2 * TimeConstants::IN_MILLISECONDS);
-                break;
-            case eEverbloomEvents::EventBoundingWhirl2:
-                me->CastSpell(me, eEverbloomSpells::SpellBoundingWhirlAura);
-                break;
-
+                case eMeldedBerserkerEvents::EventVileBreath:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eMeldedBerserkerSpells::SpellVileBreath);
+                        events.ScheduleEvent(eMeldedBerserkerEvents::EventVileBreath, urand(12 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    case eMeldedBerserkerEvents::EventBoundingWhirl:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            me->CastSpell(l_Target, eMeldedBerserkerSpells::SpellBoundingWhirlJump);
+                        events.ScheduleEvent(eMeldedBerserkerEvents::EventBoundingWhirl, 20 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eMeldedBerserkerEvents::EventBoundingWhirl2, 2 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eMeldedBerserkerEvents::EventBoundingWhirl2:
+                        me->CastSpell(me, eMeldedBerserkerSpells::SpellBoundingWhirlAura);
+                        break;
+                    default:
+                        break;
             }
 
             DoMeleeAttackIfReady();
-
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new the_everbloom_creaturesAI(pCreature);
+        return new the_everbloom_mob_melded_berserkerAI(p_Creature);
     }
 };
 
 /// Everbloom Gnarloot - 81984
-class the_everbloom_gnarlroot : public CreatureScript
+class the_everbloom_mob_gnarlroot : public CreatureScript
 {
 public:
-    the_everbloom_gnarlroot() : CreatureScript("the_everbloom_gnarlroot") { }
 
-    struct the_everbloom_creaturesAI : public ScriptedAI
+    the_everbloom_mob_gnarlroot() : CreatureScript("the_everbloom_mob_gnarlroot") { }
+
+    struct the_everbloom_mob_gnarlrootAI : public ScriptedAI
     {
-        the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        the_everbloom_mob_gnarlrootAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
+
+        enum eGnarlrootEvents
+        {
+            EventGasp = 1,
+            EventBarrageOfLeaves
+        };
+
+        enum eGnarlrootSpells
+        {
+            SpellGasp = 169714,
+            SpellLivingLeavesDummy = 169494
+        };
 
         InstanceScript* m_Instance;
 
@@ -249,57 +283,70 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eEverbloomEvents::EventGasp, urand(10 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eEverbloomEvents::EventBarrageOfLeaves, 15 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eGnarlrootEvents::EventGasp, urand(10 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eGnarlrootEvents::EventBarrageOfLeaves, 15 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eEverbloomEvents::EventGasp:
-                    if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(l_Target, eEverbloomSpells::SpellGasp);
-
-                    events.ScheduleEvent(eEverbloomEvents::EventGasp, urand(10 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                    break;
-                case eEverbloomEvents::EventBarrageOfLeaves:
-                    me->CastSpell(me, eEverbloomSpells::SpellLivingLeavesDummy);
-
-                    events.ScheduleEvent(eEverbloomEvents::EventBarrageOfLeaves, 30 * TimeConstants::IN_MILLISECONDS);
-                    break;
+                case eGnarlrootEvents::EventGasp:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eGnarlrootSpells::SpellGasp);
+                        events.ScheduleEvent(eGnarlrootEvents::EventGasp, urand(10 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                case eGnarlrootEvents::EventBarrageOfLeaves:
+                        me->CastSpell(me, eGnarlrootSpells::SpellLivingLeavesDummy);
+                        events.ScheduleEvent(eGnarlrootEvents::EventBarrageOfLeaves, 30 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
             }
 
             DoMeleeAttackIfReady();
         }
-
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new the_everbloom_creaturesAI(pCreature);
+        return new the_everbloom_mob_gnarlrootAI(p_Creature);
     }
 };
 
 /// Verdant Mandragora - 81983
-class the_everbloom_verdant_mandragora : public CreatureScript
+class the_everbloom_mob_verdant_mandragora : public CreatureScript
 {
 public:
-    the_everbloom_verdant_mandragora() : CreatureScript("the_everbloom_verdant_mandragora") { }
 
-    struct the_everbloom_creaturesAI : public ScriptedAI
+    the_everbloom_mob_verdant_mandragora() : CreatureScript("the_everbloom_mob_verdant_mandragora") { }
+
+    struct the_everbloom_mob_verdant_mandragoraAI : public ScriptedAI
     {
-        the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        the_everbloom_mob_verdant_mandragoraAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
+            m_Instance = me->GetInstanceScript();
         }
+
+        enum eMandragoraEvents
+        {
+            EventVirulendGasp = 1
+        };
+
+        enum eMandragoraSpells
+        {
+            SpellVirulendGasp = 165093
+        };
+
+        InstanceScript* m_Instance;
 
         void Reset() override
         {
@@ -308,50 +355,67 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eEverbloomEvents::EventVirulendGasp, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eMandragoraEvents::EventVirulendGasp, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
         }
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);     
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eEverbloomEvents::EventVirulendGasp:
-                    if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(l_Target, eEverbloomSpells::SpellVirulendGasp);
-
-                    events.ScheduleEvent(eEverbloomEvents::EventVirulendGasp, urand(7 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                    break;
+                case eMandragoraEvents::EventVirulendGasp:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eMandragoraSpells::SpellVirulendGasp);
+                        events.ScheduleEvent(eMandragoraEvents::EventVirulendGasp, urand(7 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    default:
+                        break;
             }
 
             DoMeleeAttackIfReady();
         }
-
     };
-    CreatureAI* GetAI(Creature* pCreature) const override
+
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new the_everbloom_creaturesAI(pCreature);
+        return new the_everbloom_mob_verdant_mandragoraAI(p_Creature);
     }
 };
 
 /// Everbloom Mender - 81820
-class the_everbloom_mender : public CreatureScript
+class the_everbloom_mob_everbloom_mender : public CreatureScript
 {
 public:
-    the_everbloom_mender() : CreatureScript("the_everbloom_mender") { }
 
-    struct the_everbloom_creaturesAI : public ScriptedAI
+    the_everbloom_mob_everbloom_mender() : CreatureScript("the_everbloom_mob_everbloom_mender") { }
+
+    struct the_everbloom_mob_everbloom_menderAI : public ScriptedAI
     {
-        the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        the_everbloom_mob_everbloom_menderAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
+            m_Instance = me->GetInstanceScript();
         }
+
+        enum eEverbloomMenderEvents
+        {
+            EventChokingVines = 1,
+            EventHealingWaters
+        };
+
+        enum eEverbloomMenderSpells
+        {
+            SpellChokingVines  = 164965,
+            SpellHealingWaters = 164887
+        };
+
+        InstanceScript* m_Instance;
 
         void Reset() override
         {
@@ -360,62 +424,77 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eEverbloomEvents::EventChokingVines, 18 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eEverbloomEvents::EventHealingWaters, 10 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eEverbloomMenderEvents::EventChokingVines, 18 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eEverbloomMenderEvents::EventHealingWaters, 10 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eEverbloomEvents::EventChokingVines:
-                {
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                        me->CastSpell(l_Target, eEverbloomSpells::SpellChokingVines);
-
-                    events.ScheduleEvent(eEverbloomEvents::EventChokingVines, 18 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                }
-                case eEverbloomEvents::EventHealingWaters:
-                {
-                    if (Unit* friendUnit = DoSelectLowestHpFriendly(85)) // heal
-                        me->CastSpell(friendUnit, eEverbloomSpells::SpellHealingWaters);
-
-                    events.ScheduleEvent(eEverbloomEvents::EventHealingWaters, 10 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                }
+                case eEverbloomMenderEvents::EventChokingVines:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eEverbloomMenderSpells::SpellChokingVines);
+                        events.ScheduleEvent(eEverbloomMenderEvents::EventChokingVines, 18 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                case eEverbloomMenderEvents::EventHealingWaters:
+                    {
+                        if (Unit* l_FriendlyUnit = DoSelectLowestHpFriendly(85)) // heal
+                            me->CastSpell(l_FriendlyUnit, eEverbloomMenderSpells::SpellHealingWaters);
+                        events.ScheduleEvent(eEverbloomMenderEvents::EventHealingWaters, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
             }
 
             DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new the_everbloom_creaturesAI(pCreature);
+        return new the_everbloom_mob_everbloom_menderAI(p_Creature);
     }
 };
 
-
 /// Twisted Abomination - 84767
-class the_everbloom_twisted_abomination : public CreatureScript
+class the_everbloom_mob_twisted_abomination : public CreatureScript
 {
 public:
-    the_everbloom_twisted_abomination() : CreatureScript("the_everbloom_twisted_abomination") { }
 
-    struct the_everbloom_creaturesAI : public ScriptedAI
+    the_everbloom_mob_twisted_abomination() : CreatureScript("the_everbloom_mob_twisted_abomination") { }
+
+    struct the_everbloom_mob_twisted_abominationAI : public ScriptedAI
     {
-        the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        the_everbloom_mob_twisted_abominationAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
+            m_Instance = me->GetInstanceScript();
         }
+
+        enum eTwistedAbominationEvents
+        {
+            EventNoxiousEruption = 1,
+            EventPoisonousClaws
+        };
+
+        enum eTwistedAbominationSpells
+        {
+            SpellAbominationNoxiousErupt = 169445,
+            SpellPoisonousClaws          = 169657
+        };
+
+        InstanceScript* m_Instance;
 
         void Reset() override
         {
@@ -424,472 +503,303 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eEverbloomEvents::EventNoxiousEruption, 20 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eEverbloomEvents::EventPoisonousClaws, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eTwistedAbominationEvents::EventNoxiousEruption, 20 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eTwistedAbominationEvents::EventPoisonousClaws, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
         }
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eEverbloomEvents::EventNoxiousEruption:
-                {
-                    me->CastSpell(me, eEverbloomSpells::SpellAbominationNoxiousErupt);
-                    events.ScheduleEvent(eEverbloomEvents::EventNoxiousEruption, 20 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                }
-                case eEverbloomEvents::EventPoisonousClaws:
-                {
-                    if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(l_Target, eEverbloomSpells::SpellPoisonousClaws);
-
-                    events.ScheduleEvent(eEverbloomEvents::EventPoisonousClaws, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                    break;
-                }
+                case eTwistedAbominationEvents::EventNoxiousEruption:
+                    {
+                        me->CastSpell(me, eTwistedAbominationSpells::SpellAbominationNoxiousErupt);
+                        events.ScheduleEvent(eTwistedAbominationEvents::EventNoxiousEruption, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                case eTwistedAbominationEvents::EventPoisonousClaws:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eTwistedAbominationSpells::SpellPoisonousClaws);
+                        events.ScheduleEvent(eTwistedAbominationEvents::EventPoisonousClaws, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    }
+                    default:
+                        break;
             }
 
             DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new the_everbloom_creaturesAI(pCreature);
+        return new the_everbloom_mob_twisted_abominationAI(p_Creature);
     }
 };
 
 /// Infested Icecaller - 84989
-class the_everbloom_infested_icecaller : public CreatureScript
+class the_everbloom_mob_infested_icecaller : public CreatureScript
 {
 public:
-    the_everbloom_infested_icecaller() : CreatureScript("the_everbloom_infested_icecaller") { }
 
-    struct the_everbloom_creaturesAI : public ScriptedAI
+    the_everbloom_mob_infested_icecaller() : CreatureScript("the_everbloom_mob_infested_icecaller") { }
+
+    struct the_everbloom_mob_infested_icecallerAI : public ScriptedAI
     {
-        the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        the_everbloom_mob_infested_icecallerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
+            m_Instance = me->GetInstanceScript();
         }
+
+        enum eInfestedIcecallerEvents
+        {
+            EventFrozenSnap =  1,
+            EventFrostbolt
+        };
+
+        enum eInfestedIcecallerSpells
+        {
+            SpellFrostbolt = 169840,
+            SpellIceAura   = 169831,
+            SpellMindRoot  = 169828
+        };
+
+        InstanceScript* m_Instance;
 
         void Reset() override
         {
             events.Reset();
+            me->AddAura(eInfestedIcecallerSpells::SpellIceAura, me);
+            me->AddAura(eInfestedIcecallerSpells::SpellMindRoot, me);
         }
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eEverbloomEvents::EventFrozenSnap, urand(10 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eEverbloomEvents::EventFrostbolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eInfestedIcecallerEvents::EventFrozenSnap, urand(10 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eInfestedIcecallerEvents::EventFrostbolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
         }
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eEverbloomEvents::EventFrostbolt:
-                    if (Unit* l_Target = me->getVictim())
-                    {
-                        me->CastSpell(l_Target, eEverbloomSpells::SpellFrostbolt);
-
-                        events.ScheduleEvent(eEverbloomEvents::EventFrostbolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-                    }
-                    break;
-                case eEverbloomEvents::EventFrozenSnap:
-                    for (int i = 0; i <= 3; i++)
-                    {
-                        events.CancelEvent(eEverbloomEvents::EventFrozenSnap);
-
-                        Position l_Pos;
-                        me->GetRandomNearPosition(l_Pos, 20.0f);
-
-                        me->SummonCreature(eEverbloomCreatures::TriggerFrozenSnap, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4 * TimeConstants::IN_MILLISECONDS);
-                        events.ScheduleEvent(eEverbloomEvents::EventFrozenSnap, urand(10 * TimeConstants::IN_MILLISECONDS, 13 * TimeConstants::IN_MILLISECONDS));
-                    }
-                    break;
+                case eInfestedIcecallerEvents::EventFrostbolt:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            me->CastSpell(l_Target, eInfestedIcecallerSpells::SpellFrostbolt);
+                        events.ScheduleEvent(eInfestedIcecallerEvents::EventFrostbolt, 6 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                case eInfestedIcecallerEvents::EventFrozenSnap:
+                        for (uint8 i = 0; i < 3; i++)
+                        {
+                            Position l_Pos;
+                            me->GetRandomNearPosition(l_Pos, 20.0f);
+                            me->SummonCreature(eEverbloomCreature::CreatureFrozenSnap, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4 * TimeConstants::IN_MILLISECONDS);          
+                        }
+                        events.ScheduleEvent(eInfestedIcecallerEvents::EventFrozenSnap, urand(30 * TimeConstants::IN_MILLISECONDS, 50 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    default:
+                        break;
             }
 
             DoMeleeAttackIfReady();
         }
-
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new the_everbloom_creaturesAI(pCreature);
+        return new the_everbloom_mob_infested_icecallerAI(p_Creature);
     }
 };
 
 ///  Addled Arcanomancer - 84990
-class the_everbloom_addled_arcanomancer : public CreatureScript
+class the_everbloom_mob_addled_arcanomancer : public CreatureScript
 {
 public:
-    the_everbloom_addled_arcanomancer() : CreatureScript("the_everbloom_addled_arcanomancer") { }
 
-    struct the_everbloom_creaturesAI : public ScriptedAI
+    the_everbloom_mob_addled_arcanomancer() : CreatureScript("the_everbloom_mob_addled_arcanomancer") { }
+
+    struct the_everbloom_mob_addled_arcanomancerAI : public ScriptedAI
     {
-        the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        the_everbloom_mob_addled_arcanomancerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
+            m_Instance = me->GetInstanceScript();
         }
+
+        enum eAddledArcanonmacerEvents
+        {
+            EventArcaneBlast = 1
+        };
+
+        enum eAddledArcanmoacerSpells
+        {
+            SpellArcaneBlast = 169825,
+            SpellMindRoot    = 169828
+        };
+
+        InstanceScript* m_Instance;
 
         void Reset() override
         {
             events.Reset();
+            me->AddAura(eAddledArcanmoacerSpells::SpellMindRoot, me);
         }
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eEverbloomEvents::EventArcaneBlast, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eAddledArcanonmacerEvents::EventArcaneBlast, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
         }
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);   
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eEverbloomEvents::EventArcaneBlast:
-                    if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0, true))
-                    {
-                        me->CastSpell(l_Random, eEverbloomSpells::SpellArcaneBlast);
-                        events.ScheduleEvent(eEverbloomEvents::EventArcaneBlast, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-                    }
-                    break;
+                case eAddledArcanonmacerEvents::EventArcaneBlast:
+                        if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0, true))
+                            me->CastSpell(l_Random, eAddledArcanmoacerSpells::SpellArcaneBlast);
+                        events.ScheduleEvent(eAddledArcanonmacerEvents::EventArcaneBlast, 6 * TimeConstants::IN_MILLISECONDS);
+                    default:
+                        break;
             }
 
             DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new the_everbloom_creaturesAI(pCreature);
+        return new the_everbloom_mob_addled_arcanomancerAI(p_Creature);
     }
 };
 
 /// Putrid Pyromancer - 84957
-class the_everbloom_putrid_pyromancer : public CreatureScript
+class the_everbloom_mob_putrid_pyromancer : public CreatureScript
 {
 public:
-    the_everbloom_putrid_pyromancer() : CreatureScript("the_everbloom_putrid_pyromancer") { }
 
-    struct the_everbloom_creaturesAI : public ScriptedAI
+    the_everbloom_mob_putrid_pyromancer() : CreatureScript("the_everbloom_mob_putrid_pyromancer") { }
+
+    struct the_everbloom_mob_putrid_pyromancerAI : public ScriptedAI
     {
-        the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        the_everbloom_mob_putrid_pyromancerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
+            m_Instance = me->GetInstanceScript();
         }
+
+        enum ePutridPyromancerEvents
+        {
+            EventDragonsBreath = 1,
+            EventFireball
+        };
+
+        enum ePutridPyromancerSpells
+        {
+            SpellDragonsBreath = 169843,
+            SpellFireBall      = 169839,
+            SpellMindRoot      = 169828
+        };
+
+        InstanceScript* m_Instance;
 
         void Reset() override
         {
             events.Reset();
+            me->AddAura(ePutridPyromancerSpells::SpellMindRoot, me);
         }
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eEverbloomEvents::EventDragonsBreath, urand(14 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eEverbloomEvents::EventFireball, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(ePutridPyromancerEvents::EventDragonsBreath, urand(14 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(ePutridPyromancerEvents::EventFireball, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
         }
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);           
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eEverbloomEvents::EventDragonsBreath:
-                    if (Unit* l_Random = me->getVictim())
-                    {
-                        me->CastSpell(l_Random, eEverbloomSpells::SpellDragonsBreath);
-                        events.ScheduleEvent(eEverbloomEvents::EventDragonsBreath, urand(40 * TimeConstants::IN_MILLISECONDS, 50 * TimeConstants::IN_MILLISECONDS));
-                    }
-                    break;
-                case eEverbloomEvents::EventFireball:
-                    me->CastSpell(me, eEverbloomSpells::SpellFireBall);
-                    events.ScheduleEvent(eEverbloomEvents::EventFireball, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-                    break;
+                case ePutridPyromancerEvents::EventDragonsBreath:
+                        if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            me->CastSpell(l_Random, ePutridPyromancerSpells::SpellDragonsBreath);
+                        events.ScheduleEvent(ePutridPyromancerEvents::EventDragonsBreath, urand(40 * TimeConstants::IN_MILLISECONDS, 50 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    case ePutridPyromancerEvents::EventFireball:
+                        if (Unit* l_Victim = me->getVictim())
+                            me->CastSpell(l_Victim, ePutridPyromancerSpells::SpellFireBall);
+                        events.ScheduleEvent(ePutridPyromancerEvents::EventFireball, 6 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
             }
 
             DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new the_everbloom_creaturesAI(pCreature);
+        return new the_everbloom_mob_putrid_pyromancerAI(p_Creature);
     }
 };
 
-// Spore Breath
-class the_everbloom_spore_breath_infect : public SpellScriptLoader
+/// Bounding Whirl - 172576 
+class the_everbloom_spell_bounding_whirl_dummy : public SpellScriptLoader
 {
 public:
-    the_everbloom_spore_breath_infect() : SpellScriptLoader("the_everbloom_spore_breath_infect") { }
 
-    class the_the_everbloom_spells : public SpellScript
+    the_everbloom_spell_bounding_whirl_dummy() : SpellScriptLoader("the_everbloom_spell_bounding_whirl_dummy") { }
+
+    class the_everbloom_spell_bounding_whirl_dummy_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_the_everbloom_spells);
+        PrepareSpellScript(the_everbloom_spell_bounding_whirl_dummy_SpellScript);
 
-        void SporeBreathInfectBarrage()
+        enum eBoundingWhirlSpells
         {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (Unit* l_Target = GetExplTargetUnit())
-                {
-                    for (int i = 0; i <= 12; i++)
-                        l_Caster->CastSpell(l_Target, eEverbloomSpells::SpellSporeBreathInfect, true);
-                }
-            }
-        }
+            SpellBoundingWhirlAura = 172578,
+            SpellBoundingWhirlJump = 172577
+        };
 
-        void Register()
+        void HandleDummy(SpellEffIndex p_EffIndex)
         {
-            AfterCast += SpellCastFn(the_the_everbloom_spells::SporeBreathInfectBarrage);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new the_the_everbloom_spells();
-    }
-};
-
-// Venom Spray - 173052
-class the_everbloom_venom_spray : public SpellScriptLoader
-{
-public:
-    the_everbloom_venom_spray() : SpellScriptLoader("the_everbloom_venom_spray") { }
-
-    class the_the_everbloom_spells : public SpellScript
-    {
-        PrepareSpellScript(the_the_everbloom_spells);
-
-        void VenomSpray()
-        {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (Unit* l_Target = GetExplTargetUnit())
-                {
-                    for (int i = 0; i <= 12; i++)
-                        l_Caster->CastSpell(l_Target, eEverbloomSpells::SpellVenomSprayDamage, true);
-                }
-            }
-        }
-
-        void Register()
-        {
-            AfterCast += SpellCastFn(the_the_everbloom_spells::VenomSpray);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new the_the_everbloom_spells();
-    }
-};
-
-// Living Leaves
-class the_everbloom_living_leaves : public AreaTriggerEntityScript
-{
-public:
-    the_everbloom_living_leaves() : AreaTriggerEntityScript("the_everbloom_living_leaves")
-    {
-    }
-
-    uint32 p_Diff = 1 * TimeConstants::IN_MILLISECONDS;
-    std::set<uint64> m_Targets;
-
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        if (p_Diff <= p_Time)
-        {
-            std::list<Player*> l_PlayerList;
-
-            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 1.2f);
-            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, l_PlayerList, check);
-            p_AreaTrigger->VisitNearbyObject(1.2f, searcher);
-
-            if (!l_PlayerList.empty())
-            {
-                for (Player* l_Target : l_PlayerList)
-                {
-                    if (!l_Target->HasAura(eEverbloomSpells::SpellLivingLeavesEffect))
-                    {
-                        l_Target->AddAura(eEverbloomSpells::SpellLivingLeavesEffect, l_Target);
-
-                        m_Targets.insert(l_Target->GetGUID());
-                    }
-                }
-            }
-
-            p_Diff = 2 * TimeConstants::IN_MILLISECONDS;
-        }
-        else
-        {
-            p_Diff -= p_Time;
-        }
-    }
-
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        for (auto l_Guid : m_Targets)
-        {
-            Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-            if (l_Target)
-                l_Target->RemoveAura(eEverbloomSpells::SpellLivingLeavesEffect);
-        }
-    }
-
-    the_everbloom_living_leaves* GetAI() const
-    {
-        return new the_everbloom_living_leaves();
-    }
-};
-
-// Living Leaves Dummy
-class the_everbloom_living_leaves_dummy : public SpellScriptLoader
-{
-public:
-    the_everbloom_living_leaves_dummy() : SpellScriptLoader("the_everbloom_living_leaves_dummy") { }
-
-    class the_everbloom_spells : public SpellScript
-    {
-        PrepareSpellScript(the_everbloom_spells);
-
-        void HandleDummy(SpellEffIndex effIndex)
-        {
-            if (Unit* l_Caster = GetCaster())
-            {
-                for (int i = 0; i < 5; i++)
-                {
-                    Position l_Pos;
-                    l_Caster->GetRandomNearPosition(l_Pos, 15.0f);
-
-                    l_Caster->SummonCreature(eEverbloomCreatures::TriggerLivingLeaves, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS);
-                }
-            }
-        }
-
-        void Register()
-        {
-            OnEffectLaunch += SpellEffectFn(the_everbloom_spells::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new the_everbloom_spells();
-    }
-};
-
-// Living Leaves exectue
-class the_everbloom_living_leaves_executre : public CreatureScript
-{
-public:
-    the_everbloom_living_leaves_executre() : CreatureScript("the_everbloom_living_leaves_executre") { }
-
-    struct the_everbloom_creaturesAI : public ScriptedAI
-    {
-        the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
-        {
-        }
-
-        uint32 m_Time;
-
-        void Reset() override
-        {
-            events.Reset();
-            m_Time = 1500;
-
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS,  eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-
-            me->CastSpell(me, eEverbloomSpells::SpellLivingLeavesAreaTrigger);
-        }
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
-
-            if (m_Time <= p_Diff)
-            {
-                std::list<Player*> l_PlayerList;
-                l_PlayerList.clear();
-
-                me->GetPlayerListInGrid(l_PlayerList, 2.0f);
-
-                if (!l_PlayerList.empty())
-                {
-                    for (auto itr : l_PlayerList)
-                    {
-                        if (!itr->HasAura(eEverbloomSpells::SpellLivingLeavesEffect))
-                        {
-                            itr->CastSpell(itr, eEverbloomSpells::SpellLivingLeavesEffect, true);
-
-                            AuraPtr aura = itr->GetAura(eEverbloomSpells::SpellLivingLeavesEffect);
-                        }
-                    }
-                }
-
-                m_Time = 500;
-            }
-            else
-            {
-                m_Time -= p_Diff;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* pCreature) const override
-    {
-        return new the_everbloom_creaturesAI(pCreature);
-    }
-};
-
-// Bounding Whirl - 172576 
-class the_everbloom_bounding_whirl_dummy : public SpellScriptLoader
-{
-public:
-    the_everbloom_bounding_whirl_dummy() : SpellScriptLoader("the_everbloom_bounding_whirl_dummy") { }
-
-    class the_everbloom_spells : public SpellScript
-    {
-        PrepareSpellScript(the_everbloom_spells);
-
-        void HandleDummy(SpellEffIndex effIndex)
-        {
-            if (!GetCaster())
+            if (!GetCaster() && !GetHitUnit())
                 return;
 
             if (Creature* l_Caster = GetCaster()->ToCreature())
             {
                 if (Unit* l_Target = GetHitUnit())
                 {
-                    l_Caster->CastSpell(l_Target, eEverbloomSpells::SpellBoundingWhirlJump);
+                    l_Caster->CastSpell(l_Target, eBoundingWhirlSpells::SpellBoundingWhirlJump);
 
                     if (l_Caster->IsAIEnabled)
                         l_Caster->AI()->DoAction(eEverbloomActions::ActionBoundingWhirlAura);
@@ -899,69 +809,63 @@ public:
 
         void Register()
         {
-            OnEffectHit += SpellEffectFn(the_everbloom_spells::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(the_everbloom_spell_bounding_whirl_dummy_SpellScript::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
-        return new the_everbloom_spells();
+        return new the_everbloom_spell_bounding_whirl_dummy_SpellScript();
     }
 };
 
-// Poisonous Claws - 169657 
-class the_everbloom_poisonous_claws : public SpellScriptLoader
+/// Poisonous Claws - 169657 
+class the_everbloom_spell_poisonous_claws : public SpellScriptLoader
 {
 public:
-    the_everbloom_poisonous_claws() : SpellScriptLoader("the_everbloom_poisonous_claws") { }
 
-    class the_everbloom_spells : public SpellScript
+    the_everbloom_spell_poisonous_claws() : SpellScriptLoader("the_everbloom_spell_poisonous_claws") { }
+
+    class the_everbloom_spell_poisonous_claws_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_spells);
+        PrepareSpellScript(the_everbloom_spell_poisonous_claws_SpellScript);
+
+        enum eInfectedWoundsSpells
+        {
+            SpellInfectedWounds = 169658
+        };
 
         void OnHitApply()
         {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (Unit* l_Target = GetHitUnit())
-                    l_Caster->AddAura(eEverbloomSpells::SpellInfectedWounds, l_Target);
-            }
+            if (!GetCaster() && !GetHitUnit())
+                return;
+
+            GetCaster()->AddAura(eInfectedWoundsSpells::SpellInfectedWounds, GetHitUnit());
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(the_everbloom_spells::OnHitApply);
+            OnHit += SpellHitFn(the_everbloom_spell_poisonous_claws_SpellScript::OnHitApply);
         }
     };
 
     SpellScript* GetSpellScript() const
     {
-        return new the_everbloom_spells();
+        return new the_everbloom_spell_poisonous_claws_SpellScript();
     }
 };
 
 void AddSC_the_everbloom()
 {
-    /*Creatures*/
-    // -- Archmage Sol: 
-    new the_everbloom_infested_icecaller();
-    new the_everbloom_addled_arcanomancer();
-    new the_everbloom_putrid_pyromancer();
-
-    // -- Everbloom General: 
-    new the_everbloom_dreadpital_toxin();
-    new the_everbloom_tender();
-    new the_everbloom_melded_berserker();
-    new the_everbloom_gnarlroot();
-    new the_everbloom_verdant_mandragora();
-    new the_everbloom_mender();
-    new the_everbloom_twisted_abomination();
-
-    /*Spells*/
-    new the_everbloom_spore_breath_infect();
-    new the_everbloom_venom_spray();
-    new the_everbloom_living_leaves_dummy();
-    new the_everbloom_living_leaves_executre();
-    new the_everbloom_poisonous_claws();
-    new the_everbloom_bounding_whirl_dummy();
+    new the_everbloom_mob_infested_icecaller();     ///< 84989
+    new the_everbloom_mob_addled_arcanomancer();    ///< 84990
+    new the_everbloom_mob_putrid_pyromancer();      ///< 84957
+    new the_everbloom_mob_dreadpital_toxin();       ///< 81864
+    new the_everbloom_mob_melded_berserker();       ///< 86372
+    new the_everbloom_mob_gnarlroot();              ///< 81984
+    new the_everbloom_mob_verdant_mandragora();     ///< 81983
+    new the_everbloom_mob_everbloom_mender();       ///< 81820
+    new the_everbloom_mob_everbloom_tender();       ///< 81985
+    new the_everbloom_mob_twisted_abomination();    ///< 84767
+    new the_everbloom_spell_poisonous_claws();      ///< 169657    
 }

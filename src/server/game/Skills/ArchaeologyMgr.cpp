@@ -1,14 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2014-2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
-#include "ArchaeologyMgr.hpp"
-#include "Common.h"
-#include "Containers.h"
-#include "ObjectMgr.h"
+
+# include "ArchaeologyMgr.hpp"
 
 const static int q_patt[2][2] = { { 0, 1 }, { 3, 2 } };
 
@@ -62,22 +60,6 @@ namespace JadeCore
     }
 }
 
-// #include <iostream>
-// #include <fstream>
-//
-// template<class T>
-// inline
-// const T& RAND(const T& v1, const T& v2, const T& v3)
-// {
-//     switch (urand(0, 2))
-//     {
-//         default:
-//         case 0: return v1;
-//         case 1: return v2;
-//         case 2: return v3;
-//     }
-// }
-
 namespace MS { namespace Skill { namespace Archaeology
 {
     /// Constructor
@@ -86,75 +68,6 @@ namespace MS { namespace Skill { namespace Archaeology
     {
         for (uint8 l_I = 0; l_I < Archaeology::Constants::MaxResearchSites; ++l_I)
             m_DigSites[l_I].Reset();
-
-//         ofstream myfile;
-//         myfile.open("archaeology_site_loot.sql");
-//
-//         for (uint32 l_I = 0; l_I < sResearchSiteStore.GetNumRows(); ++l_I)
-//         {
-//             ResearchSiteEntry const* l_Entry = sResearchSiteStore.LookupEntry(l_I);
-//
-//             if (!l_Entry || l_Entry->mapId != 1116)
-//                 continue;
-//
-//             ResearchPOIPoints l_Polygon;
-//
-//             for (uint32 l_Y = 0; l_Y < sQuestPOIPointStore.GetNumRows(); ++l_Y)
-//             {
-//                 QuestPOIPointEntry const* l_PointEntry = sQuestPOIPointStore.LookupEntry(l_Y);
-//
-//                 if (!l_PointEntry || l_PointEntry->ID != l_Entry->POIid)
-//                     continue;
-//
-//                 l_Polygon.push_back(ResearchPOIPoint(l_PointEntry->x, l_PointEntry->y));
-//             }
-//
-//             if (l_Polygon.empty())
-//             {
-//                 printf("Site : %u has no polygon\n", l_Entry->ID);
-//                 continue;
-//             }
-//
-//             float l_MinX = (*(l_Polygon.begin())).x, l_MinY = (*(l_Polygon.begin())).y;
-//             float l_MaxX = (*(l_Polygon.begin())).x, l_MaxY = (*(l_Polygon.begin())).y;
-//
-//             std::for_each(l_Polygon.begin(), l_Polygon.end(), [&l_MinX, &l_MinY, &l_MaxX, &l_MaxY](ResearchPOIPoint const& p_Elem)
-//             {
-//                 l_MinX = std::min(l_MinX, (float)p_Elem.x);
-//                 l_MinY = std::min(l_MinY, (float)p_Elem.y);
-//                 l_MaxX = std::max(l_MaxX, (float)p_Elem.x);
-//                 l_MaxY = std::max(l_MaxY, (float)p_Elem.y);
-//             });
-//
-//             double l_PolygonArea = abs(l_MaxX - l_MinX) *  abs(l_MaxY - l_MinY);
-//             int l_NumPointToCreate = l_PolygonArea / 9000;
-//
-//             Map * l_Map = sMapMgr->CreateBaseMap(l_Entry->mapId);
-//
-//             ResearchPOIPoints l_LootPoints;
-//
-//             uint32 l_Race = RAND(315, 350, 382);
-//             for (; l_LootPoints.size() < l_NumPointToCreate;)
-//             {
-//                 float l_X = l_MinX + urand(0, l_MaxX - l_MinX);
-//                 float l_Y = l_MinY + urand(0, l_MaxY - l_MinY);
-//                 float l_Z = l_Map->GetHeight(l_X, l_Y, MAX_HEIGHT);
-//
-//                 ResearchPOIPoint l_Point(l_X, l_Y);
-//
-//                 if (!JadeCore::IsPointInZone(l_Point, l_Polygon))
-//                     continue;
-//
-//                 if (l_Map->IsInWater(l_X, l_Y, l_Z))
-//                     continue;
-//
-//                 l_LootPoints.push_back(l_Point);
-//
-//                 myfile << "INSERT INTO research_loot(site_id, x, y, z, race) VALUES(" << l_Entry->ID << ", " << l_X << ", " << l_Y << ", " << l_Z << ", " << l_Race  << ");" << std::endl;
-//             }
-//         }
-//
-//         myfile.close();
     }
 
     /// Destructor
@@ -818,7 +731,8 @@ namespace MS { namespace Skill { namespace Archaeology
         l_Data.WriteBit(p_Finished);
         l_Data.FlushBits();
 
-        m_Player->GetSession()->SendPacket(&l_Data);
+        if (m_Player->GetSession())
+            m_Player->GetSession()->SendPacket(&l_Data);
     }
 
     /// Build & send SMSG_RESEARCH_COMPLETE
@@ -839,6 +753,9 @@ namespace MS { namespace Skill { namespace Archaeology
     void Manager::ValidateResearchSites()
     {
         bool l_Error = false;
+
+        if (m_ResearchSites.empty())
+            l_Error = true;
 
         for (ResearchSitesMap::const_iterator l_Iterator = m_ResearchSites.begin(); l_Iterator != m_ResearchSites.end(); ++l_Iterator)
         {

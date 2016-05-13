@@ -154,7 +154,7 @@ public:
             {
                 Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                                                 //only on alive players
-                if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                if (target && target->isAlive() && target->IsPlayer())
                     targets.push_back(target);
             }
 
@@ -177,7 +177,7 @@ public:
                         if (eff >= TOTAL_SPELL_EFFECTS)
                             continue;
 
-                        AuraPtr Aur = AuraPtr(new Aura(spellInfo, i, target, target, target));
+                        Aura* Aur = Aura*(new Aura(spellInfo, i, target, target, target));
                         target->AddAura(Aur);
                     }
                 }

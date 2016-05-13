@@ -295,6 +295,7 @@ void MySQLPreparedStatement::ClearParameters()
     }
 }
 
+/// this function in unused 22/02/16
 static bool ParementerIndexAssertFail(uint32 stmtIndex, uint8 index, uint32 paramCount)
 {
     sLog->outError(LOG_FILTER_SQL_DRIVER, "Attempted to bind parameter %u%s on a PreparedStatement %u (statement has only %u parameters)", uint32(index) + 1, (index == 1 ? "st" : (index == 2 ? "nd" : (index == 3 ? "rd" : "nd"))), stmtIndex, paramCount);

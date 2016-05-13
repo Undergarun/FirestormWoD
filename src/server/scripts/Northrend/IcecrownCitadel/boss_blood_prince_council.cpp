@@ -481,7 +481,7 @@ class boss_prince_keleseth_icc : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KELESETH_KILL);
             }
 
@@ -699,7 +699,7 @@ class boss_prince_taldaram_icc : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_TALDARAM_KILL);
             }
 
@@ -940,7 +940,7 @@ class boss_prince_valanar_icc : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_VALANAR_KILL);
             }
 
@@ -1462,7 +1462,7 @@ class spell_taldaram_flame_ball_visual: public SpellScriptLoader
                 return false;
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Creature* target = GetTarget()->ToCreature();
                 if (!target)
@@ -1501,7 +1501,7 @@ class spell_taldaram_ball_of_inferno_flame: public SpellScriptLoader
 
             void ModAuraStack()
             {
-                if (AuraPtr aur = GetHitAura())
+                if (Aura* aur = GetHitAura())
                     aur->SetStackAmount(uint8(GetSpellInfo()->StackAmount));
             }
 
@@ -1545,7 +1545,7 @@ class spell_valanar_kinetic_bomb: public SpellScriptLoader
         {
             PrepareAuraScript(spell_valanar_kinetic_bomb_AuraScript);
 
-            void HandleDummyTick(constAuraEffectPtr /*aurEff*/)
+            void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* target = GetTarget();
                 if (target->GetTypeId() != TYPEID_UNIT)
@@ -1613,7 +1613,7 @@ class spell_valanar_kinetic_bomb_absorb: public SpellScriptLoader
         {
             PrepareAuraScript(spell_valanar_kinetic_bomb_absorb_AuraScript);
 
-            void OnAbsorb(AuraEffectPtr aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 absorbAmount = CalculatePct(dmgInfo.GetDamage(), aurEff->GetAmount());
                 RoundToInterval<uint32>(absorbAmount, 0, dmgInfo.GetDamage());
@@ -1641,9 +1641,9 @@ class spell_blood_council_shadow_prison: public SpellScriptLoader
         {
             PrepareAuraScript(spell_blood_council_shadow_prison_AuraScript);
 
-            void HandleDummyTick(constAuraEffectPtr aurEff)
+            void HandleDummyTick(AuraEffect const* aurEff)
             {
-                if (GetTarget()->GetTypeId() == TYPEID_PLAYER && GetTarget()->isMoving())
+                if (GetTarget()->IsPlayer() && GetTarget()->IsMoving())
                     GetTarget()->CastSpell(GetTarget(), SPELL_SHADOW_PRISON_DAMAGE, true, NULL, aurEff);
             }
 
@@ -1670,8 +1670,8 @@ class spell_blood_council_shadow_prison_damage: public SpellScriptLoader
 
             void AddExtraDamage()
             {
-                if (AuraPtr aur = GetHitUnit()->GetAura(GetSpellInfo()->Id))
-                    if (constAuraEffectPtr eff = aur->GetEffect(EFFECT_1))
+                if (Aura* aur = GetHitUnit()->GetAura(GetSpellInfo()->Id))
+                    if (AuraEffect const* eff = aur->GetEffect(EFFECT_1))
                         SetHitDamage(GetHitDamage() + eff->GetAmount());
             }
 

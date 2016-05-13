@@ -13,6 +13,7 @@ ACE_Hash<TYPE>::operator () (const TYPE &t) const
 template <class TYPE> ACE_INLINE unsigned long
 ACE_Pointer_Hash<TYPE>::operator () (TYPE t) const
 {
+#  pragma warning(disable : 4302)   /* Truncate pointer to unsigned long */
 #if defined (ACE_WIN64)
   // The cast below is legit... we only want a hash, and need not convert
   // the hash back to a pointer.

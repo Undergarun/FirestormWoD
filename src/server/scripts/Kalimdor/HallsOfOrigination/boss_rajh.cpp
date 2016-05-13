@@ -72,17 +72,17 @@ class boss_rajh : public CreatureScript
             boss_rajhAI(Creature* pCreature) : BossAI(pCreature, DATA_RAJH)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
-			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-			    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
 
             uint8 phase;
@@ -141,23 +141,23 @@ class boss_rajh : public CreatureScript
             }
 
             void JustReachedHome()
-		    {
-			    _JustReachedHome();
-		    }
+            {
+                _JustReachedHome();
+            }
 
             void MovementInform(uint32 type, uint32 id)
-		    {
-			    if (type == POINT_MOTION_TYPE)
-			    {
-				    switch (id)
-				    {
-				        case 1:
+            {
+                if (type == POINT_MOTION_TYPE)
+                {
+                    switch (id)
+                    {
+                        case 1:
                             Talk(SAY_ENERGIZE);
                             DoCastAOE(SPELL_BLESSING_OF_THE_SUN);
-					        break;
-				    }
-			    }
-		    }
+                            break;
+                    }
+                }
+            }
 
             void UpdateAI(const uint32 diff)
             {
@@ -167,7 +167,7 @@ class boss_rajh : public CreatureScript
                 events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
-				    return;
+                    return;
 
                 if (me->GetPower(POWER_ENERGY) < 1 && phase == 0)
                 {
@@ -189,7 +189,7 @@ class boss_rajh : public CreatureScript
                     return;
                 }
 
-			    while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {

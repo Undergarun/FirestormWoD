@@ -47,14 +47,14 @@ class spell_love_is_in_the_air_romantic_picnic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_love_is_in_the_air_romantic_picnic_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
                 target->SetStandState(UNIT_STAND_STATE_SIT);
                 target->CastSpell(target, SPELL_MEAL_PERIODIC, false);
             }
 
-            void OnPeriodic(constAuraEffectPtr /*aurEff*/)
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 // Every 5 seconds
                 Unit* target = GetTarget();
@@ -263,7 +263,15 @@ class spell_tricky_treat: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_tricky_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                switch (m_scriptSpellId)
+                {
+                case 24751:
+                    OnEffectHitTarget += SpellEffectFn(spell_tricky_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                    break;
+                default:
+                    OnEffectHitTarget += SpellEffectFn(spell_tricky_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                    break;
+                }
             }
         };
 

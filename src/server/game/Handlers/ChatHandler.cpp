@@ -168,7 +168,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
                 uint32 l_MessageLenght = 0;
                 std::string l_Message = "";
 
-                l_MessageLenght = p_RecvData.ReadBits(8);
+                l_MessageLenght = p_RecvData.ReadBits(8); ///< l_messageLenght is never read 01/18/16
                 p_RecvData >> l_Message;
 
                 if (l_Message.empty())
@@ -245,7 +245,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
 
 
     /// Check if silenced http://wowhead.com/spell=1852
-    if (l_Sender->HasAura(1852) && l_Type != CHAT_MSG_WHISPER)
+    if (l_Type != CHAT_MSG_WHISPER && l_Sender->HasAura(1852))
     {
         p_RecvData.rfinish();
         SendNotification(GetTrinityString(LANG_GM_SILENCE), l_Sender->GetName());
@@ -315,7 +315,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
                 {
                     if (sWorld->ModerateMessage(l_Text))
                     {
-                        SendNotification(GetTrinityString(LANG_LEXICS_CUTTER_NOTIFY));
+                        SendNotification(GetTrinityString(LANG_LEXICS_CUTTER_NOTIFY)); ///< Format string is not a string literal (potentially insecure)
                         return;
                     }
                 }
@@ -382,7 +382,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
             }
 
             /// Check if silenced http://wowhead.com/spell=1852
-            if (GetPlayer()->HasAura(1852) && !l_Receiver->isGameMaster())
+            if (!l_Receiver->isGameMaster() && GetPlayer()->HasAura(1852))
             {
                 SendNotification(GetTrinityString(LANG_GM_SILENCE), GetPlayer()->GetName());
                 return;
@@ -594,12 +594,12 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
 {
-    Player *    l_Sender = GetPlayer();
+    Player*    l_Sender = GetPlayer(); ///< l_sender is never read 01/18/16
     ChatMsg     l_Type;
 
     switch (p_RecvData.GetOpcode())
     {
-        /*case CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT:
+        case CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT:
             l_Type = CHAT_MSG_INSTANCE_CHAT;
             break;
         case CMSG_CHAT_ADDON_MESSAGE_GUILD:
@@ -616,7 +616,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
             break;
         case CMSG_CHAT_ADDON_MESSAGE_WHISPER:
             l_Type = CHAT_MSG_WHISPER;
-            break;*/
+            break;
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", p_RecvData.GetOpcode());
             p_RecvData.hexlike();
@@ -632,11 +632,11 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
         case CHAT_MSG_WHISPER:
         {
             uint32 l_TargetNameLenght   = p_RecvData.ReadBits(9);
-            uint32 l_AddonPrefixLenght  = p_RecvData.ReadBits(7);
+            uint32 l_AddonPrefixLenght  = p_RecvData.ReadBits(5);
             uint32 l_AddonMessageLenght = p_RecvData.ReadBits(8);
             l_TargetName    = p_RecvData.ReadString(l_TargetNameLenght);
-            l_AddonMessage  = p_RecvData.ReadString(l_AddonMessageLenght);
             l_AddonPrefix   = p_RecvData.ReadString(l_AddonPrefixLenght);
+            l_AddonMessage  = p_RecvData.ReadString(l_AddonMessageLenght);
             break;
         }
         case CHAT_MSG_OFFICER:
@@ -645,7 +645,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
         case CHAT_MSG_PARTY:
         case CHAT_MSG_INSTANCE_CHAT:
         {
-            uint32 l_AddonPrefixLenght  = p_RecvData.ReadBits(7);
+            uint32 l_AddonPrefixLenght  = p_RecvData.ReadBits(5);
             uint32 l_AddonMessageLenght = p_RecvData.ReadBits(8);
             l_AddonPrefix  = p_RecvData.ReadString(l_AddonPrefixLenght);
             l_AddonMessage = p_RecvData.ReadString(l_AddonMessageLenght);
@@ -673,13 +673,13 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
     {
         case CHAT_MSG_INSTANCE_CHAT:
         {
-            Group * l_Group = l_Sender->GetGroup();
+            Group* l_Group = l_Sender->GetGroup();
             if (!l_Group || !l_Group->isBGGroup())
                 return;
 
             WorldPacket l_Data;
 
-            ChatHandler::FillMessageData(&l_Data, this, l_Type, LANG_ADDON, "", 0, l_AddonMessage.c_str(), NULL);
+            ChatHandler::FillMessageData(&l_Data, this, l_Type, LANG_ADDON, "", 0, l_AddonMessage.c_str(), NULL, l_AddonPrefix.c_str());
             l_Group->BroadcastAddonMessagePacket(&l_Data, l_AddonPrefix, false);
 
             break;
@@ -761,7 +761,7 @@ namespace JadeCore
 
             }
 
-            void operator()(WorldPacket & p_Data, LocaleConstant p_LocalIndex)
+            void operator()(WorldPacket & p_Data, LocaleConstant p_LocalIndex) ///< p_LocalIndex is unused
             {
                 uint64 l_TargetGUID = m_Target ? m_Target->GetGUID() : 0;
 

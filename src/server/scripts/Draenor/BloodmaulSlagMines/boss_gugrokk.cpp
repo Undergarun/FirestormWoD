@@ -142,7 +142,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                         {
                             me->CastSpell(me, eSpells::SpellMoltenCore, true);
 
-                            if (AuraPtr l_MoltenCore = me->GetAura(eSpells::SpellMoltenCore))
+                            if (Aura* l_MoltenCore = me->GetAura(eSpells::SpellMoltenCore))
                             {
                                 if (l_MoltenCore->GetStackAmount() >= 3)
                                 {

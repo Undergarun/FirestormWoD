@@ -1221,7 +1221,7 @@ class mob_dark_winds : public CreatureScript
 
                 for (auto itr : playerList)
                 {
-                    if (itr->GetTypeId() == TYPEID_PLAYER)
+                    if (itr->IsPlayer())
                         continue;
 
                     unitToRemove.push_back(itr);
@@ -3116,7 +3116,7 @@ class mob_iron_qon_disciple : CreatureScript
 
             void MoveInLineOfSight(Unit* p_Who)
             {
-                if (p_Who->GetTypeId() == TYPEID_PLAYER)
+                if (p_Who->IsPlayer())
                 {
                     if (me->GetDistance(p_Who) < 20.0f && !m_IntroDone)
                     {
@@ -3838,7 +3838,7 @@ class spell_storm_weapon : public SpellScriptLoader
         {
             PrepareAuraScript(spell_storm_weapon_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = GetTarget();
@@ -4005,9 +4005,9 @@ class spell_fiery_core : public SpellScriptLoader
         {
             PrepareAuraScript(spell_fiery_core_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
-                if (AuraPtr fieryCore = aurEff->GetBase())
+                if (Aura* fieryCore = aurEff->GetBase())
                 {
                     if (fieryCore->GetStackAmount() >= 5)
                     {
@@ -4046,7 +4046,7 @@ class spell_judgement_of_the_loa : public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         int32 stacks = 1;
-                        if (AuraPtr loaStacks = target->GetAura(SPELL_MARK_OF_THE_LOA))
+                        if (Aura* loaStacks = target->GetAura(SPELL_MARK_OF_THE_LOA))
                             stacks = loaStacks->GetStackAmount();
 
                         SetHitDamage(GetHitDamage() * stacks);
@@ -4110,7 +4110,7 @@ class spell_drain_the_weak : public SpellScriptLoader
         {
             PrepareAuraScript(spell_drain_the_weak_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = GetTarget();
@@ -4273,7 +4273,7 @@ class spell_siphon_life : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_siphon_life_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_siphon_life_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -4324,7 +4324,7 @@ class spell_fixated : public SpellScriptLoader
         {
             PrepareAuraScript(spell_fixated_AuraScript);
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
             {
                 if (!GetCaster())
                     return;
@@ -4335,7 +4335,7 @@ class spell_fixated : public SpellScriptLoader
 
             void Register()
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_fixated_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_fixated_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS_PET, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -4355,7 +4355,7 @@ class spell_devoured : public SpellScriptLoader
         {
             PrepareAuraScript(spell_devoured_AuraScript);
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
             {
                 if (Unit* target = GetTarget())
                 {

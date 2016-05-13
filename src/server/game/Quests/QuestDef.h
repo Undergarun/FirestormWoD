@@ -265,6 +265,7 @@ struct QuestLocale
 struct QuestObjective
 {
     uint32 ID;
+    uint32 QuestID;
     uint8 Type;
     int8 Index;
     int32 ObjectID;

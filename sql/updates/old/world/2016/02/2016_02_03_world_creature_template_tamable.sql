@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET type_flags=1 WHERE entry IN(88630, 86294, 85756, 21879, 89741);

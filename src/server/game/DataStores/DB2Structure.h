@@ -29,6 +29,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <array>
 
 /// GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
@@ -1623,41 +1624,42 @@ struct LocationEntry
     float  Unk2;                                                    ///< 5
     float  Unk3;                                                    ///< 6
 };
+
 struct TaxiPathEntry
 {
-    uint32  ID;                                                     ///< 0      m_ID
-    uint32  from;                                                   ///< 1      m_FromTaxiNode
-    uint32  to;                                                     ///< 2      m_ToTaxiNode
-    uint32  price;                                                  ///< 3      m_Cost
+    uint32 ID;                                                      // 0
+    uint32 From;                                                    // 1
+    uint32 To;                                                      // 2
+    uint32 Cost;                                                    // 3
 };
 
 struct TaxiPathNodeEntry
 {
-    uint32 ID;                                                      ///< 0      m_ID
-    uint32 path;                                                    ///< 1      m_PathID
-    uint32 index;                                                   ///< 2      m_NodeIndex
-    uint32 mapid;                                                   ///< 3      m_ContinentID
+    uint32 ID;                                                      // 0
+    uint32 PathID;                                                  // 1
+    uint32 NodeIndex;                                               // 2
+    uint32 MapID;                                                   // 3
     float  x;                                                       ///< 4      m_LocX
     float  y;                                                       ///< 5      m_LocY
     float  z;                                                       ///< 6      m_LocZ
-    uint32 actionFlag;                                              ///< 7      m_flags
-    uint32 delay;                                                   ///< 8      m_delay
-    uint32 arrivalEventID;                                          ///< 9      m_arrivalEventID
-    uint32 departureEventID;                                        ///< 10     m_departureEventID
+    uint32 Flags;                                                   // 7
+    uint32 Delay;                                                   // 8
+    uint32 ArrivalEventID;                                          // 9
+    uint32 DepartureEventID;                                        // 10
 };
 
 struct TaxiNodesEntry
 {
-    uint32 ID;                                                      ///< 0
-    uint32 map_id;                                                  ///< 1
+    uint32 ID;                                                      // 0
+    uint32 MapID;                                                   // 1
     float  x;                                                       ///< 2
     float  y;                                                       ///< 3
     float  z;                                                       ///< 4
-    LocalizedString const* name;                                    ///< 5
-    uint32 MountCreatureID[2];                                      ///< 6-7
-    uint32 m_ConditionID;                                           ///< 8
-    uint32 LearnableIndex;                                          ///< 9      some kind of index only for learnable nodes
-    uint32 m_Flags;                                                 ///< 10
+    LocalizedString* Name;                                          // 5
+    uint32 MountCreatureID[2];                                      // 6-7
+    uint32 ConditionID;                                             // 8
+    uint32 LearnableIndex;                                          // 9 - some kind of index only for learnable nodes
+    uint32 Flags;                                                   // 10
     float  m_MapOffsetX;                                            ///< 11
     float  m_MapOffsetY;                                            ///< 12
 };
@@ -1769,5 +1771,23 @@ struct WorldMapOverlayEntry
 #else
 #pragma pack(pop)
 #endif
+
+struct TaxiPathBySourceAndDestination
+{
+    TaxiPathBySourceAndDestination() : ID(0), price(0) { }
+    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) { }
+
+    uint32 ID;
+    uint32 price;
+};
+
+typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
+typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
+
+typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
+typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
+
+#define TaxiMaskSize 217
+typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 #endif

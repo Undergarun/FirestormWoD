@@ -149,10 +149,10 @@ class MapManager
 
         MapUpdater * GetMapUpdater() { return &m_updater; }
 
-        void AddCriticalOperation(std::function<void()> const&& p_Function)
+        void AddCriticalOperation(std::function<bool()> const&& p_Function)
         {
             m_CriticalOperationLock.acquire();
-            m_CriticalOperation.push(std::function<void()>(p_Function));
+            m_CriticalOperation.push(std::function<bool()>(p_Function));
             m_CriticalOperationLock.release();
         }
 
@@ -197,7 +197,7 @@ class MapManager
         MapUpdater m_updater;
         bool m_mapDiffLimit;
 
-        std::queue<std::function<void()>> m_CriticalOperation;
+        std::queue<std::function<bool()>> m_CriticalOperation;
         ACE_Thread_Mutex m_CriticalOperationLock;
 
         std::multimap<uint32, uint32> m_MapsDelay;

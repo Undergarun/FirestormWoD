@@ -39,6 +39,8 @@ namespace MS { namespace Garrison
             /// Constructor
             npc_TimothyLeensAI(Creature* p_Creature);
 
+            virtual void OnPlotInstanceUnload() override;
+
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
 
             /// Select game object entry for a fresh gathering spawn
