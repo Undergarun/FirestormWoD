@@ -105,19 +105,20 @@ class shadowmoon_prophet_velen_eventide_escort : public CreatureScript
 /// Squeezing - 159303
 class spell_quest_shadowmoon_squeezing : public SpellScriptLoader
 {
+    enum
+    {
+        KillCredit = 74249
+    };
+
     public:
         /// Constructor
-        spell_quest_shadowmoon_squeezing()
-            : SpellScriptLoader("spell_quest_shadowmoon_squeezing")
-        {
-
-        }
+        spell_quest_shadowmoon_squeezing() : SpellScriptLoader("spell_quest_shadowmoon_squeezing") { }
 
         class spell_quest_shadowmoon_squeezing_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_quest_shadowmoon_squeezing_SpellScript);
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -128,7 +129,7 @@ class spell_quest_shadowmoon_squeezing : public SpellScriptLoader
                         || l_Target->GetEntry() == Shadowmoon::eCreature::JuicyMushroomB
                         || l_Target->GetEntry() == Shadowmoon::eCreature::JuicyMushroomC)
                     {
-                        l_Caster->ToPlayer()->KilledMonsterCredit(74249);
+                        l_Caster->ToPlayer()->KilledMonsterCredit(KillCredit);
                         l_Target->ToCreature()->DespawnOrUnsummon();
                     }
                 }
@@ -147,7 +148,6 @@ class spell_quest_shadowmoon_squeezing : public SpellScriptLoader
             return new spell_quest_shadowmoon_squeezing_SpellScript();
         }
 };
-
 
 void AddSC_draenor_shadowmoon_valley()
 {

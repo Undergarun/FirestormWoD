@@ -28,20 +28,12 @@ class npc_talador_warlock_soulstealer : public CreatureScript
     public:
         npc_talador_warlock_soulstealer() : CreatureScript("npc_talador_warlock_soulstealer") { }
 
-        struct npc_talador_warlock_soulstealerAI : public CreatureAI
+        struct npc_talador_warlock_soulstealerAI : public ScriptedAI
         {
-            npc_talador_warlock_soulstealerAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
+            npc_talador_warlock_soulstealerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void UpdateAI(uint32 const p_Diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-
-            // Called when the creature is killed
-            virtual void JustDied(Unit* p_Killer) override
+            /// Called when the creature is killed
+            void JustDied(Unit* p_Killer) override
             {
                 if (p_Killer->IsPlayer())
                 {
@@ -64,7 +56,7 @@ class npc_talador_warlock_soulstealer : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_talador_warlock_soulstealerAI(p_Creature);
         }
@@ -82,19 +74,11 @@ class npc_talador_zorkas_void_gate : public CreatureScript
     public:
         npc_talador_zorkas_void_gate() : CreatureScript("npc_talador_zorkas_void_gate") { }
 
-        struct npc_talador_zorkas_void_gateAI : public CreatureAI
+        struct npc_talador_zorkas_void_gateAI : public ScriptedAI
         {
-            npc_talador_zorkas_void_gateAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
+            npc_talador_zorkas_void_gateAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void UpdateAI(uint32 const p_Diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-
-            virtual void OnSpellClick(Unit* p_Unit) override
+            void OnSpellClick(Unit* p_Unit) override
             {
                 if (p_Unit->IsPlayer() && p_Unit->ToPlayer()->HasQuest(BonusObjectiveZorkraFall))
                 {
@@ -104,7 +88,7 @@ class npc_talador_zorkas_void_gate : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_talador_zorkas_void_gateAI(p_Creature);
         }

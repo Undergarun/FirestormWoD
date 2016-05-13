@@ -119,19 +119,20 @@ class spell_groog_rampage : public SpellScriptLoader
 /// Thaw - 159348
 class spell_quest_frostfire_ridge_thaw : public SpellScriptLoader
 {
+    enum
+    {
+        KillCredit = 78870
+    };
+
     public:
         /// Constructor
-        spell_quest_frostfire_ridge_thaw()
-            : SpellScriptLoader("spell_quest_frostfire_ridge_thaw")
-        {
-
-        }
+        spell_quest_frostfire_ridge_thaw() : SpellScriptLoader("spell_quest_frostfire_ridge_thaw") { }
 
         class spell_quest_frostfire_ridge_thaw_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_quest_frostfire_ridge_thaw_SpellScript);
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -140,7 +141,7 @@ class spell_quest_frostfire_ridge_thaw : public SpellScriptLoader
                 {
                     if (l_Target->GetEntry() == FrostfireRidgeCreatures::FrostWolfHowler)
                     {
-                        l_Caster->ToPlayer()->KilledMonsterCredit(78870);
+                        l_Caster->ToPlayer()->KilledMonsterCredit(KillCredit);
                         l_Target->ToCreature()->DespawnOrUnsummon(0);
                     }
                 }
@@ -172,19 +173,11 @@ class npc_frostfire_ridge_captured_frost_wolf : public CreatureScript
     public:
         npc_frostfire_ridge_captured_frost_wolf() : CreatureScript("npc_frostfire_ridge_captured_frost_wolf") { }
 
-        struct npc_frostfire_ridge_captured_frost_wolfAI : public CreatureAI
+        struct npc_frostfire_ridge_captured_frost_wolfAI : public ScriptedAI
         {
-            npc_frostfire_ridge_captured_frost_wolfAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
+            npc_frostfire_ridge_captured_frost_wolfAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void UpdateAI(uint32 const p_Diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-
-            virtual void OnSpellClick(Unit* p_Unit) override
+            void OnSpellClick(Unit* p_Unit) override
             {
                 if (p_Unit->IsPlayer() && p_Unit->ToPlayer()->HasQuest(BonusObjectiveGrimfrostHill))
                 {
@@ -194,12 +187,11 @@ class npc_frostfire_ridge_captured_frost_wolf : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_frostfire_ridge_captured_frost_wolfAI(p_Creature);
         }
 };
-
 
 #ifndef __clang_analyzer__
 void AddSC_frostfire_ridge()

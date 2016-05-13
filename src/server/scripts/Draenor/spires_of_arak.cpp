@@ -584,17 +584,13 @@ class spell_quest_spires_of_arak_free_prisoners : public SpellScriptLoader
 {
     public:
         /// Constructor
-        spell_quest_spires_of_arak_free_prisoners()
-            : SpellScriptLoader("spell_quest_spires_of_arak_free_prisoners")
-        {
-
-        }
+        spell_quest_spires_of_arak_free_prisoners() : SpellScriptLoader("spell_quest_spires_of_arak_free_prisoners") { }
 
         class spell_quest_spires_of_arak_free_prisoners_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_quest_spires_of_arak_free_prisoners_SpellScript);
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -603,7 +599,7 @@ class spell_quest_spires_of_arak_free_prisoners : public SpellScriptLoader
                 {
                     if (l_Target->GetEntry() == SpiresOfArakCreatures::PrisonerPost)
                     {
-                        Creature * l_Creature = l_Target->FindNearestCreature(SpiresOfArakCreatures::RavenspeakerInitiate, 1.2f);
+                        Creature* l_Creature = l_Target->FindNearestCreature(SpiresOfArakCreatures::RavenspeakerInitiate, 1.2f);
 
                         if (l_Creature)
                         {
@@ -637,17 +633,13 @@ class spell_quest_spires_of_arak_detonate_iron_grenade : public SpellScriptLoade
 {
     public:
         /// Constructor
-        spell_quest_spires_of_arak_detonate_iron_grenade()
-            : SpellScriptLoader("spell_quest_spires_of_arak_detonate_iron_grenade")
-        {
-
-        }
+        spell_quest_spires_of_arak_detonate_iron_grenade() : SpellScriptLoader("spell_quest_spires_of_arak_detonate_iron_grenade") { }
 
         class spell_quest_spires_of_arak_detonate_iron_grenade_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_quest_spires_of_arak_detonate_iron_grenade_SpellScript);
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -655,9 +647,7 @@ class spell_quest_spires_of_arak_detonate_iron_grenade : public SpellScriptLoade
                 if (l_Caster && l_Target && l_Caster->IsPlayer())
                 {
                     if (l_Target->GetEntry() == SpiresOfArakCreatures::IronGrenad)
-                    {
                         l_Target->ToCreature()->DespawnOrUnsummon(0);
-                    }
                 }
             }
 

@@ -883,19 +883,16 @@ class spell_quest_gorgrond_punt_podling : public SpellScriptLoader
         ThornyLeafling      = 85809,
         PodlingPuntCredit   = 85815
     };
+
     public:
         /// Constructor
-        spell_quest_gorgrond_punt_podling()
-            : SpellScriptLoader("spell_quest_gorgrond_punt_podling")
-        {
-
-        }
+        spell_quest_gorgrond_punt_podling() : SpellScriptLoader("spell_quest_gorgrond_punt_podling") { }
 
         class spell_quest_gorgrond_punt_podling_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_quest_gorgrond_punt_podling_SpellScript);
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -948,7 +945,7 @@ class npc_gorgrond_goren_egg : public CreatureScript
                     {
                         l_Player->KilledMonsterCredit(me->GetEntry());
 
-                        TempSummon * l_Summon = me->SummonCreature(0, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5 * TimeConstants::IN_MILLISECONDS);
+                        TempSummon* l_Summon = me->SummonCreature(0, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5 * TimeConstants::IN_MILLISECONDS);
 
                         if (l_Summon)
                             l_Summon->Attack(l_Player, true);
@@ -958,7 +955,6 @@ class npc_gorgrond_goren_egg : public CreatureScript
 
                     m_Timer = 0;
                 }
-
             }
         };
 
@@ -968,29 +964,21 @@ class npc_gorgrond_goren_egg : public CreatureScript
         }
 };
 
-/// Ancient Ogre Hoard Jar
+/// Ancient Ogre Hoard Jar - 233296
 class go_gorgrond_ancient_ogre_hoard_jar : public GameObjectScript
 {
     public:
         /// Constructor
-        go_gorgrond_ancient_ogre_hoard_jar()
-            : GameObjectScript("go_gorgrond_ancient_ogre_hoard_jar")
-        {
-
-        }
+        go_gorgrond_ancient_ogre_hoard_jar() : GameObjectScript("go_gorgrond_ancient_ogre_hoard_jar") { }
 
         struct go_gorgrond_ancient_ogre_hoard_jarAI : public GameObjectAI
         {
             /// Constructor
-            go_gorgrond_ancient_ogre_hoard_jarAI(GameObject * p_GameObject)
-                : GameObjectAI(p_GameObject)
-            {
-
-            }
+            go_gorgrond_ancient_ogre_hoard_jarAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
 
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance
-            bool GossipHello(Player * p_Player) override
+            bool GossipHello(Player* p_Player) override
             {
                 if (p_Player)
                     p_Player->KilledMonsterCredit(83467);
@@ -999,14 +987,12 @@ class go_gorgrond_ancient_ogre_hoard_jar : public GameObjectScript
             }
         };
 
-
         /// Called when a GameObjectAI object is needed for the GameObject.
         /// @p_GameObject : GameObject instance
-        GameObjectAI* GetAI(GameObject * p_GameObject) const override
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
         {
             return new go_gorgrond_ancient_ogre_hoard_jarAI(p_GameObject);
         }
-
 };
 
 /// Burn Ancient Corpse - 170769
@@ -1019,17 +1005,13 @@ class spell_quest_gorgrond_burn_ancient_corpse : public SpellScriptLoader
 
     public:
         /// Constructor
-        spell_quest_gorgrond_burn_ancient_corpse()
-            : SpellScriptLoader("spell_quest_gorgrond_burn_ancient_corpse")
-        {
-
-        }
+        spell_quest_gorgrond_burn_ancient_corpse() : SpellScriptLoader("spell_quest_gorgrond_burn_ancient_corpse") { }
 
         class spell_quest_gorgrond_burn_ancient_corpse_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_quest_gorgrond_burn_ancient_corpse_SpellScript);
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -1037,9 +1019,7 @@ class spell_quest_gorgrond_burn_ancient_corpse : public SpellScriptLoader
                 if (l_Caster && l_Target && l_Caster->IsPlayer())
                 {
                     if (l_Target->GetEntry() == AncientSeedbearer)
-                    {
-                        l_Target->ToCreature()->DespawnOrUnsummon(0 * TimeConstants::IN_MILLISECONDS);
-                    }
+                        l_Target->ToCreature()->DespawnOrUnsummon(0);
                 }
             }
 
@@ -1085,16 +1065,14 @@ class npc_gorgrond_toxic_slimemold : public CreatureScript
 
                     m_Timer = 0;
                 }
-
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_gorgrond_toxic_slimemoldAI(p_Creature);
         }
 };
-
 
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
