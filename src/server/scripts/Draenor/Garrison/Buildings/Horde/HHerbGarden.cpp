@@ -220,7 +220,7 @@ namespace MS { namespace Garrison
                 else
                 {
                     p_Player->PlayerTalkClass->ClearMenus();
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "I want to browse your goods.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                    p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultTrader, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 ///                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to pick what we plant next.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                     p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 }
@@ -246,22 +246,24 @@ namespace MS { namespace Garrison
             {
                 p_Player->PlayerTalkClass->ClearMenus();
 
+                using namespace GarrisonGossipMenus;
+
                 /// Test for removing already selected option
 
                 uint32 l_Type = reinterpret_cast<GatheringBuildingMaster<&g_HordeHerbGardenFlowerPlot>*>(p_Creature->AI())->GetGatheringMiscData();
 
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Frostweed])
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Frostweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbFrostweed, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Starflower])
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Starflower.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbStarflower, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Fireweed])
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fireweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbFireweed, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::TaladorOrchid])
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Talador Orchid.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbTaladorOrchid, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::GorgrondFlytrap])
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Gorgrond Flytrap.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbGorgrondFlytrap, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::NagrandArrowbloom])
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nagrand Arrowbloom.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbNagrandArrowbloom, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
 
                 p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 break;

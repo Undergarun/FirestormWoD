@@ -1190,6 +1190,7 @@ enum PlayerCommandStates
     CHEAT_POWER         = 0x08,
     CHEAT_WATERWALK     = 0x10,
     CHEAT_ALL_SPELLS    = 0x20,
+    CHEAT_NO_DR         = 0x40
 };
 
 enum AttackSwingError

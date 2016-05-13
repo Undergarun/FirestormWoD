@@ -230,6 +230,8 @@ namespace MS { namespace Garrison
             uint8 CalculateAssignedFollowerShipmentBonus(uint32 p_PlotInstanceID);
             /// Generates random reward for Armory work order
             uint32 CalculateArmoryWorkOrder() const;
+            /// Fills reward maps in work orders algorithm for Gladiator's Sanctum
+            bool FillSanctumWorkOrderRewards(std::map<uint32, uint32>& l_RewardItems, std::map<CurrencyTypes, uint32>& l_RewardedCurrencies);
             /// Get follower assigned to building from plot instance ID
             GarrisonFollower* GetAssignedFollower(uint32 p_PlotInstanceID);
             /// Checks if the building has the required follower assigned to apply bonus

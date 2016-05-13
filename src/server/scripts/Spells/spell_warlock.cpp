@@ -238,7 +238,8 @@ class spell_warl_haunt_dispel: public SpellScriptLoader
         }
 };
 
-// Haunt - 48181
+/// Last Update 6.2.3
+/// Haunt - 48181
 class spell_warl_haunt : public SpellScriptLoader
 {
     public:
@@ -248,7 +249,7 @@ class spell_warl_haunt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_haunt_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
 
@@ -262,7 +263,7 @@ class spell_warl_haunt : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warl_haunt_SpellScript::HandleOnHit);
+                OnCast += SpellCastFn(spell_warl_haunt_SpellScript::HandleOnCast);
             }
         };
 
@@ -4482,20 +4483,45 @@ class spell_warl_demonbolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_demonbolt_SpellScript);
 
+            uint32 m_Duration = 0;
+            bool m_Flag = false;
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+                float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+
+                l_Caster->AddAura(GetSpellInfo()->Id, l_Caster);
+                if (Aura* l_Aura = l_Caster->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+                    l_Aura->SetDuration(l_Aura->GetDuration() * l_HastePct);
+            }
+
+            void HandleBeforeHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (Aura* l_Aura = l_Caster->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+                    m_Duration = l_Aura->GetDuration();
+            }
+
             void HandleAfterHit()
             {
                 Unit* l_Caster = GetCaster();
 
-                float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
-
                 if (Aura* l_Aura = l_Caster->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
-                    l_Aura->SetDuration(l_Aura->GetDuration() * l_HastePct);
-
+                {
+                    if (m_Flag)
+                        l_Aura->DropStack();
+                    l_Aura->SetDuration(m_Duration);
+                    m_Flag = true;
+                }
             }
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_warl_demonbolt_SpellScript::HandleAfterCast);
                 AfterHit += SpellHitFn(spell_warl_demonbolt_SpellScript::HandleAfterHit);
+                BeforeHit += SpellHitFn(spell_warl_demonbolt_SpellScript::HandleBeforeHit);
             }
         };
 
@@ -4550,7 +4576,6 @@ public:
             {
                 l_Caster->CastSpell(l_Caster, GlyphOfSoulConsumption, true);
             }
-            /// lol
         }
 
         void Register()

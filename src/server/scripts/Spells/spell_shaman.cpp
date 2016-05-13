@@ -694,7 +694,7 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
                     for (auto itr : l_DispelList)
                     {
                         if (!itr.first->GetSpellInfo()->IsPositive() && GetSpellInfo()->CanDispelAura(itr.first->GetSpellInfo()) && GetSpellInfo()->SchoolMask & SPELL_DAMAGE_CLASS_MAGIC)
-							l_Caster->RemoveAura(itr.first);
+                            l_Caster->RemoveAura(itr.first);
                     }
                 }
             }
