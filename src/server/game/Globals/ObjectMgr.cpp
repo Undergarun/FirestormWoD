@@ -4730,11 +4730,11 @@ void ObjectMgr::LoadBonusQuests()
                 int32 l_AreaWidth   = std::abs(l_MaxX - l_MinX);
                 int32 l_AreaHeight  = std::abs(l_MaxY - l_MinY);
 
-                l_MinX -= (0.25f * float(l_AreaWidth)) / 2.0f;
-                l_MinY -= (0.25f * float(l_AreaHeight)) / 2.0f;
+                l_MinX -= abs(0.35f * float(l_AreaWidth)) / 2.0f;
+                l_MinY -= abs(0.35f * float(l_AreaHeight)) / 2.0f;
 
-                l_MaxX += (0.25f * float(l_AreaWidth)) / 2.0f;
-                l_MaxY += (0.25f * float(l_AreaHeight)) / 2.0f;
+                l_MaxX += abs(0.35f * float(l_AreaWidth)) / 2.0f;
+                l_MaxY += abs(0.35f * float(l_AreaHeight)) / 2.0f;
 
                 BonusQuestRectEntry l_Rect;
                 l_Rect.X = l_MinX;

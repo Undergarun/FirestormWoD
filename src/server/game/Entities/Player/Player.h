@@ -4019,6 +4019,8 @@ class Player : public Unit, public GridObject<Player>
 
         CUFProfiles m_cufProfiles;
 
+        uint32 m_BonusQuestTimer;
+
         /*********************************************************/
         /***                  SCENES SYSTEM                    ***/
         /*********************************************************/
