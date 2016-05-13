@@ -1823,6 +1823,7 @@ class Player : public Unit, public GridObject<Player>
         void ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false);
 
         void HandleItemSetBonuses(bool p_Apply);
+        void HandleGemBonuses(bool p_Apply);
 
         void ApplyEquipCooldown(Item* pItem);
         void QuickEquipItem(uint16 pos, Item* pItem);

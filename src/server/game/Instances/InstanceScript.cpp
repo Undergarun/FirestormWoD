@@ -135,6 +135,7 @@ void InstanceScript::OnPlayerEnter(Player* p_Player)
     if (instance->IsChallengeMode())
     {
         HandleItemSetBonusesOnPlayers(false);
+        HandleGemBonusesOnPlayers(false);
     }
 }
 
@@ -147,6 +148,7 @@ void InstanceScript::OnPlayerExit(Player* p_Player)
     if (instance->IsChallengeMode())
     {
         HandleItemSetBonusesOnPlayers(true);
+        HandleGemBonusesOnPlayers(true);
     }
 }
 
@@ -781,6 +783,19 @@ void InstanceScript::HandleItemSetBonusesOnPlayers(bool p_Apply)
     {
         if (Player* l_Player = l_Iter->getSource())
             l_Player->HandleItemSetBonuses(p_Apply);
+    }
+}
+
+void InstanceScript::HandleGemBonusesOnPlayers(bool p_Apply)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (l_PlayerList.isEmpty())
+        return;
+
+    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            l_Player->HandleGemBonuses(p_Apply);
     }
 }
 

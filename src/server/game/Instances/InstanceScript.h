@@ -359,6 +359,9 @@ class InstanceScript : public ZoneScript
         /// Used to apply or unapply item set bonuses on all players in instance
         void HandleItemSetBonusesOnPlayers(bool p_Apply);
 
+        /// Used to apply or unapply gem bonuses on all player in instance
+        void HandleGemBonusesOnPlayers(bool p_Apply);
+
         /// Do combat stop on all players in instance
         void DoCombatStopOnPlayers();
 

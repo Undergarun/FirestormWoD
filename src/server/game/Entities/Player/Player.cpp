@@ -27931,6 +27931,21 @@ void Player::HandleItemSetBonuses(bool p_Apply)
     }
 }
 
+void Player::HandleGemBonuses(bool p_Apply)
+{
+    for (uint8 l_I = 0; l_I < InventorySlots::INVENTORY_SLOT_BAG_END; ++l_I)
+    {
+        if (Item* l_Item = m_items[l_I])
+        {
+            if (!l_Item->IsEquipped())
+                continue;
+
+            for (uint32 l_EnchantSlot = EnchantmentSlot::SOCK_ENCHANTMENT_SLOT; l_EnchantSlot < EnchantmentSlot::SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++l_EnchantSlot)
+                ApplyEnchantment(l_Item, EnchantmentSlot(l_EnchantSlot), p_Apply);
+        }
+    }
+}
+
 void Player::ApplyEquipCooldown(Item* p_Item)
 {
     if (p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_NO_EQUIP_COOLDOWN))
