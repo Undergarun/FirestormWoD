@@ -81,6 +81,12 @@ class boss_tarlna_the_ageless : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                if (me->GetDistance(me->GetHomePosition()) >= 100.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 HandleHealthAndDamageScaling();
 
                 m_Events.Update(p_Diff);
@@ -285,6 +291,12 @@ class boss_drov_the_ruiner : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
+
+                if (me->GetDistance(me->GetHomePosition()) >= 100.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
 
                 HandleHealthAndDamageScaling();
 

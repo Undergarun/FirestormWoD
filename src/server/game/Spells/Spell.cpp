@@ -2947,7 +2947,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         return;
 
     /// Custom WoD Script - Death from Above should give immunity to all spells while rogue is in jump effect
-    if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150))
+    if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150, unitTarget->GetGUID()))
         return;
 
     if (spellHitTarget)
@@ -4999,6 +4999,9 @@ void Spell::SendSpellGo()
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
         && !l_IsHealthPowerSpell)
         l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
+
+    if (m_caster->IsPlayer() && _triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)
+        l_CastFlags |= CAST_FLAG_NO_COOLDOWN;
 
     if ((m_caster->IsPlayer())
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)

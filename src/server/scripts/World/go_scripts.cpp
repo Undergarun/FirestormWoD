@@ -1372,7 +1372,7 @@ class go_challenge_orb : public GameObjectScript
                 }
 
                 p_GameObject->SetGoState(GO_STATE_ACTIVE);
-                p_GameObject->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NODESPAWN);
+                p_GameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NODESPAWN);
                 l_Instance->SetChallengeModeStarted();
                 p_Player->PlayerTalkClass->SendCloseGossip();
             }

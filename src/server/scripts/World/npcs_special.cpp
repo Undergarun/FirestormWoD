@@ -1708,10 +1708,7 @@ class npc_snake_trap : public CreatureScript
                         if (urand(0, 2) == 0) //33% chance to cast
                         {
                             uint32 spell;
-                            if (urand(0, 1) == 0)
-                                spell = SPELL_MIND_NUMBING_POISON;
-                            else
-                                spell = SPELL_CRIPPLING_POISON;
+                            spell = SPELL_CRIPPLING_POISON;
 
                             if (!me->getVictim()->HasAura(spell))
                                 DoCast(me->getVictim(), spell);
@@ -1723,8 +1720,8 @@ class npc_snake_trap : public CreatureScript
                     {
                         if (urand(0, 2) == 0) //33% chance to cast
                         {
-                            if (!me->getVictim()->HasAura(SPELL_DEADLY_POISON))
-                                DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                            if (!me->getVictim()->HasAura(SPELL_CRIPPLING_POISON))
+                                DoCast(me->getVictim(), SPELL_CRIPPLING_POISON);
                         }
                         SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() % 5) * 100;
                     }

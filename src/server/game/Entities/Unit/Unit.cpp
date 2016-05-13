@@ -266,6 +266,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_CombatTimer = 0;
 
     simulacrumTargetGUID = 0;
+    m_GlaiveOfTossTargetGUID = 0;
     iciclesTargetGUID    = 0;
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -12377,7 +12378,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) and Ebon Gargoyle can too - but this part is a hack and needs more research
-    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829)
+    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829 && GetEntry() != 77936)
         return 0.0f;
 
     // not critting spell
@@ -14080,6 +14081,7 @@ void Unit::ClearInCombat()
     }
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LEAVE_COMBAT);
 }
 
 bool Unit::isTargetableForAttack(bool checkFakeDeath) const
@@ -15448,6 +15450,9 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
 
 void Unit::IncrDiminishing(DiminishingGroup group)
 {
+    if (IsPlayer() && ToPlayer()->GetCommandStatus(CHEAT_NO_DR))
+        return;
+
     // Checking for existing in the table
     for (Diminishing::iterator i = m_Diminishing.begin(); i != m_Diminishing.end(); ++i)
     {
@@ -15932,10 +15937,6 @@ void Unit::SetHealth(uint32 val)
             {
                 if (l_Pet->GetHealthPct() < 20.0f && !owner->HasAura(171397))
                     owner->CastSpell(owner, 171397, true);
-
-                /// Remove aura if pet has more than 20% life
-                if (l_Pet->GetHealthPct() >= 20.0f)
-                    owner->RemoveAura(171397);
             }
         }
     }

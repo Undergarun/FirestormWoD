@@ -7678,7 +7678,8 @@ void Player::RepopAtGraveyard(bool p_ForceGraveyard /*= false*/)
                 l_AreaTrigger->target_mapId);
 
             /// Since WoD, you are resurrected in Dungeon with 100% life.
-            m_Events.AddEvent(new DelayedResurrection(GetGUID()), 1 * TimeConstants::IN_MILLISECONDS);
+            if (!isAlive())
+                m_Events.AddEvent(new DelayedResurrection(GetGUID()), 1 * TimeConstants::IN_MILLISECONDS);
         }
     }
     else
@@ -28916,6 +28917,12 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
 
     if (player->GetMapId() != pRewardSource->GetMapId() || player->GetInstanceId() != pRewardSource->GetInstanceId())
         return false;
+
+    if (Map* l_Map = pRewardSource->GetMap())
+    {
+        if (l_Map->IsDungeon() || l_Map->IsRaid())
+            return pRewardSource->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_INSTANCE_GROUP_XP_DISTANCE);
+    }
 
     return pRewardSource->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE);
 }

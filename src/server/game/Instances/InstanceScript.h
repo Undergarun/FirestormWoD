@@ -221,6 +221,8 @@ enum eChallengeMedals
     MaxMedalType
 };
 
+#define CHALLENGE_MOD_ORB 211674
+
 enum eInstanceSpells
 {
     SpellDetermination          = 139068,
@@ -356,6 +358,12 @@ class InstanceScript : public ZoneScript
 
         /// Set progress on a criteria for all players
         void SetCriteriaProgressOnPlayers(CriteriaEntry const* p_Criteria, uint64 p_ChangeValue, ProgressType p_Type);
+
+        /// Teleport players to instance entrance
+        void RepopPlayersAtGraveyard(bool p_ForceGraveyard = false);
+
+        /// Respawn specified creature, or all creatures
+        void RespawnCreature(uint64 p_Guid = 0);
 
         // Return wether server allow two side groups or not
         bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
@@ -553,11 +561,14 @@ class InstanceScript : public ZoneScript
         void SaveNewGroupChallenge(uint32 p_GuildID = 0);
         uint32 RewardChallengers();
         void RewardNewRealmRecord(RealmCompletedChallenge* p_OldChallenge = nullptr);
+        void ResetChallengeMode(Player* p_Source);
 
         bool   m_ChallengeStarted;
         bool   m_ConditionCompleted;
+        uint32 m_CreatureKilled;
         uint32 m_StartChallengeTime;
         uint64 m_ChallengeDoorGuid;
+        uint64 m_ChallengeOrbGuid;
         uint32 m_ChallengeTime;
         uint8  m_MedalType;
         uint64 m_InstanceGuid;
