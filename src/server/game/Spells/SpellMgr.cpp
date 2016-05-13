@@ -5507,7 +5507,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Speed = 100.0f;
                 break;
             case 117050: ///< Glaive Toss (talent)
-                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
+                spellInfo->Effects[4].Effect = SPELL_EFFECT_NONE;
+                spellInfo->Effects[1].Effect = SPELL_EFFECT_NONE;
                 break;
             case 120755: ///< Glaive Toss (Glaive right)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
