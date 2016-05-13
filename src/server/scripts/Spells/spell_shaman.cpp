@@ -689,11 +689,11 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
                 if (l_Caster->HasAura(eSpells::GlyphOfShamanisticRage))
                 {
                     DispelChargesList l_DispelList;
-                    l_Caster->GetDispellableAuraList(l_Caster, DISPEL_MAGIC, l_DispelList);
+                    l_Caster->GetDispellableAuraList(l_Caster, DISPEL_ALL, l_DispelList);
 
                     for (auto itr : l_DispelList)
                     {
-                        if (!itr.first->GetSpellInfo()->IsPositive() && GetSpellInfo()->CanDispelAura(itr.first->GetSpellInfo()) && GetSpellInfo()->SchoolMask & SPELL_SCHOOL_MASK_MAGIC)
+                        if (!itr.first->GetSpellInfo()->IsPositive() && GetSpellInfo()->CanDispelAura(itr.first->GetSpellInfo()) && GetSpellInfo()->SchoolMask & SPELL_DAMAGE_CLASS_MAGIC)
                             l_Caster->RemoveAura(itr.first);
                     }
                 }
@@ -3648,6 +3648,38 @@ class spell_sha_stormstrike_windstrike : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Glyph of ghostly speed
+/// Doesn't work...
+class PlayerScript_glyph_of_ghostly_speed : public PlayerScript
+{
+    public:
+        PlayerScript_glyph_of_ghostly_speed() : PlayerScript("PlayerScript_glyph_of_ghostly_speed") { }
+
+        enum eSpells
+        {
+            GlyphOfGhostlySpeed = 159642,
+            GhostWolf           = 2645
+        };
+
+        void OnSwitchOutdoorsState(Player* p_Player, bool p_IsOutdoor)
+        {
+            if (p_Player->getClass() == Classes::CLASS_SHAMAN && p_Player->HasAura(eSpells::GhostWolf) && p_Player->HasAura(eSpells::GlyphOfGhostlySpeed))
+            {
+                SpellInfo const* l_GhostlySpeed = sSpellMgr->GetSpellInfo(eSpells::GlyphOfGhostlySpeed);
+                if (l_GhostlySpeed == nullptr)
+                    return;
+
+                AuraEffect* l_AuraEffect = p_Player->GetAuraEffect(eSpells::GhostWolf, SpellEffIndex::EFFECT_3);
+                if (l_AuraEffect == nullptr)
+                    return;
+
+                int32 l_Amount = p_IsOutdoor ? l_GhostlySpeed->Effects[SpellEffIndex::EFFECT_0].BasePoints : 0;
+                l_AuraEffect->SetAmount(l_Amount);
+            }
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_stormstrike_windstrike();
@@ -3712,4 +3744,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_WoDPvPEnhancement2PBonus();
     new spell_sha_improved_chain_heal();
     new spell_sha_glyph_of_rain_of_frogs();
+
+    /// PlayerScript
+    new PlayerScript_glyph_of_ghostly_speed();
 }

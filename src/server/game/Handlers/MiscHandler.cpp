@@ -1739,9 +1739,13 @@ void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*p_RecvData*/)
         m_Player->ResetInstances(INSTANCE_RESET_ALL, false, false);
 }
 
-void WorldSession::HandleResetChallengeModeOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleResetChallengeModeOpcode(WorldPacket& /*p_RecvData*/)
 {
-    // @TODO: Do something about challenge mode ...
+    if (InstanceScript* l_InstanceScript = m_Player->GetInstanceScript())
+    {
+        if (l_InstanceScript->instance->IsChallengeMode())
+            l_InstanceScript->ResetChallengeMode();
+    }
 }
 
 void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)

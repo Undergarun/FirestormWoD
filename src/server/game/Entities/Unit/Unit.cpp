@@ -266,6 +266,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_CombatTimer = 0;
 
     simulacrumTargetGUID = 0;
+    m_GlaiveOfTossTargetGUID = 0;
     iciclesTargetGUID    = 0;
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -12377,7 +12378,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) and Ebon Gargoyle can too - but this part is a hack and needs more research
-    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829)
+    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829 && GetEntry() != 77936)
         return 0.0f;
 
     // not critting spell
@@ -13950,7 +13951,7 @@ void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
 
     if (Creature* l_Creature = p_Enemy->ToCreature())
     {
-        if (l_Creature->GetEntry() == 900000) ///< Sovaks training dummy
+        if (l_Creature->GetEntry() == 900000 || l_Creature->GetScriptName() == "npc_pvp_training_dummy") ///< Sovaks training dummy
             p_IsPVP = true;
     }
 
@@ -14080,6 +14081,7 @@ void Unit::ClearInCombat()
     }
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LEAVE_COMBAT);
 }
 
 bool Unit::isTargetableForAttack(bool checkFakeDeath) const
@@ -15448,6 +15450,9 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
 
 void Unit::IncrDiminishing(DiminishingGroup group)
 {
+    if (IsPlayer() && ToPlayer()->GetCommandStatus(CHEAT_NO_DR))
+        return;
+
     // Checking for existing in the table
     for (Diminishing::iterator i = m_Diminishing.begin(); i != m_Diminishing.end(); ++i)
     {
@@ -15932,10 +15937,6 @@ void Unit::SetHealth(uint32 val)
             {
                 if (l_Pet->GetHealthPct() < 20.0f && !owner->HasAura(171397))
                     owner->CastSpell(owner, 171397, true);
-
-                /// Remove aura if pet has more than 20% life
-                if (l_Pet->GetHealthPct() >= 20.0f)
-                    owner->RemoveAura(171397);
             }
         }
     }
@@ -18502,7 +18503,9 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
     if (l_KilledCreature)
     {
         l_IsRewardAllowed = l_KilledCreature->IsDamageEnoughForLootingAndReward();
-        if (!l_IsRewardAllowed)
+
+        /// In Challenge mode difficulty, loots are disabled
+        if (!l_IsRewardAllowed || l_KilledCreature->GetMap()->IsChallengeMode())
             l_KilledCreature->SetLootRecipient(NULL);
     }
 
@@ -18518,9 +18521,31 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         l_Data.appendPackGUID(p_KilledVictim->GetGUID());
 
         Player* l_Looter = l_KillerPlayer;
-
         if (Group* l_Group = l_KillerPlayer->GetGroup())
         {
+            if (p_KilledVictim->ToPlayer() && (l_KillerPlayer->GetMapId() == 1116 || l_KillerPlayer->GetMapId() == 1191)) ///< Gladiator's Sanctum
+            {
+                if (p_KilledVictim->ToPlayer())
+                {
+                    for (GroupReference* l_Ref = l_Group->GetFirstMember(); l_Ref != nullptr; l_Ref = l_Ref->next())
+                    {
+                        Player* l_RefPlayer = l_Ref->getSource();
+
+                        if (!l_RefPlayer)
+                            continue;
+
+                        if (l_RefPlayer->GetDistance2d(p_KilledVictim) < 100.f)
+                        {
+                            if (MS::Garrison::Manager* l_Garr = l_RefPlayer->GetGarrison())
+                            {
+                                if (l_Garr->HasBuildingType(MS::Garrison::BuildingType::SparringArena))
+                                    l_RefPlayer->CastSpell(l_RefPlayer, 173417, true);
+                            }
+                        }
+                    }
+                }
+            }
+
             l_Group->BroadcastPacket(&l_Data, l_Group->GetMemberGroup(l_KillerPlayer->GetGUID()));
 
             if (l_KilledCreature)
@@ -18546,6 +18571,18 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         else
         {
             l_KillerPlayer->SendDirectMessage(&l_Data);
+
+            if (p_KilledVictim->ToPlayer() && (l_KillerPlayer->GetMapId() == 1116 || l_KillerPlayer->GetMapId() == 1191))
+            {
+                if (l_KillerPlayer->GetDistance2d(p_KilledVictim) < 100.f)
+                {
+                    if (MS::Garrison::Manager* l_Garr = l_KillerPlayer->GetGarrison())
+                    {
+                        if (l_Garr->HasBuildingType(MS::Garrison::BuildingType::SparringArena))
+                            l_KillerPlayer->CastSpell(l_KillerPlayer, 173417, true);
+                    }
+                }
+            }
 
             if (l_KilledCreature)
             {
@@ -18730,6 +18767,10 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         /// at original death (not at SpiritOfRedemtionTalent timeout)
         l_PlayerVictim->SetPvPDeath(l_KillerPlayer != NULL);
 
+        /// There is no durability loss in challenge dungeons
+        if (l_PlayerVictim->GetMap()->IsChallengeMode())
+            p_DurabilityLoss = false;
+
         /// Only if not player and not controlled by player pet. And not at BG
         if ((p_DurabilityLoss && !l_KillerPlayer && !p_KilledVictim->ToPlayer()->InBattleground()) || (l_KillerPlayer && sWorld->getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
         {
@@ -18822,7 +18863,8 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                 if (InstanceScript* l_InstanceScript = l_KilledCreature->GetInstanceScript())
                     l_InstanceScript->OnCreatureKilled(l_KilledCreature, l_KillerPlayer);
 
-                if (l_InstanceMap->IsRaidOrHeroicDungeon())
+                /// There is no lockout scheduled in challenge mode
+                if (l_InstanceMap->IsRaidOrHeroicDungeon() && !l_InstanceMap->IsChallengeMode())
                 {
                     if (l_KilledCreature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                         ((InstanceMap*)l_InstanceMap)->PermBindAllPlayers(l_KillerPlayer);

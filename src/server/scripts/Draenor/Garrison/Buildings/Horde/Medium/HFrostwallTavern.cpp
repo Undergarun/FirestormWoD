@@ -92,7 +92,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    void npc_MurgAI::OnDataReset()
+    void npc_MurgAI::OnDailyDataReset()
     {
         if (Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript())
         {

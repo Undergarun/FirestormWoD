@@ -17,7 +17,6 @@
 #include "PhaseMgr.h"
 #include <random>
 
-
 /// 83746 - Rukhmar
 class boss_rukhmar : public CreatureScript
 {
@@ -96,6 +95,20 @@ class boss_rukhmar : public CreatureScript
                 me->SetHomePosition(*me);
                 me->AddAura(SpiresOfArakSpells::SpellSolarRadiationAura, me);
                 LaunchGroundEvents();
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Damage > me->GetHealth())
+                {
+                    std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+
+                    for (HostileReference* l_Ref : l_ThreatList)
+                    {
+                        if (Player* l_Player = Player::GetPlayer(*me, l_Ref->getUnitGuid()))
+                            me->CastSpell(l_Player, SpiresOfArakSpells::SpellRukhmarBonus, true);
+                    }
+                }
             }
 
             void JustDied(Unit* /*p_Killer*/) override

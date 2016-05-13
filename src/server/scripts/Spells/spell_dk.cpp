@@ -3438,35 +3438,36 @@ class spell_dk_army_of_the_death_taunt : public SpellScriptLoader
     public:
         spell_dk_army_of_the_death_taunt() : SpellScriptLoader("spell_dk_army_of_the_death_taunt") { }
 
-        class spell_dk_army_of_the_death_taunt_SpellScript : public SpellScript
+        class spell_dk_army_of_the_death_taunt_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_dk_army_of_the_death_taunt_SpellScript);
+            PrepareAuraScript(spell_dk_army_of_the_death_taunt_AuraScript);
 
             enum eSpells
             {
                 GlyphofArmyoftheDead = 58669
             };
 
-            void HandlePeriodicTrigger(SpellEffIndex /*p_EffIndex*/)
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
-                Unit* l_Owner = GetCaster()->GetOwner();
+                Unit* l_Target = GetTarget();
+                Unit* l_Owner = l_Target->GetOwner();
 
                 if (l_Owner == nullptr)
                     return;
 
                 if (l_Owner->HasAura(eSpells::GlyphofArmyoftheDead))
-                    PreventHitAura();
+                    l_Target->RemoveAura(GetSpellInfo()->Id);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_army_of_the_death_taunt_SpellScript::HandlePeriodicTrigger, 0, SPELL_EFFECT_APPLY_AURA);
+                AfterEffectApply += AuraEffectApplyFn(spell_dk_army_of_the_death_taunt_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_dk_army_of_the_death_taunt_SpellScript();
+            return new spell_dk_army_of_the_death_taunt_AuraScript();
         }
 };
 

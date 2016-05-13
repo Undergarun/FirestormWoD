@@ -1416,9 +1416,10 @@ class spell_hun_glaive_toss_damage: public SpellScriptLoader
                 {
                     Unit* l_Target = itr->ToUnit();
 
-                    if (l_Target && l_Target->HasAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, l_OriginalCaster->GetGUID()))
+                    if (l_Target->GetGUID() == l_OriginalCaster->GetGlaiveOfTossTargetGUID())
                     {
                         mainTargetGUID = itr->GetGUID();
+                        l_OriginalCaster->removeGlaiveTossTarget();
                         break;
                     }
                 }
@@ -1498,9 +1499,9 @@ class spell_hun_glaive_toss_missile: public SpellScriptLoader
                 if (l_Target != nullptr)
                 {
                     if (l_Caster->GetGUID() == GetOriginalCaster()->GetGUID())
-                        l_Caster->AddAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, l_Target);
+                        l_Caster->SetGlaiveTossTarget(l_Target->GetGUID());
                     else
-                        l_OriginalCaster->AddAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, l_Caster);
+                        l_OriginalCaster->SetGlaiveTossTarget(l_Caster->GetGUID());
                 }
 
                 if (GetSpellInfo()->Id == HUNTER_SPELL_GLAIVE_TOSS_RIGHT)
@@ -3697,7 +3698,10 @@ class spell_hun_explosive_shot : public SpellScriptLoader
                     return;
 
                 if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1, l_Caster->GetGUID()))
-                    l_ReminingAmount = (l_AuraEffect->GetAmount() * l_AuraEffect->GetBase()->GetDuration()) / l_AuraEffect->GetBase()->GetMaxDuration();
+                {
+                    if (l_AuraEffect->GetAmplitude() && l_AuraEffect->GetBase()->GetMaxDuration())
+                        l_ReminingAmount = (l_AuraEffect->GetAmount() * (l_AuraEffect->GetBase()->GetDuration() / l_AuraEffect->GetAmplitude()) / (l_AuraEffect->GetBase()->GetMaxDuration() / l_AuraEffect->GetAmplitude()));
+                }
             }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)

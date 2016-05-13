@@ -5961,8 +5961,7 @@ void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
             l_SpellCategory->ChargeRecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
             (l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
-            ResetCharges(l_SpellCategory);
-            l_Itr = m_CategoryCharges.begin();
+            l_Itr = ResetCharges(l_SpellCategory);
         }
         else
             l_Itr++;
@@ -5995,6 +5994,44 @@ void Player::RemoveAllSpellCooldown()
 
         SendDirectMessage(&l_Data);
         m_spellCooldowns.clear();
+    }
+}
+
+void Player::RemoveSpellCooldownsWithTime(uint32 p_MinRecoveryTime)
+{
+    SpellCooldowns::iterator l_Itr, l_Next;
+    for (l_Itr = m_spellCooldowns.begin(); l_Itr != m_spellCooldowns.end(); l_Itr = l_Next)
+    {
+        l_Next = l_Itr;
+
+        ++l_Next;
+
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Itr->first);
+        uint32 l_Flags = (l_SpellInfo && l_SpellInfo->CategoryEntry) ? l_SpellInfo->CategoryEntry->Flags : 0;
+
+        /// Check if SpellEntry is present and if the cooldown is equal or more than the specified time
+        if (l_SpellInfo &&
+            l_SpellInfo->RecoveryTime >= p_MinRecoveryTime &&
+            l_SpellInfo->CategoryRecoveryTime >= p_MinRecoveryTime &&
+            (l_Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
+        {
+            /// Remove & notify
+            RemoveSpellCooldown(l_Itr->first, true);
+        }
+    }
+
+    /// Remove spell charge with cooldown equal or more than the specified time
+    for (auto l_Itr = m_CategoryCharges.begin(); l_Itr != m_CategoryCharges.end();)
+    {
+        SpellCategoryEntry const* l_SpellCategory = sSpellCategoryStore.LookupEntry(l_Itr->first);
+        if (l_SpellCategory &&
+            l_SpellCategory->ChargeRecoveryTime >= p_MinRecoveryTime &&
+            (l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
+        {
+            l_Itr = ResetCharges(l_SpellCategory);
+        }
+        else
+            l_Itr++;
     }
 }
 
@@ -7685,7 +7722,8 @@ void Player::RepopAtGraveyard(bool p_ForceGraveyard /*= false*/)
                 l_AreaTrigger->target_mapId);
 
             /// Since WoD, you are resurrected in Dungeon with 100% life.
-            m_Events.AddEvent(new DelayedResurrection(GetGUID()), 1 * TimeConstants::IN_MILLISECONDS);
+            if (!isAlive())
+                m_Events.AddEvent(new DelayedResurrection(GetGUID()), 1 * TimeConstants::IN_MILLISECONDS);
         }
     }
     else
@@ -9015,6 +9053,11 @@ void Player::CheckAreaExploreAndOutdoor()
 
     bool isOutdoor;
     uint16 areaFlag = GetBaseMap()->GetAreaFlag(GetPositionX(), GetPositionY(), GetPositionZ(), &isOutdoor);
+
+    if (isOutdoor != m_IsOutdoors)
+        sScriptMgr->OnSwitchOutdoorsState(this, isOutdoor);
+
+    m_IsOutdoors = isOutdoor;
 
     if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK) && !isOutdoor)
         RemoveAurasWithAttribute(SPELL_ATTR0_OUTDOORS_ONLY);
@@ -18968,7 +19011,6 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
 
                                 if (l_Level1 || l_Level2 || l_Level3)
                                     l_Coeff *= 2.0f;
-
                             }
 
                             //bool  l_SendDisplayToast = false;
@@ -27897,6 +27939,42 @@ void Player::SendInstanceGroupSizeChanged(uint32 p_Size)
     GetSession()->SendPacket(&l_Data);
 }
 
+void Player::HandleItemSetBonuses(bool p_Apply)
+{
+    for (uint8 l_I = 0; l_I < InventorySlots::INVENTORY_SLOT_BAG_END; ++l_I)
+    {
+        if (m_items[l_I])
+        {
+            ItemTemplate const* l_Proto = m_items[l_I]->GetTemplate();
+            if (!l_Proto)
+                continue;
+
+            if (l_Proto->ItemSet)
+            {
+                if (p_Apply)
+                    AddItemsSetItem(this, m_items[l_I]);
+                else
+                    RemoveItemsSetItem(this, l_Proto);
+            }
+        }
+    }
+}
+
+void Player::HandleGemBonuses(bool p_Apply)
+{
+    for (uint8 l_I = 0; l_I < InventorySlots::INVENTORY_SLOT_BAG_END; ++l_I)
+    {
+        if (Item* l_Item = m_items[l_I])
+        {
+            if (!l_Item->IsEquipped())
+                continue;
+
+            for (uint32 l_EnchantSlot = EnchantmentSlot::SOCK_ENCHANTMENT_SLOT; l_EnchantSlot < EnchantmentSlot::SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++l_EnchantSlot)
+                ApplyEnchantment(l_Item, EnchantmentSlot(l_EnchantSlot), p_Apply);
+        }
+    }
+}
+
 void Player::ApplyEquipCooldown(Item* p_Item)
 {
     if (p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_NO_EQUIP_COOLDOWN))
@@ -28235,7 +28313,7 @@ void Player::ResetDailyQuestStatus()
     GetSession()->SendPacket(&data);
 }
 
-void Player::ResetGarrisonDatas()
+void Player::ResetDailyGarrisonDatas()
 {
     using namespace MS::Garrison;
     if (Manager* l_Garrison = GetGarrison())
@@ -28292,6 +28370,22 @@ void Player::ResetGarrisonDatas()
                         l_Creature->AI()->SetData(CreatureAIDataIDs::DailyReset, 0);
                 }
             }
+        }
+    }
+}
+
+void Player::ResetWeeklyGarrisonDatas()
+{
+    using namespace MS::Garrison;
+
+    if (Manager* l_Garrison = GetGarrison())
+    {
+        GarrisonBuilding l_Building = l_Garrison->GetBuildingWithType(BuildingType::Armory);
+
+        if (l_Building.DatabaseID)
+        {
+            if (GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain) == 1)
+                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain, 0);
         }
     }
 }
@@ -28925,6 +29019,12 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
 
     if (player->GetMapId() != pRewardSource->GetMapId() || player->GetInstanceId() != pRewardSource->GetInstanceId())
         return false;
+
+    if (Map* l_Map = pRewardSource->GetMap())
+    {
+        if (l_Map->IsDungeon() || l_Map->IsRaid())
+            return pRewardSource->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_INSTANCE_GROUP_XP_DISTANCE);
+    }
 
     return pRewardSource->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE);
 }
@@ -34068,24 +34168,6 @@ void Player::RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
     }
 }
 
-void Player::ResetCharges(SpellCategoryEntry const* p_ChargeCategoryEntry)
-{
-    if (!p_ChargeCategoryEntry)
-        return;
-
-    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
-    if (l_Itr != m_CategoryCharges.end())
-    {
-        m_CategoryCharges.erase(l_Itr);
-
-        WorldPacket l_Data(SMSG_CLEAR_SPELL_CHARGES);
-        l_Data << int32(p_ChargeCategoryEntry->Id);
-        l_Data.WriteBit(false); ///< IsPet
-        l_Data.FlushBits();
-        SendDirectMessage(&l_Data);
-    }
-}
-
 void Player::ResetAllCharges()
 {
     m_CategoryCharges.clear();
@@ -34139,7 +34221,6 @@ int32 Player::GetChargeRecoveryTime(SpellCategoryEntry const* p_ChargeCategoryEn
 
     return int32(std::floor(l_RecoveryTime));
 }
-
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

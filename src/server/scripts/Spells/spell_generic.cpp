@@ -5816,6 +5816,41 @@ class spell_gen_pvp_trinket : public SpellScriptLoader
         }
 };
 
+/// Mass Resurrection (Guild Perk) - 83968
+class spell_gen_mass_resurrection : public SpellScriptLoader
+{
+    public:
+        spell_gen_mass_resurrection() : SpellScriptLoader("spell_gen_mass_resurrection") { }
+
+        class spell_gen_mass_resurrection_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_mass_resurrection_SpellScript);
+
+            SpellCastResult HandleCheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (InstanceScript* l_Instance = l_Caster->GetInstanceScript())
+                {
+                    if (l_Instance->instance->IsChallengeMode())
+                        return SpellCastResult::SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_mass_resurrection_SpellScript::HandleCheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_mass_resurrection_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_pvp_trinket();
@@ -5932,4 +5967,6 @@ void AddSC_generic_spell_scripts()
     new PlayerScript_gen_remove_rigor_mortis();
     new Resolve::PlayerScript_Resolve();
     new spell_gen_power_handler();
+
+    new spell_gen_mass_resurrection();
 }

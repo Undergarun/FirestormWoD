@@ -34,7 +34,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_Skaggit::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_Skaggit::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         p_Player->CLOSE_GOSSIP_MENU();
         p_Creature->AI()->Talk(0);
@@ -47,12 +47,12 @@ namespace MS { namespace Garrison
             std::vector<Creature*>  l_Creatures;
             p_Creature->GetCreatureListInGrid(l_CreaturesList, 13);
 
-            for (Creature * l_Creature : l_CreaturesList)
+            for (Creature* l_Creature : l_CreaturesList)
                 l_Creatures.push_back(l_Creature);
 
             std::random_shuffle(l_Creatures.begin(), l_Creatures.end());
 
-            for (Creature * l_Creature : l_Creatures)
+            for (Creature* l_Creature : l_Creatures)
             {
                 if (l_Creature->GetScriptName() != "npc_FrostwallPeon_Dynamic" || !l_Creature->AI())
                     continue;
@@ -82,7 +82,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the creature.
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
-    bool npc_LadySena::OnGossipHello(Player * p_Player, Creature * p_Creature)
+    bool npc_LadySena::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         p_Player->SEND_GOSSIP_MENU(NPCTexts::NPC_TEXT_LADY_SENA, p_Creature->GetGUID());
         return true;
@@ -106,7 +106,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the creature.
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
-    bool npc_SergeantGrimjaw::OnGossipHello(Player * p_Player, Creature * p_Creature)
+    bool npc_SergeantGrimjaw::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         p_Player->SEND_GOSSIP_MENU(NPCTexts::NPC_TEXT_SERGENT_GRIMJAW, p_Creature->GetGUID());
         return true;
@@ -131,11 +131,11 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the creature.
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
-    bool npc_SeniorPeonII::OnGossipHello(Player * p_Player, Creature * p_Creature)
+    bool npc_SeniorPeonII::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         if (p_Player->HasQuest(Quests::QUEST_WHAT_WE_GOT) && p_Player->GetQuestObjectiveCounter(275373) != 1)
         {
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Gazlowe needs you.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::GazloweQuestGossip1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             p_Player->SEND_GOSSIP_MENU(NPCTexts::NPC_TEXT_SENIOR_PEON_II, p_Creature->GetGUID());
         }
 
@@ -146,7 +146,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_SeniorPeonII::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_SeniorPeonII::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         if (p_Player->HasQuest(Quests::QUEST_WHAT_WE_GOT) && p_Player->GetQuestObjectiveCounter(275373) != 1)
         {
@@ -169,7 +169,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_SeniorPeonII::GetAI(Creature * p_Creature) const
+    CreatureAI* npc_SeniorPeonII::GetAI(Creature* p_Creature) const
     {
         return new npc_SeniorPeonIIAI(p_Creature);
     }
@@ -178,7 +178,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    npc_SeniorPeonII::npc_SeniorPeonIIAI::npc_SeniorPeonIIAI(Creature * p_Creature)
+    npc_SeniorPeonII::npc_SeniorPeonIIAI::npc_SeniorPeonIIAI(Creature* p_Creature)
         : CreatureAI(p_Creature)
     {
 
@@ -239,7 +239,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_Gazlowe::GetAI(Creature * p_Creature) const
+    CreatureAI* npc_Gazlowe::GetAI(Creature* p_Creature) const
     {
         return new npc_GazloweAI(p_Creature);
     }
@@ -248,7 +248,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    npc_Gazlowe::npc_GazloweAI::npc_GazloweAI(Creature * p_Creature)
+    npc_Gazlowe::npc_GazloweAI::npc_GazloweAI(Creature* p_Creature)
         : CreatureAI(p_Creature)
     {
 
@@ -313,7 +313,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_FrostwallPeon::GetAI(Creature * p_Creature) const
+    CreatureAI* npc_FrostwallPeon::GetAI(Creature* p_Creature) const
     {
         return new npc_FrostwallPeonAI(p_Creature);
     }
@@ -322,7 +322,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    npc_FrostwallPeon::npc_FrostwallPeonAI::npc_FrostwallPeonAI(Creature * p_Creature)
+    npc_FrostwallPeon::npc_FrostwallPeonAI::npc_FrostwallPeonAI(Creature* p_Creature)
         : CreatureAI(p_Creature)
     {
         me->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
