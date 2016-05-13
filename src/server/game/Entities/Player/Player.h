@@ -3488,7 +3488,7 @@ class Player : public Unit, public GridObject<Player>
         void ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntry, uint64 p_Reductiontime);
         void RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
 
-        auto ResetCharges(SpellCategoryEntry const* p_ChargeCategoryEntry)
+        ChargeStorageType::iterator ResetCharges(SpellCategoryEntry const* p_ChargeCategoryEntry)
         {
             if (!p_ChargeCategoryEntry)
                 return m_CategoryCharges.begin();
