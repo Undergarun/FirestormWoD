@@ -31,6 +31,41 @@ namespace MS { namespace Garrison
         MapGarrisonAllianceShipyard = 1473
     };
 
+    namespace GarrisonGossipMenus
+    {
+        enum MenuID
+        {
+            DefaultMenuGreetings = 1
+        };
+
+        enum GossipOption
+        {
+            DefaultWorkOrder              = 0,
+            BarnOrderSomptuousFur         = 1,
+            BarnOrderRawBeastHide         = 2,
+            BarnOrderSavageFeast          = 3,
+            BarnOrderFurSavageBlood       = 4,
+            BarnOrderBeastHideSavageBlood = 5,
+            BarnOrderSavageFeastBlood     = 6,
+            DefaultTrader                 = 7,
+            DefaultBanker                 = 8,
+            HerbFrostweed                 = 9,
+            HerbStarflower                = 10,
+            HerbFireweed                  = 11,
+            HerbTaladorOrchid             = 12,
+            HerbGorgrondFlytrap           = 13,
+            HerbNagrandArrowbloom         = 14,
+            ArmoryWeeklySeal              = 15,
+            MineDefaultOrder              = 16,
+            DefaultSomething              = 17,
+            GarrisonCreation              = 18,
+            ShellyQuestGossip1            = 19,
+            ShellyQuestGossip2            = 20,
+            GazloweQuestGossip1           = 21
+        };
+
+    }
+
     enum GarrisonPhases
     {
         PhaseMagePortalFrostfireRidge = 0x00000010,

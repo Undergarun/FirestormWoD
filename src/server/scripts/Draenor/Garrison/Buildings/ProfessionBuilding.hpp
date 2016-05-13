@@ -42,7 +42,7 @@ namespace MS { namespace Garrison
                     p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(t_QuestID, 4);
 
                 if (p_Player->HasQuest(t_QuestID) || p_Player->IsQuestRewarded(t_QuestID))
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                    p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultWorkOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
                 p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
@@ -100,9 +100,9 @@ namespace MS { namespace Garrison
                         p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(t_QuestID, 4);
 
                     if (!p_Player->HasSkill(t_Skill))
-                        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need you to do something for me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                        p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultSomething, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                     else
-                        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "I need you to do something for me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultSomething, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
                     p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 }

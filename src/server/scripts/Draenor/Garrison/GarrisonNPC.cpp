@@ -484,7 +484,7 @@ namespace MS { namespace Garrison
     bool npc_GarrisonFord::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         if (!p_Player->GetGarrison())
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Create me a garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::GarrisonCreation, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
@@ -1744,9 +1744,9 @@ namespace MS { namespace Garrison
             return true;
 
         if (p_Player->GetGUID() == l_AI->GetGUID(eData::DataOwnerGUID))
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Access to my bank.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultBanker, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to browse your goods.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultTrader, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
         return true;
