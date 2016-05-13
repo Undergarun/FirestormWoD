@@ -160,11 +160,53 @@ class spell_quest_frostfire_ridge_thaw : public SpellScriptLoader
         }
 };
 
+/// Captured Frost Wolf - 73284
+class npc_frostfire_ridge_captured_frost_wolf : public CreatureScript
+{
+    enum
+    {
+        BonusObjectiveGrimfrostHill = 33145,
+        CapturedFrostWolf = 73284
+    };
+
+    public:
+        npc_frostfire_ridge_captured_frost_wolf() : CreatureScript("npc_frostfire_ridge_captured_frost_wolf") { }
+
+        struct npc_frostfire_ridge_captured_frost_wolfAI : public CreatureAI
+        {
+            npc_frostfire_ridge_captured_frost_wolfAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+
+            virtual void OnSpellClick(Unit* p_Unit) override
+            {
+                if (p_Unit->IsPlayer() && p_Unit->ToPlayer()->HasQuest(BonusObjectiveGrimfrostHill))
+                {
+                    p_Unit->ToPlayer()->KilledMonsterCredit(CapturedFrostWolf);
+                    me->DespawnOrUnsummon(0);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_frostfire_ridge_captured_frost_wolfAI(p_Creature);
+        }
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_frostfire_ridge()
 {
     new npc_groog();
     new spell_groog_rampage();
     new spell_quest_frostfire_ridge_thaw();
+    new npc_frostfire_ridge_captured_frost_wolf();
 }
 #endif
