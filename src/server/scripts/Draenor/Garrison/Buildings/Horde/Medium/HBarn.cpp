@@ -84,7 +84,7 @@ namespace MS { namespace Garrison
 
         if (p_Player->IsQuestRewarded(p_QuestID) || (p_Player->GetQuestStatus(p_QuestID) == QUEST_STATUS_INCOMPLETE && !p_Player->GetQuestObjectiveCounter(276190)))
         {
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, p_Action);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultWorkOrder, GOSSIP_SENDER_MAIN, p_Action);
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
         }
         else
@@ -135,26 +135,28 @@ namespace MS { namespace Garrison
         if (l_AI == nullptr)
             return true;
 
+        using namespace GarrisonGossipMenus;
+
         switch (p_Action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Sumptuous Fur.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Raw Beast Hide.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderSomptuousFur, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderRawBeastHide, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                 p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Sumptuous Fur.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Raw Beast Hide.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Savage Feast.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderSomptuousFur, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderRawBeastHide, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderSavageFeast, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
                 p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3:
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Sumptuous Fur.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Raw Beast Hide.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Savage Feast.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Sumptuous Fur with Savage blood.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Raw Beast Hide with Savage blood.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to get Savage Feast with Savage blood.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderSomptuousFur, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderRawBeastHide, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderSavageFeast, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderFurSavageBlood, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderBeastHideSavageBlood, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
+                p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::BarnOrderSavageFeastBlood, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
                 p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 4: ///< Send shipment for fur

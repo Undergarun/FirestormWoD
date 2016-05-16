@@ -4256,24 +4256,24 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     if (l_CurrentSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
                         continue;
 
-					/// Rogue Kick 1766
-					if (m_spellInfo->Id == 1766)
-					{
-						/// Item - Rogue WoD PvP 2P Bonus
-						if (m_originalCaster->HasAura(165995))
-							m_originalCaster->CastSpell(m_originalCaster, 165996, true);
+                    /// Rogue Kick 1766
+                    if (m_spellInfo->Id == 1766)
+                    {
+                        /// Item - Rogue WoD PvP 2P Bonus
+                        if (m_originalCaster->HasAura(165995))
+                            m_originalCaster->CastSpell(m_originalCaster, 165996, true);
 
-						/// Glyph Of kick 
-						if (m_originalCaster->HasAura(56805))
-						{
-							AuraEffect* l_AuraEffect = m_originalCaster->GetAuraEffect(56805, EFFECT_2);
-							if (l_AuraEffect != nullptr)
-							{
-								l_AuraEffect->SetAmount(1);
-							}
-						}
+                        /// Glyph Of kick 
+                        if (m_originalCaster->HasAura(56805))
+                        {
+                            AuraEffect* l_AuraEffect = m_originalCaster->GetAuraEffect(56805, EFFECT_2);
+                            if (l_AuraEffect != nullptr)
+                            {
+                                l_AuraEffect->SetAmount(1);
+                            }
+                        }
 
-					}
+                    }
                     
 
                     /// Item - Shaman WoD PvP Elemental 4P Bonus - 171109
@@ -5665,8 +5665,8 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
         health = target->CountPctFromMaxHealth(60);
 
     /// Raise Ally
-	if (m_spellInfo->Id == 61999)
-		health = target->CountPctFromMaxHealth(60);
+    if (m_spellInfo->Id == 61999)
+        health = target->CountPctFromMaxHealth(60);
 
     ExecuteLogEffectResurrect(effIndex, target);
 

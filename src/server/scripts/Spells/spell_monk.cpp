@@ -3646,8 +3646,10 @@ class spell_monk_roll: public SpellScriptLoader
 
             void HandleBeforeCast()
             {
-                GetCaster()->CastSpell(GetCaster(), SPELL_MONK_ROLL_TRIGGER);
-                Aura* aur = GetCaster()->GetAura(SPELL_MONK_ROLL_TRIGGER);
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, SPELL_MONK_ROLL_TRIGGER);
+                Aura* aur = l_Caster->GetAura(SPELL_MONK_ROLL_TRIGGER);
                 if (!aur)
                     return;
 

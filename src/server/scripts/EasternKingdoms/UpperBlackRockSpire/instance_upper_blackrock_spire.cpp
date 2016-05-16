@@ -370,6 +370,12 @@ class instance_upper_blackrock_spire : public InstanceMapScript
             ///< Must be overrided because of optional (runes) step...
             void OnPlayerEnter(Player* p_Player) override
             {
+                if (instance->IsChallengeMode())
+                {
+                    InstanceScript::OnPlayerEnter(p_Player);
+                    return;
+                }
+
                 uint64 l_Guid = p_Player->GetGUID();
                 AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
                 {

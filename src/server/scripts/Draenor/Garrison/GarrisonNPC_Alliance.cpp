@@ -29,7 +29,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_GarrisonCartRope::GetAI(Creature * p_Creature) const
+    CreatureAI* npc_GarrisonCartRope::GetAI(Creature* p_Creature) const
     {
         return new npc_GarrisonCartRopeAI(p_Creature);
     }
@@ -38,7 +38,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    npc_GarrisonCartRope::npc_GarrisonCartRopeAI::npc_GarrisonCartRopeAI(Creature * p_Creature)
+    npc_GarrisonCartRope::npc_GarrisonCartRopeAI::npc_GarrisonCartRopeAI(Creature* p_Creature)
         : CreatureAI(p_Creature)
     {
         HasRope = false;
@@ -59,7 +59,7 @@ namespace MS { namespace Garrison
     {
         if (me->GetEntry() == NPCs::NPC_GARRISON_ALLIANCE_CART && !HasRope)
         {
-            Creature * l_Horse = me->FindNearestCreature(NPCs::NPC_GARRISON_ALLIANCE_HORSE, 2.5f);
+            Creature* l_Horse = me->FindNearestCreature(NPCs::NPC_GARRISON_ALLIANCE_HORSE, 2.5f);
 
             if (l_Horse)
             {
@@ -69,7 +69,7 @@ namespace MS { namespace Garrison
         }
         else if (me->GetEntry() == NPCs::NPC_GARRISON_ALLIANCE_HORSE && !HasRope)
         {
-            Creature * l_Cart = me->FindNearestCreature(NPCs::NPC_GARRISON_ALLIANCE_CART, 4.0f);
+            Creature* l_Cart = me->FindNearestCreature(NPCs::NPC_GARRISON_ALLIANCE_CART, 4.0f);
 
             if (l_Cart && l_Cart->GetEntry() == NPCs::NPC_GARRISON_ALLIANCE_CART)
             {
@@ -97,11 +97,11 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the creature.
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
-    bool npc_AssistantBrightstone::OnGossipHello(Player * p_Player, Creature * p_Creature)
+    bool npc_AssistantBrightstone::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         if (p_Player->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER) && p_Player->GetQuestObjectiveCounter(273535) != 1)
         {
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Time to get back to work.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::GarrisonCreation, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             p_Player->SEND_GOSSIP_MENU(NPCTexts::NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_QUEST, p_Creature->GetGUID());
         }
         else
@@ -116,7 +116,8 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_AssistantBrightstone::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
+
+    bool npc_AssistantBrightstone::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         if (p_Player->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER) && p_Player->GetQuestObjectiveCounter(273535) != 1)
         {
@@ -150,9 +151,9 @@ namespace MS { namespace Garrison
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
     /// @p_Quest    : Accepted quest
-    bool npc_VindicatorMaraad::OnQuestAccept(Player * /*p_Player*/, Creature * p_Creature, const Quest * p_Quest)
+    bool npc_VindicatorMaraad::OnQuestAccept(Player* /*p_Player*/, Creature* p_Creature, const Quest* p_Quest)
     {
-        if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_PALE_MOONLIGHT)
+        if (p_Quest->GetQuestId() == Quests::QUEST_PALE_MOONLIGHT)
             p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_PALE_MOONLIGHT_START_CHAT);
 
         return false;
@@ -161,9 +162,10 @@ namespace MS { namespace Garrison
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
     /// @p_Quest    : Completed quest
-    bool npc_VindicatorMaraad::OnQuestComplete(Player * /*p_Player*/, Creature * p_Creature, const Quest * p_Quest)
+
+    bool npc_VindicatorMaraad::OnQuestComplete(Player* /*p_Player*/, Creature* p_Creature, const Quest* p_Quest)
     {
-        if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_PALE_MOONLIGHT)
+        if (p_Quest->GetQuestId() == Quests::QUEST_PALE_MOONLIGHT)
             p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_PALE_MOONLIGHT_END_CHAT);
 
         return false;
@@ -187,10 +189,10 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the creature.
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
-    bool npc_ShellyHamby::OnGossipHello(Player * p_Player, Creature * p_Creature)
+    bool npc_ShellyHamby::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         if (!p_Player->HasItemCount(Items::ITEM_SHELLY_HAMBY_REPORT, 1))
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Gather Shelly's report.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::ShellyQuestGossip2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         p_Player->SEND_GOSSIP_MENU(NPCTexts::NPC_TEXT_SHELLY_HAMBY_TEXT_QUEST, p_Creature->GetGUID());
 
@@ -201,7 +203,8 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_ShellyHamby::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
+
+    bool npc_ShellyHamby::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         p_Player->CLOSE_GOSSIP_MENU();
         p_Creature->AI()->Talk(0);
@@ -231,11 +234,12 @@ namespace MS { namespace Garrison
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
     /// @p_Quest    : Accepted quest
-    bool npc_BarosAlexsom::OnQuestAccept(Player * /*p_Player*/, Creature * p_Creature, const Quest * p_Quest)
+
+    bool npc_BarosAlexsom::OnQuestAccept(Player* /*p_Player*/, Creature* p_Creature, const Quest* p_Quest)
     {
-        if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_KEEPING_IT_TOGETHER)
+        if (p_Quest->GetQuestId() == Quests::QUEST_KEEPING_IT_TOGETHER)
             p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_BAROS_KEEPING_IT_TOGETHER_START_CHAT);
-        else if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_SHIP_SALVAGE)
+        else if (p_Quest->GetQuestId() == Quests::QUEST_SHIP_SALVAGE)
             p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_BAROS_SHIP_SALVAGE_START_CHAT);
 
         return false;
@@ -244,13 +248,14 @@ namespace MS { namespace Garrison
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
     /// @p_Quest    : Completed quest
-    bool npc_BarosAlexsom::OnQuestComplete(Player * /*p_Player*/, Creature * p_Creature, const Quest * p_Quest)
+
+    bool npc_BarosAlexsom::OnQuestComplete(Player* /*p_Player*/, Creature* p_Creature, const Quest* p_Quest)
     {
-        if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_ETABLISH_YOUR_GARRISON_A)
+        if (p_Quest->GetQuestId() == Quests::QUEST_ETABLISH_YOUR_GARRISON_A)
             p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_BAROS_ETABLISH_YOUR_GARRISON_CHAT);
-        else if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_KEEPING_IT_TOGETHER)
+        else if (p_Quest->GetQuestId() == Quests::QUEST_KEEPING_IT_TOGETHER)
             p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_BAROS_KEEPING_IT_TOGETHER_END_CHAT);
-        else if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_SHIP_SALVAGE)
+        else if (p_Quest->GetQuestId() == Quests::QUEST_SHIP_SALVAGE)
             p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_BAROS_SHIP_SALVAGE_END_CHAT);
 
         return false;
@@ -273,7 +278,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_LunarfallLaborer::GetAI(Creature * p_Creature) const
+    CreatureAI* npc_LunarfallLaborer::GetAI(Creature* p_Creature) const
     {
         return new npc_LunarfallLaborerAI(p_Creature);
     }
@@ -282,7 +287,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    npc_LunarfallLaborer::npc_LunarfallLaborerAI::npc_LunarfallLaborerAI(Creature * p_Creature)
+    npc_LunarfallLaborer::npc_LunarfallLaborerAI::npc_LunarfallLaborerAI(Creature* p_Creature)
         : CreatureAI(p_Creature)
     {
 

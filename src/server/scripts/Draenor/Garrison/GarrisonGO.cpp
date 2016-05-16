@@ -147,9 +147,9 @@ namespace MS { namespace Garrison
             if (!l_ShipmentEntry)
                 continue;
 
-            ShipmentCurrency l_ShipmentCurrency;
             uint32 l_RewardID = l_ShipmentEntry->ResultItemID;
             std::map<uint32, uint32> l_RewardItems;
+            std::map<CurrencyTypes, uint32> l_RewardedCurrencies;
 
             /// Default reward
             l_RewardItems.insert(std::make_pair(l_RewardID, 1));
@@ -224,17 +224,6 @@ namespace MS { namespace Garrison
                             l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113263), 1));
                     }
                     break;
-                case ShipmentArmory:
-                case ShipmentArmoryUnk:
-                    l_RewardItems.clear();
-                    l_RewardItems.insert(std::make_pair(l_Garrison->CalculateArmoryWorkOrder(), 1));
-
-                    if (roll_chance_i(50))
-                        l_RewardItems.insert(std::make_pair(113681, urand(3, 7))); ///< Iron Horde Scraps
-
-                    l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
-                    l_ShipmentCurrency.CurrencyAmount = urand(0, 5);
-                    break;
                 case ShipmentAlchemyLab:
                 case ShipmentAlchemyUnk:
                     if (!p_Player->HasQuest(Quests::Alliance_YourFirstAlchemyWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstAlchemyWorkOrder))
@@ -279,19 +268,27 @@ namespace MS { namespace Garrison
                             l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113263 : 113264), 1));
                     }
                     break;
+                case ShipmentArmory:
+                case ShipmentArmoryUnk:
+                    l_RewardItems.clear();
+                    l_RewardItems.insert(std::make_pair(l_Garrison->CalculateArmoryWorkOrder(), 1));
+
+                    if (roll_chance_i(50))
+                        l_RewardItems.insert(std::make_pair(113681, urand(3, 7))); ///< Iron Horde Scraps
+
+                    l_RewardedCurrencies.insert(std::make_pair(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(0, 5)));
+                    break;
                 case ShipmentLumberMill:
                 case ShipmentTradingPost:
                 case ShipmentTradingPostUnk:
                 case ShipmentMineUnk:
                 case ShipmentMine:
-                    l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
-                    l_ShipmentCurrency.CurrencyAmount = urand(0, 5);
+                    l_RewardedCurrencies.insert(std::make_pair(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(0, 5)));
                     break;
                 case ShipmentBarn:
                 {
                     l_RewardItems.clear();
-                    l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
-                    l_ShipmentCurrency.CurrencyAmount = urand(0, 5);
+                    l_RewardedCurrencies.insert(std::make_pair(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(0, 5)));
 
                     switch (l_ShipmentEntry->ID)
                     {
@@ -324,19 +321,26 @@ namespace MS { namespace Garrison
                 case ShipmentHerbGarden:
                 case ShipmentHerbGardenUnk:
                     l_RewardItems.clear();
-                    l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
-                    l_ShipmentCurrency.CurrencyAmount = urand(0, 5);
+                    l_RewardedCurrencies.insert(std::make_pair(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(0, 5)));;
                     l_RewardItems.insert(std::make_pair(g_HerbEntries[urand(0, 5)], 8));
                     break;
                 case ShipmentMageTower:
                 case ShipmentMageTowerUnk:
                     l_RewardItems.clear();
-                    l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
-                    l_ShipmentCurrency.CurrencyAmount = urand(100, 300);
+                    l_RewardedCurrencies.insert(std::make_pair(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(100, 300)));
                     l_RewardItems.insert(std::make_pair(122514, roll_chance_i(15) ? 1 : 0));
                     break;
+                case ShipmentGladiatorsSanctum:
+                    if (l_Garrison->FillSanctumWorkOrderRewards(l_RewardItems, l_RewardedCurrencies))
+                    {
+                        uint32 l_Quest = p_Player->GetTeamId() == TEAM_ALLIANCE ? Quests::Alliance_WarlordOfDraenor : Quests::Horde_WarlordOfDraenor;
+
+                        if (p_Player->GetQuestStatus(l_Quest) == QUEST_STATUS_INCOMPLETE)
+                            p_Player->CompleteQuest(l_Quest);
+                    }
+                    break;
                 default:
-                break;
+                    break;
             }
 
             /// Adding items
@@ -397,8 +401,17 @@ namespace MS { namespace Garrison
                         p_Player->SendEquipError(l_Message, nullptr, nullptr, l_RewardItem.first);
                 }
 
-                if (l_ShipmentCurrency.CurrencyID && l_ShipmentCurrency.CurrencyAmount)
-                    p_Player->ModifyCurrency(l_ShipmentCurrency.CurrencyID, l_ShipmentCurrency.CurrencyAmount, false);
+                for (auto l_RewardCurrency : l_RewardedCurrencies)
+                {
+                    if (l_RewardCurrency.first && l_RewardCurrency.second)
+                        p_Player->ModifyCurrency(l_RewardCurrency.first, l_RewardCurrency.second, false);
+
+                    if (l_ToastStatus[l_RewardCurrency.first] == false)
+                    {
+                        p_Player->SendDisplayToast(l_RewardCurrency.first, l_RewardCurrency.second, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_CURRENCY, false, false);
+                        l_ToastStatus[l_RewardCurrency.first] = true;
+                    }
+                }
 
                 l_Garrison->DeleteWorkOrder(l_WorkOrders[l_I].DatabaseID);
             }

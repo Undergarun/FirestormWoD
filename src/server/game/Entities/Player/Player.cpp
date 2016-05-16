@@ -5943,8 +5943,7 @@ void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
             l_SpellCategory->ChargeRecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
             (l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
-            ResetCharges(l_SpellCategory);
-            l_Itr = m_CategoryCharges.begin();
+            l_Itr = ResetCharges(l_SpellCategory);
         }
         else
             l_Itr++;
@@ -5977,6 +5976,44 @@ void Player::RemoveAllSpellCooldown()
 
         SendDirectMessage(&l_Data);
         m_spellCooldowns.clear();
+    }
+}
+
+void Player::RemoveSpellCooldownsWithTime(uint32 p_MinRecoveryTime)
+{
+    SpellCooldowns::iterator l_Itr, l_Next;
+    for (l_Itr = m_spellCooldowns.begin(); l_Itr != m_spellCooldowns.end(); l_Itr = l_Next)
+    {
+        l_Next = l_Itr;
+
+        ++l_Next;
+
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Itr->first);
+        uint32 l_Flags = (l_SpellInfo && l_SpellInfo->CategoryEntry) ? l_SpellInfo->CategoryEntry->Flags : 0;
+
+        /// Check if SpellEntry is present and if the cooldown is equal or more than the specified time
+        if (l_SpellInfo &&
+            l_SpellInfo->RecoveryTime >= p_MinRecoveryTime &&
+            l_SpellInfo->CategoryRecoveryTime >= p_MinRecoveryTime &&
+            (l_Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
+        {
+            /// Remove & notify
+            RemoveSpellCooldown(l_Itr->first, true);
+        }
+    }
+
+    /// Remove spell charge with cooldown equal or more than the specified time
+    for (auto l_Itr = m_CategoryCharges.begin(); l_Itr != m_CategoryCharges.end();)
+    {
+        SpellCategoryEntry const* l_SpellCategory = sSpellCategoryStore.LookupEntry(l_Itr->first);
+        if (l_SpellCategory &&
+            l_SpellCategory->ChargeRecoveryTime >= p_MinRecoveryTime &&
+            (l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
+        {
+            l_Itr = ResetCharges(l_SpellCategory);
+        }
+        else
+            l_Itr++;
     }
 }
 
@@ -27861,6 +27898,42 @@ void Player::SendInstanceGroupSizeChanged(uint32 p_Size)
     GetSession()->SendPacket(&l_Data);
 }
 
+void Player::HandleItemSetBonuses(bool p_Apply)
+{
+    for (uint8 l_I = 0; l_I < InventorySlots::INVENTORY_SLOT_BAG_END; ++l_I)
+    {
+        if (m_items[l_I])
+        {
+            ItemTemplate const* l_Proto = m_items[l_I]->GetTemplate();
+            if (!l_Proto)
+                continue;
+
+            if (l_Proto->ItemSet)
+            {
+                if (p_Apply)
+                    AddItemsSetItem(this, m_items[l_I]);
+                else
+                    RemoveItemsSetItem(this, l_Proto);
+            }
+        }
+    }
+}
+
+void Player::HandleGemBonuses(bool p_Apply)
+{
+    for (uint8 l_I = 0; l_I < InventorySlots::INVENTORY_SLOT_BAG_END; ++l_I)
+    {
+        if (Item* l_Item = m_items[l_I])
+        {
+            if (!l_Item->IsEquipped())
+                continue;
+
+            for (uint32 l_EnchantSlot = EnchantmentSlot::SOCK_ENCHANTMENT_SLOT; l_EnchantSlot < EnchantmentSlot::SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++l_EnchantSlot)
+                ApplyEnchantment(l_Item, EnchantmentSlot(l_EnchantSlot), p_Apply);
+        }
+    }
+}
+
 void Player::ApplyEquipCooldown(Item* p_Item)
 {
     if (p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_NO_EQUIP_COOLDOWN))
@@ -34047,24 +34120,6 @@ void Player::RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
     }
 }
 
-void Player::ResetCharges(SpellCategoryEntry const* p_ChargeCategoryEntry)
-{
-    if (!p_ChargeCategoryEntry)
-        return;
-
-    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
-    if (l_Itr != m_CategoryCharges.end())
-    {
-        m_CategoryCharges.erase(l_Itr);
-
-        WorldPacket l_Data(SMSG_CLEAR_SPELL_CHARGES);
-        l_Data << int32(p_ChargeCategoryEntry->Id);
-        l_Data.WriteBit(false); ///< IsPet
-        l_Data.FlushBits();
-        SendDirectMessage(&l_Data);
-    }
-}
-
 void Player::ResetAllCharges()
 {
     m_CategoryCharges.clear();
@@ -34118,7 +34173,6 @@ int32 Player::GetChargeRecoveryTime(SpellCategoryEntry const* p_ChargeCategoryEn
 
     return int32(std::floor(l_RecoveryTime));
 }
-
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

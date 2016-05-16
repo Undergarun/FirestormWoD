@@ -21,30 +21,30 @@
 
 InstanceScript::InstanceScript(Map* p_Map)
 {
-    instance = p_Map;
-    m_CompletedEncounters = 0;
-    m_ChallengeStarted = false;
-    m_ConditionCompleted = false;
-    m_CreatureKilled = 0;
-    m_StartChallengeTime = 0;
-    m_ChallengeDoorGuid = 0;
-    m_ChallengeOrbGuid = 0;
-    m_ChallengeTime = 0;
-    m_MedalType = eChallengeMedals::MedalTypeNone;
+    instance                    = p_Map;
+    m_CompletedEncounters       = 0;
+    m_ChallengeStarted          = false;
+    m_ConditionCompleted        = false;
+    m_CreatureKilled            = 0;
+    m_StartChallengeTime        = 0;
+    m_ChallengeDoorGuid         = 0;
+    m_ChallengeOrbGuid          = 0;
+    m_ChallengeTime             = 0;
+    m_MedalType                 = eChallengeMedals::MedalTypeNone;
 
-    m_InstanceGuid = MAKE_NEW_GUID(p_Map->GetId(), 0, HIGHGUID_INSTANCE_SAVE);
-    m_BeginningTime = 0;
-    m_ScenarioID = 0;
-    m_ScenarioStep = 0;
-    m_EncounterTime = 0;
-    m_DisabledMask = 0;
+    m_InstanceGuid              = MAKE_NEW_GUID(p_Map->GetId(), 0, HIGHGUID_INSTANCE_SAVE);
+    m_BeginningTime             = 0;
+    m_ScenarioID                = 0;
+    m_ScenarioStep              = 0;
+    m_EncounterTime             = 0;
+    m_DisabledMask              = 0;
 
-    m_InCombatResCount = 0;
-    m_MaxInCombatResCount = 0;
-    m_CombatResChargeTime = 0;
-    m_NextCombatResChargeTime = 0;
+    m_InCombatResCount          = 0;
+    m_MaxInCombatResCount       = 0;
+    m_CombatResChargeTime       = 0;
+    m_NextCombatResChargeTime   = 0;
 
-    m_EncounterDatas = EncounterDatas();
+    m_EncounterDatas            = EncounterDatas();
 }
 
 void InstanceScript::SaveToDB()
@@ -119,11 +119,27 @@ void InstanceScript::OnPlayerEnter(Player* p_Player)
 {
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
     UpdateCriteriasAfterLoading();
+
+    /// In challenge mode, item set bonuses and gem bonuses are disabled
+    /// Disable them
+    if (instance->IsChallengeMode())
+    {
+        HandleItemSetBonusesOnPlayers(false);
+        HandleGemBonusesOnPlayers(false);
+    }
 }
 
 void InstanceScript::OnPlayerExit(Player* p_Player)
 {
     p_Player->RemoveAura(eInstanceSpells::SpellDetermination);
+
+    /// In challenge mode, item set bonuses and gem bonuses are disabled
+    /// Re enable them
+    if (instance->IsChallengeMode())
+    {
+        HandleItemSetBonusesOnPlayers(true);
+        HandleGemBonusesOnPlayers(true);
+    }
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)
@@ -731,6 +747,45 @@ void InstanceScript::DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID)
                     l_Player->RemoveSpellCooldown(p_SpellID, true);
             }
         }
+    }
+}
+
+void InstanceScript::DoRemoveSpellCooldownWithTimeOnPlayers(uint32 p_MinRecoveryTime)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (l_PlayerList.isEmpty())
+        return;
+
+    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            l_Player->RemoveSpellCooldownsWithTime(p_MinRecoveryTime);
+    }
+}
+
+void InstanceScript::HandleItemSetBonusesOnPlayers(bool p_Apply)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (l_PlayerList.isEmpty())
+        return;
+
+    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            l_Player->HandleItemSetBonuses(p_Apply);
+    }
+}
+
+void InstanceScript::HandleGemBonusesOnPlayers(bool p_Apply)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (l_PlayerList.isEmpty())
+        return;
+
+    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            l_Player->HandleGemBonuses(p_Apply);
     }
 }
 
@@ -1417,7 +1472,7 @@ void InstanceScript::RewardNewRealmRecord(RealmCompletedChallenge* p_OldChalleng
     }
 }
 
-void InstanceScript::ResetChallengeMode(Player* p_Source)
+void InstanceScript::ResetChallengeMode()
 {
     /// Reset internal datas
     m_ChallengeStarted      = false;
@@ -1445,6 +1500,9 @@ void InstanceScript::ResetChallengeMode(Player* p_Source)
 
     /// Reset scenario datas
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep));
+
+    /// Reset all cooldowns of 3min or more
+    DoRemoveSpellCooldownWithTimeOnPlayers(TimeConstants::MINUTE * 3 * TimeConstants::IN_MILLISECONDS);
 
     /// Teleport players to entrance
     RepopPlayersAtGraveyard();

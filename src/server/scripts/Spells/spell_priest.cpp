@@ -3156,15 +3156,23 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        l_Caster->CastSpell(l_Target, PrayerOfMendingSpells::PrayerOfMendingAura, true);
+                        uint8 l_Stacks = 0;
+                        if (l_Target->HasAura(PrayerOfMendingSpells::PrayerOfMendingAura))
+                            l_Stacks = l_Target->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura)->GetStackAmount();
+                        else
+                            l_Caster->CastSpell(l_Target, PrayerOfMendingSpells::PrayerOfMendingAura, true);
+
                         if (Aura* l_PrayerOfMendingAura = l_Target->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
                         {
-                            uint8 l_Stacks = 5;
+                            l_Stacks += 5;
                             if (l_Caster->HasAura(eSpells::GlypheOfPrayerOfMending))
                                 --l_Stacks;
 
                             if (AuraEffect* l_AurEff = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_0))
                                 l_Stacks += l_AurEff->GetAmount();
+
+                            if (l_Stacks > 10)
+                                l_Stacks = 10;
 
                             l_PrayerOfMendingAura->SetStackAmount(l_Stacks);
                         }

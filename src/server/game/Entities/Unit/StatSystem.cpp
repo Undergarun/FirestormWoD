@@ -1122,8 +1122,16 @@ void Player::UpdateManaRegen()
         if (Powers((*i)->GetMiscValue()) == POWER_MANA)
             l_IncreaseManaRegen += l_IncreaseManaRegen * ((*i)->GetAmount() / 100.0f);
 
+    /// Increase mana from SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT
+    Unit::AuraEffectList const& ModRegenPctUnk = GetAuraEffectsByType(SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT);
+    for (AuraEffectList::const_iterator i = ModRegenPctUnk.begin(); i != ModRegenPctUnk.end(); ++i)
+    {
+        if (!(*i)->GetSpellInfo()->HasAura(SPELL_AURA_MODIFY_MANA_POOL_PCT))
+            l_IncreaseManaRegen += l_IncreaseManaRegen * ((*i)->GetAmount() / 100.0f);
+    }
+
     /// If IncreaseManaRegen is bigger then combat_regen we have increased mana regen by auras, so we should add it
-    if (HasAuraType(SPELL_AURA_MOD_POWER_REGEN_PERCENT) || (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT) && l_IncreaseManaRegen > l_Combat_regen))
+    if ((HasAuraType(SPELL_AURA_MOD_POWER_REGEN_PERCENT) || HasAuraType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT) || HasAuraType(SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT)) && l_IncreaseManaRegen > l_Combat_regen)
     {
         l_IncreaseManaRegen -= l_Combat_regen;
         l_BaseRegenFromAurPct = l_IncreaseManaRegen;

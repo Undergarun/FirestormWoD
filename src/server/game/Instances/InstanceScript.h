@@ -343,6 +343,15 @@ class InstanceScript : public ZoneScript
         /// Remove cooldown for spell on all players in instance
         void DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID);
 
+        /// Remove cooldowns equal or less than specified time to all players in instance
+        void DoRemoveSpellCooldownWithTimeOnPlayers(uint32 p_MinRecoveryTime);
+
+        /// Used to apply or unapply item set bonuses on all players in instance
+        void HandleItemSetBonusesOnPlayers(bool p_Apply);
+
+        /// Used to apply or unapply gem bonuses on all player in instance
+        void HandleGemBonusesOnPlayers(bool p_Apply);
+
         /// Do combat stop on all players in instance
         void DoCombatStopOnPlayers();
 
@@ -551,7 +560,7 @@ class InstanceScript : public ZoneScript
         void SaveNewGroupChallenge(uint32 p_GuildID = 0);
         uint32 RewardChallengers();
         void RewardNewRealmRecord(RealmCompletedChallenge* p_OldChallenge = nullptr);
-        void ResetChallengeMode(Player* p_Source);
+        void ResetChallengeMode();
 
         bool   m_ChallengeStarted;
         bool   m_ConditionCompleted;

@@ -2937,7 +2937,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         return;
 
     /// Custom WoD Script - Death from Above should give immunity to all spells while rogue is in jump effect
-    if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150))
+    if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150, unitTarget->GetGUID()))
         return;
 
     if (spellHitTarget)
@@ -4984,6 +4984,9 @@ void Spell::SendSpellGo()
         && !l_IsHealthPowerSpell)
         l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
+    if (m_caster->IsPlayer() && _triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)
+        l_CastFlags |= CAST_FLAG_NO_COOLDOWN;
+
     if ((m_caster->IsPlayer())
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
@@ -6558,6 +6561,14 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyphId))
                     if (m_caster->HasAura(gp->SpellId))
                         return SPELL_FAILED_UNIQUE_GLYPH;
+
+                /// It's impossible to change talents during challenge mode
+                if (m_caster->GetMap()->IsChallengeMode())
+                {
+                    m_customError = SpellCustomErrors::SPELL_CUSTOM_ERROR_CANT_DO_THAT_IN_CHALLENGE_MODE;
+                    return SpellCastResult::SPELL_FAILED_CUSTOM_ERROR;
+                }
+
                 break;
             }
             case SPELL_EFFECT_FEED_PET:

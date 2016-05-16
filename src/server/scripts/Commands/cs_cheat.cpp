@@ -75,26 +75,30 @@ class cheat_commandscript: public CommandScript
             return false;
         }
 
-        static bool HandleNodrCheatCommand(ChatHandler* handler, const char* args)
+        static bool HandleNodrCheatCommand(ChatHandler* p_Handler, const char* p_Args)
         {
-            if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
+            if (!p_Handler->GetSession())
                 return false;
 
-            std::string argstr = (char*)args;
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
+            if (!l_Player)
+                return false;
 
-            if (!*args)
-                argstr = (handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_NO_DR)) ? "off" : "on";
+            std::string l_Argstr = (char*)p_Args;
 
-            if (argstr == "off")
+            if (!*p_Args)
+                l_Argstr = (p_Handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_NO_DR)) ? "off" : "on";
+
+            if (l_Argstr == "off")
             {
-                handler->GetSession()->GetPlayer()->SetCommandStatusOff(CHEAT_NO_DR);
-                handler->SendSysMessage("NoDR mode is OFF. You will have DR.");
+                l_Player->SetCommandStatusOff(CHEAT_NO_DR);
+                p_Handler->SendSysMessage("NoDR mode is OFF. You will have DR.");
                 return true;
             }
-            else if (argstr == "on")
+            else if (l_Argstr == "on")
             {
-                handler->GetSession()->GetPlayer()->SetCommandStatusOn(CHEAT_NO_DR);
-                handler->SendSysMessage("NoDR mode is ON. You won't have DR.");
+                l_Player->SetCommandStatusOn(CHEAT_NO_DR);
+                p_Handler->SendSysMessage("NoDR mode is ON. You won't have DR.");
                 return true;
             }
 

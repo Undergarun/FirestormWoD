@@ -3280,6 +3280,85 @@ namespace MS { namespace Garrison
         return 0;
     }
 
+    bool Manager::FillSanctumWorkOrderRewards(std::map<uint32, uint32>& l_RewardItems, std::map<CurrencyTypes, uint32>& l_RewardCurrencies)
+    {
+        uint8 l_Chance = urand(1, 100);
+        /// 50%
+        if (l_Chance >= 50)
+        {
+            uint32 l_Count = urand(100, 150) * CURRENCY_PRECISION;
+            auto l_Itr = l_RewardCurrencies.find(CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS);
+
+            if (l_Itr != l_RewardCurrencies.end())
+                l_Itr->second += l_Count;
+            else
+                l_RewardCurrencies.insert({CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS, l_Count});
+
+            return true;
+        }
+        /// 30%
+        else if (l_Chance >= 20)
+        {
+            uint32 l_CurrencyCount = 0;
+
+            if (m_Owner->GetCurrencyWeekCap(CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG, false) > m_Owner->GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, false))
+            {
+
+                l_CurrencyCount = urand(75, 150) * CURRENCY_PRECISION;
+
+                auto l_Itr = l_RewardCurrencies.find(CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG);
+                if (l_Itr != l_RewardCurrencies.end())
+                    l_Itr->second += l_CurrencyCount;
+                else
+                    l_RewardCurrencies.insert({ CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG, l_CurrencyCount });
+
+                return true;
+            }
+
+            l_CurrencyCount = urand(100, 150) * CURRENCY_PRECISION;
+
+            auto l_Itr = l_RewardCurrencies.find(CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS);
+            if (l_Itr != l_RewardCurrencies.end())
+                l_Itr->second += l_CurrencyCount;
+            else
+                l_RewardCurrencies.insert({ CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS, l_CurrencyCount });
+
+            return true;
+        }
+        /// 20%
+        else
+        {
+            LootTemplate const* l_LootTemplate = LootTemplates_Item.GetLootFor(m_Owner->GetTeam() == ALLIANCE ? 120354 : 111598); //< Golden Strongbox Loot
+
+            std::list<ItemTemplate const*> l_LootTable;
+            std::vector<uint32> l_Items;
+            uint32 l_SpecID = m_Owner->GetLootSpecId() ? m_Owner->GetLootSpecId() : m_Owner->GetSpecializationId(m_Owner->GetActiveSpec());
+
+            l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+
+            if (!l_SpecID)
+                l_SpecID = m_Owner->GetDefaultSpecId();
+
+            for (ItemTemplate const* l_Template : l_LootTable)
+            {
+                if ((l_Template->AllowableClass && !(l_Template->AllowableClass & m_Owner->getClassMask())) ||
+                    (l_Template->AllowableRace && !(l_Template->AllowableRace & m_Owner->getRaceMask())))
+                    continue;
+
+                for (SpecIndex l_ItemSpecID : l_Template->specs[1])
+                {
+                    if (l_ItemSpecID == l_SpecID)
+                        l_Items.push_back(l_Template->ItemId);
+                }
+            }
+
+            if ((uint32)l_Items.size())
+                l_RewardItems.insert({ l_Items[urand(0, l_Items.size())], 1 });
+        }
+
+        return false;
+    }
+
     void Manager::InsertNewCreatureInPlotDatas(uint32 p_PlotInstanceID, uint64 p_Guid)
     {
         m_PlotsCreatures[p_PlotInstanceID].push_back(p_Guid);
