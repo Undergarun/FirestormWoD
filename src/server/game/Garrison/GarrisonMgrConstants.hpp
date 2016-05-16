@@ -366,13 +366,15 @@ namespace MS { namespace Garrison
             Stables_Stables_Level1                      = 65,
             Stables_Stables_Level2                      = 66,
             Stables_Stables_Level3                      = 67,
+            GladiatorsSanctum_GladiatorsSanctum_Level1  = 159,
+            GladiatorsSanctum_GladiatorsSanctum_Level2  = 160,
+            GladiatorsSanctum_GladiatorsSanctum_Level3  = 161,
             GnomishGearworks_GoblinWorkshop_Level1      = 162,
             GnomishGearworks_GoblinWorkshop_Level2      = 163,
             GnomishGearworks_GoblinWorkshop_Level3      = 164,
             FishingShack_FishingShack_Level1            = 64,
             FishingShack_FishingShack_Level2            = 134,
-            FishingShack_FishingShack_Level3            = 135,
-
+            FishingShack_FishingShack_Level3            = 135
         };
     }
 
@@ -397,7 +399,7 @@ namespace MS { namespace Garrison
             PetMenagerie        = 7,
             Barracks            = 8,
             Orchard             = 9,    ///< Unused 2
-            Armory              = 10,
+            Armory              = 10,   ///< War mill/Dwarven Bunker
             Stable              = 11,
             Academy             = 12,
             MageTower           = 13,

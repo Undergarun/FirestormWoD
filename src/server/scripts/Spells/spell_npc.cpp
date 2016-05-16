@@ -572,30 +572,45 @@ class spell_npc_sha_storm_elemental : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff)
             {
-                if (!UpdateVictim())
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                Unit* l_Owner = me->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                Player* l_Player = l_Owner->ToPlayer();
+
+                if (!l_Player->isInCombat())
                 {
-                    if (Unit* l_Owner = me->GetOwner())
-                    {
-                        Unit* l_OwnerTarget = NULL;
-                        if (Player* l_Plr = l_Owner->ToPlayer())
-                            l_OwnerTarget = l_Plr->GetSelectedUnit();
-                        else
-                            l_OwnerTarget = l_Owner->getVictim();
+                    me->CombatStop();
+                    return;
+                }
 
-                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
-                            AttackStart(l_OwnerTarget);
-                    }
+                if (!UpdateVictim() || (l_Player->GetSelectedUnit() && me->getVictim() && l_Player->GetSelectedUnit() != me->getVictim()))
+                {
+                    Unit* l_OwnerTarget = NULL;
+                    if (Player* l_Plr = l_Owner->ToPlayer())
+                        l_OwnerTarget = l_Plr->GetSelectedUnit();
+                    else
+                        l_OwnerTarget = l_Owner->getVictim();
 
+                    if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
+                        AttackStart(l_OwnerTarget);
                     return;
                 }
 
                 if (me->getVictim() && !me->IsValidAttackTarget(me->getVictim()))
                     return;
 
-                m_Events.Update(p_Diff);
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                    return;
+                if (Unit* l_Target = me->getVictim())
+                {
+                    if (!l_Target->HasAura(eSpells::SpellCallLightning, me->GetGUID()))
+                        me->CastSpell(l_Target, eSpells::SpellCallLightning, false);
+                }
 
                 switch (m_Events.ExecuteEvent())
                 {
@@ -603,11 +618,6 @@ class spell_npc_sha_storm_elemental : public CreatureScript
                         if (Unit* l_Target = me->getVictim())
                             me->CastSpell(l_Target, eSpells::SpellWindGust, false);
                         m_Events.ScheduleEvent(eEvents::EventWindGust, 500);
-                        break;
-                    case eEvents::EventCallLightning:
-                        if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, eSpells::SpellCallLightning, false);
-                        m_Events.ScheduleEvent(eEvents::EventCallLightning, 15000);
                         break;
                     default:
                         break;

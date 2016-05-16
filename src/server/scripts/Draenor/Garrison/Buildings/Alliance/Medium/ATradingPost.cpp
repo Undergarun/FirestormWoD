@@ -41,7 +41,7 @@ namespace MS { namespace Garrison
 
         if (p_Player->IsQuestRewarded(Quests::Alliance_TricksOfTheTrade) || (p_Player->GetQuestStatus(Quests::Alliance_TricksOfTheTrade) == QUEST_STATUS_INCOMPLETE))
         {
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultWorkOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
         }
         else if (p_Player->GetQuestStatus(Quests::Alliance_TricksOfTheTrade) == QUEST_STATUS_NONE)
@@ -160,7 +160,7 @@ namespace MS { namespace Garrison
         l_Owner->SaveToDB();
     }
 
-    void npc_TraderJoseph::npc_TraderJosephAI::OnDataReset()
+    void npc_TraderJoseph::npc_TraderJosephAI::OnDailyDataReset()
     {
         if (GetOwner() != nullptr)
         {

@@ -141,7 +141,7 @@ namespace MS { namespace Garrison
         l_Owner->SaveToDB();
     }
 
-    void npc_Vee_GarrisonAI::OnDataReset()
+    void npc_Vee_GarrisonAI::OnDailyDataReset()
     {
         if (Player* l_Owner = ObjectAccessor::GetPlayer(*me, m_OwnerGUID))
         {
