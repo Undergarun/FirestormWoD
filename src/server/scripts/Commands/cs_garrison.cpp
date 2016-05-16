@@ -294,7 +294,7 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            l_TargetPlayer->ResetGarrisonDatas();
+            l_TargetPlayer->ResetDailyGarrisonDatas();
 
             return true;
         }

@@ -55,7 +55,6 @@
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-91','0','86696','1.89719','-2.04317','1.33368','5.61557');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-91','0','79826','3.17767','1.83158','1.33375','6.0122');
 
-	-- @TODO : Script those items
 	UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=88610;
 	DELETE FROM `npc_vendor` WHERE `entry` = 88610 AND `type` = 1;
 	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
@@ -64,6 +63,9 @@
 	(88610, 0, 117402, 0, 0, 0, 1), 
 	(88610, 0, 117403, 0, 0, 0, 1), 
 	(88610, 0, 117438, 0, 0, 0, 1);
+	
+	-- Walter
+	UPDATE creature_template SET scriptname = "npc_GarrisonWalter" WHERE entry = 77894;
 
 -- LEVEL 2
 

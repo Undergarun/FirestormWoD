@@ -1518,7 +1518,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
                         break;
                     /// Tranquility
                     case 157982:
-                        l_MaxSize = 5;
                         l_Power = POWER_HEALTH;
                         break;
 
@@ -1957,14 +1956,14 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
         {
             std::list<Unit*> targets;
             Unit* secondTarget = NULL;
-            m_caster->GetAttackableUnitListInRange(targets, 40.0f);
+            m_caster->GetAttackableUnitListInRange(targets, 200.0f);
 
             targets.remove(target->ToUnit());
             targets.remove(m_caster);
 
             for (auto itr : targets)
             {
-                if (itr->IsWithinLOSInMap(m_caster) && itr->IsWithinDist(m_caster, 40.0f)
+                if (itr->IsWithinLOSInMap(m_caster) && itr->IsWithinDist(m_caster, 200.0f)
                     && target->GetGUID() != itr->GetGUID() && itr->HasAura(80240, m_caster->GetGUID()))
                 {
                     secondTarget = itr;
@@ -2948,7 +2947,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         return;
 
     /// Custom WoD Script - Death from Above should give immunity to all spells while rogue is in jump effect
-    if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150))
+    if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150, unitTarget->GetGUID()))
         return;
 
     if (spellHitTarget)
@@ -5001,6 +5000,9 @@ void Spell::SendSpellGo()
         && !l_IsHealthPowerSpell)
         l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
+    if (m_caster->IsPlayer() && _triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)
+        l_CastFlags |= CAST_FLAG_NO_COOLDOWN;
+
     if ((m_caster->IsPlayer())
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
@@ -6203,8 +6205,10 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
         if (checkForm)
         {
+            SpellCastResult shapeError = SPELL_CAST_OK;
             // Cannot be used in this stance/form
-            SpellCastResult shapeError = m_spellInfo->CheckShapeshift(m_caster->GetShapeshiftForm());
+            if (!IsDarkSimulacrum())
+                SpellCastResult shapeError = m_spellInfo->CheckShapeshift(m_caster->GetShapeshiftForm());
             if (shapeError != SPELL_CAST_OK)
                 return shapeError;
 
@@ -6573,6 +6577,14 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyphId))
                     if (m_caster->HasAura(gp->SpellId))
                         return SPELL_FAILED_UNIQUE_GLYPH;
+
+                /// It's impossible to change talents during challenge mode
+                if (m_caster->GetMap()->IsChallengeMode())
+                {
+                    m_customError = SpellCustomErrors::SPELL_CUSTOM_ERROR_CANT_DO_THAT_IN_CHALLENGE_MODE;
+                    return SpellCastResult::SPELL_FAILED_CUSTOM_ERROR;
+                }
+
                 break;
             }
             case SPELL_EFFECT_FEED_PET:
@@ -6637,7 +6649,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
 
-                m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 1.5f);
+                m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 4.0f);
 
                 bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
                 if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
@@ -8587,7 +8599,9 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         unit = m_caster->GetGUID() == targetInfo.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, targetInfo.targetGUID);
     // In case spell reflect from target, do all effect on caster (if hit)
     else if (targetInfo.missCondition == SPELL_MISS_REFLECT && targetInfo.reflectResult == SPELL_MISS_NONE)
+    {
         unit = m_caster;
+    }
     if (!unit)
         return;
 

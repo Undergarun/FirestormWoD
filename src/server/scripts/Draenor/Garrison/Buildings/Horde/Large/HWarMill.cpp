@@ -96,7 +96,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_FrostWallGrunt::GetAI(Creature * p_Creature) const
+    CreatureAI* npc_FrostWallGrunt::GetAI(Creature* p_Creature) const
     {
         return new npc_FrostWallGruntAI(p_Creature);
     }
@@ -105,7 +105,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    npc_FrostWallGrunt::npc_FrostWallGruntAI::npc_FrostWallGruntAI(Creature * p_Creature)
+    npc_FrostWallGrunt::npc_FrostWallGruntAI::npc_FrostWallGruntAI(Creature* p_Creature)
         : CreatureAI(p_Creature)
     {
 
@@ -187,6 +187,81 @@ namespace MS { namespace Garrison
             me->LoadEquipment(1, true);
             me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_GARR);
         }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    /// 89066 - Magrish
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_Magrish_Garr::npc_Magrish_Garr()
+        : CreatureScript("npc_Magrish_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_Magrish_Garr::GetAI(Creature* p_Creature) const
+    {
+        return new npc_Magrish_GarrAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_Magrish_Garr::npc_Magrish_GarrAI::npc_Magrish_GarrAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    bool npc_Magrish_Garr::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        Manager* l_GarrisonMgr = p_Player->GetGarrison();
+        CreatureAI* l_AI = p_Creature->AI();
+
+        if (l_GarrisonMgr && l_AI)
+        {
+            if (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuilding(static_cast<GarrisonNPCAI*>(l_AI)->GetPlotInstanceID())) >= 2)
+            {
+                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain))
+                    p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::ArmoryWeeklySeal, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            }
+        }
+
+        p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultWorkOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    bool npc_Magrish_Garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        if (p_Action == GOSSIP_ACTION_INFO_DEF)
+        {
+            if (p_Creature->AI())
+                static_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+        }
+        else if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
+        {
+            p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_SEAL_OF_TEMPERED_FATE, 1, 1);
+            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain, 1);
+            p_Creature->SendPlaySpellVisualKit(179, 0); /// 53 SpellCastDirected
+            p_Player->SendPlaySpellVisualKit(362, 1);   /// 113 EmoteSalute
+        }
+
+        return true;
     }
 
 }   ///< namespace Garrison

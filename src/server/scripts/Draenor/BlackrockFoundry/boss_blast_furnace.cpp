@@ -887,7 +887,8 @@ class boss_foreman_feldspar : public CreatureScript
         {
             boss_foreman_feldsparAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataForemanFeldspar)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance      = p_Creature->GetInstanceScript();
+                m_InEvadeMode   = false;
             }
 
             InstanceScript* m_Instance;
@@ -899,6 +900,7 @@ class boss_foreman_feldspar : public CreatureScript
             bool m_FightStarted;
 
             bool m_RegulatorDestroyed;
+            bool m_InEvadeMode;
 
             void Reset() override
             {
@@ -997,6 +999,11 @@ class boss_foreman_feldspar : public CreatureScript
 
             void EnterEvadeMode() override
             {
+                if (m_InEvadeMode)
+                    return;
+
+                m_InEvadeMode = true;
+
                 AddTimedDelayedOperation(50, [this]() -> void
                 {
                     me->StopMoving();
@@ -1009,11 +1016,15 @@ class boss_foreman_feldspar : public CreatureScript
 
                     if (m_Instance != nullptr)
                         ResetEncounter(me, m_Instance);
+
+                    m_InEvadeMode = false;
                 });
             }
 
             void JustReachedHome() override
             {
+                m_InEvadeMode = false;
+
                 Talk(eTalks::Wipe);
 
                 if (m_Instance != nullptr)
@@ -2183,6 +2194,8 @@ class npc_foundry_slag_elemental : public CreatureScript
                 m_Target = 0;
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+
+                me->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -2367,14 +2380,12 @@ class npc_foundry_slag_elemental : public CreatureScript
                         if (Player* l_Target = Player::GetPlayer(*me, m_Target))
                             me->CastSpell(l_Target, eSpells::Burn, TriggerCastFlags::TRIGGERED_IGNORE_CAST_IN_PROGRESS);
 
-                        m_Events.ScheduleEvent(eEvent::EventBurn, 10 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvent::EventBurn, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
                         break;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

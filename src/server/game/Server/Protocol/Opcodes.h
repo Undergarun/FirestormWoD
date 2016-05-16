@@ -1719,6 +1719,7 @@ enum Opcodes
     CMSG_CHALLENGE_MODE_REQUEST_LEADERS             = 0x089E, ///< 6.2.3 20726
     CMSG_GET_CHALLENGE_MODE_REWARDS                 = 0x04D6, ///< 6.2.3 20726
     CMSG_CHALLENGE_MODE_REQUEST_MAP_STATS           = 0x00DA, ///< 6.2.3 20726
+    CMSG_RESET_CHALLENGE_MODE                       = 0x0065, ///< 6.2.3 20779
 
     //////////////////////////////////////////////////////////////////////////
     /// BlackMarket
@@ -1805,7 +1806,6 @@ enum Opcodes
     CMSG_REQUEST_PARTY_MEMBER_STATS                     = 0x0000,
     CMSG_REQUEST_RATED_BG_INFO                          = 0x0000,
     CMSG_REQUEST_RATED_BG_STATS                         = 0x0000,
-    CMSG_RESET_CHALLENGE_MODE                           = 0x0000,
     CMSG_RESET_FACTION_CHEAT                            = 0x0000,
     CMSG_SAVE_PLAYER                                    = 0x0000,
     CMSG_SEND_SOR_REQUEST_VIA_ADDRESS                   = 0x0000,

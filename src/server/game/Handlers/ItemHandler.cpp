@@ -1432,6 +1432,13 @@ void WorldSession::HandleSocketOpcode(WorldPacket& p_RecvData)
     if (!l_ItemGUID)
         return;
 
+    /// Prevent players to apply gems to their equipment during challenge
+    if (m_Player->GetMap()->IsChallengeMode())
+    {
+        m_Player->SendGameError(GameError::Type::ERR_CLIENT_LOCKED_OUT);
+        return;
+    }
+
     // Cheat -> tried to socket same gem multiple times
     if ((l_GemGUIDS[0] && (l_GemGUIDS[0] == l_GemGUIDS[1] || l_GemGUIDS[0] == l_GemGUIDS[2])) ||
         (l_GemGUIDS[1] && (l_GemGUIDS[1] == l_GemGUIDS[2])))

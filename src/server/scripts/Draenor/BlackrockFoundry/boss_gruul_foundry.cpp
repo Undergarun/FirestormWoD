@@ -114,6 +114,9 @@ class boss_gruul_foundry : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
+
                 me->RemoveAura(eFoundrySpells::Berserker);
                 me->RemoveAura(eSpells::RageRegenerationAura);
 
@@ -696,11 +699,6 @@ class spell_foundry_inferno_slice : public SpellScriptLoader
         {
             PrepareSpellScript(spell_foundry_inferno_slice_SpellScript);
 
-            enum eSpell
-            {
-                TargetRestrict = 19114
-            };
-
             uint8 m_TargetCount;
 
             bool Load() override
@@ -714,22 +712,15 @@ class spell_foundry_inferno_slice : public SpellScriptLoader
                 if (p_Targets.empty())
                     return;
 
-                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
-                if (l_Restriction == nullptr)
-                    return;
-
-                Unit* l_Caster = GetCaster();
-                if (l_Caster == nullptr)
-                    return;
-
-                float l_Angle = 2 * M_PI / 360 * l_Restriction->ConeAngle;
-                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
+                /// Main tank (hit by Inferno Strike) isn't affected by Inferno Slice AoE
+                Unit* l_Target = GetCaster()->getVictim();
+                p_Targets.remove_if([this, l_Target](WorldObject* p_Object) -> bool
                 {
-                    if (p_Object == nullptr)
-                        return true;
-
-                    if (!p_Object->isInFront(l_Caster, l_Angle))
-                        return true;
+                    if (l_Target != nullptr && p_Object != nullptr)
+                    {
+                        if (p_Object->GetGUID() == l_Target->GetGUID())
+                            return true;
+                    }
 
                     return false;
                 });

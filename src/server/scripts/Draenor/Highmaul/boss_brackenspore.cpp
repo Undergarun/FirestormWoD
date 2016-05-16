@@ -518,11 +518,13 @@ class boss_brackenspore : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                /// Update moves here, avoid some movements problems after Infesting Spores
+                /// Update moves here, avoid some movements problems during Infesting Spores
                 if (me->getVictim() && !me->IsWithinMeleeRange(me->getVictim()) && me->HasAura(eSpells::SpellInfestingSpores))
                 {
                     Position l_Pos;
                     me->getVictim()->GetPosition(&l_Pos);
+
+                    me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MovePoint(0, l_Pos);
                 }
 
@@ -532,53 +534,77 @@ class boss_brackenspore : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvents::EventNecroticBreath:
+                    {
                         me->CastSpell(me, eSpells::SpellNecroticBreath, false);
                         m_Events.ScheduleEvent(eEvents::EventNecroticBreath, 32 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventBerserker:
+                    {
                         me->CastSpell(me, eHighmaulSpells::Berserker, true);
                         break;
+                    }
                     case eEvents::EventInfestingSpores:
+                    {
                         Talk(eTalk::WarnInfestingSpores);
                         me->RemoveAura(eSpells::EnergyRegen);
                         me->CastSpell(me, eSpells::SpellInfestingSpores, false);
                         m_Events.ScheduleEvent(eEvents::EventScheduleEnergy, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventMindFungus:
+                    {
                         me->CastSpell(me, eSpells::SummonMindFungus, true);
                         m_Events.ScheduleEvent(eEvents::EventMindFungus, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventLivingMushroom:
+                    {
                         me->CastSpell(me, eSpells::SummonLivingMushroom, true);
                         m_Events.ScheduleEvent(eEvents::EventLivingMushroom, 55 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventSporeShooter:
+                    {
                         me->CastSpell(me, eSpells::SporeShooterDummy, true);
                         m_Events.ScheduleEvent(eEvents::EventSporeShooter, 57 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventFungalFleshEater:
+                    {
                         me->CastSpell(me, eSpells::SummonFungalFleshEater, true);
                         m_Events.ScheduleEvent(eEvents::EventFungalFleshEater, 120 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventRejuvenatingMushroom:
+                    {
                         me->CastSpell(me, eSpells::RejuvenatingMushDummy, true);
                         m_Events.ScheduleEvent(eEvents::EventRejuvenatingMushroom, 130 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventSpecialAbility:
+                    {
                         DoSpecialAbility();
                         m_Events.ScheduleEvent(eEvents::EventSpecialAbility, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventScheduleEnergy:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            AttackStart(l_Target);
-                        me->CastSpell(me, eSpells::EnergyRegen, true);
+                    {
                         me->GetMotionMaster()->Clear();
+
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->GetMotionMaster()->MoveChase(l_Target);
+
+                        me->CastSpell(me, eSpells::EnergyRegen, true);
                         break;
+                    }
                     case eEvents::EventRot:
+                    {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, eSpells::RotDot, true);
                         m_Events.ScheduleEvent(eEvents::EventRot, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     default:
                         break;
                 }
@@ -1410,10 +1436,9 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    float l_Radius = 10.0f;
                     std::list<AreaTrigger*> l_CreepingMoss;
 
-                    l_Caster->GetAreatriggerListInRange(l_CreepingMoss, l_Radius);
+                    l_Caster->GetAreaTriggerListWithSpellIDInRange(l_CreepingMoss, eSpells::CreepingMoss, 15.0f);
 
                     if (l_CreepingMoss.empty())
                         return;
@@ -1423,7 +1448,8 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
                         if (p_AreaTrigger == nullptr)
                             return true;
 
-                        if (p_AreaTrigger->GetSpellId() != eSpells::CreepingMoss)
+                        Position l_Pos = *p_AreaTrigger;
+                        if (l_Pos.GetExactDist(l_Caster) > 12.0f)
                             return true;
 
                         if (!l_Caster->isInFront(p_AreaTrigger))
@@ -1773,6 +1799,17 @@ class areatrigger_highmaul_creeping_moss : public AreaTriggerEntityScript
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_SearcherEnnemy(p_AreaTrigger, l_TargetList, l_CheckEnnemy);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_SearcherEnnemy);
 
+                if (!l_TargetList.empty())
+                {
+                    l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                    {
+                        if (p_Unit == nullptr || (!p_Unit->IsPlayer() && !p_Unit->GetOwner()))
+                            return true;
+
+                        return false;
+                    });
+                }
+
                 for (Unit* l_Unit : l_TargetList)
                     l_Unit->CastSpell(l_Unit, eSpell::CreepingMossDamage, true);
 
@@ -1781,6 +1818,21 @@ class areatrigger_highmaul_creeping_moss : public AreaTriggerEntityScript
                 JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                if (!l_TargetList.empty())
+                {
+                    l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                    {
+                        if (p_Unit == nullptr)
+                            return true;
+
+                        if (p_Unit->HasFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC) ||
+                            p_Unit->HasFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC))
+                            return true;
+
+                        return false;
+                    });
+                }
 
                 for (Unit* l_Unit : l_TargetList)
                     l_Unit->CastSpell(l_Unit, eSpell::CreepingMossHealing, true);

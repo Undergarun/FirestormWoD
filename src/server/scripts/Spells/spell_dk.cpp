@@ -620,7 +620,8 @@ class spell_dk_soul_reaper: public SpellScriptLoader
             enum eSpells
             {
                 ImprovedSoulReaper  = 157342,
-                T17Unholy2P         = 165575
+                T17Unholy2P         = 165575,
+                DarkTransformation  = 93426
             };
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -644,10 +645,17 @@ class spell_dk_soul_reaper: public SpellScriptLoader
                     {
                         if (Player* l_Player = l_Caster->ToPlayer())
                         {
-                            for (uint8 l_I = 0; l_I < (uint8)l_AurEff->GetAmount(); ++l_I)
+                            if (Pet* l_Pet = l_Player->GetPet())
                             {
-                                if (Pet* l_Pet = l_Player->GetPet())
+                                for (uint8 l_I = 0; l_I < (uint8)l_AurEff->GetAmount(); ++l_I)
+                                {
                                     l_Caster->CastSpell(l_Pet, DK_SPELL_DARK_INFUSION_STACKS, true);
+                                }
+                                if (Aura* l_Aura = l_Pet->GetAura(DK_SPELL_DARK_INFUSION_STACKS))
+                                {
+                                    if (l_Aura->GetStackAmount() > 4) /// Apply Dark Transformation
+                                        l_Player->CastSpell(l_Player, eSpells::DarkTransformation, true);
+                                }
                             }
                         }
                     }
@@ -1786,7 +1794,7 @@ class spell_dk_death_grip: public SpellScriptLoader
 
             enum ImprovedDeathGrip
             {
-                Spell = 157367,
+                SpellId = 157367,
                 ChainsOfIce = 45524
             };
 
@@ -3430,35 +3438,36 @@ class spell_dk_army_of_the_death_taunt : public SpellScriptLoader
     public:
         spell_dk_army_of_the_death_taunt() : SpellScriptLoader("spell_dk_army_of_the_death_taunt") { }
 
-        class spell_dk_army_of_the_death_taunt_SpellScript : public SpellScript
+        class spell_dk_army_of_the_death_taunt_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_dk_army_of_the_death_taunt_SpellScript);
+            PrepareAuraScript(spell_dk_army_of_the_death_taunt_AuraScript);
 
             enum eSpells
             {
                 GlyphofArmyoftheDead = 58669
             };
 
-            void HandlePeriodicTrigger(SpellEffIndex /*p_EffIndex*/)
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
-                Unit* l_Owner = GetCaster()->GetOwner();
+                Unit* l_Target = GetTarget();
+                Unit* l_Owner = l_Target->GetOwner();
 
                 if (l_Owner == nullptr)
                     return;
 
                 if (l_Owner->HasAura(eSpells::GlyphofArmyoftheDead))
-                    PreventHitAura();
+                    l_Target->RemoveAura(GetSpellInfo()->Id);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_army_of_the_death_taunt_SpellScript::HandlePeriodicTrigger, 0, SPELL_EFFECT_APPLY_AURA);
+                AfterEffectApply += AuraEffectApplyFn(spell_dk_army_of_the_death_taunt_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_dk_army_of_the_death_taunt_SpellScript();
+            return new spell_dk_army_of_the_death_taunt_AuraScript();
         }
 };
 
@@ -3475,10 +3484,11 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
 
             enum eSpells
             {
-                DeathCoilDamage     = 47632,
-                DeathCoilHeal       = 47633,
-                ShadowInfusion      = 91342,
-                DarkTransformation  = 93426
+                DeathCoilDamage         = 47632,
+                DeathCoilHeal           = 47633,
+                ShadowInfusion          = 91342,
+                DarkTransformation      = 93426,
+                DarkTranformationAura   = 63560
             };
 
             void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
@@ -3497,6 +3507,11 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
                     return;
 
                 if (l_Player->HasAura(eSpells::DarkTransformation))
+                    return;
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet != nullptr && l_Pet->HasAura(eSpells::DarkTranformationAura))
                     return;
 
                 l_Player->CastSpell(l_Player, eSpells::ShadowInfusion, true);

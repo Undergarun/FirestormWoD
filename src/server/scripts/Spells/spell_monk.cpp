@@ -1503,7 +1503,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 std::list<Unit*> l_TargetList;
                 m_TotalAbsorbAmount += p_DmgInfo.GetDamage();
 
-                l_Caster->GetAttackableUnitListInRange(l_TargetList, 20.0f);
+                l_Caster->GetAttackableUnitListInRange(l_TargetList, 500.0f);
 
                 for (auto l_Itr : l_TargetList)
                 {
@@ -3655,7 +3655,10 @@ class spell_monk_roll: public SpellScriptLoader
 
             void HandleBeforeCast()
             {
-                Aura* aur = GetCaster()->AddAura(SPELL_MONK_ROLL_TRIGGER, GetCaster());
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, SPELL_MONK_ROLL_TRIGGER);
+                Aura* aur = l_Caster->GetAura(SPELL_MONK_ROLL_TRIGGER);
                 if (!aur)
                     return;
 
@@ -5471,7 +5474,7 @@ class spell_monk_detonate_chi : public SpellScriptLoader
 };
 
 /// Glyph of Freedom Roll - 159534
-/// Call by Roll - 109132, Chi Torpedo - 115008 and Flying Serpent Kick - 115057
+/// Call by Flying Serpent Kick - 101545, Roll - 109132, and Chi Torpedo - 115008 
 class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
 {
     public:

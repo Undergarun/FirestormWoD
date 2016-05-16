@@ -864,7 +864,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Death Grip
+                /// Death Grip
                 case 49576:
                 {
                     if (!unitTarget)
@@ -874,7 +874,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (!m_UniqueTargetInfo.empty())
                     {
                         if (m_UniqueTargetInfo.front().missCondition == SPELL_MISS_REFLECT)
+                        {
                             caster = m_targets.GetUnitTarget();
+                        }
                     }
                     caster->CastSpell(unitTarget, 49560, true);
                     break;
@@ -1871,8 +1873,8 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         /// 77495 - Mastery : Harmony
         if (caster && caster->IsPlayer() && caster->getClass() == CLASS_DRUID)
         {
-            /// Can't proc from Ysera's Gift and Frenzied Regeneration
-            if (m_spellInfo && m_spellInfo->Id != 145109 && m_spellInfo->Id != 22842 && caster->HasAura(77495))
+            /// Can't proc from Ysera's Gift, Frenzied Regeneration and Tranquility
+            if (m_spellInfo && m_spellInfo->Id != 145109 && m_spellInfo->Id != 22842 && m_spellInfo->Id != 157982 && caster->HasAura(77495))
             {
                 if (addhealth)
                 {
@@ -3163,6 +3165,10 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
         }
     }
 
+    /// Shield Slam should dispel 1 magic effect only warrior has Glyph of Shield Slam and are in Defensive stance
+    if (m_spellInfo->Id == 23922 && GetCaster() && (!GetCaster()->HasAura(58375) || !GetCaster()->HasAura(71)))
+        return;
+
     /// Mass Dispel should dispel Cyclone, if priest has Glyph of Mass Dispell
     if (m_spellInfo->Id == 32375 && GetCaster() && GetCaster()->HasAura(55691) && unitTarget->HasAura(33786))
         unitTarget->RemoveAura(33786);
@@ -4261,9 +4267,25 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     if (l_CurrentSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
                         continue;
 
-                    /// Item - Rogue WoD PvP 2P Bonus
-                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(165995))
-                        m_originalCaster->CastSpell(m_originalCaster, 165996, true);
+                    /// Rogue Kick 1766
+                    if (m_spellInfo->Id == 1766)
+                    {
+                        /// Item - Rogue WoD PvP 2P Bonus
+                        if (m_originalCaster->HasAura(165995))
+                            m_originalCaster->CastSpell(m_originalCaster, 165996, true);
+
+                        /// Glyph Of kick 
+                        if (m_originalCaster->HasAura(56805))
+                        {
+                            AuraEffect* l_AuraEffect = m_originalCaster->GetAuraEffect(56805, EFFECT_2);
+                            if (l_AuraEffect != nullptr)
+                            {
+                                l_AuraEffect->SetAmount(1);
+                            }
+                        }
+
+                    }
+                    
 
                     /// Item - Shaman WoD PvP Elemental 4P Bonus - 171109
                     if (m_spellInfo->Id == 57994 && m_originalCaster->HasAura(171109))
@@ -5655,7 +5677,7 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
 
     /// Raise Ally
     if (m_spellInfo->Id == 61999)
-        mana = target->CountPctFromMaxMana(60);
+        health = target->CountPctFromMaxHealth(60);
 
     ExecuteLogEffectResurrect(effIndex, target);
 
@@ -6728,6 +6750,10 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
             arcaneMissiles->ModCharges(1);
             arcaneMissiles->RefreshDuration();
         }
+        else
+        {
+            m_caster->CastSpell(m_caster, 79683, true);
+        }
     }
 }
 
@@ -7081,7 +7107,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
         if (summon->IsWarlockPet())
             summon->CastSpell(summon, 32233, true);  ///< Avoidance Warlock
-        else if (summon->isHunterPet())
+        else if (summon->isHunterPet() || summon->IsControlledByPlayer())
             summon->CastSpell(summon, 65220, true); ///< Avoidance Hunter
     }
 }
@@ -7932,7 +7958,7 @@ void Spell::EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+    if (!unitTarget || !unitTarget->IsInWorld())
         return;
 
     Player* l_Player = unitTarget->ToPlayer();
