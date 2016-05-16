@@ -6160,10 +6160,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 153596:///< Comet Storm
-                spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
-                spellInfo->ExplicitTargetMask |= TARGET_FLAG_DEST_LOCATION;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-                spellInfo->Speed = 0.50f;
+                spellInfo->Speed = 0.20f;
                 break;
             case 12654: ///< Ignite
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
@@ -6171,8 +6169,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 182287:/// Glyph of Ignite (effect)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); ///< 5s
                 break;
-            case 73651: ///< Recuperate
-                spellInfo->Effects[1].Effect = 0;
             case 153564:///< Meteor
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
