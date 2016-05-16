@@ -13009,9 +13009,13 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     if (spellProto->Id == 127626)
         return healamount;
 
-    AuraEffectList const& modHealingPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_PCT);
-    for (AuraEffectList::const_iterator i = modHealingPct.begin(); i != modHealingPct.end(); ++i)
-        AddPct(TakenTotalMod, (*i)->GetAmount());
+    for (AuraEffect* l_Effect : GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_PCT))
+    {
+        if (l_Effect->GetSpellInfo()->Id == 73651 && (spellProto->Id == 73651 || !HasAura(146625)))
+            continue;
+
+        AddPct(TakenTotalMod, l_Effect->GetAmount());
+    }
 
     // Tenacity increase healing % taken
     if (AuraEffect const* Tenacity = GetAuraEffect(58549, 0))
