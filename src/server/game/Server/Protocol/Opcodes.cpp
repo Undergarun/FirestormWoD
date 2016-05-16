@@ -1769,6 +1769,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_CHALLENGE_MODE_REQUEST_LEADERS,                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleChallengeModeRequestLeaders , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GET_CHALLENGE_MODE_REWARDS,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleGetChallengeModeRewards     , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_CHALLENGE_MODE_REQUEST_MAP_STATS,                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleChallengeModeRequestMapStats, PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_RESET_CHALLENGE_MODE,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleResetChallengeModeOpcode    , PROCESS_LOCAL);
 
     //////////////////////////////////////////////////////////////////////////
     /// Blackmarket

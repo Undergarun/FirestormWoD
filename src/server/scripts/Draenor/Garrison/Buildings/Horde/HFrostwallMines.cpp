@@ -102,7 +102,7 @@ namespace MS { namespace Garrison
         if (p_Player->IsQuestRewarded(Quests::Horde_ThingsAreNotGorenOurWay) ||
             (p_Player->GetQuestStatus(Quests::Horde_ThingsAreNotGorenOurWay) == QUEST_STATUS_INCOMPLETE))
         {
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Can you refine this draenic stone into ore for me?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::MineDefaultOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
         }
         else if (p_Player->GetQuestStatus(Quests::Horde_ThingsAreNotGorenOurWay) == QUEST_STATUS_NONE)

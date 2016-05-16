@@ -1402,6 +1402,8 @@ class npc_foundry_cinder_wolf : public CreatureScript
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
 
+                me->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+
                 m_Events.Reset();
 
                 me->CastSpell(me, eSpells::ReduceCriticalChance, true);

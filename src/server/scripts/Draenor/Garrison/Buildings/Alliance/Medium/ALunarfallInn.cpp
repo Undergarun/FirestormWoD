@@ -88,7 +88,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    void npc_MadisonClarkAI::OnDataReset()
+    void npc_MadisonClarkAI::OnDailyDataReset()
     {
         if (Player* l_Player = GetOwner())
         {

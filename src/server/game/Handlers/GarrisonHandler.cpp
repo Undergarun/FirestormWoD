@@ -225,9 +225,6 @@ void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket& p_RecvData)
     Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC);
 
     if (!l_Unit)
-        l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_SHIPYARD_MISSION_NPC);
-
-    if (!l_Unit)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionNPCHelloOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
         return;
@@ -937,7 +934,7 @@ void WorldSession::HandleGarrisonDecommisionShip(WorldPacket& p_RecvData)
     p_RecvData.readPackGUID(l_Guid);
     p_RecvData >> l_DatabaseID;
 
-    Creature* l_NPC = m_Player->GetNPCIfCanInteractWithFlag2(l_Guid, UNIT_NPC_FLAG2_SHIPYARD_MISSION_NPC);
+    Creature* l_NPC = m_Player->GetNPCIfCanInteractWithFlag2(l_Guid, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC);
 
     if (!l_NPC)
         return;
@@ -988,6 +985,6 @@ void WorldSession::SendGarrisonSetMissionNpc(uint64 p_CreatureGUID)
 
     WorldPacket l_Data(SMSG_GARRISON_SET_MISSION_NPC, 22);
     l_Data.appendPackGUID(p_CreatureGUID);
-    l_Data << uint32(l_Creature && l_Creature->HasFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_SHIPYARD_MISSION_NPC) ? MS::Garrison::FollowerType::Ship : MS::Garrison::FollowerType::NPC);
+    l_Data << uint32(l_Creature && l_Creature->HasFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC) ? MS::Garrison::FollowerType::Ship : MS::Garrison::FollowerType::NPC);
     SendPacket(&l_Data);
 }

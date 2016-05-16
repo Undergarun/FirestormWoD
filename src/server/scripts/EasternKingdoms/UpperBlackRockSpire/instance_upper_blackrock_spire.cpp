@@ -58,7 +58,6 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 m_WarlordZaelaGuid          = 0;
                 m_LeeroyJenkinsGuid         = 0;
                 m_SonOfBeastGuid            = 0;
-                m_CreatureKilled            = 0;
                 m_EmberscaleKilled          = 0;
                 m_RagewingWhelpsKilled      = 0;
                 m_RagewingTimeAchiev        = 0;
@@ -82,8 +81,6 @@ class instance_upper_blackrock_spire : public InstanceMapScript
 
             uint64 m_LeeroyJenkinsGuid;
             uint64 m_SonOfBeastGuid;
-
-            uint32 m_CreatureKilled;
 
             uint32 m_EmberscaleKilled;
 
@@ -151,6 +148,9 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         break;
                     case GOB_CHALLENGE_START_DOOR:
                         m_ChallengeDoorGuid = p_Gameobject->GetGUID();
+                        break;
+                    case CHALLENGE_MOD_ORB:
+                        m_ChallengeOrbGuid = p_Gameobject->GetGUID();
                         break;
                     default:
                         break;
@@ -370,6 +370,12 @@ class instance_upper_blackrock_spire : public InstanceMapScript
             ///< Must be overrided because of optional (runes) step...
             void OnPlayerEnter(Player* p_Player)
             {
+                if (instance->IsChallengeMode())
+                {
+                    InstanceScript::OnPlayerEnter(p_Player);
+                    return;
+                }
+
                 uint64 l_Guid = p_Player->GetGUID();
                 AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
                 {

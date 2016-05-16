@@ -411,6 +411,8 @@ class boss_beastlord_darmac : public CreatureScript
                                 me->CastSpell(l_Target, eSpells::RideVehicle, true);
 
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                         });
 
                         return;
@@ -442,6 +444,8 @@ class boss_beastlord_darmac : public CreatureScript
                                 me->CastSpell(l_Target, eSpells::RideVehicle, true);
 
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                         });
 
                         return;
@@ -473,6 +477,8 @@ class boss_beastlord_darmac : public CreatureScript
                                 me->CastSpell(l_Target, eSpells::RideVehicle, true);
 
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                         });
 
                         return;
@@ -653,6 +659,9 @@ class boss_beastlord_darmac : public CreatureScript
 
                         float l_X           = me->m_positionX + l_Radius * cos(l_Orientation);
                         float l_Y           = me->m_positionY + l_Radius * sin(l_Orientation);
+
+                        /// This prevent players to cancel moves by taunting
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
 
                         me->StopMoving();
 

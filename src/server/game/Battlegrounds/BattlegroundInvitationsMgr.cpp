@@ -255,21 +255,17 @@ namespace MS
             {
                 if (Player* player = ObjectAccessor::FindPlayer(p_Guid))
                 {
-                    /// Only when the player refuse to enter
-                    if (MS::Battlegrounds::GetTypeFromId(player->GetBattlegroundTypeId(), l_Group->m_ArenaType, l_Group->m_IsSkirmish) != p_Type)
-                    {
-                        /// Update personal rating.
-                        uint8 slot = Arena::GetSlotByType(l_Group->m_ArenaType);
-                        int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), l_Group->m_OpponentsMatchmakerRating, false);
-                        player->SetArenaPersonalRating(slot, std::max(0, static_cast<int>(player->GetArenaPersonalRating(slot) + mod)));
+                    /// Update personal rating.
+                    uint8 slot = Arena::GetSlotByType(l_Group->m_ArenaType);
+                    int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), l_Group->m_OpponentsMatchmakerRating, false);
+                    player->SetArenaPersonalRating(slot, std::max(0, static_cast<int>(player->GetArenaPersonalRating(slot) + mod)));
 
-                        /// Update matchmaker rating.
-                        player->SetArenaMatchMakerRating(slot, std::max(0, static_cast<int>(player->GetArenaMatchMakerRating(slot) - 12)));
+                    /// Update matchmaker rating.
+                    player->SetArenaMatchMakerRating(slot, std::max(0, static_cast<int>(player->GetArenaMatchMakerRating(slot) - 12)));
 
-                        /// Update personal played stats.
-                        player->IncrementWeekGames(slot);
-                        player->IncrementSeasonGames(slot);
-                    }
+                    /// Update personal played stats.
+                    player->IncrementWeekGames(slot);
+                    player->IncrementSeasonGames(slot);
                 }
             }
 
