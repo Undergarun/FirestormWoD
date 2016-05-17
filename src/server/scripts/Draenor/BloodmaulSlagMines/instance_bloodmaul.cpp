@@ -222,7 +222,7 @@ namespace MS
                                 return;
 
                             ++m_CreatureKilled;
-                            SendScenarioProgressUpdate(CriteriaProgressData(eScenarioDatas::BloodmaulEnnemies, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+                            SendScenarioProgressUpdate(CriteriaProgressData(eScenarioDatas::BloodmaulEnnemies, m_CreatureKilled, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
 
                             if (m_CreatureKilled >= eScenarioDatas::BloodmaulKillCount)
                                 m_ConditionCompleted = true;
@@ -325,7 +325,7 @@ namespace MS
                                             Position l_Pos;
                                             l_Spawn->GetPosition(&l_Pos);
                                             TempSummon* l_Summon = l_Spawn->SummonCreature(uint32(MobEntries::CapturedMiner1), l_Pos);
-                                            l_Summon->SetHealth(l_Summon->GetMaxHealth() / 2.0f);
+                                            l_Summon->SetHealth(uint32(l_Summon->GetMaxHealth() / 2.0f));
                                             if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(l_Summon, 80.0f, false))
                                                 l_Summon->GetMotionMaster()->MoveChase(l_Plr);
                                             m_CapturedMinerGuids.emplace_back(l_Summon->GetGUID());

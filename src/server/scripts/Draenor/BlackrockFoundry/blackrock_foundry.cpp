@@ -3159,13 +3159,13 @@ class npc_foundry_markog_abadir : public CreatureScript
 
             EventMap m_Events;
 
-            float m_StacksResetPct;
+            int32 m_StacksResetPct;
 
             void Reset() override
             {
                 m_Events.Reset();
 
-                m_StacksResetPct = 70.0f;
+                m_StacksResetPct = 70;
             }
 
             void EnterCombat(Unit* /*p_Attacker*/) override
@@ -3176,15 +3176,15 @@ class npc_foundry_markog_abadir : public CreatureScript
 
             void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
-                if (m_StacksResetPct <= 0.0f)
+                if (m_StacksResetPct <= 0)
                     return;
 
                 if (me->HealthBelowPctDamaged(m_StacksResetPct, p_Damage))
                 {
-                    if (m_StacksResetPct >= 70.0f)
-                        m_StacksResetPct = 40.0f;
+                    if (m_StacksResetPct >= 70)
+                        m_StacksResetPct = 40;
                     else
-                        m_StacksResetPct = 0.0f;
+                        m_StacksResetPct = 0;
 
                     me->RemoveAura(eSpells::ColossalRoar);
 

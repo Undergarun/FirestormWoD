@@ -914,7 +914,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                 void HandleScript(SpellEffIndex)
                 {
-                    SetHitDamage((float)GetHitDamage() * (30.0f - std::min((float)GetHitDest()->GetExactDist(GetHitUnit()), 30.0f)) / 30.0f);
+                    SetHitDamage(int32((float)GetHitDamage() * (30.0f - std::min((float)GetHitDest()->GetExactDist(GetHitUnit()), 30.0f)) / 30.0f));
                 }
 
                 void Register()

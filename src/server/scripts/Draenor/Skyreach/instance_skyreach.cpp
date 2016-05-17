@@ -272,7 +272,7 @@ namespace MS
                         return;
 
                     ++m_CreatureKilled;
-                    SendScenarioProgressUpdate(CriteriaProgressData(ScenarioDatas::EnnemiesCriteriaId, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+                    SendScenarioProgressUpdate(CriteriaProgressData(ScenarioDatas::EnnemiesCriteriaId, m_CreatureKilled, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
 
                     if (m_CreatureKilled >= ScenarioDatas::MaxEnnemiesToKill)
                         m_ConditionCompleted = true;

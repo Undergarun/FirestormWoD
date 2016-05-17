@@ -582,7 +582,7 @@ public:
                 if (Creature* l_Nhalish = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossNhallish)))
                 {
                     if (l_Nhalish->isAlive() && l_Nhalish->isInCombat())
-                    me->SetHealth(l_Nhalish->GetHealthPct());
+                        me->SetHealth((uint32)l_Nhalish->GetHealthPct());
                 }
             }
         }

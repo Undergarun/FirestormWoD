@@ -121,7 +121,7 @@ class boss_kromog : public CreatureScript
             std::set<uint64> m_RipplingSmashTriggers;
             std::set<uint64> m_GraspingEarthTriggers;
 
-            float m_FrenzyHealthPct;
+            int32 m_FrenzyHealthPct;
 
             uint32 m_AbilityTalkTime;
 
@@ -195,7 +195,7 @@ class boss_kromog : public CreatureScript
                     }
                 }
 
-                m_FrenzyHealthPct   = 30.0f;
+                m_FrenzyHealthPct   = 30;
                 m_AbilityTalkTime   = 0;
                 m_CrushingEarthBoom = false;
             }
@@ -317,7 +317,7 @@ class boss_kromog : public CreatureScript
             {
                 if (me->HealthBelowPctDamaged(m_FrenzyHealthPct, p_Damage) && !me->HasAura(eSpells::Frenzy))
                 {
-                    m_FrenzyHealthPct = 0.0f;
+                    m_FrenzyHealthPct = 0;
 
                     me->CastSpell(me, eSpells::Frenzy, true);
 
@@ -367,10 +367,10 @@ class boss_kromog : public CreatureScript
                     }
                     case eEvents::EventStoneBreath:
                     {
-                        if (m_AbilityTalkTime <= time(nullptr))
+                        if (m_AbilityTalkTime <= uint32(time(nullptr)))
                         {
                             Talk(eTalks::TalkAbility);
-                            m_AbilityTalkTime = time(nullptr) + eTimers::TimerAbilityTalk;
+                            m_AbilityTalkTime = uint32(time(nullptr)) + eTimers::TimerAbilityTalk;
                         }
 
                         me->CastSpell(me, eSpells::StoneBreathChannel, false);
@@ -381,15 +381,15 @@ class boss_kromog : public CreatureScript
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, eSpells::WarpedArmor, true);
-                        m_Events.ScheduleEvent(eEvents::EventWarpedArmor, m_FrenzyHealthPct == 0.0f ? TimerWarpedArmorFrenzied : eTimers::TimerWarpedArmor);
+                        m_Events.ScheduleEvent(eEvents::EventWarpedArmor, m_FrenzyHealthPct == 0 ? TimerWarpedArmorFrenzied : eTimers::TimerWarpedArmor);
                         break;
                     }
                     case eEvents::EventSlam:
                     {
-                        if (m_AbilityTalkTime <= time(nullptr))
+                        if (m_AbilityTalkTime <= uint32(time(nullptr)))
                         {
                             Talk(eTalks::TalkAbility);
-                            m_AbilityTalkTime = time(nullptr) + eTimers::TimerAbilityTalk;
+                            m_AbilityTalkTime = uint32(time(nullptr)) + eTimers::TimerAbilityTalk;
                         }
 
                         me->CastSpell(me, eSpells::Slam, false);
@@ -407,7 +407,7 @@ class boss_kromog : public CreatureScript
                         /// Reverberations and Shattered Earth will immediately follow Slam and Rippling Smash.
                         m_Events.ScheduleEvent(eEvents::EventReverberation, 1);
                         m_Events.ScheduleEvent(eEvents::EventShatteredEarth, 1);
-                        m_Events.ScheduleEvent(eEvents::EventRipplingSmash, m_FrenzyHealthPct == 0.0f ? eTimers::TimerRipplingSmashFrenzied : eTimers::TimerRipplingSmashAgain);
+                        m_Events.ScheduleEvent(eEvents::EventRipplingSmash, m_FrenzyHealthPct == 0 ? eTimers::TimerRipplingSmashFrenzied : eTimers::TimerRipplingSmashAgain);
                         break;
                     }
                     case eEvents::EventGraspingEarth:
@@ -455,10 +455,10 @@ class boss_kromog : public CreatureScript
                     }
                     case eEvents::EventCrushingEarth:
                     {
-                        if (m_AbilityTalkTime <= time(nullptr))
+                        if (m_AbilityTalkTime <= uint32(time(nullptr)))
                         {
                             Talk(eTalks::TalkAbility);
-                            m_AbilityTalkTime = time(nullptr) + eTimers::TimerAbilityTalk;
+                            m_AbilityTalkTime = uint32(time(nullptr)) + eTimers::TimerAbilityTalk;
                         }
 
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
@@ -1044,7 +1044,7 @@ class spell_foundry_slam : public SpellScriptLoader
                         if (l_Player->IsMeleeDamageDealer())
                             AddPct(l_ReducedDamage, 50.0f);
 
-                        float l_Damage      = GetSpell()->GetDamage();
+                        float l_Damage      = (float)GetSpell()->GetDamage();
                         float l_Distance    = std::min(l_Player->IsMeleeDamageDealer() ? 40.0f : 60.0f, l_Player->GetDistance(*l_Boss));
                         float l_NewDamages  = std::max(1.0f, l_Damage - (l_Damage * l_Distance * l_ReducedDamage / 100.0f));
 

@@ -532,7 +532,7 @@ class boss_the_butcher : public CreatureScript
                     {
                         /// Every four waves of adds, The Butcher spawns one add more
                         ++m_AddCount;
-                        uint8 l_Count = floor(float(m_AddCount) / 4.0f) + 1;
+                        uint8 l_Count = uint8(floor(float(m_AddCount) / 4.0f) + 1);
 
                         float l_Radius  = 50.0f;
                         float l_PosX    = me->GetHomePosition().m_positionX;

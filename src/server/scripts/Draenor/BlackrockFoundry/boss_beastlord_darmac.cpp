@@ -149,7 +149,7 @@ class boss_beastlord_darmac : public CreatureScript
 
             uint8 m_CosmeticMove;
 
-            float m_SwitchStatePct;
+            int32 m_SwitchStatePct;
             uint8 m_State;
 
             bool m_RendAndTear;
@@ -192,7 +192,7 @@ class boss_beastlord_darmac : public CreatureScript
 
                 m_CosmeticMove = eMoves::MoveIronCrusher;
 
-                m_SwitchStatePct    = 85.0f;
+                m_SwitchStatePct    = 85;
                 m_State             = eStates::StateNone;
 
                 m_RendAndTear       = false;
@@ -735,7 +735,7 @@ class boss_beastlord_darmac : public CreatureScript
 
             void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
-                if (m_SwitchStatePct <= 0.0f)
+                if (m_SwitchStatePct <= 0)
                     return;
 
                 if (me->HealthBelowPctDamaged(m_SwitchStatePct, p_Damage))
@@ -745,17 +745,17 @@ class boss_beastlord_darmac : public CreatureScript
                     {
                         case eStates::StateFirstMount:
                         {
-                            m_SwitchStatePct = 65.0f;
+                            m_SwitchStatePct = 65;
                             break;
                         }
                         case eStates::StateSecondMount:
                         {
-                            m_SwitchStatePct = 45.0f;
+                            m_SwitchStatePct = 45;
                             break;
                         }
                         case eStates::StateThirdMount:
                         {
-                            m_SwitchStatePct = 0.0f;
+                            m_SwitchStatePct = 0;
                             break;
                         }
                         default:

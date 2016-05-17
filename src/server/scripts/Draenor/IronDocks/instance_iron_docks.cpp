@@ -191,7 +191,7 @@ class instance_iron_docks : public InstanceMapScript
                     return;
 
                 ++m_CreatureKilled;
-                SendScenarioProgressUpdate(CriteriaProgressData(eIronDocksScenario::IronDocksEnnemies, m_CreatureKilled, m_InstanceGuid, time(nullptr), m_BeginningTime, 0));
+                SendScenarioProgressUpdate(CriteriaProgressData(eIronDocksScenario::IronDocksEnnemies, m_CreatureKilled, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
 
                 if (m_CreatureKilled >= eIronDocksScenario::IronDocksKillCount)
                     m_ConditionCompleted = true;

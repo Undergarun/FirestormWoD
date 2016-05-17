@@ -360,6 +360,9 @@ void BattlegroundEY::UpdatePointsCount(uint32 Team)
 
 void BattlegroundEY::UpdatePointsIcons(uint32 Team, uint32 Point)
 {
+    if (Point >= EY_POINTS_MAX)
+        return;
+
     //we MUST firstly send 0, after that we can send 1!!!
     if (m_PointState[Point] == EY_POINT_UNDER_CONTROL)
     {

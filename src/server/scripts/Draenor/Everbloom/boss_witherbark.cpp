@@ -624,8 +624,8 @@ public:
                 {
                     me->SetFacingToObject(l_Witherbark);
 
-                    float l_X = me->m_positionX + 18 * cos(me->m_orientation);
-                    float l_Y = me->m_positionY + 18 * sin(me->m_orientation);
+                    float l_X = me->m_positionX + 18.0f * cos(me->m_orientation);
+                    float l_Y = me->m_positionY + 18.0f * sin(me->m_orientation);
                     me->GetMotionMaster()->MoveJump(0, l_X, l_Y, 86.871f);
                 }
             }

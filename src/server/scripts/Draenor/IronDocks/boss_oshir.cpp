@@ -213,7 +213,7 @@ class boss_oshir : public CreatureScript
                 m_WolfDests.clear();
                 m_RylakDests.clear();         
                 m_PrimalAssault = false;
-                m_HpPact = me->GetHealthPct() * 0.95f;
+                m_HpPact = uint32(me->GetHealthPct() * 0.95f);
                 m_CurrentDestTarget = 0;
                 m_CurrentTimeToFeedTarget = 0;
                 m_PrimalAssaultDiff = 1 * TimeConstants::IN_MILLISECONDS;
@@ -567,7 +567,7 @@ class boss_oshir : public CreatureScript
                     case eOshirEvents::EventFeedingFrenzy:
                     {
                         me->RemoveAura(eOshirSpells::SpellFeedingFrenzy);
-                        m_HpPact = me->GetHealthPct() * 0.95;
+                        m_HpPact = uint32(me->GetHealthPct() * 0.95f);
 
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {

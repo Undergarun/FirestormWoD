@@ -1266,10 +1266,10 @@ class spell_foundry_acid_torrent_aoe : public SpellScriptLoader
                         return;
 
                     float l_Pct = l_Oregorger->AI()->GetFData(eData::DamageMitigationPct);
-                    int32 l_Dmg = GetHitDamage();
+                    float l_Dmg = (float)GetHitDamage();
 
                     l_Dmg *= l_Pct;
-                    SetHitDamage(l_Dmg);
+                    SetHitDamage((int32)l_Dmg);
                 }
             }
 

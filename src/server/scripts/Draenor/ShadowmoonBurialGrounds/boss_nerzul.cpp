@@ -871,7 +871,7 @@ public:
             if (Unit* l_Target = GetHitUnit())
             {
                 float l_ReducedDamage = 1000.0f;
-                float l_Damage = GetSpell()->GetDamage();
+                float l_Damage = (float)GetSpell()->GetDamage();
                 int32 l_NewDamage = std::max(1.0f, l_Damage - (l_ReducedDamage * l_Target->GetDistance(*GetCaster())));
 
                 if (l_Target->GetDistance(GetCaster()) > 40.0f) /// Max range

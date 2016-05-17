@@ -314,7 +314,7 @@ class boss_tectus : public CreatureScript
                     case eActions::MoteKilled:
                     {
                         if (m_Instance != nullptr)
-                            m_Instance->SetData(eHighmaulDatas::TectusAchievement, time(nullptr));
+                            m_Instance->SetData(eHighmaulDatas::TectusAchievement, uint32(time(nullptr)));
 
                         ++m_MoteKilled;
 

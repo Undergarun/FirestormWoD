@@ -1306,7 +1306,7 @@ class spell_highmaul_nullification_barrier : public SpellScriptLoader
                 {
                     if (AuraEffect* l_AbsorbAura = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0, l_Target->GetGUID()))
                     {
-                        int32 l_Pct = ((float)l_AbsorbAura->GetAmount() / (float)m_AbsorbAmount) * 100.0f;
+                        int32 l_Pct = int32(((float)l_AbsorbAura->GetAmount() / (float)m_AbsorbAmount) * 100.0f);
                         l_Target->SetPower(Powers::POWER_ALTERNATE_POWER, l_Pct);
                     }
                 }
@@ -1661,7 +1661,7 @@ class spell_highmaul_nullification_barrier_player : public SpellScriptLoader
                     /// The Nullification Barrier received by players can absorb up to 15000000 Magic damage.
                     int32 l_MaxAbsorb = 15000000;
 
-                    int32 l_Pct = ((float)p_AurEff->GetAmount() / (float)l_MaxAbsorb) * 100.0f;
+                    int32 l_Pct = int32(((float)p_AurEff->GetAmount() / (float)l_MaxAbsorb) * 100.0f);
                     l_Target->SetPower(Powers::POWER_ALTERNATE_POWER, l_Pct);
                 }
             }
@@ -1720,7 +1720,7 @@ class spell_highmaul_expel_magic_frost_aura : public SpellScriptLoader
                             if (!l_MaxAmount)
                                 return;
 
-                            int32 l_NewAmount = l_MaxAmount * (l_Distance / l_MaxDistance);
+                            int32 l_NewAmount = int32(l_MaxAmount * (l_Distance / l_MaxDistance));
                             l_SpeedEffect->ChangeAmount(l_NewAmount);
                         }
                     }
