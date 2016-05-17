@@ -25,7 +25,6 @@ namespace MS { namespace Garrison
         m_AllowedBluePrints.push_back(Buildings::Barracks_Barracks_Level1);
         m_AllowedBluePrints.push_back(Buildings::DwarvenBunker_WarMill_Level1);
         m_AllowedBluePrints.push_back(Buildings::DwarvenBunker_WarMill_Level2);
-        m_AllowedBluePrints.push_back(Buildings::DwarvenBunker_WarMill_Level3);
         m_AllowedBluePrints.push_back(Buildings::EnchanterStudy_EnchanterStudy_Level1);
         m_AllowedBluePrints.push_back(Buildings::EnchanterStudy_EnchanterStudy_Level2);
         m_AllowedBluePrints.push_back(Buildings::EngineeringWorks_EngineeringWorks_Level1);
