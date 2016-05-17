@@ -657,7 +657,7 @@ struct AchievementCriteriaUpdateTask
 };
 
 using LockedAchievementCriteriaTaskQueue   = ACE_Based::LockedQueue<AchievementCriteriaUpdateTask, ACE_Thread_Mutex>;
-using LockedPlayersAchievementCriteriaTask = ACE_Based::LockedMap<uint32, LockedAchievementCriteriaTaskQueue>;
+using LockedPlayersAchievementCriteriaTask = ACE_Based::LockedMap<uint64, LockedAchievementCriteriaTaskQueue>;
 
 using AchievementCriteriaTaskQueue   = std::queue<AchievementCriteriaUpdateTask>;
 using PlayersAchievementCriteriaTask = std::map<uint32, AchievementCriteriaTaskQueue>;

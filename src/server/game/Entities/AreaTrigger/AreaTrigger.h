@@ -273,7 +273,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
 
         uint32 GetCreatedTime() const { return m_CreatedTime; }
 
-        uint32 GetUpdateInterval() const { return m_UpdateTimer.GetInterval(); }
+        uint32 GetUpdateInterval() const { return uint32(m_UpdateTimer.GetInterval()); }
         AreatriggerInterpolation GetTrajectory() const { return m_Trajectory; }
 
         AreaTriggerTemplateList GetTemplates() const { return m_Templates; }

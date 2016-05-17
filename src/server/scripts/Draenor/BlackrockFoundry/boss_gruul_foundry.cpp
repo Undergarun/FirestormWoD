@@ -862,7 +862,7 @@ class spell_foundry_petrifying_slam_aoe : public SpellScriptLoader
                 if (Unit* l_Caster = GetCaster())
                 {
                     std::list<HostileReference*> l_ThreatList = l_Caster->getThreatManager().getThreatList();
-                    uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this, l_Caster](HostileReference* p_HostileRef) -> bool
+                    uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this, l_Caster](HostileReference* p_HostileRef) -> bool
                     {
                         Unit* l_Unit = Unit::GetUnit(*l_Caster, p_HostileRef->getUnitGuid());
                         if (l_Unit == nullptr)

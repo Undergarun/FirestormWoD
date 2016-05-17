@@ -620,7 +620,7 @@ class boss_imperator_margok : public CreatureScript
                         m_NovaPos   = *me;
 
                         /// Force Nova has a radius of 100 yards and moves with a speed of 7 yards per second
-                        uint32 l_Time = float(100.0f / 7.0f) * float(TimeConstants::IN_MILLISECONDS);
+                        uint32 l_Time = uint32(float(100.0f / 7.0f) * float(TimeConstants::IN_MILLISECONDS));
                         AddTimedDelayedOperation(l_Time, [this]() -> void
                         {
                             m_IsInNova = false;
@@ -672,7 +672,7 @@ class boss_imperator_margok : public CreatureScript
                         m_NovaPos = *me;
 
                         /// Force Nova has a radius of 100 yards and moves with a speed of 7 yards per second
-                        uint32 l_Time = float(100.0f / 7.0f) * float(TimeConstants::IN_MILLISECONDS);
+                        uint32 l_Time = uint32(float(100.0f / 7.0f) * float(TimeConstants::IN_MILLISECONDS));
                         AddTimedDelayedOperation(l_Time, [this]() -> void
                         {
                             m_IsInNova = false;
@@ -747,7 +747,7 @@ class boss_imperator_margok : public CreatureScript
                         m_NovaPosPhase3[m_NovaCount]  = *me;
 
                         /// Force Nova has a radius of 100 yards and moves with a speed of 7 yards per second
-                        uint32 l_Time = float(100.0f / 7.0f) * float(TimeConstants::IN_MILLISECONDS);
+                        uint32 l_Time = uint32(float(100.0f / 7.0f) * float(TimeConstants::IN_MILLISECONDS));
                         /// Must save the current value
                         uint8 l_Count = m_NovaCount;
                         AddTimedDelayedOperation(l_Time, [this, l_Count]() -> void
@@ -784,7 +784,7 @@ class boss_imperator_margok : public CreatureScript
                         m_NovaPos = *me;
 
                         /// Force Nova has a radius of 100 yards and moves with a speed of 7 yards per second
-                        uint32 l_Time = float(100.0f / 7.0f) * float(TimeConstants::IN_MILLISECONDS);
+                        uint32 l_Time = uint32(float(100.0f / 7.0f) * float(TimeConstants::IN_MILLISECONDS));
                         AddTimedDelayedOperation(l_Time, [this]() -> void
                         {
                             m_IsInNova = false;

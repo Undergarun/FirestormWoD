@@ -148,7 +148,7 @@ class boss_tarlna_the_ageless : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
@@ -331,7 +331,7 @@ class boss_drov_the_ruiner : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;

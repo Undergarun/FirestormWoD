@@ -745,7 +745,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         void SaveRespawnTime() override;
 
-        uint32 GetRemoveCorpseDelay() const { return m_corpseRemoveTime; }
+        uint32 GetRemoveCorpseDelay() const { return uint32(m_corpseRemoveTime); }
         void SetRemoveCorpseDelay(uint32 delay) { m_corpseRemoveTime = delay; }
 
         uint32 GetRespawnDelay() const { return m_respawnDelay; }

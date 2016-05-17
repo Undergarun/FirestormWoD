@@ -115,7 +115,7 @@ class boss_ragewing_the_untamed : public CreatureScript
             bool m_EngulfingFire;
             uint8 m_Waypoint;
 
-            float m_FlyPhaseHealthPct;
+            int32 m_FlyPhaseHealthPct;
             uint8 m_Phase;
 
             uint32 m_FireStormCount;
@@ -130,7 +130,7 @@ class boss_ragewing_the_untamed : public CreatureScript
                 m_MovedToBridge = false;
                 m_EngulfingFire = false;
                 m_Waypoint = 0;
-                m_FlyPhaseHealthPct = 70.0f;
+                m_FlyPhaseHealthPct = 70;
                 m_Phase = eBossDatas::PhaseOne;
                 m_FireStormCount = 6;
                 m_EngulfingTargetGuid = 0;
@@ -167,16 +167,16 @@ class boss_ragewing_the_untamed : public CreatureScript
 
                 if (me->HealthBelowPctDamaged(m_FlyPhaseHealthPct, p_Damage))
                 {
-                    if (m_Phase == eBossDatas::PhaseOne && (m_FlyPhaseHealthPct == 70.0f || m_FlyPhaseHealthPct == 40.0f))
+                    if (m_Phase == eBossDatas::PhaseOne && (m_FlyPhaseHealthPct == 70 || m_FlyPhaseHealthPct == 40))
                     {
                         m_Phase = eBossDatas::PhaseTwo;
 
                         LaunchWhelpPhaseMoves();
 
-                        if (m_FlyPhaseHealthPct == 70.0f)
-                            m_FlyPhaseHealthPct = 40.0f;
+                        if (m_FlyPhaseHealthPct == 70)
+                            m_FlyPhaseHealthPct = 40;
                         else
-                            m_FlyPhaseHealthPct = 0.0f;
+                            m_FlyPhaseHealthPct = 0;
                     }
                 }
             }
@@ -419,7 +419,7 @@ class boss_ragewing_the_untamed : public CreatureScript
 
             void LaunchNormalPhaseMoves()
             {
-                if (m_FlyPhaseHealthPct == 0.0f)
+                if (m_FlyPhaseHealthPct == 0)
                 {
                     m_Phase = eBossDatas::PhaseThree;
                     m_Events.CancelEvent(eEvents::EventEngulfingFire);

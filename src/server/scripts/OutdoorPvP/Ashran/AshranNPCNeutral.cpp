@@ -276,7 +276,7 @@ class npc_faction_boss : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
@@ -617,7 +617,7 @@ class npc_ashran_korlok : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
@@ -814,7 +814,7 @@ class npc_ashran_faction_champions : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
@@ -922,7 +922,7 @@ class npc_ashran_mandragoraster : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
@@ -1010,7 +1010,7 @@ class npc_ashran_panthora : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
@@ -1123,7 +1123,7 @@ class npc_ashran_ancient_inferno : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
@@ -1242,7 +1242,7 @@ class npc_ashran_goregore : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
@@ -1467,7 +1467,7 @@ class npc_ashran_elder_darkweaver_kath : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;

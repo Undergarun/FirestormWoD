@@ -292,7 +292,7 @@ namespace MS { namespace Garrison
             {
                 GarrisonMission & l_Mission = m_Missions[l_I];
 
-                uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_Mission](const GarrisonMission& p_Mission)
+                uint32 l_Count = (uint32)std::count_if(m_Missions.begin(), m_Missions.end(), [l_Mission](const GarrisonMission& p_Mission)
                 {
                     return p_Mission.MissionID == l_Mission.MissionID;
                 });
@@ -339,7 +339,7 @@ namespace MS { namespace Garrison
                 if (l_Mission.State != MissionStates::InProgress)
                     continue;
 
-                uint32 l_FollowerCount = std::count_if(m_Followers.begin(), m_Followers.end(), [l_Mission](const GarrisonFollower & p_Follower) -> bool
+                uint32 l_FollowerCount = (uint32)std::count_if(m_Followers.begin(), m_Followers.end(), [l_Mission](const GarrisonFollower & p_Follower) -> bool
                 {
                     if (p_Follower.CurrentMissionID == l_Mission.MissionID)
                         return true;
@@ -1070,7 +1070,7 @@ namespace MS { namespace Garrison
         if (!l_MissionEntry || DisableMgr::IsDisabledFor(DISABLE_TYPE_GARRISON_MISSION, p_MissionRecID, m_Owner))
             return false;
 
-        uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [p_MissionRecID](const GarrisonMission& p_Mission)
+        uint32 l_Count = (uint32)std::count_if(m_Missions.begin(), m_Missions.end(), [p_MissionRecID](const GarrisonMission& p_Mission)
         {
             return p_Mission.MissionID == p_MissionRecID;
         });
@@ -2617,7 +2617,7 @@ namespace MS { namespace Garrison
     /// Get activated followers count
     uint32 Manager::GetActiveFollowerCount(uint32 p_FollowerType) const
     {
-        return std::count_if(m_Followers.begin(), m_Followers.end(), [p_FollowerType](GarrisonFollower p_Folloser) -> bool
+        return (uint32)std::count_if(m_Followers.begin(), m_Followers.end(), [p_FollowerType](GarrisonFollower p_Folloser) -> bool
         {
             auto l_Entry = p_Folloser.GetEntry();
             return l_Entry ? (l_Entry->Type == p_FollowerType && (p_FollowerType == FollowerType::Ship || !(p_Folloser.Flags & GARRISON_FOLLOWER_FLAG_INACTIVE))) : -1;
@@ -3148,7 +3148,7 @@ namespace MS { namespace Garrison
     /// Get in progress work order count
     uint32 Manager::GetWorkOrderCount(uint32 p_PlotInstanceID) const
     {
-        return std::count_if(m_WorkOrders.begin(), m_WorkOrders.end(), [p_PlotInstanceID](const GarrisonWorkOrder& p_Order) -> bool
+        return (uint32)std::count_if(m_WorkOrders.begin(), m_WorkOrders.end(), [p_PlotInstanceID](const GarrisonWorkOrder& p_Order) -> bool
         {
             return p_Order.PlotInstanceID == p_PlotInstanceID;
         });
@@ -4389,7 +4389,7 @@ namespace MS { namespace Garrison
                     if (!l_Entry)
                         continue;
 
-                    uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_Entry](const GarrisonMission & p_Mission)
+                    uint32 l_Count = (uint32)std::count_if(m_Missions.begin(), m_Missions.end(), [l_Entry](const GarrisonMission & p_Mission)
                     {
                         return p_Mission.MissionID == l_Entry->MissionRecID;
                     });
@@ -4631,7 +4631,7 @@ namespace MS { namespace Garrison
 
     uint32 Manager::GetTotalFollowerCount(uint32 p_Type)
     {
-        return std::count_if(m_Followers.begin(), m_Followers.end(), [p_Type](GarrisonFollower l_Follower) -> bool
+        return (uint32)std::count_if(m_Followers.begin(), m_Followers.end(), [p_Type](GarrisonFollower l_Follower) -> bool
         {
             GarrFollowerEntry const* l_Entry = l_Follower.GetEntry();
             return l_Entry && l_Entry->Type == p_Type;
@@ -4933,7 +4933,7 @@ namespace MS { namespace Garrison
         if (l_Iter == m_Followers.end())
             return 0;
 
-        return std::count_if(l_Iter->Abilities.begin(), l_Iter->Abilities.end(), [p_Type](uint32 p_Ability) -> bool
+        return (uint32)std::count_if(l_Iter->Abilities.begin(), l_Iter->Abilities.end(), [p_Type](uint32 p_Ability) -> bool
         {
             auto l_Ability = sGarrAbilityStore.LookupEntry(p_Ability);
             return l_Ability ? l_Ability->AbilityType == p_Type : false;

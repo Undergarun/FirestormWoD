@@ -60,7 +60,7 @@ struct LFGListEntry
 
     LFGListEntry()
     {
-        m_CreationTime = time(nullptr);
+        m_CreationTime = uint32(time(nullptr));
         m_Timeout = m_CreationTime + LFG_LIST_GROUP_TIMEOUT;
     }
 

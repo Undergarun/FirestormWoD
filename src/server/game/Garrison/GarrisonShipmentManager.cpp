@@ -142,7 +142,7 @@ namespace MS { namespace Garrison
                     {
                         QuestObjective const* l_Objective = l_Quest->GetQuestObjectiveXIndex(l_QuestPair.second);
 
-                        uint32 l_Count = std::count_if(l_WorkOrders.begin(), l_WorkOrders.end(), [this, l_BuildingType](const GarrisonWorkOrder & p_Order) -> bool
+                        uint32 l_Count = (uint32)std::count_if(l_WorkOrders.begin(), l_WorkOrders.end(), [this, l_BuildingType](const GarrisonWorkOrder & p_Order) -> bool
                         {
                             return p_Order.ShipmentID == m_QuestShipmentPerBuildingType[l_BuildingType];
                         });

@@ -3320,7 +3320,7 @@ class npc_ashran_ex_alliance_racer : public CreatureScript
         {
             npc_ashran_ex_alliance_racerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
             {
-                m_CheckCooldown = time(nullptr) + 5;;
+                m_CheckCooldown = uint32(time(nullptr) + 5);
             }
 
             uint8 m_MoveIndex;

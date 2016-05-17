@@ -576,7 +576,7 @@ uint8 LFGListMgr::GetMemeberCountInGroupIncludingInvite(LFGListEntry* p_Entry)
 
 uint8 LFGListMgr::CountEntryApplicationsWithStatus(LFGListEntry* p_Entry, LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus p_Status)
 {
-    return std::count_if(p_Entry->m_Applications.begin(), p_Entry->m_Applications.end(), [&](const std::pair<uint32, LFGListEntry::LFGListApplicationEntry>& l_Iter) { return l_Iter.second.m_Status == p_Status; });
+    return (uint8)std::count_if(p_Entry->m_Applications.begin(), p_Entry->m_Applications.end(), [&](std::pair<uint32, LFGListEntry::LFGListApplicationEntry> const& l_Iter) { return l_Iter.second.m_Status == p_Status; });
 }
 
 void LFGListMgr::AutoInviteApplicantsIfPossible(LFGListEntry* p_Entry)

@@ -159,7 +159,7 @@ class item_strongbox : public ItemScript
             {
                 if (roll_chance_i(60))
                 {
-                    int64 l_GoldAmount = urand(l_MinMoney * GOLD , (l_MinMoney + 10) * GOLD) * sWorld->getRate(RATE_DROP_MONEY);
+                    uint32 l_GoldAmount = uint32(urand(l_MinMoney * GOLD , (l_MinMoney + 10) * GOLD) * sWorld->getRate(RATE_DROP_MONEY));
                     p_Player->ModifyMoney(l_GoldAmount);
                     p_Player->SendDisplayToast(0, l_GoldAmount, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_MONEY, false, false);
                 }

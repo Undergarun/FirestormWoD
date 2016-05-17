@@ -1033,7 +1033,7 @@ EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 p_Entry, int8& p_ID)
     {
         EquipmentInfoContainerInternal::const_iterator l_Iter = itr->second.begin();
         std::advance(l_Iter, urand(0, itr->second.size() - 1));
-        p_ID = std::distance(itr->second.begin(), l_Iter) + 1;
+        p_ID = (int8)std::distance(itr->second.begin(), l_Iter) + 1;
         return &l_Iter->second;
     }
     else

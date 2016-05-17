@@ -754,7 +754,7 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
     if (p_Player->getLevel() < eAshranDatas::PlayerMinLevel)
     {
         if (m_PlayersWillBeKick[p_Player->GetTeamId()].count(p_Player->GetGUID()) == 0)
-            m_PlayersWillBeKick[p_Player->GetTeamId()][p_Player->GetGUID()] = time(NULL) + 10;
+            m_PlayersWillBeKick[p_Player->GetTeamId()][p_Player->GetGUID()] = uint32(time(nullptr)) + 10;
         return;
     }
 
@@ -762,7 +762,7 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
     if (m_PlayersInWar[p_Player->GetTeamId()].count(p_Player->GetGUID()) || m_InvitedPlayers[p_Player->GetTeamId()].count(p_Player->GetGUID()))
         return;
 
-    m_InvitedPlayers[p_Player->GetTeamId()][p_Player->GetGUID()] = time(NULL) + eAshranDatas::AshranTimeForInvite;
+    m_InvitedPlayers[p_Player->GetTeamId()][p_Player->GetGUID()] = uint32(time(nullptr)) + eAshranDatas::AshranTimeForInvite;
 
     /// Hotfix (2014-12-15): Players are now removed from a Dungeon Finder or Raid Finder group upon accepting the queue to enter Ashran.
     {
@@ -1322,7 +1322,7 @@ void OutdoorPvPAshran::ScheduleNextBattle(uint32 p_Diff)
         {
             /// Once all Towers have been claimed by a given faction, after a short interval the enemy faction base itself will become contested.
             m_MaxBattleTime = 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
-            SendUpdateWorldState(eWorldStates::WorldStateTimeRemainingForBoss, time(NULL) + (m_MaxBattleTime / TimeConstants::IN_MILLISECONDS));
+            SendUpdateWorldState(eWorldStates::WorldStateTimeRemainingForBoss, uint32(time(nullptr)) + (m_MaxBattleTime / TimeConstants::IN_MILLISECONDS));
 
             if (m_CurrentBattleState == eWorldStates::WorldStateHighWarlordVolrath)
             {
@@ -2150,7 +2150,7 @@ void OutdoorPvPAshran::SetBattleState(uint32 p_NewState)
         SendUpdateWorldState(eWorldStates::WorldStateHighWarlordVolrath, eWorldStates::WorldStateDisabled);
     }
 
-    SendUpdateWorldState(eWorldStates::WorldStateNextBattleTimestamp, time(NULL) + (m_NextBattleTimer / TimeConstants::IN_MILLISECONDS));
+    SendUpdateWorldState(eWorldStates::WorldStateNextBattleTimestamp, uint32(time(nullptr)) + (m_NextBattleTimer / TimeConstants::IN_MILLISECONDS));
     SendUpdateWorldState(eWorldStates::WorldStateNextBattleEnabled, eWorldStates::WorldStateEnabled);
     SendUpdateWorldState(eWorldStates::WorldStateControlTheFlag, eWorldStates::WorldStateDisabled);
 }

@@ -132,7 +132,7 @@ class boss_warlord_zaela : public CreatureScript
                 m_IntroDone              = false;
                 m_BlackIronCycloneTarget = 0;
                 m_EmberscaleIronflight   = 0;
-                m_NextHealthPct          = 60.0f;
+                m_NextHealthPct          = 60;
                 m_Phase = eMisc::PhaseGround;
             }
 
@@ -148,7 +148,7 @@ class boss_warlord_zaela : public CreatureScript
             Position m_JumpPos;
             uint32 m_BurningBreathCount;
 
-            float m_NextHealthPct;
+            int32 m_NextHealthPct;
             eMisc m_Phase;
 
             bool m_IntroDone;
@@ -178,7 +178,7 @@ class boss_warlord_zaela : public CreatureScript
 
                 m_Phase = eMisc::PhaseGround;
                 m_BurningBreathCount = 0;
-                m_NextHealthPct = 60.0f;
+                m_NextHealthPct = 60;
             }
 
             void KilledUnit(Unit* p_Who)
@@ -322,9 +322,9 @@ class boss_warlord_zaela : public CreatureScript
                     return;
                 }
 
-                if (m_NextHealthPct > 0.0f && me->HealthBelowPctDamaged(m_NextHealthPct, p_Damage))
+                if (m_NextHealthPct > 0 && me->HealthBelowPctDamaged(m_NextHealthPct, p_Damage))
                 {
-                    m_NextHealthPct = 0.0f;
+                    m_NextHealthPct = 0;
                     m_Phase = eMisc::PhaseAir;
                     m_Events.ScheduleEvent(eEvents::BackOnTheGround, 40000);
                     m_Events.ScheduleEvent(eEvents::SummonRiders, 1000);

@@ -2558,9 +2558,9 @@ class npc_highmaul_highmaul_sweeper : public CreatureScript
                     Position l_SecondPos = g_SweeperJumpPos[m_SweeperType][1];
 
                     if (me->GetDistance(l_FirstPos) > me->GetDistance(l_SecondPos))
-                        p_Target->GetMotionMaster()->MoveJump(l_SecondPos, 15.0f, 25.0f, p_Target->GetOrientation());
+                        p_Target->GetMotionMaster()->MoveJump(l_SecondPos, 15.0f, 25.0f);
                     else
-                        p_Target->GetMotionMaster()->MoveJump(l_FirstPos, 15.0f, 25.0f, p_Target->GetOrientation());
+                        p_Target->GetMotionMaster()->MoveJump(l_FirstPos, 15.0f, 25.0f);
                 }
             }
         };

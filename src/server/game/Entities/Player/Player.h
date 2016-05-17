@@ -2011,7 +2011,7 @@ class Player : public Unit, public GridObject<Player>
         void KilledPlayerCredit();
         void CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id);
         void TalkedToCreature(uint32 entry, uint64 guid);
-        void MoneyChanged(uint32 value);
+        void MoneyChanged(uint64 value);
         void ReputationChanged(FactionEntry const* factionEntry);
         void ReputationChanged2(FactionEntry const* factionEntry);
         void ReputationChangedQuestCheck(FactionEntry const* factionEntry);
@@ -2205,9 +2205,9 @@ class Player : public Unit, public GridObject<Player>
         void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
         uint32 GetSpecializationResetCost() const { return _talentMgr->ResetSpecializationCost; }
         void SetSpecializationResetCost(uint32 cost) { _talentMgr->ResetSpecializationCost = cost; }
-        uint32 GetSpecializationResetTime() const { return _talentMgr->ResetSpecializationTime; }
+        uint32 GetSpecializationResetTime() const { return uint32(_talentMgr->ResetSpecializationTime); }
         void SetSpecializationResetTime(time_t time_) { _talentMgr->ResetSpecializationTime = time_; }
-        uint32 GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
+        uint32 GetTalentResetTime() const { return uint32(_talentMgr->ResetTalentsTime); }
         void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
         uint32 GetPrimaryTalentTree(uint8 spec) const { return _talentMgr->SpecInfo[spec].TalentTree; }
         void SetPrimaryTalentTree(uint8 spec, uint32 tree) { _talentMgr->SpecInfo[spec].TalentTree = tree; }
@@ -2852,7 +2852,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetBattlegroundQueueJoinTime(MS::Battlegrounds::BattlegroundType::Type bgTypeId) const
         {
             auto itr = m_bgData.bgQueuesJoinedTime.find(bgTypeId);
-            return itr != m_bgData.bgQueuesJoinedTime.end() ? itr->second : time(NULL);
+            return itr != m_bgData.bgQueuesJoinedTime.end() ? itr->second : uint32(time(nullptr));
         }
 
         void ChangeBattlegroundQueueJoinTimeKey(MS::Battlegrounds::BattlegroundType::Type p_BgTypeId, MS::Battlegrounds::BattlegroundType::Type p_OldBgTypeId)

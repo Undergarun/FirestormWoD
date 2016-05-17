@@ -239,7 +239,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         ++m_RunesDisabled;
 
                         if (!instance->IsChallengeMode())
-                            SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_RUNES, m_RunesDisabled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+                            SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_RUNES, m_RunesDisabled, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
 
                         Unit* l_Orebender = sObjectAccessor->FindUnit(m_OrebenderGorashanGuid);
                         if (m_RunesDisabled >= 5 && l_Orebender != nullptr)
@@ -343,7 +343,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                     return;
 
                 ++m_CreatureKilled;
-                SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_ENNEMIES, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+                SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_ENNEMIES, m_CreatureKilled, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
 
                 if (m_CreatureKilled >= SCENARIO_UBRS_KILLS)
                     m_ConditionCompleted = true;

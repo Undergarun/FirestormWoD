@@ -147,7 +147,7 @@ namespace Arena
             v4 = CalculateRatingFactor(p_Rating);
 
             v2 = v5 <= v4 ? (v4 > v3 ? v3 : v4) : v5;
-            return g_PvpMinCPPerWeek + floor(((v2 - v5) / (v3 - v5)) * (float)(g_PvpMaxCPPerWeek - g_PvpMinCPPerWeek));
+            return uint32(g_PvpMinCPPerWeek + floor(((v2 - v5) / (v3 - v5)) * (float)(g_PvpMaxCPPerWeek - g_PvpMinCPPerWeek)));
         }
         else
             return 0;
