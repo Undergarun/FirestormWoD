@@ -172,7 +172,7 @@ class auchindon_azzakel_controller : public CreatureScript
                     }
                     case eAzzakelEvents::EventSummonAzzakel02:
                     {
-                        if (m_Azzakel != NULL)
+                        if (m_Azzakel != 0)
                         {
                             if (Creature* l_Azzakael = sObjectAccessor->GetCreature(*me, m_Azzakel))
                             {
