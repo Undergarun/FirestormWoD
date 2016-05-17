@@ -9,7 +9,7 @@ option(SCRIPTS          "Build core with scripts included"                      
 option(TOOLS            "Build map/vmap extraction/assembler tools"                   0)
 option(USE_SCRIPTPCH    "Use precompiled headers when compiling scripts"              1)
 option(USE_COREPCH      "Use precompiled headers when compiling server"               1)
-option(WITH_WARNINGS    "Show all warnings during compile"                            0)
+option(WITH_WARNINGS    "Show all warnings during compile"                            1)
 option(WITH_COREDEBUG   "Include additional debug-code in core"                       0)
 set(WITH_SOURCE_TREE "hierarchical" CACHE STRING "Build the source tree for IDE's.")
 set_property(CACHE WITH_SOURCE_TREE PROPERTY STRINGS no flat hierarchical hierarchical-folders)

@@ -50,9 +50,9 @@ else()
 endif()
 
 if( WITH_WARNINGS )
-  message("* Show all warnings      : Yes")
+  message("* Show all warnings      : Yes (default)")
 else()
-  message("* Show compile-warnings  : No  (default)")
+  message("* Show compile-warnings  : No ")
 endif()
 
 if( WITH_COREDEBUG )
