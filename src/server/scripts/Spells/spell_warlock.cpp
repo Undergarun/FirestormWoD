@@ -3498,6 +3498,45 @@ class spell_warl_corruption : public SpellScriptLoader
         }
 };
 
+/// Dark Soul Knowledge- 113861
+class spell_warl_dark_soul_knowledge : public SpellScriptLoader
+{
+public:
+    spell_warl_dark_soul_knowledge() : SpellScriptLoader("spell_warl_dark_soul_knowledge") { }
+
+    class spell_warl_dark_soul_knowledge_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_dark_soul_knowledge_SpellScript);
+
+        enum eSpells
+        {
+            DarkSoulKnowledge = 113861
+        };
+
+        SpellCastResult CheckAura()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(113861))
+                    return SPELL_FAILED_CASTER_AURASTATE;
+            }
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_warl_dark_soul_knowledge_SpellScript::CheckAura);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_dark_soul_knowledge_SpellScript();
+    }
+};
+
+
 /// Dark Soul - 77801
 class spell_warl_dark_soul : public SpellScriptLoader
 {
@@ -3506,7 +3545,7 @@ class spell_warl_dark_soul : public SpellScriptLoader
 
         class spell_warl_dark_soul_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_dark_soul_SpellScript);
+            PrepareSpellScript(spell_warl_dark_soul_SpellScript);       
 
             void HandleAfterCast()
             {
@@ -4590,8 +4629,11 @@ public:
     }
 };
 
+
+
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_dark_soul_knowledge();
     new spell_warl_glyph_of_soul_consumption();
     new spell_warl_t17_Demonology_2p();
     new spell_warl_grimoire_of_supremacy_bonus();
