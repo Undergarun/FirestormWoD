@@ -571,7 +571,8 @@ class spell_warl_soulburn_override: public SpellScriptLoader
         }
 };
 
-// Imp Swarm - 104316
+/// Last Update 6.2.3
+/// Imp Swarm - 104316
 class spell_warl_imp_swarm: public SpellScriptLoader
 {
     public:
@@ -580,6 +581,8 @@ class spell_warl_imp_swarm: public SpellScriptLoader
         class spell_warl_imp_swarm_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warl_imp_swarm_SpellScript);
+
+            bool m_AlreadyReduceCooldown = false;
 
             SpellCastResult CheckSpec()
             {
@@ -614,14 +617,36 @@ class spell_warl_imp_swarm: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void HandleAfterHit()
+            {
+                if (m_AlreadyReduceCooldown)
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                {
+                    float l_Haste = 1.0f - l_Player->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+
+                    int32 l_ReduceCooldown = CalculatePct(CalculatePct(GetSpellInfo()->RecoveryTime, (l_Haste * 100)), 100);
+                    l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_ReduceCooldown);
+
+                    m_AlreadyReduceCooldown = true;
+                }
+            }
+
+            void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_warl_imp_swarm_SpellScript::CheckSpec);
                 OnEffectHitTarget += SpellEffectFn(spell_warl_imp_swarm_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                AfterHit += SpellHitFn(spell_warl_imp_swarm_SpellScript::HandleAfterHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_warl_imp_swarm_SpellScript();
         }
