@@ -1060,13 +1060,6 @@ class spell_npc_warl_wild_imp : public CreatureScript
                     return;
 
                 me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
-
-                if (Unit* l_Owner = me->GetOwner())
-                {
-                    if (AuraEffect* l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
-                        if (roll_chance_i(l_MoltenCore->GetAmount()))
-                            l_Owner->CastSpell(l_Owner, eSpells::MoltenCoreAura, true);
-                }
             }
         };
 

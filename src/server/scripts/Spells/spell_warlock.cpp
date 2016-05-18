@@ -3846,7 +3846,9 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
 
             enum eSpells
             {
-                Firebolt = 104318
+                Firebolt        = 104318,
+                MoltenCore      = 122351,
+                MoltenCoreAura  = 122355
             };
 
             enum eDatas
@@ -3880,7 +3882,16 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
                         return;
 
                     if (l_Creature->GetEntry() == eDatas::WildImp)
+                    {
                         l_Creature->AI()->DropCharge();
+
+                        if (Unit* l_Owner = l_Creature->GetOwner())
+                        {
+                            if (AuraEffect* l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
+                                if (roll_chance_i(l_MoltenCore->GetAmount()))
+                                    l_Owner->CastSpell(l_Owner, eSpells::MoltenCoreAura, true);
+                        }
+                    }
                 }
             }
 
