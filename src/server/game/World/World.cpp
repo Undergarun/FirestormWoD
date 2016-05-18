@@ -929,8 +929,6 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_INSTANCE_IGNORE_LEVEL] = ConfigMgr::GetBoolDefault("Instance.IgnoreLevel", false);
     m_bool_configs[CONFIG_INSTANCE_IGNORE_RAID] = ConfigMgr::GetBoolDefault("Instance.IgnoreRaid", false);
 
-    m_bool_configs[CONFIG_IGNORE_RESEARCH_SITE] = ConfigMgr::GetBoolDefault("IgnoreResearchSite", false);
-
     m_bool_configs[CONFIG_CAST_UNSTUCK] = ConfigMgr::GetBoolDefault("CastUnstuck", true);
     m_int_configs[CONFIG_INSTANCE_RESET_TIME_HOUR]  = ConfigMgr::GetIntDefault("Instance.ResetTimeHour", 4);
     m_int_configs[CONFIG_INSTANCE_UNLOAD_DELAY] = ConfigMgr::GetIntDefault("Instance.UnloadDelay", 30 * MINUTE * IN_MILLISECONDS);
@@ -1239,6 +1237,17 @@ void World::LoadConfigSettings(bool reload)
     }
 
     m_bool_configs[CONFIG_ENABLE_MMAPS] = ConfigMgr::GetBoolDefault("mmap.enablePathFinding", true);
+    
+
+    m_bool_configs[CONFIG_ENABLE_QUEST]              = ConfigMgr::GetBoolDefault("loading.quest", true);
+    m_bool_configs[CONFIG_ENABLE_LOOTS]              = ConfigMgr::GetBoolDefault("loading.loot", true);
+    m_bool_configs[CONFIG_ENABLE_GAMEOBJECTS]        = ConfigMgr::GetBoolDefault("loading.gameobject", true);
+    m_bool_configs[CONFIG_ENABLE_LOCALES]            = ConfigMgr::GetBoolDefault("loading.locales", true);
+    m_bool_configs[CONFIG_ENABLE_ONLY_SPECIFIC_MAP]  = ConfigMgr::GetBoolDefault("loading.onlyspecificmap", false);
+    m_bool_configs[CONFIG_ENABLE_RESEARCH_SITE_LOAD] = ConfigMgr::GetBoolDefault("loading.researchsite", true);
+    m_bool_configs[CONFIG_ENABLE_ITEM_SPEC_LOAD]     = ConfigMgr::GetBoolDefault("loading.itemspecload", true);
+
+    FillMapsToLoad();
     sLog->outAshran("WORLD: MMap data directory is: %smmaps", m_dataPath.c_str());
 
     m_bool_configs[CONFIG_VMAP_INDOOR_CHECK] = ConfigMgr::GetBoolDefault("vmap.enableIndoorCheck", 0);
@@ -1557,13 +1566,14 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell custom attributes...");
     sSpellMgr->LoadSpellCustomAttr();
 
-    if (!sWorld->getBoolConfig(CONFIG_IGNORE_RESEARCH_SITE))
+    if (sWorld->getBoolConfig(CONFIG_ENABLE_RESEARCH_SITE_LOAD))
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Archeology research site zones...");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Research Site Zones...");
         sObjectMgr->LoadResearchSiteZones();
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Research Site Loot...");
+        sObjectMgr->LoadResearchSiteLoot();
     }
-    else
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Ignore Archeology research site zones...");
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Archeology research site loot...");
     sObjectMgr->LoadResearchSiteLoot();
@@ -1582,14 +1592,20 @@ void World::SetInitialWorldSettings()
     sInstanceSaveMgr->LoadInstances();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Localization strings...");
+
     uint32 oldMSTime = getMSTime();
-    sObjectMgr->LoadCreatureLocales();
-    sObjectMgr->LoadGameObjectLocales();
-    sObjectMgr->LoadQuestLocales();
-    sObjectMgr->LoadNpcTextLocales();
-    sObjectMgr->LoadPageTextLocales();
-    sObjectMgr->LoadGossipMenuItemsLocales();
-    sObjectMgr->LoadPointOfInterestLocales();
+
+    if (!sWorld->getBoolConfig(CONFIG_ENABLE_LOCALES))
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Localization strings...");
+        sObjectMgr->LoadCreatureLocales();
+        sObjectMgr->LoadGameObjectLocales();
+        sObjectMgr->LoadQuestLocales();
+        sObjectMgr->LoadNpcTextLocales();
+        sObjectMgr->LoadPageTextLocales();
+        sObjectMgr->LoadGossipMenuItemsLocales();
+        sObjectMgr->LoadPointOfInterestLocales();
+    }
 
     sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Localization strings loaded in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -1670,8 +1686,11 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs override...");                    ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemSpecsOverride();
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                             ///< must be after LoadItemPrototypes
-    sObjectMgr->LoadItemSpecs();
+    if (sWorld->getBoolConfig(CONFIG_ENABLE_ITEM_SPEC_LOAD))
+    {
+        sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                   // must be after LoadItemPrototypes
+        sObjectMgr->LoadItemSpecs();
+    }
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Bonus Group...");                       ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemBonusGroup();
@@ -1718,8 +1737,11 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Group Size Stats...");
     sObjectMgr->LoadCreatureGroupSizeStats();
 
-    //sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Restructuring Creatures GUIDs...");
-    //sObjectMgr->RestructCreatureGUID(10000);
+    /*if (!sWorld->getBoolConfig(CONFIG_ENABLE_ONLY_SPECIFIC_MAP))
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Restructuring Creatures GUIDs...");
+        sObjectMgr->RestructCreatureGUID(10000);
+    }*/
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Data...");
     sObjectMgr->LoadCreatures();
@@ -1736,41 +1758,50 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Addon Data...");
     sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
-    //sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Restructuring Gameobjects GUIDs...");
-    //sObjectMgr->RestructGameObjectGUID(10000);
+    if (!sWorld->getBoolConfig(CONFIG_ENABLE_GAMEOBJECTS))
+    {
+        /// sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Restructuring Gameobjects GUIDs...");
+        /// sObjectMgr->RestructGameObjectGUID(10000);
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Gameobject Data...");
-    sObjectMgr->LoadGameobjects();
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Gameobject Data...");
+        sObjectMgr->LoadGameobjects();
+    }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Linked Respawn...");
-    sObjectMgr->LoadLinkedRespawn();                             // must be after LoadCreatures(), LoadGameObjects()
+    if (sWorld->getBoolConfig(CONFIG_ENABLE_QUEST))
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Linked Respawn...");
+        sObjectMgr->LoadLinkedRespawn();                             // must be after LoadCreatures(), LoadGameObjects()
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Weather Data...");
-    WeatherMgr::LoadWeatherData();
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Weather Data...");
+        WeatherMgr::LoadWeatherData();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quests...");
-    sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quests...");
+        sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Checking Quest Disables");
-    DisableMgr::CheckQuestDisables();                           // must be after loading quests
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Checking Quest Disables");
+        DisableMgr::CheckQuestDisables();                           // must be after loading quests
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Objectives...");
-    sObjectMgr->LoadQuestObjectives();
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Objectives...");
+        sObjectMgr->LoadQuestObjectives();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Objective Locales...");
-    sObjectMgr->LoadQuestObjectiveLocales();
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Objective Locales...");
+        sObjectMgr->LoadQuestObjectiveLocales();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest POI");
-    sObjectMgr->LoadQuestPOI();
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest POI");
+        sObjectMgr->LoadQuestPOI();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quests Relations...");
-    sObjectMgr->LoadQuestRelations();                            // must be after quest load
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quests Relations...");
+        sObjectMgr->LoadQuestRelations();                            // must be after quest load
+    }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Objects Pooling Data...");
-    sPoolMgr->LoadFromDB();
+    if (!sWorld->getBoolConfig(CONFIG_ENABLE_ONLY_SPECIFIC_MAP))
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Objects Pooling Data...");
+        sPoolMgr->LoadFromDB();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Data...");               // must be after loading pools fully
-    sGameEventMgr->LoadFromDB();
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Data...");               // must be after loading pools fully
+        sGameEventMgr->LoadFromDB();
+    }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading UNIT_NPC_FLAG_SPELLCLICK Data..."); // must be after LoadQuests
     sObjectMgr->LoadNPCSpellClickSpells();
@@ -1867,8 +1898,12 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player level dependent mail rewards...");
     sObjectMgr->LoadMailLevelRewards();
 
-    // Loot tables
-    LoadLootTables();
+
+    if (sWorld->getBoolConfig(CONFIG_ENABLE_LOOTS))
+    {
+        // Loot tables
+        LoadLootTables();
+    }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Skill Discovery Table...");
     LoadSkillDiscoveryTable();
@@ -3736,6 +3771,15 @@ void World::LoadWorldStates()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u world states in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
+}
+
+void World::FillMapsToLoad()
+{
+    std::string options = ConfigMgr::GetStringDefault("loading.onlymaps", "");
+    Tokenizer l_Tokens(options, ', ');
+
+    for (Tokenizer::const_iterator l_Iter = l_Tokens.begin(); l_Iter != l_Tokens.end(); ++l_Iter)
+        m_MapsToLoad.push_back(uint32(atol(*l_Iter)));
 }
 
 bool World::CanBeSaveInLoginDatabase() const

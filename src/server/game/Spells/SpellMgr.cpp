@@ -3105,15 +3105,19 @@ void SpellMgr::LoadSpellInfoStore()
         l_VisualsBySpell[l_Entry->SpellId][l_Entry->DifficultyID].push_back(l_Entry);
     }
 
-    for (uint32 l_I = 0; l_I < sSpellStore.GetNumRows(); ++l_I)
+    ParallelFor(0, sSpellStore.GetNumRows(), [this, &l_VisualsBySpell](uint32 l_I) -> void
     {
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(l_I))
         {
+            auto l_Itr = l_VisualsBySpell.find(l_I);
+            SpellVisualMap emptyMap;
+            SpellVisualMap& visualMap = (l_Itr == l_VisualsBySpell.end()) ? emptyMap : it->second;
+
             std::set<uint32> difficultyInfo = mAvaiableDifficultyBySpell[l_I];
             for (std::set<uint32>::iterator itr = difficultyInfo.begin(); itr != difficultyInfo.end(); itr++)
-                mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr), std::move(l_VisualsBySpell[l_I]));
+                mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr), std::move(visualMap));
         }
-    }
+    });
 
     for (uint32 l_I = 0; l_I < sSpellPowerStore.GetNumRows(); l_I++)
     {
