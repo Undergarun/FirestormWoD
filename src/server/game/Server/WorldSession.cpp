@@ -601,6 +601,9 @@ void WorldSession::LogoutPlayer(bool Save)
 {
     sPetBattleSystem->LeaveQueue(m_Player);
 
+    /// Reset the login counter
+    m_PlayerLoginCounter = 0;
+
     // fix exploit with Aura Bind Sight
     m_Player->StopCastingBindSight();
     m_Player->StopCastingCharm();

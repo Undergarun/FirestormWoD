@@ -6399,6 +6399,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 115008: ///< Chi Torpedo
                 spellInfo->OverrideSpellList.push_back(121828); ///< Override List with Chi Torpedo - Talent
+                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_SPEED_NOT_STACK;
                 break;
             case 109132: ///< Roll
                 spellInfo->OverrideSpellList.push_back(121827); ///< Override List with Roll - Talent

@@ -1811,9 +1811,30 @@ class spell_dru_faerie_swarm: public SpellScriptLoader
             }
         };
 
+        class spell_dru_faerie_swarm_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_faerie_swarm_AuraScript);
+
+            void HandleOnEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Owner = GetUnitOwner())
+                    l_Owner->RemoveAura(SPELL_DRUID_FAERIE_DECREASE_SPEED, GetCasterGUID());
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_faerie_swarm_AuraScript::HandleOnEffectRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_faerie_swarm_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_faerie_swarm_AuraScript();
         }
 };
 

@@ -709,22 +709,6 @@ class spell_foundry_inferno_slice : public SpellScriptLoader
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
-                if (p_Targets.empty())
-                    return;
-
-                /// Main tank (hit by Inferno Strike) isn't affected by Inferno Slice AoE
-                Unit* l_Target = GetCaster()->getVictim();
-                p_Targets.remove_if([this, l_Target](WorldObject* p_Object) -> bool
-                {
-                    if (l_Target != nullptr && p_Object != nullptr)
-                    {
-                        if (p_Object->GetGUID() == l_Target->GetGUID())
-                            return true;
-                    }
-
-                    return false;
-                });
-
                 m_TargetCount = (uint8)p_Targets.size();
             }
 

@@ -12211,10 +12211,21 @@ uint8 Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32
     uint32 l_InitialDamage = p_Damage;
     Player* l_ModOwner = GetSpellModOwner();
 
+    bool l_IsElemShaman = IsPlayer() && ToPlayer()->getClass() == CLASS_SHAMAN && ToPlayer()->GetSpecializationId() == SPEC_SHAMAN_ELEMENTAL;
+
     if (p_ProcExtra & PROC_EX_CRITICAL_HIT)
     {
         if (((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()))
-            l_InitialDamage = (l_InitialDamage / 3) * 2;
+        {
+            /// Elem shaman crits are dealing 200% of base damage in PvP
+            if (l_IsElemShaman)
+                l_InitialDamage /= 2;
+            else
+                l_InitialDamage = (l_InitialDamage / 3) * 2;
+        }
+        /// Elem shaman crits are dealing 250% of base damage
+        else if (l_IsElemShaman)
+            l_InitialDamage = (l_InitialDamage / 5) * 2;
         else
             l_InitialDamage /= 2;
     }
