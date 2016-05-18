@@ -1390,18 +1390,28 @@ class spell_npc_dru_force_of_nature_resto : public CreatureScript
 
         enum eSpells
         {
-            HealingTouch = 113828
+            Swiftmed        = 142421,
+            HealingTouch    = 113828
         };
 
         struct spell_npc_dru_force_of_nature_resto_impAI : public ScriptedAI
         {
-            spell_npc_dru_force_of_nature_resto_impAI(Creature *creature) : ScriptedAI(creature)
-            {
-            }
+            spell_npc_dru_force_of_nature_resto_impAI(Creature *creature) : ScriptedAI(creature) { }
+
+            bool m_FirstTarget = true;
 
             void Reset()
             {
                 me->SetReactState(REACT_HELPER);
+
+                Unit* l_Owner = me->ToTempSummon() ? me->ToTempSummon()->GetSummoner() : NULL;
+                Unit* l_Target = l_Owner ? (l_Owner->getVictim() ? l_Owner->getVictim() : (l_Owner->ToPlayer() ? l_Owner->ToPlayer()->GetSelectedUnit() : NULL)) : NULL;
+
+                if (!l_Owner || !l_Target)
+                    return;
+
+                if (me->IsValidAssistTarget(l_Target))
+                    me->CastSpell(l_Target, eSpells::Swiftmed, false); /// Heal
             }
 
             void UpdateAI(const uint32 /*p_Diff*/)
@@ -1411,16 +1421,21 @@ class spell_npc_dru_force_of_nature_resto : public CreatureScript
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                if (Unit* l_Owner = me->GetOwner())
+                if (m_FirstTarget)
                 {
-                    l_Target = l_Owner->getVictim();
-
-                    if (l_Target == nullptr)
+                    if (Unit* l_Owner = me->GetOwner())
                     {
-                        if (Player* l_Player = l_Owner->ToPlayer())
-                            l_Target = l_Player->GetSelectedUnit();
-                    }
+                        l_Target = l_Owner->getVictim();
 
+                        if (l_Target == nullptr)
+                        {
+                            if (Player* l_Player = l_Owner->ToPlayer())
+                                l_Target = l_Player->GetSelectedUnit();
+                        }
+                        if (!me->IsValidAssistTarget(l_Target))
+                            l_Target = l_Owner;
+                    }
+                    m_FirstTarget = false;
                 }
 
                 if (l_Target == nullptr)
