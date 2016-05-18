@@ -1743,7 +1743,7 @@ void WorldSession::HandleResetChallengeModeOpcode(WorldPacket& /*p_RecvData*/)
     if (InstanceScript* l_InstanceScript = m_Player->GetInstanceScript())
     {
         if (l_InstanceScript->instance->IsChallengeMode())
-            l_InstanceScript->ResetChallengeMode();
+            l_InstanceScript->ResetChallengeMode(m_Player);
     }
 }
 

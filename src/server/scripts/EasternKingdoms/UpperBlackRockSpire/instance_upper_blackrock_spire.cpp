@@ -147,7 +147,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         m_SpawnDoorGuid = p_Gameobject->GetGUID();
                         break;
                     case GOB_CHALLENGE_START_DOOR:
-                        m_ChallengeDoorGuid = p_Gameobject->GetGUID();
+                        AddChallengeModeDoor(p_Gameobject);
                         break;
                     case CHALLENGE_MOD_ORB:
                         m_ChallengeOrbGuid = p_Gameobject->GetGUID();

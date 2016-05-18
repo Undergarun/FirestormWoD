@@ -251,7 +251,6 @@ Position const g_PositionDeadGuards[4] =
     { 1674.51f, 2932.11f, 35.119f, 3.219360f }
 };
 
-
 enum eAuchindonInformation
 {
     InformationAuchindonMapId  = 1182,
@@ -266,6 +265,7 @@ enum eDataAuchindonDatas
     DataBossNyami,
     DataBossAzzakael,
     DataBossTeronogor,
+    DataMaxBosses,
     DataNyami,
     DataTuulani,
     DataTuulani02,
@@ -536,3 +536,22 @@ enum eAuchindonAchievements
     AchievementNoTagBacks      = 9552,
 };
 
+enum eAuchindounChallengeDatas
+{
+    DailyChallengeQuestID       = 37259,
+    DailyChallengeKillCredit    = 79117,
+
+    ChallengeModeDoor           = 211989,
+    ChallengeModeDoorSecond     = 212972,
+
+    /// Scenario Datas
+    NormalScenarioID            = 678,
+    ChallengeScenarioID         = 427,
+    EnnemiesCount               = 48,
+    /// Scenario Criteria IDs
+    KaatharCriteriaID           = 25102,
+    NyamiCriteriaID             = 25103,
+    AzaakelCriteriaID           = 25104,
+    TerongorCriteriaID          = 24991,
+    EnnemiesCriteriaID          = 26335
+};

@@ -129,7 +129,7 @@ class instance_iron_docks : public InstanceMapScript
                 switch (p_GameObject->GetEntry())
                 {
                     case eIronDocksGameObject::GameObjectChallengeModeDoor:
-                        m_ChallengeDoorGuid = p_GameObject->GetGUID();
+                        AddChallengeModeDoor(p_GameObject);
                         break;
                     case CHALLENGE_MOD_ORB:
                         m_ChallengeOrbGuid = p_GameObject->GetGUID();

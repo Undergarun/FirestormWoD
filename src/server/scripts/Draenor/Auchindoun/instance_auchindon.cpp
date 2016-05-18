@@ -10,6 +10,15 @@
 #include "InstanceScript.h"
 #include "auchindon.hpp"
 
+static BossScenarios const g_BossScenarios[] =
+{
+    { eDataAuchindonDatas::DataBossKathaar,     eAuchindounChallengeDatas::KaatharCriteriaID },
+    { eDataAuchindonDatas::DataBossNyami,       eAuchindounChallengeDatas::NyamiCriteriaID },
+    { eDataAuchindonDatas::DataBossAzzakael,    eAuchindounChallengeDatas::AzaakelCriteriaID },
+    { eDataAuchindonDatas::DataBossTeronogor,   eAuchindounChallengeDatas::TerongorCriteriaID },
+    { 0,                                        0 }
+};
+
 /// Event teleports player to Kaathar hall.
 class EventTeleportPlayer : public BasicEvent
 {
@@ -40,7 +49,6 @@ private:
     int m_Modifier;
     int m_Event;
 };
-
 
 class instance_auchindon : public InstanceMapScript
 {
@@ -128,10 +136,18 @@ public:
             m_SoulTransport03Guid = 0;
             // Triggers
             m_TriggerBubbleMiddleNyamiGuid = 0;
+
+            instance->SetObjectVisibility(150.0f);
+
+            SetBossNumber(eDataAuchindonDatas::DataMaxBosses);
+
+            LoadScenariosInfos(g_BossScenarios, instance->IsChallengeMode() ? eAuchindounChallengeDatas::ChallengeScenarioID : eAuchindounChallengeDatas::NormalScenarioID);
         }
 
         void OnPlayerEnter(Player* p_Player) override
         {
+            InstanceScript::OnPlayerEnter(p_Player);
+
             if (m_KaatharDied)
             {
                 p_Player->m_Events.AddEvent(new EventTeleportPlayer(p_Player, 101), p_Player->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
@@ -148,31 +164,40 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go) override
+        void OnGameObjectCreate(GameObject* p_GameObject) override
         {
-            switch (go->GetEntry())
+            switch (p_GameObject->GetEntry())
             {
                 case eAuchindonObjects::GameobjectHolyBarrier:
-                    m_HolyBarrierKathaarObjectGuid = go->GetGUID();
-                        break;          
+                    m_HolyBarrierKathaarObjectGuid = p_GameObject->GetGUID();
+                    break;
                 case eAuchindonObjects::GameobjectAuchindonWindow:
-                    m_WindowGuid = go->GetGUID();
-                        break;
+                    m_WindowGuid = p_GameObject->GetGUID();
+                    break;
                 case eAuchindonObjects::GameobjectFelBarrier:
-                    m_FelBarrierAzzakelObjectGuid = go->GetGUID();
-                        break;
+                    m_FelBarrierAzzakelObjectGuid = p_GameObject->GetGUID();
+                    break;
                 case eAuchindonObjects::GameobjectSoulTransportStart:
-                    m_SoulTransportStartGuid = go->GetGUID();
-                        break;
+                    m_SoulTransportStartGuid = p_GameObject->GetGUID();
+                    break;
                 case eAuchindonObjects::GameobjectSoulTransport1:
-                    m_SoulTransport01Guid = go->GetGUID();
-                        break;
+                    m_SoulTransport01Guid = p_GameObject->GetGUID();
+                    break;
                 case eAuchindonObjects::GameobjectSoulTransport2:
-                    m_SoulTransport02Guid = go->GetGUID();
-                        break;
+                    m_SoulTransport02Guid = p_GameObject->GetGUID();
+                    break;
                 case eAuchindonObjects::GameobjectSoulTransport3:
-                    m_SoulTransport03Guid = go->GetGUID();
-                        break;
+                    m_SoulTransport03Guid = p_GameObject->GetGUID();
+                    break;
+                case CHALLENGE_MOD_ORB:
+                    m_ChallengeOrbGuid = p_GameObject->GetGUID();
+                    break;
+                case eAuchindounChallengeDatas::ChallengeModeDoor:
+                case eAuchindounChallengeDatas::ChallengeModeDoorSecond:
+                    AddChallengeModeDoor(p_GameObject);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -268,8 +293,8 @@ public:
                     }
                     break;
                     // Soul Transport
-                 case eAuchindonCreatures::CreatureGromtashTheDestructor:
-                     if (GameObject* l_SoulTransport = instance->GetGameObject(GetData64(DataSoulTransport3)))
+                case eAuchindonCreatures::CreatureGromtashTheDestructor:
+                    if (GameObject* l_SoulTransport = instance->GetGameObject(GetData64(DataSoulTransport3)))
                         {
                             if (Creature* l_Teronogor = instance->GetCreature(GetData64(DataBossTeronogor)))
                             {
@@ -278,8 +303,8 @@ public:
                             }
                         }
                         break;
-                 case eAuchindonCreatures::CreatureGulkosh:
-                     if (GameObject* l_SoulTransport = instance->GetGameObject(GetData64(DataSoulTransport2)))
+                case eAuchindonCreatures::CreatureGulkosh:
+                    if (GameObject* l_SoulTransport = instance->GetGameObject(GetData64(DataSoulTransport2)))
                         {
                             if (Creature* l_Teronogor = instance->GetCreature(GetData64(DataBossTeronogor)))
                             {
@@ -288,45 +313,60 @@ public:
                             }
                         }
                         break;
-                 case eAuchindonCreatures::CreatureDuragTheDominator:
+                case eAuchindonCreatures::CreatureDuragTheDominator:
+                {
+                    if (GameObject* l_SoulTransport = instance->GetGameObject(GetData64(DataSoulTransport1)))
                     {
-                        if (GameObject* l_SoulTransport = instance->GetGameObject(GetData64(DataSoulTransport1)))
+                        if (Creature* l_Teronogor = instance->GetCreature(GetData64(DataBossTeronogor)))
                         {
-                            if (Creature* l_Teronogor = instance->GetCreature(GetData64(DataBossTeronogor)))
-                            {
-                                if (l_Teronogor->GetAI())
-                                l_Teronogor->GetAI()->DoAction(ActionSoulMove2);
-                            }
+                            if (l_Teronogor->GetAI())
+                            l_Teronogor->GetAI()->DoAction(ActionSoulMove2);
                         }
-                        break;
                     }
-                 case eAuchindonBosses::BossTeronogor:
-                    {
-                        if (p_Creature->GetMap() && p_Creature->GetMap()->IsHeroic())
-                        {
-                            DoCompleteAchievement(eAuchindonAchievements::AchievementAuchindonHeroic);
-                        }
-                        else
-                        {
-                            DoCompleteAchievement(eAuchindonAchievements::AchievementAuchindonNormal);
-                        }
 
-                        // Curtain flames achievement, No Tags Backs! (9552)
-                        UnitList l_Targets;
-                        JadeCore::AnyUnitHavingBuffInObjectRangeCheck u_check(p_Creature, p_Creature, 100, 153392, true);
-                        JadeCore::UnitListSearcher<JadeCore::AnyUnitHavingBuffInObjectRangeCheck> searcher(p_Creature, l_Targets, u_check);
-                        p_Creature->VisitNearbyObject(100, searcher);
+                    break;
+                }
+                case eAuchindonBosses::BossTeronogor:
+                {
+                    DoKilledMonsterKredit(eAuchindounChallengeDatas::DailyChallengeQuestID, eAuchindounChallengeDatas::DailyChallengeKillCredit);
 
-                        if (l_Targets.empty())
-                            return;
-                        else
-                        {
-                            DoCompleteAchievement(eAuchindonAchievements::AchievementNoTagBacks);
-                        }
+                    if (p_Creature->GetMap() && p_Creature->GetMap()->IsHeroic())
+                        DoCompleteAchievement(eAuchindonAchievements::AchievementAuchindonHeroic);
+                    else
+                        DoCompleteAchievement(eAuchindonAchievements::AchievementAuchindonNormal);
 
-                        break;
-                    }
+                    // Curtain flames achievement, No Tags Backs! (9552)
+                    UnitList l_Targets;
+                    JadeCore::AnyUnitHavingBuffInObjectRangeCheck u_check(p_Creature, p_Creature, 100, 153392, true);
+                    JadeCore::UnitListSearcher<JadeCore::AnyUnitHavingBuffInObjectRangeCheck> searcher(p_Creature, l_Targets, u_check);
+                    p_Creature->VisitNearbyObject(100, searcher);
+
+                    if (l_Targets.empty())
+                        return;
+                    else
+                        DoCompleteAchievement(eAuchindonAchievements::AchievementNoTagBacks);
+
+                    break;
+                }
             }
+        }
+
+        void OnCreatureKilled(Creature* p_Creature, Player* p_Player) override
+        {
+            if (!instance->IsChallengeMode() || !IsChallengeModeStarted() || m_CreatureKilled >= eAuchindounChallengeDatas::EnnemiesCount)
+                return;
+
+            if (p_Creature == nullptr)
+                return;
+
+            if (!p_Creature->isElite() || p_Creature->IsDungeonBoss())
+                return;
+
+            ++m_CreatureKilled;
+            SendScenarioProgressUpdate(CriteriaProgressData(eAuchindounChallengeDatas::EnnemiesCriteriaID, m_CreatureKilled, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
+
+            if (m_CreatureKilled >= eAuchindounChallengeDatas::EnnemiesCount)
+                m_ConditionCompleted = true;
         }
 
         uint64 GetData64(uint32 p_Data) override
@@ -423,4 +463,3 @@ void AddSC_instance_auchindon()
 {
     new instance_auchindon;
 }
-

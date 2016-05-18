@@ -37,7 +37,9 @@ InstanceScript::InstanceScript(Map* p_Map)
     m_ConditionCompleted        = false;
     m_CreatureKilled            = 0;
     m_StartChallengeTime        = 0;
-    m_ChallengeDoorGuid         = 0;
+
+    m_ChallengeDoorGuids.clear();
+
     m_ChallengeOrbGuid          = 0;
     m_ChallengeTime             = 0;
     m_MedalType                 = eChallengeMedals::MedalTypeNone;
@@ -46,6 +48,7 @@ InstanceScript::InstanceScript(Map* p_Map)
     m_BeginningTime             = 0;
     m_ScenarioID                = 0;
     m_ScenarioStep              = 0;
+    m_LastResetTime             = 0;
     m_EncounterTime             = 0;
     m_DisabledMask              = 0;
 
@@ -78,6 +81,14 @@ void InstanceScript::HandleGameObject(uint64 GUID, bool open, GameObject* go)
         go->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     else
         sLog->outDebug(LOG_FILTER_TSCR, "InstanceScript: HandleGameObject failed");
+}
+
+void InstanceScript::Update(uint32 p_Diff)
+{
+    UpdateOperations(p_Diff);
+    ScheduleBeginningTimeUpdate(p_Diff);
+    ScheduleChallengeStartup(p_Diff);
+    ScheduleChallengeTimeUpdate(p_Diff);
 }
 
 void InstanceScript::UpdateOperations(uint32 const p_Diff)
@@ -391,20 +402,21 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                     /// End of challenge
                     if (p_ID == (m_Bosses.size() - 1))
                     {
+                        SendChallengeStopElapsedTimer(1);
+
                         if (instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
                         {
                             m_ChallengeStarted = false;
 
                             SendChallengeNewPlayerRecord();
                             SendChallengeModeComplete(RewardChallengers());
-                            SendChallengeStopElapsedTimer(1);
 
                             SaveChallengeDatasIfNeeded();
 
                             DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON, instance->GetId(), m_MedalType);
-                        }
 
-                        SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
+                            SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
+                        }
                     }
 
                     /// Handle Guild challenges
@@ -1097,8 +1109,11 @@ void InstanceScript::ScheduleChallengeStartup(uint32 p_Diff)
         {
             m_StartChallengeTime = 0;
 
-            if (GameObject* l_ChallengeDoor = sObjectAccessor->FindGameObject(m_ChallengeDoorGuid))
-                l_ChallengeDoor->SetGoState(GO_STATE_ACTIVE);
+            for (uint64 l_Guid : m_ChallengeDoorGuids)
+            {
+                if (GameObject* l_ChallengeDoor = sObjectAccessor->FindGameObject(l_Guid))
+                    l_ChallengeDoor->SetGoState(GO_STATE_ACTIVE);
+            }
 
             SendChallengeStartElapsedTimer(1, 0);
             SendChallengeModeStart();
@@ -1483,8 +1498,19 @@ void InstanceScript::RewardNewRealmRecord(RealmCompletedChallenge* p_OldChalleng
     }
 }
 
-void InstanceScript::ResetChallengeMode()
+void InstanceScript::ResetChallengeMode(Player* p_Source)
 {
+    /// Players can reset challenge mode only if it's started
+    if (!m_ChallengeStarted)
+        return;
+
+    /// Players can reset challenge mode every 2 minutes
+    if (uint32(time(nullptr)) <= (m_LastResetTime + RESET_CHALLENGE_MODE_COOLDOWN))
+    {
+        p_Source->SendGameError(GameError::Type::ERR_PARENTAL_CONTROLS_CHAT_MUTED, RESET_CHALLENGE_MODE_COOLDOWN);
+        return;
+    }
+
     /// Reset internal datas
     m_ChallengeStarted      = false;
     m_ConditionCompleted    = false;
@@ -1495,9 +1521,14 @@ void InstanceScript::ResetChallengeMode()
     m_BeginningTime         = 0;
     m_ScenarioStep          = 0;
 
+    m_LastResetTime         = uint32(time(nullptr));
+
     /// Reset challenge door
-    if (GameObject* l_ChallengeDoor = instance->GetGameObject(m_ChallengeDoorGuid))
-        l_ChallengeDoor->SetGoState(GOState::GO_STATE_READY);
+    for (uint64 l_Guid : m_ChallengeDoorGuids)
+    {
+        if (GameObject* l_ChallengeDoor = sObjectAccessor->FindGameObject(l_Guid))
+            l_ChallengeDoor->SetGoState(GOState::GO_STATE_READY);
+    }
 
     /// Reset challenge orb
     if (GameObject* l_ChallengeOrb = instance->GetGameObject(m_ChallengeOrbGuid))

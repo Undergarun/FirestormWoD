@@ -196,6 +196,7 @@ class debug_commandscript: public CommandScript
                 { "mastery",                     SEC_ADMINISTRATOR,  false, &HandleDebugMasteryCommand,              "", NULL },
                 { "setaura",                     SEC_ADMINISTRATOR,  false, &HandleDebugAuraCommand,                 "", NULL },
                 { "cleardr",                     SEC_ADMINISTRATOR,  false, &HandleDebugCancelDiminishingReturn,     "", NULL },
+                { "scenario",                    SEC_ADMINISTRATOR,  false, &HandleDebugScenarioCommand,             "", NULL },
                 { NULL,                          SEC_PLAYER,         false, NULL,                                    "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -220,8 +221,6 @@ class debug_commandscript: public CommandScript
             unit->ClearDiminishings();
             return true;
         }
-
-
 
         static bool HandleDebugAuraCommand(ChatHandler* handler, char const* args)
         {
@@ -3830,6 +3829,36 @@ class debug_commandscript: public CommandScript
             else
                 p_Handler->PSendSysMessage("This unit doesn't have the unit state %s", g_Unitstates[l_State].Text);
 
+            return true;
+        }
+
+        static bool HandleDebugScenarioCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+                return false;
+
+            uint32 l_ScenarioID = (uint32)atoi((char*)p_Args);
+
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
+            if (l_Player == nullptr)
+                return false;
+
+            WorldPacket l_Data(SMSG_SCENARIO_STATE);
+
+            l_Data << int32(l_ScenarioID);
+            l_Data << int32(0);
+            l_Data << uint32(Difficulty::DifficultyChallenge);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+
+            l_Data << uint32(0);
+            l_Data << uint32(0);
+
+            l_Data.WriteBit(false);
+            l_Data.FlushBits();
+
+            l_Player->SendDirectMessage(&l_Data);
             return true;
         }
 };

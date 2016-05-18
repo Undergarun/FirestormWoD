@@ -310,16 +310,11 @@ public:
             m_Instance = me->GetInstanceScript();
             m_Intro = false;
 
-            Reset();
-            me->Respawn(true);
-
             m_SoulTransport01 = false;
             m_SoulTransport02 = false;
             m_SoulTransport03 = false;
             m_SoulTransport04 = false;
             m_SoulTransport05 = false;
-
-            me->GetMap()->SetObjectVisibility(1000.0f);
         }
 
         InstanceScript* m_Instance;

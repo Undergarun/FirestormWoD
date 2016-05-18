@@ -222,6 +222,7 @@ enum eChallengeMedals
 };
 
 #define CHALLENGE_MOD_ORB 211674
+#define RESET_CHALLENGE_MODE_COOLDOWN 2 * TimeConstants::MINUTE
 
 enum eInstanceSpells
 {
@@ -275,7 +276,7 @@ class InstanceScript : public ZoneScript
 
         void SaveToDB();
 
-        virtual void Update(uint32 p_Diff) { UpdateOperations(p_Diff); }
+        virtual void Update(uint32 p_Diff);
         void UpdateOperations(uint32 const p_Diff);
 
         // Used by the map's CanEnter function.
@@ -561,13 +562,15 @@ class InstanceScript : public ZoneScript
         void SaveNewGroupChallenge(uint32 p_GuildID = 0);
         uint32 RewardChallengers();
         void RewardNewRealmRecord(RealmCompletedChallenge* p_OldChallenge = nullptr);
-        void ResetChallengeMode();
+        void ResetChallengeMode(Player* p_Source);
+
+        void AddChallengeModeDoor(GameObject* p_Door) { m_ChallengeDoorGuids.push_back(p_Door->GetGUID()); }
 
         bool   m_ChallengeStarted;
         bool   m_ConditionCompleted;
         uint32 m_CreatureKilled;
         uint32 m_StartChallengeTime;
-        uint64 m_ChallengeDoorGuid;
+        std::vector<uint64> m_ChallengeDoorGuids;
         uint64 m_ChallengeOrbGuid;
         uint32 m_ChallengeTime;
         uint8  m_MedalType;
@@ -575,6 +578,7 @@ class InstanceScript : public ZoneScript
         uint32 m_BeginningTime;
         uint32 m_ScenarioID;
         uint8  m_ScenarioStep;
+        uint32 m_LastResetTime;
         //////////////////////////////////////////////////////////////////////////
 
         // Called when a creature is killed by a player

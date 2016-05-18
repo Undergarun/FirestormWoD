@@ -140,7 +140,7 @@ namespace MS
                                     AddDoor(p_GameObject, true);
                                     break;
                                 case GameObjects::ChallengeDoor:
-                                    m_ChallengeDoorGuid = p_GameObject->GetGUID();
+                                    AddChallengeModeDoor(p_GameObject);
                                     break;
                                 case CHALLENGE_MOD_ORB:
                                     m_ChallengeOrbGuid = p_GameObject->GetGUID();
