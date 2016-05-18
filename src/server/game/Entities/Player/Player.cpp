@@ -7518,7 +7518,7 @@ void Player::DurabilityPointsLossAll(int32 points, bool inventory)
 
 void Player::DurabilityPointsLoss(Item* item, int32 points)
 {
-    if (HasAuraType(AuraType::SPELL_AURA_DONT_LOOSE_DURABILITY))
+    if (HasAuraType(AuraType::SPELL_AURA_PREVENT_DURABILITY_LOSS))
         return;
 
     int32 pMaxDurability = item->GetUInt32Value(ITEM_FIELD_MAX_DURABILITY);
@@ -7548,6 +7548,9 @@ void Player::DurabilityPointsLoss(Item* item, int32 points)
 
 void Player::DurabilityPointLossForEquipSlot(EquipmentSlots slot)
 {
+    if (HasAuraType(SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT))
+        return;
+
     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
         DurabilityPointsLoss(pItem, 1);
 }
