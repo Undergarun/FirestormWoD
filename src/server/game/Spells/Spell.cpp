@@ -5798,6 +5798,11 @@ void Spell::TakeRunePower(bool didHit)
         sScriptMgr->OnModifyPower(player, POWER_RUNES, 0, runeCost[i], false);
     }
 
+    bool l_ConvertUsedRunes = false;
+    for (AuraEffect const* l_ConvertConsumedRuneAuras : m_caster->GetAuraEffectsByType(SPELL_AURA_CONVERT_CONSUMED_RUNE))
+        if (l_ConvertConsumedRuneAuras->IsAffectingSpell(m_spellInfo))
+            l_ConvertUsedRunes = true;
+
     /* In MOP there is a some spell, that use death rune, so don't reset it*/
     //runeCost[RUNE_DEATH] = 0;                               // calculated later
 
@@ -5828,6 +5833,8 @@ void Spell::TakeRunePower(bool didHit)
         }
 
         runeCost[rune]--;
+        if (l_ConvertUsedRunes)
+            player->ConvertRune(i, RUNE_DEATH);
         gain_runic = true;
     }
 
@@ -5854,7 +5861,7 @@ void Spell::TakeRunePower(bool didHit)
                     takePower = false;
 
                 // keep Death Rune type if missed or player has Blood of the North or rune is permanently converted
-                if (takePower)
+                if (takePower && !l_ConvertUsedRunes)
                 {
                     player->RestoreBaseRune(i);
                     player->SetDeathRuneUsed(i, true);
