@@ -6061,6 +6061,10 @@ void Spell::HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_
 
 SpellCastResult Spell::CheckCast(bool strict)
 {
+    // Hach fix Dark soul when the buff is already active
+    if (m_spellInfo->Id == 113861 && m_caster->HasAura(113861))
+        return SPELL_FAILED_CASTER_AURASTATE;
+
     // Hack fixing Skulloc LOS issue with the bridge sequence
     if (m_spellInfo->Id == 168539 || m_spellInfo->Id == 168540)
         return SPELL_CAST_OK;
