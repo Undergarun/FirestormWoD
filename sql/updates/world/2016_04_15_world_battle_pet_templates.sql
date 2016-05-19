@@ -1,1 +1,0 @@
-UPDATE creature_template SET Health_Mod = 1, npcflag=0, unit_flags=0, movementId=0, creature_template.type=14, movementType=1, flags_extra=2, creature_template.exp=0 WHERE entry IN (7543, 61425, 48609, 54027, 65313, 7550, 7549, 61167, 62121, 62184, 62178, 61385);

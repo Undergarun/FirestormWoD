@@ -42,8 +42,7 @@ class instance_iron_docks : public InstanceMapScript
             /// Iron stars
             bool m_SecondEvent;
             bool m_ThirdEvent;
-            /// Scenario handling
-            uint32 m_CreatureKilled;
+
             /// Encounter Gates
             uint64 m_EncounterGateOshirGuid;
 
@@ -72,7 +71,7 @@ class instance_iron_docks : public InstanceMapScript
                 m_KoramarGuid       = 0;
                 m_SecondEvent       = false;
                 m_ThirdEvent        = false;
-                m_CreatureKilled    = 0;
+
                 /// Encounter Gates
                 m_EncounterGateOshirGuid = 0;
             }
@@ -131,6 +130,9 @@ class instance_iron_docks : public InstanceMapScript
                 {
                     case eIronDocksGameObject::GameObjectChallengeModeDoor:
                         m_ChallengeDoorGuid = p_GameObject->GetGUID();
+                        break;
+                    case CHALLENGE_MOD_ORB:
+                        m_ChallengeOrbGuid = p_GameObject->GetGUID();
                         break;
                     case eIronDocksGameObject::GameObjectEncounterGateOshir:
                         m_EncounterGateOshirGuid = p_GameObject->GetGUID();

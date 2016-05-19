@@ -215,7 +215,7 @@ namespace MS { namespace Garrison
             /// Has building type
             bool HasBuildingType(BuildingType::Type p_BuildingType, bool p_DontNeedActive = false) const;
             /// Get building with type
-            GarrisonBuilding GetBuildingWithType(BuildingType::Type p_BuildingType) const;
+            GarrisonBuilding GetBuildingWithType(BuildingType::Type p_BuildingType, bool p_DontNeedActive = false) const;
             /// Get Level of the building
             uint32 GetBuildingLevel(GarrisonBuilding p_Building) const;
             /// Get building max work order
@@ -230,6 +230,8 @@ namespace MS { namespace Garrison
             uint8 CalculateAssignedFollowerShipmentBonus(uint32 p_PlotInstanceID);
             /// Generates random reward for Armory work order
             uint32 CalculateArmoryWorkOrder() const;
+            /// Fills reward maps in work orders algorithm for Gladiator's Sanctum
+            bool FillSanctumWorkOrderRewards(std::map<uint32, uint32>& l_RewardItems, std::map<CurrencyTypes, uint32>& l_RewardedCurrencies);
             /// Get follower assigned to building from plot instance ID
             GarrisonFollower* GetAssignedFollower(uint32 p_PlotInstanceID);
             /// Checks if the building has the required follower assigned to apply bonus
@@ -293,7 +295,7 @@ namespace MS { namespace Garrison
             uint32 GenerateCrewAbilityIdForShip(GarrisonFollower const& p_Follower);
 
             /// Generate random NPC Ability
-            uint32 GenerateRandomAbility(GarrisonFollower* p_Follower);
+            uint32 GenerateRandomAbility();
 
             /// Generate random trait
             uint32 GenerateRandomTrait(uint32 p_Type, std::vector<uint32> const& p_KnownAbilities);

@@ -89,12 +89,12 @@ public:
             return true;
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 const p_Diff) override
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
 
-            events.Update(diff);
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;

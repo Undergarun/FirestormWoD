@@ -1,0 +1,16 @@
+DELETE FROM `spell_group` WHERE id = 1118 AND spell_id = 55610;
+INSERT INTO `spell_group` (id, spell_id) VALUES (1118, 55610);
+DELETE FROM `spell_group` WHERE id = 1118 AND spell_id = 116956;
+INSERT INTO `spell_group` (id, spell_id) VALUES (1118, 116956);
+DELETE FROM `spell_group` WHERE id = 1118 AND spell_id = 49868;
+INSERT INTO `spell_group` (id, spell_id) VALUES (1118, 49868);
+DELETE FROM `spell_group` WHERE id = 1118 AND spell_id = 113742;
+INSERT INTO `spell_group` (id, spell_id) VALUES (1118, 113742);
+DELETE FROM `spell_group` WHERE id = 1118 AND spell_id = 160203;
+INSERT INTO `spell_group` (id, spell_id) VALUES (1118, 160203);
+DELETE FROM `spell_group` WHERE id = 1118 AND spell_id = 19506;
+INSERT INTO `spell_group` (id, spell_id) VALUES (1118, 19506);
+DELETE FROM `spell_group` WHERE id = 1118 AND spell_id = 6673;
+INSERT INTO `spell_group` (id, spell_id) VALUES (1118, 6673);
+DELETE FROM `spell_group` WHERE id = 1118 AND spell_id = 57330;
+INSERT INTO `spell_group` (id, spell_id) VALUES (1118, 57330);

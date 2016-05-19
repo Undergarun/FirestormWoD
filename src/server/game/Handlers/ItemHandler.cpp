@@ -1432,6 +1432,13 @@ void WorldSession::HandleSocketOpcode(WorldPacket& p_RecvData)
     if (!l_ItemGUID)
         return;
 
+    /// Prevent players to apply gems to their equipment during challenge
+    if (m_Player->GetMap()->IsChallengeMode())
+    {
+        m_Player->SendGameError(GameError::Type::ERR_CLIENT_LOCKED_OUT);
+        return;
+    }
+
     // Cheat -> tried to socket same gem multiple times
     if ((l_GemGUIDS[0] && (l_GemGUIDS[0] == l_GemGUIDS[1] || l_GemGUIDS[0] == l_GemGUIDS[2])) ||
         (l_GemGUIDS[1] && (l_GemGUIDS[1] == l_GemGUIDS[2])))
@@ -1849,8 +1856,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 
         if (!l_ItemIDs[l_I]) ///< Reset look
         {
-            l_ItemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
-            l_ItemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+            l_ItemTransmogrified->SetModifier(eItemModifiers::TransmogItemID, 0);
             m_Player->SetVisibleItemSlot(l_Slots[l_I], l_ItemTransmogrified);
         }
         else
@@ -1862,8 +1868,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
                 return;
 
             /// All okay, proceed
-            l_ItemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, l_Template->ItemId);
-            l_ItemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+            l_ItemTransmogrified->SetModifier(eItemModifiers::TransmogItemID, l_Template->ItemId);
             m_Player->SetVisibleItemSlot(l_Slots[l_I], l_ItemTransmogrified);
 
             l_ItemTransmogrified->UpdatePlayedTime(m_Player);
@@ -1918,7 +1923,7 @@ void WorldSession::SendItemUpgradeResult(bool success)
 
 void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
 {
-    /// Upgrade system is removed on WoD, on retail is used only for existed upgrade
+    /// Upgrade system will be implemented back because of WoD 6.1.2
     /*sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPGRADE_ITEM");
 
     ObjectGuid npcGuid;

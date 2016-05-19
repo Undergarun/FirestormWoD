@@ -817,7 +817,7 @@ namespace MS { namespace Garrison
     void Manager::RewardGarrisonCache()
     {
         m_Owner->SendDisplayToast(Globals::CurrencyID, m_CacheLastTokenAmount, DISPLAY_TOAST_METHOD_GARRISON_CACHE, TOAST_TYPE_NEW_CURRENCY, false, false);
-        m_Owner->ModifyCurrency(Globals::CurrencyID, m_CacheLastTokenAmount);
+        m_Owner->ModifyCurrency(Globals::CurrencyID, m_CacheLastTokenAmount, false);
 
         m_CacheLastTokenAmount  = 0;
         m_CacheLastUsage        = time(0);
@@ -975,8 +975,12 @@ namespace MS { namespace Garrison
     /// Get plot by position
     GarrisonPlotInstanceInfoLocation Manager::GetPlot(float p_X, float p_Y, float p_Z)
     {
+        GarrisonPlotInstanceInfoLocation l_Plot = { 0, 0, 0.0f, 0.0f, 0.0f, 0.0f} ;
+
+        if (m_Owner && !m_Owner->IsInGarrison())
+            return l_Plot;
+
         Position                            l_Position;
-        GarrisonPlotInstanceInfoLocation    l_Plot;
 
         memset(&l_Plot, 0, sizeof(GarrisonPlotInstanceInfoLocation));
 
@@ -1698,7 +1702,7 @@ namespace MS { namespace Garrison
             CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(l_Currency.first);
 
             if (l_CurrencyEntry)
-                m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second);
+                m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second, false);
         }
 
         for (auto l_Item : m_PendingMissionReward.RewardItems)
@@ -3071,7 +3075,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get building with type
-    GarrisonBuilding Manager::GetBuildingWithType(BuildingType::Type p_BuildingType) const
+    GarrisonBuilding Manager::GetBuildingWithType(BuildingType::Type p_BuildingType, bool p_DontNeedActive) const
     {
         for (GarrisonBuilding l_Building : m_Buildings)
         {
@@ -3080,7 +3084,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry)
                 continue;
 
-            if (l_BuildingEntry->Type == p_BuildingType && l_Building.Active == true)
+            if (l_BuildingEntry->Type == p_BuildingType && (p_DontNeedActive ? true : l_Building.Active == true))
                 return l_Building;
         }
 
@@ -3274,6 +3278,85 @@ namespace MS { namespace Garrison
             return l_EpicRewards[urand(0, l_EpicRewards.size() - 1)];
 
         return 0;
+    }
+
+    bool Manager::FillSanctumWorkOrderRewards(std::map<uint32, uint32>& l_RewardItems, std::map<CurrencyTypes, uint32>& l_RewardCurrencies)
+    {
+        uint8 l_Chance = urand(1, 100);
+        /// 50%
+        if (l_Chance >= 50)
+        {
+            uint32 l_Count = urand(100, 150) * CURRENCY_PRECISION;
+            auto l_Itr = l_RewardCurrencies.find(CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS);
+
+            if (l_Itr != l_RewardCurrencies.end())
+                l_Itr->second += l_Count;
+            else
+                l_RewardCurrencies.insert({CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS, l_Count});
+
+            return true;
+        }
+        /// 30%
+        else if (l_Chance >= 20)
+        {
+            uint32 l_CurrencyCount = 0;
+
+            if (m_Owner->GetCurrencyWeekCap(CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG, false) > m_Owner->GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, false))
+            {
+
+                l_CurrencyCount = urand(75, 150) * CURRENCY_PRECISION;
+
+                auto l_Itr = l_RewardCurrencies.find(CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG);
+                if (l_Itr != l_RewardCurrencies.end())
+                    l_Itr->second += l_CurrencyCount;
+                else
+                    l_RewardCurrencies.insert({ CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG, l_CurrencyCount });
+
+                return true;
+            }
+
+            l_CurrencyCount = urand(100, 150) * CURRENCY_PRECISION;
+
+            auto l_Itr = l_RewardCurrencies.find(CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS);
+            if (l_Itr != l_RewardCurrencies.end())
+                l_Itr->second += l_CurrencyCount;
+            else
+                l_RewardCurrencies.insert({ CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS, l_CurrencyCount });
+
+            return true;
+        }
+        /// 20%
+        else
+        {
+            LootTemplate const* l_LootTemplate = LootTemplates_Item.GetLootFor(m_Owner->GetTeam() == ALLIANCE ? 120354 : 111598); //< Golden Strongbox Loot
+
+            std::list<ItemTemplate const*> l_LootTable;
+            std::vector<uint32> l_Items;
+            uint32 l_SpecID = m_Owner->GetLootSpecId() ? m_Owner->GetLootSpecId() : m_Owner->GetSpecializationId(m_Owner->GetActiveSpec());
+
+            l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+
+            if (!l_SpecID)
+                l_SpecID = m_Owner->GetDefaultSpecId();
+
+            for (ItemTemplate const* l_Template : l_LootTable)
+            {
+                if ((l_Template->AllowableClass && !(l_Template->AllowableClass & m_Owner->getClassMask())) ||
+                    (l_Template->AllowableRace && !(l_Template->AllowableRace & m_Owner->getRaceMask())))
+                    continue;
+
+                for (SpecIndex l_ItemSpecID : l_Template->specs[1])
+                {
+                    if (l_ItemSpecID == l_SpecID)
+                        l_Items.push_back(l_Template->ItemId);
+                }
+            }
+
+            if ((uint32)l_Items.size())
+                l_RewardItems.insert({ l_Items[urand(0, l_Items.size())], 1 });
+        }
+
+        return false;
     }
 
     void Manager::InsertNewCreatureInPlotDatas(uint32 p_PlotInstanceID, uint64 p_Guid)
@@ -3688,8 +3771,10 @@ namespace MS { namespace Garrison
                         if (!l_CurrentEntry || l_CurrentEntry->Type != l_BuildingEntry->Type || l_CurrentEntry->Level != l_TargetLevel)
                             continue;
 
-                        l_GobEntry          = l_CurrentEntry->GameObjects[GetGarrisonFactionIndex()];
-                        l_SpanwActivateGob  = true;
+                        l_GobEntry = l_CurrentEntry->GameObjects[GetGarrisonFactionIndex()];
+
+                        if (time(0) > l_Building.TimeBuiltEnd)
+                            l_SpanwActivateGob  = true;
 
                         break;
                     }
@@ -4120,7 +4205,8 @@ namespace MS { namespace Garrison
                     l_CurrentAvailableMission++;
             });
 
-            if (l_CurrentAvailableMission < l_MaxMissionCount)
+            /// Temp cancel changes due to 79f3871dfffa4181fdcc739285da84c7fffbefa4
+            /*if (l_CurrentAvailableMission < l_MaxMissionCount)
             {
                 uint32 l_AVGFollowerLevel = 0;
                 uint32 l_MaxFollowerItemLevel = 600;
@@ -4278,7 +4364,109 @@ namespace MS { namespace Garrison
                         AddMission(l_Candidates[l_I]->MissionRecID);
                 }
             }
+            */
 
+            if (l_CurrentAvailableMission < l_MaxMissionCount)
+            {
+                uint32 l_MaxFollowerLevel = 90;
+                uint32 l_MaxFollowerItemLevel = 600;
+
+                std::for_each(m_Followers.begin(), m_Followers.end(), [&l_MaxFollowerLevel, &l_MaxFollowerItemLevel](const GarrisonFollower & p_Follower) -> void
+                {
+                    if (!p_Follower.IsNPC())
+                        return;
+
+                    l_MaxFollowerLevel      = std::max(l_MaxFollowerLevel, (uint32)p_Follower.Level);
+                    l_MaxFollowerItemLevel  = std::max(l_MaxFollowerItemLevel, (uint32)((p_Follower.ItemLevelArmor + p_Follower.ItemLevelWeapon) / 2));
+                });
+
+                std::vector<const GarrMissionEntry*> l_Candidates;
+
+                for (uint32 l_I = 0; l_I < sGarrMissionStore.GetNumRows(); ++l_I)
+                {
+                    GarrMissionEntry const* l_Entry = sGarrMissionStore.LookupEntry(l_I);
+
+                    if (!l_Entry)
+                        continue;
+
+                    uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_Entry](const GarrisonMission & p_Mission)
+                    {
+                        return p_Mission.MissionID == l_Entry->MissionRecID;
+                    });
+
+                    if (l_Count)
+                        continue;
+
+                    if (l_Entry->RequiredFollowersCount > m_Followers.size())
+                        continue;
+
+                    if (l_Entry->Duration <= 10)
+                        continue;
+
+                    if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
+                        continue;
+
+                    uint32 l_RewardCount = 0;
+                    for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
+                    {
+                        GarrMissionRewardEntry const* l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_RewardIT);
+
+                        if (!l_RewardEntry)
+                            continue;
+
+                        if (l_RewardEntry->MissionID != l_Entry->MissionRecID)
+                            continue;
+
+                        /// Elemental Rune & Abrogator Stone - Legendary Questline  NYI
+                        if (l_RewardEntry->ItemID == 115510 || l_RewardEntry->ItemID == 115280)
+                        {
+                            l_RewardCount = 0;
+                            break;
+                        }
+
+                        ++ l_RewardCount;
+                    }
+
+                    /// All missions should have a reward
+                    if (!l_RewardCount)
+                        continue;
+
+                    /// Max Level cap : 2
+                    if (l_Entry->RequiredLevel > (int32)(l_MaxFollowerLevel + 2))
+                        continue;
+
+                    if (l_Entry->RequiredItemLevel > (int32)l_MaxFollowerItemLevel)
+                        continue;
+
+                    /// Ships NYI
+                    if (l_Entry->FollowerType != MS::Garrison::FollowerType::NPC)
+                        continue;
+
+                    /// We are getting too many rare missions compared to retail
+                    if (l_Entry->Flags & MS::Garrison::MissionFlags::Rare)
+                    {
+                        if (urand(0, 100) >= 15)
+                            continue;
+                    }
+
+                    l_Candidates.push_back(l_Entry);
+                }
+
+                uint32 l_ShuffleCount = std::rand() % 4;
+
+                for (uint32 l_I = 0; l_I < l_ShuffleCount; ++l_I)
+                    std::random_shuffle(l_Candidates.begin(), l_Candidates.end());
+
+                int32 l_MissionToAddCount = (int32)l_MaxMissionCount - (int32)l_CurrentAvailableMission;
+
+                if (l_MissionToAddCount > 0)
+                {
+                    l_MissionToAddCount = std::min(l_MissionToAddCount, (int32)l_Candidates.size());
+
+                    for (int32 l_I = 0; l_I < l_MissionToAddCount; ++l_I)
+                        AddMission(l_Candidates[l_I]->MissionRecID);
+                }
+            }
             m_MissionDistributionLastUpdate = time(0);
         }
     }
@@ -4308,7 +4496,10 @@ namespace MS { namespace Garrison
 
         }
 
-        if ((m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap) && (m_Owner->IsQuestRewarded(Quests::Alliance_BuildYourBarracks) || m_Owner->IsQuestRewarded(Quests::Horde_BuildYourBarracks)))
+        bool l_Cond1 = m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap;
+        bool l_Cond2 = GetGarrisonSiteLevelEntry()->Level == 1 ? (m_Owner->IsQuestRewarded(Quests::Alliance_BuildYourBarracks) || m_Owner->IsQuestRewarded(Quests::Horde_BuildYourBarracks)) : true;
+
+        if (l_Cond1 && l_Cond2)
         {
             if (!m_Owner->HasAura(l_AbilityOverrideSpellID))
                 m_Owner->AddAura(l_AbilityOverrideSpellID, m_Owner);
@@ -4496,7 +4687,34 @@ namespace MS { namespace Garrison
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
     }
 
-    uint32 Manager::GenerateRandomAbility(GarrisonFollower* p_Follower)
+    /// TODO: Only class specific - not fully random
+    uint32 Manager::GenerateRandomAbility()
+    {
+        std::vector<uint32> l_PossibleEntiers;
+
+        for (uint32 l_ID = 0; l_ID < sGarrAbilityStore.GetNumRows(); ++l_ID)
+        {
+            GarrAbilityEntry const* l_Entry = sGarrAbilityStore.LookupEntry(l_ID);
+
+            if (!l_Entry)
+                continue;
+
+            if (l_Entry->FollowerType != FollowerType::NPC)
+                continue;
+
+            if (l_Entry->AbilityType != 0)
+                continue;
+
+            l_PossibleEntiers.push_back(l_Entry->ID);
+        }
+
+        if (!l_PossibleEntiers.size())
+            return 0;
+
+        return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
+    }
+
+    /*uint32 Manager::GenerateRandomAbility(GarrisonFollower* p_Follower)
     {
         std::vector<uint32> l_PossibleEntiers;
 
@@ -4528,7 +4746,7 @@ namespace MS { namespace Garrison
             return 0;
 
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
-    }
+    }*/
 
     uint32 Manager::GenerateRandomTrait(uint32 p_Type, std::vector<uint32> const& p_KnownAbilities)
 {
@@ -4615,9 +4833,7 @@ namespace MS { namespace Garrison
             while ((1 /* ship type */ + 1 /* crew */ + l_AbilityCount) > p_Follower.Abilities.size())
             {
                 if (uint32 l_NewAbility = GenerateRandomTrait(FollowerType::Ship, p_Follower.Abilities))
-                {
                     p_Follower.Abilities.push_back(l_NewAbility);
-                }
             }
         }
         else if (p_Follower.IsNPC())
@@ -4626,10 +4842,8 @@ namespace MS { namespace Garrison
             {
                 if ((CountFollowerAbilitiesByType(p_Follower.DatabaseID, 0) + CountFollowerAbilitiesByType(p_Follower.DatabaseID, 2)) < 2)
                 {
-                    if (uint32 l_NewAbility = GenerateRandomAbility(&p_Follower))
-                    {
+                    if (uint32 l_NewAbility = GenerateRandomAbility())
                         p_Follower.Abilities.push_back(l_NewAbility);
-                    }
                 }
             }
 

@@ -238,7 +238,8 @@ class spell_warl_haunt_dispel: public SpellScriptLoader
         }
 };
 
-// Haunt - 48181
+/// Last Update 6.2.3
+/// Haunt - 48181
 class spell_warl_haunt : public SpellScriptLoader
 {
     public:
@@ -248,7 +249,7 @@ class spell_warl_haunt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_haunt_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
 
@@ -262,7 +263,7 @@ class spell_warl_haunt : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warl_haunt_SpellScript::HandleOnHit);
+                OnCast += SpellCastFn(spell_warl_haunt_SpellScript::HandleOnCast);
             }
         };
 
@@ -1531,30 +1532,12 @@ class spell_warl_hand_of_guldan: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_hand_of_guldan_SpellScript);
 
-            enum eSpells
-            {
-                T17Demonology2P = 165450,
-                InnerDemon      = 166862
-            };
-
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                         l_Caster->CastSpell(l_Target, WARLOCK_HAND_OF_GULDAN_DAMAGE, true);
-
-                    /// Hand of Gul'dan has a 50% chance empower your inner demon, temporarily bringing your Metamorphosis form out even while you are not transformed.
-                    if (Player* l_Player = l_Caster->ToPlayer())
-                    {
-                        if (!l_Player->HasSpellCooldown(eSpells::InnerDemon) && l_Player->HasAura(eSpells::T17Demonology2P) && roll_chance_i(50))
-                        {
-                            l_Player->CastSpell(l_Player, eSpells::InnerDemon, true);
-
-                            /// 45 seconds of internal cooldown
-                            l_Player->AddSpellCooldown(eSpells::InnerDemon, 0, 45 * TimeConstants::IN_MILLISECONDS);
-                        }
-                    }
                 }
             }
 
@@ -1596,6 +1579,52 @@ class spell_warl_hand_of_guldan_damage: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_hand_of_guldan_damage_SpellScript();
+        }
+};
+
+/// last Update 6.2.3
+/// Call by Hand of Gul'Dan - 143381, Chaos Wave - 124915
+class spell_warl_t17_Demonology_2p : public SpellScriptLoader
+{
+    public:
+        spell_warl_t17_Demonology_2p() : SpellScriptLoader("spell_warl_t17_Demonology_2p") { }
+
+        class  spell_warl_t17_Demonology_2p_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_t17_Demonology_2p_SpellScript);
+
+            enum eSpells
+            {
+                T17Demonology2P = 165450,
+                InnerDemon = 166862
+            };
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                /// Hand of Gul'dan has a 50% chance empower your inner demon, temporarily bringing your Metamorphosis form out even while you are not transformed.
+                if (!l_Player->HasSpellCooldown(eSpells::InnerDemon) && l_Player->HasAura(eSpells::T17Demonology2P) && roll_chance_i(50))
+                {
+                    l_Player->CastSpell(l_Player, eSpells::InnerDemon, true);
+
+                    /// 45 seconds of internal cooldown
+                    l_Player->AddSpellCooldown(eSpells::InnerDemon, 0, 45 * TimeConstants::IN_MILLISECONDS);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_t17_Demonology_2p_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new  spell_warl_t17_Demonology_2p_SpellScript();
         }
 };
 
@@ -2379,6 +2408,7 @@ public:
         {
             Player* l_Caster = GetCaster()->ToPlayer();
             SpellInfo const* l_SpellInfo = GetSpellInfo();
+            SpellInfo const* l_GlyphSpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfEmberTap);
             if (!l_Caster || !l_SpellInfo)
                 return;
 
@@ -2386,22 +2416,17 @@ public:
             if (!l_Aura)
                 return;
 
-            if (!l_Caster->HasAura(eSpells::GlyphOfEmberTap))
+            if (!l_Caster->HasAura(eSpells::GlyphOfEmberTap) || l_GlyphSpellInfo == nullptr)
                 return;
 
             uint8 l_AdditionalTick = 0;
-            int32 l_TotalHeal = CalculatePct(l_Caster->GetMaxHealth(), l_SpellInfo->Effects[EFFECT_0].BasePoints + l_SpellInfo->Effects[EFFECT_2].BasePoints);
-
-            if (m_PreviousTotalHeal > 0)
-                l_AdditionalTick = 1;
-
-            if (AuraEffect* l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
-            {
-                float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);
-                l_TotalHeal += CalculatePct(l_TotalHeal, l_MasteryPct);
-            }
+            float l_Pct = l_SpellInfo->Effects[EFFECT_0].BasePoints + l_GlyphSpellInfo->Effects[EFFECT_2].BasePoints;
             if (AuraEffect* l_SearingFlames = l_Caster->GetAuraEffect(eSpells::SearingFlames, EFFECT_0))
-                l_TotalHeal += CalculatePct(l_TotalHeal, l_SearingFlames->GetAmount());
+            {
+                l_Pct += CalculatePct(l_Pct, l_SearingFlames->GetAmount());
+            }
+
+            int32 l_TotalHeal = CalculatePct(l_Caster->GetMaxHealth(), l_Pct);
 
             l_TotalHeal += m_PreviousTotalHeal;
 
@@ -4442,7 +4467,7 @@ class spell_warl_demonbolt : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                /* Wainting fot more information */
+                /* Wainting for more information */
                 /*float l_HastePct = 2.0f - l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
 
                 p_Amount *= l_HastePct;*/
@@ -4458,20 +4483,45 @@ class spell_warl_demonbolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_demonbolt_SpellScript);
 
+            uint32 m_Duration = 0;
+            bool m_Flag = false;
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+                float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+
+                l_Caster->AddAura(GetSpellInfo()->Id, l_Caster);
+                if (Aura* l_Aura = l_Caster->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+                    l_Aura->SetDuration(l_Aura->GetDuration() * l_HastePct);
+            }
+
+            void HandleBeforeHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (Aura* l_Aura = l_Caster->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+                    m_Duration = l_Aura->GetDuration();
+            }
+
             void HandleAfterHit()
             {
                 Unit* l_Caster = GetCaster();
 
-                float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
-
                 if (Aura* l_Aura = l_Caster->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
-                    l_Aura->SetDuration(l_Aura->GetDuration() * l_HastePct);
-
+                {
+                    if (m_Flag)
+                        l_Aura->DropStack();
+                    l_Aura->SetDuration(m_Duration);
+                    m_Flag = true;
+                }
             }
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_warl_demonbolt_SpellScript::HandleAfterCast);
                 AfterHit += SpellHitFn(spell_warl_demonbolt_SpellScript::HandleAfterHit);
+                BeforeHit += SpellHitFn(spell_warl_demonbolt_SpellScript::HandleBeforeHit);
             }
         };
 
@@ -4486,8 +4536,64 @@ class spell_warl_demonbolt : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Glyph of soul consumption
+class spell_warl_glyph_of_soul_consumption : public SpellScriptLoader
+{
+public:
+    spell_warl_glyph_of_soul_consumption() : SpellScriptLoader("spell_warl_glyph_of_soul_consumption") { }
+
+    class spell_warl_glyph_of_soul_consumption_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warl_glyph_of_soul_consumption_AuraScript);
+
+        enum eSpells
+        {
+            ChaosBolt = 116858,
+            DrainSoul = 103103,
+            Metamorphosis = 103958,
+            GlyphOfSoulConsumption = 58068
+        };
+
+        void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (!l_Player)
+                return;
+
+            uint32 l_Spec = l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+            SpellInfo const* l_Spell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+
+            if ((l_Spec == SPEC_WARLOCK_DEMONOLOGY && l_Player->HasAura(Metamorphosis)) ||
+                ( l_Spell != nullptr && ((l_Spec == SPEC_WARLOCK_DESTRUCTION && l_Spell->Id == ChaosBolt) ||
+                                        (l_Spec == SPEC_WARLOCK_AFFLICTION && l_Spell->Id == DrainSoul))))
+            {
+                l_Caster->CastSpell(l_Caster, GlyphOfSoulConsumption, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warl_glyph_of_soul_consumption_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warl_glyph_of_soul_consumption_AuraScript();
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_glyph_of_soul_consumption();
+    new spell_warl_t17_Demonology_2p();
     new spell_warl_grimoire_of_supremacy_bonus();
     new spell_warl_molten_core();
     new spell_warl_demonbolt();

@@ -103,7 +103,7 @@ namespace MS { namespace Garrison
         if (p_Player->IsQuestRewarded(Quests::Alliance_ThingsAreNotGorenOurWay) ||
             (p_Player->GetQuestStatus(Quests::Alliance_ThingsAreNotGorenOurWay) == QUEST_STATUS_INCOMPLETE))
         {
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Can you refine this draenic stone into ore for me?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::MineDefaultOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
         }
         else if (p_Player->GetQuestStatus(Quests::Alliance_ThingsAreNotGorenOurWay) == QUEST_STATUS_NONE)
@@ -214,24 +214,42 @@ namespace MS { namespace Garrison
 
     void npc_TimothyLeensAI::sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Option)
     {
+        Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
+
+        if (!l_GarrisonSite)
+            return;
+
+        Player* l_Owner = l_GarrisonSite->GetOwner();
+
+        if (l_Owner != p_Player)
+            return;
+
         if (p_Quest->GetQuestId() == Quests::Alliance_ThingsAreNotGorenOurWay)
         {
-            std::vector<uint32> l_CreatureEntries = { NPCs::NpcLunarfallGoren, NPCs::NpcLunarfallGorenHatchling, NPCs::NpcStonetooth };
-            me->DespawnCreaturesInArea(l_CreatureEntries, 100.0f);
-
-            std::list<Creature*> l_MinersList;
-            me->GetCreatureListWithEntryInGrid(l_MinersList, NPCs::NpcAllianceMiner, 150.0f);
-
-            if (l_MinersList.empty())
+            if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
             {
-                for (SequencePosition l_Pos : g_MinersPositions)
-                {
-                    if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcAllianceMiner, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
-                        l_Creature->GetMotionMaster()->MoveRandom(7.0f);
-                }
+                std::vector<uint32> l_CreatureEntries = { NPCs::NpcLunarfallGoren, NPCs::NpcLunarfallGorenHatchling, NPCs::NpcStonetooth };
+                me->DespawnCreaturesInArea(l_CreatureEntries, 100.0f);
 
-                if (Manager* l_Garrison = p_Player->GetGarrison())
-                    l_Garrison->ActivateBuilding(GetPlotInstanceID());
+                std::list<Creature*> l_MinersList;
+                me->GetCreatureListWithEntryInGrid(l_MinersList, NPCs::NpcAllianceMiner, 150.0f);
+
+                if (l_MinersList.empty())
+                {
+                    for (SequencePosition l_Pos : g_MinersPositions)
+                    {
+                        if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcAllianceMiner, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                            l_Creature->GetMotionMaster()->MoveRandom(7.0f);
+                    }
+
+                    GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_GarrisonMgr->GetBuildingWithType(BuildingType::Mine).BuildingID);
+                    Position l_Pos = *l_Owner;
+
+                    if (l_BuildingEntry)
+                        l_Owner->PlayStandaloneScene(l_Owner->GetGarrison()->GetGarrisonFactionIndex() ? l_BuildingEntry->HordeActivationScenePackageID : l_BuildingEntry->AllianceActivationScenePackageID, 0, l_Pos);
+
+                    l_GarrisonMgr->ActivateBuilding(GetPlotInstanceID());
+                }
             }
             InitGatheringPlots(0);
         }

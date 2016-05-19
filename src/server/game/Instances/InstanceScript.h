@@ -23,6 +23,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "AchievementMgr.h"
 #include "Reporter.hpp"
 #include <EasyJSon.hpp>
 //#include "GameObject.h"
@@ -220,6 +221,8 @@ enum eChallengeMedals
     MaxMedalType
 };
 
+#define CHALLENGE_MOD_ORB 211674
+
 enum eInstanceSpells
 {
     SpellDetermination          = 139068,
@@ -350,8 +353,26 @@ class InstanceScript : public ZoneScript
         /// Remove cooldown for spell on all players in instance
         void DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID);
 
+        /// Remove cooldowns equal or less than specified time to all players in instance
+        void DoRemoveSpellCooldownWithTimeOnPlayers(uint32 p_MinRecoveryTime);
+
+        /// Used to apply or unapply item set bonuses on all players in instance
+        void HandleItemSetBonusesOnPlayers(bool p_Apply);
+
+        /// Used to apply or unapply gem bonuses on all player in instance
+        void HandleGemBonusesOnPlayers(bool p_Apply);
+
         /// Do combat stop on all players in instance
         void DoCombatStopOnPlayers();
+
+        /// Set progress on a criteria for all players
+        void SetCriteriaProgressOnPlayers(CriteriaEntry const* p_Criteria, uint64 p_ChangeValue, ProgressType p_Type);
+
+        /// Teleport players to instance entrance
+        void RepopPlayersAtGraveyard(bool p_ForceGraveyard = false);
+
+        /// Respawn specified creature, or all creatures
+        void RespawnCreature(uint64 p_Guid = 0);
 
         // Return wether server allow two side groups or not
         bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
@@ -548,12 +569,15 @@ class InstanceScript : public ZoneScript
         void SaveChallengeDatasIfNeeded();
         void SaveNewGroupChallenge(uint32 p_GuildID = 0);
         uint32 RewardChallengers();
-        void RewardChallengersTitles(RealmCompletedChallenge* p_OldChallenge = nullptr);
+        void RewardNewRealmRecord(RealmCompletedChallenge* p_OldChallenge = nullptr);
+        void ResetChallengeMode();
 
         bool   m_ChallengeStarted;
         bool   m_ConditionCompleted;
+        uint32 m_CreatureKilled;
         uint32 m_StartChallengeTime;
         uint64 m_ChallengeDoorGuid;
+        uint64 m_ChallengeOrbGuid;
         uint32 m_ChallengeTime;
         uint8  m_MedalType;
         uint64 m_InstanceGuid;

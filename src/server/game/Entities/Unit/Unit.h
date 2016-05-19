@@ -94,7 +94,7 @@ enum SpellAuraInterruptFlags
     AURA_INTERRUPT_FLAG_ENTER_COMBAT                = 0x10000000,   // 28   removed by entering pvp
     AURA_INTERRUPT_FLAG_UNK29                       = 0x20000000,   // 29
     AURA_INTERRUPT_FLAG_UNK30                       = 0x40000000,   // 30
-    AURA_INTERRUPT_FLAG_UNK31                       = 0x80000000,   // 31
+    AURA_INTERRUPT_FLAG_LEAVE_COMBAT                = 0x80000000,   // 31   removed by leaving combat
 
     AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE),
 };
@@ -1081,6 +1081,10 @@ public:
         m_heal -= amount;
     }
 
+    SpellInfo const* GetSpellInfo() const { return m_spellInfo; };
+    Unit* GetTarget() const { return m_target; };
+    Unit* GetHealer() const { return m_healer; };
+    SpellSchoolMask GetSchoolMask() const { return m_schoolMask; };
     uint32 GetHeal() const { return m_heal; };
 };
 
@@ -1536,7 +1540,7 @@ class Unit : public WorldObject
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
         void resetAttackTimer(WeaponAttackType type = WeaponAttackType::BaseAttack);
         uint32 getAttackTimer(WeaponAttackType type) const { return m_attackTimer[type]; }
-        bool isAttackReady(WeaponAttackType type = WeaponAttackType::BaseAttack) const { return m_attackTimer[type] == 0; }
+        bool isAttackReady(WeaponAttackType type = WeaponAttackType::BaseAttack) const { return m_attackTimer[type] <= 0; }
         bool haveOffhandWeapon() const;
         bool CanDualWield() const { return m_canDualWield; }
         void SetCanDualWield(bool value) { m_canDualWield = value; }
@@ -2658,6 +2662,11 @@ class Unit : public WorldObject
         // Movement info
         Movement::MoveSpline * movespline;
 
+        /// Helpre for Glaive of Toss
+        uint64 GetGlaiveOfTossTargetGUID() { return m_GlaiveOfTossTargetGUID;  }
+        void SetGlaiveTossTarget(uint64 guid) { m_GlaiveOfTossTargetGUID = guid; }
+        void removeGlaiveTossTarget() { m_GlaiveOfTossTargetGUID = 0; }
+
         // helper for dark simulacrum spell
         Unit* GetSimulacrumTarget();
         void setSimulacrumTarget(uint64 guid) { simulacrumTargetGUID = guid; }
@@ -2752,7 +2761,7 @@ class Unit : public WorldObject
 
         bool m_AutoRepeatFirstCast;
 
-        uint32 m_attackTimer[WeaponAttackType::MaxAttack];
+        int32 m_attackTimer[WeaponAttackType::MaxAttack];
 
         float m_createStats[MAX_STATS];
 
@@ -2888,6 +2897,7 @@ class Unit : public WorldObject
         TimeTrackerSmall m_FlightSplineSyncTimer;
 
         uint64 simulacrumTargetGUID;
+        uint64 m_GlaiveOfTossTargetGUID;
         uint64 iciclesTargetGUID;
         uint32 m_AmountOfComets;
         float m_CometCoordinateX;

@@ -151,6 +151,16 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
     {
         p_RecvData.readPackGUID(l_ItemGuids[l_Iter]);
         p_RecvData >> l_CountOfItems[l_Iter];
+
+        for (uint32 l_J = 0; l_J < l_Iter; ++l_J)
+        {
+            if (l_ItemGuids[l_Iter] != 0 && l_ItemGuids[l_J] != 0 && l_ItemGuids[l_Iter] == l_ItemGuids[l_J])
+            {
+                // duplicate guid, cheating
+                SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_ITEM_NOT_FOUND);
+                return;
+            }
+        }
     }
 
     if (!l_Bid || !l_ETTime || l_Bid >= MAX_MONEY_AMOUNT || l_Buyout >= MAX_MONEY_AMOUNT)
@@ -221,6 +231,12 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
     if (!l_FinalCount)
     {
         SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+        return;
+    }
+
+    if (!m_Player->HasItemCount(l_TrueItemEntry, l_FinalCount))
+    {
+        SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_ITEM_NOT_FOUND);
         return;
     }
 

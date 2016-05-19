@@ -200,6 +200,7 @@ enum Opcodes
         SMSG_TALENTS_INVOLUNTARILY_RESET            = 0x035F, ///< 6.2.3 20726
         SMSG_SET_ITEM_PURCHASE_DATA                 = 0x165B, ///< 6.2.3 20726
         SMSG_SHOW_TRADE_SKILL_RESPONSE              = 0x0B77, ///< 6.2.3 20726
+        SMSG_FORCED_DEATH_UPDATE                    = 0x074C, ///< 6.2.3 20779
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0254, ///< 6.2.3 20726
@@ -1718,6 +1719,7 @@ enum Opcodes
     CMSG_CHALLENGE_MODE_REQUEST_LEADERS             = 0x089E, ///< 6.2.3 20726
     CMSG_GET_CHALLENGE_MODE_REWARDS                 = 0x04D6, ///< 6.2.3 20726
     CMSG_CHALLENGE_MODE_REQUEST_MAP_STATS           = 0x00DA, ///< 6.2.3 20726
+    CMSG_RESET_CHALLENGE_MODE                       = 0x0065, ///< 6.2.3 20779
 
     //////////////////////////////////////////////////////////////////////////
     /// BlackMarket
@@ -1804,7 +1806,6 @@ enum Opcodes
     CMSG_REQUEST_PARTY_MEMBER_STATS                     = 0x0000,
     CMSG_REQUEST_RATED_BG_INFO                          = 0x0000,
     CMSG_REQUEST_RATED_BG_STATS                         = 0x0000,
-    CMSG_RESET_CHALLENGE_MODE                           = 0x0000,
     CMSG_RESET_FACTION_CHEAT                            = 0x0000,
     CMSG_SAVE_PLAYER                                    = 0x0000,
     CMSG_SEND_SOR_REQUEST_VIA_ADDRESS                   = 0x0000,
@@ -1913,7 +1914,6 @@ enum Opcodes
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR            = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                     = 0x0000,
     SMSG_FAILED_PLAYER_CONDITION                        = 0x0000,
-    SMSG_FORCED_DEATH_UPDATE                            = 0x0000,
     SMSG_GAMEOBJECT_RESET_STATE                         = 0x0000,
     SMSG_GAME_SPEED_SET                                 = 0x0000,
     SMSG_GAME_TIME_SET                                  = 0x0000,

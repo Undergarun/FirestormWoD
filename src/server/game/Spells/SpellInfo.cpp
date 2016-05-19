@@ -1662,7 +1662,7 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
         return true;
 
     // these spells (Cyclone for example) can pierce all...         // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
-    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH || aura->Id == 48707))) ///< ...nor Anti-Magic Shell
+    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH || aura->Id == 48707 || aura->Id == 157913))) ///< ...nor Anti-Magic Shell nor Evanesce
         return true;
 
     return false;
@@ -4672,6 +4672,8 @@ bool SpellInfo::IsAffectedByWodAuraSystem() const
     switch (Id)
     {
         case 158831: ///< Devouring Plague DOT
+        case 124280: ///< Touch of Karma
+        case 114635: ///< Ember Tap
             return false;
         default:
             return true;

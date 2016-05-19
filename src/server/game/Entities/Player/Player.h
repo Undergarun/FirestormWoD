@@ -200,7 +200,8 @@ enum CharacterWorldStates
     CharWorldStateGarrisonWorkshopGearworksInvention            = 3,
     CharWorldStateGarrisonWorkshopGearworksInventionCharges     = 4,
     CharWorldStateGarrisonTradingPostDailyRandomTrader          = 5,
-    CharWorldStateGarrisonTradingPostDailyRandomShipment        = 6
+    CharWorldStateGarrisonTradingPostDailyRandomShipment        = 6,
+    CharWorldStateGarrisonArmoryWeeklyCurrencyGain              = 7
 };
 
 // Spell modifier (used for modify other spells)
@@ -622,8 +623,9 @@ enum PlayerFieldBytesOffsets
 
 enum PlayerFieldBytes2Offsets
 {
-    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION         = 1,
-    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID  = 2  // uint16!
+    PLAYER_FIELD_BYTES_2_OFFSET_IGNORE_POWER_REGEN_PREDICTION_MASK  = 0,
+    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION                         = 1,
+    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID                  = 2  ///< uint16!
 };
 
 enum PlayerAvgItemLevelOffsets
@@ -1188,6 +1190,7 @@ enum PlayerCommandStates
     CHEAT_POWER         = 0x08,
     CHEAT_WATERWALK     = 0x10,
     CHEAT_ALL_SPELLS    = 0x20,
+    CHEAT_NO_DR         = 0x40
 };
 
 enum AttackSwingError
@@ -1829,8 +1832,11 @@ class Player : public Unit, public GridObject<Player>
         * @param ignore gain multipliers
         */
 
-        int32 ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType = MS::Battlegrounds::RewardCurrencyType::Type::None);
+        int32 ModifyCurrency(uint32 id, int32 count, bool supressLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         void ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false);
+
+        void HandleItemSetBonuses(bool p_Apply);
+        void HandleGemBonuses(bool p_Apply);
 
         void ApplyEquipCooldown(Item* pItem);
         void QuickEquipItem(uint16 pos, Item* pItem);
@@ -1982,8 +1988,9 @@ class Player : public Unit, public GridObject<Player>
         void SetMonthlyQuestStatus(uint32 quest_id);
         void SetSeasonalQuestStatus(uint32 quest_id);
         void ResetDailyQuestStatus();
-        void ResetGarrisonDatas();
+        void ResetDailyGarrisonDatas();
         void ResetWeeklyQuestStatus();
+        void ResetWeeklyGarrisonDatas();
         void ResetMonthlyQuestStatus();
         void ResetSeasonalQuestStatus(uint16 event_id);
 
@@ -2340,6 +2347,7 @@ class Player : public Unit, public GridObject<Player>
 
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         void RemoveAllSpellCooldown();
+        void RemoveSpellCooldownsWithTime(uint32 p_MinRecoveryTime);
         void _LoadSpellCooldowns(PreparedQueryResult result);
         void _LoadChargesCooldowns(PreparedQueryResult p_Result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
@@ -2376,6 +2384,9 @@ class Player : public Unit, public GridObject<Player>
         bool IsRessurectRequested() const { return _resurrectionData != NULL; }
 
         void ResurectUsingRequestData();
+
+        void SendForcedDeathUpdate();
+        void SendGameError(GameError::Type p_Error, uint32 p_Data1 = 0xF0F0F0F0, uint32 p_Data2 = 0xF0F0F0F0);
 
         uint8 getCinematic()
         {
@@ -2670,7 +2681,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetResurrectionSpellId();
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
-        void RepopAtGraveyard();
+        void RepopAtGraveyard(bool p_ForceGraveYard = false);
         void TeleportToClosestGrave(float p_X, float p_Y, float p_Z, float p_O, uint32 p_MapId);
         void TeleportToClosestGrave(WorldSafeLocsEntry const* p_WorldSafeLoc) { TeleportToClosestGrave(p_WorldSafeLoc->x, p_WorldSafeLoc->y, p_WorldSafeLoc->z, p_WorldSafeLoc->o, p_WorldSafeLoc->map_id);  }
         void SendCemeteryList(bool onMap);
@@ -2722,6 +2733,7 @@ class Player : public Unit, public GridObject<Player>
         void ProcessDelayedOperations();
 
         void CheckAreaExploreAndOutdoor(void);
+        bool m_IsOutdoors;
 
         static uint32 TeamForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }
@@ -3487,7 +3499,27 @@ class Player : public Unit, public GridObject<Player>
         bool ConsumeCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
         void ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntry, uint64 p_Reductiontime);
         void RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
-        void ResetCharges(SpellCategoryEntry const* p_ChargeCategoryEntry);
+
+        ChargeStorageType::iterator ResetCharges(SpellCategoryEntry const* p_ChargeCategoryEntry)
+        {
+            if (!p_ChargeCategoryEntry)
+                return m_CategoryCharges.begin();
+
+            auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
+            if (l_Itr != m_CategoryCharges.end())
+            {
+                WorldPacket l_Data(Opcodes::SMSG_CLEAR_SPELL_CHARGES);
+                l_Data << int32(p_ChargeCategoryEntry->Id);
+                l_Data.WriteBit(false); ///< IsPet
+                l_Data.FlushBits();
+                SendDirectMessage(&l_Data);
+
+                return m_CategoryCharges.erase(l_Itr);
+            }
+
+            return m_CategoryCharges.begin();
+        }
+
         void ResetAllCharges();
         bool HasCharge(SpellCategoryEntry const* p_ChargeCategoryEntry) const;
         uint32 GetMaxCharges(SpellCategoryEntry const* p_ChargeCategoryEntry) const;
@@ -3640,6 +3672,8 @@ class Player : public Unit, public GridObject<Player>
             if (operation < DELAYED_END)
                 m_DelayedOperations |= operation;
         }
+
+        float GetMasteryCache() const { return m_MasteryCache; }
 
     protected:
         void OnEnterPvPCombat();
@@ -4123,6 +4157,9 @@ class Player : public Unit, public GridObject<Player>
 
         /// Character WorldState
         std::map<uint32/*WorldState*/, CharacterWorldState> m_CharacterWorldStates;
+
+        /// Armory caches
+        float m_MasteryCache;
 
 };
 

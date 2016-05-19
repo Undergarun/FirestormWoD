@@ -898,19 +898,31 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& p_RecvData)
     p_RecvData.readPackGUID(l_Guid);
     uint32 l_Status = p_RecvData.read<uint32>();
 
-    if (GetPlayer()->isAlive())
-        return;
-
-    if (l_Status == 1)
+    if (m_Player->isAlive())
     {
-        GetPlayer()->ClearResurrectRequestData();           // reject
+        /// Resurrecting - 60s aura preventing client from new res spells
+        m_Player->RemoveAura(160029);
         return;
     }
 
-    if (!GetPlayer()->IsRessurectRequestedBy(l_Guid))
-        return;
+    /// Accept: 0, Decline: 1, Timeout: 2
+    if (l_Status != 0)
+    {
+        /// Resurrecting - 60s aura preventing client from new res spells
+        m_Player->RemoveAura(160029);
 
-    GetPlayer()->ResurectUsingRequestData();
+        m_Player->ClearResurrectRequestData();           // reject
+        return;
+    }
+
+    if (!m_Player->IsRessurectRequestedBy(l_Guid))
+    {
+        /// Resurrecting - 60s aura preventing client from new res spells
+        m_Player->RemoveAura(160029);
+        return;
+    }
+
+    m_Player->ResurectUsingRequestData();
 }
 
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& p_RecvData)
@@ -1727,9 +1739,13 @@ void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*p_RecvData*/)
         m_Player->ResetInstances(INSTANCE_RESET_ALL, false, false);
 }
 
-void WorldSession::HandleResetChallengeModeOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleResetChallengeModeOpcode(WorldPacket& /*p_RecvData*/)
 {
-    // @TODO: Do something about challenge mode ...
+    if (InstanceScript* l_InstanceScript = m_Player->GetInstanceScript())
+    {
+        if (l_InstanceScript->instance->IsChallengeMode())
+            l_InstanceScript->ResetChallengeMode();
+    }
 }
 
 void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
