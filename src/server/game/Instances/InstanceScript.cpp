@@ -1292,16 +1292,19 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     RealmCompletedChallenge* l_GroupChallenge = sObjectMgr->GetGroupCompletedChallengeForMap(l_MapID);
     RealmCompletedChallenge* l_GuildChallenge = sObjectMgr->GetGuildCompletedChallengeForMap(l_MapID);
 
-    SaveNewGroupChallenge();
-
     /// Delete old group record if it's a new realm-best time (or if it's the first), and reward titles/achievements
     if (l_GroupChallenge == nullptr || (l_GroupChallenge != nullptr && l_GroupChallenge->m_CompletionTime > m_ChallengeTime))
     {
+        /// Delete old record
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_CHALLENGE);
         l_Statement->setUInt32(0, l_MapID);
         CharacterDatabase.Execute(l_Statement);
 
+        /// Add rewards
         RewardNewRealmRecord(l_GroupChallenge);
+
+        /// Insert new record, must be done after rewards, because l_GroupChallenge will be updated
+        SaveNewGroupChallenge();
     }
 
     bool l_GuildGroup = false;
@@ -1323,24 +1326,33 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     }
 
     /// New best time for the guild
-    if (l_GuildGroup)
+    /// Delete old guild record if it's a new realm-best time
+    if (l_GuildGroup && l_GuildChallenge != nullptr && l_GuildChallenge->m_CompletionTime > m_ChallengeTime)
     {
-        SaveNewGroupChallenge(l_GuildID);
+        /// Delete old record
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_CHALLENGE);
+        l_Statement->setUInt32(0, l_MapID);
+        l_Statement->setUInt32(1, l_GuildID);
+        CharacterDatabase.Execute(l_Statement);
 
-        /// Delete old guild record if it's a new realm-best time
-        if (l_GuildChallenge != nullptr && l_GuildChallenge->m_CompletionTime > m_ChallengeTime)
-        {
-            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_CHALLENGE);
-            l_Statement->setUInt32(0, l_MapID);
-            l_Statement->setUInt32(1, l_GuildID);
-            CharacterDatabase.Execute(l_Statement);
-        }
+        /// Insert new record
+        SaveNewGroupChallenge(l_GuildID);
     }
 }
 
 void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
 {
     uint32 l_Index = 0;
+    uint32 l_MapID = instance->GetId();
+    uint32 l_Date  = (uint32)time(nullptr);
+
+    RealmCompletedChallenge l_NewGroup;
+    l_NewGroup.m_AttemptID      = 0;
+    l_NewGroup.m_CompletionDate = l_Date;
+    l_NewGroup.m_CompletionTime = m_ChallengeTime;
+    l_NewGroup.m_GuildID        = p_GuildID;
+    l_NewGroup.m_MedalEarned    = m_MedalType;
+
     PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(p_GuildID ? CHAR_INS_GUILD_CHALLENGE : CHAR_INS_GROUP_CHALLENGE);
     l_Statement->setUInt32(l_Index++, instance->GetId());
 
@@ -1361,11 +1373,17 @@ void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
     }
 
     l_Statement->setUInt8(l_Index++, l_Count);
+    l_NewGroup.m_MembersCount = l_Count;
 
+    uint8 l_J = 0;
     for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
     {
         if (Player* l_Player = l_Iter->getSource())
         {
+            l_NewGroup.m_Members[l_J].m_Guid = l_Player->GetGUID();
+            l_NewGroup.m_Members[l_J].m_SpecID = l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+            ++l_J;
+
             l_Statement->setUInt32(l_Index++, l_Player->GetGUIDLow());
             l_Statement->setUInt32(l_Index++, l_Player->GetSpecializationId(l_Player->GetActiveSpec()));
         }
@@ -1375,12 +1393,21 @@ void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
     {
         for (uint8 l_I = 0; l_I < (5 - l_Count); ++l_I)
         {
+            l_NewGroup.m_Members[l_J].m_Guid = 0;
+            l_NewGroup.m_Members[l_J].m_SpecID = 0;
+            ++l_J;
+
             l_Statement->setUInt32(l_Index++, 0);
             l_Statement->setUInt32(l_Index++, 0);
         }
     }
 
     CharacterDatabase.Execute(l_Statement);
+
+    sObjectMgr->AddGroupCompletedChallenge(l_MapID, l_NewGroup);
+
+    if (p_GuildID)
+        sObjectMgr->AddGuildCompletedChallenge(l_MapID, l_NewGroup);
 }
 
 uint32 InstanceScript::RewardChallengers()

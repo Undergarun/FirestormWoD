@@ -1261,6 +1261,18 @@ class ObjectMgr
             return m_BattlePetNpcTeamMembers[p_NpcID];
         }
 
+        void AddGroupCompletedChallenge(uint32 p_MapID, RealmCompletedChallenge p_Challengers)
+        {
+            RealmCompletedChallenge& l_RealmChallenge = m_GroupsCompletedChallenges[p_MapID];
+            l_RealmChallenge = p_Challengers;
+        }
+
+        void AddGuildCompletedChallenge(uint32 p_MapID, RealmCompletedChallenge p_Challengers)
+        {
+            RealmCompletedChallenge& l_GuildChallenge = m_GuildsCompletedChallenges[p_MapID];
+            l_GuildChallenge = p_Challengers;
+        }
+
         RealmCompletedChallenge* GetGroupCompletedChallengeForMap(uint32 p_MapID)
         {
             if (m_GroupsCompletedChallenges.find(p_MapID) == m_GroupsCompletedChallenges.end())
