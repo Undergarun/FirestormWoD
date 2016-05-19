@@ -18520,7 +18520,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                         if (!l_RefPlayer)
                             continue;
 
-                        if (l_RefPlayer->GetDistance2d(p_KilledVictim) < 100.f)
+                        if (l_RefPlayer->GetDistance2d(p_KilledVictim) < 100.0f)
                         {
                             if (MS::Garrison::Manager* l_Garr = l_RefPlayer->GetGarrison())
                             {
@@ -18560,7 +18560,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
 
             if (p_KilledVictim->ToPlayer() && (l_KillerPlayer->GetMapId() == 1116 || l_KillerPlayer->GetMapId() == 1191))
             {
-                if (l_KillerPlayer->GetDistance2d(p_KilledVictim) < 100.f)
+                if (l_KillerPlayer->GetDistance2d(p_KilledVictim) < 100.0f)
                 {
                     if (MS::Garrison::Manager* l_Garr = l_KillerPlayer->GetGarrison())
                     {

@@ -2273,7 +2273,7 @@ struct npc_training_dummyAI : Scripted_NoMovementAI
 
     void MoveInLineOfSight(Unit* p_Who)
     {
-        if (!me->IsWithinDistInMap(p_Who, 25.f) && p_Who->isInCombat())
+        if (!me->IsWithinDistInMap(p_Who, 25.0f) && p_Who->isInCombat())
         {
             me->RemoveAllAurasByCaster(p_Who->GetGUID());
             me->getHostileRefManager().deleteReference(p_Who);
