@@ -257,8 +257,18 @@ void Channel::Join(uint64 p, const char *pass)
         if (!m_Players.empty())
             UpdateChannelUseageInDB();
 
+        /// Special case for the world channel, players can't be moderator or owner.
+        if (m_name == "world")
+        {
+            if (player && player->GetSession()->GetSecurity() > AccountTypes::SEC_MODERATOR)
+            {
+                m_Players[p].SetModerator(true);
+                if (!m_ownerGUID && m_ownership)
+                    SetOwner(p, (m_Players.size() > 1 ? true : false));
+            }
+        }
         // If the channel has no owner yet and ownership is allowed, set the new owner.
-        if (!m_ownerGUID && m_ownership)
+        else if (!m_ownerGUID && m_ownership)
         {
             SetOwner(p, (m_Players.size() > 1 ? true : false));
             m_Players[p].SetModerator(true);
