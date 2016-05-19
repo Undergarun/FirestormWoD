@@ -287,111 +287,7 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 6. Load all bank event logs
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading guild bank event logs...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        // Remove log entries that exceed the number of allowed entries per guild
-        CharacterDatabase.DirectPExecute("DELETE FROM guild_bank_eventlog WHERE LogGuid > %u", sWorld->getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT));
-
-                                                     //          0        1      2        3          4           5            6               7          8
-        QueryResult result = CharacterDatabase.Query("SELECT guildid, TabId, LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
-
-        if (!result)
-        {
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild bank event logs. DB table `guild_bank_eventlog` is empty.");
-        }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
-
-                if (Guild* guild = GetGuildById(guildId))
-                    guild->LoadBankEventLogFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild bank event logs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-        }
-    }
-
-    // 7. Load all guild bank tabs
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading guild bank tabs...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        // Delete orphaned guild bank tab entries before loading the valid ones
-        CharacterDatabase.DirectExecute("DELETE gbt FROM guild_bank_tab gbt LEFT JOIN guild g ON gbt.guildId = g.guildId WHERE g.guildId IS NULL");
-
-                                                     //         0        1      2        3        4
-        QueryResult result = CharacterDatabase.Query("SELECT guildid, TabId, TabName, TabIcon, TabText FROM guild_bank_tab ORDER BY guildid ASC, TabId ASC");
-
-        if (!result)
-        {
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild bank tabs. DB table `guild_bank_tab` is empty.");
-        }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
-
-                if (Guild* guild = GetGuildById(guildId))
-                    guild->LoadBankTabFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild bank tabs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-        }
-    }
-
-    // 8. Fill all guild bank tabs
-    sLog->outInfo(LOG_FILTER_GUILD, "Filling bank tabs with items...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        // Delete orphan guild bank items
-        CharacterDatabase.DirectExecute("DELETE gbi FROM guild_bank_item gbi LEFT JOIN guild g ON gbi.guildId = g.guildId WHERE g.guildId IS NULL");
-
-                                                     //          0            1                2      3         4        5      6                  7                 8           9      10
-        QueryResult result = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, bonuses, upgradeId, "
-                                                     //   11       12           13      14          15                   16      17       18        19    20
-                                                     "durability, playedTime, text, custom_flags, enchantIllusionId, guildid, TabId, SlotId, item_guid, itemEntry FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid");
-
-        if (!result)
-        {
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild bank tab items. DB table `guild_bank_item` or `item_instance` is empty.");
-        }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[16].GetUInt32();
-
-                if (Guild* guild = GetGuildById(guildId))
-                    guild->LoadBankItemFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild bank tab items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-        }
-    }
-
-    // 9. Load guild achievements
+    // 6. Load guild achievements
     {
         PreparedQueryResult achievementResult;
         PreparedQueryResult criteriaResult;
@@ -408,13 +304,13 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 10. Deleting old Guild News (older than one week)
+    // 7. Deleting old Guild News (older than one week)
     sLog->outInfo(LOG_FILTER_GENERAL, "Deleting old Guild News");
     {
         CharacterDatabase.PQuery("DELETE FROM guild_news_log WHERE date < %u;", uint32(time(NULL) - DAY * 7));
     }
 
-    // 11. Loading Guild news
+    // 8. Loading Guild news
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Guild News");
     {
         for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
@@ -425,7 +321,7 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 12. Validate loaded guild data
+    // 9. Validate loaded guild data
     sLog->outInfo(LOG_FILTER_GENERAL, "Validating data of loaded guilds...");
     {
         uint32 oldMSTime = getMSTime();
@@ -441,6 +337,7 @@ void GuildMgr::LoadGuilds()
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Validated data of loaded guilds in %u ms", GetMSTimeDiffToNow(oldMSTime));
     }
 
+    // 10. Validate loaded guild challenges
     sLog->outInfo(LOG_FILTER_GENERAL, "Validating guild Challenges...");
     {
         uint32 l_OldMSTime = getMSTime();
@@ -465,6 +362,15 @@ void GuildMgr::LoadGuilds()
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild challenges in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
         }
     }
+
+    // Delete orphaned guild bank tab entries
+    CharacterDatabase.DirectExecute("DELETE gbt FROM guild_bank_tab gbt LEFT JOIN guild g ON gbt.guildId = g.guildId WHERE g.guildId IS NULL");
+
+    // Delete orphan guild bank items
+    CharacterDatabase.DirectExecute("DELETE gbi FROM guild_bank_item gbi LEFT JOIN guild g ON gbi.guildId = g.guildId WHERE g.guildId IS NULL");
+
+    // Remove log entries that exceed the number of allowed entries per guild
+    CharacterDatabase.DirectPExecute("DELETE FROM guild_bank_eventlog WHERE LogGuid > %u", sWorld->getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT));
 }
 
 void GuildMgr::LoadGuildRewards()

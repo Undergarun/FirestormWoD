@@ -509,7 +509,7 @@
 
 #Quests that need garrison lvl 3
 
-	DELETE FROM conditions WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 77377;
+	DELETE FROM conditions WHERE SourceTypeOrReferenceId = 19 AND ConditionTypeOrReference = 40 AND conditionvalue1 = 3;
 	INSERT INTO conditions (SourceTypeOrReferenceId, SourceEntry, ConditionTypeOrReference, conditionvalue1, COMMENT) VALUES
 	(19, 35186, 40, 3, "this quest needs garrison lvl 3 to be offered"),
 	(19, 38253, 40, 3, "this quest needs garrison lvl 3 to be offered"),
@@ -556,11 +556,11 @@
 	(178444, 114808, 35, 1, 1, 1, 1, ''),
 	(178444, 114822, 15, 1, 1, 1, 1, '');
 
-	DELETE FROM spell_loot_template WHERE entry = 178445;
+	DELETE FROM spell_loot_template WHERE entry = 178444;
 	INSERT INTO spell_loot_template VALUES
-	(178445, 114128, 50, 1, 1, 1, 1, ''),
-	(178445, 114129, 35, 1, 1, 1, 1, ''),
-	(178445, 114131, 15, 1, 1, 1, 1, '');
+	(178444, 114128, 50, 1, 1, 1, 1, ''),
+	(178444, 114129, 35, 1, 1, 1, 1, ''),
+	(178444, 114131, 15, 1, 1, 1, 1, '');
 
 #85048/NPC - Farmer LokLub
 

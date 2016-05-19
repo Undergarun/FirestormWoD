@@ -14,6 +14,10 @@
 #include <ace/TSS_T.h>
 #include <ace/INET_Addr.h>
 
+# ifdef WIN32
+    # include <ppl.h>
+# endif
+
 typedef ACE_TSS<CRandomSFMT> SFMTRandTSS;
 static SFMTRandTSS sfmtRand;
 
@@ -508,4 +512,14 @@ std::string ByteArrayToHexStr(uint8 const* bytes, uint32 arrayLen, bool reverse 
     }
 
     return ss.str();
+}
+
+void ParallelFor(uint32 p_Start, uint32 p_End, std::function<void(uint32)> p_Func)
+{
+    #ifdef WIN32
+        concurrency::parallel_for(p_Start, p_End, p_Func);
+    #else
+        for (int l_I = p_Start; l_I < p_End; l_I++)
+            p_Func(l_I);
+    #endif
 }

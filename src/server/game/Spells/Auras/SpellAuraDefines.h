@@ -337,7 +337,7 @@ enum AuraType
     SPELL_AURA_ABILITY_PERIODIC_CRIT                        = 286,
     SPELL_AURA_DEFLECT_SPELLS                               = 287,
     SPELL_AURA_IGNORE_HIT_DIRECTION                         = 288,
-    SPELL_AURA_289                                          = 289,
+    SPELL_AURA_PREVENT_DURABILITY_LOSS                      = 289,
     SPELL_AURA_MOD_CRIT_PCT                                 = 290,
     SPELL_AURA_MOD_XP_QUEST_PCT                             = 291,
     SPELL_AURA_OPEN_STABLE                                  = 292,
@@ -521,7 +521,7 @@ enum AuraType
     SPELL_AURA_470                                          = 470,  // 6.0.X
     SPELL_AURA_MOD_VERSATILITY_PCT                          = 471,  // 6.0.X
     SPELL_AURA_472                                          = 472,  // 6.0.X 174627 Fixate
-    SPELL_AURA_DONT_LOOSE_DURABILITY                        = 473,  // 6.0.X
+    SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT          = 473,  // 6.0.X Prevents durability loss from dealing/taking damage
     SPELL_AURA_474                                          = 474,  // 6.0.X Upgrade (170733) used on bonus loot item in quest
     SPELL_AURA_475                                          = 475,  // 6.0.X used for garr ability check comments http://fr.wowhead.com/spell=169606#english-comments
     SPELL_AURA_MOD_CURRENCY_GAIN_PCT                        = 476,  // 6.0.X

@@ -742,7 +742,7 @@ class Guild
         // Send info to client
         void SendEventLog(WorldSession* session) const;
         void SendBankLog(WorldSession* session, uint8 tabId) const;
-        void SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo) const;
+        void SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo);
         void SendBankTabText(WorldSession* session, uint8 tabId) const;
         void SendPermissions(WorldSession* session) const;
         void SendMoneyInfo(WorldSession* session) const;
@@ -818,6 +818,7 @@ class Guild
         }
 
         int32 GetChallengeCount(int32 p_Type) const { return m_ChallengeCount[p_Type]; }
+        void LoadBank();
 
     protected:
         uint32 m_id;
@@ -827,6 +828,7 @@ class Guild
         std::string m_info;
         time_t m_createdDate;
         int32 m_ChallengeCount[ChallengeMax];
+        bool m_BankLoaded;
 
         EmblemInfo m_emblemInfo;
         uint32 m_accountsNumber;

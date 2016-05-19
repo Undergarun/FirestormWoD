@@ -682,12 +682,10 @@ struct CharShipmentContainerEntry
     uint32 BuildingType;                                            ///< 2
     LocalizedString const* Name;                                    ///< 3
     uint32 TextureKitID;                                            ///< 4
-    uint32 Unk2;                                                    ///< 5
-    uint32 Unk3;                                                    ///< 6
-    uint32 Unk4;                                                    ///< 7
-    uint32 Unk5;                                                    ///< 8
-    uint32 Unk6;                                                    ///< 9
-    uint32 Unk7;                                                    ///< 10
+    uint32 OverrideDisplayIfNotNull;                                ///< 5 - shipyard override displayID
+    uint32 OverrideDisplayID1;                                      ///< 6
+    uint32 OverrideIfAmountMet[2];                                  ///< 7-8
+    uint32 ShipmentAmountNeeded[2];                                 ///< 9-10
     LocalizedString const* Description;                             ///< 11
     uint32 Unk8;                                                    ///< 12
     uint32 Unk9;                                                    ///< 13

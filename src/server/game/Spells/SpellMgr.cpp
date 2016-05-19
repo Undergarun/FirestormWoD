@@ -3095,16 +3095,20 @@ void SpellMgr::LoadSpellInfoStore()
         l_VisualsBySpell[l_Entry->SpellId][l_Entry->DifficultyID].push_back(l_Entry);
     }
 
-    for (uint32 l_I = 0; l_I < sSpellStore.GetNumRows(); ++l_I)
+    ParallelFor(0, sSpellStore.GetNumRows(), [this, &l_VisualsBySpell](uint32 l_I) -> void
     {
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(l_I))
         {
+            auto l_Itr = l_VisualsBySpell.find(l_I);
+            SpellVisualMap emptyMap;
+            SpellVisualMap& visualMap = (l_Itr == l_VisualsBySpell.end()) ? emptyMap : l_Itr->second;
+
             std::set<uint32> difficultyInfo = mAvaiableDifficultyBySpell[l_I];
 
             for (std::set<uint32>::iterator itr = difficultyInfo.begin(); itr != difficultyInfo.end(); itr++)
-                mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr), std::move(l_VisualsBySpell[l_I]));
+                mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr), std::move(visualMap));
         }
-    }
+    });
 
     for (uint32 l_I = 0; l_I < sSpellPowerStore.GetNumRows(); l_I++)
     {
@@ -3455,6 +3459,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].MiscValue = 305;
                 spellInfo->Effects[0].MiscValueB = 230;
+                break;
+            case 1949:
+                spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
                 break;
             case 173702: ///< Lasso Break
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
