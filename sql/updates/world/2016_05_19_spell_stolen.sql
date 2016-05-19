@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS spell_stolen (spell_id INT(11), COMMENT BLOB NULL);

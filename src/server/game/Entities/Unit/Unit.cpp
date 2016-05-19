@@ -8538,13 +8538,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (!caster || !victim)
                         return false;
 
+                    bool l_IsStolenSpell = sObjectMgr->IsStolenSpell(procSpell->Id);
                     caster->removeSimulacrumTarget();
 
-                    if (!procSpell->IsCanBeStolen() || !triggeredByAura)
+                    if ((!procSpell->IsCanBeStolen() || !triggeredByAura) && !l_IsStolenSpell)
                         return false;
 
                     if (Creature* targetCreature = victim->ToCreature())
-                        if (!targetCreature->isCanGiveSpell(caster))
+                        if (!targetCreature->isCanGiveSpell(caster) && !l_IsStolenSpell)
                             return false;
 
                     caster->setSimulacrumTarget(victim->GetGUID());
