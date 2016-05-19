@@ -1273,7 +1273,8 @@ class spell_mage_frostjaw: public SpellScriptLoader
         }
 };
 
-// Combustion - 11129
+/// Last Update 6.2.3
+/// Combustion - 11129
 class spell_mage_combustion: public SpellScriptLoader
 {
     public:
@@ -1292,7 +1293,9 @@ class spell_mage_combustion: public SpellScriptLoader
             {
                 Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
-                if (!l_Player || !l_Target)
+                SpellInfo const* l_SpellInfoCombustion = sSpellMgr->GetSpellInfo(SPELL_MAGE_COMBUSTION_DOT);
+
+                if (l_Player == nullptr || l_Target == nullptr || l_SpellInfoCombustion == nullptr)
                     return;
 
                 if (SpellInfo const* l_InfernoBlast = sSpellMgr->GetSpellInfo(eSpells::InfernoBlast))
@@ -1309,20 +1312,23 @@ class spell_mage_combustion: public SpellScriptLoader
                     if (!(*i)->GetAmplitude())
                         continue;
 
-                    combustionBp += l_Player->SpellDamageBonusDone(l_Target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
+                    int32 l_Amount = l_Player->SpellDamageBonusDone(l_Target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
+                    l_Amount = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Amount, DOT);
+
+                    combustionBp = (l_Amount * ((*i)->GetBase()->GetMaxDuration() / (*i)->GetAmplitude()) / (l_SpellInfoCombustion->GetMaxDuration() / l_SpellInfoCombustion->Effects[EFFECT_0].Amplitude));
                 }
 
                 if (combustionBp)
                     l_Player->CastCustomSpell(l_Target, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_mage_combustion_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_mage_combustion_SpellScript();
         }
@@ -3296,6 +3302,48 @@ public:
     }
 };
 
+/// Last update 6.2.3
+/// Glyph of Conjure Familiar - 126748
+class spell_mage_conjure_familiar_glyph : public SpellScriptLoader
+{
+public:
+    spell_mage_conjure_familiar_glyph() : SpellScriptLoader("spell_mage_conjure_familiar_glyph") { }
+
+    class spell_mage_conjure_familiar_glyph_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_conjure_familiar_glyph_AuraScript);
+
+        enum eSpells
+        {
+            GlyphOfConjureFamiliar = 126748,
+            ConjureFamiliar = 126578
+        };
+
+        void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                l_Player->learnSpell(ConjureFamiliar, true);
+        }
+
+        void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                l_Player->removeSpell(ConjureFamiliar);
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_mage_conjure_familiar_glyph_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectApplyFn(spell_mage_conjure_familiar_glyph_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_conjure_familiar_glyph_AuraScript();
+    }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_mage_spell_scripts()
 {
@@ -3303,6 +3351,7 @@ void AddSC_mage_spell_scripts()
     new spell_areatrigger_mage_wod_frost_2p_bonus();
 
     /// Spells
+    new spell_mage_conjure_familiar_glyph();
     new spell_mage_ice_block();
     new spell_mage_finger_of_frost();
     new spell_mage_arcane_missiles_visual();

@@ -16606,6 +16606,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             SendEquipError(msg, pSrcItem, pDstItem);
             return;
         }
+        RemoveAuraDependentItem(pSrcItem);
     }
 
     // prevent put equipped/bank bag in self
@@ -28791,6 +28792,29 @@ void Player::RemoveItemDependentAurasAndCasts(Item* pItem)
         if (Spell* spell = GetCurrentSpell(CurrentSpellTypes(i)))
             if (spell->getState() != SPELL_STATE_DELAYED && !HasItemFitToSpellRequirements(spell->m_spellInfo, pItem))
                 InterruptSpell(CurrentSpellTypes(i));
+}
+
+void Player::RemoveAuraDependentItem(Item* p_Item)
+{
+    if (p_Item == nullptr)
+        return;
+
+    for (AuraMap::iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end();)
+    {
+        Aura* l_Aura = itr->second;
+
+        SpellInfo const* spellInfo = l_Aura->GetSpellInfo();
+        if (l_Aura->IsPassive() || l_Aura->GetCasterGUID() != GetGUID())
+        {
+            ++itr;
+            continue;
+        }
+
+        if (l_Aura->GetCastItemGUID() == p_Item->GetGUID())
+            RemoveOwnedAura(itr);
+        else
+            ++itr;
+    }
 }
 
 uint32 Player::GetResurrectionSpellId()

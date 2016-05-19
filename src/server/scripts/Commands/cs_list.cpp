@@ -407,7 +407,7 @@ public:
         return true;
     }
 
-    static bool HandleListAurasCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleListAurasCommand(ChatHandler* handler, char const* args)
     {
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
@@ -424,7 +424,7 @@ public:
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());
         for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         {
-            bool talent = false;// GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
+            bool talent = sSpellMgr->IsTalent(itr->second->GetBase()->GetId());
 
             AuraApplication const* aurApp = itr->second;
             Aura const* aura = aurApp->GetBase();
@@ -440,16 +440,24 @@ public:
                 GUID_LOPART(aura->GetCasterGUID()));
         }
 
-        for (uint16 i = 0; i < TOTAL_AURAS; ++i)
+        char* triggeredStr = strtok((char*)args, " ");
+        if (triggeredStr)
         {
-            Unit::AuraEffectList const& auraList = unit->GetAuraEffectsByType(AuraType(i));
-            if (auraList.empty())
-                continue;
+            int l = strlen(triggeredStr);
+            if (strncmp(triggeredStr, "type", l) == 0)
+            {
+                for (uint16 i = 0; i < TOTAL_AURAS; ++i)
+                {
+                    Unit::AuraEffectList const& auraList = unit->GetAuraEffectsByType(AuraType(i));
+                    if (auraList.empty())
+                        continue;
 
-            handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, auraList.size(), i);
+                    handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, auraList.size(), i);
 
-            for (Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
-                handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(), (*itr)->GetAmount());
+                    for (Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
+                        handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(), (*itr)->GetAmount());
+                }
+            }
         }
 
         return true;

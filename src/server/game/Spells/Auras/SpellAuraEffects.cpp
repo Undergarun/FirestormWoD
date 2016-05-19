@@ -743,23 +743,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         if (!l_CustomAmount && m_spellInfo->ProcFlags)
         {
             m_CrowdControlDamage = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
-            if (caster)
-            {
-                // Glyphs increasing damage cap
-                Unit::AuraEffectList const& overrideClassScripts = caster->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-                for (Unit::AuraEffectList::const_iterator itr = overrideClassScripts.begin(); itr != overrideClassScripts.end(); ++itr)
-                {
-                    if ((*itr)->IsAffectingSpell(m_spellInfo))
-                    {
-                        // Glyph of Frost nova and similar auras
-                        if ((*itr)->GetMiscValue() == 7801)
-                        {
-                            AddPct(m_CrowdControlDamage, (*itr)->GetAmount());
-                            break;
-                        }
-                    }
-                }
-            }
         }
     }
 

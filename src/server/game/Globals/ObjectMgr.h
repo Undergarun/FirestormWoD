@@ -1226,6 +1226,7 @@ class ObjectMgr
         void LoadPhaseDefinitions();
         void LoadSpellPhaseInfo();
         void LoadSpellInvalid();
+        void LoadSpellStolen();
         void LoadDisabledEncounters();
         void LoadBattlePetTemplate();
         void LoadBattlePetNpcTeamMember();
@@ -1691,6 +1692,14 @@ class ObjectMgr
             return false;
         }
 
+        bool IsStolenSpell(uint32 p_SpellId)
+        {
+            if (std::find(m_SpellStolen.begin(), m_SpellStolen.end(), p_SpellId) != m_SpellStolen.end())
+                return true;
+
+            return false;
+        }
+
         bool IsDisabledEncounter(uint32 p_EncounterID, uint32 p_DifficultyID) const
         {
             auto l_Iter = m_DisabledEncounters.find(std::make_pair(p_EncounterID, p_DifficultyID));
@@ -1874,6 +1883,7 @@ class ObjectMgr
         std::set<uint32> _hasDifficultyEntries[Difficulty::MaxDifficulties - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
 
         std::list<uint32> m_SpellInvalid;
+        std::list<uint32> m_SpellStolen;
 
         std::set<uint32> _overwriteExtendedCosts;
 

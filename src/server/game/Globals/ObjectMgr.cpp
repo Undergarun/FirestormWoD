@@ -10982,6 +10982,40 @@ void ObjectMgr::LoadSpellInvalid()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Spell Invalid in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
+void ObjectMgr::LoadSpellStolen()
+{
+    uint32 l_OldMSTime = getMSTime();
+    m_SpellStolen.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT spell_id FROM spell_stolen");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Spell Stolen. DB table `spell_stolen` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+        uint32 l_SpellID = l_Fields[0].GetUInt32();
+
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
+        if (!spellInfo)
+        {
+            sLog->outError(LOG_FILTER_SQL, "SpellStolen: spell (spell_id:%d) does not exist in `Spell.dbc`.", l_SpellID);
+            continue;
+        }
+
+        m_SpellStolen.push_back(l_SpellID);
+
+        l_Count++;
+    } while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Spell Stolen in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
 void ObjectMgr::LoadDisabledEncounters()
 {
     uint32 l_OldMSTime = getMSTime();
