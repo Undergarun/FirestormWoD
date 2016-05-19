@@ -34207,6 +34207,50 @@ void Player::_LoadCompletedChallenges(PreparedQueryResult&& p_Result)
         l_Challenge.m_BestMedalDate = l_Field[4].GetUInt32();
 
         m_CompletedChallenges.insert(std::make_pair(l_MapID, l_Challenge));
+
+        RealmCompletedChallenge* l_GroupChallenge = sObjectMgr->GetGroupCompletedChallengeForMap(l_MapID);
+
+        /// Check if player has realm best-time rewards, and if he has the realm best-time
+        /// If not, and if he already has the rewards, remove them
+        if (l_GroupChallenge == nullptr || l_Challenge.m_BestTime > l_GroupChallenge->m_CompletionTime)
+        {
+            ChallengeReward* l_Reward = sObjectMgr->GetChallengeRewardsForMap(l_MapID);
+            if (l_Reward == nullptr)
+                continue;
+
+            CharTitlesEntry const* l_Title = sCharTitlesStore.LookupEntry(l_Reward->TitleID);
+            if (l_Title == nullptr)
+                continue;
+
+            if (HasTitle(l_Title))
+                SetTitle(l_Title, true);
+
+            /// Remove active title if set
+            if (GetUInt32Value(EPlayerFields::PLAYER_FIELD_PLAYER_TITLE) == l_Title->MaskID)
+                SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, 0);
+        }
+        /// If he has the realm best-time, check if he was rewarded
+        /// If not, reward him
+        else if (l_GroupChallenge->HasPlayer(this))
+        {
+            ChallengeReward* l_Reward = sObjectMgr->GetChallengeRewardsForMap(l_MapID);
+            if (l_Reward == nullptr)
+                continue;
+
+            CharTitlesEntry const* l_Title = sCharTitlesStore.LookupEntry(l_Reward->TitleID);
+            if (l_Title == nullptr)
+                continue;
+
+            if (!HasTitle(l_Title))
+                SetTitle(l_Title, false);
+
+            AchievementEntry const* l_Achievement = sAchievementStore.LookupEntry(l_Reward->AchievementID);
+            if (l_Achievement == nullptr)
+                return;
+
+            if (!GetAchievementMgr().HasAchieved(l_Reward->AchievementID))
+                CompletedAchievement(l_Achievement);
+        }
     }
     while (p_Result->NextRow());
 }

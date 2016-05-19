@@ -710,6 +710,17 @@ struct RealmCompletedChallenge
     uint8 m_MembersCount;
 
     ChallengeMember m_Members[5];
+
+    bool HasPlayer(Player* p_Player) const
+    {
+        for (uint8 l_I = 0; l_I < 5; ++l_I)
+        {
+            if (m_Members[l_I].m_Guid == p_Player->GetGUID())
+                return true;
+        }
+
+        return false;
+    }
 };
 
 struct ChallengeReward
