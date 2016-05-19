@@ -810,9 +810,12 @@ class item_script_challengers_strongbox : public ItemScript
             if (!p_Player->GetBagsFreeSlots())
                 return false;
 
-            p_Player->AddItem(l_ItemID, 1);
-            p_Player->SendDisplayToast(l_ItemID, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
-            p_Player->DestroyItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
+            if (Item* l_Item = p_Player->AddItem(l_ItemID, 1))
+            {
+                p_Player->SendDisplayToast(l_ItemID, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false, l_Item->GetAllItemBonuses());
+                p_Player->DestroyItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
+            }
+
             return true;
         }
 };
