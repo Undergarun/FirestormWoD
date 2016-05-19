@@ -8,6 +8,9 @@ INSERT INTO gameobject (id, map, zoneId, areaId, spawnMask, phaseMask, position_
 (211674, 1182, 6912, 6912, 262, 1, 1799.76, 3178.47, 35.1397, 0.253945, 0, 0, 0.126632, 0.99195, 1),
 (211989, 1182, 6912, 6912, 262, 1, 1820.06, 3182.08, 31.0, 0.0890102, 0, 0, 0.0444904, 0.99901, 1);
 
+# Iron Docks Datas
+UPDATE creature SET spawnMask = spawnMask | 256, phaseMask = 1 WHERE map = 1195;
+
 DELETE FROM gossip_menu WHERE entry = 13872;
 INSERT INTO gossip_menu VALUE (13872, 61903);
 

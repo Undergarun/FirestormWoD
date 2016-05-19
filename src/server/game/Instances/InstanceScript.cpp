@@ -1295,7 +1295,7 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     SaveNewGroupChallenge();
 
     /// Delete old group record if it's a new realm-best time (or if it's the first), and reward titles/achievements
-    if (l_GuildChallenge == nullptr || (l_GroupChallenge != nullptr && l_GroupChallenge->m_CompletionTime > m_ChallengeTime))
+    if (l_GroupChallenge == nullptr || (l_GroupChallenge != nullptr && l_GroupChallenge->m_CompletionTime > m_ChallengeTime))
     {
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_CHALLENGE);
         l_Statement->setUInt32(0, l_MapID);

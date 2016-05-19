@@ -380,7 +380,8 @@ namespace MS
                             l_SolarFlare->ToCreature()->DespawnOrUnsummon();
                     }
 
-                    p_Killer->SummonGameObject(GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES, 925.22f, 1904.54f, 213.86f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                    if (!me->GetMap()->IsChallengeMode())
+                        p_Killer->SummonGameObject(GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES, 925.22f, 1904.54f, 213.86f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
 
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);

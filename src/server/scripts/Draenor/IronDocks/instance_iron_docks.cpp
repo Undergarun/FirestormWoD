@@ -246,6 +246,19 @@ class instance_iron_docks : public InstanceMapScript
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
 
+                switch (type)
+                {
+                    case eIronDocksDatas::DataSkulloc:
+                    {
+                        if (state == EncounterState::DONE)
+                            DoKilledMonsterKredit(eIronDocksScenario::DailyChallengeQuestID, eIronDocksScenario::DailyChallengeKillCredit);
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
                 return true;
             }
 

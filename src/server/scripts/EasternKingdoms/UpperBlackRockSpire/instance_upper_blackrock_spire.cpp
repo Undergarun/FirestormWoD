@@ -214,9 +214,14 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         break;
                     }
                     case DATA_WARLORD_ZAELA:
+                    {
                         if (p_State != DONE)
                             m_EmberscaleKilled = 0;
+                        else
+                            DoKilledMonsterKredit(eScenarioDatas::DailyChallengeQuestID, eScenarioDatas::DailyChallengeKillCredit);
+
                         break;
+                    }
                     default:
                         break;
                 }

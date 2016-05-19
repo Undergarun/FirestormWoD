@@ -99,19 +99,21 @@ namespace MS
 
             enum eScenarioDatas
             {
+                DailyChallengeQuestID       = 37260,
+                DailyChallengeKillCredit    = 79115,
                 /// Normal/Heroic Mode
                 /// ScenarioID
-                BloodmaulScenarioID     = 681,
+                BloodmaulScenarioID         = 681,
                 /// Bosses
-                BloodmaulMagmolatus     = 25036,
-                BloodmaulCrushto        = 25035,
-                BloodmaulRoltall        = 25037,
-                BloodmaulGugrokk        = 24989,
+                BloodmaulMagmolatus         = 25036,
+                BloodmaulCrushto            = 25035,
+                BloodmaulRoltall            = 25037,
+                BloodmaulGugrokk            = 24989,
                 /// Challenge Mode
                 /// ScenarioID
-                BloodmaulChallengeID    = 425,
-                BloodmaulKillCount      = 39,
-                BloodmaulEnnemies       = 25122
+                BloodmaulChallengeID        = 425,
+                BloodmaulKillCount          = 39,
+                BloodmaulEnnemies           = 25122
             };
 
             namespace SlaverWatcherCrushto
