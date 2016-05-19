@@ -161,7 +161,6 @@ namespace MS { namespace Garrison
                 case ShipmentTest:
                 case ShipmentUnk1:
                 case ShipmentFishingHut:
-                case ShipmentConquerorsTribute:
                 case ShipmentOverchargedDemolisher:
                 case ShipmentOverchargedSiegeEngine:
                 case ShipmentShipDestroyer:
@@ -330,6 +329,8 @@ namespace MS { namespace Garrison
                     l_RewardItems.insert(std::make_pair(122514, roll_chance_i(15) ? 1 : 0));
                     break;
                 case ShipmentGladiatorsSanctum:
+                case ShipmentConquerorsTribute:
+                    l_RewardItems.clear();
                     if (l_Garrison->FillSanctumWorkOrderRewards(l_RewardItems, l_RewardedCurrencies))
                     {
                         uint32 l_Quest = p_Player->GetTeamId() == TEAM_ALLIANCE ? Quests::Alliance_WarlordOfDraenor : Quests::Horde_WarlordOfDraenor;

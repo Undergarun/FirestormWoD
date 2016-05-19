@@ -29,6 +29,7 @@
 #include <cctype>
 #include <iomanip>
 #include <sstream>
+#include <functional>
 
  void init_sfmt();
 
@@ -731,5 +732,7 @@ inline uint32 ExtractBitMaskBitCount(uint32 p_Value)
     return 0x1010101 * (((l_MaskPart & 0x33333333) + ((l_MaskPart >> 2) & 0x33333333)
         + (((l_MaskPart & 0x33333333) + ((l_MaskPart >> 2) & 0x33333333)) >> 4)) & 0xF0F0F0F) >> 24;
 }
+
+void ParallelFor(uint32 p_Start, uint32 p_End, std::function<void(uint32)> p_Func);
 
 #endif

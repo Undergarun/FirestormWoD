@@ -3251,3 +3251,17 @@ Reporting.Address   = "http://127.0.0.1:9200/"
 Reporting.Index     = "firestorm/guild_ranking/?pretty"
 
 ###################################################################################################
+
+
+###################################################################################################
+# Loading options
+#          Description: Used to disable some feature at loading (quests, gameobject, loots etc) to get faster loading for debug purpose
+#          fastdebug option disable load of locales, restruct creature/gameobject guid, pool data, smartai & only load spawn from map id 1
+loading.quest             = 1
+loading.loot              = 1
+loading.locales           = 1
+loading.gameobject        = 1
+loading.researchsite      = 1
+loading.onlyspecifimaps   = 0
+loading.onlymaps          = ""
+loading.itemspecload      = 1

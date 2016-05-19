@@ -1034,7 +1034,7 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
 ///////////////////////////////////////////////////////////////////////////////
 // Guild
 Guild::Guild() : m_id(0), m_leaderGuid(0), m_createdDate(0), m_accountsNumber(0), m_bankMoney(0), m_eventLog(NULL),
-    m_achievementMgr(this), _newsLog(this)
+    m_achievementMgr(this), _newsLog(this), m_BankLoaded(false)
 {
     for (uint8 l_Type = 0; l_Type < ChallengeMax; l_Type++)
         m_ChallengeCount[l_Type] = 0;
@@ -2104,8 +2104,74 @@ void Guild::SendBankLog(WorldSession * p_Session, uint8 p_TabID) const
     }
 }
 
-void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithContent, bool p_WithTabInfo) const
+void Guild::LoadBank()
 {
+    if (m_BankLoaded)
+        return;
+
+    // 1. Load all bank event logs
+    {
+        // Remove log entries that exceed the number of allowed entries per guild
+        CharacterDatabase.DirectPExecute("DELETE FROM guild_bank_eventlog WHERE guildid = %u AND LogGuid > %u", m_id, sWorld->getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT));
+
+        //                                                      0        1      2        3          4           5            6               7          8
+        QueryResult result = CharacterDatabase.PQuery("SELECT guildid, TabId, LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog WHERE guildid = %u ORDER BY TimeStamp DESC, LogGuid DESC", m_id);
+
+        if (result)
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+                LoadBankEventLogFromDB(fields);
+            } while (result->NextRow());
+        }
+    }
+
+    // 2. Load all guild bank tabs
+    {
+        //         0        1      2        3        4
+        QueryResult result = CharacterDatabase.PQuery("SELECT guildid, TabId, TabName, TabIcon, TabText FROM guild_bank_tab WHERE guildid = %u ORDER BY guildid ASC, TabId ASC", m_id);
+
+        if (result)
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+                LoadBankTabFromDB(fields);
+
+                ++count;
+            } while (result->NextRow());
+        }
+    }
+
+    // 3. Fill all guild bank tabs
+    {
+        //          0            1                2      3         4        5      6             7                 8           9           10          11         12          13
+        QueryResult result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, reforgeId, transmogrifyId, upgradeId, durability, playedTime, text, "
+        //   14      15    16      17         18
+        "guildid, TabId, SlotId, item_guid, itemEntry FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid");
+
+        if (result)
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+                LoadBankItemFromDB(fields);
+            } while (result->NextRow());
+        }
+    }
+
+    m_BankLoaded = true;
+}
+
+void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithContent, bool p_WithTabInfo)
+{
+    if (!m_BankLoaded)
+        LoadBank();
+
     /// Don't send packet for non purchased tab
     BankTab const* l_CurrTab = GetBankTab(p_TabID);
     if (!l_CurrTab && p_TabID > 0)

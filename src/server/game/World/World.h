@@ -216,8 +216,14 @@ enum WorldBoolConfigs
     CONFIG_LOG_PACKETS,
     CONFIG_BATTLEPAY_ENABLE,
     CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK,
-    CONFIG_IGNORE_RESEARCH_SITE,
     CONFIG_ENABLE_MMAPS,
+    CONFIG_ENABLE_QUEST,
+    CONFIG_ENABLE_LOOTS,
+    CONFIG_ENABLE_LOCALES,
+    CONFIG_ENABLE_GAMEOBJECTS,
+    CONFIG_ENABLE_ONLY_SPECIFIC_MAP,
+    CONFIG_ENABLE_RESEARCH_SITE_LOAD,
+    CONFIG_ENABLE_ITEM_SPEC_LOAD,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -419,6 +425,7 @@ enum WorldIntConfigs
     CONFIG_ACCOUNT_BIND_GROUP_MASK,
     CONFIG_ACCOUNT_BIND_SHOP_GROUP_MASK,
     CONFIG_ACCOUNT_BIND_ALLOWED_GROUP_MASK,
+    CONFIG_ONLY_MAP,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -779,6 +786,8 @@ class World
         time_t GetNextWeeklyQuestsResetTime() const { return m_NextWeeklyQuestReset; }
         time_t GetNextRandomBGResetTime() const { return m_NextRandomBGReset; }
 
+        std::vector<uint32> GetMapsToLoad() const { return m_MapsToLoad; }
+
         /// Get the maximum skill level a player can reach
         uint16 GetConfigMaxSkillValue() const
         {
@@ -879,6 +888,7 @@ class World
         void setWorldState(uint32 index, uint64 value);
         uint64 getWorldState(uint32 index) const;
         void LoadWorldStates();
+        void FillMapsToLoad();
 
         /// Are we on a "Player versus Player" server?
         bool IsPvPRealm() const { return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP); }
@@ -1041,6 +1051,7 @@ class World
         float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
         typedef std::map<uint32, uint64> WorldStatesMap;
         WorldStatesMap m_worldstates;
+        std::vector<uint32> m_MapsToLoad;
         uint32 m_playerLimit;
         AccountTypes m_allowedSecurityLevel;
         LocaleConstant m_defaultDbcLocale;                     // from config for one from loaded DBC locales
