@@ -1282,7 +1282,8 @@ class spell_mage_frostjaw: public SpellScriptLoader
         }
 };
 
-// Combustion - 11129
+/// Last Update 6.2.3
+/// Combustion - 11129
 class spell_mage_combustion: public SpellScriptLoader
 {
     public:
@@ -1301,7 +1302,9 @@ class spell_mage_combustion: public SpellScriptLoader
             {
                 Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
-                if (!l_Player || !l_Target)
+                SpellInfo const* l_SpellInfoCombustion = sSpellMgr->GetSpellInfo(SPELL_MAGE_COMBUSTION_DOT);
+
+                if (l_Player == nullptr || l_Target == nullptr || l_SpellInfoCombustion == nullptr)
                     return;
 
                 if (SpellInfo const* l_InfernoBlast = sSpellMgr->GetSpellInfo(eSpells::InfernoBlast))
@@ -1318,20 +1321,23 @@ class spell_mage_combustion: public SpellScriptLoader
                     if (!(*i)->GetAmplitude())
                         continue;
 
-                    combustionBp += l_Player->SpellDamageBonusDone(l_Target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
+                    int32 l_Amount = l_Player->SpellDamageBonusDone(l_Target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
+                    l_Amount = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Amount, DOT);
+
+                    combustionBp = (l_Amount * ((*i)->GetBase()->GetMaxDuration() / (*i)->GetAmplitude()) / (l_SpellInfoCombustion->GetMaxDuration() / l_SpellInfoCombustion->Effects[EFFECT_0].Amplitude));
                 }
 
                 if (combustionBp)
                     l_Player->CastCustomSpell(l_Target, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_mage_combustion_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_mage_combustion_SpellScript();
         }
