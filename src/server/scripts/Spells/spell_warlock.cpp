@@ -937,7 +937,7 @@ class spell_warl_flames_of_xoroth: public SpellScriptLoader
 
                             auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);
 
-                            sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
+                            CharacterDatabase.AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
                             {
                                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
                                 if (!l_Player || !p_QueryHolder)
