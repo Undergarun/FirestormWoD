@@ -3111,7 +3111,7 @@ void SpellMgr::LoadSpellInfoStore()
         {
             auto l_Itr = l_VisualsBySpell.find(l_I);
             SpellVisualMap emptyMap;
-            SpellVisualMap& visualMap = (l_Itr == l_VisualsBySpell.end()) ? emptyMap : it->second;
+            SpellVisualMap& visualMap = (l_Itr == l_VisualsBySpell.end()) ? emptyMap : l_Itr->second;
 
             std::set<uint32> difficultyInfo = mAvaiableDifficultyBySpell[l_I];
             for (std::set<uint32>::iterator itr = difficultyInfo.begin(); itr != difficultyInfo.end(); itr++)
