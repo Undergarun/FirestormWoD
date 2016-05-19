@@ -12225,12 +12225,7 @@ uint8 Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32
     Player* l_ModOwner = GetSpellModOwner();
 
     if (p_ProcExtra & PROC_EX_CRITICAL_HIT)
-    {
-        if (((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()))
-            l_InitialDamage = (l_InitialDamage / 3) * 2;
-        else
-            l_InitialDamage /= 2;
-    }
+        l_InitialDamage = l_InitialDamage / ((float)SpellCriticalDamageBonus(p_ProcSpell, p_Damage, p_Target) / (float)p_Damage);
 
     uint8 l_ProcTimes = ProcTimesMultistrike(p_ProcSpell, p_Target);
     for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
@@ -13009,9 +13004,13 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     if (spellProto->Id == 127626)
         return healamount;
 
-    AuraEffectList const& modHealingPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_PCT);
-    for (AuraEffectList::const_iterator i = modHealingPct.begin(); i != modHealingPct.end(); ++i)
-        AddPct(TakenTotalMod, (*i)->GetAmount());
+    for (AuraEffect* l_Effect : GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_PCT))
+    {
+        if (l_Effect->GetSpellInfo()->Id == 73651 && (spellProto->Id == 73651 || !HasAura(146625)))
+            continue;
+
+        AddPct(TakenTotalMod, l_Effect->GetAmount());
+    }
 
     // Tenacity increase healing % taken
     if (AuraEffect const* Tenacity = GetAuraEffect(58549, 0))

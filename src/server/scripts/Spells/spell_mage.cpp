@@ -329,7 +329,7 @@ class spell_mage_comet_storm : public SpellScriptLoader
             uint16 m_CountTarget = 0;
             bool m_AlreadyLaunch = false;
 
-            void HandleAfterHit()
+            void OnCometFalls(SpellEffIndex p_Idx)
             {
                 if (m_AlreadyLaunch) ///< Prevent to enter on each targets hit
                     return;
@@ -356,7 +356,10 @@ class spell_mage_comet_storm : public SpellScriptLoader
                         }
                     }
                 }
-
+            }
+            
+            void HandleAfterHit()
+            {
                 if (GetSpellInfo()->Id == eCometDatas::CometStorm)
                 {
                     int32 l_Damage = GetHitDamage();
@@ -417,12 +420,13 @@ class spell_mage_comet_storm : public SpellScriptLoader
                 case 153596:
                     OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_comet_storm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
                     OnEffectHitTarget += SpellEffectFn(spell_mage_comet_storm_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                    OnEffectHit += SpellEffectFn(spell_mage_comet_storm_SpellScript::OnCometFalls, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                     break;
                 default:
                     break;
                 }
-                AfterHit += SpellHitFn(spell_mage_comet_storm_SpellScript::HandleAfterHit);
                 AfterCast += SpellCastFn(spell_mage_comet_storm_SpellScript::HandleAfterCast);
+                AfterHit += SpellHitFn(spell_mage_comet_storm_SpellScript::HandleAfterHit);
             }
         };
 

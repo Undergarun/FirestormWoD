@@ -571,7 +571,8 @@ class spell_warl_soulburn_override: public SpellScriptLoader
         }
 };
 
-// Imp Swarm - 104316
+/// Last Update 6.2.3
+/// Imp Swarm - 104316
 class spell_warl_imp_swarm: public SpellScriptLoader
 {
     public:
@@ -580,6 +581,8 @@ class spell_warl_imp_swarm: public SpellScriptLoader
         class spell_warl_imp_swarm_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warl_imp_swarm_SpellScript);
+
+            bool m_AlreadyReduceCooldown = false;
 
             SpellCastResult CheckSpec()
             {
@@ -614,14 +617,36 @@ class spell_warl_imp_swarm: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void HandleAfterHit()
+            {
+                if (m_AlreadyReduceCooldown)
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                {
+                    float l_Haste = 1.0f - l_Player->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+
+                    int32 l_ReduceCooldown = CalculatePct(CalculatePct(GetSpellInfo()->RecoveryTime, (l_Haste * 100)), 100);
+                    l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_ReduceCooldown);
+
+                    m_AlreadyReduceCooldown = true;
+                }
+            }
+
+            void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_warl_imp_swarm_SpellScript::CheckSpec);
                 OnEffectHitTarget += SpellEffectFn(spell_warl_imp_swarm_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                AfterHit += SpellHitFn(spell_warl_imp_swarm_SpellScript::HandleAfterHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_warl_imp_swarm_SpellScript();
         }
@@ -3498,6 +3523,45 @@ class spell_warl_corruption : public SpellScriptLoader
         }
 };
 
+/// Dark Soul Knowledge- 113861
+class spell_warl_dark_soul_knowledge : public SpellScriptLoader
+{
+public:
+    spell_warl_dark_soul_knowledge() : SpellScriptLoader("spell_warl_dark_soul_knowledge") { }
+
+    class spell_warl_dark_soul_knowledge_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_dark_soul_knowledge_SpellScript);
+
+        enum eSpells
+        {
+            DarkSoulKnowledge = 113861
+        };
+
+        SpellCastResult CheckAura()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(113861))
+                    return SPELL_FAILED_CASTER_AURASTATE;
+            }
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_warl_dark_soul_knowledge_SpellScript::CheckAura);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_dark_soul_knowledge_SpellScript();
+    }
+};
+
+
 /// Dark Soul - 77801
 class spell_warl_dark_soul : public SpellScriptLoader
 {
@@ -3506,7 +3570,7 @@ class spell_warl_dark_soul : public SpellScriptLoader
 
         class spell_warl_dark_soul_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_dark_soul_SpellScript);
+            PrepareSpellScript(spell_warl_dark_soul_SpellScript);       
 
             void HandleAfterCast()
             {
@@ -3807,7 +3871,9 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
 
             enum eSpells
             {
-                Firebolt = 104318
+                Firebolt        = 104318,
+                MoltenCore      = 122351,
+                MoltenCoreAura  = 122355
             };
 
             enum eDatas
@@ -3841,7 +3907,16 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
                         return;
 
                     if (l_Creature->GetEntry() == eDatas::WildImp)
+                    {
                         l_Creature->AI()->DropCharge();
+
+                        if (Unit* l_Owner = l_Creature->GetOwner())
+                        {
+                            if (AuraEffect* l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
+                                if (roll_chance_i(l_MoltenCore->GetAmount()))
+                                    l_Owner->CastSpell(l_Owner, eSpells::MoltenCoreAura, true);
+                        }
+                    }
                 }
             }
 
@@ -4590,8 +4665,11 @@ public:
     }
 };
 
+
+
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_dark_soul_knowledge();
     new spell_warl_glyph_of_soul_consumption();
     new spell_warl_t17_Demonology_2p();
     new spell_warl_grimoire_of_supremacy_bonus();

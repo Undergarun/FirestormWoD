@@ -440,6 +440,9 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                     DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::MageTemporalDisplacement);
                     DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::ShamanExhaustion);
                     DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::ShamanSated);
+
+                    /// Remove all cooldowns with a recovery time equal or superior than 3 minutes
+                    DoRemoveSpellCooldownWithTimeOnPlayers(3 * TimeConstants::IN_MILLISECONDS * TimeConstants::MINUTE);
                     break;
                 }
                 case EncounterState::IN_PROGRESS:
@@ -455,10 +458,8 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                     if (m_EncounterTime && instance->IsLFR() && (time(nullptr) - m_EncounterTime) >= 3 * TimeConstants::MINUTE)
                         DoCastSpellOnPlayers(eInstanceSpells::SpellDetermination);
 
-                    /// Upon reseting a boss, all combat bloodlust spells will have their cooldowns reset
-                    for (uint8 l_I = 0; l_I < eInstanceSpells::MaxBloodlustSpells; ++l_I)
-                        DoRemoveSpellCooldownOnPlayers(g_BloodlustSpells[l_I]);
-
+                    /// Remove all cooldowns with a recovery time equal or superior than 3 minutes
+                    DoRemoveSpellCooldownWithTimeOnPlayers(3 * TimeConstants::IN_MILLISECONDS * TimeConstants::MINUTE);
                     break;
                 }
                 default:

@@ -820,103 +820,6 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
         }
 };
 
-// Called by 403 - Lightning Bolt, 421 - Chain Lightning, 51505 - Lava Burst and 117014 - Elemental Blast
-// 77222 - Mastery : Elemental Overload
-class spell_mastery_elemental_overload: public SpellScriptLoader
-{
-    public:
-        spell_mastery_elemental_overload() : SpellScriptLoader("spell_mastery_elemental_overload") { }
-
-        class spell_mastery_elemental_overload_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mastery_elemental_overload_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(403) || !sSpellMgr->GetSpellInfo(421) || !sSpellMgr->GetSpellInfo(51505) || !sSpellMgr->GetSpellInfo(117014))
-                    return false;
-                return true;
-            }
-
-            void HandleOnHit()
-            {
-                SpellInfo const* procSpell = GetSpellInfo();
-
-                if (procSpell)
-                {
-                    if (Unit* caster = GetCaster())
-                    {
-                        if (Unit* unitTarget = GetHitUnit())
-                        {
-                            if (caster->IsPlayer() && caster->HasAura(77222))
-                            {
-                                // Every Lightning Bolt, Chain Lightning and Lava Burst spells have duplicate vs 75% damage and no cost
-                                switch (procSpell->Id)
-                                {
-                                    // Lava Burst
-                                    case 51505:
-                                    {
-                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-
-                                        if (roll_chance_f(Mastery))
-                                            caster->CastSpell(unitTarget, MASTERY_SPELL_LAVA_BURST, true);
-
-                                        break;
-                                    }
-                                    // Lightning Bolt
-                                    case 403:
-                                    {
-                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-
-                                        if (roll_chance_f(Mastery))
-                                            caster->CastSpell(unitTarget, MASTERY_SPELL_LIGHTNING_BOLT, true);
-
-                                        break;
-                                    }
-                                    // Chain Lightning
-                                    case 421:
-                                    {
-                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-
-                                        if (roll_chance_f(Mastery))
-                                            caster->CastSpell(unitTarget, MASTERY_SPELL_CHAIN_LIGHTNING, true);
-
-                                        break;
-                                    }
-                                    // Elemental Blast
-                                    case 117014:
-                                    {
-                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-
-                                        if (roll_chance_f(Mastery))
-                                        {
-                                            caster->CastSpell(unitTarget, MASTERY_SPELL_ELEMENTAL_BLAST, true);
-                                            caster->CastSpell(unitTarget, 118517, true); // Nature visual
-                                            caster->CastSpell(unitTarget, 118515, true); // Frost visual
-                                        }
-
-                                        break;
-                                    }
-                                    default: break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_mastery_elemental_overload_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mastery_elemental_overload_SpellScript();
-        }
-};
-
 /// Mastrey: Primal Tenacity - 159195
 class spell_mastery_primal_tenacity : public SpellScriptLoader
 {
@@ -986,6 +889,5 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_blood_shield();
     new spell_mastery_ignite();
     new spell_mastery_hand_of_light();
-    new spell_mastery_elemental_overload();
     new spell_mastery_primal_tenacity();
 }

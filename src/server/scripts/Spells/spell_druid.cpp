@@ -945,21 +945,21 @@ public:
                 return;
 
             ///Germination
-            if (l_Caster->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Target->HasAura(SPELL_DRUID_REJUVENATION))
+            if (l_Caster->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Target->HasAura(SPELL_DRUID_REJUVENATION, l_Caster->GetGUID()))
             {
-                Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+                Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION, l_Caster->GetGUID());
                 if (!l_RejuvenationAura)
                     return;
 
-                if (!l_Target->HasAura(SPELL_DRUID_GERMINATION))
+                if (!l_Target->HasAura(SPELL_DRUID_GERMINATION, l_Caster->GetGUID()))
                 {
                     l_Caster->CastSpell(l_Target, SPELL_DRUID_GERMINATION, true);
                     m_RejuvenationAura = l_RejuvenationAura->GetDuration();
                 }
                 else
                 {
-                    Aura* l_GerminationAura = l_Target->GetAura(SPELL_DRUID_GERMINATION);
-                    Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+                    Aura* l_GerminationAura = l_Target->GetAura(SPELL_DRUID_GERMINATION, l_Caster->GetGUID());
+                    Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION, l_Caster->GetGUID());
                     if (l_GerminationAura && l_RejuvenationAura)
                     {
                         int32 l_GerminationDuration = l_GerminationAura->GetDuration();
@@ -1822,9 +1822,30 @@ class spell_dru_faerie_swarm: public SpellScriptLoader
             }
         };
 
+        class spell_dru_faerie_swarm_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_faerie_swarm_AuraScript);
+
+            void HandleOnEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Owner = GetUnitOwner())
+                    l_Owner->RemoveAura(SPELL_DRUID_FAERIE_DECREASE_SPEED, GetCasterGUID());
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_faerie_swarm_AuraScript::HandleOnEffectRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_faerie_swarm_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_faerie_swarm_AuraScript();
         }
 };
 

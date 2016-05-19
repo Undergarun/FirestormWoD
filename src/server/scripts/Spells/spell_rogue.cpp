@@ -2870,50 +2870,6 @@ class spell_rog_find_weakness : public SpellScriptLoader
         }
 };
 
-/// Last Update 6.2.3
-/// Call by Leech Vitality - 116921
-/// Glyph of Recovery - 146625
-class spell_rog_glyph_of_recovery : public SpellScriptLoader
-{
-    public:
-        spell_rog_glyph_of_recovery() : SpellScriptLoader("spell_rog_glyph_of_recovery") { }
-
-        class spell_rog_glyph_of_recovery_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_glyph_of_recovery_SpellScript);
-
-            enum eSpells
-            {
-                GlyphofRecovery = 146625,
-                Conversion      = 73651
-            };
-
-            void HandleOnHit()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (!l_Caster->HasAura(eSpells::GlyphofRecovery))
-                    return;
-
-                if (!l_Caster->HasAura(eSpells::Conversion))
-                    return;
-
-                if (Aura* l_Aura = l_Caster->GetAura(eSpells::GlyphofRecovery))
-                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_Aura->GetEffect(EFFECT_0)->GetAmount()));
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_rog_glyph_of_recovery_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_glyph_of_recovery_SpellScript();
-        }
-};
-
 /// Last Update 6.1.2
 /// Sinister Calling - 31220
 class spell_rog_sinister_calling : public SpellScriptLoader
@@ -3465,7 +3421,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_gyph_of_detection();
     new spell_rog_dagger_bonus();
     new spell_rog_sinister_calling();
-    new spell_rog_glyph_of_recovery();
     new spell_rog_anticipation();
     new spell_rog_venom_rush();
     new spell_rog_death_from_above_return();

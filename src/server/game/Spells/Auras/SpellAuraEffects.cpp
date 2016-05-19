@@ -537,7 +537,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //478 SPELL_AURA_478
     &AuraEffect::HandleNULL,                                      //479 SPELL_AURA_479
     &AuraEffect::HandleNULL,                                      //480 SPELL_AURA_480
-    &AuraEffect::HandleNULL,                                      //481 SPELL_AURA_481
+    &AuraEffect::HandleNoImmediateEffect,                         //481 SPELL_AURA_CONVERT_CONSUMED_RUNE implemented in Spell::TakeRunePower
     &AuraEffect::HandleNULL,                                      //482 SPELL_AURA_482
     &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_483
     &AuraEffect::HandleNULL,                                      //484 SPELL_AURA_484
