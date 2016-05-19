@@ -149,12 +149,14 @@ namespace MS { namespace Garrison
                     {
                         case Buildings::GemBoutique_GemBoutique_Level2:
                         case Buildings::GemBoutique_GemBoutique_Level3:
-                            if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[1], 1.2960f, 4.8436f, 0.7732f, 6.1639f, TEMPSUMMON_MANUAL_DESPAWN))
+                            if (Creature* l_Creature = SummonRelativeCreature(88545, 1.2960f, 4.8436f, 0.7732f, 6.1639f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
+                                if (CreatureTemplate const* l_FollowerTemplate = sObjectMgr->GetCreatureTemplate(l_GarrFollEntry->CreatureID[1]))
+                                    l_Creature->SetDisplayId(l_FollowerTemplate->Modelid1);
+
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
-                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_TRADESKILL_NPC);
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                                 AddSummonGUID(l_Creature->GetGUID());
                             }
                             break;

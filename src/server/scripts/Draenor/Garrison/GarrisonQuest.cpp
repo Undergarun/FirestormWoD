@@ -151,14 +151,13 @@ namespace MS { namespace Garrison
                 for (int l_Itr = 0; l_Itr < 2; ++l_Itr)
                 {
                     /// check space and find places
-                    ItemPosCountVec l_Dest;
                     uint32 l_RewardID = l_Rewards[urand(0, l_Rewards.size() - 1)];
 
-                    InventoryResult l_Message = p_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_RewardID, l_RewardCount, &l_NoSpaceForCount);
+                    InventoryResult l_Message = p_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardID, l_RewardCount, &l_NoSpaceForCount);
 
                     if (l_Message == EQUIP_ERR_OK)
                     {
-                        if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_RewardID, true, Item::GenerateItemRandomPropertyId(l_RewardID)))
+                        if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_RewardID, true))
                             p_Player->SendNewItem(l_Item, l_RewardCount, true, false, false);
                     }
                     else
