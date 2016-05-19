@@ -614,21 +614,28 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                             l_Player->GetSession()->SendPacket(&l_Data);
                         }
                     }
+                    std::list<Unit*> l_ListUnit;
+                    l_ListUnit.push_back(l_Player);
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_ListUnit.push_back(l_Pet);
 
-                    // remove auras with duration lower than 30s
-                    Unit::AuraApplicationMap & auraMap = l_Player->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
+                    for (Unit* l_Unit : l_ListUnit)
                     {
-                        AuraApplication * aurApp = iter->second;
-                        Aura* aura = aurApp->GetBase();
-                        if (!aura->IsPermanent()
-                            && aura->GetDuration() <= 30*IN_MILLISECONDS
-                            && aurApp->IsPositive()
-                            && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
-                            && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
-                            l_Player->RemoveAura(iter);
-                        else
-                            ++iter;
+                        // remove auras with duration lower than 30s
+                        Unit::AuraApplicationMap & auraMap = l_Unit->GetAppliedAuras();
+                        for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
+                        {
+                            AuraApplication * aurApp = iter->second;
+                            Aura* aura = aurApp->GetBase();
+                            if (!aura->IsPermanent()
+                                && aura->GetDuration() <= 30 * IN_MILLISECONDS
+                                && aurApp->IsPositive()
+                                && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+                                && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
+                                l_Unit->RemoveAura(iter);
+                            else
+                                ++iter;
+                        }
                     }
                 }
 
@@ -1025,12 +1032,22 @@ void Battleground::EndBattleground(uint32 p_Winner)
         {
             if (l_Player->GetArenaPersonalRating(SLOT_RBG) < l_Player->GetArenaMatchMakerRating(SLOT_RBG))
             {
-                int32 l_RatingChange = Arena::GetRatingMod(l_Player->GetArenaPersonalRating(SLOT_RBG), l_Team == p_Winner ? loser_matchmaker_rating : winner_matchmaker_rating, l_Team == p_Winner);
+                int32 l_RatingChange = Arena::GetRatingMod(l_Player->GetArenaPersonalRating(SLOT_RBG), l_Team == p_Winner ? loser_matchmaker_rating : winner_matchmaker_rating, l_Team == p_Winner, true);
                 l_Player->SetArenaPersonalRating(SLOT_RBG, std::max(0, (int)l_Player->GetArenaPersonalRating(SLOT_RBG) + l_RatingChange));
             }
 
             if (l_Team == p_Winner)
             {
+                uint32 l_BattleHardened[2] = { 38929, 38927 };
+
+                if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_BattleHardened[l_Player->GetTeamId()]))
+                {
+                    if (!l_Player->HasQuest(l_Quest->GetQuestId()) && l_Player->CanTakeQuest(l_Quest, false))
+                        l_Player->AddQuest(l_Quest, l_Player);
+
+                    l_Player->KilledMonsterCredit(66623);
+                }
+
                 l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD));
 
                 int32 MMRating_mod = Arena::GetMatchmakerRatingMod(winner_matchmaker_rating, loser_matchmaker_rating, true);
@@ -1425,6 +1442,9 @@ void Battleground::AddPlayer(Player* player)
     player->ResetAllPowers();
 
     sScriptMgr->OnEnterBG(player, GetMapId());
+
+    if (IsRatedBG())
+        player->RemoveArenaSpellCooldowns(true);
 
     // add arena specific auras
     if (isArena())

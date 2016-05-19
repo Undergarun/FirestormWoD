@@ -110,11 +110,8 @@ class spell_npc_mage_frozen_orb : public CreatureScript
 
         enum Constants
         {
-            CheckDist          = 5,                   ///< Every AI update, the orb will try to travel this distance
             DamageDelay        = 1 * IN_MILLISECONDS, ///< Delay between damage cast (and self-snare check)
-            HeightMaxStep      = 3,                   ///< Maximum step height the orb can go before stopping (this value goes along with CheckDist)
-            HoverHeight        = 0,                   ///< "Display" height modification (some modelid are centered at the origin),
-            HeightCompensation = -1                   ///< Looks like the orb is rising by itself, let's compensate (hackfix though)
+            HeightMaxStep      = 2,                   ///< Maximum step height the orb can go before stopping between 2 points
         };
 
         enum Spells
@@ -136,11 +133,66 @@ class spell_npc_mage_frozen_orb : public CreatureScript
         {
             uint32 m_DamageTimer;
             bool m_KeepMoving;
+            float m_Orientation;
+            float m_RotCos;
+            float m_RotSin;
+            Position m_StartPosition;
+            std::vector<Position> m_PathPoints;
+            uint32 m_PathPosition;
 
             spell_npc_mage_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
             {
                 m_DamageTimer = Constants::DamageDelay; ///< As we want the damage to proc on summon
                 m_KeepMoving = true;
+                m_Orientation = me->GetOrientation();
+                m_RotCos = std::cos(m_Orientation);
+                m_RotSin = std::sin(m_Orientation);
+
+                m_StartPosition = *me;
+                m_StartPosition.m_positionZ += me->GetFloatValue(UNIT_FIELD_HOVER_HEIGHT);
+
+                float l_MaxStep = float(Constants::HeightMaxStep);
+                static int s_StepCount = 60;
+
+                for (int l_I = 0; l_I < s_StepCount; ++l_I)
+                {
+                    float l_Distance = float(l_I);
+
+                    Position l_Point;
+                    l_Point.m_positionX = m_StartPosition.m_positionX + (m_RotCos * l_Distance);
+                    l_Point.m_positionY = m_StartPosition.m_positionY + (m_RotSin * l_Distance);
+                    l_Point.m_positionZ = me->GetMap()->GetHeight(l_Point.m_positionX, l_Point.m_positionY, MAX_HEIGHT) + me->GetFloatValue(UNIT_FIELD_HOVER_HEIGHT);
+
+                    Position l_Origin;
+                    if (l_I > 1)
+                        l_Origin = m_PathPoints[l_I - 1];
+                    else
+                        l_Origin = m_StartPosition;
+
+                    float l_Diff = std::abs(l_Origin.m_positionZ - l_Point.m_positionZ);
+
+                    if (l_Diff > l_MaxStep)
+                        break;
+
+                    m_PathPoints.push_back(l_Point);
+                }
+
+                m_PathPosition = 0;
+
+                if (!m_PathPoints.empty())
+                    me->GetMotionMaster()->MovePoint(1, m_PathPoints[m_PathPosition], false);
+            }
+
+            /// Called at waypoint reached or PointMovement end
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type == POINT_MOTION_TYPE && p_ID == 1)
+                {
+                    m_PathPosition++;
+
+                    if (m_PathPosition < m_PathPoints.size())
+                        me->GetMotionMaster()->MovePoint(1, m_PathPoints[m_PathPosition], false);
+                }
             }
 
             void EnterEvadeMode() override
@@ -151,11 +203,9 @@ class spell_npc_mage_frozen_orb : public CreatureScript
             void Reset() override
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->getHostileRefManager().setOnlineOfflineState(false);
                 me->AddAura(Spells::FrozenOrbVisual, me);
                 me->SetCanFly(true);
-
-                /// Give it a movement
-                UpdateMovement();
 
                 if (Unit* l_Owner = me->GetOwner())
                 {
@@ -222,78 +272,8 @@ class spell_npc_mage_frozen_orb : public CreatureScript
 
                     m_DamageTimer -= Constants::DamageDelay;
                 }
-
-                /// Keep updating movement
-                UpdateMovement();
             }
 
-            void UpdateMovement()
-            {
-                if (!m_KeepMoving)
-                    return;
-
-                const float l_CheckDist = float(Constants::CheckDist);
-                const float l_MaxStep = float(Constants::HeightMaxStep);
-
-                float l_Rotation = me->GetOrientation();
-                float l_RotCos = std::cos(l_Rotation);
-                float l_RotSin = std::sin(l_Rotation);
-
-                Position l_Origin = *me;
-                Position l_Dest(l_Origin);
-                l_Dest.m_positionX += l_CheckDist * l_RotCos;
-                l_Dest.m_positionY += l_CheckDist * l_RotSin;
-                l_Dest.m_positionZ += Constants::HeightCompensation - Constants::HoverHeight;
-
-                float l_DestHeight = std::max(l_Dest.GetPositionZ(), me->GetMap()->GetHeight(l_Dest.GetPositionX(), l_Dest.GetPositionY(), MAX_HEIGHT));
-                float l_Diff = l_DestHeight - l_Dest.m_positionZ + 1.f; ///< +1 because reasons (I have no idea why this is required, but it is)
-
-                if (l_Diff > l_MaxStep)
-                {
-                    float l_Step = l_CheckDist / 10.f;
-
-                    for (uint32 l_I = 0; l_I < 10; ++l_I)
-                    {
-                        l_Dest.m_positionX -= l_Step * l_RotCos;
-                        l_Dest.m_positionY -= l_Step * l_RotSin;
-
-                        l_DestHeight = me->GetMap()->GetHeight(l_Dest.m_positionX, l_Dest.m_positionY, MAX_HEIGHT);
-                        l_Diff = l_DestHeight - l_Dest.m_positionZ + 1.f;
-                        if (l_Diff < l_MaxStep)
-                            break;
-                    }
-
-                    m_KeepMoving = false;
-                }
-
-                l_Dest.m_positionZ = l_DestHeight + Constants::HoverHeight;
-
-                /// Let's cast some rays to see if there's an obstacle in front of us
-                Position l_StaticHit;
-                VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(me->GetMapId(),
-                    l_Origin.m_positionX, l_Origin.m_positionY, l_Origin.m_positionZ,
-                    l_Dest.m_positionX, l_Dest.m_positionY, l_Dest.m_positionZ,
-                    l_StaticHit.m_positionX, l_StaticHit.m_positionY, l_StaticHit.m_positionZ, 0.f);
-
-                Position l_DynamicHit;
-                me->GetMap()->getObjectHitPos(me->GetPhaseMask(),
-                    l_Origin.m_positionX, l_Origin.m_positionY, l_Origin.m_positionZ,
-                    l_Dest.m_positionX, l_Dest.m_positionY, l_Dest.m_positionZ,
-                    l_DynamicHit.m_positionX, l_DynamicHit.m_positionY, l_DynamicHit.m_positionZ, 0.f);
-
-                /// Get the closer hit pos (for obvious reasons)
-                Position l_FinalPos;
-                if (l_Origin.GetExactDistSq(&l_StaticHit) < l_Origin.GetExactDistSq(&l_DynamicHit))
-                    l_FinalPos = l_StaticHit;
-                else
-                    l_FinalPos = l_DynamicHit;
-
-                me->GetMotionMaster()->MovePoint(0, l_FinalPos);
-
-                /// If we hit something, stop moving
-                if (l_Dest.GetExactDistSq(&l_FinalPos) > 0.1f)
-                    m_KeepMoving = false;
-            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -592,30 +572,45 @@ class spell_npc_sha_storm_elemental : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff)
             {
-                if (!UpdateVictim())
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                Unit* l_Owner = me->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                Player* l_Player = l_Owner->ToPlayer();
+
+                if (!l_Player->isInCombat())
                 {
-                    if (Unit* l_Owner = me->GetOwner())
-                    {
-                        Unit* l_OwnerTarget = NULL;
-                        if (Player* l_Plr = l_Owner->ToPlayer())
-                            l_OwnerTarget = l_Plr->GetSelectedUnit();
-                        else
-                            l_OwnerTarget = l_Owner->getVictim();
+                    me->CombatStop();
+                    return;
+                }
 
-                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
-                            AttackStart(l_OwnerTarget);
-                    }
+                if (!UpdateVictim() || (l_Player->GetSelectedUnit() && me->getVictim() && l_Player->GetSelectedUnit() != me->getVictim()))
+                {
+                    Unit* l_OwnerTarget = NULL;
+                    if (Player* l_Plr = l_Owner->ToPlayer())
+                        l_OwnerTarget = l_Plr->GetSelectedUnit();
+                    else
+                        l_OwnerTarget = l_Owner->getVictim();
 
+                    if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
+                        AttackStart(l_OwnerTarget);
                     return;
                 }
 
                 if (me->getVictim() && !me->IsValidAttackTarget(me->getVictim()))
                     return;
 
-                m_Events.Update(p_Diff);
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                    return;
+                if (Unit* l_Target = me->getVictim())
+                {
+                    if (!l_Target->HasAura(eSpells::SpellCallLightning, me->GetGUID()))
+                        me->CastSpell(l_Target, eSpells::SpellCallLightning, false);
+                }
 
                 switch (m_Events.ExecuteEvent())
                 {
@@ -623,11 +618,6 @@ class spell_npc_sha_storm_elemental : public CreatureScript
                         if (Unit* l_Target = me->getVictim())
                             me->CastSpell(l_Target, eSpells::SpellWindGust, false);
                         m_Events.ScheduleEvent(eEvents::EventWindGust, 500);
-                        break;
-                    case eEvents::EventCallLightning:
-                        if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, eSpells::SpellCallLightning, false);
-                        m_Events.ScheduleEvent(eEvents::EventCallLightning, 15000);
                         break;
                     default:
                         break;
@@ -840,13 +830,9 @@ class spell_npc_sha_feral_spirit : public CreatureScript
                         me->CastSpell(me, eSpells::FeralSpiritWindfuryDriver, true);
                 }
 
-                me->CastSpell(me, eSpells::SpiritWalk, true);
                 me->CastSpell(me, eSpells::SpiritHunt, true);
-            }
-
-            void EnterCombat(Unit* p_Attacker) override
-            {
-                me->CastSpell(p_Attacker, eSpells::SpiritLeap, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
             }
 
             void DoAction(int32 const p_Action) override
@@ -872,21 +858,27 @@ class spell_npc_sha_feral_spirit : public CreatureScript
                 else if (m_WindFuryCooldown > 0 && p_Diff > m_WindFuryCooldown)
                     m_WindFuryCooldown = 0;
 
-                if (!UpdateVictim())
-                {
-                    if (Unit* l_Owner = me->GetOwner())
-                    {
-                        Unit* l_OwnerTarget = nullptr;
-                        if (Player* l_Player = l_Owner->ToPlayer())
-                            l_OwnerTarget = l_Player->GetSelectedUnit();
-                        else
-                            l_OwnerTarget = l_Owner->getVictim();
-
-                        if (l_OwnerTarget)
-                            AttackStart(l_OwnerTarget);
-                    }
-
+                Unit* l_Owner = me->GetOwner();
+                if (l_Owner == nullptr)
                     return;
+
+                Player* l_Player = l_Owner->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->isInCombat())
+                {
+                    me->CombatStop();
+                    return;
+                }
+
+                if (!UpdateVictim() || (l_Player->GetSelectedUnit() && me->getVictim() && l_Player->GetSelectedUnit() != me->getVictim()))
+                {
+                    Unit* l_OwnerTarget = nullptr;
+                    l_OwnerTarget = l_Player->getVictim();
+
+                    if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
+                        AttackStart(l_OwnerTarget);
                 }
 
                 DoMeleeAttackIfReady();
@@ -1547,6 +1539,76 @@ class spell_npc_black_ox_statue : public CreatureScript
         }
 };
 
+/// Last Update 6.2.3
+/// Treant - 1964
+class spell_npc_treant_balance : public CreatureScript
+{
+    public:
+        spell_npc_treant_balance() : CreatureScript("npc_treant_balance") { }
+
+        enum eSpells
+        {
+            EntanglingRoots = 113770,
+            Wrath           = 113769
+        };
+
+        struct spell_npc_treant_balanceAI : public ScriptedAI
+        {
+            spell_npc_treant_balanceAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            bool m_Rooted;
+
+            void Reset()
+            {
+                m_Rooted = false;
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (!UpdateVictim() && me->getVictim() == nullptr)
+                {
+                    if (Unit* l_Owner = me->GetOwner())
+                    {
+                        Unit* l_OwnerTarget = NULL;
+                        if (Player* l_Plr = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Plr->GetSelectedUnit();
+                        else
+                            l_OwnerTarget = l_Owner->getVictim();
+
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
+                        {
+                            m_Rooted = false;
+                            AttackStart(l_OwnerTarget);
+                        }
+                    }
+                    return;
+                }
+
+                if (me->getVictim() && !me->IsValidAttackTarget(me->getVictim()))
+                    return;
+
+                if (me->getVictim() == nullptr)
+                    return;
+
+                if (!m_Rooted)
+                {
+                    m_Rooted = true;
+                    me->CastSpell(me->getVictim(), eSpells::EntanglingRoots, false);
+                }
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                me->CastSpell(me->getVictim(), eSpells::Wrath, false);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_treant_balanceAI(p_Creature);
+        }
+};
+
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
@@ -1581,6 +1643,7 @@ void AddSC_npc_spell_scripts()
 
     /// Druid NPC
     new spell_npc_dru_force_of_nature_resto();
+    new spell_npc_treant_balance();
 
     /// Generic NPC
     new spell_npc_totem_of_harmony();

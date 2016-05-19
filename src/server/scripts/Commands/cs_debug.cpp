@@ -191,6 +191,11 @@ class debug_commandscript: public CommandScript
                 { "removeunitstate",             SEC_ADMINISTRATOR,  false, &HandleDebugRemoveUnitStateCommand,      "", NULL },
                 { "stresstest",                  SEC_ADMINISTRATOR,  false, &HandleDebugStressTestCommand,           "", NULL },
                 { "showequiperror",              SEC_ADMINISTRATOR,  false, &HandleDebugShowEquipErrorCommand,       "", NULL },
+                { "critical",                    SEC_ADMINISTRATOR,  false, &HandleDebugCriticalCommand,             "", NULL },
+                { "haste",                       SEC_ADMINISTRATOR,  false, &HandleDebugHasteCommand,                "", NULL },
+                { "mastery",                     SEC_ADMINISTRATOR,  false, &HandleDebugMasteryCommand,              "", NULL },
+                { "setaura",                     SEC_ADMINISTRATOR,  false, &HandleDebugAuraCommand,                 "", NULL },
+                { "cleardr",                     SEC_ADMINISTRATOR,  false, &HandleDebugCancelDiminishingReturn,     "", NULL },
                 { NULL,                          SEC_PLAYER,         false, NULL,                                    "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -200,6 +205,122 @@ class debug_commandscript: public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugCancelDiminishingReturn(ChatHandler* handler, char const* args)
+        {
+            Unit* unit = handler->getSelectedUnit();
+            if (!unit)
+            {
+                handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            unit->ClearDiminishings();
+            return true;
+        }
+
+
+
+        static bool HandleDebugAuraCommand(ChatHandler* handler, char const* args)
+        {
+            Unit* unit = handler->getSelectedUnit();
+            if (!unit)
+            {
+                handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!*args)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 spellId = handler->extractSpellIdFromLink((char*)args);
+
+            if (Aura* aura = unit->AddAura(spellId, unit))
+                aura->SetDuration(HOUR * IN_MILLISECONDS);
+            else
+            {
+                handler->PSendSysMessage("Failed to add aura %d", spellId);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            return true;
+        }
+
+        static bool HandleDebugCriticalCommand(ChatHandler* handler, char const* args)
+        {
+            Unit* unit = handler->getSelectedUnit();
+            if (!unit)
+            {
+                handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int pct = atoi(args);
+            if (pct == 0)
+                pct = 100;
+
+            if (Aura* perfectAim = unit->AddAura(138963, unit))
+            {
+                perfectAim->SetDuration(HOUR * IN_MILLISECONDS);
+                perfectAim->GetEffect(EFFECT_0)->ChangeAmount(pct);
+            }
+
+            return true;
+        }
+
+        static bool HandleDebugHasteCommand(ChatHandler* handler, char const* args)
+        {
+            Unit* unit = handler->getSelectedUnit();
+            if (!unit)
+            {
+                handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int pct = atoi(args);
+            if (pct == 0)
+                pct = 100;
+
+            if (Aura* rapidCast = unit->AddAura(8215, unit))
+            {
+                rapidCast->SetDuration(HOUR * IN_MILLISECONDS);
+                rapidCast->GetEffect(EFFECT_0)->ChangeAmount(pct);
+            }
+
+            return true;
+        }
+
+        static bool HandleDebugMasteryCommand(ChatHandler* handler, char const* args)
+        {
+            Unit* unit = handler->getSelectedUnit();
+            if (!unit)
+            {
+                handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int pct = atoi(args);
+            if (pct == 0)
+                pct = 50000;
+
+            if (Aura* perfectAim = unit->AddAura(113861, unit))
+            {
+                perfectAim->SetDuration(HOUR * IN_MILLISECONDS);
+                perfectAim->GetEffect(EFFECT_0)->ChangeAmount(pct);
+            }
+
+            return true;
         }
 
         static bool HandleDebugShowEquipErrorCommand(ChatHandler* p_Handler, char const* p_Args)
@@ -2495,35 +2616,35 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugMoveflagsCommand(ChatHandler* handler, char const* args)
         {
-            Unit* target = handler->getSelectedUnit();
-            if (!target)
-                target = handler->GetSession()->GetPlayer();
-
-            if (!*args)
-            {
-                //! Display case
-                handler->PSendSysMessage(LANG_MOVEFLAGS_GET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
-            }
-            else
-            {
-                char* mask1 = strtok((char*)args, " ");
-                if (!mask1)
-                    return false;
-
-                char* mask2 = strtok(NULL, " \n");
-
-                uint32 moveFlags = (uint32)atoi(mask1);
-                target->SetUnitMovementFlags(moveFlags);
-
-                if (mask2)
-                {
-                    uint32 moveFlagsExtra = uint32(atoi(mask2));
-                    target->SetExtraUnitMovementFlags(moveFlagsExtra);
-                }
-
-                target->SendMovementFlagUpdate();
-                handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
-            }
+            handler->PSendSysMessage("Method depreciated, need update");
+            ///Unit* target = handler->getSelectedUnit();
+            ///if (!target)
+            ///    target = handler->GetSession()->GetPlayer();
+            ///
+            ///if (!*args)
+            ///{
+            ///    //! Display case
+            ///    handler->PSendSysMessage(LANG_MOVEFLAGS_GET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
+            ///}
+            ///else
+            ///{
+            ///    char* mask1 = strtok((char*)args, " ");
+            ///    if (!mask1)
+            ///        return false;
+            ///
+            ///    char* mask2 = strtok(NULL, " \n");
+            ///
+            ///    uint32 moveFlags = (uint32)atoi(mask1);
+            ///    target->SetUnitMovementFlags(moveFlags);
+            ///
+            ///    if (mask2)
+            ///    {
+            ///        uint32 moveFlagsExtra = uint32(atoi(mask2));
+            ///        target->SetExtraUnitMovementFlags(moveFlagsExtra);
+            ///    }
+            ///
+            ///    handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
+            ///}
 
             return true;
         }

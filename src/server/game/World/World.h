@@ -224,6 +224,7 @@ enum WorldBoolConfigs
 enum WorldFloatConfigs
 {
     CONFIG_GROUP_XP_DISTANCE = 0,
+    CONFIG_INSTANCE_GROUP_XP_DISTANCE,
     CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE,
     CONFIG_SIGHT_MONSTER,
     CONFIG_SIGHT_GUARDER,
@@ -994,8 +995,9 @@ class World
         void InitGuildChallengesResetTime();
         void InitBossLootedResetTime();
         void ResetDailyQuests();
-        void ResetGarrisonDatas();
+        void ResetDailyGarrisonDatas();
         void ResetWeeklyQuests();
+        void ResetWeeklyGarrisonDatas();
         void ResetMonthlyQuests();
         void ResetRandomBG();
         //void AutoRestartServer();

@@ -85,6 +85,13 @@ void WorldSession::HandleLearnTalents(WorldPacket& p_RecvPacket)
     if (l_TalentCount > m_Player->GetFreeTalentPoints())
         return;
 
+    /// It's impossible to change talents during challenge mode
+    if (m_Player->GetMap()->IsChallengeMode())
+    {
+        m_Player->SendGameError(GameError::Type(804));
+        return;
+    }
+
     for (uint32 l_I = 0; l_I < l_TalentCount; l_I++)
     {
         uint16 l_TalentID = p_RecvPacket.read<uint16>();

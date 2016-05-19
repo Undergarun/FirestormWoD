@@ -1687,33 +1687,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
                 break;                                   // Not implemented yet :(
         }
 
-        AchievementCriteriaTreeList l_AchievementCriteriaTreeList = sAchievementMgr->GetAchievementCriteriaTreeList(l_AchievementCriteria);
-        for (AchievementCriteriaTreeList::const_iterator l_Iter = l_AchievementCriteriaTreeList.begin(); l_Iter != l_AchievementCriteriaTreeList.end(); l_Iter++)
-        {
-            AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievementEntryByCriteriaTree(*l_Iter);
-            if (!l_Achievement)
-                continue;
-
-            if (IsCompletedCriteriaForAchievement(l_AchievementCriteria, l_Achievement))
-                CompletedCriteriaFor(l_Achievement, p_ReferencePlayer, p_LoginCheck);
-
-            // check again the completeness for SUMM and REQ COUNT achievements,
-            // as they don't depend on the completed criteria but on the sum of the progress of each individual criteria
-            if (l_Achievement->Flags & ACHIEVEMENT_FLAG_SUMM)
-            {
-                if (IsCompletedAchievement(l_Achievement))
-                    CompletedAchievement(l_Achievement, p_ReferencePlayer, p_LoginCheck);
-            }
-
-            if (AchievementEntryList const* l_AchRefList = sAchievementMgr->GetAchievementByReferencedId(l_Achievement->ID))
-            {
-                for (AchievementEntryList::const_iterator l_Itr = l_AchRefList->begin(); l_Itr != l_AchRefList->end(); ++l_Itr)
-                {
-                    if (IsCompletedAchievement(*l_Itr))
-                        CompletedAchievement(*l_Itr, p_ReferencePlayer, p_LoginCheck);
-                }
-            }
-        }
+        SetCompletedAchievementsIfNeeded(l_AchievementCriteria, p_ReferencePlayer, p_LoginCheck);
     }
 }
 
@@ -2054,7 +2028,6 @@ CriteriaProgress* AchievementMgr<T>::GetCriteriaProgress(CriteriaEntry const* en
     return &(iter->second);
 }
 
-
 template<class T>
 void AchievementMgr<T>::SetCriteriaProgress(CriteriaEntry const* p_Entry, uint64 p_ChangeValue, Player* p_ReferencePlayer, ProgressType p_Type)
 {
@@ -2139,6 +2112,38 @@ void AchievementMgr<T>::SetCriteriaProgress(CriteriaEntry const* p_Entry, uint64
     }
 
     SendCriteriaUpdate(p_Entry, l_Progress, l_TimeElapsed, false, l_NeedAccountUpdate);
+}
+
+template<class T>
+void AchievementMgr<T>::SetCompletedAchievementsIfNeeded(CriteriaEntry const* p_Criteria, Player* p_RefPlayer, bool p_LoginCheck /*= false*/)
+{
+    AchievementCriteriaTreeList l_AchievementCriteriaTreeList = sAchievementMgr->GetAchievementCriteriaTreeList(p_Criteria);
+    for (AchievementCriteriaTreeList::const_iterator l_Iter = l_AchievementCriteriaTreeList.begin(); l_Iter != l_AchievementCriteriaTreeList.end(); l_Iter++)
+    {
+        AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievementEntryByCriteriaTree(*l_Iter);
+        if (!l_Achievement)
+            continue;
+
+        if (IsCompletedCriteriaForAchievement(p_Criteria, l_Achievement))
+            CompletedCriteriaFor(l_Achievement, p_RefPlayer, p_LoginCheck);
+
+        // check again the completeness for SUMM and REQ COUNT achievements,
+        // as they don't depend on the completed criteria but on the sum of the progress of each individual criteria
+        if (l_Achievement->Flags & ACHIEVEMENT_FLAG_SUMM)
+        {
+            if (IsCompletedAchievement(l_Achievement))
+                CompletedAchievement(l_Achievement, p_RefPlayer, p_LoginCheck);
+        }
+
+        if (AchievementEntryList const* l_AchRefList = sAchievementMgr->GetAchievementByReferencedId(l_Achievement->ID))
+        {
+            for (AchievementEntryList::const_iterator l_Itr = l_AchRefList->begin(); l_Itr != l_AchRefList->end(); ++l_Itr)
+            {
+                if (IsCompletedAchievement(*l_Itr))
+                    CompletedAchievement(*l_Itr, p_RefPlayer, p_LoginCheck);
+            }
+        }
+    }
 }
 
 template<class T>
@@ -2229,9 +2234,19 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
         if (Guild* guild = sGuildMgr->GetGuildById(referencePlayer->GetGuildId()))
             guild->GetNewsLog().AddNewEvent(GUILD_NEWS_PLAYER_ACHIEVEMENT, time(NULL), referencePlayer->GetGUID(), achievement->flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_HEADER, achievement->ID);*/
 
-    /// Slot unlocked
-    if (p_Achievement->ID == 7433 /* Newbie */ || p_Achievement->ID == 6566 /* Just a Pup */)
-        GetOwner()->GetSession()->SendPetBattleJournalBattleSlotUpdate();
+    switch (p_Achievement->ID)
+    {
+        case 7433:  ///< Newbie
+        case 6566:  ///< Just a Pup
+            GetOwner()->GetSession()->SendPetBattleSlotUpdates(true);
+            GetOwner()->GetSession()->SendBattlePetLicenseChanged();
+            break;
+
+        case 6556:  ///< Going to Need More Traps
+        case 6581:  ///< Pro Pet Crew
+            GetOwner()->GetSession()->SendBattlePetTrapLevel();
+            break;
+    }
 
     if (!GetOwner()->GetSession()->PlayerLoading() && !p_LoginCheck)
         SendAchievementEarned(p_Achievement);

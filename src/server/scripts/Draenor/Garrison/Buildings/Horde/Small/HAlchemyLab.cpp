@@ -36,27 +36,6 @@ namespace MS { namespace Garrison
         };
 
         char ScriptName[] = "npc_AlbertDeHyde_Garr";
-
-        std::vector<SkillNPC_RecipeEntry> Recipes
-        {
-            { 156582,     0 },
-            { 156585,     0 },
-            { 156577, 27405 },
-            { 156578, 27405 },
-            { 156579, 27405 },
-            { 156580, 27405 },
-            { 156581, 27405 },
-            { 156561, 27406 },
-            { 156563, 27406 },
-            { 156564, 27406 },
-            { 175869,     0 },
-            { 175868,     0 },
-            { 175867,     0 },
-            { 175866,     0 },
-            { 175865,     0 },
-            { 175853,     0 },
-            { 156568, 27406 }
-        };
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -99,7 +78,7 @@ namespace MS { namespace Garrison
             p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_YourFirstAlchemyWorkOrder, 4);
 
         if (p_Player->HasQuest(Quests::Horde_YourFirstAlchemyWorkOrder) || p_Player->IsQuestRewarded(Quests::Horde_YourFirstAlchemyWorkOrder))
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultWorkOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
@@ -173,6 +152,13 @@ namespace MS { namespace Garrison
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                                sObjectMgr->AddCreatureQuestRelationBounds(l_Creature->GetEntry(), 37270);
+                                sObjectMgr->AddCreatureQuestInvolvedRelationBounds(l_Creature->GetEntry(), 37270);
+                                AddSummonGUID(l_Creature->GetGUID());
+
+                                /// inform client about quest status
+                                if (l_Creature->AI())
+                                    l_Creature->AI()->SetGUID(m_OwnerGuid, 1);
                             }
                             break;
                         default:

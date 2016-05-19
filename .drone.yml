@@ -1,6 +1,7 @@
 branches:
   - wod
   - wod_ptr
+  - dev
 
 clone:
   depth: 20

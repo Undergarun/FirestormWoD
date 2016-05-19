@@ -437,8 +437,8 @@ void WorldSession::SendBroadcastTextDb2Reply(uint32 p_Entry)
     {
         if (NpcTextLocale const* l_NpcTextLocale = sObjectMgr->GetNpcTextLocale(p_Entry))
         {
-            ObjectMgr::GetLocaleString(l_NpcTextLocale->Text_0[l_LocaleIndex], l_LocaleIndex, l_Text1);
-            ObjectMgr::GetLocaleString(l_NpcTextLocale->Text_1[l_LocaleIndex], l_LocaleIndex, l_Text2);
+            ObjectMgr::GetLocaleString(l_NpcTextLocale->Text_0[0], l_LocaleIndex, l_Text1);
+            ObjectMgr::GetLocaleString(l_NpcTextLocale->Text_1[0], l_LocaleIndex, l_Text2);
         }
     }
 

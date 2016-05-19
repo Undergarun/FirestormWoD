@@ -195,11 +195,13 @@ enum TalentTree // talent tabs
 
 enum CharacterWorldStates
 {
-    CharWorldStateGarrisonStablesFirstQuest              = 1,
-    CharWorldStateGarrisonStablesSecondQuest             = 2,
-    CharWorldStateGarrisonWorkshopGearworksInvention     = 3,
-    CharWorldStateGarrisonTradingPostDailyRandomTrader   = 4,
-    CharWorldStateGarrisonTradingPostDailyRandomShipment = 5
+    CharWorldStateGarrisonStablesFirstQuest                     = 1,
+    CharWorldStateGarrisonStablesSecondQuest                    = 2,
+    CharWorldStateGarrisonWorkshopGearworksInvention            = 3,
+    CharWorldStateGarrisonWorkshopGearworksInventionCharges     = 4,
+    CharWorldStateGarrisonTradingPostDailyRandomTrader          = 5,
+    CharWorldStateGarrisonTradingPostDailyRandomShipment        = 6,
+    CharWorldStateGarrisonArmoryWeeklyCurrencyGain              = 7
 };
 
 // Spell modifier (used for modify other spells)
@@ -621,8 +623,9 @@ enum PlayerFieldBytesOffsets
 
 enum PlayerFieldBytes2Offsets
 {
-    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION         = 1,
-    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID  = 2  // uint16!
+    PLAYER_FIELD_BYTES_2_OFFSET_IGNORE_POWER_REGEN_PREDICTION_MASK  = 0,
+    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION                         = 1,
+    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID                  = 2  ///< uint16!
 };
 
 enum PlayerAvgItemLevelOffsets
@@ -1087,6 +1090,7 @@ enum PlayerDelayedOperations
     DELAYED_BG_MOUNT_RESTORE    = 0x08,                     ///< Flag to restore mount state after teleport from BG
     DELAYED_BG_TAXI_RESTORE     = 0x10,                     ///< Flag to restore taxi state after teleport from BG
     DELAYED_BG_GROUP_RESTORE    = 0x20,                     ///< Flag to restore group state after teleport from BG
+    DELAYED_PET_BATTLE_INITIAL  = 0x40,
     DELAYED_END
 };
 
@@ -1186,6 +1190,7 @@ enum PlayerCommandStates
     CHEAT_POWER         = 0x08,
     CHEAT_WATERWALK     = 0x10,
     CHEAT_ALL_SPELLS    = 0x20,
+    CHEAT_NO_DR         = 0x40
 };
 
 enum AttackSwingError
@@ -1566,7 +1571,6 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsInWater() const { return m_isInWater; } ///< overrides a member function but is not marked 'override'
         bool IsUnderWater() const; ///< overrides a member function but is not marked 'override'
-        bool IsFalling() { return GetPositionZ() < m_lastFallZ; }
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
@@ -1596,6 +1600,7 @@ class Player : public Unit, public GridObject<Player>
         int32 GetGarrisonMapID() const;
         int32 GetShipyardMapID() const;
         void DeleteGarrison();
+        uint32 GetPlotInstanceID() const;
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
 
@@ -1815,8 +1820,11 @@ class Player : public Unit, public GridObject<Player>
         * @param ignore gain multipliers
         */
 
-        int32 ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType = MS::Battlegrounds::RewardCurrencyType::Type::None);
+        int32 ModifyCurrency(uint32 id, int32 count, bool supressLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         void ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false);
+
+        void HandleItemSetBonuses(bool p_Apply);
+        void HandleGemBonuses(bool p_Apply);
 
         void ApplyEquipCooldown(Item* pItem);
         void QuickEquipItem(uint16 pos, Item* pItem);
@@ -1968,8 +1976,9 @@ class Player : public Unit, public GridObject<Player>
         void SetMonthlyQuestStatus(uint32 quest_id);
         void SetSeasonalQuestStatus(uint32 quest_id);
         void ResetDailyQuestStatus();
-        void ResetGarrisonDatas();
+        void ResetDailyGarrisonDatas();
         void ResetWeeklyQuestStatus();
+        void ResetWeeklyGarrisonDatas();
         void ResetMonthlyQuestStatus();
         void ResetSeasonalQuestStatus(uint16 event_id);
 
@@ -2327,6 +2336,7 @@ class Player : public Unit, public GridObject<Player>
 
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         void RemoveAllSpellCooldown();
+        void RemoveSpellCooldownsWithTime(uint32 p_MinRecoveryTime);
         void _LoadSpellCooldowns(PreparedQueryResult result);
         void _LoadChargesCooldowns(PreparedQueryResult p_Result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
@@ -2363,6 +2373,9 @@ class Player : public Unit, public GridObject<Player>
         bool IsRessurectRequested() const { return _resurrectionData != NULL; }
 
         void ResurectUsingRequestData();
+
+        void SendForcedDeathUpdate();
+        void SendGameError(GameError::Type p_Error, uint32 p_Data1 = 0xF0F0F0F0, uint32 p_Data2 = 0xF0F0F0F0);
 
         uint8 getCinematic()
         {
@@ -2650,8 +2663,6 @@ class Player : public Unit, public GridObject<Player>
         void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only);
         void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr, const GuidUnorderedSet& p_IgnoreList = GuidUnorderedSet()) override;
 
-        void SendTeleportPacket(Position &p_NewPosition);
-
         Corpse* GetCorpse() const;
         void SpawnCorpseBones();
         void CreateCorpse();
@@ -2659,7 +2670,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetResurrectionSpellId();
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
-        void RepopAtGraveyard();
+        void RepopAtGraveyard(bool p_ForceGraveYard = false);
         void TeleportToClosestGrave(float p_X, float p_Y, float p_Z, float p_O, uint32 p_MapId);
         void TeleportToClosestGrave(WorldSafeLocsEntry const* p_WorldSafeLoc) { TeleportToClosestGrave(p_WorldSafeLoc->x, p_WorldSafeLoc->y, p_WorldSafeLoc->z, p_WorldSafeLoc->o, p_WorldSafeLoc->map_id);  }
         void SendCemeteryList(bool onMap);
@@ -2711,6 +2722,7 @@ class Player : public Unit, public GridObject<Player>
         void ProcessDelayedOperations();
 
         void CheckAreaExploreAndOutdoor(void);
+        bool m_IsOutdoors;
 
         static uint32 TeamForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }
@@ -3050,8 +3062,6 @@ class Player : public Unit, public GridObject<Player>
 
         void SetMover(Unit* target);
 
-        bool SetHover(bool enable);
-
         void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0, G3D::Vector3 p_TransportPos = G3D::Vector3(0.0f, 0.0f, 0.0f));
         void RemoveAllMovementForces(uint32 p_Entry = 0);
         bool HasMovementForce(uint64 p_Source = 0, bool p_IsEntry = false);
@@ -3319,11 +3329,7 @@ class Player : public Unit, public GridObject<Player>
         /*! These methods send different packets to the client in apply and unapply case.
             These methods are only sent to the current unit.
         */
-        void SendMovementSetCanFly(bool apply);
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
-        void SendMovementSetHover(bool apply);
-        void SendMovementSetWaterWalking(bool apply);
-        void SendMovementSetFeatherFall(bool apply);
         void SendMovementSetCollisionHeight(float height);
 
         bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); } ///< overrides a member function but is not marked 'override'
@@ -3402,6 +3408,10 @@ class Player : public Unit, public GridObject<Player>
         /// @p_SceneInstanceID : Scene instance ID
         void CancelStandaloneScene(uint32 p_SceneInstanceID);
 
+        /// Has battle pet training
+        bool HasBattlePetTraining();
+        /// Get battle pet trap level
+        uint32 GetBattlePetTrapLevel();
         /// Compute the unlocked pet battle slot
         uint32 GetUnlockedPetBattleSlot();
         /// Summon current pet if any active
@@ -3477,7 +3487,27 @@ class Player : public Unit, public GridObject<Player>
         bool ConsumeCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
         void ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntry, uint64 p_Reductiontime);
         void RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
-        void ResetCharges(SpellCategoryEntry const* p_ChargeCategoryEntry);
+
+        ChargeStorageType::iterator ResetCharges(SpellCategoryEntry const* p_ChargeCategoryEntry)
+        {
+            if (!p_ChargeCategoryEntry)
+                return m_CategoryCharges.begin();
+
+            auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
+            if (l_Itr != m_CategoryCharges.end())
+            {
+                WorldPacket l_Data(Opcodes::SMSG_CLEAR_SPELL_CHARGES);
+                l_Data << int32(p_ChargeCategoryEntry->Id);
+                l_Data.WriteBit(false); ///< IsPet
+                l_Data.FlushBits();
+                SendDirectMessage(&l_Data);
+
+                return m_CategoryCharges.erase(l_Itr);
+            }
+
+            return m_CategoryCharges.begin();
+        }
+
         void ResetAllCharges();
         bool HasCharge(SpellCategoryEntry const* p_ChargeCategoryEntry) const;
         uint32 GetMaxCharges(SpellCategoryEntry const* p_ChargeCategoryEntry) const;
@@ -3612,7 +3642,15 @@ class Player : public Unit, public GridObject<Player>
 
         void SetStoreDeliverySaved() { m_StoreDeliverySave = true; }
         void SetStoreDeliveryProccesed(StoreCallback p_DeliveryType) { m_StoreDeliveryProcessed[p_DeliveryType] = true; }
-        
+
+        void ScheduleDelayedOperation(uint32 operation)
+        {
+            if (operation < DELAYED_END)
+                m_DelayedOperations |= operation;
+        }
+
+        float GetMasteryCache() const { return m_MasteryCache; }
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3964,12 +4002,6 @@ class Player : public Unit, public GridObject<Player>
         bool IsHasDelayedTeleport() const { return m_bHasDelayedTeleport; }
         void SetDelayedTeleportFlag(bool setting) { m_bHasDelayedTeleport = setting; }
 
-        void ScheduleDelayedOperation(uint32 operation)
-        {
-            if (operation < DELAYED_END)
-                m_DelayedOperations |= operation;
-        }
-
         MapReference m_mapRef;
 
         void UpdateCharmedAI();
@@ -4096,6 +4128,9 @@ class Player : public Unit, public GridObject<Player>
 
         /// Character WorldState
         std::map<uint32/*WorldState*/, CharacterWorldState> m_CharacterWorldStates;
+
+        /// Armory caches
+        float m_MasteryCache;
 
 };
 

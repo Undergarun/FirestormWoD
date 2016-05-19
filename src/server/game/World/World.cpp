@@ -682,6 +682,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_SESSION_ADD_DELAY] = ConfigMgr::GetIntDefault("SessionAddDelay", 10000);
 
     m_float_configs[CONFIG_GROUP_XP_DISTANCE] = ConfigMgr::GetFloatDefault("MaxGroupXPDistance", 74.0f);
+    m_float_configs[CONFIG_INSTANCE_GROUP_XP_DISTANCE] = ConfigMgr::GetFloatDefault("MaxInstanceGroupXPDistance", 150.0f);
     m_float_configs[CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE] = ConfigMgr::GetFloatDefault("MaxRecruitAFriendBonusDistance", 100.0f);
 
     /// \todo Add MonsterSight and GuarderSight (with meaning) in worldserver.conf or put them as define
@@ -1602,6 +1603,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Garrison Plot Building Content...");
     sObjectMgr->LoadGarrisonPlotBuildingContent();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Npc Recipes Conditions...");
+    sObjectMgr->LoadNpcRecipesConditions();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transport templates...");
     sTransportMgr->LoadTransportTemplates();
 
@@ -2366,7 +2370,7 @@ void World::Update(uint32 diff)
     if (m_gameTime > m_NextDailyQuestReset)
     {
         ResetDailyQuests();
-        ResetGarrisonDatas();
+        ResetDailyGarrisonDatas();
         m_NextDailyQuestReset += DAY;
     }
 
@@ -3441,7 +3445,7 @@ void World::ResetDailyQuests()
     sAnticheatMgr->ResetDailyReportStates();
 }
 
-void World::ResetGarrisonDatas()
+void World::ResetDailyGarrisonDatas()
 {
     for (SessionMap::const_iterator l_Itr = m_sessions.begin(); l_Itr != m_sessions.end(); ++l_Itr)
     {
@@ -3455,8 +3459,19 @@ void World::ResetGarrisonDatas()
             if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
                 l_GarrisonMgr->CleanGarrisonTavernData();
 
-            l_Player->ResetGarrisonDatas();
+            l_Player->ResetDailyGarrisonDatas();
         }
+    }
+}
+
+void World::ResetWeeklyGarrisonDatas()
+{
+    for (SessionMap::const_iterator l_Itr = m_sessions.begin(); l_Itr != m_sessions.end(); ++l_Itr)
+    {
+        Player* l_Player = l_Itr->second->GetPlayer();
+
+        if (l_Player != nullptr)
+            l_Player->ResetWeeklyGarrisonDatas();
     }
 }
 
@@ -3886,7 +3901,7 @@ void World::LoadCharacterInfoStore()
     {
         Field* fields = result->Fetch();
         AddCharacterInfo(fields[0].GetUInt32(), fields[1].GetString(), fields[2].GetUInt32() /*accountid*/,
-                         fields[3].GetUInt8() /*gender*/, fields[4].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/);
+                         fields[4].GetUInt8() /*gender*/, fields[3].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/);
         ++count;
     }
     while (result->NextRow());

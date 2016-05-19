@@ -1051,6 +1051,14 @@ MinPetitionSigns = 4
 MaxGroupXPDistance = 74
 
 #
+#    MaxInstanceGroupXPDistance
+#        Description: Max distance to creature for group member to get experience at creature
+#                     death into an instance (raid or dungeon).
+#        Default:     150
+
+MaxInstanceGroupXPDistance = 150
+
+#
 #    MaxRecruitAFriendBonusDistance
 #        Description: Max distance between character and and group to gain the Recruit-A-Friend
 #                     XP multiplier.

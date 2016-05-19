@@ -1,1 +1,0 @@
-DELETE FROM creature WHERE id = 79772 AND map = 1205;

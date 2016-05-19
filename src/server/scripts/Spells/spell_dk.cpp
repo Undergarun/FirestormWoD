@@ -487,7 +487,6 @@ class spell_dk_howling_blast: public SpellScriptLoader
                 chilblainsAura = 50435
             };
 
-            uint64 m_TargetGUID = 0;
             bool m_HasAuraFrog = false;
 
             void HandleBeforeCast()
@@ -498,8 +497,6 @@ class spell_dk_howling_blast: public SpellScriptLoader
                 if (!l_Target)
                     return;
 
-                m_TargetGUID = l_Target->GetGUID();
-
                 if (l_Caster->HasAura(DK_SPELL_FREEZING_FOG_AURA))
                     m_HasAuraFrog = true;
             }
@@ -509,11 +506,8 @@ class spell_dk_howling_blast: public SpellScriptLoader
                 Unit* l_Target = GetHitUnit();
                 Unit* l_Caster = GetCaster();
 
-                if (!l_Target || !m_TargetGUID)
+                if (!l_Target)
                     return;
-
-                if (l_Target->GetGUID() != m_TargetGUID)
-                    SetHitDamage(GetHitDamage()/2);
 
                 l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
 
@@ -626,7 +620,8 @@ class spell_dk_soul_reaper: public SpellScriptLoader
             enum eSpells
             {
                 ImprovedSoulReaper  = 157342,
-                T17Unholy2P         = 165575
+                T17Unholy2P         = 165575,
+                DarkTransformation  = 93426
             };
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -650,10 +645,17 @@ class spell_dk_soul_reaper: public SpellScriptLoader
                     {
                         if (Player* l_Player = l_Caster->ToPlayer())
                         {
-                            for (uint8 l_I = 0; l_I < (uint8)l_AurEff->GetAmount(); ++l_I)
+                            if (Pet* l_Pet = l_Player->GetPet())
                             {
-                                if (Pet* l_Pet = l_Player->GetPet())
+                                for (uint8 l_I = 0; l_I < (uint8)l_AurEff->GetAmount(); ++l_I)
+                                {
                                     l_Caster->CastSpell(l_Pet, DK_SPELL_DARK_INFUSION_STACKS, true);
+                                }
+                                if (Aura* l_Aura = l_Pet->GetAura(DK_SPELL_DARK_INFUSION_STACKS))
+                                {
+                                    if (l_Aura->GetStackAmount() > 4) /// Apply Dark Transformation
+                                        l_Player->CastSpell(l_Player, eSpells::DarkTransformation, true);
+                                }
                             }
                         }
                     }
@@ -1408,7 +1410,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                 uint32 l_MaxHealth = target->GetMaxHealth();
                 float l_AbsorbAmount = absorbAmount;
                 float l_Percent = (l_AbsorbAmount / l_MaxHealth) * 200.0f;
-                int32 bp = (int32)l_Percent * 10;
+                int32 bp = (int32)(l_Percent * 10);
                 target->EnergizeBySpell(target, DK_SPELL_RUNIC_POWER_ENERGIZE, bp, POWER_RUNIC_POWER);
             }
 
@@ -1460,7 +1462,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     return;
 
                 Unit* l_Caster = GetCaster();
-                if (!l_Caster || m_AmountAbsorb == 0 || m_Absorbed == 0)
+                if (!l_Caster || m_AmountAbsorb == 0)
                     return;
 
                 if (Aura* l_Aura = l_Caster->GetAura(eSpells::GlyphOfRegenerativeMagic))
@@ -1474,7 +1476,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     if (m_Absorbed > m_AmountAbsorb)
                         m_Absorbed = m_AmountAbsorb;
 
-                    float l_AbsorbedPct = m_Absorbed / (m_AmountAbsorb / 100);  ///< Absorbed damage in pct
+                    float l_AbsorbedPct = 100.0f - (m_Absorbed / (m_AmountAbsorb / 100));  ///< Absorbed damage in pct
                     int32 l_Amount = l_Aura->GetEffect(EFFECT_0)->GetAmount();  ///< Maximum absorbed damage is 50%
 
                     l_RemainingPct = CalculatePct(l_Amount, l_AbsorbedPct);
@@ -1792,7 +1794,7 @@ class spell_dk_death_grip: public SpellScriptLoader
 
             enum ImprovedDeathGrip
             {
-                Spell = 157367,
+                SpellId = 157367,
                 ChainsOfIce = 45524
             };
 
@@ -3436,30 +3438,36 @@ class spell_dk_army_of_the_death_taunt : public SpellScriptLoader
     public:
         spell_dk_army_of_the_death_taunt() : SpellScriptLoader("spell_dk_army_of_the_death_taunt") { }
 
-        class spell_dk_army_of_the_death_taunt_SpellScript : public SpellScript
+        class spell_dk_army_of_the_death_taunt_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_dk_army_of_the_death_taunt_SpellScript);
+            PrepareAuraScript(spell_dk_army_of_the_death_taunt_AuraScript);
 
             enum eSpells
             {
                 GlyphofArmyoftheDead = 58669
             };
 
-            void HandlePeriodicTrigger(SpellEffIndex /*p_EffIndex*/)
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (GetCaster()->HasAura(eSpells::GlyphofArmyoftheDead))
-                    PreventHitAura();
+                Unit* l_Target = GetTarget();
+                Unit* l_Owner = l_Target->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                if (l_Owner->HasAura(eSpells::GlyphofArmyoftheDead))
+                    l_Target->RemoveAura(GetSpellInfo()->Id);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_army_of_the_death_taunt_SpellScript::HandlePeriodicTrigger, 0, SPELL_EFFECT_APPLY_AURA);
+                AfterEffectApply += AuraEffectApplyFn(spell_dk_army_of_the_death_taunt_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_dk_army_of_the_death_taunt_SpellScript();
+            return new spell_dk_army_of_the_death_taunt_AuraScript();
         }
 };
 
@@ -3476,10 +3484,11 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
 
             enum eSpells
             {
-                DeathCoilDamage     = 47632,
-                DeathCoilHeal       = 47633,
-                ShadowInfusion      = 91342,
-                DarkTransformation  = 93426
+                DeathCoilDamage         = 47632,
+                DeathCoilHeal           = 47633,
+                ShadowInfusion          = 91342,
+                DarkTransformation      = 93426,
+                DarkTranformationAura   = 63560
             };
 
             void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
@@ -3498,6 +3507,11 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
                     return;
 
                 if (l_Player->HasAura(eSpells::DarkTransformation))
+                    return;
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet != nullptr && l_Pet->HasAura(eSpells::DarkTranformationAura))
                     return;
 
                 l_Player->CastSpell(l_Player, eSpells::ShadowInfusion, true);

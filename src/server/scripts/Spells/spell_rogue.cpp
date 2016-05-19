@@ -72,8 +72,6 @@ enum RogueSpells
     ROGUE_SPELL_BURST_OF_SPEED                  = 137573,
     ROGUE_SPELL_INTERNAL_BLEEDING               = 154953,
     ROGUE_SPELL_INTERNAL_BLEEDING_AURA          = 154904,
-    ROGUE_SPELL_COMBO_POINT_DELAYED             = 139569,
-    ROGUE_SPELL_RUTHLESSNESS                    = 14161,
     ROGUE_SPELL_DEADLY_THROW_INTERRUPT          = 137576,
     ROGUE_SPELL_WOD_PVP_SUBTLETY_4P             = 170877,
     ROGUE_SPELL_WOD_PVP_SUBTLETY_4P_EFFECT      = 170879,
@@ -1389,10 +1387,7 @@ class spell_rog_envenom: public SpellScriptLoader
                 SliceAndDice        = 5171,
                 Tier5Bonus2P        = 37169,
                 T17Assassination4P  = 166886,
-                EnvenomComboPoint   = 167106,
-                Ruthlessness        = 14161,
-                RelentlessStrikes   = 58423,
-                RelentlessStrikesProc = 14181
+                EnvenomComboPoint   = 167106
             };
 
             void HandleDamage(SpellEffIndex effIndex)
@@ -1401,8 +1396,9 @@ class spell_rog_envenom: public SpellScriptLoader
 
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || l_Owner == nullptr)
                     return;
 
                 int32 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
@@ -1410,7 +1406,7 @@ class spell_rog_envenom: public SpellScriptLoader
 
                 if (l_ComboPoint)
                 {
-                    l_Damage += int32(1.05 * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.306 * l_ComboPoint + (l_ComboPoint * GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+                    l_Damage += int32(1.05 * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.417 * l_ComboPoint + (l_ComboPoint * GetSpellInfo()->Effects[EFFECT_0].BasePoints));
 
                     /// Tier 5 Bonus 2 pieces
                     if (AuraEffect* l_Tier5Bonus2P = l_Caster->GetAuraEffect(eSpells::Tier5Bonus2P, EFFECT_0))
@@ -1420,31 +1416,23 @@ class spell_rog_envenom: public SpellScriptLoader
                         l_SliceAndDice->RefreshDuration();
                 }
 
-                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Owner->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Owner, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
 
                 /// Envenom refunds 1 Combo Point.
                 if (l_Caster->HasAura(eSpells::T17Assassination4P))
                     l_Caster->CastSpell(l_Caster, eSpells::EnvenomComboPoint, true);
-
-                /// Relentless Strikes
-                if (l_Caster->HasAura(eSpells::RelentlessStrikes))
-                {
-                    if (SpellInfo const* l_RelentlessStrikes = sSpellMgr->GetSpellInfo(eSpells::Ruthlessness))
-                        if (roll_chance_i(l_RelentlessStrikes->Effects[0].PointsPerComboPoint * l_ComboPoint))
-                                l_Caster->CastSpell(l_Caster, eSpells::RelentlessStrikesProc, true);
-                }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_rog_envenom_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_rog_envenom_SpellScript();
         }
@@ -1656,13 +1644,6 @@ class spell_rog_crimson_tempest: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_crimson_tempest_SpellScript);
 
-            enum eSpells
-            {
-                Ruthlessness = 14161,
-                RelentlessStrikes = 58423,
-                RelentlessStrikesProc = 14181
-            };
-
             void HandleOnHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
@@ -1690,19 +1671,6 @@ class spell_rog_crimson_tempest: public SpellScriptLoader
                         }
 
                         SetHitDamage(l_Damage);
-
-                        /// Relentless Strikes
-                        if (l_Player->HasAura(eSpells::RelentlessStrikes) && !l_Player->HasSpellCooldown(eSpells::RelentlessStrikesProc))
-                        {
-                            if (SpellInfo const* l_RelentlessStrikes = sSpellMgr->GetSpellInfo(eSpells::Ruthlessness))
-                            {
-                                if (roll_chance_i(l_RelentlessStrikes->Effects[0].PointsPerComboPoint * l_ComboPoint))
-                                {
-                                    l_Player->CastSpell(l_Player, eSpells::RelentlessStrikesProc, true);
-                                    l_Player->AddSpellCooldown(eSpells::RelentlessStrikesProc, 0, 2 * IN_MILLISECONDS); ///< Custom cooldown to prevent multiprocs
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -1825,6 +1793,7 @@ class spell_rog_deadly_poison_instant_damage: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Shiv - 5938
 class spell_rog_shiv: public SpellScriptLoader
 {
@@ -1837,25 +1806,26 @@ class spell_rog_shiv: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (caster->HasAura(ROGUE_SPELL_CRIPPLING_POISON))
-                            caster->CastSpell(target, ROGUE_SPELL_DEBILITATING_POISON, true);
-                        else if (caster->HasAura(ROGUE_SPELL_LEECHING_POISON))
-                            caster->CastSpell(caster, ROGUE_SPELL_LEECH_VITALITY, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Owner->HasAura(ROGUE_SPELL_CRIPPLING_POISON))
+                    l_Caster->CastSpell(l_Target, ROGUE_SPELL_DEBILITATING_POISON, true);
+                else if (l_Owner->HasAura(ROGUE_SPELL_LEECHING_POISON))
+                    l_Caster->CastSpell(l_Target, ROGUE_SPELL_LEECH_VITALITY, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_rog_shiv_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_rog_shiv_SpellScript();
         }
@@ -2201,11 +2171,12 @@ class spell_rog_internal_bleeding: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
 
                 if (l_Target == nullptr)
                     return;
 
-                if (l_Caster->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA))
+                if (l_Caster->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA) || (l_Owner && l_Owner->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA)))
                     l_Caster->CastSpell(l_Target, ROGUE_SPELL_INTERNAL_BLEEDING, true);
             }
 
@@ -2480,7 +2451,8 @@ class spell_rog_evicerate : public SpellScriptLoader
 
             enum eSpells
             {
-                Tier5Bonus2P = 37169
+                Tier5Bonus2P        = 37169,
+                MasteryExecutioner  = 76808
             };
 
             void HandleDamage(SpellEffIndex effIndex)
@@ -2489,34 +2461,42 @@ class spell_rog_evicerate : public SpellScriptLoader
 
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
                 uint8 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
                 int32 l_Damage = 0;
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || l_Owner == nullptr)
                     return;
 
                 if (l_ComboPoint)
                 {
-                    l_Damage += int32((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.559f) * 0.88f * l_ComboPoint);
+                    float l_Mult = 1.0f; ///< Mastery is apply in MeleeDamageBonusDone, so we let this to 1
+                    if (!l_Caster->HasAura(eSpells::MasteryExecutioner))
+                        l_Mult = 0.88f;
+
+                    l_Damage += int32((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.559f) * l_Mult * l_ComboPoint);
 
                     /// Tier 5 Bonus 2 pieces
                     if (AuraEffect* l_Tier5Bonus2P = l_Caster->GetAuraEffect(eSpells::Tier5Bonus2P, EFFECT_0))
                         l_Damage += l_ComboPoint * l_Tier5Bonus2P->GetAmount();
                 }
 
-                l_Damage = l_Caster->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
-                l_Damage = l_Target->MeleeDamageBonusTaken(l_Caster, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+
+                l_Damage *= l_Owner->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT);
+
+                l_Damage = l_Owner->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+                l_Damage = l_Target->MeleeDamageBonusTaken(l_Owner, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
 
                 SetHitDamage(l_Damage);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_rog_evicerate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_rog_evicerate_SpellScript();
         }
@@ -2575,7 +2555,7 @@ class PlayerScript_ruthlessness : public PlayerScript
 
         enum eSpells
         {
-            RuthlessnessEnergy  = 14181,
+            Ruthlessness        = 14161,
             T17Combat4P         = 165478,
             Deceit              = 166878,
             ShadowStrikesAura   = 166881,
@@ -2584,7 +2564,7 @@ class PlayerScript_ruthlessness : public PlayerScript
 
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_ROGUE || !p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
+            if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_ROGUE || !p_Player->HasAura(eSpells::Ruthlessness))
                 return;
 
             /// Get the power earn (if > 0 ) or consum (if < 0)
@@ -2592,21 +2572,15 @@ class PlayerScript_ruthlessness : public PlayerScript
 
             if (l_DiffVal < 0)
             {
-                if (p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
+                if (p_Player->HasAura(eSpells::Ruthlessness))
                 {
-                    int32 l_Duration = sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints;
+                    int32 l_Duration = sSpellMgr->GetSpellInfo(eSpells::Ruthlessness)->Effects[EFFECT_2].BasePoints;
                     if (p_Player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
                         p_Player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, -(l_Duration * l_DiffVal));
                     if (p_Player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
                         p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, -(l_Duration * l_DiffVal));
                     if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
                         p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, -(l_Duration * l_DiffVal));
-
-                    if (roll_chance_i(20))
-                    {
-                        p_NewValue += 1; ///< Restore 1 combo point
-                        p_Player->CastSpell(p_Player, eSpells::RuthlessnessEnergy, true);  ///< Give 25 Energy
-                    }
                 }
 
                 if (p_Player->HasAura(eSpells::T17Combat4P))
@@ -3255,6 +3229,78 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
         }
 };
 
+/// Called by Envenom 32645
+/// Ruthlessness - 14161 and Relentless Strikes - 58423
+class spell_rog_ruthlessness_and_relentless_strikes : public SpellScriptLoader
+{
+    public:
+        spell_rog_ruthlessness_and_relentless_strikes() : SpellScriptLoader("spell_rog_ruthlessness_and_relentless_strikes") { }
+
+        class spell_rog_ruthlessness_and_relentless_strikes_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_ruthlessness_and_relentless_strikes_SpellScript);
+
+            enum eSpells
+            {
+                Ruthlessness = 14161,
+                RelentlessStrikes = 58423,
+                RelentlessStrikesProc = 14181,
+                ComboPointDelayed = 139569
+            };
+
+            uint8 m_ComboPoints = 0;
+
+            void HandleBeforeHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    m_ComboPoints = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+            }
+
+            void HandleAfterHit()
+            {
+                uint32 l_AuraId = 0;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    /// Combat rogues have Ruthlessness
+                    if (l_Player->GetSpecializationId() == SPEC_ROGUE_COMBAT)
+                        l_AuraId = eSpells::Ruthlessness;
+                    /// Assassination and Subtlety rogues have Relentless Strikes
+                    else
+                        l_AuraId = eSpells::RelentlessStrikes;
+
+                    /// 20% chance for every spent combo point
+                    /// 1 cp - 20%, 2 cp - 40%, 3 cp - 60%, 4 cp - 80%, 5 cp - 100%
+                    if (l_Player->HasAura(l_AuraId) && !l_Player->HasSpellCooldown(eSpells::RelentlessStrikesProc))
+                    {
+                        if (SpellInfo const* l_AuraSpellinfo = sSpellMgr->GetSpellInfo(l_AuraId))
+                        {
+                            if (roll_chance_i(l_AuraSpellinfo->Effects[0].PointsPerComboPoint * m_ComboPoints))
+                            {
+                                l_Player->CastSpell(l_Player, eSpells::RelentlessStrikesProc, true);
+                                l_Player->AddSpellCooldown(eSpells::RelentlessStrikesProc, 0, 2 * IN_MILLISECONDS); ///< Custom cooldown to prevent multiprocs
+
+                                if (l_AuraId == eSpells::Ruthlessness)
+                                    l_Player->CastSpell(l_Player, eSpells::ComboPointDelayed, true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_rog_ruthlessness_and_relentless_strikes_SpellScript::HandleBeforeHit);
+                AfterHit += SpellHitFn(spell_rog_ruthlessness_and_relentless_strikes_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_ruthlessness_and_relentless_strikes_SpellScript();
+        }
+};
+
 /// Last Update 6.2.3
 /// Mastery: Main Gauche - 76806
 class spell_rog_main_gauche: public SpellScriptLoader
@@ -3361,8 +3407,58 @@ class spell_rog_distract : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Kick 1766
+class spell_rog_kick : public SpellScriptLoader
+{
+public:
+    spell_rog_kick() : SpellScriptLoader("spell_rog_kick") { }
+
+    class spell_rog_kick_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_kick_SpellScript);
+
+        enum eDatas
+        {
+            kick = 1766,
+            GlyphOfKick = 56805
+        };
+
+        void HandleAfterHit()
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (!l_Player)
+                return;
+
+            if (l_Player->HasAura(GlyphOfKick))
+            {
+                AuraEffect* l_AuraEffect = l_Player->GetAuraEffect(GlyphOfKick, EFFECT_2);
+                if (!l_AuraEffect)
+                    return;
+                
+                if (l_AuraEffect->GetAmount() == 1)
+                {
+                    l_AuraEffect->SetAmount(0);
+                    l_Player->ReduceSpellCooldown(kick, 6000);
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_rog_kick_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_kick_SpellScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_kick();
     new spell_rog_instant_poison();
     new spell_rog_distract();
     new spell_rog_main_gauche();
@@ -3421,6 +3517,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_item_t17_assassination_2p_bonus();
     new spell_rog_item_t17_subtlety_2p_bonus();
     new spell_rog_item_t17_subtlety_4p_bonus();
+    new spell_rog_ruthlessness_and_relentless_strikes();
 
     /// Player Scripts
     new PlayerScript_ruthlessness();

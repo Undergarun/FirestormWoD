@@ -519,7 +519,10 @@ class boss_imperator_margok : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::FetterMarkOfChaosRootAura);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::OrbsOfChaosDummyAura);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::ImperatorMargokBonus, true);
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::ImperatorMargokBonus, true);
                 }
             }
 

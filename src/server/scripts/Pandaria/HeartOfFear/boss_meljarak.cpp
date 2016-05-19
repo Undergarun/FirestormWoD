@@ -1469,7 +1469,7 @@ class spell_meljarak_corrosive_resin : public SpellScriptLoader
                     return;
 
                 // Check target moving.
-                if (owner->isMoving())
+                if (owner->IsMoving())
                 {
                     // Check the aura.
                     if (Aura* resinAura = owner->GetAura(SPELL_CORROSIVE_RESIN))

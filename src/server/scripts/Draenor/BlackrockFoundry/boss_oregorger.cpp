@@ -491,12 +491,19 @@ class boss_oregorger : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExplosiveShardAoE);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CarryingVolatileBlackrock);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::OregorgerBonusLoot, true);
+                    /// Allow loots and bonus loots to be enabled/disabled with a simple reload
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::OregorgerBonusLoot, true);
                 }
             }
 
             void EnterEvadeMode() override
             {
+                m_Events.Reset();
+                m_CosmeticEvents.Reset();
+
                 me->RemoveAllAuras();
 
                 me->RemoveAllAreasTrigger();
@@ -1373,7 +1380,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
                         if (Unit* l_Caster = GetCaster())
                         {
                             std::list<Unit*> l_TargetList;
-                            float l_Radius = 0.1f;
+                            float l_Radius = 0.01f;
 
                             JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
                             JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);

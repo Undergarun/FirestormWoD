@@ -297,6 +297,8 @@ class boss_beastlord_darmac : public CreatureScript
             {
                 me->RemoveAllAreasTrigger();
 
+                me->InterruptNonMeleeSpells(true);
+
                 summons.DespawnAll();
 
                 me->DespawnCreaturesInArea({ eCreatures::PackBeast });
@@ -409,6 +411,8 @@ class boss_beastlord_darmac : public CreatureScript
                                 me->CastSpell(l_Target, eSpells::RideVehicle, true);
 
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                         });
 
                         return;
@@ -440,6 +444,8 @@ class boss_beastlord_darmac : public CreatureScript
                                 me->CastSpell(l_Target, eSpells::RideVehicle, true);
 
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                         });
 
                         return;
@@ -471,6 +477,8 @@ class boss_beastlord_darmac : public CreatureScript
                                 me->CastSpell(l_Target, eSpells::RideVehicle, true);
 
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                         });
 
                         return;
@@ -619,6 +627,30 @@ class boss_beastlord_darmac : public CreatureScript
                     {
                         m_MountID = p_Target->GetEntry();
 
+                        if (m_Instance != nullptr)
+                        {
+                            switch (m_MountID)
+                            {
+                                case eFoundryCreatures::BossDreadwing:
+                                {
+                                    m_Instance->SetData(eFoundryDatas::DarmacBeastMountedFirst, eFoundryDatas::DataDreadwingFirst);
+                                    break;
+                                }
+                                case eFoundryCreatures::BossIroncrusher:
+                                {
+                                    m_Instance->SetData(eFoundryDatas::DarmacBeastMountedFirst, eFoundryDatas::DataIronCrusherFirst);
+                                    break;
+                                }
+                                case eFoundryCreatures::BossCruelfang:
+                                {
+                                    m_Instance->SetData(eFoundryDatas::DarmacBeastMountedFirst, eFoundryDatas::DataCruelfangFirst);
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+
                         /// Delay events for cosmetic moves
                         m_Events.DelayEvents(3 * TimeConstants::IN_MILLISECONDS);
 
@@ -627,6 +659,9 @@ class boss_beastlord_darmac : public CreatureScript
 
                         float l_X           = me->m_positionX + l_Radius * cos(l_Orientation);
                         float l_Y           = me->m_positionY + l_Radius * sin(l_Orientation);
+
+                        /// This prevent players to cancel moves by taunting
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
 
                         me->StopMoving();
 
@@ -971,6 +1006,8 @@ class npc_foundry_cruelfang : public CreatureScript
                             l_Darmac->AI()->DoAction(eAction::ActionCruelfangKilled);
                     }
                 }
+
+                me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -1221,6 +1258,8 @@ class npc_foundry_dreadwing : public CreatureScript
                             l_Darmac->AI()->DoAction(eAction::ActionDreadwingKilled);
                     }
                 }
+
+                me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
@@ -1443,6 +1482,8 @@ class npc_foundry_ironcrusher : public CreatureScript
                             l_Darmac->AI()->DoAction(eAction::ActionIroncrusherKilled);
                     }
                 }
+
+                me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
@@ -1635,8 +1676,15 @@ class npc_foundry_heavy_spear : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
-                me->CastSpell(me, eSpells::PinDownVisualAura, true);
-                me->CastSpell(me, eSpells::PinnedDownDamage, true);
+                if (InstanceScript* l_Instance = me->GetInstanceScript())
+                {
+                    /// Summoning spell has a delay, prevent auras from being applied after death/reset
+                    if (l_Instance->GetBossState(eFoundryDatas::DataBeastlordDarmac) == EncounterState::IN_PROGRESS)
+                    {
+                        me->CastSpell(me, eSpells::PinDownVisualAura, true);
+                        me->CastSpell(me, eSpells::PinnedDownDamage, true);
+                    }
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -1805,8 +1853,11 @@ class npc_foundry_pack_beast : public CreatureScript
 
             void JustDied(Unit* p_Killer) override
             {
+                /// Pack beasts despawns after 5 seconds if Dreadwing's alive, if not, 30 seconds.
                 if (me->HasAura(eSpells::FlameInfusionTriggered))
                     me->CastSpell(me, eSpells::FlameInfusionAreaTrigger, true);
+                else
+                    me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void AreaTriggerDespawned(AreaTrigger* p_AreaTrigger) override

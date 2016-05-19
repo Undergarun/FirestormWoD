@@ -283,7 +283,11 @@ class boss_flamebender_kagraz : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RisingFlames);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Singe);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::FlamebenderKagrazBonusLoot, true);
+                    /// Allow loots and bonus loots to be enabled/disabled with a simple reload
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::FlamebenderKagrazBonusLoot, true);
 
                     if (Creature* l_Aknor = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::AknorSteelbringer)))
                     {
@@ -503,7 +507,7 @@ class boss_flamebender_kagraz : public CreatureScript
                 {
                     case eEvents::EventLavaSlash:
                     {
-                        if (Player* l_Target = SelectRangedTarget())
+                        if (Player* l_Target = SelectRangedTarget(true, -eSpells::MoltenTorrentAura))
                         {
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
 
@@ -683,7 +687,15 @@ class npc_foundry_aknor_steelbringer : public CreatureScript
             void EnterCombat(Unit* p_Attacker) override
             {
                 if (m_Instance != nullptr)
+                {
+                    if (Creature* l_Kagraz = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossFlamebenderKagraz)))
+                    {
+                        if (l_Kagraz->IsAIEnabled && !l_Kagraz->isInCombat())
+                            l_Kagraz->AI()->AttackStart(p_Attacker);
+                    }
+
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
+                }
 
                 m_Events.ScheduleEvent(eEvents::EventDevastatingSlam, eTimers::TimerDevastatingSlam);
                 m_Events.ScheduleEvent(eEvents::EventDropTheHammer, eTimers::TimerDropTheHammer);
@@ -1389,6 +1401,8 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FREEZE, true);
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
+
+                me->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
 
                 m_Events.Reset();
 

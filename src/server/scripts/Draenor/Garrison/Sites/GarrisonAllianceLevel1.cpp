@@ -160,8 +160,14 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Garrison owner
     bool InstanceScript_GarrisonAllianceLevel1::CanUseGarrisonCache(Player* p_Owner)
     {
+        /// Alliance
         if (p_Owner->GetQuestStatus(Quests::QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_REWARDED
             || p_Owner->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER))
+            return true;
+
+        /// [FACTION CHANGE CASE] Horde
+        if (p_Owner->GetQuestStatus(Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED
+            || p_Owner->HasQuest(Quests::QUEST_WHAT_WE_GOT))
             return true;
 
         return false;
@@ -249,21 +255,6 @@ namespace MS { namespace Garrison { namespace Sites
                 case Buildings::LumberMill_LumberMill_Level3:
                     p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
                     break;
-                default:
-                    break;
-            }
-        }
-        if (MS::Garrison::Manager* l_GarrisonMgr = p_Owner->GetGarrison())
-        {
-            uint8 l_BuildingLevel = l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuilding(p_BuildingID));
-
-            switch (p_BuildingID)
-            {
-                case Buildings::LumberMill_LumberMill_Level1:
-                case Buildings::LumberMill_LumberMill_Level2:
-                case Buildings::LumberMill_LumberMill_Level3:
-                    p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
-                    break;
                 case Buildings::Barn_Barn_Level2:
                     if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                         p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
@@ -274,6 +265,16 @@ namespace MS { namespace Garrison { namespace Sites
                     if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
                         p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                     break;
+                case Buildings::TradingPost_TradingPost_Level2:
+                {
+                    uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
+                    FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
+
+                    if (l_Entry != nullptr)
+                        p_Owner->GetReputationMgr().SetReputation(l_Entry, 0);
+
+                    break;
+                }
                 default:
                     break;
             }

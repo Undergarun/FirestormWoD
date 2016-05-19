@@ -348,7 +348,7 @@ class ScriptMgr
         /// @p_ItemOrMoney    : Item entry or gold amount
         /// @p_ItemStackCount : Item stack count
         /// @p_DestTabID      : Destination tab ID
-        void OnGuildBankEvent(Guild* p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint32 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID);
+        void OnGuildBankEvent(Guild* p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint64 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID);
 
     /// ItemScript
     public:
@@ -590,11 +590,20 @@ class ScriptMgr
 
     /// PlayerScript
     public:
-        
+
+        /// Called just before item is destroyed
+        /// @p_Item        : Item to be destroyed
+        /// @p_Player      : Player level
+        void OnItemDestroyed(Player* p_Player, Item* p_Item);
         /// Called when a player kills another player
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPVPKill(Player* p_Killer, Player* p_Killed);
+
+        /// Called when a player kills a Unit
+        /// @p_Killer : Killer instance
+        /// @p_Killed : Killed instance
+        void OnKill(Player* p_Killer, Unit* p_Killed);
         
         /// Called when a player kills a creature
         /// @p_Killer : Killer instance
@@ -613,6 +622,11 @@ class ScriptMgr
         /// @p_NewValue  : New value
         /// @p_Regen  : If it's a regen modification
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen);
+
+        /// Called when the player switch from indoors to outdoors or from outdoors to indoors
+        /// @p_Player : Player instance
+        /// @p_IsOutdoors : Bool setting whether player is indoors or outdoors
+        void OnSwitchOutdoorsState(Player* p_Player, bool p_IsOutdoors);
 
         /// Called when specialisation is modify (SetSpecializationId)
         /// @p_Player : Player instance

@@ -70,6 +70,8 @@
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
 #include "PathGenerator.h"
+#include "Chat.h"
+#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
 {
@@ -287,7 +289,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //211 SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION
     &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212                     Unused 6.1.2
     &Spell::EffectDeathGrip,                                //213 SPELL_EFFECT_DEATH_GRIP
-    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_CREATE_GARRISON
+    &Spell::EffectCreateGarrison,                                     //214 SPELL_EFFECT_CREATE_GARRISON
     &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS Unlocks boosted players' spells (ChrUpgrade*.db2)
     &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_UPGRADE_GARRISON        171905
@@ -316,7 +318,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240                     Unused 6.1.2
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.1.2
-    &Spell::EffectEnchantIllusion,                          //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
+    &Spell::EffectApplyEnchantIllusion,                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_TEACH_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectFinishGarrisonMission,                    //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
@@ -862,7 +864,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Death Grip
+                /// Death Grip
                 case 49576:
                 {
                     if (!unitTarget)
@@ -872,7 +874,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (!m_UniqueTargetInfo.empty())
                     {
                         if (m_UniqueTargetInfo.front().missCondition == SPELL_MISS_REFLECT)
+                        {
                             caster = m_targets.GetUnitTarget();
+                        }
                     }
                     caster->CastSpell(unitTarget, 49560, true);
                     break;
@@ -1869,8 +1873,8 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         /// 77495 - Mastery : Harmony
         if (caster && caster->IsPlayer() && caster->getClass() == CLASS_DRUID)
         {
-            /// Can't proc from Ysera's Gift and Frenzied Regeneration
-            if (m_spellInfo && m_spellInfo->Id != 145109 && m_spellInfo->Id != 22842 && caster->HasAura(77495))
+            /// Can't proc from Ysera's Gift, Frenzied Regeneration and Tranquility
+            if (m_spellInfo && m_spellInfo->Id != 145109 && m_spellInfo->Id != 22842 && m_spellInfo->Id != 157982 && caster->HasAura(77495))
             {
                 if (addhealth)
                 {
@@ -3161,6 +3165,10 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
         }
     }
 
+    /// Shield Slam should dispel 1 magic effect only warrior has Glyph of Shield Slam and are in Defensive stance
+    if (m_spellInfo->Id == 23922 && GetCaster() && (!GetCaster()->HasAura(58375) || !GetCaster()->HasAura(71)))
+        return;
+
     /// Mass Dispel should dispel Cyclone, if priest has Glyph of Mass Dispell
     if (m_spellInfo->Id == 32375 && GetCaster() && GetCaster()->HasAura(55691) && unitTarget->HasAura(33786))
         unitTarget->RemoveAura(33786);
@@ -4136,6 +4144,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     }
 
     int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized, true);
+
     int32 autoAttacksBonus = std::max(1 + (m_caster->GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE) / 100), 1);
     weaponDamage /= autoAttacksBonus;
 
@@ -4258,9 +4267,25 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     if (l_CurrentSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
                         continue;
 
-                    /// Item - Rogue WoD PvP 2P Bonus
-                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(165995))
-                        m_originalCaster->CastSpell(m_originalCaster, 165996, true);
+                    /// Rogue Kick 1766
+                    if (m_spellInfo->Id == 1766)
+                    {
+                        /// Item - Rogue WoD PvP 2P Bonus
+                        if (m_originalCaster->HasAura(165995))
+                            m_originalCaster->CastSpell(m_originalCaster, 165996, true);
+
+                        /// Glyph Of kick 
+                        if (m_originalCaster->HasAura(56805))
+                        {
+                            AuraEffect* l_AuraEffect = m_originalCaster->GetAuraEffect(56805, EFFECT_2);
+                            if (l_AuraEffect != nullptr)
+                            {
+                                l_AuraEffect->SetAmount(1);
+                            }
+                        }
+
+                    }
+                    
 
                     /// Item - Shaman WoD PvP Elemental 4P Bonus - 171109
                     if (m_spellInfo->Id == 57994 && m_originalCaster->HasAura(171109))
@@ -5652,7 +5677,7 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
 
     /// Raise Ally
     if (m_spellInfo->Id == 61999)
-        mana = target->CountPctFromMaxMana(60);
+        health = target->CountPctFromMaxHealth(60);
 
     ExecuteLogEffectResurrect(effIndex, target);
 
@@ -6725,6 +6750,10 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
             arcaneMissiles->ModCharges(1);
             arcaneMissiles->RefreshDuration();
         }
+        else
+        {
+            m_caster->CastSpell(m_caster, 79683, true);
+        }
     }
 }
 
@@ -7078,7 +7107,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
         if (summon->IsWarlockPet())
             summon->CastSpell(summon, 32233, true);  ///< Avoidance Warlock
-        else if (summon->isHunterPet())
+        else if (summon->isHunterPet() || summon->IsControlledByPlayer())
             summon->CastSpell(summon, 65220, true); ///< Avoidance Hunter
     }
 }
@@ -7856,6 +7885,53 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
+void Spell::EffectCreateGarrison(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (GetCaster() == nullptr)
+        return;
+
+    Player* l_TargetPlayer = GetCaster()->ToPlayer();
+
+    if (l_TargetPlayer == nullptr)
+        return;
+
+    if (l_TargetPlayer->GetGarrison() && l_TargetPlayer->getLevel() >= 90)
+        return;
+
+    l_TargetPlayer->CreateGarrison();
+
+    uint32 l_MovieID = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MovieID;
+    uint32 l_MapID   = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
+    uint32 l_TeamID  = l_TargetPlayer->GetTeamId();
+
+    l_TargetPlayer->AddMovieDelayedTeleport(l_MovieID, l_MapID, MS::Garrison::gGarrisonCreationCoords[l_TeamID][0],
+        MS::Garrison::gGarrisonCreationCoords[l_TeamID][1],
+        MS::Garrison::gGarrisonCreationCoords[l_TeamID][2],
+        MS::Garrison::gGarrisonCreationCoords[l_TeamID][3]);
+
+    l_TargetPlayer->SendMovieStart(l_MovieID);
+
+    if (l_TeamID == TEAM_ALLIANCE)
+    {
+        l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A), l_TargetPlayer);
+        l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
+    }
+    else if (l_TeamID == TEAM_HORDE)
+    {
+        l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H), l_TargetPlayer);
+        l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
+    }
+
+    /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
+    l_TargetPlayer->GetGarrison()->AddFollower(34);
+    l_TargetPlayer->GetGarrison()->AddFollower(89);
+    l_TargetPlayer->GetGarrison()->AddFollower(92);
+
+}
+
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -7882,7 +7958,7 @@ void Spell::EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+    if (!unitTarget || !unitTarget->IsInWorld())
         return;
 
     Player* l_Player = unitTarget->ToPlayer();
@@ -7999,7 +8075,8 @@ void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
             l_Pet->Health = l_Pet->InfoMaxHealth;
         }
 
-        m_caster->ToPlayer()->GetSession()->SendPetBattleJournal();
+        m_caster->ToPlayer()->GetSession()->SendBattlePetsHealed();
+        m_caster->ToPlayer()->GetSession()->SendBattlePetUpdates(false);
     }
 }
 
@@ -8017,7 +8094,7 @@ void Spell::EffectCanPetBattle(SpellEffIndex effIndex)
     if (!player)
         return;
 
-    player->GetSession()->SendPetBattleJournalBattleSlotUpdate();
+    player->GetSession()->SendPetBattleSlotUpdates(false);
 }
 
 void Spell::EffectThreatAll(SpellEffIndex p_EffIndex)
@@ -8209,46 +8286,26 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
     }
 }
 
-void Spell::EffectEnchantIllusion(SpellEffIndex effIndex)
+void Spell::EffectApplyEnchantIllusion(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
     if (!itemTarget)
         return;
 
-    Player* p_caster = (Player*)m_caster;
-
-    uint32 l_EnchantId = m_spellInfo->Effects[effIndex].MiscValue;
-    if (!l_EnchantId)
+    Player* l_Player = m_caster->ToPlayer();
+    if (l_Player == nullptr || l_Player->GetGUID() != itemTarget->GetOwnerGUID())
         return;
 
-    SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(l_EnchantId);
-    if (!pEnchant)
-        return;
-    /// If we don't have visual id for this enchant illusion - nothing to do
-    if (!pEnchant->itemVisualID)
-        return;
+    itemTarget->SetState(ItemUpdateState::ITEM_CHANGED, l_Player);
+    itemTarget->SetModifier(eItemModifiers::EnchantIllusion, m_spellInfo->Effects[p_EffIndex].MiscValue);
 
-    /// Item can be in trade slot and have owner diff. from caster
-    Player* l_ItemOwner = itemTarget->GetOwner();
-    if (!l_ItemOwner)
-        return;
+    if (itemTarget->IsEquipped())
+        l_Player->SetUInt16Value(EPlayerFields::PLAYER_FIELD_VISIBLE_ITEMS + (itemTarget->GetSlot() * 2) + 1, 1, itemTarget->GetVisibleItemVisual());
 
-    auto l_Enchant = BONUS_ENCHANTMENT_SLOT;
-
-    /// remove old enchanting before applying new if equipped
-    l_ItemOwner->ApplyEnchantment(itemTarget, l_Enchant, false);
-
-    itemTarget->SetEnchantment(l_Enchant, l_EnchantId, 0, 0);
-
-    /// add new enchant illusion effect on item
-    l_ItemOwner->ApplyEnchantment(itemTarget, l_Enchant, true);
-
-    l_ItemOwner->RemoveTradeableItem(itemTarget);
-    itemTarget->ClearSoulboundTradeable(l_ItemOwner);
+    l_Player->RemoveTradeableItem(itemTarget);
+    itemTarget->ClearSoulboundTradeable(l_Player);
 }
 
 void Spell::EffectLearnFollowerAbility(SpellEffIndex p_EffIndex)

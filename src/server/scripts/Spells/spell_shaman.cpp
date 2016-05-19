@@ -693,7 +693,7 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
 
                     for (auto itr : l_DispelList)
                     {
-                        if (!itr.first->GetSpellInfo()->IsPositive() && GetSpellInfo()->CanDispelAura(itr.first->GetSpellInfo()))
+                        if (!itr.first->GetSpellInfo()->IsPositive() && GetSpellInfo()->CanDispelAura(itr.first->GetSpellInfo()) && GetSpellInfo()->SchoolMask & SPELL_DAMAGE_CLASS_MAGIC)
                             l_Caster->RemoveAura(itr.first);
                     }
                 }
@@ -1141,6 +1141,7 @@ class spell_sha_spirit_link: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Fire Nova - 1535
 class spell_sha_fire_nova: public SpellScriptLoader
 {
@@ -1153,10 +1154,14 @@ class spell_sha_fire_nova: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetHitUnit())
-                    if (target->HasAura(SPELL_SHA_FLAME_SHOCK))
-                        caster->CastSpell(target, SPELL_SHA_FIRE_NOVA_TRIGGERED, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK, l_Caster->GetGUID()))
+                    l_Caster->CastSpell(l_Target, SPELL_SHA_FIRE_NOVA_TRIGGERED, true);
             }
 
             SpellCastResult HandleCheckCast()
@@ -2077,6 +2082,7 @@ class spell_sha_healing_wave : public SpellScriptLoader
         }
 };
 
+/// last Update 6.2.3
 /// Lava Lash - 60103
 class spell_sha_lava_lash: public SpellScriptLoader
 {
@@ -2105,17 +2111,6 @@ class spell_sha_lava_lash: public SpellScriptLoader
 
                 if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
                     l_Caster->CastSpell(l_Caster, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
-                
-                if (l_Caster->HasAura(eSpells::FlameAura))
-                {
-                    SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(eSpells::FlameAura);
-
-                    if (l_UnleashFlame == nullptr)
-                        return;
-
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
-                    l_Caster->RemoveAurasDueToSpell(eSpells::FlameAura);
-                }
             }
 
             void Register()
@@ -2682,7 +2677,10 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
                             {
                                 if (!l_Map->IsBattlegroundOrArena())
                                 {
-                                    p_Amount += l_GhostlySpeed->Effects[EFFECT_0].BasePoints;
+                                    if (l_Owner->IsOutdoors())
+                                    {
+                                        p_Amount += l_GhostlySpeed->Effects[EFFECT_0].BasePoints;
+                                    }
                                 }
                             }
                         }
@@ -2692,7 +2690,7 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_ghost_wolf_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_ghost_wolf_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_MOD_INCREASE_SPEED);
             }
         };
 
@@ -2759,7 +2757,7 @@ class spell_sha_lava_burst: public SpellScriptLoader
                 if (!l_Player)
                     return;
 
-                if (l_Player->HasAura(eSpells::LavaSurge) && m_HasLavaSurge)
+                if (l_Player->HasAura(eSpells::LavaSurge))
                 {
                     if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
                         l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
@@ -3305,8 +3303,8 @@ class spell_sha_natures_guardian : public SpellScriptLoader
                 if (l_Player->HasSpellCooldown(eSpells::NaturesGuardian))
                     return;
 
-                if ((int32)l_Player->GetHealthPct() < GetSpellInfo()->Effects[EFFECT_1].BasePoints &&
-                    (int32)(100.f * (l_Player->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Player->GetMaxHealth()) >= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                if ((int32)l_Player->GetHealthPct() > GetSpellInfo()->Effects[EFFECT_1].BasePoints &&
+                    (int32)(100.f * (l_Player->GetHealth() - p_EventInfo.GetDamageInfo()->GetDamage()) / l_Player->GetMaxHealth()) <= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
                 {
                     l_Player->CastSpell(l_Player, eSpells::NaturesGuardian, true);
                     l_Player->AddSpellCooldown(eSpells::NaturesGuardian, 0, 30 * IN_MILLISECONDS);
@@ -3364,7 +3362,7 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
 
                 Unit* l_Target = GetTarget();
                 ///< Should proc only when the target pass from > 50% health to < 50% health
-                if (l_Target->GetHealthPct() <= l_HealthPct && (100.f * (l_Target->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) > l_HealthPct)
+                if (l_Target->GetHealthPct() > l_HealthPct && (100.f * (float)(l_Target->GetHealth() - (float)p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) <= l_HealthPct)
                 {
                     if (AuraEffect* l_AuraEffectNbrProc = l_AuraSetBonus->GetEffect(EFFECT_1))
                     {
@@ -3550,7 +3548,8 @@ class spell_sha_glyph_of_flame_shock : public SpellScriptLoader
                 if (!p_EventInfo.GetDamageInfo()->GetDamage())
                     return;
 
-                l_Caster->HealBySpell(l_Caster, p_EventInfo.GetDamageInfo()->GetSpellInfo(), CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount()), false);
+                if (l_Caster->IsValidAssistTarget(l_Caster))
+                    l_Caster->HealBySpell(l_Caster, p_EventInfo.GetDamageInfo()->GetSpellInfo(), CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount()), false);
             }
 
             void Register()
@@ -3606,8 +3605,84 @@ public:
     }
 };
 
+/// Last Update 6.2.3
+/// Stormstrike - 17364, Windstrike - 115356
+class spell_sha_stormstrike_windstrike : public SpellScriptLoader
+{
+    public:
+        spell_sha_stormstrike_windstrike() : SpellScriptLoader("spell_sha_stormstrike_windstrike") { }
+
+        class spell_sha_stormstrike_windstrike_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_stormstrike_windstrike_AuraScript);
+
+            enum eSpells
+            {
+                Stormstrike = 17364,
+                Windstrike  = 115356
+            };
+
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == eSpells::Stormstrike && l_Target->HasAura(eSpells::Windstrike, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(eSpells::Windstrike, l_Caster->GetGUID());
+                else if (GetSpellInfo()->Id == eSpells::Windstrike && l_Target->HasAura(eSpells::Stormstrike, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(eSpells::Stormstrike, l_Caster->GetGUID());
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_sha_stormstrike_windstrike_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_stormstrike_windstrike_AuraScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Glyph of ghostly speed
+/// Doesn't work...
+class PlayerScript_glyph_of_ghostly_speed : public PlayerScript
+{
+    public:
+        PlayerScript_glyph_of_ghostly_speed() : PlayerScript("PlayerScript_glyph_of_ghostly_speed") { }
+
+        enum eSpells
+        {
+            GlyphOfGhostlySpeed = 159642,
+            GhostWolf           = 2645
+        };
+
+        void OnSwitchOutdoorsState(Player* p_Player, bool p_IsOutdoor)
+        {
+            if (p_Player->getClass() == Classes::CLASS_SHAMAN && p_Player->HasAura(eSpells::GhostWolf) && p_Player->HasAura(eSpells::GlyphOfGhostlySpeed))
+            {
+                SpellInfo const* l_GhostlySpeed = sSpellMgr->GetSpellInfo(eSpells::GlyphOfGhostlySpeed);
+                if (l_GhostlySpeed == nullptr)
+                    return;
+
+                AuraEffect* l_AuraEffect = p_Player->GetAuraEffect(eSpells::GhostWolf, SpellEffIndex::EFFECT_3);
+                if (l_AuraEffect == nullptr)
+                    return;
+
+                int32 l_Amount = p_IsOutdoor ? l_GhostlySpeed->Effects[SpellEffIndex::EFFECT_0].BasePoints : 0;
+                l_AuraEffect->SetAmount(l_Amount);
+            }
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_stormstrike_windstrike();
     new spell_sha_glyph_of_ascendance();
     new spell_sha_ancestral_guidance_heal();
     new spell_sha_glyph_of_flame_shock();
@@ -3669,4 +3744,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_WoDPvPEnhancement2PBonus();
     new spell_sha_improved_chain_heal();
     new spell_sha_glyph_of_rain_of_frogs();
+
+    /// PlayerScript
+    new PlayerScript_glyph_of_ghostly_speed();
 }

@@ -266,6 +266,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_CombatTimer = 0;
 
     simulacrumTargetGUID = 0;
+    m_GlaiveOfTossTargetGUID = 0;
     iciclesTargetGUID    = 0;
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -425,11 +426,11 @@ void Unit::Update(uint32 p_time)
 
     // not implemented before 3.0.2
     if (uint32 base_att = getAttackTimer(WeaponAttackType::BaseAttack))
-        setAttackTimer(WeaponAttackType::BaseAttack, (p_time >= base_att ? 0 : base_att - p_time));
+        setAttackTimer(WeaponAttackType::BaseAttack, (base_att - p_time));
     if (uint32 ranged_att = getAttackTimer(WeaponAttackType::RangedAttack))
-        setAttackTimer(WeaponAttackType::RangedAttack, (p_time >= ranged_att ? 0 : ranged_att - p_time));
+        setAttackTimer(WeaponAttackType::RangedAttack, (ranged_att - p_time));
     if (uint32 off_att = getAttackTimer(WeaponAttackType::OffAttack))
-        setAttackTimer(WeaponAttackType::OffAttack, (p_time >= off_att ? 0 : off_att - p_time));
+        setAttackTimer(WeaponAttackType::OffAttack, (off_att - p_time));
 
     // update abilities available only for fraction of time
     UpdateReactives(p_time);
@@ -530,7 +531,10 @@ void Unit::DisableSpline()
 
 void Unit::resetAttackTimer(WeaponAttackType type)
 {
-    m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
+    if (m_attackTimer[type] < 0 && int32(GetAttackTime(type) * m_modAttackSpeedPct[type]) > m_attackTimer[type] * -1)
+        m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]) + m_attackTimer[type];
+    else
+        m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
 }
 
 bool Unit::IsWithinCombatRange(const Unit* obj, float dist2compare) const
@@ -560,7 +564,7 @@ bool Unit::IsWithinMeleeRange(const Unit* obj, float dist) const
         if (dist > MELEE_RANGE)
         {
             maxDist = dist;
-            if (isMoving() && obj->isMoving())
+            if (IsMoving() && obj->IsMoving())
                 maxDist += 2.5f;
         }
 
@@ -713,13 +717,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             if (victim->CountPctFromMaxHealth(15) < damage) ///< last update 6.0.1 (Tue Oct 14 2014) Build 18379
                 victim->CastSpell(victim, 45242, true);
         }
-    }
-
-    /// Death Siphon
-    if (spellProto && spellProto->Id == 108196)
-    {
-        int32 bp = damage * 4;
-        CastCustomSpell(this, 116783, &bp, NULL, NULL, true);
     }
 
     /// @todo update me ?
@@ -2596,7 +2593,7 @@ void Unit::AttackerStateUpdate (Unit* victim, WeaponAttackType attType, bool ext
         SendAttackStateUpdate(&damageInfo);
 
         //TriggerAurasProcOnEvent(damageInfo);
-        ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
+        ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.absorb, damageInfo.attackType);
 
         DealMeleeDamage(&damageInfo, true);
     }
@@ -3450,7 +3447,7 @@ void Unit::_UpdateAutoRepeatSpell()
 {
     // check "real time" interrupts
     // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING effect
-    if (((IsPlayer() && ToPlayer()->isMoving()) || IsNonMeleeSpellCasted(false, false, true, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == 75)) &&
+    if (((IsPlayer() && ToPlayer()->IsMoving()) || IsNonMeleeSpellCasted(false, false, true, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == 75)) &&
         !HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo) && !HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
         // cancel wand shoot
@@ -4098,8 +4095,8 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
             (spellProto->Id == 146739 && i->second->GetBase()->GetId() == 27243))
             continue;
 
-        /// Hack fix for Sunfire and Rising Sun Kick
-        if (spellProto->Id == 164815 || spellProto->Id == 130320)
+        /// Hack fix for Sunfire, Rising Sun Kick and Stormstrike
+        if (spellProto->Id == 164815 || spellProto->Id == 130320 || spellProto->Id == 17364)
             continue;
 
         RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
@@ -5371,9 +5368,18 @@ float Unit::GetTotalAuraMultiplier(AuraType auratype) const
 {
     float multiplier = 1.0f;
 
+    std::map<SpellGroup, int32> SameEffectSpellGroup;
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
-        AddPct(multiplier, (*i)->GetAmount());
+    {
+        /// Check if the Aura Effect has a the Same Effect Stack Rule and if so, use the highest amount of that SpellGroupSameEffectSpellGrou
+        /// If the Aura Effect does not have this Stack Rule, it returns false so we can add to the multiplier as usual
+        if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
+            AddPct(multiplier, (*i)->GetAmount());
+    }
+    /// Add the highest of the Same Effect Stack Rule SpellGroups to the multiplier
+    for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
+        AddPct(multiplier, itr->second);
 
     return multiplier;
 }
@@ -7356,7 +7362,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (Aura* aur = GetAura(dummySpell->Id))
                     {
                         int32 chance = aur->GetEffect(0)->GetAmount();
-                        if (isMoving())
+                        if (IsMoving())
                             chance *= 5;
                         if (effIndex !=0 || !procSpell || !roll_chance_i(chance))
                             return false;
@@ -8737,6 +8743,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
 
                     if (!damage || !procSpell)
+                        return false;
+
+                    if (procSpell->IsPositive())
                         return false;
 
                     Unit* firstSpirit = NULL;
@@ -11152,10 +11161,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
         _isWalkingBeforeCharm = charm->IsWalking();
         if (_isWalkingBeforeCharm)
-        {
             charm->SetWalk(false);
-            charm->SendMovementFlagUpdate();
-        }
 
         m_Controlled.insert(charm);
     }
@@ -11190,10 +11196,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
         }
 
         if (charm->IsWalking() != _isWalkingBeforeCharm)
-        {
             charm->SetWalk(_isWalkingBeforeCharm);
-            charm->SendMovementFlagUpdate(true); // send packet to self, to update movement state on player.
-        }
 
         if (charm->IsPlayer()
             || !charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_MINION)
@@ -12098,10 +12101,8 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask p_SchoolMask) const
         if (GetPowerIndex(POWER_MANA, getClass()) != MAX_POWERS)
             l_DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));
 
-        // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
-        AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
-        for (AuraEffectList::const_iterator i = mSpellPowerPct.begin(); i != mSpellPowerPct.end(); ++i)
-            AddPct(l_DoneAdvertisedBenefit, (*i)->GetAmount());
+        /// Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
+        l_DoneAdvertisedBenefit *= GetTotalAuraMultiplier(SPELL_AURA_MOD_SPELL_POWER_PCT);
 
         // Damage bonus from stats
         AuraEffectList const& mDamageDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);
@@ -12377,7 +12378,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) and Ebon Gargoyle can too - but this part is a hack and needs more research
-    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829)
+    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829 && GetEntry() != 77936)
         return 0.0f;
 
     // not critting spell
@@ -12410,7 +12411,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
             else if (IsPlayer())
             {
                 /// Default is 5% of crit
-                float crit_chance = 5.0f;
+                crit_chance = 5.0f;
                 crit_chance += GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(schoolMask));
             }
             else
@@ -13418,20 +13419,19 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     if (spellProto)
     {
-        if (!(spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
+        AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+        for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
         {
-            AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-            for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+            if ((*i)->GetMiscValue() & spellProto->GetSchoolMask() && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
             {
-                if ((*i)->GetMiscValue() & spellProto->GetSchoolMask() && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
-                {
-                    if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
-                        AddPct(DoneTotalMod, (*i)->GetAmount());
-                    else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
-                        AddPct(DoneTotalMod, (*i)->GetAmount());
-                    else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
-                        AddPct(DoneTotalMod, (*i)->GetAmount());
-                }
+                if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
+                    continue;
+                if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
+                    AddPct(DoneTotalMod, (*i)->GetAmount());
+                else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
+                    AddPct(DoneTotalMod, (*i)->GetAmount());
+                else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
+                    AddPct(DoneTotalMod, (*i)->GetAmount());
             }
         }
     }
@@ -13951,7 +13951,7 @@ void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
 
     if (Creature* l_Creature = p_Enemy->ToCreature())
     {
-        if (l_Creature->GetEntry() == 900000) ///< Sovaks training dummy
+        if (l_Creature->GetEntry() == 900000 || l_Creature->GetScriptName() == "npc_pvp_training_dummy") ///< Sovaks training dummy
             p_IsPVP = true;
     }
 
@@ -14081,6 +14081,7 @@ void Unit::ClearInCombat()
     }
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LEAVE_COMBAT);
 }
 
 bool Unit::isTargetableForAttack(bool checkFakeDeath) const
@@ -14106,7 +14107,12 @@ bool Unit::IsValidAttackTarget(Unit const* target) const
 // function based on function Unit::CanAttack from 13850 client
 bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, WorldObject const* obj) const
 {
-    ASSERT(target);
+    /// Pointer cannot be null in well-defined C++ code; comparison may be assumed to always evaluate to false
+    if (target == nullptr)
+    {
+        sLog->outAshran("Unit::_IsValidAttackTarget, target is null!");
+        return false;
+    }
 
     bool areaSpell = false;
     if (bySpell)
@@ -14876,6 +14882,9 @@ void Unit::SendFlightSplineSync(float p_SplineDist)
 
 void Unit::setDeathState(DeathState s)
 {
+    /// Death state needs to be updated before RemoveAllAurasOnDeath() is called, to prevent entering combat
+    m_deathState = s;
+
     if (s != ALIVE && s != JUST_RESPAWNED)
     {
         CombatStop();
@@ -14885,7 +14894,6 @@ void Unit::setDeathState(DeathState s)
         if (IsNonMeleeSpellCasted(false))
             InterruptNonMeleeSpells(false);
 
-        StopMoving();
         ExitVehicle();
 
         UnsummonAllTotems();
@@ -14911,6 +14919,7 @@ void Unit::setDeathState(DeathState s)
             GetMotionMaster()->MoveIdle();
         }
 
+        StopMoving();
         DisableSpline();
         // without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         // do not why since in IncreaseMaxHealth currenthealth is checked
@@ -14951,8 +14960,6 @@ void Unit::setDeathState(DeathState s)
     }
     else if (s == JUST_RESPAWNED)
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
-
-    m_deathState = s;
 
     /// Remove pvp bonuses from items, if we have it
     if (s == JUST_DIED && ToPlayer())
@@ -15443,6 +15450,9 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
 
 void Unit::IncrDiminishing(DiminishingGroup group)
 {
+    if (IsPlayer() && ToPlayer()->GetCommandStatus(CHEAT_NO_DR))
+        return;
+
     // Checking for existing in the table
     for (Diminishing::iterator i = m_Diminishing.begin(); i != m_Diminishing.end(); ++i)
     {
@@ -15927,10 +15937,6 @@ void Unit::SetHealth(uint32 val)
             {
                 if (l_Pet->GetHealthPct() < 20.0f && !owner->HasAura(171397))
                     owner->CastSpell(owner, 171397, true);
-
-                /// Remove aura if pet has more than 20% life
-                if (l_Pet->GetHealthPct() >= 20.0f)
-                    owner->RemoveAura(171397);
             }
         }
     }
@@ -16826,7 +16832,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Leader of the Pack
-    if (!isVictim && IsPlayer() && HasAura(17007) && (procExtra & PROC_EX_CRITICAL_HIT) &&
+    if (!isVictim && IsPlayer() && ToPlayer()->getClass() == CLASS_DRUID && HasAura(17007) && (procExtra & PROC_EX_CRITICAL_HIT) &&
         (attType == WeaponAttackType::BaseAttack || (procSpell && procSpell->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)))
     {
         if (!ToPlayer()->HasSpellCooldown(68285))
@@ -16837,7 +16843,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Brain Freeze
-    if (procSpell && procSpell->Id == 116 && HasAura(44549) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
+    if (procSpell && procSpell->Id == 116 && IsPlayer() && ToPlayer()->getClass() == CLASS_MAGE && ToPlayer()->GetSpecializationId() == SPEC_MAGE_FROST && HasAura(44549) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
     {
         int32 l_Chance = 10;
         l_Chance += (l_TotalMultistrike * 15);
@@ -16846,11 +16852,11 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Runic Strikes
-    if ((procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && HasAura(165394) && IsPlayer() && ToPlayer()->IsTwoHandUsed() && procSpell == nullptr)
+    if ((procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && IsPlayer() && ToPlayer()->getClass() == CLASS_DEATH_KNIGHT && ToPlayer()->IsTwoHandUsed() && HasAura(165394) && procSpell == nullptr)
         CastSpell(this, 163948, true);
 
     /// Plaguebearer
-    if (procSpell && target && (procSpell->Id == 47541 || procSpell->Id == 49143) && HasAura(161497))
+    if (procSpell && target && IsPlayer() && ToPlayer()->getClass() == CLASS_DEATH_KNIGHT  && (procSpell->Id == 47541 || procSpell->Id == 49143) && HasAura(161497))
     {
         if (Aura* l_BloodPlague = target->GetAura(55078, GetGUID()))
             l_BloodPlague->SetDuration(l_BloodPlague->GetDuration() + 4000);
@@ -16863,7 +16869,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     // Dematerialize
-    if (target && !isVictim && target->IsPlayer() && target->HasAura(122464) && procSpell && procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN))
+    if (target && !isVictim && target->IsPlayer() && target->ToPlayer()->getClass() == CLASS_MONK && target->HasAura(122464) && procSpell && procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN))
     {
         if (!target->ToPlayer()->HasSpellCooldown(122465))
         {
@@ -16872,8 +16878,15 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
+    /// Death Siphon
+    if (procSpell && procSpell->Id == 108196 && !isVictim)
+    {
+        int32 bp = l_TotalDamage * 4;
+        CastCustomSpell(this, 116783, &bp, NULL, NULL, true);
+    }
+
     /// Words of Mending - 152117
-    if (HasAura(152117) && target && procSpell && (procSpell->IsHealingSpell() || procSpell->IsShieldingSpell()) && procSpell->Id != SPELL_PLAYER_LIFE_STEAL && procSpell->Id != 77489)
+    if (IsPlayer() && ToPlayer()->getClass() == CLASS_PRIEST && ToPlayer()->GetSpecializationId() != SPEC_PRIEST_SHADOW && HasAura(152117) && target && procSpell && (procSpell->IsHealingSpell() || procSpell->IsShieldingSpell()) && procSpell->Id != SPELL_PLAYER_LIFE_STEAL && procSpell->Id != 77489)
     {
         if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
         {
@@ -16891,14 +16904,14 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Revealing Strike - 84617
-    if (target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
+    if (IsPlayer() && ToPlayer()->getClass() == CLASS_ROGUE && target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
     {
         if (roll_chance_i(25))
             AddComboPoints(1);
     }
 
     /// Hack Fix Ice Floes - Drop charges
-    if (IsPlayer() && !isVictim && HasAura(108839) && procSpell && procSpell->Id != 108839 &&
+    if (IsPlayer() && !isVictim && ToPlayer()->getClass() == CLASS_MAGE && HasAura(108839) && procSpell && procSpell->Id != 108839 &&
         ((procSpell->CastTimeEntry && procSpell->CastTimeEntry->CastTime > 0 && procSpell->CastTimeEntry->CastTime < 4000)
         || (procSpell->DurationEntry && procSpell->DurationEntry->Duration[0] > 0 && procSpell->DurationEntry->Duration[0] < 4000 && procSpell->AttributesEx & SPELL_ATTR1_CHANNELED_2)))
         if (AuraApplication* aura = GetAuraApplication(108839, GetGUID()))
@@ -16917,8 +16930,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     if (IsPlayer() && HasAura(121152) && getClass() == CLASS_ROGUE && procSpell && procSpell->Id == 111240)
         RemoveAura(121153);
 
-    // Hack Fix Immolate - Critical strikes generate burning embers
-    if (IsPlayer() && procSpell && procSpell->Id == 348 && (procExtra & PROC_EX_CRITICAL_HIT))
+    /// Hack Fix Immolate - Critical strikes generate burning embers
+    if (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_DESTRUCTION && procSpell && (procSpell->Id == 348 || procSpell->Id == 157736) && (procExtra & PROC_EX_CRITICAL_HIT))
         SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
 
     // Cast Shadowy Apparitions when Shadow Word : Pain is crit
@@ -17560,14 +17573,8 @@ void Unit::StopMoving()
 
     // Update position using old spline
     UpdateSplinePosition();
-    Movement::MoveSplineInit(this).Stop();
-}
-
-void Unit::SendMovementFlagUpdate(bool self /* = false */)
-{
-    WorldPacket data;
-    BuildHeartBeatMsg(&data);
-    SendMessageToSet(&data, self);
+    Movement::MoveSplineInit l_Init(this);
+    l_Init.Stop();
 }
 
 bool Unit::IsSitState() const
@@ -18282,6 +18289,8 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
             return true;
         else if (spellProto && spellProto->Id == 76669 && procSpell && procSpell->Id == 156322) ///< Eternal flame dot should proc on Illuminated healing
             return true;
+        else if (spellProto && spellProto->Id == 108446 && procSpell && !procSpell->IsPositive()) ///< Soul link should proc on every damage that warlock deal
+            return true;
         /// Pyroblast! must make T17 fire 4P bonus procs!
         /// Arcane Charge must make T17 arcane 4P bonus procs!
         else if ((spellProto && spellProto->Id == 165459 && procSpell && procSpell->Id == 48108) ||
@@ -18494,7 +18503,9 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
     if (l_KilledCreature)
     {
         l_IsRewardAllowed = l_KilledCreature->IsDamageEnoughForLootingAndReward();
-        if (!l_IsRewardAllowed)
+
+        /// In Challenge mode difficulty, loots are disabled
+        if (!l_IsRewardAllowed || l_KilledCreature->GetMap()->IsChallengeMode())
             l_KilledCreature->SetLootRecipient(NULL);
     }
 
@@ -18510,9 +18521,31 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         l_Data.appendPackGUID(p_KilledVictim->GetGUID());
 
         Player* l_Looter = l_KillerPlayer;
-
         if (Group* l_Group = l_KillerPlayer->GetGroup())
         {
+            if (p_KilledVictim->ToPlayer() && (l_KillerPlayer->GetMapId() == 1116 || l_KillerPlayer->GetMapId() == 1191)) ///< Gladiator's Sanctum
+            {
+                if (p_KilledVictim->ToPlayer())
+                {
+                    for (GroupReference* l_Ref = l_Group->GetFirstMember(); l_Ref != nullptr; l_Ref = l_Ref->next())
+                    {
+                        Player* l_RefPlayer = l_Ref->getSource();
+
+                        if (!l_RefPlayer)
+                            continue;
+
+                        if (l_RefPlayer->GetDistance2d(p_KilledVictim) < 100.f)
+                        {
+                            if (MS::Garrison::Manager* l_Garr = l_RefPlayer->GetGarrison())
+                            {
+                                if (l_Garr->HasBuildingType(MS::Garrison::BuildingType::SparringArena))
+                                    l_RefPlayer->CastSpell(l_RefPlayer, 173417, true);
+                            }
+                        }
+                    }
+                }
+            }
+
             l_Group->BroadcastPacket(&l_Data, l_Group->GetMemberGroup(l_KillerPlayer->GetGUID()));
 
             if (l_KilledCreature)
@@ -18538,6 +18571,18 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         else
         {
             l_KillerPlayer->SendDirectMessage(&l_Data);
+
+            if (p_KilledVictim->ToPlayer() && (l_KillerPlayer->GetMapId() == 1116 || l_KillerPlayer->GetMapId() == 1191))
+            {
+                if (l_KillerPlayer->GetDistance2d(p_KilledVictim) < 100.f)
+                {
+                    if (MS::Garrison::Manager* l_Garr = l_KillerPlayer->GetGarrison())
+                    {
+                        if (l_Garr->HasBuildingType(MS::Garrison::BuildingType::SparringArena))
+                            l_KillerPlayer->CastSpell(l_KillerPlayer, 173417, true);
+                    }
+                }
+            }
 
             if (l_KilledCreature)
             {
@@ -18722,6 +18767,10 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         /// at original death (not at SpiritOfRedemtionTalent timeout)
         l_PlayerVictim->SetPvPDeath(l_KillerPlayer != NULL);
 
+        /// There is no durability loss in challenge dungeons
+        if (l_PlayerVictim->GetMap()->IsChallengeMode())
+            p_DurabilityLoss = false;
+
         /// Only if not player and not controlled by player pet. And not at BG
         if ((p_DurabilityLoss && !l_KillerPlayer && !p_KilledVictim->ToPlayer()->InBattleground()) || (l_KillerPlayer && sWorld->getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
         {
@@ -18814,7 +18863,8 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                 if (InstanceScript* l_InstanceScript = l_KilledCreature->GetInstanceScript())
                     l_InstanceScript->OnCreatureKilled(l_KilledCreature, l_KillerPlayer);
 
-                if (l_InstanceMap->IsRaidOrHeroicDungeon())
+                /// There is no lockout scheduled in challenge mode
+                if (l_InstanceMap->IsRaidOrHeroicDungeon() && !l_InstanceMap->IsChallengeMode())
                 {
                     if (l_KilledCreature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                         ((InstanceMap*)l_InstanceMap)->PermBindAllPlayers(l_KillerPlayer);
@@ -18884,6 +18934,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
     /// Hook for OnPVPKill Event
     if (Player* l_KillerPlayer = ToPlayer())
     {
+        sScriptMgr->OnKill(l_KillerPlayer, p_KilledVictim);
         if (Player* l_KilledPlayer = p_KilledVictim->ToPlayer())
             sScriptMgr->OnPVPKill(l_KillerPlayer, l_KilledPlayer);
         else if (Creature* l_KilledCreature = p_KilledVictim->ToCreature())
@@ -18903,7 +18954,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
 /// @p_ProjectTime    : Time target of prediction
 Position Unit::GetInterpolatedPosition(bool p_AtClientScreen, uint32 p_ProjectTime)
 {
-    if (!isMoving())
+    if (!IsMoving())
         return *this;
 
     if ((m_movementInfo.GetMovementFlags() & (MOVEMENTFLAG_MASK_MOVING_FLY | MOVEMENTFLAG_MASK_TURNING | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN | MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR | MOVEMENTFLAG_SPLINE_ELEVATION)) != 0)
@@ -20078,15 +20129,6 @@ public:
         me->WorldObject::UpdateObjectVisibility(true);
     }
 };
-
-void Unit::OnRelocated()
-{
-    if (!m_lastVisibilityUpdPos.IsInDist(this, World::Visibility_RelocationLowerLimit)) {
-        m_lastVisibilityUpdPos = *this;
-        m_Events.AddEvent(new VisibilityUpdateTask(this), m_Events.CalculateTime(1));
-    }
-    AINotifyTask::ScheduleAINotify(this);
-}
 
 void Unit::UpdateObjectVisibility(bool forced)
 {
@@ -21426,8 +21468,6 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         player->SummonLastSummonedBattlePet();
     }
 
-    SendMovementFlagUpdate();
-
     if (vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION))
         if (((Minion*)vehicle->GetBase())->GetOwner() == this)
             vehicle->Dismiss();
@@ -21443,12 +21483,332 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     }
 }
 
-void Unit::SetCanFly(bool apply)
+bool Unit::IsFalling() const
 {
-    if (apply)
-        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+    return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR) || movespline->isFalling();
+}
+
+bool Unit::SetWalk(bool p_Enable)
+{
+    if (p_Enable == IsWalking())
+        return false;
+
+    if (p_Enable)
+        AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
     else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+
+    static Opcodes const l_WalkModeTable[2] = { SMSG_SPLINE_MOVE_SET_RUN_MODE, SMSG_SPLINE_MOVE_SET_WALK_MODE };
+
+    WorldPacket l_Data(l_WalkModeTable[p_Enable]);
+    l_Data.appendPackGUID(GetGUID());
+
+    SendMessageToSet(&l_Data, true);
+    return true;
+}
+
+bool Unit::SetDisableGravity(bool p_Disable, bool p_PacketOnly /*= false*/)
+{
+    if (!p_PacketOnly)
+    {
+        if (p_Disable == IsLevitating())
+            return false;
+
+        if (p_Disable)
+        {
+            AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+            RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
+            SetFall(false);
+        }
+        else
+        {
+            RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+            if (!HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
+                SetFall(true);
+        }
+    }
+
+    static Opcodes const l_GravityOpcodeTable[2][2] =
+    {
+        { SMSG_SPLINE_MOVE_GRAVITY_ENABLE,  SMSG_MOVE_ENABLE_GRAVITY  },
+        { SMSG_SPLINE_MOVE_GRAVITY_DISABLE, SMSG_MOVE_DISABLE_GRAVITY }
+    };
+
+    bool l_IsPlayer = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (l_IsPlayer)
+    {
+        WorldPacket l_Data(l_GravityOpcodeTable[p_Disable][1]);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
+
+        SendMessageToSet(&l_Data, true);
+    }
+    else
+    {
+        WorldPacket l_Data(l_GravityOpcodeTable[p_Disable][0]);
+        l_Data.appendPackGUID(GetGUID());
+
+        SendMessageToSet(&l_Data, true);
+    }
+
+    return true;
+}
+
+bool Unit::SetFall(bool p_Enable)
+{
+    if (p_Enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+        return false;
+
+    if (p_Enable)
+    {
+        AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        m_movementInfo.SetFallTime(0);
+    }
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR);
+
+    return true;
+}
+
+bool Unit::SetSwim(bool p_Enable)
+{
+    if (p_Enable == HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
+        return false;
+
+    if (p_Enable)
+        AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+
+    static Opcodes const l_SwimOpcodeTable[2] = { SMSG_SPLINE_MOVE_STOP_SWIM, SMSG_SPLINE_MOVE_START_SWIM };
+
+    WorldPacket l_Data(l_SwimOpcodeTable[p_Enable]);
+    l_Data.appendPackGUID(GetGUID());
+
+    SendMessageToSet(&l_Data, true);
+
+    return true;
+}
+
+bool Unit::SetCanFly(bool p_Enable)
+{
+    if (p_Enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
+        return false;
+
+    if (p_Enable)
+    {
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
+        SetFall(false);
+    }
+    else
+    {
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
+        if (!IsLevitating())
+            SetFall(true);
+    }
+
+    static Opcodes const l_FlyOpcodeTable[2][2] =
+    {
+        { SMSG_SPLINE_MOVE_UNSET_FLYING, SMSG_MOVE_UNSET_CAN_FLY },
+        { SMSG_SPLINE_MOVE_SET_FLYING,   SMSG_MOVE_SET_CAN_FLY   }
+    };
+
+    bool l_IsPlayer = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (l_IsPlayer)
+    {
+        WorldPacket l_Data(l_FlyOpcodeTable[p_Enable][1]);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
+
+        SendMessageToSet(&l_Data, true);
+    }
+    else
+    {
+        WorldPacket l_Data(l_FlyOpcodeTable[p_Enable][0]);
+        l_Data.appendPackGUID(GetGUID());
+
+        SendMessageToSet(&l_Data, true);
+    }
+
+    return true;
+}
+
+bool Unit::SetWaterWalking(bool p_Enable, bool p_PacketOnly /*= false*/)
+{
+    if (!p_PacketOnly)
+    {
+        if (p_Enable == HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
+            return false;
+
+        if (p_Enable)
+            AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+    }
+
+    static Opcodes const l_WaterWalkingOpcodeTable[2][2] =
+    {
+        { SMSG_SPLINE_MOVE_SET_LAND_WALK,  SMSG_MOVE_LAND_WALK  },
+        { SMSG_SPLINE_MOVE_SET_WATER_WALK, SMSG_MOVE_WATER_WALK }
+    };
+
+    bool l_IsPlayer = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (l_IsPlayer)
+    {
+        WorldPacket l_Data(l_WaterWalkingOpcodeTable[p_Enable][1]);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
+
+        SendMessageToSet(&l_Data, true);
+    }
+    else
+    {
+        WorldPacket l_Data(l_WaterWalkingOpcodeTable[p_Enable][0]);
+        l_Data.appendPackGUID(GetGUID());
+
+        SendMessageToSet(&l_Data, true);
+    }
+
+    return true;
+}
+
+bool Unit::SetFeatherFall(bool p_Enable, bool p_PacketOnly /*= false*/)
+{
+    if (!p_PacketOnly)
+    {
+        if (p_Enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
+            return false;
+
+        if (p_Enable)
+            AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+    }
+
+    static Opcodes const l_FeatherFallOpcodeTable[2][2] =
+    {
+        { SMSG_SPLINE_MOVE_SET_NORMAL_FALL,  SMSG_MOVE_NORMAL_FALL  },
+        { SMSG_SPLINE_MOVE_SET_FEATHER_FALL, SMSG_MOVE_FEATHER_FALL }
+    };
+
+    bool l_IsPlayer = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (l_IsPlayer)
+    {
+        WorldPacket l_Data(l_FeatherFallOpcodeTable[p_Enable][1]);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
+
+        SendMessageToSet(&l_Data, true);
+    }
+    else
+    {
+        WorldPacket l_Data(l_FeatherFallOpcodeTable[p_Enable][0]);
+        l_Data.appendPackGUID(GetGUID());
+
+        SendMessageToSet(&l_Data, true);
+    }
+
+    return true;
+}
+
+bool Unit::SetHover(bool p_Enable, bool p_PacketOnly /*= false*/)
+{
+    if (!p_PacketOnly)
+    {
+        if (p_Enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+            return false;
+
+        float l_HoverHeight = GetFloatValue(UNIT_FIELD_HOVER_HEIGHT);
+
+        if (p_Enable)
+        {
+            /// No need to check height on ascent
+            AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
+
+            if (l_HoverHeight)
+                UpdateHeight(GetPositionZ() + l_HoverHeight);
+        }
+        else
+        {
+            RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
+
+            if (l_HoverHeight)
+            {
+                float l_NewZ = GetPositionZ() - l_HoverHeight;
+
+                UpdateAllowedPositionZ(GetPositionX(), GetPositionY(), l_NewZ);
+                UpdateHeight(l_NewZ);
+            }
+        }
+    }
+
+    static Opcodes const l_HoverOpcodeTable[2][2] =
+    {
+        { SMSG_SPLINE_MOVE_UNSET_HOVER, SMSG_MOVE_UNSET_HOVER   },
+        { SMSG_SPLINE_MOVE_SET_HOVER,   SMSG_MOVE_SET_HOVER     }
+    };
+
+    bool l_IsPlayer = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (l_IsPlayer)
+    {
+        WorldPacket l_Data(l_HoverOpcodeTable[p_Enable][1]);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
+
+        SendMessageToSet(&l_Data, true);
+    }
+    else
+    {
+        WorldPacket l_Data(l_HoverOpcodeTable[p_Enable][0]);
+        l_Data.appendPackGUID(GetGUID());
+
+        SendMessageToSet(&l_Data, true);
+    }
+
+    return true;
+}
+
+bool Unit::SetCollision(bool disable)
+{
+    if (disable == HasUnitMovementFlag(MOVEMENTFLAG_DISABLE_COLLISION))
+        return false;
+
+    if (disable)
+        AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_COLLISION);
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_COLLISION);
+
+    static Opcodes const l_CollisionOpcodeTable[2][2] =
+    {
+        { SMSG_SPLINE_MOVE_COLLISION_ENABLE,  SMSG_MOVE_ENABLE_COLLISION  },
+        { SMSG_SPLINE_MOVE_COLLISION_DISABLE, SMSG_MOVE_DISABLE_COLLISION }
+    };
+
+    bool l_IsPlayer = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (l_IsPlayer)
+    {
+        WorldPacket l_Data(l_CollisionOpcodeTable[disable][1]);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint32(0);                ///< Movement counter
+
+        SendMessageToSet(&l_Data, true);
+    }
+    else
+    {
+        WorldPacket l_Data(l_CollisionOpcodeTable[disable][0]);
+        l_Data.appendPackGUID(GetGUID());
+
+        SendMessageToSet(&l_Data, true);
+    }
+
+    return true;
 }
 
 void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool casting /*= false*/)
@@ -21466,27 +21826,87 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
         SendTeleportPacket(l_Position);
 
         UpdatePosition(x, y, z, orientation, true);
-        SendMovementFlagUpdate();
+        UpdateObjectVisibility();
     }
 }
 
 void Unit::SendTeleportPacket(Position &p_NewPosition)
 {
-    WorldPacket data(SMSG_MOVE_TELEPORT, 38);
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        WorldPacket l_TeleportPacket(SMSG_MOVE_TELEPORT, 38);
+        bool l_HasVehicle = false;
 
-    data.appendPackGUID(GetGUID());
-    data << uint32(0);                  //  SequenceIndex
-    data << float(p_NewPosition.GetPositionX());
-    data << float(p_NewPosition.GetPositionY());
-    data << float(p_NewPosition.GetPositionZ());
-    data << float(p_NewPosition.GetOrientation());
-    data << float(GetOrientation());
+        Position l_Position;
+        l_Position.Relocate(p_NewPosition);
 
-    data.WriteBit(false);
-    data.WriteBit(false);
-    data.FlushBits();
+        if (TransportBase* l_TransportBase = GetDirectTransport())
+            l_TransportBase->CalculatePassengerOffset(l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
 
-    SendMessageToSet(&data, false);
+        l_TeleportPacket.appendPackGUID(GetGUID());
+        l_TeleportPacket << uint32(0);                  //  SequenceIndex
+        l_TeleportPacket << float(l_Position.GetPositionX());
+        l_TeleportPacket << float(l_Position.GetPositionY());
+        l_TeleportPacket << float(l_Position.GetPositionZ());
+        l_TeleportPacket << float(l_Position.GetOrientation());
+        l_TeleportPacket << float(GetOrientation());
+
+        l_TeleportPacket.WriteBit(GetTransGUID() != 0);
+        l_TeleportPacket.WriteBit(l_HasVehicle);
+        l_TeleportPacket.FlushBits();
+
+        if (GetTransGUID() != 0)
+            l_TeleportPacket.appendPackGUID(GetTransGUID());
+
+        if (l_HasVehicle)
+        {
+            l_TeleportPacket << uint8(0);   ///< VehicleSeatIndex
+            l_TeleportPacket.WriteBit(0);   ///< VehicleExitVoluntary
+            l_TeleportPacket.WriteBit(0);   ///< VehicleExitTeleport
+            l_TeleportPacket.FlushBits();
+        }
+
+        ToPlayer()->SendDirectMessage(&l_TeleportPacket);
+    }
+
+    MovementInfo l_MovementInfo = m_movementInfo;
+
+    /// Fix for near TP
+    ///if (GetTypeId() != TYPEID_PLAYER)
+    {
+        l_MovementInfo.guid = GetGUID();
+        l_MovementInfo.pos.Relocate(p_NewPosition);
+        l_MovementInfo.time = getMSTime();
+    }
+
+    WorldPacket l_TeleportUpdatePacket(SMSG_MOVE_UPDATE_TELEPORT, 300);
+
+    WorldSession::WriteMovementInfo(l_TeleportUpdatePacket, &l_MovementInfo);
+
+    l_TeleportUpdatePacket << uint32(0);    ///< Movement force count
+
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasWalkSpeed
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasRunSpeed
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasRunBack
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasSwimSpeed
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasSwimBack
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasFlightSpeed
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasFlightBack
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasTurnRate
+    l_TeleportUpdatePacket.WriteBit(true);  ///< HasPitchRate
+    l_TeleportUpdatePacket.FlushBits();
+
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_WALK));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_RUN));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_RUN_BACK));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_SWIM));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_SWIM_BACK));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_FLIGHT));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_FLIGHT_BACK));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_TURN_RATE));
+    l_TeleportUpdatePacket << float(GetSpeed(MOVE_PITCH_RATE));
+
+    SendMessageToSet(&l_TeleportUpdatePacket, false);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
@@ -21858,96 +22278,6 @@ void Unit::SetFacingToObject(WorldObject* object)
     init.Launch();
 }
 
-bool Unit::SetWalk(bool enable)
-{
-    if (enable == IsWalking())
-        return false;
-
-    if (enable)
-        AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-
-    return true;
-}
-
-bool Unit::SetFall(bool enable)
-{
-    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
-        return false;
-
-    if (enable)
-    {
-        AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-        m_movementInfo.SetFallTime(0);
-    }
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR);
-
-    return true;
-}
-
-bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/)
-{
-    if (disable == IsLevitating())
-        return false;
-
-    if (disable)
-        AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-
-    return true;
-}
-
-bool Unit::SetHover(bool enable)
-{
-    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        return false;
-
-    if (enable)
-    {
-        //! No need to check height on ascent
-        AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
-        if (float hh = GetFloatValue(UNIT_FIELD_HOVER_HEIGHT))
-            UpdateHeight(GetPositionZ() + hh);
-    }
-    else
-    {
-        RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
-        if (float hh = GetFloatValue(UNIT_FIELD_HOVER_HEIGHT))
-        {
-            float newZ = GetPositionZ() - hh;
-            UpdateAllowedPositionZ(GetPositionX(), GetPositionY(), newZ);
-            UpdateHeight(newZ);
-        }
-    }
-
-    return true;
-}
-
-void Unit::SendMovementHover(bool apply)
-{
-    if (IsPlayer())
-        ToPlayer()->SendMovementSetHover(HasUnitMovementFlag(MOVEMENTFLAG_HOVER));
-
-    WorldPacket l_Data;
-
-    if (apply)
-    {
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_HOVER, 16 + 2);
-        AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
-    }
-    else
-    {
-        l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_HOVER, 16 + 2);
-        RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
-    }
-
-    l_Data.appendPackGUID(GetGUID());
-    SendMessageToSet(&l_Data, false);
-}
-
 void Unit::FocusTarget(Spell const* p_FocusSpell, WorldObject* p_Target)
 {
     // already focused
@@ -21979,54 +22309,6 @@ void Unit::ReleaseFocus(Spell const* focusSpell)
         ClearUnitState(UNIT_STATE_ROTATING);
 }
 
-void Unit::SendMovementWaterWalking()
-{
-    if (IsPlayer())
-        ToPlayer()->SendMovementSetWaterWalking(HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING));
-
-    WorldPacket l_Data;
-
-    if (HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_WATER_WALK, 16 + 2);
-    else
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_LAND_WALK, 16 + 2);
-
-    l_Data.appendPackGUID(GetGUID());
-    SendMessageToSet(&l_Data, false);
-}
-
-void Unit::SendMovementFeatherFall()
-{
-    if (IsPlayer())
-        ToPlayer()->SendMovementSetFeatherFall(HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW));
-
-    WorldPacket l_Data;
-
-    if (HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FEATHER_FALL, 16 + 2);
-    else
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_NORMAL_FALL, 16 + 2);
-
-    l_Data.appendPackGUID(GetGUID());
-    SendMessageToSet(&l_Data, false);
-}
-
-void Unit::SendMovementCanFlyChange()
-{
-    if (IsPlayer())
-        ToPlayer()->SendMovementSetCanFly(CanFly());
-
-    WorldPacket l_Data;
-
-    if (CanFly())
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLYING, 16 + 2);
-    else
-        l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_FLYING, 16 + 2);
-
-    l_Data.appendPackGUID(GetGUID());
-    SendMessageToSet(&l_Data, false);
-}
-
 void Unit::SendCanTurnWhileFalling(bool p_Apply)
 {
     if (GetTypeId() != TYPEID_PLAYER)
@@ -22052,7 +22334,7 @@ void Unit::SendCanTurnWhileFalling(bool p_Apply)
 
 bool Unit::IsSplineEnabled() const
 {
-    return movespline->Initialized();
+    return movespline->Initialized() && !movespline->Finalized();
 }
 
 bool Unit::IsSplineFinished() const
@@ -22500,6 +22782,10 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Ice Nova - In pvp, damage reduce by 20%
         if (p_Spellproto->SpellFamilyFlags[3] & 0x80000)
             return -20.0f;
+
+        /// Living Bomb - In pvp, damage reduce by 15%
+        if (p_Spellproto->Id == 44461)
+            return -15.0f;
         break;
     }
     case SPELLFAMILY_WARRIOR:
@@ -22599,7 +22885,7 @@ void Unit::SetChannelSpellID(SpellInfo const* p_SpellInfo)
     if (p_SpellInfo)
     {
         SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, p_SpellInfo->Id);
-        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, p_SpellInfo->FirstSpellXSpellVIsualID);
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, p_SpellInfo->FirstSpellXSpellVisualID);
     }
     else
     {

@@ -217,6 +217,14 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_BaseTime   : Default build time
     uint32 InstanceScript_GarrisonHordeLevel2::OnPrePurchaseBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
     {
+        if (p_BuildingID == Buildings::TradingPost_TradingPost_Level2)
+        {
+            uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
+            FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
+
+            if (l_Entry != nullptr)
+                p_Owner->GetReputationMgr().SetReputation(l_Entry, 0);
+        }
         return p_BaseTime;
     }
     /// When a construction start

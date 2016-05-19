@@ -1518,7 +1518,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
                         break;
                     /// Tranquility
                     case 157982:
-                        l_MaxSize = 5;
                         l_Power = POWER_HEALTH;
                         break;
 
@@ -1957,14 +1956,14 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
         {
             std::list<Unit*> targets;
             Unit* secondTarget = NULL;
-            m_caster->GetAttackableUnitListInRange(targets, 40.0f);
+            m_caster->GetAttackableUnitListInRange(targets, 200.0f);
 
             targets.remove(target->ToUnit());
             targets.remove(m_caster);
 
             for (auto itr : targets)
             {
-                if (itr->IsWithinLOSInMap(m_caster) && itr->IsWithinDist(m_caster, 40.0f)
+                if (itr->IsWithinLOSInMap(m_caster) && itr->IsWithinDist(m_caster, 200.0f)
                     && target->GetGUID() != itr->GetGUID() && itr->HasAura(80240, m_caster->GetGUID()))
                 {
                     secondTarget = itr;
@@ -2948,7 +2947,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         return;
 
     /// Custom WoD Script - Death from Above should give immunity to all spells while rogue is in jump effect
-    if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150))
+    if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150, unitTarget->GetGUID()))
         return;
 
     if (spellHitTarget)
@@ -3723,7 +3722,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     // don't allow channeled spells / spells with cast time to be casted while moving
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
     // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKINGeffect
-    if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->IsPlayer() && m_caster->isMoving() &&
+    if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->IsPlayer() && m_caster->IsMoving() &&
         m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) &&
         !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
@@ -4107,7 +4106,7 @@ void Spell::cast(bool skipCheck)
     }
 
     // Kil'Jaeden's Cunning - 10% speed less for each cast while moving (up to 2 charges) ///< @todo Kil'Jaeden's Cunning  is removed 
-    if (m_caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && m_caster->isMoving() && !m_caster->HasAura(119048) && m_spellInfo->CalcCastTime(m_caster) > 0)
+    if (m_caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && m_caster->IsMoving() && !m_caster->HasAura(119048) && m_spellInfo->CalcCastTime(m_caster) > 0)
         m_caster->CastSpell(m_caster, 119050, true);
 
     if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(m_spellInfo->Id))
@@ -4386,7 +4385,7 @@ void Spell::update(uint32 difftime)
     // check if the player caster has moved before the spell finished
     // with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING effect
     if ((m_caster->IsPlayer() && m_timer != 0) &&
-        m_caster->isMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) &&
+        m_caster->IsMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) &&
         (m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR)) &&
         !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) && !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
@@ -4548,7 +4547,8 @@ void Spell::finish(bool ok)
     // potions disabled by client, send event "not in combat" if need
     if (m_caster->IsPlayer() && !IsSpellTriggeredAfterCast())
     {
-        if (!m_triggeredByAuraSpell)
+        /// There is no cooldown to update for triggered spells
+        if (!m_triggeredByAuraSpell && !(_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD))
             m_caster->ToPlayer()->UpdatePotionCooldown(this);
 
         // triggered spell pointer can be not set in some cases
@@ -4876,7 +4876,7 @@ void Spell::SendSpellStart()
     data.appendPackGUID(l_CasterGuid2);
     data << uint8(m_cast_count);
     data << uint32(m_spellInfo->Id);
-    data << uint32(m_spellInfo->FirstSpellXSpellVIsualID);
+    data << uint32(m_spellInfo->FirstSpellXSpellVisualID);
     data << uint32(l_CastFlags);
     data << uint32(m_casttime);
     data << uint32(0);                      ///< Hitted target count
@@ -5000,6 +5000,9 @@ void Spell::SendSpellGo()
         && !l_IsHealthPowerSpell)
         l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
+    if (m_caster->IsPlayer() && _triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)
+        l_CastFlags |= CAST_FLAG_NO_COOLDOWN;
+
     if ((m_caster->IsPlayer())
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
@@ -5091,7 +5094,7 @@ void Spell::SendSpellGo()
     l_Data.appendPackGUID(l_CasterGuid2);
     l_Data << uint8(m_cast_count);
     l_Data << uint32(m_spellInfo->Id);
-    l_Data << uint32(m_spellInfo->FirstSpellXSpellVIsualID);
+    l_Data << uint32(m_spellInfo->FirstSpellXSpellVisualID);
     l_Data << uint32(l_CastFlags);
     l_Data << uint32(getMSTime());
     l_Data << uint32(l_HitCount);
@@ -6076,7 +6079,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (InstanceScript* l_InstanceScript = m_caster->GetInstanceScript())
         {
             if (!l_InstanceScript->CanUseCombatResurrection())
-                return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+                return SPELL_FAILED_IN_COMBAT_RES_LIMIT_REACHED;
         }
 
         if (m_targets.GetUnitTarget() != nullptr)
@@ -6202,8 +6205,10 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
         if (checkForm)
         {
+            SpellCastResult shapeError = SPELL_CAST_OK;
             // Cannot be used in this stance/form
-            SpellCastResult shapeError = m_spellInfo->CheckShapeshift(m_caster->GetShapeshiftForm());
+            if (!IsDarkSimulacrum())
+                SpellCastResult shapeError = m_spellInfo->CheckShapeshift(m_caster->GetShapeshiftForm());
             if (shapeError != SPELL_CAST_OK)
                 return shapeError;
 
@@ -6254,7 +6259,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     // cancel autorepeat spells if cast start when moving
     // (not wand currently autorepeat cast delayed to moving stop anyway in spell update code)
     // Do not cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING effect
-    if (m_caster->IsPlayer() && m_caster->ToPlayer()->isMoving() && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) &&
+    if (m_caster->IsPlayer() && m_caster->ToPlayer()->IsMoving() && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) &&
         !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
         // skip stuck spell to allow use it in falling case and apply spell limitations at movement
@@ -6572,6 +6577,14 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyphId))
                     if (m_caster->HasAura(gp->SpellId))
                         return SPELL_FAILED_UNIQUE_GLYPH;
+
+                /// It's impossible to change talents during challenge mode
+                if (m_caster->GetMap()->IsChallengeMode())
+                {
+                    m_customError = SpellCustomErrors::SPELL_CUSTOM_ERROR_CANT_DO_THAT_IN_CHALLENGE_MODE;
+                    return SpellCastResult::SPELL_FAILED_CUSTOM_ERROR;
+                }
+
                 break;
             }
             case SPELL_EFFECT_FEED_PET:
@@ -6636,7 +6649,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
 
-                m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 1.5f);
+                m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 4.0f);
 
                 bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
                 if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
@@ -8586,7 +8599,9 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         unit = m_caster->GetGUID() == targetInfo.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, targetInfo.targetGUID);
     // In case spell reflect from target, do all effect on caster (if hit)
     else if (targetInfo.missCondition == SPELL_MISS_REFLECT && targetInfo.reflectResult == SPELL_MISS_NONE)
+    {
         unit = m_caster;
+    }
     if (!unit)
         return;
 

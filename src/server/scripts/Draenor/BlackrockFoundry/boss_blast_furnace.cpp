@@ -337,7 +337,11 @@ class boss_heart_of_the_mountain : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Tempered);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MeltDoT);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::BlastFurnaceBonus, true);
+                    /// Allow loots and bonus loots to be enabled/disabled with a simple reload
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::BlastFurnaceBonus, true);
 
                     if (Creature* l_Blackhand = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BlackhandCosmetic)))
                     {
@@ -883,7 +887,8 @@ class boss_foreman_feldspar : public CreatureScript
         {
             boss_foreman_feldsparAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataForemanFeldspar)
             {
-                m_Instance = p_Creature->GetInstanceScript();
+                m_Instance      = p_Creature->GetInstanceScript();
+                m_InEvadeMode   = false;
             }
 
             InstanceScript* m_Instance;
@@ -895,6 +900,7 @@ class boss_foreman_feldspar : public CreatureScript
             bool m_FightStarted;
 
             bool m_RegulatorDestroyed;
+            bool m_InEvadeMode;
 
             void Reset() override
             {
@@ -993,14 +999,32 @@ class boss_foreman_feldspar : public CreatureScript
 
             void EnterEvadeMode() override
             {
-                CreatureAI::EnterEvadeMode();
+                if (m_InEvadeMode)
+                    return;
 
-                if (m_Instance != nullptr)
-                    ResetEncounter(me, m_Instance);
+                m_InEvadeMode = true;
+
+                AddTimedDelayedOperation(50, [this]() -> void
+                {
+                    me->StopMoving();
+                    me->GetMotionMaster()->Clear();
+                });
+
+                AddTimedDelayedOperation(150, [this]() -> void
+                {
+                    CreatureAI::EnterEvadeMode();
+
+                    if (m_Instance != nullptr)
+                        ResetEncounter(me, m_Instance);
+
+                    m_InEvadeMode = false;
+                });
             }
 
             void JustReachedHome() override
             {
+                m_InEvadeMode = false;
+
                 Talk(eTalks::Wipe);
 
                 if (m_Instance != nullptr)
@@ -1132,7 +1156,7 @@ class boss_foreman_feldspar : public CreatureScript
                 {
                     if (Creature* l_Iter = Creature::GetCreature(*me, l_Guid))
                     {
-                        if (l_Iter->IsAIEnabled)
+                        if (l_Iter->IsAIEnabled && !l_Iter->isInCombat())
                         {
                             if (l_Iter->GetEntry() != eCreatures::BellowsOperator && l_Iter->GetEntry() != eCreatures::HeatRegulator)
                                 l_Iter->AI()->AttackStart(p_Attacker);
@@ -1855,6 +1879,15 @@ class npc_foundry_security_guard : public CreatureScript
             void EnterCombat(Unit* p_Attacker) override
             {
                 m_Events.ScheduleEvent(eEvent::EventDefense, 5 * TimeConstants::IN_MILLISECONDS);
+
+                if (InstanceScript* l_Instance = me->GetInstanceScript())
+                {
+                    if (Creature* l_Foreman = Creature::GetCreature(*me, l_Instance->GetData64(eFoundryCreatures::ForemanFeldspar)))
+                    {
+                        if (!l_Foreman->isInCombat())
+                            l_Foreman->SetInCombatWithZone();
+                    }
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1949,6 +1982,15 @@ class npc_foundry_furnace_engineer : public CreatureScript
             {
                 m_Events.ScheduleEvent(eEvents::EventElectrocution, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventBomb, 10 * TimeConstants::IN_MILLISECONDS);
+
+                if (InstanceScript* l_Instance = me->GetInstanceScript())
+                {
+                    if (Creature* l_Foreman = Creature::GetCreature(*me, l_Instance->GetData64(eFoundryCreatures::ForemanFeldspar)))
+                    {
+                        if (!l_Foreman->isInCombat())
+                            l_Foreman->SetInCombatWithZone();
+                    }
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -2033,8 +2075,6 @@ class npc_foundry_cluster_of_lit_bombs : public CreatureScript
 
             bool m_MustExplode;
 
-            uint32 m_DespawnTimer;
-
             void Reset() override
             {
                 me->CastSpell(me, eSpells::ClusterOfLitBombs, true);
@@ -2045,20 +2085,32 @@ class npc_foundry_cluster_of_lit_bombs : public CreatureScript
 
                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_INTERACT_SPELL_ID, eSpells::BombOverrider);
 
+                uint32 l_DespawnTimer;
+
                 if (IsMythic())
-                    m_DespawnTimer = 8 * TimeConstants::IN_MILLISECONDS;
+                    l_DespawnTimer = 8 * TimeConstants::IN_MILLISECONDS;
                 else if (IsHeroic())
-                    m_DespawnTimer = 10 * TimeConstants::IN_MILLISECONDS;
+                    l_DespawnTimer = 10 * TimeConstants::IN_MILLISECONDS;
                 else
-                    m_DespawnTimer = 15 * TimeConstants::IN_MILLISECONDS;
+                    l_DespawnTimer = 15 * TimeConstants::IN_MILLISECONDS;
 
                 if (Aura* l_Aura = me->GetAura(eSpells::ClusterOfLitBombs))
                 {
-                    l_Aura->SetDuration(m_DespawnTimer);
-                    l_Aura->SetMaxDuration(m_DespawnTimer);
+                    l_Aura->SetDuration(l_DespawnTimer + 500);
+                    l_Aura->SetMaxDuration(l_DespawnTimer + 500);
                 }
 
-                me->DespawnOrUnsummon(m_DespawnTimer);
+                me->DespawnOrUnsummon(l_DespawnTimer + 1 * TimeConstants::IN_MILLISECONDS);
+
+                AddTimedDelayedOperation(l_DespawnTimer, [this]() -> void
+                {
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_SPELLCLICK);
+
+                    me->SetUInt32Value(EUnitFields::UNIT_FIELD_INTERACT_SPELL_ID, 0);
+
+                    if (m_MustExplode)
+                        me->CastSpell(me, eSpells::BombAoEDespawn, true);
+                });
             }
 
             void OnSpellClick(Unit* p_Clicker) override
@@ -2068,28 +2120,27 @@ class npc_foundry_cluster_of_lit_bombs : public CreatureScript
 
                 p_Clicker->CastSpell(p_Clicker, eSpells::BombOverrider, true);
 
-                if (Aura* l_Bomb = p_Clicker->GetAura(eSpells::BombOverrider))
-                    l_Bomb->SetDuration(m_DespawnTimer);
-
                 if (Aura* l_Aura = me->GetAura(eSpells::ClusterOfLitBombs))
+                {
                     l_Aura->DropCharge();
+
+                    if (Aura* l_Bomb = p_Clicker->GetAura(eSpells::BombOverrider))
+                        l_Bomb->SetDuration(l_Aura->GetDuration());
+                }
 
                 if (!me->HasAura(eSpells::ClusterOfLitBombs))
                 {
                     m_MustExplode = false;
+
+                    ClearDelayedOperations();
+
                     me->DespawnOrUnsummon();
                 }
             }
 
-            void JustDespawned() override
-            {
-                if (m_MustExplode)
-                    me->CastSpell(me, eSpells::BombAoEDespawn, true);
-            }
-
             void UpdateAI(uint32 const p_Diff) override
             {
-                m_DespawnTimer -= p_Diff;
+                UpdateOperations(p_Diff);
 
                 ScriptedAI::UpdateAI(p_Diff);
             }
@@ -2143,6 +2194,8 @@ class npc_foundry_slag_elemental : public CreatureScript
                 m_Target = 0;
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+
+                me->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -2327,14 +2380,12 @@ class npc_foundry_slag_elemental : public CreatureScript
                         if (Player* l_Target = Player::GetPlayer(*me, m_Target))
                             me->CastSpell(l_Target, eSpells::Burn, TriggerCastFlags::TRIGGERED_IGNORE_CAST_IN_PROGRESS);
 
-                        m_Events.ScheduleEvent(eEvent::EventBurn, 10 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvent::EventBurn, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
                         break;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 

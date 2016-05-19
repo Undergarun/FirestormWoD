@@ -37,7 +37,7 @@ namespace MS { namespace Garrison
 
         char ScriptName[] = "npc_AyadaTheWhite_Garr";
 
-        std::vector<SkillNPC_RecipeEntry> Recipes
+        std::vector<RecipesConditions> Recipes
         {
             { 158877, 31228 },
             { 158907,     0 },
@@ -115,7 +115,7 @@ namespace MS { namespace Garrison
             p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstEnchantingWorkOrder, 4);
 
         if (p_Player->HasQuest(Quests::Alliance_YourFirstEnchantingWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YourFirstEnchantingWorkOrder))
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultWorkOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
@@ -190,6 +190,7 @@ namespace MS { namespace Garrison
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_TRADESKILL_NPC);
+                                AddSummonGUID(l_Creature->GetGUID());
                             }
                             break;
                         default:

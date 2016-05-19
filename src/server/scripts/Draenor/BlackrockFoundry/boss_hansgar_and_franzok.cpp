@@ -230,8 +230,16 @@ class boss_hansgar : public CreatureScript
 
                 _JustDied();
 
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
                 if (m_Instance != nullptr)
                 {
+                    if (Creature* l_Brother = GetBrother(me, m_Instance))
+                    {
+                        if (l_Brother->isAlive())
+                            p_Killer->Kill(l_Brother);
+                    }
+
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ShatteredVertebrae);
@@ -239,7 +247,11 @@ class boss_hansgar : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ScorchingBurnsDoT);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SearingPlatesDoT);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::HansgarAndFranzokBonus, true);
+                    /// Allow loots and bonus loots to be enabled/disabled with a simple reload
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::HansgarAndFranzokBonus, true);
                 }
             }
 
@@ -1116,6 +1128,9 @@ class boss_franzok : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
                 m_ExitTankGuid = 0;
 
                 m_State = 0;
@@ -1193,8 +1208,18 @@ class boss_franzok : public CreatureScript
 
                 _JustDied();
 
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
                 if (m_Instance != nullptr)
+                {
+                    if (Creature* l_Brother = GetBrother(me, m_Instance))
+                    {
+                        if (l_Brother->isAlive())
+                            p_Killer->Kill(l_Brother);
+                    }
+
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+                }
             }
 
             void OnSpellCasted(SpellInfo const* p_SpellInfo) override
@@ -1777,7 +1802,7 @@ class npc_foundry_forge_overdrive : public CreatureScript
             {
                 m_BeltEntry = 0;
 
-                p_Creature->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_CAN_SAFE_FALL);
+                p_Creature->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_DISABLE_COLLISION);
 
                 p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
             }
@@ -1839,7 +1864,7 @@ class npc_foundry_forge_overdrive : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
-                float l_CheckX = 5.0f;
+                float l_CheckX = 4.5f;
                 float l_CheckY = 7.5f;
 
                 std::set<uint64> l_Targets;

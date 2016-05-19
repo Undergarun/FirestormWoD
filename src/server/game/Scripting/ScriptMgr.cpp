@@ -1109,7 +1109,7 @@ void ScriptMgr::OnGuildEvent(Guild* p_Guild, uint8 p_EventType, uint32 p_PlayerG
 /// @p_ItemOrMoney    : Item entry or gold amount
 /// @p_ItemStackCount : Item stack count
 /// @p_DestTabID      : Destination tab ID
-void ScriptMgr::OnGuildBankEvent(Guild* p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint32 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID)
+void ScriptMgr::OnGuildBankEvent(Guild* p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint64 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID)
 {
     FOREACH_SCRIPT(GuildScript)->OnBankEvent(p_Guild, p_EventType, p_TabID, p_PlayerGUID, p_ItemOrMoney, p_ItemStackCount, p_DestTabID);
 }
@@ -1691,12 +1691,28 @@ bool ScriptMgr::OnConditionCheck(Condition const* p_Condition, ConditionSourceIn
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+/// Called just before item is destroyed
+/// @p_Item        : Item to be destroyed
+/// @p_Player      : Player level
+void ScriptMgr::OnItemDestroyed(Player* p_Player, Item* p_Item)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnItemDestroyed(p_Player, p_Item);
+}
+
 /// Called when a player kills another player
 /// @p_Killer : Killer instance
 /// @p_Killed : Killed instance
 void ScriptMgr::OnPVPKill(Player* p_Killer, Player* p_Killed)
 {
     FOREACH_SCRIPT(PlayerScript)->OnPVPKill(p_Killer, p_Killed);
+}
+
+/// Called when a player kills a Unit
+/// @p_Killer : Killer instance
+/// @p_Killed : Killed instance
+void ScriptMgr::OnKill(Player* p_Killer, Unit* p_Killed)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnKill(p_Killer, p_Killed);
 }
 
 /// Called when a player kills a creature
@@ -1724,6 +1740,14 @@ void ScriptMgr::OnPlayerKilledByCreature(Creature* p_Killer, Player* p_Killed)
 void ScriptMgr::OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
 {
     FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_OldValue, p_NewValue, p_Regen);
+}
+
+/// Called when the player switch from indoors to outdoors or from outdoors to indoors
+/// @p_Player : Player instance
+/// @p_IsOutdoors : Bool setting whether player is indoors or outdoors
+void ScriptMgr::OnSwitchOutdoorsState(Player* p_Player, bool p_IsOutdoors)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnSwitchOutdoorsState(p_Player, p_IsOutdoors);
 }
 
 /// Called when specialisation is modify (SetSpecializationId)

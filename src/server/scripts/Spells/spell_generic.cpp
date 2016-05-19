@@ -5620,6 +5620,43 @@ public:
 };
 
 /// Last Update 6.2.3
+/// Nullification Barrier - 115817
+class spell_nullification_barrier : public SpellScriptLoader
+{
+    public:
+        spell_nullification_barrier() : SpellScriptLoader("spell_nullification_barrier") { }
+
+        class spell_nullification_barrier_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_nullification_barrier_SpellScript);
+
+            SpellCastResult CheckMap()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetMapId() != 1008)
+                        return SPELL_FAILED_INCORRECT_AREA;
+                    else
+                        return SPELL_CAST_OK;
+                }
+                else
+                    return SPELL_FAILED_CASTER_DEAD;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_nullification_barrier_SpellScript::CheckMap);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_nullification_barrier_SpellScript();
+        }
+};
+
+
+/// Last Update 6.2.3
 /// Transmorphose - 162313
 class spell_gen_transmorphose : public SpellScriptLoader
 {
@@ -5659,8 +5696,35 @@ class spell_gen_transmorphose : public SpellScriptLoader
                 l_Player->SetByteValue(UNIT_FIELD_SEX, 3, l_NewGender);
                 l_Player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 0, l_NewGender);
 
-                /// Change disply ID
-                l_Player->InitDisplayIds();
+                /// Set new gender
+                l_Player->SetByteValue(UNIT_FIELD_SEX, 3, l_NewGender);
+                l_Player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 0, l_NewGender);
+
+                PlayerInfo const* l_Info = sObjectMgr->GetPlayerInfo(l_Player->getRace(), l_Player->getClass());
+                if (!l_Info)
+                    return;
+                uint16 l_NewDisplayId = 0;
+
+                if (l_NewGender == GENDER_MALE)
+                    l_NewDisplayId = l_Info->displayId_m;
+                else if (l_NewGender == GENDER_FEMALE)
+                    l_NewDisplayId = l_Info->displayId_f;
+
+                /// Check if this is first time, our player already has this aura
+                /// If aura has applied less then 3 seconds ago - just casted
+                bool l_FirstTime = false;
+                if (Aura* l_Transmorphed = l_Player->GetAura(GetSpellInfo()->Id))
+                    if (l_Transmorphed->GetDuration() > (l_Transmorphed->GetMaxDuration() - 500))
+                        l_FirstTime = true;
+
+                /// Check if at the moment player has the same model as his native
+                bool l_CurrentModelEqualNative = l_Player->GetNativeDisplayId() == l_Player->GetDisplayId();
+
+                /// If not in original form (for example cat,bear,metamorphosis), we don't need to change displayId now
+                if ((!l_FirstTime && !l_CurrentModelEqualNative) || l_CurrentModelEqualNative)
+                    l_Player->InitDisplayIds();
+                else
+                    l_Player->SetNativeDisplayId(l_NewDisplayId);
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -5678,12 +5742,26 @@ class spell_gen_transmorphose : public SpellScriptLoader
                 l_Player->SetByteValue(UNIT_FIELD_SEX, 3, l_NativeGender);
                 l_Player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 0, l_NativeGender);
 
-                l_Player->InitDisplayIds();
+                PlayerInfo const* l_Info = sObjectMgr->GetPlayerInfo(l_Player->getRace(), l_Player->getClass());
+                if (!l_Info)
+                    return;
+                uint16 l_NativeDisplayId = 0;
+
+                if (l_NativeGender == GENDER_MALE)
+                    l_NativeDisplayId = l_Info->displayId_m;
+                else if (l_NativeGender == GENDER_FEMALE)
+                    l_NativeDisplayId = l_Info->displayId_f;
+
+                /// If not in original form (for example cat,bear,metamorphosis), we don't need to change displayId now
+                if (l_Player->GetNativeDisplayId() == l_Player->GetDisplayId())
+                    l_Player->InitDisplayIds();
+                else
+                    l_Player->SetNativeDisplayId(l_NativeDisplayId);
             }
 
             void Register()
             {
-                AfterEffectApply += AuraEffectRemoveFn(spell_gen_transmorphose_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_gen_transmorphose_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_SEND_FOR_CLIENT));
                 AfterEffectRemove += AuraEffectRemoveFn(spell_gen_transmorphose_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -5694,9 +5772,88 @@ class spell_gen_transmorphose : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Pvp Trinket - 42292
+class spell_gen_pvp_trinket : public SpellScriptLoader
+{
+    public:
+        spell_gen_pvp_trinket() : SpellScriptLoader("spell_gen_pvp_trinket") { }
+
+        class spell_gen_pvp_trinket_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_pvp_trinket_SpellScript);
+
+            enum eSpells 
+            {
+                AllianceTinketVisual    = 97403,
+                HordeTinketVisual       = 97404
+            };
+
+            void TriggerAnimation()
+            {
+                Player* caster = GetCaster()->ToPlayer();
+
+                switch (caster->GetTeam())
+                {
+                case ALLIANCE:
+                    caster->CastSpell(caster, eSpells::AllianceTinketVisual, TRIGGERED_FULL_MASK);
+                    break;
+                case HORDE:
+                    caster->CastSpell(caster, eSpells::HordeTinketVisual, TRIGGERED_FULL_MASK);
+                    break;
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_gen_pvp_trinket_SpellScript::TriggerAnimation);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_pvp_trinket_SpellScript();
+        }
+};
+
+/// Mass Resurrection (Guild Perk) - 83968
+class spell_gen_mass_resurrection : public SpellScriptLoader
+{
+    public:
+        spell_gen_mass_resurrection() : SpellScriptLoader("spell_gen_mass_resurrection") { }
+
+        class spell_gen_mass_resurrection_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_mass_resurrection_SpellScript);
+
+            SpellCastResult HandleCheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (InstanceScript* l_Instance = l_Caster->GetInstanceScript())
+                {
+                    if (l_Instance->instance->IsChallengeMode())
+                        return SpellCastResult::SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_mass_resurrection_SpellScript::HandleCheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_mass_resurrection_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
-    new spell_gen_transmorphose();
+    new spell_gen_pvp_trinket();
     new spell_gen_ironbeards_hat();
     new spell_gen_coin_of_many_faces();
     new spell_gen_jewel_of_hellfire();
@@ -5803,10 +5960,13 @@ void AddSC_generic_spell_scripts()
     new spell_gen_elixir_of_wandering_spirits();
     new spell_gen_service_uniform();
     new spell_legendary_cloaks();
+    new spell_nullification_barrier();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();
     new PlayerScript_gen_remove_rigor_mortis();
     new Resolve::PlayerScript_Resolve();
     new spell_gen_power_handler();
+
+    new spell_gen_mass_resurrection();
 }

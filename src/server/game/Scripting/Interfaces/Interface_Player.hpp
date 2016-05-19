@@ -141,10 +141,27 @@ class PlayerScript : public ScriptObjectImpl<false>
         PlayerScript(const char* p_Name);
 
     public:
+        /// Called just before item is destroyed
+        /// @p_Item        : Item to be destroyed
+        /// @p_Player      : Player level
+        virtual void OnItemDestroyed(Player* p_Player, Item* p_Item)
+        {
+            UNUSED(p_Item);
+            UNUSED(p_Player);
+        }
         /// Called when a player kills another player
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         virtual void OnPVPKill(Player* p_Killer, Player* p_Killed)
+        {
+            UNUSED(p_Killer);
+            UNUSED(p_Killed);
+        }
+
+        /// Called when a player kills a Unit
+        /// @p_Killer : Killer instance
+        /// @p_Killed : Killed instance
+        virtual void OnKill(Player* p_Killer, Unit* p_Killed)
         {
             UNUSED(p_Killer);
             UNUSED(p_Killed);
@@ -181,6 +198,15 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_OldValue);
             UNUSED(p_NewValue);
             UNUSED(p_Regen);
+        }
+
+        /// Called when the player switch from indoors to outdoors or from outdoors to indoors
+        /// @p_Player : Player instance
+        /// @p_IsOutdoors : boolean setting whether player is indoors or outdoors
+        virtual void OnSwitchOutdoorsState(Player* p_Player, bool p_IsOutdoors)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_IsOutdoors);
         }
 
         /// Called when specialisation is modify (SetSpecializationId)

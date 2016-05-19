@@ -473,51 +473,6 @@ namespace MS { namespace Garrison
             }
     };
 
-    /// Garrison Stables training mounts - 174221, 174219, 174218, 174216, 174220, 174222
-    class spell_garrison_stables_training_mounts : public SpellScriptLoader
-    {
-        public:
-            spell_garrison_stables_training_mounts() : SpellScriptLoader("spell_garrison_stables_training_mounts") { }
-
-            class spell_garrison_stables_training_mounts_AuraScript : public AuraScript
-            {
-                PrepareAuraScript(spell_garrison_stables_training_mounts_AuraScript);
-
-                Position m_MarkPos;
-
-                void OnAuraApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
-                {
-                    Unit* l_Owner = GetUnitOwner();
-
-                    if (l_Owner == nullptr)
-                        return;
-
-                    l_Owner->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
-                }
-
-                void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
-                {
-                    Unit* l_Owner = GetUnitOwner();
-
-                    if (l_Owner == nullptr)
-                        return;
-
-                    l_Owner->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
-                }
-
-                void Register() override
-                {
-                    OnEffectApply += AuraEffectApplyFn(spell_garrison_stables_training_mounts_AuraScript::OnAuraApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-                    AfterEffectRemove += AuraEffectRemoveFn(spell_garrison_stables_training_mounts_AuraScript::AfterAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-                }
-            };
-
-            AuraScript* GetAuraScript() const override
-            {
-                return new spell_garrison_stables_training_mounts_AuraScript();
-            }
-    };
-
     /// Well-rested - 172425
     class spell_garrison_well_rested : public SpellScriptLoader
     {
@@ -570,7 +525,7 @@ namespace MS { namespace Garrison
                     Unit* l_Caster = GetCaster();
 
                     /// Only in Draenor map or Garrison
-                    if (l_Caster->GetMapId() != 1116 || (l_Caster->GetTypeId() == TYPEID_PLAYER && !l_Caster->ToPlayer()->IsInGarrison()))
+                    if (l_Caster->GetMapId() != 1116 && (l_Caster->GetTypeId() == TYPEID_PLAYER && !l_Caster->ToPlayer()->IsInGarrison()))
                         return SPELL_FAILED_INCORRECT_AREA;
 
                     return SPELL_CAST_OK;
@@ -588,11 +543,99 @@ namespace MS { namespace Garrison
             }
     };
 
+    /// Well-rested - 172425
+    class spell_aura_garrison_skyterror_falling : public SpellScriptLoader
+    {
+        public:
+            spell_aura_garrison_skyterror_falling() : SpellScriptLoader("spell_aura_garrison_skyterror_falling") { }
+
+            class spell_aura_garrison_skyterror_falling_AuraScript : public AuraScript
+            {
+                PrepareAuraScript(spell_aura_garrison_skyterror_falling_AuraScript);
+
+                void OnUpdate(uint32 p_Diff)
+                {
+                    Unit* l_Owner = GetUnitOwner();
+
+                    if (l_Owner == nullptr)
+                        return;
+
+                    /// Awaits for hardcpp's PR validation...
+///                    if (!l_Owner->IsFalling())
+///                        Remove();
+                }
+
+                void Register() override
+                {
+                    OnAuraUpdate += AuraUpdateFn(spell_aura_garrison_skyterror_falling_AuraScript::OnUpdate);
+                }
+            };
+
+            AuraScript* GetAuraScript() const override
+            {
+                return new spell_aura_garrison_skyterror_falling_AuraScript();
+            }
+    };
+
+    /// Pneumatic Power Gauntlet - 168555
+    class spell_garrison_combine_scribe_items : public SpellScriptLoader
+    {
+        public:
+            spell_garrison_combine_scribe_items() : SpellScriptLoader("spell_garrison_combine_scribe_items") { }
+
+            class spell_garrison_combine_scribe_items_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_garrison_combine_scribe_items_SpellScript);
+
+                void OnSpellHit(SpellEffIndex)
+                {
+                    Unit* l_Caster = GetCaster();
+
+                    if (l_Caster == nullptr || l_Caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    uint32 l_RewardID = 119027;
+                    uint32 l_Chance = urand(0, 99);
+
+                    if (l_Chance <= 20)
+                        l_RewardID = 119028;
+                    else if (l_Chance > 20 && l_Chance <= 50)
+                        l_RewardID = 119023;
+
+                    /// check space and find places
+                    uint32 l_NoSpaceForCount = 0;
+                    ItemPosCountVec l_Destination;
+
+                    InventoryResult l_Message = l_Caster->ToPlayer()->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardID, 1, &l_NoSpaceForCount);
+
+                    if (l_Message == EQUIP_ERR_OK)
+                    {
+                        if (Item* l_Item = l_Caster->ToPlayer()->StoreNewItem(l_Destination, l_RewardID, true, Item::GenerateItemRandomPropertyId(l_RewardID)))
+                            l_Caster->ToPlayer()->SendNewItem(l_Item, 1, true, false, false);
+                    }
+                    else
+                        l_Caster->ToPlayer()->SendEquipError(l_Message, nullptr, nullptr, l_RewardID);
+                }
+
+                void Register()
+                {
+                    OnEffectHitTarget += SpellEffectFn(spell_garrison_combine_scribe_items_SpellScript::OnSpellHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                }
+            };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_garrison_combine_scribe_items_SpellScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
 void AddSC_Garrison()
 {
+    new MS::Garrison::spell_garrison_combine_scribe_items();
+    new MS::Garrison::spell_aura_garrison_skyterror_falling();
     new MS::Garrison::spell_garrison_stables_lasso();
     new MS::Garrison::spell_garrison_hearthstone();
     new MS::Garrison::spell_garrison_portal();

@@ -31,6 +31,7 @@ namespace eEnchantmentMarkProc
         Shadowmoon      = 159678
     };
 }
+
 namespace eEnchantmentMarkAura
 {
     enum
@@ -43,6 +44,7 @@ namespace eEnchantmentMarkAura
         Shadowmoon      = 159684
     };
 }
+
 namespace eEnchantmentMarkIds
 {
     enum
@@ -56,6 +58,23 @@ namespace eEnchantmentMarkIds
     };
 }
 
+namespace eGloryEnchantmentMarkIds
+{
+    enum
+    {
+        Thunderlord = 5352,
+        Warsong = 5355,
+        Frostwolf = 5356,
+        Blackrock = 5354,
+        Shadowmoon = 5353
+    };
+}
+
+/// Mark of the Thunderlord - 159243
+/// Mark of Warsong - 159682
+/// Mark of the Frostwolf - 159683
+/// Mark of Blackrock - 159685
+/// Mark of Bleeding Hollow - 173321
 class spell_enchantment_mark : public SpellScriptLoader
 {
     public:
@@ -71,38 +90,41 @@ class spell_enchantment_mark : public SpellScriptLoader
                     return;
 
                 Player* l_Player = GetOwner()->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
 
-                if (GetSpellInfo()->Id == 159685 && l_Player->GetHealthPct() >= 60.0f)
+                uint32 l_SpellID = GetSpellInfo()->Id;
+                if (l_SpellID == eEnchantmentMarkAura::Blackrock && l_Player->GetHealthPct() >= 60.0f)
                 {
                     PreventDefaultAction();
                     return;
                 }
 
-                uint32 l_ProcAuraId = 0;
-                uint32 l_EnchantId = 0;
-                bool l_HasEnchant = false;
-
-                if (l_Player == nullptr)
-                    return;
+                uint32 l_ProcAuraId     = 0;
+                uint32 l_EnchantId      = 0;
+                uint32 l_GloryEnchantId = 0;
+                bool l_HasEnchant       = false;
 
                 Item* l_Item = nullptr;
-                if (p_EventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)
-                    l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                if (p_EventInfo.GetTypeMask() & ProcFlags::PROC_FLAG_DONE_OFFHAND_ATTACK)
+                    l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_OFFHAND);
                 else
-                    l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                    l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_MAINHAND);
 
                 if (l_Item == nullptr)
                     return;
 
-                switch (GetSpellInfo()->Id)
+                switch (l_SpellID)
                 {
                     case eEnchantmentMarkAura::Thunderlord:
                         l_ProcAuraId = eEnchantmentMarkProc::Thunderlord;
                         l_EnchantId = eEnchantmentMarkIds::Thunderlord;
+                        l_GloryEnchantId = eGloryEnchantmentMarkIds::Thunderlord;
                         break;
                     case eEnchantmentMarkAura::Warsong:
                         l_ProcAuraId = eEnchantmentMarkProc::Warsong;
                         l_EnchantId = eEnchantmentMarkIds::Warsong;
+                        l_GloryEnchantId = eGloryEnchantmentMarkIds::Warsong;
                         break;
                     case eEnchantmentMarkAura::BleedingHollow:
                         l_ProcAuraId = eEnchantmentMarkProc::BleedingHollow;
@@ -111,14 +133,17 @@ class spell_enchantment_mark : public SpellScriptLoader
                     case eEnchantmentMarkAura::Frostwolf:
                         l_ProcAuraId = eEnchantmentMarkProc::Frostwolf;
                         l_EnchantId = eEnchantmentMarkIds::Frostwolf;
+                        l_GloryEnchantId = eGloryEnchantmentMarkIds::Frostwolf;
                         break;
                     case eEnchantmentMarkAura::Shadowmoon:
                         l_ProcAuraId = eEnchantmentMarkProc::Shadowmoon;
                         l_EnchantId = eEnchantmentMarkIds::Shadowmoon;
+                        l_GloryEnchantId = eGloryEnchantmentMarkIds::Shadowmoon;
                         break;
                      case eEnchantmentMarkAura::Blackrock:
                         l_ProcAuraId = eEnchantmentMarkProc::Blackrock;
                         l_EnchantId = eEnchantmentMarkIds::Blackrock;
+                        l_GloryEnchantId = eGloryEnchantmentMarkIds::Blackrock;
                         break;
                     default:
                         break;
@@ -128,14 +153,17 @@ class spell_enchantment_mark : public SpellScriptLoader
                     return;
 
                 /// Check if we have this enchant on that weapon
-                for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
-                    if (l_EnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(enchant_slot)))
+                for (uint32 l_Slot = EnchantmentSlot::PERM_ENCHANTMENT_SLOT; l_Slot < EnchantmentSlot::MAX_ENCHANTMENT_SLOT; ++l_Slot)
+                {
+                    if ((l_EnchantId && l_EnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(l_Slot))) ||
+                        (l_GloryEnchantId && l_GloryEnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(l_Slot))))
                         l_HasEnchant = true;
+                }
 
                 if (l_HasEnchant && l_Player && l_ProcAuraId && l_Item)
                 {
                     l_Player->CastSpell(l_Player, l_ProcAuraId, true, l_Item);
-                    l_Player->AddSpellCooldown(l_ProcAuraId, 0, 1 * IN_MILLISECONDS, true);
+                    l_Player->AddSpellCooldown(l_ProcAuraId, 0, 1 * TimeConstants::IN_MILLISECONDS, true);
                 }
             }
 
@@ -143,10 +171,10 @@ class spell_enchantment_mark : public SpellScriptLoader
             {
                 switch (m_scriptSpellId)
                 {
-                    case 159684:
-                    case 159685:
+                    case eEnchantmentMarkAura::Shadowmoon:
+                    case eEnchantmentMarkAura::Blackrock:
                         OnEffectProc += AuraEffectProcFn(spell_enchantment_mark_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-                    break;
+                        break;
                     default:
                         OnEffectProc += AuraEffectProcFn(spell_enchantment_mark_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
                         break;

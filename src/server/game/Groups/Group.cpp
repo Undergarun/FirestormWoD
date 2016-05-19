@@ -3216,17 +3216,6 @@ void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rat
             if (player->GetArenaPersonalRating(slot) < 1000)
                 rating_change = 96;
 
-            /// If you're personal MMR is 200 or more lower than the average mmr of the team you don't win rating/mmr
-            if (Own_MMRating > player->GetArenaMatchMakerRating(slot))
-            {
-                uint32 l_Diff = Own_MMRating - player->GetArenaMatchMakerRating(slot);
-                if (l_Diff > 200)
-                {
-                    rating_change = 0;
-                    mod           = 0;
-                }
-            }
-
             if (player->GetBattleground())
                 for (Battleground::BattlegroundScoreMap::const_iterator itr2 = player->GetBattleground()->GetPlayerScoresBegin(); itr2 != player->GetBattleground()->GetPlayerScoresEnd(); ++itr2)
                     if (itr2->first == itr->guid)

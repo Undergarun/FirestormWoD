@@ -557,7 +557,7 @@ void ObjectMgr::LoadCreatureTemplatesDifficulties()
     do
     {
         uint8 l_Index = 0;
-        Field * l_Fields = l_Result->Fetch();
+        Field* l_Fields = l_Result->Fetch();
 
         uint32 l_Entry           = l_Fields[l_Index++].GetUInt32();
         uint32 l_DifficultyIndex = l_Fields[l_Index++].GetUInt32() - 2;
@@ -1158,7 +1158,7 @@ uint32 ObjectMgr::ChooseDisplayId(uint32 /*team*/, const CreatureTemplate* cinfo
     return display_id;
 }
 
-void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate * p_CreatureTemplate, uint32 & p_NpcFlags1, uint32 & p_NpcFlags2, uint32 & p_UnitFlags1, uint32 & p_UnitFlags2, uint32 & p_UnitFlags3, uint32 & p_Dynamicflags, const CreatureData * p_Data)
+void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* p_CreatureTemplate, uint32 & p_NpcFlags1, uint32 & p_NpcFlags2, uint32 & p_UnitFlags1, uint32 & p_UnitFlags2, uint32 & p_UnitFlags3, uint32 & p_Dynamicflags, const CreatureData* p_Data)
 {
     p_NpcFlags1     = p_CreatureTemplate->NpcFlags1;
     p_NpcFlags2     = p_CreatureTemplate->NpcFlags2;
@@ -1463,7 +1463,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
     if (!linkedGuidLow) // we're removing the linking
     {
         _linkedRespawnStore.erase(guid);
-        PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CRELINKED_RESPAWN);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CRELINKED_RESPAWN);
         stmt->setUInt32(0, guidLow);
         WorldDatabase.Execute(stmt);
         return true;
@@ -1487,7 +1487,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
     uint64 linkedGuid = MAKE_NEW_GUID(linkedGuidLow, slave->id, HIGHGUID_UNIT);
 
     _linkedRespawnStore[guid] = linkedGuid;
-    PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
     stmt->setUInt32(0, guidLow);
     stmt->setUInt32(1, linkedGuidLow);
     WorldDatabase.Execute(stmt);
@@ -2250,7 +2250,7 @@ void ObjectMgr::LoadChallengeRewards()
     uint32 l_OldMSTime = getMSTime();
     uint32 l_Count = 0;
 
-    QueryResult l_Result = WorldDatabase.Query("SELECT map_id, none_money, bronze_money, silver_money, gold_money, title FROM challenge_mode_rewards");
+    QueryResult l_Result = WorldDatabase.Query("SELECT map_id, none_money, bronze_money, silver_money, gold_money, title, gold_achievement FROM challenge_mode_rewards");
     if (!l_Result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 challenge rewards. DB table `challenge_mode_rewards` is empty.");
@@ -2270,7 +2270,8 @@ void ObjectMgr::LoadChallengeRewards()
         for (uint8 l_I = 0; l_I < 4; ++l_I)
             l_Rewards.MoneyReward[l_I] = l_Fields[l_Index++].GetUInt32();
 
-        l_Rewards.TitleID = l_Fields[l_Index++].GetUInt32();
+        l_Rewards.TitleID       = l_Fields[l_Index++].GetUInt32();
+        l_Rewards.AchievementID = l_Fields[l_Index++].GetUInt32();
 
         ++l_Count;
     }
@@ -2585,7 +2586,7 @@ void ObjectMgr::LoadItemTemplates()
 
         for (uint32 l_I = 0; l_I < l_EffectsIndex.size(); ++l_I)
         {
-            const ItemEffectEntry * l_Entry = sItemEffectStore.LookupEntry(l_EffectsIndex[l_I]);
+            const ItemEffectEntry* l_Entry = sItemEffectStore.LookupEntry(l_EffectsIndex[l_I]);
             if (!l_Entry)
                 continue;
 
@@ -2691,6 +2692,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
             case 126908: ///< Bronze Strongbox A - S2
             case 126907: ///< Silver Strongbox A - S2
             case 126906: ///< Gold Strongbox A - S2
+            case 126919: ///< Champion's Strongbox A (RBG)
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_ALLIANCE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
@@ -2703,6 +2705,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
             case 126903: ///< Bronze Strongbox H - S2
             case 126902: ///< Silver Strongbox H - S2
             case 126901: ///< Gold Strongbox H - S2
+            case 126920: ///< Champion's Strongbox H (RBG)
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
@@ -4085,7 +4088,7 @@ void ObjectMgr::LoadQuests()
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, iter->first, NULL))
             continue;
 
-        Quest * qinfo = iter->second;
+        Quest* qinfo = iter->second;
 
         // Additional quest integrity checks (GO, creature_template and item_template must be loaded already)
         if (qinfo->GetQuestMethod() >= 3)
@@ -5162,7 +5165,7 @@ void ObjectMgr::LoadSpellScriptNames()
         Field* fields = result->Fetch();
 
         int32 spellId          = fields[0].GetInt32();
-        const char *scriptName = fields[1].GetCString();
+        const char* scriptName = fields[1].GetCString();
 
         bool allRanks = false;
         if (spellId <= 0)
@@ -5215,11 +5218,11 @@ void ObjectMgr::ValidateSpellScripts()
     for (SpellScriptsContainer::iterator itr = _spellScriptsStore.begin(); itr != _spellScriptsStore.end();)
     {
         SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(itr->first);
-        std::vector<std::pair<SpellScriptLoader *, SpellScriptsContainer::iterator> > SpellScriptLoaders;
+        std::vector<std::pair<SpellScriptLoader*, SpellScriptsContainer::iterator> > SpellScriptLoaders;
         sScriptMgr->CreateSpellScriptLoaders(itr->first, SpellScriptLoaders);
         itr = _spellScriptsStore.upper_bound(itr->first);
 
-        for (std::vector<std::pair<SpellScriptLoader *, SpellScriptsContainer::iterator> >::iterator sitr = SpellScriptLoaders.begin(); sitr != SpellScriptLoaders.end(); ++sitr)
+        for (std::vector<std::pair<SpellScriptLoader*, SpellScriptsContainer::iterator> >::iterator sitr = SpellScriptLoaders.begin(); sitr != SpellScriptLoaders.end(); ++sitr)
         {
             SpellScript* spellScript = sitr->first->GetSpellScript();
             AuraScript* auraScript = sitr->first->GetAuraScript();
@@ -5579,13 +5582,13 @@ void ObjectMgr::LoadNpcTextLocales()
 
         NpcTextLocale& data = _npcTextLocaleStore[entry];
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            for (uint8 j = 0; j < MAX_LOCALES; ++j)
+            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_OPTIONS; ++j)
             {
-                AddLocaleString(fields[1 + 8 * 2 * (i - 1) + 2 * j].GetString(), locale, data.Text_0[j]);
-                AddLocaleString(fields[1 + 8 * 2 * (i - 1) + 2 * j + 1].GetString(), locale, data.Text_1[j]);
+                AddLocaleString(fields[1 + (TOTAL_LOCALES - 1) * 2 * (i - 1) + 2 * j].GetString(), locale, data.Text_0[j]);
+                AddLocaleString(fields[1 + (TOTAL_LOCALES - 1) * 2 * (i - 1) + 2 * j + 1].GetString(), locale, data.Text_1[j]);
             }
         }
     }
@@ -5841,7 +5844,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
         Field* fields = result->Fetch();
 
         uint32 Trigger_ID      = fields[0].GetUInt32();
-        const char *scriptName = fields[1].GetCString();
+        const char* scriptName = fields[1].GetCString();
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
         if (!atEntry)
@@ -5867,7 +5870,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     /// Special case for taxi in garrison phased map
     for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
     {
-        const GarrSiteLevelEntry * l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
+        const GarrSiteLevelEntry* l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
 
         if (l_Entry)
         {
@@ -7062,7 +7065,7 @@ void ObjectMgr::LoadGarrisonPlotBuildingContent()
 
     do
     {
-        Field * l_Fields = l_Result->Fetch();
+        Field* l_Fields = l_Result->Fetch();
 
         GarrisonPlotBuildingContent l_Content;
         l_Content.DB_ID                 = l_Fields[0].GetUInt32();
@@ -7081,6 +7084,7 @@ void ObjectMgr::LoadGarrisonPlotBuildingContent()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u garrison plot building content in %u ms", l_Count, GetMSTimeDiffToNow(l_StartTime));
 }
+
 void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data)
 {
     WorldDatabase.PQuery("INSERT INTO garrison_plot_content(plot_type_or_building, faction_index, creature_or_gob, x, y, z, o) VALUES "
@@ -7092,12 +7096,13 @@ void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_D
     if (!l_Result)
         return;
 
-    Field * l_Fields = l_Result->Fetch();
+    Field* l_Fields = l_Result->Fetch();
 
     p_Data.DB_ID = l_Fields[0].GetUInt32();
 
     m_GarrisonPlotBuildingContents.push_back(p_Data);
 }
+
 void ObjectMgr::DeleteGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data)
 {
     auto l_It = std::find_if(m_GarrisonPlotBuildingContents.begin(), m_GarrisonPlotBuildingContents.end(), [p_Data](const GarrisonPlotBuildingContent & p_Elem) -> bool
@@ -7111,6 +7116,7 @@ void ObjectMgr::DeleteGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & 
         m_GarrisonPlotBuildingContents.erase(l_It);
     }
 }
+
 std::vector<GarrisonPlotBuildingContent> ObjectMgr::GetGarrisonPlotBuildingContent(int32 p_PlotTypeOrBuilding, uint32 p_FactionIndex)
 {
     std::vector<GarrisonPlotBuildingContent> l_Data;
@@ -7122,6 +7128,37 @@ std::vector<GarrisonPlotBuildingContent> ObjectMgr::GetGarrisonPlotBuildingConte
     }
 
     return l_Data;
+}
+
+void ObjectMgr::LoadNpcRecipesConditions()
+{
+    uint32 l_StartTime = getMSTime();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT NpcEntry, RecipeID, PlayerConditionID FROM npc_recipe_condition");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 npc recipe condition. DB table `npc_recipe_condition` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+        RecipesConditions l_Conditions;
+
+        uint32 l_NpcID                 = l_Fields[0].GetUInt32();
+        l_Conditions.RecipeID          = l_Fields[1].GetUInt32();
+        l_Conditions.PlayerConditionID = l_Fields[2].GetUInt32();
+
+        _NpcRecipesConditions[l_NpcID].push_back(l_Conditions);
+
+        ++l_Count;
+    } while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u npc recipe condition in %u ms", l_Count, GetMSTimeDiffToNow(l_StartTime));
 }
 
 void ObjectMgr::LoadExplorationBaseXP()
@@ -7358,7 +7395,7 @@ void ObjectMgr::LoadCurrencyOnKill()
 
     do
     {
-        Field *l_Fields = result->Fetch();
+        Field*l_Fields = result->Fetch();
 
         uint32 l_Creature_id = l_Fields[0].GetUInt32();
 
@@ -7727,7 +7764,7 @@ void ObjectMgr::LoadQuestPOI()
 
     do
     {
-        Field * l_Fields = result->Fetch();
+        Field* l_Fields = result->Fetch();
 
         uint32 l_QuestId            = l_Fields[0].GetUInt32();
         uint32 l_BlobIndex          = l_Fields[1].GetUInt32();
@@ -8307,7 +8344,7 @@ bool ObjectMgr::LoadTrinityStrings(const char* table, int32 min_value, int32 max
     return true;
 }
 
-const char *ObjectMgr::GetTrinityString(int32 entry, LocaleConstant locale_idx) const
+const char* ObjectMgr::GetTrinityString(int32 entry, LocaleConstant locale_idx) const
 {
     if (TrinityStringLocale const* msl = GetTrinityStringLocale(entry))
     {
@@ -8747,7 +8784,7 @@ void ObjectMgr::LoadTrainerSpell()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %d Trainers in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::set<uint32> *skip_vendors)
+int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::set<uint32>* skip_vendors)
 {
     // find all items from the reference vendor
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_NPC_VENDOR_REF);
@@ -9131,7 +9168,7 @@ void ObjectMgr::LoadScriptNames()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %d Script Names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-uint32 ObjectMgr::GetScriptId(const char *name)
+uint32 ObjectMgr::GetScriptId(const char* name)
 {
     // use binary search to find the script name in the sorted vector
     // assume "" is the first element
@@ -9694,7 +9731,7 @@ void ObjectMgr::LoadPhaseDefinitions()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         PhaseDefinition pd;
 
@@ -9739,7 +9776,7 @@ void ObjectMgr::LoadSpellPhaseInfo()
     uint32 count = 0;
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         SpellPhaseInfo spellPhaseInfo;
         spellPhaseInfo.spellId                = fields[0].GetUInt32();
@@ -10074,7 +10111,7 @@ void ObjectMgr::LoadResearchSiteLoot()
     {
         ResearchLootEntry dg;
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
 
             dg.id = uint16(fields[0].GetUInt32());
             dg.x = fields[1].GetFloat();
@@ -10128,7 +10165,7 @@ void ObjectMgr::RestructCreatureGUID(uint32 nbLigneToRestruct)
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         guidList.push_back(fields[0].GetUInt32());
     }
     while (result->NextRow());
@@ -10214,7 +10251,7 @@ void ObjectMgr::RestructGameObjectGUID(uint32 nbLigneToRestruct)
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         guidList.push_back(fields[0].GetUInt32());
     }
     while (result->NextRow());
@@ -10467,7 +10504,7 @@ void ObjectMgr::LoadQuestObjectives()
     uint32 l_Count = 0;
     do
     {
-        Field * l_Fields = l_Result->Fetch();
+        Field* l_Fields = l_Result->Fetch();
 
         uint32  l_ObjectiveID               = l_Fields[0].GetUInt32();
         uint32  l_ObjectiveQuestId          = l_Fields[1].GetUInt32();
@@ -10483,15 +10520,20 @@ void ObjectMgr::LoadQuestObjectives()
         if (_questTemplates.find(l_ObjectiveQuestId) == _questTemplates.end())
         {
             sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has non existant Quest Id %u! Skipping.", l_ObjectiveID, l_ObjectiveQuestId);
+            m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
             continue;
         }
 
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, l_ObjectiveQuestId, NULL))
+        {
+            m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
             continue;
+        }
 
         if (l_ObjectiveType >= QUEST_OBJECTIVE_TYPE_END)
         {
             sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has invalid type %u! Skipping.", l_ObjectiveID, l_ObjectiveType);
+            m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
             continue;
         }
 
@@ -10512,6 +10554,7 @@ void ObjectMgr::LoadQuestObjectives()
                 if (l_ObjectiveAmount <= 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has valid Creature Id %u but amount %u is invalid! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10522,12 +10565,14 @@ void ObjectMgr::LoadQuestObjectives()
                 if (!GetItemTemplate(l_ObjectiveObjectID))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has non existant Item Id %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
                 if (l_ObjectiveAmount <= 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has valid Item Id %u but amount %u is invalid! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10538,12 +10583,14 @@ void ObjectMgr::LoadQuestObjectives()
                 if (!GetGameObjectTemplate(l_ObjectiveObjectID))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has non existant GameObject Id %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
                 if (l_ObjectiveAmount <= 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has valid GameObject Id %u but amount %u is invalid! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10554,6 +10601,7 @@ void ObjectMgr::LoadQuestObjectives()
                 if (!sCurrencyTypesStore.LookupEntry(l_ObjectiveObjectID))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has non existant Currency Id %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10561,7 +10609,7 @@ void ObjectMgr::LoadQuestObjectives()
             }
             case QUEST_OBJECTIVE_TYPE_SPELL:
             {
-                const SpellInfo * l_Spell = sSpellMgr->GetSpellInfo(l_ObjectiveObjectID);
+                const SpellInfo* l_Spell = sSpellMgr->GetSpellInfo(l_ObjectiveObjectID);
 
                 if (!l_Spell)
                 {
@@ -10572,12 +10620,14 @@ void ObjectMgr::LoadQuestObjectives()
                 else if (!SpellMgr::IsSpellValid(l_Spell))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has invalid Spell Id %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
                 if (l_ObjectiveAmount <= 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has valid Spell Id %u but amount %u is invalid! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10589,6 +10639,7 @@ void ObjectMgr::LoadQuestObjectives()
                 if (!sFactionStore.LookupEntry(l_ObjectiveObjectID))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has non existant Faction Id %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10599,6 +10650,7 @@ void ObjectMgr::LoadQuestObjectives()
                 if (l_Quest->GetQuestObjectiveCountType(l_ObjectiveType) >= 1)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u is invalid, Quest %u already has the max amount of Quest Objective type %u! Skipping.", l_ObjectiveID, l_ObjectiveQuestId, l_ObjectiveType);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10609,18 +10661,21 @@ void ObjectMgr::LoadQuestObjectives()
                 if (!sBattlePetSpeciesStore.LookupEntry(l_ObjectiveObjectID))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has non existant Battle Pet Species %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
-                //if (!BattlePetSpeciesHasFlag(objectId, BATTLE_PET_FLAG_ELITE))
-                //{
-                //    sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has invalid Battle Pet Species %u, it doesn't have BATTLE_PET_FLAG_ELITE flag! Skipping.", id, objectId);
-                //    continue;
-                //}
+                ///if (!BattlePetSpeciesHasFlag(objectId, BATTLE_PET_FLAG_ELITE))
+                ///{
+                ///    sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has invalid Battle Pet Species %u, it doesn't have BATTLE_PET_FLAG_ELITE flag! Skipping.", id, objectId);
+                ///    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
+                ///    continue;
+                ///}
 
                 if (l_ObjectiveAmount <= 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has valid Item Id %u but amount %u is invalid! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10631,12 +10686,14 @@ void ObjectMgr::LoadQuestObjectives()
                 if (l_Quest->GetQuestObjectiveCountType(l_ObjectiveType) >= 1)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u is invalid, Quest %u already has the max amount of Quest Objective type %u! Skipping.", l_ObjectiveID, l_ObjectiveQuestId, l_ObjectiveType);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
                 if (l_ObjectiveAmount <= 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has invalid Pet Battle PvP win amount %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount); ///< Data argument not used by format string
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10693,11 +10750,14 @@ void ObjectMgr::LoadQuestObjectiveLocales()
     uint32 l_Count = 0;
     do
     {
-        Field * l_Fields = l_Result->Fetch();
+        Field* l_Fields = l_Result->Fetch();
 
         uint32 l_ObjectiveID = l_Fields[0].GetUInt32();
         uint8 l_Locale = l_Fields[1].GetUInt8();
         std::string l_Description = l_Fields[2].GetString();
+
+        if (std::find(m_IgnoredQuestObjectives.begin(), m_IgnoredQuestObjectives.end(), l_ObjectiveID) != m_IgnoredQuestObjectives.end())
+            continue;
 
         if (!QuestObjectiveExists(l_ObjectiveID))
         {
@@ -10722,14 +10782,14 @@ void ObjectMgr::LoadFollowerQuests()
     const ObjectMgr::QuestMap & l_QuestTemplates = GetQuestTemplates();
     for (ObjectMgr::QuestMap::const_iterator l_It = l_QuestTemplates.begin(); l_It != l_QuestTemplates.end(); ++l_It)
     {
-        Quest * l_Quest = l_It->second;
+        Quest* l_Quest = l_It->second;
 
         uint32 l_SpellID = l_Quest->RewardSpellCast;
 
         if (!l_SpellID)
             continue;
 
-        const SpellInfo * l_Info = sSpellMgr->GetSpellInfo(l_SpellID);
+        const SpellInfo* l_Info = sSpellMgr->GetSpellInfo(l_SpellID);
 
         if (!l_Info)
             continue;
@@ -10746,7 +10806,7 @@ void ObjectMgr::LoadQuestForItem()
     const ObjectMgr::QuestMap & l_QuestTemplates = GetQuestTemplates();
     for (ObjectMgr::QuestMap::const_iterator l_It = l_QuestTemplates.begin(); l_It != l_QuestTemplates.end(); ++l_It)
     {
-        Quest * l_Quest = l_It->second;
+        Quest* l_Quest = l_It->second;
 
         for (auto l_Objective : l_Quest->QuestObjectives)
         {

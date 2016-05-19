@@ -722,6 +722,7 @@ struct ChallengeReward
     uint32 MapID;
     uint32 MoneyReward[4];
     uint32 TitleID;
+    uint32 AchievementID;
 };
 
 struct MapChallengeModeHotfix
@@ -795,7 +796,7 @@ struct ResearchLootEntry
 struct GarrisonPlotBuildingContent
 {
     GarrisonPlotBuildingContent() {}
-    GarrisonPlotBuildingContent(const GarrisonPlotBuildingContent & p_Other)
+    GarrisonPlotBuildingContent(const GarrisonPlotBuildingContent& p_Other)
     {
         DB_ID               = p_Other.DB_ID;
         PlotTypeOrBuilding  = p_Other.PlotTypeOrBuilding;
@@ -814,6 +815,12 @@ struct GarrisonPlotBuildingContent
     float X, Y, Z, O;
 };
 
+/// Tradeskill NPC Recipes
+struct RecipesConditions
+{
+    uint32 RecipeID;
+    uint32 PlayerConditionID;
+};
 
 namespace ItemBonus
 {
@@ -832,6 +839,7 @@ typedef std::map<uint32, bool> UpdateSkipData;
 typedef std::vector<ResearchLootEntry> ResearchLootVector;
 typedef std::vector<ResearchPOIPoint> ResearchPOIPoints;
 typedef std::map<uint32 /*site id*/, ResearchZoneEntry> ResearchZoneMap;
+typedef std::map<uint32, std::vector<RecipesConditions>> NpcRecipesContainer;
 
 class PlayerDumpReader;
 
@@ -870,15 +878,17 @@ class ObjectMgr
 
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry);
         GameObjectTemplateContainer const* GetGameObjectTemplates() const { return &_gameObjectTemplateStore; }
-        int LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::set<uint32> *skip_vendors);
+        int LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::set<uint32>* skip_vendors);
 
         void LoadGameObjectTemplate();
-        void AddGameobjectInfo(GameObjectTemplate* goinfo);
 
         void LoadGarrisonPlotBuildingContent();
-        void AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data);
-        void DeleteGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data);
+        void AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent& p_Data);
+        void DeleteGarrisonPlotBuildingContent(GarrisonPlotBuildingContent& p_Data);
         std::vector<GarrisonPlotBuildingContent> GetGarrisonPlotBuildingContent(int32 p_PlotTypeOrBuilding, uint32 p_FactionIndex);
+
+        void LoadNpcRecipesConditions();
+        std::vector<RecipesConditions> GetNpcRecipesConditions(uint32 p_NpcID) { return _NpcRecipesConditions[p_NpcID]; }
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
         CreatureTemplate const* GetRandomTemplate(CreatureType p_Type);
@@ -888,7 +898,7 @@ class ObjectMgr
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32* displayID);
         static uint32 ChooseDisplayId(uint32 team, const CreatureTemplate* cinfo, const CreatureData* data = NULL);
-        static void ChooseCreatureFlags(const CreatureTemplate * p_CreatureTemplate, uint32 & p_NpcFlags1, uint32 & p_NpcFlags2, uint32 & p_UnitFlags1, uint32 & p_UnitFlags2, uint32 & p_UnitFlags3, uint32 & p_Dynamicflags, const CreatureData * p_Data = nullptr);
+        static void ChooseCreatureFlags(const CreatureTemplate* p_CreatureTemplate, uint32& p_NpcFlags1, uint32& p_NpcFlags2, uint32& p_UnitFlags1, uint32& p_UnitFlags2, uint32& p_UnitFlags3, uint32& p_Dynamicflags, const CreatureData* p_Data = nullptr);
         EquipmentInfo const* GetEquipmentInfo(uint32 p_Entry, int8& p_ID);
         CreatureAddon const* GetCreatureAddon(uint32 lowguid);
         CreatureAddon const* GetCreatureTemplateAddon(uint32 entry);
@@ -916,14 +926,13 @@ class ObjectMgr
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
         uint64 GetPlayerGUIDByName(std::string name) const;
-        bool GetPlayerNameByGUID(uint64 guid, std::string &name) const;
+        bool GetPlayerNameByGUID(uint64 guid, std::string& name) const;
         uint32 GetPlayerTeamByGUID(uint64 guid) const;
         uint32 GetPlayerAccountIdByGUID(uint64 guid) const;
         uint32 GetPlayerAccountIdByPlayerName(const std::string& name) const;
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
-        void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
-        void GetTaxiPath(uint32 source, uint32 destination, std::vector<uint32>& path, uint32& cost);
+        void GetTaxiPath(uint32 source, uint32 destination, uint32& path, uint32& cost);
         uint32 GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt_team = false);
 
         Quest const* GetQuestTemplate(uint32 quest_id) const
@@ -1433,8 +1442,8 @@ class ObjectMgr
             if (itr == _trinityStringLocaleStore.end()) return NULL;
             return &itr->second;
         }
-        const char *GetTrinityString(int32 entry, LocaleConstant locale_idx) const;
-        const char *GetTrinityStringForDBCLocale(int32 entry) const { return GetTrinityString(entry, DBCLocaleIndex); }
+        const char* GetTrinityString(int32 entry, LocaleConstant locale_idx) const;
+        const char* GetTrinityStringForDBCLocale(int32 entry) const { return GetTrinityString(entry, DBCLocaleIndex); }
         LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }
         void SetDBCLocaleIndex(LocaleConstant locale) { DBCLocaleIndex = locale; }
 
@@ -1494,9 +1503,9 @@ class ObjectMgr
         bool IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount, uint32 ptime, uint32 ExtendedCost, uint8 type, Player* player = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0) const;
 
         void LoadScriptNames();
-        ScriptNameContainer &GetScriptNames() { return _scriptNamesStore; }
-        const char * GetScriptName(uint32 id) const { return id < _scriptNamesStore.size() ? _scriptNamesStore[id].c_str() : ""; }
-        uint32 GetScriptId(const char *name);
+        ScriptNameContainer& GetScriptNames() { return _scriptNamesStore; }
+        const char* GetScriptName(uint32 id) const { return id < _scriptNamesStore.size() ? _scriptNamesStore[id].c_str() : ""; }
+        uint32 GetScriptId(const char* name);
 
         SpellClickInfoMapBounds GetSpellClickInfoMapBounds(uint32 creature_id) const
         {
@@ -1738,6 +1747,7 @@ class ObjectMgr
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;
+        std::vector<uint32> m_IgnoredQuestObjectives;
 
         typedef UNORDERED_MAP<uint32, GossipText> GossipTextContainer;
         typedef UNORDERED_MAP<uint32, uint32> QuestAreaTriggerContainer;
@@ -1806,6 +1816,7 @@ class ObjectMgr
         ResearchLootVector _researchLoot;
 
         std::vector<GarrisonPlotBuildingContent> m_GarrisonPlotBuildingContents;
+        NpcRecipesContainer _NpcRecipesConditions;
 
         ItemBonus::Group m_ItemBonusGroupStore;
 

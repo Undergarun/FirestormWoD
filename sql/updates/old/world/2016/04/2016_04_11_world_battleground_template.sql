@@ -1,0 +1,1 @@
+UPDATE battleground_template SET MinPlayersPerTeam = 10 WHERE id IN(3,7);

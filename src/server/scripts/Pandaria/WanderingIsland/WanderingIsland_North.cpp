@@ -352,8 +352,10 @@ class mob_tushui_trainee : public CreatureScript
                         punch3 -= diff;
                 }
 
-                if (me->GetPositionX() == 1446.322876f && me->GetPositionY() == 3389.027588f && me->GetPositionZ() == 173.782471f)
-                    me->ForcedDespawn(1000);
+                if (me->GetPositionX() >= 1446.0f  && me->GetPositionX() <= 1447.0f &&
+                    me->GetPositionY() >= 3389.0f && me->GetPositionY() <= 3390.0f)
+
+                me->DespawnOrUnsummon();
             }
         };
 };
@@ -410,6 +412,7 @@ public:
             m_HasSaidIntro = false;
             m_HasScheduledFalcon = false;
             me->HandleEmoteCommand(EMOTE_STATE_SIT);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
             m_PlayerGuid = 0;
         }

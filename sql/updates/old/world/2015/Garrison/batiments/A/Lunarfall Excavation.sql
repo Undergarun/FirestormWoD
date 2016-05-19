@@ -61,6 +61,8 @@
 	55519,
 	55521,
 	55524);
+	
+	UPDATE gameobject_loot_template SET chanceorquestchance = 28 where item = 120945 and entry in (55500, 55519, 55521, 55524);
 
 -- LEVEL 2
 

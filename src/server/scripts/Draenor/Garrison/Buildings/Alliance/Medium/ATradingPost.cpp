@@ -41,7 +41,7 @@ namespace MS { namespace Garrison
 
         if (p_Player->IsQuestRewarded(Quests::Alliance_TricksOfTheTrade) || (p_Player->GetQuestStatus(Quests::Alliance_TricksOfTheTrade) == QUEST_STATUS_INCOMPLETE))
         {
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultWorkOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
         }
         else if (p_Player->GetQuestStatus(Quests::Alliance_TricksOfTheTrade) == QUEST_STATUS_NONE)
@@ -160,7 +160,7 @@ namespace MS { namespace Garrison
         l_Owner->SaveToDB();
     }
 
-    void npc_TraderJoseph::npc_TraderJosephAI::OnDataReset()
+    void npc_TraderJoseph::npc_TraderJosephAI::OnDailyDataReset()
     {
         if (GetOwner() != nullptr)
         {
@@ -191,15 +191,13 @@ namespace MS { namespace Garrison
                 if (p_Player->GetTeamId() == TEAM_HORDE && CheckRequirements(p_Player))
                     return;
                 break;
-            case 1731: ///< Exarch council, Alliance rep
+            case 1710: ///< Sha'tari, Alliance rep
                 if (p_Player->GetTeamId() == TEAM_ALLIANCE && CheckRequirements(p_Player))
                     return;
                 break;
             default:
                 break;
         }
-
-        p_Standing = 0;
     }
 
     bool playerScript_Garrison_TradingPost::CheckRequirements(Player* p_Player)

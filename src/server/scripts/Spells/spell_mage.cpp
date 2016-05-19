@@ -1390,12 +1390,20 @@ class spell_mage_inferno_blast: public SpellScriptLoader
                             }
 
                             /// 2 : Pyroblast
-                            if (l_Target->HasAura(SPELL_MAGE_PYROBLAST, l_Caster->GetGUID()))
+                            if (Aura* l_AuraPyroblast = l_Target->GetAura(SPELL_MAGE_PYROBLAST, l_Caster->GetGUID()))
+                            {
                                 l_Caster->AddAura(SPELL_MAGE_PYROBLAST, l_Unit);
+                                if (Aura* l_NewAuraPyroblast = l_Unit->GetAura(SPELL_MAGE_PYROBLAST, l_Caster->GetGUID()))
+                                    l_NewAuraPyroblast->SetDuration(l_AuraPyroblast->GetDuration());
+                            }
 
                             /// 3 : Living Bomb
-                            if (l_Target->HasAura(SPELL_MAGE_LIVING_BOMB, l_Caster->GetGUID()))
+                            if (Aura* l_AuraLivingBomb = l_Target->GetAura(SPELL_MAGE_LIVING_BOMB, l_Caster->GetGUID()))
+                            {
                                 l_Caster->AddAura(SPELL_MAGE_LIVING_BOMB, l_Unit);
+                                if (Aura* l_NewAuraLivingBomb = l_Unit->GetAura(SPELL_MAGE_LIVING_BOMB, l_Caster->GetGUID()))
+                                    l_NewAuraLivingBomb->SetDuration(l_AuraLivingBomb->GetDuration());
+                            }
 
                             /// 4 : Combustion
                             if (AuraEffect* l_AuraCombustion = l_Target->GetAuraEffect(SPELL_MAGE_COMBUSTION_DOT, EFFECT_0, l_Caster->GetGUID()))

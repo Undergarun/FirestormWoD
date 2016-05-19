@@ -231,6 +231,25 @@ namespace MS { namespace Garrison
             bool OnGossipHello(Player* p_Player, GameObject* p_GameObject);
 
     };
+
+
+    //////////////////////////////////////////////////////////////////////////
+    /// 192628                                                             ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Garrison Enchanter's Study receptacle
+    class go_garrison_anvil : public GameObjectScript
+    {
+        public:
+            /// Constructor
+            go_garrison_anvil();
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_GameObject : Target GameObject instance
+            virtual void OnGameObjectStateChanged(const GameObject* p_GameObject, uint32 p_State) override;
+
+    };
 }   ///< namespace Garrison
 }   ///< namespace MS
 

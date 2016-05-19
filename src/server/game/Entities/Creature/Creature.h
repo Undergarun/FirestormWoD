@@ -621,10 +621,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
         inline CreatureAI* AI() const { return (CreatureAI*)i_AI; }
 
-        bool SetWalk(bool enable);
-        bool SetDisableGravity(bool disable, bool packetOnly = false);
-        bool SetHover(bool enable);
-
         SpellSchoolMask GetMeleeDamageSchoolMask() const { return m_meleeDamageSchoolMask; }
         void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }
 
@@ -644,6 +640,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool HasSpell(uint32 spellID) const;
 
         bool UpdateEntry(uint32 entry, uint32 team = ALLIANCE, const CreatureData* data = nullptr);
+
+        void UpdateMovementFlags();
+
         bool UpdateStats(Stats stat);
         bool UpdateAllStats();
         void UpdateResistances(uint32 school);
@@ -684,7 +683,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         // override WorldObject function for proper name localization
         const char* GetNameForLocaleIdx(LocaleConstant locale_idx) const;
 
-        void setDeathState(DeathState s);                   // override virtual Unit::setDeathState
+        void setDeathState(DeathState s) override;
 
         bool LoadFromDB(uint32 guid, Map* map) { return LoadCreatureFromDB(guid, map, false); }
         bool LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap = true);
@@ -755,6 +754,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         time_t GetRespawnTimeEx() const;
         void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(NULL) + respawn : 0; }
         void Respawn(bool force = false);
+
         void SaveRespawnTime();
 
         uint32 GetRemoveCorpseDelay() const { return m_corpseRemoveTime; }
@@ -867,6 +867,15 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         {
             m_MovementInform.push_back(std::make_pair(p_Type, p_ID));
         }
+
+    private:
+        void DoRespawn();
+
+        bool m_NeedRespawn;
+        int m_RespawnFrameDelay;
+
+        int32 m_MovingUpdateTimer;
+        int32 m_NotMovingUpdateTimer;
 
     protected:
         bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data = nullptr);

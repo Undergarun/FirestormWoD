@@ -1489,17 +1489,21 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
 
             void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
+                Unit* l_Owner = GetCaster();
                 Unit* l_Caster = p_DmgInfo.GetVictim();
                 Unit* l_Attacker = p_DmgInfo.GetAttacker();
 
-                if (l_Attacker == nullptr || l_Caster == nullptr)
+                if (l_Attacker == nullptr || l_Caster == nullptr || l_Owner == nullptr)
+                    return;
+
+                if (l_Owner->GetGUID() != l_Caster->GetGUID())
                     return;
 
                 Unit* l_Target = nullptr;
                 std::list<Unit*> l_TargetList;
                 m_TotalAbsorbAmount += p_DmgInfo.GetDamage();
 
-                l_Caster->GetAttackableUnitListInRange(l_TargetList, 20.0f);
+                l_Caster->GetAttackableUnitListInRange(l_TargetList, 500.0f);
 
                 for (auto l_Itr : l_TargetList)
                 {
@@ -2820,6 +2824,41 @@ class spell_monk_chi_torpedo: public SpellScriptLoader
             }
         };
 
+        class spell_monk_chi_torpedo_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_chi_torpedo_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if ((l_Player->IsFalling() || l_Player->m_movementInfo.fallTime != 0 || l_Player->m_movementInfo.HasMovementFlag(MovementFlags::MOVEMENTFLAG_FALLING))
+                    && !l_Player->m_movementInfo.HasMovementFlag(MovementFlags::MOVEMENTFLAG_HOVER)
+                    && !l_Player->m_movementInfo.HasMovementFlag(MovementFlags2::MOVEMENTFLAG2_NO_JUMPING))
+                {
+                    p_Amount = 0;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_chi_torpedo_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_MINIMUM_SPEED);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_chi_torpedo_AuraScript();
+        }
+
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_chi_torpedo_SpellScript();
@@ -3105,7 +3144,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 {
                     if ((*itr)->GetEntry() == NPC_SNAKE_JADE_STATUE)
                     {
-                        if ((*itr)->GetDistance(p_Caster) <= 40.0f)
+                        if ((*itr)->GetDistance(p_Caster) <= 500.0f)
                             l_JadeStatue = (*itr);
                     }
                 }
@@ -3134,7 +3173,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 
                 for (Unit* l_Target : l_PartyList)
                 {
-                    if (!l_Target->IsValidAssistTarget(l_Target))
+                    if (!l_Caster->IsValidAssistTarget(l_Target))
                         continue;
 
                     if (l_Target->GetDistance(l_JadeStatue) > 40.0f)
@@ -3202,11 +3241,6 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 Unit *l_JadeStatue = GetStatueOfUnit(l_Caster);
 
                 if (l_JadeStatue == nullptr)
-                    return;
-
-                Unit *l_TargetOfJadeStatue = GetRandomPartyMember(l_JadeStatue, l_Caster, l_Target);
-
-                if (l_TargetOfJadeStatue == nullptr)
                     return;
 
                 l_JadeStatue->CastStop();
@@ -3621,7 +3655,10 @@ class spell_monk_roll: public SpellScriptLoader
 
             void HandleBeforeCast()
             {
-                Aura* aur = GetCaster()->AddAura(SPELL_MONK_ROLL_TRIGGER, GetCaster());
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, SPELL_MONK_ROLL_TRIGGER);
+                Aura* aur = l_Caster->GetAura(SPELL_MONK_ROLL_TRIGGER);
                 if (!aur)
                     return;
 
@@ -5437,7 +5474,7 @@ class spell_monk_detonate_chi : public SpellScriptLoader
 };
 
 /// Glyph of Freedom Roll - 159534
-/// Call by Roll - 109132, Chi Torpedo - 115008 and Flying Serpent Kick - 115057
+/// Call by Flying Serpent Kick - 101545, Roll - 109132, and Chi Torpedo - 115008 
 class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
 {
     public:

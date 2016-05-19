@@ -360,9 +360,9 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket& p_Packet)
     p_Packet.readPackGUID(l_Banker);
     p_Packet >> l_Money;
 
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+    if (m_Player->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
     {
-        if (l_Money && GetPlayer()->HasEnoughMoney(l_Money))
+        if (l_Money && m_Player->HasEnoughMoney(l_Money))
         {
             if (Guild* l_Guild = _GetPlayerGuild(this))
             {

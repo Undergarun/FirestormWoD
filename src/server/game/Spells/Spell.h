@@ -70,7 +70,7 @@ enum SpellCastFlags
     CAST_FLAG_UNKNOWN_29        = 0x10000000,
     CAST_FLAG_UNKNOWN_30        = 0x20000000,
     CAST_FLAG_HEAL_PREDICTION   = 0x40000000,
-    CAST_FLAG_UNKNOWN_32        = 0x80000000
+    CAST_FLAG_NO_COOLDOWN       = 0x80000000
 };
 
 /// Only on 18 bits yet
@@ -511,6 +511,7 @@ public:
     void EffectLearnBluePrint(SpellEffIndex p_EffIndex);
     void EffectGarrisonFinalize(SpellEffIndex p_EffIndex);
     void EffectIncreaseSkill(SpellEffIndex p_EffIndex);
+    void EffectCreateGarrison(SpellEffIndex p_EffIndex);
     void EffectObtainFollower(SpellEffIndex p_EffIndex);
     void EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex);
     void EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex);
@@ -525,7 +526,7 @@ public:
     void EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex);
     void EffectStampede(SpellEffIndex p_EffIndex);
     void EffectCreateHeirloom(SpellEffIndex p_EffIndex);
-    void EffectEnchantIllusion(SpellEffIndex p_EffIndex);
+    void EffectApplyEnchantIllusion(SpellEffIndex p_EffIndex);
     void EffectLearnFollowerAbility(SpellEffIndex p_EffIndex);
     void EffectUpgradeHeirloom(SpellEffIndex p_EffIndex);
     void EffectFinishGarrisonMission(SpellEffIndex p_EffIndex);

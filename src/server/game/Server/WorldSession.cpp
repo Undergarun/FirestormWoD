@@ -47,6 +47,7 @@
 #include "WardenMac.h"
 #include "GarrisonMgr.hpp"
 #include "AccountMgr.h"
+#include "PetBattle.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -152,6 +153,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool 
     m_playerLoading         = false;
     m_playerLogout          = false;
     m_inQueue               = false;
+    m_IsPetBattleJournalLocked = false;
     ///////////////////////////////////////////////////////////////////////////////
 
     _warden = NULL;
@@ -607,6 +609,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 /// %Log the player out
 void WorldSession::LogoutPlayer(bool Save)
 {
+    sPetBattleSystem->LeaveQueue(m_Player);
+
     // fix exploit with Aura Bind Sight
     m_Player->StopCastingBindSight();
     m_Player->StopCastingCharm();
@@ -1305,8 +1309,11 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& p_Packet)
 
     for (uint32 l_I = 0; l_I < l_Count; ++l_I)
     {
-        p_Packet.FlushBits();
-        _registeredAddonPrefixes.push_back(p_Packet.ReadString(p_Packet.ReadBits(5)));
+        uint8 l_Size = p_Packet.ReadBits(5);
+
+        p_Packet.ResetBitReading();
+
+        _registeredAddonPrefixes.push_back(p_Packet.ReadString(l_Size));
     }
 
     if (_registeredAddonPrefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP) // shouldn't happen

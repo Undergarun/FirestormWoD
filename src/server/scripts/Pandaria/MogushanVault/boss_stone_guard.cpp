@@ -768,7 +768,7 @@ class boss_generic_guardian : public CreatureScript
                 {
                     if (!UpdateVictim() && pInstance->GetBossState(DATA_STONE_GUARD) != IN_PROGRESS)
                     {
-                        if (!me->isMoving() && !me->HasAura(SPELL_ANIM_SIT))
+                        if (!me->IsMoving() && !me->HasAura(SPELL_ANIM_SIT))
                             me->CastSpell(me, SPELL_ANIM_SIT, true);
                         return;
                     }

@@ -102,6 +102,13 @@ class item_strongbox : public ItemScript
                     l_RareChance = 100;
                     break;
                 }
+                case 126919: ///< Champion's Strongbox (A) - weekly RBG reward
+                case 126920: ///< Champion's Strongbox (H) - weekly RBG reward
+                {
+                    l_ItemChance = 100;
+                    l_EpicChance = 100;
+                    break;
+                }
                 default:
                     break;
             }

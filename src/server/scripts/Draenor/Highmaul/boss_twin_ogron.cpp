@@ -305,7 +305,10 @@ class boss_twin_ogron_pol : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InjuredDoT);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::TwinOgronBonus, true);
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::TwinOgronBonus, true);
                 }
             }
 
@@ -840,8 +843,19 @@ class boss_twin_ogron_phemos : public CreatureScript
                         break;
                     }
                     case eMoves::MoveJump:
+                    {
                         me->SetHomePosition(*me);
+
+                        me->ClearUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+
+                        if (m_Instance != nullptr)
+                        {
+                            if (Creature* l_Pol = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Pol)))
+                                l_Pol->ClearUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+                        }
+
                         break;
+                    }
                     default:
                         break;
                 }
@@ -991,12 +1005,18 @@ class boss_twin_ogron_phemos : public CreatureScript
                 if (!m_TrashsMobs.empty())
                     return;
 
+                me->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+
                 me->GetMotionMaster()->MoveJump(g_PhemosJumpPos, 30.0f, 20.0f, eMoves::MoveJump);
 
                 if (m_Instance != nullptr)
                 {
                     if (Creature* l_Pol = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Pol)))
+                    {
+                        l_Pol->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+
                         l_Pol->GetMotionMaster()->MoveJump(g_PolJumpPos, 30.0f, 20.0f, eMoves::MoveJump);
+                    }
                 }
             }
 

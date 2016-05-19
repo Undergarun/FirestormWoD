@@ -220,8 +220,14 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Garrison owner
     bool InstanceScript_GarrisonHordeLevel1::CanUseGarrisonCache(Player* p_Owner)
     {
+        /// Horde
         if (p_Owner->GetQuestStatus(Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED
             || p_Owner->HasQuest(Quests::QUEST_WHAT_WE_GOT))
+            return true;
+
+        /// [FACTION CHANGE CASE] Alliance
+        if (p_Owner->GetQuestStatus(Quests::QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_REWARDED
+            || p_Owner->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER))
             return true;
 
         return false;
@@ -308,6 +314,14 @@ namespace MS { namespace Garrison { namespace Sites
                     p_Owner->QuestObjectiveSatisfy(NPCs::NPC_GASLOWE, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Owner->GetGUID());
                 }
             }
+        }
+        else if (p_BuildingID == Buildings::TradingPost_TradingPost_Level2)
+        {
+            uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
+            FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
+
+            if (l_Entry != nullptr)
+                p_Owner->GetReputationMgr().SetReputation(l_Entry, 0);
         }
     }
     /// When a building is activated

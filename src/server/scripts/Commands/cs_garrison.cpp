@@ -183,7 +183,7 @@ class garrison_commandscript: public CommandScript
             l_Target->SetSpeed(MOVE_FLIGHT, 5.0f, true);
 
             /// Set fly
-            l_Target->SendMovementSetCanFly(true);
+            l_Target->SetCanFly(true);
             p_Handler->PSendSysMessage(LANG_COMMAND_FLYMODE_STATUS, p_Handler->GetNameLink(l_Target).c_str(), "ON");
 
             /// Set Garrison resources + money at high values
@@ -294,7 +294,7 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            l_TargetPlayer->ResetGarrisonDatas();
+            l_TargetPlayer->ResetDailyGarrisonDatas();
 
             return true;
         }
