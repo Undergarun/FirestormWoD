@@ -50,7 +50,7 @@ enum eCreatures
 {
     CreatureWolf        = 89012,
     CreatureRylak       = 89011,
-    CreatureGuard       = 83390, 
+    CreatureGuard       = 83390,
     /// Dests
     CreatureWolfDest     = 89022,
     CreatureRylakDest    = 89021,
@@ -78,7 +78,7 @@ Position const g_NpcMovePos[3] =
     { 6972.43f, -1094.44f, 4.962f, 0.903368f },
     { 6969.16f, -1089.79f, 4.600f, 0.881810f },
     { 6964.44f, -1085.31f, 4.603f, 0.102262f }
-}; 
+};
 
 ///< Wandlering Thundlers
 Position const g_MoveToDoorPos = { 6970.82f, -1090.432f, 4.962442f, 0.0f };
@@ -211,7 +211,7 @@ class boss_oshir : public CreatureScript
                 events.Reset();
                 RespawnDests();
                 m_WolfDests.clear();
-                m_RylakDests.clear();         
+                m_RylakDests.clear();
                 m_PrimalAssault = false;
                 m_HpPact = uint32(me->GetHealthPct() * 0.95f);
                 m_CurrentDestTarget = 0;
@@ -219,7 +219,7 @@ class boss_oshir : public CreatureScript
                 m_PrimalAssaultDiff = 1 * TimeConstants::IN_MILLISECONDS;
                 DespawnCreaturesInArea(eCreatures::CreatureWolf, me);
                 DespawnCreaturesInArea(eCreatures::CreatureRylak, me);
-                me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 10.0f, true); 
+                me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 10.0f, true);
                 me->AddAura(eOshirSpells::SpellKneel, me);
                 if (!m_First)
                 {
@@ -301,10 +301,10 @@ class boss_oshir : public CreatureScript
                 summons.DespawnAll();
                 ActivateEncounterGate();
                 DespawnCreaturesInArea(eCreatures::CreatureWolf, me);
-                DespawnCreaturesInArea(eCreatures::CreatureRylak, me);  
+                DespawnCreaturesInArea(eCreatures::CreatureRylak, me);
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                 me->RemoveAura(eOshirSpells::SpellPrimalAssaultVisual);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);           
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
             }
 
             void EnterCombat(Unit* /*p_Attacker*/) override
@@ -314,7 +314,7 @@ class boss_oshir : public CreatureScript
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
                     DoZoneInCombat();
-                }     
+                }
 
                 RespawnDests();
                 me->SetHomePosition(*me);
@@ -366,7 +366,7 @@ class boss_oshir : public CreatureScript
                         {
                             if (Creature* l_Creature = Creature::GetCreature(*me, m_CurrentDestTarget))
                             {
-                                me->CastSpell(l_Creature, eOshirSpells::SpellCosmeticAttack1h);                        
+                                me->CastSpell(l_Creature, eOshirSpells::SpellCosmeticAttack1h);
                                 if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 200.0f, true))
                                     me->Attack(l_Target, true);
                             }
@@ -406,12 +406,12 @@ class boss_oshir : public CreatureScript
                         if (Creature* l_Guard = me->SummonCreature(eCreatures::CreatureGuard, g_NpcSpawnPos, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
                         {
                             m_ThunderilingWandlers.push_back(l_Guard->GetGUID()); // 2nd positioned list is the middle one
-                            l_Guard->setFaction(FriendlyFaction);          
+                            l_Guard->setFaction(FriendlyFaction);
                             l_Guard->AddAura(eOshirSpells::Spell2hlReady, l_Guard);
                             l_Guard->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
                             l_Guard->GetMotionMaster()->MovePoint(eMovementInformed::MovementInformWanlderingThundlerOshirFirstMovement, g_NpcMovePos[l_I]);
                         }
-                    }                 
+                    }
                 }
             }
 
@@ -465,7 +465,7 @@ class boss_oshir : public CreatureScript
                 switch (m_CosmeticEvent.ExecuteEvent())
                 {
                     case eCosmeticEvents::EventCosmetic01:
-                    {          
+                    {
                         std::list<uint64>::iterator l_It = m_ThunderilingWandlers.begin();
                         std::advance(l_It, 2);
 
@@ -582,7 +582,7 @@ class boss_oshir : public CreatureScript
                     case eOshirEvents::EventPrimalAssault:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 100.0f, true))
-                        {                         
+                        {
                             m_PrimalAssaultDiff = 1 * TimeConstants::IN_MILLISECONDS;
                             me->CastSpell(l_Target, eOshirSpells::SpellPrimalAssault);
                             me->CastSpell(me, eOshirSpells::SpellRendingSlashVis, true);
@@ -713,7 +713,7 @@ public:
                 if (Creature* l_Oshir = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataOshir)))
                 {
                     if (l_Oshir->IsAIEnabled)
-                    { 
+                    {
                         switch (p_Id)
                         {
                             case eMovementInformed::MovementInformWanlderingThundlerOshirFirstMovement:
@@ -721,8 +721,8 @@ public:
                                 me->SetFacingToObject(l_Oshir);
                                 break;
                             case eMovementInformed::MovementInformWanlderingThundlerOshirMoveToBreakDoor:
-                                l_Oshir->RemoveAura(eThunderingWandlerSpells::SpellKneel);                            
-                                me->CastSpell(me, eThunderingWandlerSpells::SpellRendingCleave, true);   
+                                l_Oshir->RemoveAura(eThunderingWandlerSpells::SpellKneel);
+                                me->CastSpell(me, eThunderingWandlerSpells::SpellRendingCleave, true);
                                 l_Oshir->GetAI()->DoAction(eAction::ActionRelease);
                                 break;
                             default:
@@ -830,7 +830,7 @@ class iron_docks_oshir_mob_wolf_dest : public CreatureScript
             bool m_Released;
 
             void Reset() override
-            {  
+            {
                 events.Reset();
                 m_Released = false;
               
@@ -879,7 +879,7 @@ class iron_docks_oshir_mob_wolf_dest : public CreatureScript
                     case eEvents::EventRelease:
                     {
                         if (Creature* l_Oshir = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataOshir)))
-                        {                         
+                        {
                             if (l_ListWolvesGuid.empty())
                                 return;
 
@@ -1153,7 +1153,7 @@ class iron_docks_oshir_mob_wolf : public CreatureScript
                         me->GetMotionMaster()->MoveChase(l_Victim);
                 }
                 
-                if (m_Timer <= p_Diff) 
+                if (m_Timer <= p_Diff)
                 {
                     if (!me->HasAura(eWolfSpells::SpellStrengthOfThePack))
                         me->AddAura(eWolfSpells::SpellStrengthOfThePack, me);
@@ -1188,7 +1188,7 @@ class iron_docks_oshir_mob_acid_spit : public CreatureScript
 {
     public:
 
-        iron_docks_oshir_mob_acid_spit() : CreatureScript("iron_docks_oshir_mob_acid_spit") { }      
+        iron_docks_oshir_mob_acid_spit() : CreatureScript("iron_docks_oshir_mob_acid_spit") { }
 
         struct mob_iron_docksAI : public Scripted_NoMovementAI
         {
@@ -1210,7 +1210,7 @@ class iron_docks_oshir_mob_acid_spit : public CreatureScript
             void Reset() override
             {
                 me->setFaction(HostileFaction);
-                m_Timer = 1 * TimeConstants::IN_MILLISECONDS;         
+                m_Timer = 1 * TimeConstants::IN_MILLISECONDS;
                 me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
@@ -1231,7 +1231,7 @@ class iron_docks_oshir_mob_acid_spit : public CreatureScript
                             if (!l_Itr->HasAura(eAcidSpitSpells::SpellAcidPool))
                             {
                                 l_Itr->CastSpell(l_Itr, eAcidSpitSpells::SpellAcidPool);
-                            }               
+                            }
                         }
                     }
 
@@ -1248,7 +1248,7 @@ class iron_docks_oshir_mob_acid_spit : public CreatureScript
         }
 };
 
-/// Acid Spit Dummy - 178154 
+/// Acid Spit Dummy - 178154
 class iron_docks_oshir_spell_acid_spit : public SpellScriptLoader
 {
 public:
@@ -1288,7 +1288,7 @@ public:
     }
 };
 
-/// Acid Spit Trigger Missile - 178155 
+/// Acid Spit Trigger Missile - 178155
 class iron_docks_oshir_spell_acid_spit_trigger_missile : public SpellScriptLoader
 {
 public:

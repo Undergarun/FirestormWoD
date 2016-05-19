@@ -15,8 +15,8 @@ enum Spells
     SPELL_BAINE_VISUALS     = 101624,
 
     SPELL_THROW_TOTEM       = 101615,
-    SPELL_PULVERIZE         = 101626, 
-    SPELL_PULVERIZE_DMG     = 101627, 
+    SPELL_PULVERIZE         = 101626,
+    SPELL_PULVERIZE_DMG     = 101627,
     SPELL_PULVERIZE_AOE     = 101625,
     SPELL_MOLTEN_AXE        = 101836,
     SPELL_MOLTEN_FIST       = 101866,
@@ -243,7 +243,7 @@ class npc_echo_of_baine_baines_totem : public CreatureScript
                     me->DespawnOrUnsummon();
                 }
             }
-        };      
+        };
 };
 
 class spell_echo_of_baine_pulverize_aoe: public SpellScriptLoader

@@ -306,7 +306,7 @@ class npc_ammunae_spore : public CreatureScript
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     me->SetHealth(me->GetMaxHealth());
                     me->RemoveAllAuras();
-                    DoCast(me, SPELL_SPORE_CLOUD); 
+                    DoCast(me, SPELL_SPORE_CLOUD);
                 }
             }
 

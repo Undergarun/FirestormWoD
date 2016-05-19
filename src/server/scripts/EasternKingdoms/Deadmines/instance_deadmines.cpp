@@ -11,7 +11,7 @@
 
 #define MAX_ENCOUNTER 6
 
-static const DoorData doordata[] = 
+static const DoorData doordata[] =
 {
     {GO_FACTORY_DOOR,   DATA_GLUBTOK,   DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
     {GO_MAST_ROOM_DOOR, DATA_HELIX,     DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
@@ -31,7 +31,7 @@ class instance_deadmines : public InstanceMapScript
 
         struct instance_deadmines_InstanceMapScript : public InstanceScript
         {
-            instance_deadmines_InstanceMapScript(Map* pMap) : InstanceScript(pMap) 
+            instance_deadmines_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
@@ -81,8 +81,8 @@ class instance_deadmines : public InstanceMapScript
                 switch(pGo->GetEntry())
                 {
                     case GO_FACTORY_DOOR:
-                    case GO_MAST_ROOM_DOOR:   
-                    case GO_FOUNDRY_DOOR:   
+                    case GO_MAST_ROOM_DOOR:
+                    case GO_FOUNDRY_DOOR:
                         AddDoor(pGo, true);
                         break;
                     case GO_IRONCLAD_DOOR:  IronCladDoorGUID = pGo->GetGUID();  break;
@@ -127,7 +127,7 @@ class instance_deadmines : public InstanceMapScript
                         {
                             ShootCannon();
                             BlastOutDoor();
-                        }    
+                        }
                         break;
                     case DATA_VANESSA_EVENT:
                         uiVanessaEvent = data;

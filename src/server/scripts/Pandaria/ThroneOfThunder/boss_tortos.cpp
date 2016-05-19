@@ -856,7 +856,7 @@ class spell_crystal_shell_damage_absorption: public SpellScriptLoader
         }
 };
 
-// Crystal Shell (heal absorb) - 137648 
+// Crystal Shell (heal absorb) - 137648
 class spell_crystal_shell_heal_absorption: public SpellScriptLoader
 {
     public:

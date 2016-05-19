@@ -46,7 +46,7 @@ enum Adds
     NPC_GRAVITY_WELL        = 42499
 };
 
-Position highpriestessazilAddsPos[2] = 
+Position highpriestessazilAddsPos[2] =
 {
     {1263.20f, 966.03f, 205.81f, 0.0f},
     {1278.51f, 1021.72f, 209.08f, 0.0f}
@@ -67,7 +67,7 @@ class boss_high_priestess_azil : public CreatureScript
         struct boss_high_priestess_azilAI : public BossAI
         {
             boss_high_priestess_azilAI(Creature* pCreature) : BossAI(pCreature, DATA_HIGH_PRIESTESS_AZIL), summons(me)
-            { 
+            {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
@@ -128,7 +128,7 @@ class boss_high_priestess_azil : public CreatureScript
                 events.ScheduleEvent(EVENT_SHIELD, 35000);
                 events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 3000);
                 events.ScheduleEvent(EVENT_SUMMON_ADDS, urand(5000, 7000));
-                events.ScheduleEvent(EVENT_GRAVITY_WELL, 10000); 
+                events.ScheduleEvent(EVENT_GRAVITY_WELL, 10000);
                 instance->SetBossState(DATA_HIGH_PRIESTESS_AZIL, IN_PROGRESS);
             }
 
@@ -196,7 +196,7 @@ class boss_high_priestess_azil : public CreatureScript
                         if (me->getVictim())
                             me->GetMotionMaster()->MoveChase(me->getVictim());
                         events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 3000);
-                        break;    
+                        break;
                     }
                 }
 

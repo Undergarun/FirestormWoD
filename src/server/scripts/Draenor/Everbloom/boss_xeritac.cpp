@@ -889,7 +889,7 @@ public:
     }
 };
 
-/// Gaseous Volley - 169382 
+/// Gaseous Volley - 169382
 class the_everbloom_xeritac_spell_gaseous_volley : public SpellScriptLoader
 {
 public:
@@ -934,7 +934,7 @@ public:
     }
 };
 
-/// Toxic Gas Areatrigger - 169224 
+/// Toxic Gas Areatrigger - 169224
 class the_everbloom_xeritac_areatrigger_toxic_gas : public AreaTriggerEntityScript
 {
 public:
@@ -1017,7 +1017,7 @@ public:
     }
 };
 
-/// Descend - 169278  
+/// Descend - 169278
 class the_everbloom_xeritac_spell_descend : public SpellScriptLoader
 {
 public:

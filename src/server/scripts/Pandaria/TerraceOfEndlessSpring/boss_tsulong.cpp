@@ -478,7 +478,7 @@ class boss_tsulong : public CreatureScript
                         DoCast(SPELL_BERSERK);
                         berserkTimer = 8*60000;
                     }
-                    else 
+                    else
                         berserkTimer -= diff;
                 }
 

@@ -53,7 +53,7 @@ class mob_mandori_escort : public CreatureScript
         mob_mandori_escort() : CreatureScript("mob_mandori_escort") { }
 
     struct mob_mandori_escortAI : public npc_escortAI
-    {        
+    {
         mob_mandori_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -257,7 +257,7 @@ public:
     mob_ji_forest_escort() : CreatureScript("mob_ji_forest_escort") { }
 
     struct mob_ji_forest_escortAI : public npc_escortAI
-    {        
+    {
         mob_ji_forest_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -488,7 +488,7 @@ class mob_aysa_gunship_crash : public CreatureScript
         }
 
         struct mob_aysa_gunship_crashAI : public ScriptedAI
-        {        
+        {
             mob_aysa_gunship_crashAI(Creature* creature) : ScriptedAI(creature)
             {}
 
@@ -511,7 +511,7 @@ public:
     mob_aysa_gunship_crash_escort() : CreatureScript("mob_aysa_gunship_crash_escort") { }
 
     struct mob_aysa_gunship_crash_escortAI : public npc_escortAI
-    {        
+    {
         mob_aysa_gunship_crash_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -870,7 +870,7 @@ class npc_shen_healer : public CreatureScript
         npc_shen_healer() : CreatureScript("npc_shen_healer") { }
 
         struct npc_shen_healerAI : public ScriptedAI
-        {        
+        {
             npc_shen_healerAI(Creature* creature) : ScriptedAI(creature)
             {}
 

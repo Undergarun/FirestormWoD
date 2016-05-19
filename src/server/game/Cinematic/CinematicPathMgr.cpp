@@ -118,7 +118,7 @@ struct ModelHeader
     uint32_t ofsAttachments;        // Attachments are for weapons etc.
     uint32_t nAttachLookup;         // P, Miscellaneous
     uint32_t ofsAttachLookup;       // Of course with a lookup.
-    uint32_t nEvents;               // 
+    uint32_t nEvents;
     uint32_t ofsEvents;             // Used for playing sounds when dying and a lot else.
     uint32_t nLights;               // R
     uint32_t ofsLights;             // Lights are mainly used in loginscreens but in wands and some doodads too.

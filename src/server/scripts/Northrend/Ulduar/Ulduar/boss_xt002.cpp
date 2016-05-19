@@ -127,9 +127,9 @@ enum Yells
     EMOTE_REPAIR            = 0
 };
 
-enum AchievementCredits 
-{ 
-    ACHIEV_MUST_DECONSTRUCT_FASTER = 21027 
+enum AchievementCredits
+{
+    ACHIEV_MUST_DECONSTRUCT_FASTER = 21027
 };
 
 enum Events
@@ -143,8 +143,8 @@ enum Events
     EVENT_ENRAGE,
     EVENT_ENTER_HARD_MODE,
     EVENT_SPAWN_ADDS,
-    EVENT_ARCING_SMASH, 
-    EVENT_TRAMPLE, 
+    EVENT_ARCING_SMASH,
+    EVENT_TRAMPLE,
     EVENT_UPPERCUT
 };
 
@@ -166,10 +166,10 @@ enum Timers
     TIMER_UPPERCUT             = 7000
 };
 
-enum XT002Phase 
-{ 
-    PHASE_ONE = 1, 
-    PHASE_TWO 
+enum XT002Phase
+{
+    PHASE_ONE = 1,
+    PHASE_TWO
 };
 
 #define HEART_VEHICLE_SEAT 0
@@ -177,7 +177,7 @@ enum XT002Phase
 /************************************************
 -----------------SPAWN LOCATIONS-----------------
 ************************************************/
-const Position spawnLocations[] = 
+const Position spawnLocations[] =
 {
     { 796.0f, -94.0f, 412.0f, 0.0 }, // Lower right
     { 796.0f,  57.0f, 412.0f, 0.0 }, // Lower left
@@ -192,7 +192,7 @@ const Position spawnLocations[] =
 class boss_xt002 : public CreatureScript
 {
     public:
-        boss_xt002() : CreatureScript("boss_xt002") { }        
+        boss_xt002() : CreatureScript("boss_xt002") { }
 
         struct boss_xt002_AI : public BossAI
         {
@@ -233,7 +233,7 @@ class boss_xt002 : public CreatureScript
                 events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT, 0, PHASE_ONE);
                 // Due to Hordeguides, the first Tympanic Tantrum gets scheduled after ~1min.
-                events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX) * 2, 0, PHASE_ONE);                               
+                events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX) * 2, 0, PHASE_ONE);
 
                 if (instance)
                     instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
@@ -273,7 +273,7 @@ class boss_xt002 : public CreatureScript
                     ExposeHeart();
                     ++heartExposed;
                 }
-            }            
+            }
 
             uint32 GetData(uint32 type)
             {
@@ -353,16 +353,16 @@ class boss_xt002 : public CreatureScript
                             Talk(SAY_SUMMON);
 
                             // Spawn Pummeller
-                            me->SummonCreature(NPC_XM024_PUMMELLER, spawnLocations[rand() % 4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);                         
+                            me->SummonCreature(NPC_XM024_PUMMELLER, spawnLocations[rand() % 4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
 
                             // Spawn 5 Scrapbots
                             for (uint8 n = 0; n < 5; n++)
                             {
                                 uint8 pos = rand() % 4;
-                                me->SummonCreature(NPC_XS013_SCRAPBOT, 
-                                    frand(spawnLocations[pos].GetPositionX() - 3.0f, spawnLocations[pos].GetPositionX() + 3.0f), 
-                                    frand(spawnLocations[pos].GetPositionY() - 3.0f, spawnLocations[pos].GetPositionY() + 3.0f), 
-                                    spawnLocations[pos].GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000); 
+                                me->SummonCreature(NPC_XS013_SCRAPBOT,
+                                    frand(spawnLocations[pos].GetPositionX() - 3.0f, spawnLocations[pos].GetPositionX() + 3.0f),
+                                    frand(spawnLocations[pos].GetPositionY() - 3.0f, spawnLocations[pos].GetPositionY() + 3.0f),
+                                    spawnLocations[pos].GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                             }
 
                             // Spawn 3 Bombs
@@ -384,9 +384,9 @@ class boss_xt002 : public CreatureScript
                 Talk(EMOTE_HEART);
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL, false, true);
                 me->RemoveAurasDueToSpell(SPELL_TYMPANIC_TANTRUM);
-                me->GetMotionMaster()->MoveIdle();                             
+                me->GetMotionMaster()->MoveIdle();
 
-                DoCast(me, SPELL_SUBMERGE);  // WIll make creature untargetable                
+                DoCast(me, SPELL_SUBMERGE);  // WIll make creature untargetable
 
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
@@ -409,16 +409,16 @@ class boss_xt002 : public CreatureScript
                 phase = PHASE_TWO;
                 // Start "end of phase 2 timer"
                 events.SetPhase(PHASE_TWO);
-                events.ScheduleEvent(EVENT_DISPOSE_HEART, TIMER_HEART_PHASE, 0, PHASE_TWO);                
+                events.ScheduleEvent(EVENT_DISPOSE_HEART, TIMER_HEART_PHASE, 0, PHASE_TWO);
                 // Hordeguides: Add-spawn is running in phase 2
-                events.ScheduleEvent(EVENT_SPAWN_ADDS, 12*IN_MILLISECONDS, 0, PHASE_TWO);               
+                events.ScheduleEvent(EVENT_SPAWN_ADDS, 12*IN_MILLISECONDS, 0, PHASE_TWO);
             }
 
             void SetPhaseOne()
             {
                 Talk(SAY_HEART_CLOSED);
                 if (me->HasAura(SPELL_SUBMERGE))
-                    me->RemoveAurasDueToSpell(SPELL_SUBMERGE);               
+                    me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
                 DoCast(me, SPELL_STAND);
                 // Just for the case this isn't done by the spell above.
 
@@ -478,7 +478,7 @@ class boss_xt002 : public CreatureScript
 class mob_xt002_heart : public CreatureScript
 {
     public:
-        mob_xt002_heart() : CreatureScript("mob_xt002_heart") {}        
+        mob_xt002_heart() : CreatureScript("mob_xt002_heart") { }
 
         struct mob_xt002_heartAI : public Scripted_NoMovementAI
         {
@@ -530,7 +530,7 @@ class mob_xt002_heart : public CreatureScript
 class mob_scrapbot : public CreatureScript
 {
     public:
-        mob_scrapbot() : CreatureScript("mob_scrapbot") {}        
+        mob_scrapbot() : CreatureScript("mob_scrapbot") { }
 
         struct mob_scrapbotAI : public ScriptedAI
         {
@@ -593,7 +593,7 @@ class mob_scrapbot : public CreatureScript
 class mob_pummeller : public CreatureScript
 {
     public:
-        mob_pummeller() : CreatureScript("mob_pummeller") {}        
+        mob_pummeller() : CreatureScript("mob_pummeller") { }
 
         struct mob_pummellerAI : public ScriptedAI
         {
@@ -642,7 +642,7 @@ class mob_pummeller : public CreatureScript
                                 DoCast(me->getVictim(), SPELL_UPPERCUT);
                                 events.ScheduleEvent(EVENT_UPPERCUT, TIMER_UPPERCUT);
                                 break;
-                        }                        
+                        }
                     }
                 }
 
@@ -666,7 +666,7 @@ class mob_pummeller : public CreatureScript
 class BoomEvent : public BasicEvent
 {
     public:
-        BoomEvent(Creature* me) : _me(me), BasicEvent() {}
+        BoomEvent(Creature* me) : BasicEvent(), _me(me) {}
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/)
         {
@@ -687,7 +687,7 @@ class BoomEvent : public BasicEvent
 class mob_boombot : public CreatureScript
 {
     public:
-        mob_boombot() : CreatureScript("mob_boombot") {}        
+        mob_boombot() : CreatureScript("mob_boombot") {}
 
         struct mob_boombotAI : public ScriptedAI
         {
@@ -760,7 +760,7 @@ class mob_boombot : public CreatureScript
 class mob_life_spark : public CreatureScript
 {
     public:
-        mob_life_spark() : CreatureScript("mob_life_spark") {}        
+        mob_life_spark() : CreatureScript("mob_life_spark") {}
 
         struct mob_life_sparkAI : public ScriptedAI
         {

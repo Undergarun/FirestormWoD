@@ -2373,7 +2373,7 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
         }
 };
 
-/// Relentless Strikes proc - 14181 
+/// Relentless Strikes proc - 14181
 class spell_rog_relentless_strikes_proc : public SpellScriptLoader
 {
     public:

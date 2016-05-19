@@ -16,13 +16,12 @@ enum Spells
     SPELL_UNHOLY_SHOT                   = 101411,
     SPELL_BLACK_ARROW                   = 101404,
     SPELL_WRACKING_PAIN_ANY             = 100865,
-    //                                = 100862,
     SPELL_WRACKING_PAIN_AURA            = 101258,
     SPELL_WRACKING_PAIN_DMG             = 101257,
     SPELL_DEATH_GRIP_AOE                = 101397,
     SPELL_DEATH_GRIP                    = 101987,
     SPELL_SUMMON_GHOULS                 = 102603, // before combat
-    SPELL_TELEPORT                      = 101398, 
+    SPELL_TELEPORT                      = 101398,
     SPELL_CALL_OF_THE_HIGHBORNE         = 100686, // immune
     SPELL_CALL_OF_THE_HIGHBORNE_1       = 100867, // visual spawn ghouls
     SPELL_CALL_OF_THE_HIGHBORNE_2       = 105766, // visual back ghouls
@@ -192,7 +191,7 @@ class boss_echo_of_sylvanas : public CreatureScript
 
             bool AllowAchieve()
             {
-                return deadghouls >= 2; 
+                return deadghouls >= 2;
             }
 
             void UpdateAI(const uint32 diff)
@@ -272,7 +271,7 @@ class boss_echo_of_sylvanas : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->GetMotionMaster()->MoveChase(me->getVictim());
                             events.ScheduleEvent(EVENT_UNHOLY_SHOT, urand(5000, 20000));
-                            events.ScheduleEvent(EVENT_SHRIEK_OF_THE_HIGHBORNE, urand(5000, 20000)); 
+                            events.ScheduleEvent(EVENT_SHRIEK_OF_THE_HIGHBORNE, urand(5000, 20000));
                             events.ScheduleEvent(EVENT_TELEPORT, 40000);
                             break;
                         default:
@@ -372,7 +371,7 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoCast(me, SPELL_SEEPING_SHADOWS_DUMMY, true); 
+                DoCast(me, SPELL_SEEPING_SHADOWS_DUMMY, true);
                 events.ScheduleEvent(EVENT_MOVE_GHOUL, 2000);
             }
             

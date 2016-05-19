@@ -163,7 +163,7 @@ public:
                 lSummons.DespawnEntry(NPC_SOUL_FRAGMENT);
 
                 for (SummonList::const_iterator itr = lSummons.begin(); itr != lSummons.end(); ++itr)
-                    if (Creature* pSummon = Unit::GetCreature(*me, (*itr))) 
+                    if (Creature* pSummon = Unit::GetCreature(*me, (*itr)))
                         if (pSummon->GetEntry() == NPC_REPENTANCE_MIRROR && pSummon->IsAIEnabled)
                             pSummon->AI()->DoAction(ACTION_REPENTANCE_DONE);
                     
@@ -488,7 +488,7 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (Birth)
-            { 
+            {
                 if (uiBirthTimer <= diff)
                 {
                     switch(uiBirthPhase)

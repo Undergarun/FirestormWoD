@@ -196,7 +196,7 @@ public:
                                 {
                                     l_Koramar->AI()->Talk(eTalks::TalkKoramarPastBombardment02);
                                     break;
-                                }          
+                                }
                                 default:
                                     break;
                             }
@@ -332,7 +332,7 @@ class boss_skulloc : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                events.Reset();       
+                events.Reset();
                 if (me->GetMap())
                 {
                     me->GetMap()->SetObjectVisibility(5000.0f);
@@ -354,7 +354,7 @@ class boss_skulloc : public CreatureScript
             }
 
             void EnterCombat(Unit* /*p_Who*/) override
-            {            
+            {
                 events.ScheduleEvent(eSkullocEvents::EventCannonBarrage, 50 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eSkullocEvents::EventBackdraft, 20 * TimeConstants::IN_MILLISECONDS);
                 if (m_Instance != nullptr)
@@ -533,11 +533,11 @@ class iron_docks_skulloc_mob_koramar : public CreatureScript
                 if (me->GetMap())
                 {
                     me->GetMap()->SetObjectVisibility(5000.0f);
-                }            
+                }
             }
 
             void EnterCombat(Unit* p_Attacker) override
-            {             
+            {
                 me->GetMotionMaster()->MoveChase(p_Attacker); ///< He get bugs out upon combat, this seems to fix it. I guess...
                 events.ScheduleEvent(eKoramarEvents::EventBladestorm, 40 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eKoramarEvents::EventShatteringBlades, 15 * TimeConstants::IN_MILLISECONDS);
@@ -567,7 +567,7 @@ class iron_docks_skulloc_mob_koramar : public CreatureScript
             }
 
             void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
-            {             
+            {
                 switch (p_Id)
                 {
                     case eMovementInformed::MovementInformedKoramarBladestorm:
@@ -673,11 +673,11 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
                 }
                 m_TargetGuid = 0;
                 ASSERT(m_Vehicle);
-                me->setFaction(HostileFaction);       
+                me->setFaction(HostileFaction);
                 me->SetUnitMovementFlags(MovementFlags::MOVEMENTFLAG_ROOT);
                 DespawnCreaturesInArea(eIronDocksCreatures::CreatureZoggosh, me);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE); 
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                 events.ScheduleEvent(eTurretEvents::EventInstallAccessories, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
@@ -694,7 +694,7 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
                 switch (p_Action)
                 {
                     case eIronDocksActions::ActionLeaveTurret:
-                        {                                   
+                        {
                             if (m_Instance != nullptr)
                             {
                                 if (Creature* l_Zoggosh = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataZuggosh)))
@@ -724,7 +724,7 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
             }
 
             void UpdateAI(uint32 const p_Diff) override
-            {       
+            {
                 events.Update(p_Diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))

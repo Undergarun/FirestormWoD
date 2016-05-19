@@ -1942,7 +1942,7 @@ class go_ancien_control_console : public GameObjectScript
                     if (Creature* console = GetClosestCreatureWithEntry(go, NPC_ANCIENT_MOGU_MACHINE, 200.0f))
                         console->AI()->DoAction(ACTION_MOGU_ACTIVATE);
 
-                    player->MonsterTextEmote("The machine hums to life! Get to the lower level!", 0, true); 
+                    player->MonsterTextEmote("The machine hums to life! Get to the lower level!", 0, true);
 
                     go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 

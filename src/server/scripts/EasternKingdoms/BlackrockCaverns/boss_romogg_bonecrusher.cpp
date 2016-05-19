@@ -31,7 +31,7 @@ enum Adds
     NPC_QUAKE           = 40401,
     NPC_CHAINS_OF_WOE   = 40447,
     NPC_ANGERED_EARTH   = 50376
-}; 
+};
 
 enum Events
 {
@@ -56,7 +56,7 @@ class boss_romogg_bonecrusher : public CreatureScript
             boss_romogg_bonecrusherAI(Creature* c) : ScriptedAI(c), summons(me)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);   
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
                 pInstance = (InstanceScript*)c->GetInstanceScript();
             }
 
@@ -91,7 +91,7 @@ class boss_romogg_bonecrusher : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 DoCast(me, SPELL_CALL_FOR_HELP);
                 Talk(SAY_AGGRO);
@@ -106,7 +106,7 @@ class boss_romogg_bonecrusher : public CreatureScript
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
-                    return; 
+                    return;
      
                 if (me->GetDistance(me->GetHomePosition()) > 60.0f)
                 {
@@ -155,7 +155,7 @@ class boss_romogg_bonecrusher : public CreatureScript
                                         Player* pPlayer = itr->getSource();
                                          me->SummonCreature(NPC_ANGERED_EARTH, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(),0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
                                     }
-                                }  
+                                }
                             }
                             events.ScheduleEvent(EVENT_QUAKE, urand(18000, 20000));
                             break;
@@ -179,110 +179,10 @@ class boss_romogg_bonecrusher : public CreatureScript
             }
         };
 };
- 
-/*class npc_chains_of_woe : public CreatureScript
-{
-    public:
-        npc_chains_of_woe() : CreatureScript("npc_chains_of_woe") { }
-     
-        CreatureAI* GetAI(Creature* pCreature) const
-        {
-            return new npc_chains_of_woeAI (pCreature);
-        }
-     
-        struct npc_chains_of_woeAI : public ScriptedAI
-        {
-            npc_chains_of_woeAI(Creature *c) : ScriptedAI(c) 
-            {
-                pInstance = c->GetInstanceScript();
-            }
-     
-            InstanceScript* pInstance;
-
-            void Reset()
-            {
-                DoCast(me, SPELL_CHAINS_OF_WOE_TELE);
-                DoCast(me, SPELL_CHAINS_OF_WOE);
-
-            }
-     
-            void UpdateAI(const uint32 diff)
-            {
-                if (!pInstance || !UpdateVictim())
-                    return;
-            }
-        };
- 
-};*/
-
-/*class spell_romoogg_chains_of_woe: public SpellScriptLoader
-{
-    public:
-        spell_romoogg_chains_of_woe : SpellScriptLoader("spell_romoogg_chains_of_woe") { }
-
-        class spell_romoogg_chains_of_woe_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_romoogg_chains_of_woe_SpellScript);
-
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                if (GetHitUnit())
-                    GetHitUnit()->CastSpell(GetHitUnit(), SPELL_CHAINS_OF_WOE_ROOT);
-            }
-
-            void Register()
-            {
-                OnEffect += SpellEffectFn(spell_romoogg_chains_of_woe_rootSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_romoogg_chains_of_woe_SpellScript();
-        }
-};*/
-
-/*class spell_romoogg_chains_of_woe_tele: public SpellScriptLoader
-{
-    public:
-        spell_romoogg_chains_of_woe_tele : SpellScriptLoader("spell_romoogg_chains_of_woe_tele") { }
-
-        class spell_romoogg_chains_of_woe_tele_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_romoogg_chains_of_woe_tele_SpellScript);
-
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                if (GetHitUnit() && GetCaster())
-                {
-                    if (GetHitUnit()->GetTypeId() != TYPEID_PLAYER)
-                        return;
-                    GetHitUnit()->ToPlayer()->TeleportTo(645,
-                        GetCaster()->GetPositionX(),
-                        GetCaster()->GetPositionY(),
-                        GetCaster()->GetPositionZ(),
-                        0.0f);
-                }
-            }
-
-            void Register()
-            {
-                OnEffect += SpellEffectFn(spell_romoogg_chains_of_woe_tele_rootSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_romoogg_chains_of_woe_tele_SpellScript();
-        }
-};*/
 
 #ifndef __clang_analyzer__
 void AddSC_boss_romogg_bonecrusher()
 {
     new boss_romogg_bonecrusher();
-    //new npc_chains_of_woe();
-    //new spell_romoogg_chains_of_woe();
-    //new spell_romoogg_chains_of_woe_tele();
 }
 #endif

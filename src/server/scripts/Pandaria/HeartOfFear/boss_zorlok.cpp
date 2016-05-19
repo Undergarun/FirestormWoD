@@ -128,7 +128,7 @@ Position zorlokPlatforms[3] =
     {-2315.77f,     218.20f,    409.90f,    0.0f}   // SE Platform
 };
 
-Position zorlokReachPoints[3] = 
+Position zorlokReachPoints[3] =
 {
     {-2317.21f,     300.67f,    420.0f,     0.0f},  // NE Platform
     {-2234.36f,     216.88f,    420.0f,     0.0f},  // SW Platform
@@ -161,15 +161,15 @@ float tabCenter[3] = {-2274.8f, 259.187f, 406.5f};
 
 float rangeAttenuation1[2][2] =
 {
-    -2256.0f, -2208.0f,
-      190.0f,   240.0f
+    {-2256.0f, -2208.0f},
+    {190.0f,   240.0f}
 };
 
 float rangeAttenuation2[2][2] =
 {
     // Coords to redone
-    -2297.0f, -2250.0f,
-      237.0f,   280.0f
+    {-2297.0f, -2250.0f},
+      {237.0f,   280.0f}
 };
 
 // Zorlok - 62980
@@ -1616,7 +1616,7 @@ class spell_convert : public SpellScriptLoader
                             itr = ++next;
                             if (itr == playerList.end())
                                 itr = playerList.begin();
-                        }   
+                        }
                     }
                 }
             }

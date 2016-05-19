@@ -630,7 +630,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
-        std::string l_Line; 
+        std::string l_Line;
         l_Line.assign(buf);
 
         // skip empty strings

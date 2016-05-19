@@ -20,7 +20,7 @@ enum eNerzulTalks
     TalkSpell02,   ///< A kindeling of bones and shadows.. army of the dead.. ARISE! [43689]
     TalkSpell03,   ///< Into the ABYSS! [43690]
     TalkSpell04    ///< Feel the void, cold embrace.. [43691]
-}; 
+};
 
 enum eNerzulCreatures
 {
@@ -107,7 +107,7 @@ public:
         InstanceScript* m_Instance;
 
         void Reset() override
-        {                 
+        {
             _Reset();
             m_Y = 4.538f;
             m_X = 10.375f;
@@ -197,8 +197,8 @@ public:
                         Talk(eNerzulTalks::TalkSpell01);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                        me->CastSpell(l_Target, eNerzulSpells::SpellMalevolance);             
-                     }      
+                        me->CastSpell(l_Target, eNerzulSpells::SpellMalevolance);
+                     }
                     events.ScheduleEvent(eNerzulEvents::EventMalevolance, 15 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eNerzulEvents::EventOmenOfDeath:
@@ -222,7 +222,7 @@ public:
                                 if (Creature* l_RitualOfBones = me->SummonCreature(eNerzulCreatures::CreatureRitualOfBones, g_PositionRituaOfSoulInitialRight.GetPositionX() + (m_X * l_I),
                                     g_PositionRituaOfSoulInitialRight.GetPositionY() + (m_Y * l_I), g_PositionRituaOfSoulInitialRight.GetPositionZ(),
                                     g_PositionRituaOfSoulInitialRight.GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 40 * TimeConstants::IN_MILLISECONDS))
-                                {                                
+                                {
                                     float l_X = l_RitualOfBones->m_positionX + 65 * cos(l_RitualOfBones->m_orientation);
                                     float l_Y = l_RitualOfBones->m_positionY + 65 * sin(l_RitualOfBones->m_orientation);
 
@@ -473,11 +473,11 @@ public:
             m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
             me->SetSpeed(UnitMoveType::MOVE_RUN, 0.5f);
             me->DespawnOrUnsummon(18 * TimeConstants::IN_MILLISECONDS);
-            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FORWARD); 
+            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FORWARD);
             me->CastSpell(me, eRitualOfBonesSpells::SpellRitualOfBonesVisual);
             me->AddAura(eRitualOfBonesSpells::SpellRitaulOfBonesNpcVisual, me);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FORCE_MOVEMENT);           
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FORCE_MOVEMENT);
         }
 
         void JustDied(Unit* /*p_Killer*/) override
@@ -572,12 +572,12 @@ public:
             {
                 if (Unit* l_Summoner = l_Tempo->ToTempSummon())
                     me->SetFacingTo(l_Summoner->GetOrientation());
-            }           
+            }
             me->setFaction(FriendlyFaction);
             me->setFaction(InvisibleDisplay);
             m_Diff = 2 * TimeConstants::IN_MILLISECONDS;
             me->DespawnOrUnsummon(4 * TimeConstants::IN_MILLISECONDS);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);      
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -621,7 +621,7 @@ public:
         {
             m_Instance = p_Creature->GetInstanceScript();
             m_HasOpened = false;
-        }   
+        }
 
         bool m_HasOpened;
         uint32 m_Counter;
@@ -631,7 +631,7 @@ public:
         {
             events.Reset();
             me->setFaction(FriendlyFaction);
-            me->SetDisplayId(InvisibleDisplay); 
+            me->SetDisplayId(InvisibleDisplay);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
@@ -733,7 +733,7 @@ public:
             me->AddAura(eNerzulVisualsSpells::SpellSoulVisual, me);
             me->AddAura(eNerzulVisualsSpells::SpellHandsVisual, me);
             m_TeleportPlayersDiff = 3 * TimeConstants::IN_MILLISECONDS;
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);          
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
 
         void DoAction(int32 const p_Action) override
@@ -952,7 +952,7 @@ public:
     }
 };
 
-/// Purple Beam - 179655 
+/// Purple Beam - 179655
 class shadowmoon_burial_grounds_nerzul_spell_purple_beam : public SpellScriptLoader
 {
 public:
@@ -1010,7 +1010,7 @@ public:
         shadowmoon_burial_grounds_gameobject_nerzul_doorAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
 
         bool m_Activated;
-        std::list<uint64> m_ListVoidSpawnsGuid;     
+        std::list<uint64> m_ListVoidSpawnsGuid;
 
         void Reset() override
         {
@@ -1063,9 +1063,9 @@ void AddSC_boss_nerzul()
     new shadowmoon_burial_grounds_nerzul_creature_ritual_of_bones();            ///< 76518
     new shadowmoon_burial_grounds_nerzul_creature_darkness();                   ///< 534556
     new shadowmoon_burial_grounds_nerzul_spell_omen_of_death();                 ///< 154350
-    new shadowmoon_burial_grounds_nerzul_spell_maleovlence();                   ///< 154442 
+    new shadowmoon_burial_grounds_nerzul_spell_maleovlence();                   ///< 154442
     new shadowmoon_burial_grounds_nerzul_spell_omen_of_death_damage();          ///< 154353
-    new shadowmoon_burial_grounds_nerzul_spell_purple_beam();                   ///< 179655 
+    new shadowmoon_burial_grounds_nerzul_spell_purple_beam();                   ///< 179655
     new shadowmoon_burial_grounds_gameobject_nerzul_door();                     ///< 233920
 }
 #endif

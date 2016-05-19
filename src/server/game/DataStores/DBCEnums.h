@@ -162,7 +162,7 @@ enum DifficultyFlags
 
 enum SpawnMask
 {
-    SpawnMaskContinent          = (1 << Difficulty::DifficultyNone), 
+    SpawnMaskContinent          = (1 << Difficulty::DifficultyNone),
     SpawnMaskDungeonNormal      = (1 << Difficulty::DifficultyNormal),
     SpawnMaskDungeonHeroic      = (1 << Difficulty::DifficultyHeroic),
     SpawnMaskRaid10Normal       = (1 << Difficulty::Difficulty10N ),

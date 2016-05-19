@@ -830,7 +830,7 @@ public:
                                 bossGUID[i] = boss->GetGUID();
                                 boss->SetTarget(stalkerGUID);
                                 //we force faction due to interfaction
-                                boss->setFaction(16); 
+                                boss->setFaction(16);
                                 // Save current boss entry to inst for achievement check
                                 instance->SetData64(DATA_GRAND_CHAMPION_GUID, boss->GetGUID());
                                 instance->SetData(DATA_GRAND_CHAMPION_ENTRY, boss->GetEntry());

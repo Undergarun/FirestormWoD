@@ -767,9 +767,9 @@ void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector
             l_StatsBonus.push_back(ItemBonus::Stats::Indestructible);
 
         if (roll_chance_f(ItemBonus::Chances::Stats) && !p_OnlyDifficulty)
-        { 
+        {
             /// Could be a good thing to improve performance to declare one random generator somewhere and always use the same instead of declare it new one for each std::shuffle call
-            /// Note for developers : std::random_shuffle is c based and will be removed soon (c++x14), so it's a good tips to always use std::shuffle instead 
+            /// Note for developers : std::random_shuffle is c based and will be removed soon (c++x14), so it's a good tips to always use std::shuffle instead
             std::random_device l_RandomDevice;
             std::mt19937 l_RandomGenerator(l_RandomDevice());
             std::shuffle(l_StatsBonus.begin(), l_StatsBonus.end(), l_RandomGenerator);

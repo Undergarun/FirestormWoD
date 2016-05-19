@@ -1408,7 +1408,7 @@ struct WorldEffectEntry
     int QuestFeedbackEffectID;                              //
     int PlayerConditionID;                                  //
     int CombatConditionID;                                  //
-    int WhenToDisplay;                                      // 
+    int WhenToDisplay;                                      //
 };
 
 struct WorldMapAreaEntry

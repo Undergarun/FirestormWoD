@@ -1050,7 +1050,7 @@ class spell_pal_divine_shield: public SpellScriptLoader
                         return SPELL_FAILED_TARGET_AURASTATE;
 
                     /// Divine Shield can be casted even in Cyclone
-                    /// To prevent hacks with MiscValues on this aura effect SPELL_AURA_SCHOOL_IMMUNITY - let's remove cyclone here 
+                    /// To prevent hacks with MiscValues on this aura effect SPELL_AURA_SCHOOL_IMMUNITY - let's remove cyclone here
                     if (l_Caster->HasAura(eSpells::Cyclone))
                         l_Caster->RemoveAura(eSpells::Cyclone);
 
@@ -2422,7 +2422,7 @@ public:
             || (p_Player->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT) && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_LIGHT)->GetCaster()->ToPlayer() != nullptr && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_LIGHT)->GetCaster()->ToPlayer()->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
             || p_Player->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT)) && p_Player->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT_PROC) == false)
             if (const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
-            { 
+            {
                 // When you or your Beacon of Light target drop below 30 % health
                 if (((p_Value * 100) / p_Player->GetMaxHealth()) < (uint32)l_SpellInfo->Effects[EFFECT_0].BasePoints)
                 {

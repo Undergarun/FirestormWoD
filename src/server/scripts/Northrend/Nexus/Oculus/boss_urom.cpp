@@ -94,7 +94,7 @@ class boss_urom : public CreatureScript
                 std::random_shuffle(group, group + 3);
             }
 
-            void Reset() 
+            void Reset()
             {
                 me->CastSpell(me, SPELL_EVOCATE);
 
@@ -114,14 +114,14 @@ class boss_urom : public CreatureScript
                 timeBombTimer = urand(20000, 25000);
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
 
                 StartAttack();
             }
 
-            void AttackStart(Unit* who) 
+            void AttackStart(Unit* who)
             {
                 if (!who)
                     return;
@@ -178,7 +178,7 @@ class boss_urom : public CreatureScript
                 ++platform;
             }
 
-            void KilledUnit(Unit* who) 
+            void KilledUnit(Unit* who)
             {
                 if (who->IsPlayer())
                     Talk(SAY_PLAYER_KILL);
@@ -263,7 +263,7 @@ class boss_urom : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) 
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -277,7 +277,7 @@ class boss_urom : public CreatureScript
                 me->DeleteThreatList();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) 
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo)
             {
                 switch (spellInfo->Id)
                 {
@@ -324,7 +324,7 @@ class boss_urom : public CreatureScript
             uint32 timeBombTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const 
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_uromAI (creature);
         }

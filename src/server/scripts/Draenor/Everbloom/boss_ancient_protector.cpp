@@ -731,7 +731,7 @@ public:
     }
 };
 
-/// Rending Charge - 164641 
+/// Rending Charge - 164641
 class the_everbloom_ancient_protectors_spell_rending_charge : public SpellScriptLoader
 {
 public:
@@ -767,7 +767,7 @@ public:
     }
 };
 
-/// Rapid Tides - 168105 
+/// Rapid Tides - 168105
 class the_everbloom_ancient_protectors_spell_rapid_tides : public SpellScriptLoader
 {
 public:

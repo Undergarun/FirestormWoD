@@ -2237,7 +2237,7 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
         return;
     }
 
-    m_CompletedAchievementsLock.acquire();        
+    m_CompletedAchievementsLock.acquire();
     CompletedAchievementData& l_Data = m_completedAchievements[p_Achievement->ID];
     l_Data.completedByThisCharacter = true;
     l_Data.date = time(NULL);
@@ -2533,7 +2533,7 @@ bool AchievementMgr<Player>::HasAchieved(uint32 achievementId) const
     {
         m_CompletedAchievementsLock.release();
         return false;
-    } 
+    }
     m_CompletedAchievementsLock.release();
 
     return (*itr).second.completedByThisCharacter;

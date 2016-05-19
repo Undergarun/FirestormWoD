@@ -65,7 +65,7 @@ void WorldSession::HandleSetSpecialization(WorldPacket& p_Packet)
 
 void WorldSession::HandleLearnTalents(WorldPacket& p_RecvPacket)
 {
-    uint32 l_TalentCount = 0; 
+    uint32 l_TalentCount = 0;
     
     p_RecvPacket >> l_TalentCount;
 

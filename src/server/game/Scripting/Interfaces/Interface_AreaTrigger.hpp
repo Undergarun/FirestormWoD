@@ -23,7 +23,7 @@ class AreaTriggerScript : public ScriptObjectImpl<true>
     public:
         /// Called when the area trigger is activated by a player.
         /// @p_Player  : Player who trigger this area trigger
-        /// @p_Trigger : Area Trigger 
+        /// @p_Trigger : Area Trigger
         virtual bool OnTrigger(Player* p_Player, AreaTriggerEntry const* p_Trigger)
         {
             UNUSED(p_Player);
@@ -87,7 +87,7 @@ class AreaTriggerEntityScript : public ScriptObjectImpl<true>
         /// Proc when AreaTrigger is updated.
         /// @p_AreaTrigger : AreaTrigger instance
         /// @p_Time        : Diff since last update
-        virtual void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) 
+        virtual void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
             UNUSED(p_AreaTrigger);
             UNUSED(p_Time);
@@ -96,7 +96,7 @@ class AreaTriggerEntityScript : public ScriptObjectImpl<true>
         /// Proc when AreaTrigger is removed.
         /// @p_AreaTrigger : AreaTrigger instance
         /// @p_Time        : Diff since last update
-        virtual void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) 
+        virtual void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
             UNUSED(p_AreaTrigger);
             UNUSED(p_Time);

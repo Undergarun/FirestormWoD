@@ -448,7 +448,7 @@ class boss_unsok : public CreatureScript
                                             canCast = true;
 
                                     ++itr;
-                                }   
+                                }
                             }
 
                             if (canCast)

@@ -627,7 +627,7 @@ class boss_the_lich_king : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->IsPlayer() && !me->IsInEvadeMode() && !events.IsInPhase(PHASE_OUTRO)) 
+                if (victim->IsPlayer() && !me->IsInEvadeMode() && !events.IsInPhase(PHASE_OUTRO))
                     Talk(SAY_LK_KILL);
             }
 

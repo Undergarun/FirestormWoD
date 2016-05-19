@@ -92,7 +92,7 @@ enum eShadowmoonBurialGroundsCreatures
     CreatureCrypts                  = 75977,
     CreatureDisturbedSoul           = 76400,
     CreatureNerzulVisual            = 79497,
-    CreatureWorldTriggerAltar       = 83816, 
+    CreatureWorldTriggerAltar       = 83816,
     CreatureWorldTriggerSadanaRp    = 838166,
     CreatureWeepingSpirit           = 89003,
     CreatureBonemawMouth            = 81881,
@@ -222,12 +222,12 @@ enum eShadowmoonBurialGroundsActions
 
 enum eShadowmoonBurialGroundsAchivement
 {
-    /// Heroic: 
+    /// Heroic:
     AchievementShadowmoonBurialGroundsHeroic = 9054,
     AchievementIckyIchors                    = 9025,
     AchievementSoulsOfTheLosts               = 9026,
     AchievementWhatsYourSign                 = 9018,
-    /// Normal: 
+    /// Normal:
     AchievementShadowmonBurialGroundsNormal  = 9041
 };
 

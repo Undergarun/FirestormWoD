@@ -160,7 +160,7 @@ class instance_auchindon : public InstanceMapScript
                 {
                     case eAuchindonObjects::GameobjectHolyBarrier:
                         m_HolyBarrierKathaarObjectGuid = go->GetGUID();
-                            break;          
+                            break;
                     case eAuchindonObjects::GameobjectAuchindonWindow:
                         m_WindowGuid = go->GetGUID();
                             break;

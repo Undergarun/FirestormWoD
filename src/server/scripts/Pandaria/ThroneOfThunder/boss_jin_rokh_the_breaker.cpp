@@ -128,7 +128,7 @@ enum eDatas
     DATA_PHASE
 };
 
-Position const conductiveWatersPos[4] = 
+Position const conductiveWatersPos[4] =
 {
     { 5918.442f, 6290.155f, 124.0338f, 0.0f }, // NW
     { 5864.987f, 6290.292f, 124.0336f, 0.0f }, // SW

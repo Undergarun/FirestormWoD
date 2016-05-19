@@ -202,9 +202,9 @@ class boss_murozond : public CreatureScript
                 if (instance)
                 {
                     // Achievement
-                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_MUROZOND, 0, 0, me); 
+                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_MUROZOND, 0, 0, me);
                     
-                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_KILL_MUROZOND, me); 
+                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_KILL_MUROZOND, me);
                 
                     if (GameObject* pGo = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_HOURGLASS)))
                         pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
@@ -364,7 +364,7 @@ class boss_murozond : public CreatureScript
                             pPlayer->CastSpell(pPlayer, SPELL_BLESSING_OF_BRONZE_DRAGONS, true);
                         }
             }
-        };   
+        };
 };
 
 class npc_murozond_mirror_image : public CreatureScript
@@ -379,7 +379,7 @@ class npc_murozond_mirror_image : public CreatureScript
 
         struct npc_murozond_mirror_imageAI : public Scripted_NoMovementAI
         {
-            npc_murozond_mirror_imageAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_murozond_mirror_imageAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_PASSIVE);

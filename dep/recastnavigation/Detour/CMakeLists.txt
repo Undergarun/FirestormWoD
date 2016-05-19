@@ -5,12 +5,12 @@
 #
 
 set(Detour_STAT_SRCS
-    Source/DetourAlloc.cpp 
-    Source/DetourCommon.cpp 
-    Source/DetourNavMesh.cpp 
-    Source/DetourNavMeshBuilder.cpp 
-    Source/DetourNavMeshQuery.cpp 
-    Source/DetourNode.cpp 
+    Source/DetourAlloc.cpp
+    Source/DetourCommon.cpp
+    Source/DetourNavMesh.cpp
+    Source/DetourNavMeshBuilder.cpp
+    Source/DetourNavMeshQuery.cpp
+    Source/DetourNode.cpp
 )
 include_directories(Include)
 

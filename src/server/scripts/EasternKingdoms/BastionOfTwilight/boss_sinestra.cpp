@@ -153,7 +153,7 @@ enum Others
     ACTION_END_EGG
 };
 
-const Position addsPos[16] = 
+const Position addsPos[16] =
 {
     {-1007.830f, -807.280f, 438.600f, 0.870f},  // 0 Calen
 
@@ -768,7 +768,7 @@ class npc_sinestra_twilight_whelp : public CreatureScript
                         case EVENT_SUMMON_ESSENCE:
                             if (Creature* pSinestra = me->FindNearestCreature(NPC_SINESTRA, 200.0f))
                                 pSinestra->SummonCreature(NPC_TWILIGHT_ESSENCE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                            break; 
+                            break;
                         case EVENT_RESURRECT:
                             me->SetReactState(REACT_AGGRESSIVE);
                             events.ScheduleEvent(EVENT_TWILIGHT_SPIT, urand(7000, 15000));
@@ -950,7 +950,7 @@ class npc_sinestra_shadow_orb : public CreatureScript
                                 me->DespawnOrUnsummon();
                             break;
                         case EVENT_START_MOVE:
-                            DoCast(me, SPELL_TWILIGHT_PULSE, true);                                
+                            DoCast(me, SPELL_TWILIGHT_PULSE, true);
                             break;
                     }
                 }
@@ -1016,7 +1016,7 @@ class npc_sinestra_twilight_spitecaller : public CreatureScript{
             return new npc_sinestra_twilight_spitecallerAI(pCreature);
         }
 
-        struct npc_sinestra_twilight_spitecallerAI : public ScriptedAI 
+        struct npc_sinestra_twilight_spitecallerAI : public ScriptedAI
         {
             npc_sinestra_twilight_spitecallerAI(Creature * pCreature) : ScriptedAI(pCreature)
             {
@@ -1070,7 +1070,7 @@ class npc_sinestra_twilight_drake : public CreatureScript{
             return new npc_sinestra_twilight_drakeAI(pCreature);
         }
 
-        struct npc_sinestra_twilight_drakeAI : public ScriptedAI 
+        struct npc_sinestra_twilight_drakeAI : public ScriptedAI
         {
             npc_sinestra_twilight_drakeAI(Creature * pCreature) : ScriptedAI(pCreature)
             {
@@ -1154,7 +1154,7 @@ class spell_sinestra_wrack: public SpellScriptLoader
 
                 std::list<Player*> targets;
                 JadeCore::AnyPlayerInObjectRangeCheck checker(GetTarget(), 100.0f, true);
-                JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(GetTarget(), targets, checker); 
+                JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(GetTarget(), targets, checker);
                 GetTarget()->VisitNearbyWorldObject(100.0f, searcher);
                 targets.sort(JadeCore::ObjectDistanceOrderPred(GetTarget()));
                 uint8 count = 0;
@@ -1172,7 +1172,7 @@ class spell_sinestra_wrack: public SpellScriptLoader
                         {
                             //aur->SetMaxDuration(GetDuration());
                             aur->SetDuration(GetDuration());
-                        } 
+                        }
                     }
             }
 

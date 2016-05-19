@@ -189,7 +189,7 @@ void WorldSession::HandleLfgListSearch(WorldPacket& p_RecvData)
     for (uint32 l_I = 0; l_I < l_UnkGuidLoop; l_I++)
         p_RecvData.readPackGUID(l_GUIDs);
 
-    /// Not used nor implemented    
+    /// Not used nor implemented
     for (uint32 l_I = 0; l_I < l_BlacklistCount; l_I++)
     {
         uint32 l_ActivityId, l_Reason;
@@ -304,7 +304,7 @@ void WorldSession::SendLfgListApplyForGroupResult(LFGListEntry const* p_LFGEntry
     WorldPacket l_Packet(SMSG_LFG_LIST_APPLY_FOR_GROUP_RESULT, 0x200);
     BuildLfgListApplicationRideTicket(&l_Packet, p_Application);
     BuildLfgListRideTicket(&l_Packet, p_LFGEntry);
-    BuildLfgListEntryInfo(&l_Packet, p_LFGEntry); 
+    BuildLfgListEntryInfo(&l_Packet, p_LFGEntry);
     l_Packet << uint32(p_Application->GetRemainingTimeoutTime());
     l_Packet << uint8(6);   ///< Seems to be always 6
     l_Packet << uint8(p_Application->m_RoleMask);
@@ -356,7 +356,7 @@ void WorldSession::BuildLfgListApplicantListUpdate(WorldPacket* p_Data, LFGListE
         p_Data->WriteBits(l_Applicant->m_Comment.size(), 8);
         p_Data->FlushBits();
 
-        p_Data->WriteString(l_Applicant->m_Comment);    
+        p_Data->WriteString(l_Applicant->m_Comment);
     }
 }
 

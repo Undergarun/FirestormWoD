@@ -160,7 +160,7 @@ class boss_foereaper5000 : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 Talk(SAY_AGGRO);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
@@ -190,7 +190,7 @@ class boss_foereaper5000 : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
-                Talk(SAY_DEATH); 
+                Talk(SAY_DEATH);
             }
         };
 };

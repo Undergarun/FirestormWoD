@@ -39,7 +39,7 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
-    }    
+    }
 
     class npc_GarbraFizzwonk : public CreatureScript
     {

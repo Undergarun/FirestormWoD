@@ -1530,7 +1530,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     }
                     isPrepared = true;
                 }
-                else   
+                else
                 {
                     sMapMgr->LoadTransportForPlayers(player);
                 }*/

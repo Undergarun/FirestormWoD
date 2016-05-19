@@ -46,7 +46,7 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 
 void WorldSession::HandlePetAction(WorldPacket & p_RecvPacket)
 {
-    uint64       l_PetGUID;    
+    uint64       l_PetGUID;
     uint64       l_TargetGUID;
     G3D::Vector3 l_ActionPosition;
     uint32       l_Action;

@@ -37,7 +37,7 @@ enum Spells
     SPELL_BLOODVENOM_DUMMY          = 97110,
     SPELL_BLOODVENOM_AURA           = 97099,
     SPELL_VENOM_WITHDRAWAL          = 96653,
-    SPELL_VENOMOUS_EFFUSION         = 96678, 
+    SPELL_VENOMOUS_EFFUSION         = 96678,
     SPELL_VENOMOUS_EFFUSION_SUMMON  = 96680,
     SPELL_VENOMOUS_EFFUSION_AURA    = 96681,
     SPELL_VENOMOUS_EFFUSION_DUMMY   = 96534,
@@ -78,7 +78,7 @@ enum Points
 const Position downPos = {-12000.54f, -1685.88f, 32.28f, 0.68f};
 const Position upPos = {-12020.12f, -1699.96f, 39.53f, 0.60f};
 
-const Position mazeleftPos[18] = 
+const Position mazeleftPos[18] =
 {
     {-12003.12f, -1700.04f, 32.29f, 0.0f},
     {-11999.17f, -1705.85f, 32.29f, 0.0f},
@@ -268,7 +268,7 @@ class npc_venoxis_bloodvenom : public CreatureScript
 
         struct npc_venoxis_bloodvenomAI : public Scripted_NoMovementAI
         {
-            npc_venoxis_bloodvenomAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_venoxis_bloodvenomAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetSpeed(MOVE_RUN, 0.3f);
                 me->SetReactState(REACT_PASSIVE);
@@ -328,7 +328,7 @@ class npc_venoxis_venomous_effusion_stalker : public CreatureScript
 
         struct npc_venoxis_venomous_effusion_stalkerAI : public Scripted_NoMovementAI
         {
-            npc_venoxis_venomous_effusion_stalkerAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_venoxis_venomous_effusion_stalkerAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetSpeed(MOVE_RUN, 0.3f);
                 me->SetReactState(REACT_PASSIVE);
@@ -399,7 +399,7 @@ class npc_venoxis_venomous_effusion : public CreatureScript
 
         struct npc_venoxis_venomous_effusionAI : public Scripted_NoMovementAI
         {
-            npc_venoxis_venomous_effusionAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_venoxis_venomous_effusionAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
                 pInstance = pCreature->GetInstanceScript();
@@ -433,7 +433,7 @@ class npc_venoxis_venoxis_pool_of_acid_tears : public CreatureScript
 
         struct npc_venoxis_venoxis_pool_of_acid_tearsAI : public Scripted_NoMovementAI
         {
-            npc_venoxis_venoxis_pool_of_acid_tearsAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_venoxis_venoxis_pool_of_acid_tearsAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
                 DoCast(me, SPELL_POOL_OF_ACID_TEARS_AURA, true);

@@ -9,7 +9,7 @@
 #include "ScriptPCH.h"
 #include "zulgurub.h"
 
-static const DoorData doordata[] = 
+static const DoorData doordata[] =
 {
     {GO_VENOXIS_EXIT,           DATA_VENOXIS,            DOOR_TYPE_ROOM,     BOUNDARY_NONE},
     {GO_MANDOKIR_EXIT1,         DATA_MANDOKIR,           DOOR_TYPE_ROOM,     BOUNDARY_NONE},
@@ -210,7 +210,7 @@ class instance_zulgurub : public InstanceMapScript
              uint64 renatakiGUID;
              uint64 wushoolayGUID;
              uint64 grilekGUID;
-             uint32 uiBosses; 
+             uint32 uiBosses;
         };
 };
 

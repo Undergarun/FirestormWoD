@@ -13,7 +13,7 @@
 #include "CreatureAI.h"
 #include "Common.h"
 
-namespace MS { namespace AI 
+namespace MS { namespace AI
 {
 
     struct CosmeticAI : public CreatureAI

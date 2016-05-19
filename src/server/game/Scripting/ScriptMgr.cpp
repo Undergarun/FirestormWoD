@@ -461,7 +461,7 @@ bool ScriptMgr::IsScriptScheduled() const
 //////////////////////////////////////////////////////////////////////////
 /// Called when the area trigger is activated by a player.
 /// @p_Player  : Player who trigger this area trigger
-/// @p_Trigger : Area Trigger 
+/// @p_Trigger : Area Trigger
 bool ScriptMgr::OnAreaTrigger(Player* p_Player, const AreaTriggerEntry* p_Trigger)
 {
     ASSERT(p_Player);
@@ -1620,7 +1620,7 @@ void ScriptMgr::OnColorCodeCalculation(XPColorChar & p_Color, uint8 p_PlayerLeve
 }
 
 /// Called after calculating zero difference.
-/// @p_Diff        : Level difference 
+/// @p_Diff        : Level difference
 /// @p_PlayerLevel : Player level
 void ScriptMgr::OnZeroDifferenceCalculation(uint8 & p_Diff, uint8 p_PlayerLevel)
 {

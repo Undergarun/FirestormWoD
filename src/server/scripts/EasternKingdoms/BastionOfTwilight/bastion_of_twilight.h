@@ -43,7 +43,7 @@ enum CreatureIds
     NPC_MONSTROSITY         = 43735,
     NPC_CHOGALL             = 43324,
     NPC_SINESTRA            = 45213,
-    NPC_CHOGALL_DLG         = 46965,    
+    NPC_CHOGALL_DLG         = 46965
 };
 
 enum GameObjects
@@ -65,12 +65,12 @@ enum ActionsDlg
 {
     ACTION_AT_ENTRANCE                  = 1, // 6341
     ACTION_AT_HALFUS_START              = 2, // 6437
-    ACTION_AT_HALFUS_END                = 3, 
+    ACTION_AT_HALFUS_END                = 3,
     ACTION_AT_VALIONA_THERALION_START   = 4, // 6442
-    ACTION_AT_VALIONA_THERALION_END     = 5, 
+    ACTION_AT_VALIONA_THERALION_END     = 5,
     ACTION_AT_COUNCIL_1                 = 6, // 6625
     ACTION_AT_COUNCIL_2                 = 7, // 6626
-    ACTION_AT_COUNCIL_3                 = 8, // 6627 
+    ACTION_AT_COUNCIL_3                 = 8, // 6627
     ACTION_AT_CHOGALL                   = 9, // 6444
 };
 

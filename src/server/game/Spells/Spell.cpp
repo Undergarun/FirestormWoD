@@ -4095,7 +4095,7 @@ void Spell::cast(bool skipCheck)
             m_caster->SetSoulSwapRefreshDuration(true);
     }
 
-    // Kil'Jaeden's Cunning - 10% speed less for each cast while moving (up to 2 charges) ///< @todo Kil'Jaeden's Cunning  is removed 
+    // Kil'Jaeden's Cunning - 10% speed less for each cast while moving (up to 2 charges) ///< @todo Kil'Jaeden's Cunning  is removed
     if (m_caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && m_caster->IsMoving() && !m_caster->HasAura(119048) && m_spellInfo->CalcCastTime(m_caster) > 0)
         m_caster->CastSpell(m_caster, 119050, true);
 
@@ -6040,11 +6040,6 @@ void Spell::HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_
     uint8 l_Effect = m_spellInfo->Effects[p_I].Effect;
     damage = CalculateDamage(p_I, unitTarget);
 
-    /// Prevent recalculating base damage for every posible target in case of AoE spells 
-    /// @TODO_SOVAK: Rewrite this shit! :P
-    /*if (p_Mode == SPELL_EFFECT_HANDLE_HIT || p_Mode == SPELL_EFFECT_HANDLE_LAUNCH)
-        damage = CalculateDamage(p_I, unitTarget, p_Mode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET);*/
-
     bool l_PreventDefault = CallScriptEffectHandlers((SpellEffIndex)p_I, p_Mode);
     if (!l_PreventDefault && l_Effect < TOTAL_SPELL_EFFECTS)
         (this->*SpellEffects[l_Effect])((SpellEffIndex)p_I);
@@ -6644,7 +6639,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
                 if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
-                    return SPELL_FAILED_OUT_OF_RANGE; 
+                    return SPELL_FAILED_OUT_OF_RANGE;
                 else if (!result)
                     return SPELL_FAILED_NOPATH;
 
@@ -9154,7 +9149,7 @@ void Spell::PrepareTriggersExecutedOnHit()
         {
              // Permafrost
              if (m_spellInfo->SpellFamilyFlags[1] & 0x00001000 ||  m_spellInfo->SpellFamilyFlags[0] & 0x00100220)
-                 m_preCastSpell = 68391; ///< @todo SpellID removed 
+                 m_preCastSpell = 68391; ///< @todo SpellID removed
              break;
         }
     }

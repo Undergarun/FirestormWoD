@@ -328,7 +328,7 @@ struct Loot
     std::vector<LootItem>            QuestItems;
 
     LootType loot_type;                                     ///< required for achievement system
-    uint64 source;                                          ///< Source guid of loot (gameobject, creature) 
+    uint64 source;                                          ///< Source guid of loot (gameobject, creature)
     LootType Type;                                          ///< required for achievement system
     uint64 RoundRobinPlayer;                                ///< GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     uint32 MaxLinkedSlot;

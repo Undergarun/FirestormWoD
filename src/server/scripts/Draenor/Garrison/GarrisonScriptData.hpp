@@ -317,7 +317,7 @@ namespace MS { namespace Garrison
 
         static uint32 const g_ThirdLevelInvention = GobWorkshopWorkorder;
         
-        static std::map<uint32, uint32> g_GobItemRelations = 
+        static std::map<uint32, uint32> g_GobItemRelations =
         {
             /// Level 1
             { InventionsGobIDs::GobStickyGrenades,                   InventionItemIDs::ItemStickyGrenades },
@@ -1216,7 +1216,7 @@ namespace MS { namespace Garrison
         };
     }
 
-    namespace HordePeonData 
+    namespace HordePeonData
     {
         enum
         {

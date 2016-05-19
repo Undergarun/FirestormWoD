@@ -15,7 +15,7 @@ enum Spells
     SPELL_ENFEEBLING_BLOW            = 75789,
     SPELL_ENFEEBLING_BLOW_H            = 91091,
     SPELL_BINDING_SHADOWS            = 79466,
-    SPELL_BINDING_SHADOWS_H            = 91081, 
+    SPELL_BINDING_SHADOWS_H            = 91081,
     SPELL_BINDING_SHADOWS_AURA        = 75861,
     SPELL_BINDING_SHADOWS_AURA_H    = 91079,
     SPELL_SIPHON_ESSENSE            = 75755,
@@ -73,7 +73,7 @@ enum Points
 
 const Position erudaxportalPos = {-641.515f, -827.8f, 235.5f, 3.069f};
 
-const Position shadowgalePos[3] = 
+const Position shadowgalePos[3] =
 {
     {-745.07f, -845.16f, 232.41f, 0.0f},
     {-724.05f, -823.47f, 232.41f, 0.0f},
@@ -185,7 +185,7 @@ class boss_erudax : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                Talk(SAY_KILL);                
+                Talk(SAY_KILL);
             }
 
             void UpdateAI(const uint32 diff)
@@ -214,7 +214,7 @@ class boss_erudax : public CreatureScript
                             ShadowGaleTrigger->CastSpell(ShadowGaleTrigger, SPELL_SHADOW_GALE_SPEED_TRIGGER, false);
                         //132 error
                         //DoCast(me, SPELL_SHADOW_GALE);
-                        events.ScheduleEvent(EVENT_ADDS, 16500); 
+                        events.ScheduleEvent(EVENT_ADDS, 16500);
                         break;
                     case EVENT_REMOVE_TWILIGHT_PORTAL:
                         if (FacelessPortalStalker)

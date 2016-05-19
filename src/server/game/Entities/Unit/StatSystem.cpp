@@ -793,23 +793,9 @@ void Player::UpdateParryPercentage()
 
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
             l_Total = l_Total > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : l_Total;
-        /// Parry from strength, just for paladin/dk/warrior        
+        /// Parry from strength, just for paladin/dk/warrior
         /*1% parry before diminishing returns = 176.3760684 strength
         1 strength gives 1 / 176.3760684 = 0,0056697034301282*/
-       /* if (getClass() == CLASS_PALADIN || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR)
-            diminishing += (1.0f / 176.3760684f) / 100.0f) * GetTotalStatValue(STAT_STRENGTH, false); ///< Level 100 rating
-
-        // apply diminishing formula to diminishing parry chance
-        value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + (parryCap[pClass] * k_constant[pClass]));
-
-        /// Apply parry from pct of critical strike from gear
-        value += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING));
-
-        if (value < 0.0f)
-            value = 0.0f;
-
-        if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
-            value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : value;*/
     }
 
     SetStatFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE, l_Total);

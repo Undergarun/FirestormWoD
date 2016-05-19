@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "deadmines.h"
 
@@ -78,7 +86,7 @@ enum Events
     EVENT_MOVE          = 4
 };
 
-const uint32 ThrowFoodSpells[12] = 
+const uint32 ThrowFoodSpells[12] =
 {
     SPELL_THROW_FOOD_TARGETING_CORN,
     SPELL_THROW_FOOD_TARGETING_ROTTEN_CORN,
@@ -229,7 +237,7 @@ class npc_captain_cookie_cauldron : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void Reset() 
+            void Reset()
             {
                 DoCast(me, SPELL_CAULDRON_VISUAL, true);
                 DoCast(me, SPELL_CAULDRON_FIRE);
@@ -264,7 +272,7 @@ class npc_captain_cookie_good_food : public CreatureScript
 
         struct npc_captain_cookie_good_foodAI : public ScriptedAI
         {
-            npc_captain_cookie_good_foodAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_captain_cookie_good_foodAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 pInstance = pCreature->GetInstanceScript();
             }
@@ -315,7 +323,7 @@ class npc_captain_cookie_bad_food : public CreatureScript
 
         struct npc_captain_cookie_bad_foodAI : public ScriptedAI
         {
-            npc_captain_cookie_bad_foodAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_captain_cookie_bad_foodAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 pInstance = pCreature->GetInstanceScript();
             }

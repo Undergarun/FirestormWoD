@@ -135,7 +135,7 @@ MovementStatusElements PlayerMoveSequence[] =
 
     MSEFallTime,
     MSEFallVerticalSpeed,
-    MSEHasFallDirection, 
+    MSEHasFallDirection,
     MSEFlushBits,
     MSEFallCosAngle,
     MSEFallSinAngle,

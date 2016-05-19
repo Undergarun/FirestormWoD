@@ -4704,7 +4704,7 @@ class spell_gen_jards_peculiar_energy_source : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_jards_peculiar_energy_source_SpellScript);
 
-            enum eSpells 
+            enum eSpells
             {
                 SkyGolem                    = 139192,
                 RascalBot                   = 143714,
@@ -5774,7 +5774,7 @@ class spell_gen_pvp_trinket : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_pvp_trinket_SpellScript);
 
-            enum eSpells 
+            enum eSpells
             {
                 AllianceTinketVisual    = 97403,
                 HordeTinketVisual       = 97404

@@ -6,7 +6,7 @@ enum Yells
     SAY_AGGRO   = 0,
     SAY_DEATH   = 1,
     SAY_INTRO   = 2,
-    SAY_KILL    = 3,   
+    SAY_KILL    = 3,
     SAY_SPELL   = 4
 };
 
@@ -15,7 +15,7 @@ enum Spells
     SPELL_BLINK                 = 101812,
     SPELL_FLARECORE_MISSILE     = 101927,
     SPELL_UNSTABLE_FLARE        = 101980,
-    SPELL_TIME_EXPIRE_FLARE     = 101587, 
+    SPELL_TIME_EXPIRE_FLARE     = 101587,
     SPELL_CHECK_PLAYER_DIST     = 101588,
 
     SPELL_FROSTBOLT_VOLLEY      = 101810,
@@ -26,11 +26,11 @@ enum Spells
 
 enum Events
 {
-    EVENT_FLARECORE         = 1, 
-    EVENT_BLINK             = 2, 
-    EVENT_FROSTBOLT_VOLLEY  = 3, 
-    EVENT_PYROBLAST         = 4, 
-    EVENT_FROST_BLADES      = 5, 
+    EVENT_FLARECORE         = 1,
+    EVENT_BLINK             = 2,
+    EVENT_FROSTBOLT_VOLLEY  = 3,
+    EVENT_PYROBLAST         = 4,
+    EVENT_FROST_BLADES      = 5,
     EVENT_CHECK_PLAYER      = 6,
     EVENT_EXPLODE           = 7
 };
@@ -50,9 +50,6 @@ enum Others
 };
 
 uint32 FragmentsCount = 1;
-
-
-static const Position jainaPos = {3004.780029f, 515.729004f, 21.55f, 3.12f};
 
 class boss_echo_of_jaina : public CreatureScript
 {
@@ -300,7 +297,7 @@ class npc_echo_of_jaina_flarecore : public CreatureScript
 
         struct npc_echo_of_jaina_flarecoreAI : public Scripted_NoMovementAI
         {
-            npc_echo_of_jaina_flarecoreAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_echo_of_jaina_flarecoreAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
             }

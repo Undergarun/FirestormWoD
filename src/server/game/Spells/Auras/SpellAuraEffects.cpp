@@ -860,7 +860,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             switch (GetSpellInfo()->Id)
             {
-                case 1943:  ///< Rupture 
+                case 1943: ///< Rupture
                 {
                     m_canBeRecalculated = false;
 
@@ -7356,7 +7356,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             }
             // Custom MoP Script
             case 146739:// Corruption
-                caster->EnergizeBySpell(caster, 146739, caster->HasAura(157098) ? 5 : 4, POWER_DEMONIC_FURY); ///< With Enhanced Corruption gives 1 additional demonic fury 
+                caster->EnergizeBySpell(caster, 146739, caster->HasAura(157098) ? 5 : 4, POWER_DEMONIC_FURY); ///< With Enhanced Corruption gives 1 additional demonic fury
                 break;
             case 43093: case 31956: case 38801:  // Grievous Wound
             case 35321: case 38363: case 39215:  // Gushing Wound

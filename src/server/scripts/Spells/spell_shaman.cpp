@@ -1345,7 +1345,7 @@ class spell_sha_healing_stream: public SpellScriptLoader
                 {
                     p_Targets.sort(JadeCore::HealthPctOrderPred());
 
-                    if (l_Caster->HasAura(eSpells::RushingStreams)) ///< Your Healing Stream Totem now heals two targets 
+                    if (l_Caster->HasAura(eSpells::RushingStreams)) ///< Your Healing Stream Totem now heals two targets
                         p_Targets.resize(2);
                     else
                         p_Targets.resize(1);
@@ -1669,7 +1669,7 @@ class spell_sha_healing_rain_heal : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                /// Healing up to 6 allies 
+                /// Healing up to 6 allies
                 if (p_Targets.size() > 6)
                     JadeCore::RandomResizeList(p_Targets, 6);
             }

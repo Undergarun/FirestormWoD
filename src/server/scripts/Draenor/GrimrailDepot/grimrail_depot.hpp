@@ -27,7 +27,7 @@ enum eGrimrailDepotSpells
 {
     /// Assault Cannon: 79548
     SpellOverHeatedBlast               = 167589,
-    SpellReloadingUnknownEffect        = 160680, ///< Spell cast reloading, but no effect 
+    SpellReloadingUnknownEffect        = 160680, ///< Spell cast reloading, but no effect
     SpellSlagBlastProjectile           = 166565,
     SpellSlagBlastDotStackable         = 166570,
     SpellSlagBlastAreatrigger          = 166571,

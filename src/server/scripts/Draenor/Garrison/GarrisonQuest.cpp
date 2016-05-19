@@ -123,7 +123,7 @@ namespace MS { namespace Garrison
                 uint64 l_ItemGuid    = p_Item->GetGUID();
                 uint32 l_RewardCount = 1;
 
-                std::vector<uint32> l_Rewards = 
+                std::vector<uint32> l_Rewards =
                 {
                     118592,
                     119094,

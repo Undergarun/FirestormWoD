@@ -167,7 +167,7 @@ class npc_shadow_of_obsidius : public CreatureScript
 
         struct npc_shadow_of_obsidiusAI : public ScriptedAI
         {
-            npc_shadow_of_obsidiusAI(Creature* creature) : ScriptedAI(creature) 
+            npc_shadow_of_obsidiusAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -181,7 +181,7 @@ class npc_shadow_of_obsidius : public CreatureScript
             {
                 DoCast(me, SPELL_TWITCHY);
                 DoCast(me, SPELL_SHADOW_OF_OBSIDIUS);
-            }   
+            }
 
             void EnterCombat(Unit* /*p_Attacker*/)
             {
@@ -222,7 +222,7 @@ class npc_shadow_of_obsidius : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };           
+        };
 };
 
 #ifndef __clang_analyzer__

@@ -45,7 +45,7 @@ enum NPCs
     NPC_APOTHECARY_BAXTER   = 36565,
 
     GO_COURTYARD_DOOR       = 18895,
-    GO_SORCERER_DOOR        = 18972,  
+    GO_SORCERER_DOOR        = 18972,
     GO_ARUGAL_DOOR          = 18971
 };
 

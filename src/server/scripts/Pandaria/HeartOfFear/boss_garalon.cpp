@@ -483,7 +483,7 @@ public:
 
                     break;
                 }
-                default: 
+                default:
                     break;
             }
         }
@@ -1221,7 +1221,7 @@ public:
             if (Unit* target = GetHitUnit())
             {
                 if (Aura* aur = target->GetAura(SPELL_PUNGENCY))
-                    SetHitDamage(int32(GetHitDamage() * (1.0f + float(aur->GetStackAmount() / 10.0f))));       
+                    SetHitDamage(int32(GetHitDamage() * (1.0f + float(aur->GetStackAmount() / 10.0f))));
             }
         }
 
@@ -1263,7 +1263,7 @@ public:
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
-            if (!GetCaster() || !GetHitUnit()) 
+            if (!GetCaster() || !GetHitUnit())
                 return;
 
             GetCaster()->RemoveAurasDueToSpell(SPELL_PHEROMONES_AURA);

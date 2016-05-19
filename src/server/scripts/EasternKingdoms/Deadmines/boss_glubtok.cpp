@@ -99,7 +99,7 @@ class boss_glubtok : public CreatureScript
                     Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 stage = 0;
                 Talk(SAY_AGGRO);

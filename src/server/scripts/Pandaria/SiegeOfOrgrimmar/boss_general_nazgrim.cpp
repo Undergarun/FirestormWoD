@@ -129,10 +129,10 @@ class mob_orgrimmar_faithful : public CreatureScript
         mob_orgrimmar_faithful() : CreatureScript("mob_orgrimmar_faithful") { }
 
         struct mob_orgrimmar_faithfulAI: public ScriptedAI
-        { 
+        {
             mob_orgrimmar_faithfulAI(Creature* creature) :  ScriptedAI(creature)
-            { 
-                pInstance = creature->GetInstanceScript(); 
+            {
+                pInstance = creature->GetInstanceScript();
             }
 
             InstanceScript* pInstance;

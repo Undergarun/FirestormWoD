@@ -4542,7 +4542,7 @@ void AddSC_throne_of_thunder()
     new spell_judgement_of_the_loa();   ///< 139223
     new spell_waterspout();             ///< 140814
     new spell_drain_the_weak();         ///< 135103
-    new spell_drain_the_weak_damage();  ///< 135101   
+    new spell_drain_the_weak_damage();  ///< 135101
     new spell_sonic_call();             ///< 140600
     new spell_siphon_life();            ///< 140630
     new spell_luciferase();             ///< 134470

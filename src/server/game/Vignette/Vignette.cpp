@@ -11,7 +11,7 @@
 
 namespace Vignette
 {
-    Entity::Entity(VignetteEntry const* p_VignetteEntry, uint32 const p_MapId) 
+    Entity::Entity(VignetteEntry const* p_VignetteEntry, uint32 const p_MapId)
         : m_Map(p_MapId), m_VignetteEntry(p_VignetteEntry)
     {
 

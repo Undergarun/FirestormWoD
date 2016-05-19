@@ -564,7 +564,7 @@ class spell_mastery_icicles_periodic : public SpellScriptLoader
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (AuraEffect* l_Aura = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
-                    {                        
+                    {
                         // Maybe not the good target selection ...
                         if (Unit* l_Target = ObjectAccessor::FindUnit(l_Caster->GetIciclesTarget()))
                         {
@@ -770,8 +770,8 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
                 if (l_SpellInfo == nullptr)
                     return;
 
-                if (l_SpellInfo->Id != eSpells::CrusaderStrike && l_SpellInfo->Id != eSpells::HammeroftheRighteous 
-                    && l_SpellInfo->Id != eSpells::HammerofWrath && l_SpellInfo->Id != eSpells::TemplarsVerdict 
+                if (l_SpellInfo->Id != eSpells::CrusaderStrike && l_SpellInfo->Id != eSpells::HammeroftheRighteous
+                    && l_SpellInfo->Id != eSpells::HammerofWrath && l_SpellInfo->Id != eSpells::TemplarsVerdict
                     && l_SpellInfo->Id != eSpells::DivineStorm && l_SpellInfo->Id != eSpells::FinalVerdict &&
                     l_SpellInfo->Id != eSpells::EmpoweredHammerofWrath)
                     return;

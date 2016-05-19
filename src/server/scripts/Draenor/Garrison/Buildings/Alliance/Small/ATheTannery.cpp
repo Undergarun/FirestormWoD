@@ -39,7 +39,7 @@ namespace MS { namespace Garrison
         char ScriptName[] = "npc_AndersLongstitch_Garr";
 
         std::vector<RecipesConditions> Recipes
-        { 
+        {
             { 171260,     0 },
             { 171261,     0 },
             { 171262,     0 },

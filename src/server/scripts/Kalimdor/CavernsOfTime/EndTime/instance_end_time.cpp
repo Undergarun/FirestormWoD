@@ -179,7 +179,7 @@ class instance_end_time : public InstanceMapScript
                     case DATA_SECOND_ENCOUNTER: return second_encounter;
                     case DATA_TYRANDE_EVENT: return tyrande_event;
                     case DATA_JAINA_EVENT: return jaina_event;
-                    case DATA_FRAGMENTS: return uiFragmentsCollected; 
+                    case DATA_FRAGMENTS: return uiFragmentsCollected;
                     case DATA_NOZDORMU_1: return nozdormu_dialog[0];
                     case DATA_NOZDORMU_2: return nozdormu_dialog[1];
                     case DATA_NOZDORMU_3: return nozdormu_dialog[2];
@@ -246,8 +246,8 @@ class instance_end_time : public InstanceMapScript
                 std::string str_data;
 
                 std::ostringstream saveStream;
-                saveStream << "E T " << GetBossSaveData() 
-                    << first_echo  << ' ' << second_echo << ' ' 
+                saveStream << "E T " << GetBossSaveData()
+                    << first_echo  << ' ' << second_echo << ' '
                     << first_encounter << ' ' << second_encounter << ' '
                     << jaina_event << ' ' << tyrande_event << ' '
                     << nozdormu_dialog[0] << ' ' << nozdormu_dialog[1] << ' '

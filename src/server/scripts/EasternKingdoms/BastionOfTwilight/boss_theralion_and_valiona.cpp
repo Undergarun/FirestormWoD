@@ -53,8 +53,8 @@ enum Spells
     SPELL_TWILIGHT_FLAME_DMG_25_1    = 92868,
     SPELL_TWILIGHT_FLAME_DMG_10H_1    = 92869,
     SPELL_TWILIGHT_FLAME_DMG_25H_1    = 92870,
-    SPELL_TWILIGHT_FLAME_DMG_2        = 86228,  
-    SPELL_TWILIGHT_FLAME_DMG_25_2    = 92867,  
+    SPELL_TWILIGHT_FLAME_DMG_2        = 86228,
+    SPELL_TWILIGHT_FLAME_DMG_25_2    = 92867,
     SPELL_COSMETIC_TWILIGHT_BREATH    = 78954,
 
     //theralion
@@ -103,11 +103,11 @@ enum Spells
     SPELL_TWILIGHT_SHIFT_AURA_1                        = 86202,
     SPELL_TWILIGHT_SHIFT_AURA_25_1                    = 92889,
     SPELL_TWILIGHT_SHIFT_AURA_10H_1                    = 92890,
-    SPELL_TWILIGHT_SHIFT_AURA_25H_1                    = 92891, 
-    SPELL_TWILIGHT_SHIFT_AURA_2                        = 88436, 
-    SPELL_TWILIGHT_SHIFT_AURA_25_2                    = 92892, 
-    SPELL_TWILIGHT_SHIFT_AURA_10H_2                    = 92893, 
-    SPELL_TWILIGHT_SHIFT_AURA_25H_2                    = 92894, 
+    SPELL_TWILIGHT_SHIFT_AURA_25H_1                    = 92891,
+    SPELL_TWILIGHT_SHIFT_AURA_2                        = 88436,
+    SPELL_TWILIGHT_SHIFT_AURA_25_2                    = 92892,
+    SPELL_TWILIGHT_SHIFT_AURA_10H_2                    = 92893,
+    SPELL_TWILIGHT_SHIFT_AURA_25H_2                    = 92894,
     SPELL_COLLAPSING_TWILIGHT_PORTAL_VISUAL            = 86291,
     SPELL_UNSTABLE_TWILIGHT_VISUAL                    = 86302,
     SPELL_UNSTABLE_TWILIGHT_DMG                        = 86305,
@@ -140,13 +140,13 @@ enum Adds
     NPC_THERALION_FLIGHT_TARGET_STALKER     = 46364,
     NPC_CONVECTIVE_FLAMES                   = 46588,
     NPC_TWILIGHT_FLAMES                     = 40718,
-    NPC_UNSTABLE_TWILIGHT                   = 46304, 
+    NPC_UNSTABLE_TWILIGHT                   = 46304,
     NPC_COLLAPSING_TWILIGHT_PORTAL          = 46301,
     NPC_DEVOURING_FLAMES                    = 48798,
     NPC_TWILIGHT_SENTRY                     = 50008,
     NPC_TWILIGHT_RIFT                       = 50014,
-    NPC_VALIONA_STALKER                     = 46147, 
-    NPC_FLAME_BREATH_TARGET_STALKER         = 46296, 
+    NPC_VALIONA_STALKER                     = 46147,
+    NPC_FLAME_BREATH_TARGET_STALKER         = 46296,
 };
 
 enum Action
@@ -187,7 +187,7 @@ enum Events
     EVENT_DEEP_BREATH                    = 13,
     EVENT_VALIONA_ON                    = 14,
     EVENT_TWILIGHT_METEORITE            = 15,
-    EVENT_VALIONA_1                        = 16, 
+    EVENT_VALIONA_1                        = 16,
     EVENT_VALIONA_2                        = 17,
     EVENT_VALIONA_3                        = 18,
     EVENT_VALIONA_4                        = 19,
@@ -205,7 +205,7 @@ enum Events
 const Position valionatheralionlandPos = {-740.86f, -681.37f, 831.89f, 0.0f };
 const Position valionatheralionflightPos = {-740.86f, -681.37f, 861.89f, 0.0f };
 
-const Position valionadeepbreathPos[2][3] = 
+const Position valionadeepbreathPos[2][3] =
 {
     {
         {-760.49f, -770.87f, 866.68f, 6.17f},
@@ -219,7 +219,7 @@ const Position valionadeepbreathPos[2][3] =
     }
 };
 
-const Position valionatwilightflamePos[3][25] = 
+const Position valionatwilightflamePos[3][25] =
 {
     {
         {-759.53f, -603.89f, 836.68f, 0.0f},
@@ -304,7 +304,7 @@ const Position valionatwilightflamePos[3][25] =
     }
 };
 
-const Position unstabletwilightPos[10] = 
+const Position unstabletwilightPos[10] =
 {
     {-721.71f, -683.42f, 835.89f, 4.64f},
     {-720.54f, -664.70f, 835.89f, 4.64f},
@@ -621,11 +621,11 @@ class boss_theralion : public CreatureScript
                         DoCast(me, SPELL_DAZZLING_DESTRUCTION);
                         events.ScheduleEvent(EVENT_THERALION_ON, 6000);
                         break;
-                     case EVENT_THERALION_ON:      
+                     case EVENT_THERALION_ON:
                         me->AI()->DoAction(ACTION_THERALION_FLY_STOP);
                         break;
                     }
-                }            
+                }
                 DoMeleeAttackIfReady();
             }
         };
@@ -827,7 +827,7 @@ class boss_valiona : public CreatureScript
                         AttackStart(me->getVictim());
                         break;
                     case POINT_FLY:
-                        events.ScheduleEvent(EVENT_TWILIGHT_METEORITE, urand(6000, 8000)); 
+                        events.ScheduleEvent(EVENT_TWILIGHT_METEORITE, urand(6000, 8000));
                         events.ScheduleEvent(EVENT_DEEP_BREATH, 98000);
                         break;
                     case POINT_VALIONA_1:
@@ -955,7 +955,7 @@ class boss_valiona : public CreatureScript
                         break;
                     }
                 }
-                DoMeleeAttackIfReady();      
+                DoMeleeAttackIfReady();
             }
         };
 };
@@ -984,7 +984,7 @@ class npc_fabolous_flames : public CreatureScript
             }
 
             void Reset()
-            {                
+            {
             }
         };
 };
@@ -1289,7 +1289,7 @@ class npc_theralion_flight_target_stalker : public CreatureScript
             }
 
             void Reset()
-            {    
+            {
             }
         };
 };
@@ -1443,7 +1443,7 @@ class spell_theralion_dazzling_destruction: public SpellScriptLoader
                 if (!GetCaster() || !GetHitUnit() || !GetCaster()->GetAI())
                     return;
 
-                GetCaster()->GetAI()->DoAction(ACTION_DAZZLING_DESTRUCTION);                
+                GetCaster()->GetAI()->DoAction(ACTION_DAZZLING_DESTRUCTION);
             }
 
             void Register()

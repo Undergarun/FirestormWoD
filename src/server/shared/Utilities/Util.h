@@ -472,7 +472,7 @@ public:
             part[0] == right.part[0] &&
             part[1] == right.part[1] &&
             part[2] == right.part[2]
-        ); 
+        );
     }
 
     inline bool operator !=(const flag96 &right) const

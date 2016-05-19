@@ -67,7 +67,7 @@ enum Adds
 };
 
 enum Events
-{   
+{
     EVENT_ADDS_1                = 1,
     EVENT_ADDS_2                = 2,
     EVENT_ADDS_3                = 3,
@@ -89,7 +89,7 @@ enum Actions
     ACTION_ATTACK   = 1
 };
 
-const Position addsPos[6] = 
+const Position addsPos[6] =
 {
     {3453.030029f, -5282.740234f, 230.04f, 4.45f}, // fire 1
     {3443.540039f, -5280.370117f, 230.04f, 4.66f}, // frost 1
@@ -260,7 +260,7 @@ class boss_queen_azshara : public CreatureScript
                             events.ScheduleEvent(EVENT_TOTAL_OBEDIENCE, urand(10000, 20000));
                             break;
                         case EVENT_END:
-                        {    
+                        {
                             instance->DoKilledMonsterKredit(QUEST_THE_VAINGLORIOUS, 54853, 0);
 
                             instance->SetBossState(DATA_AZSHARA, DONE);
@@ -389,7 +389,7 @@ class npc_queen_azshara_enchanted_magus : public CreatureScript
                                 Creature* pStalker2 = me->SummonCreature(NPC_HAMMER_OF_DIVINITY_1, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ() + 30.0f, pTarget->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000);
                                 
                                 if (pStalker1 && pStalker2)
-                                    pStalker2->GetMotionMaster()->MovePoint(0, pStalker1->GetPositionX(), pStalker1->GetPositionY(), pStalker1->GetPositionZ()); 
+                                    pStalker2->GetMotionMaster()->MovePoint(0, pStalker1->GetPositionX(), pStalker1->GetPositionY(), pStalker1->GetPositionZ());
                             }
                             events.ScheduleEvent(EVENT_ARCANE_BOMB, urand(18000, 25000));
                             break;
@@ -423,7 +423,7 @@ class npc_queen_azshara_hammer_of_divinity : public CreatureScript
             npc_queen_azshara_hammer_of_divinityAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 bDespawn = false;
-                me->SetSpeed(MOVE_RUN, 0.1f, true); 
+                me->SetSpeed(MOVE_RUN, 0.1f, true);
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
             }

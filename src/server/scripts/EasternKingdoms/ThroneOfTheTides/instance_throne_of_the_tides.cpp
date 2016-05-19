@@ -11,7 +11,7 @@
 
 #define MAX_ENCOUNTER 4
 
-static const DoorData doordata[] = 
+static const DoorData doordata[] =
 {
     {GO_LADY_NAZJAR_DOOR, DATA_LADY_NAZJAR, DOOR_TYPE_ROOM, BOUNDARY_NONE},
     {GO_LADY_NAZJAR_DOOR, DATA_COMMANDER_ULTHOK, DOOR_TYPE_ROOM, BOUNDARY_NONE},

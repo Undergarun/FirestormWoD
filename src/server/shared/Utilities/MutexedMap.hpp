@@ -25,7 +25,7 @@ namespace MS { namespace Utilities
 
         public:
             /// Constructor
-            MutextedMap() 
+            MutextedMap()
             {
 
             }
@@ -55,13 +55,13 @@ namespace MS { namespace Utilities
             }
 
             /// Get container
-            MapType& GetContainer() 
+            MapType& GetContainer()
             {
                 return m_ObjectMap;
             }
             /// Get lock object
-            LockType* GetLock() 
-            { 
+            LockType* GetLock()
+            {
                 return &m_Lock;
             }
 

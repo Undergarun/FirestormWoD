@@ -137,7 +137,7 @@ class instance_ulduar : public InstanceMapScript
             uint64 TeleporterDescentGUID;
 
             // Miscellaneous
-            uint32 TeamInInstance;            
+            uint32 TeamInInstance;
 
             void Initialize()
             {
@@ -996,11 +996,11 @@ class instance_ulduar : public InstanceMapScript
                         return AuriayaGUID;
                     case BOSS_MIMIRON:
                         return MimironGUID;
-                    case DATA_LEVIATHAN_MK_II: 
+                    case DATA_LEVIATHAN_MK_II:
                         return LeviathanMKIIGUID;
-                    case DATA_VX_001: 
+                    case DATA_VX_001:
                         return VX001GUID;
-                    case DATA_AERIAL_UNIT: 
+                    case DATA_AERIAL_UNIT:
                         return AerialUnitGUID;
                     case BOSS_HODIR:
                         return HodirGUID;
@@ -1148,7 +1148,7 @@ class instance_ulduar : public InstanceMapScript
                             return false;
                         break;
                     /*case BOSS_VEZAX:
-                        if (GetBossState(BOSS_HODIR) != DONE || GetBossState(BOSS_THORIM) != DONE 
+                        if (GetBossState(BOSS_HODIR) != DONE || GetBossState(BOSS_THORIM) != DONE
                             || GetBossState(BOSS_FREYA) != DONE || GetBossState(BOSS_MIMIRON) != DONE)
                             return false;
                         break;*/

@@ -535,7 +535,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult p_QueryResult, uint
 
     WorldPacket l_Data(SMSG_PET_STABLE_LIST, 2 * 1024);
     l_Data.appendPackGUID(l_StableMaster);              ///< StableMaster
-    l_Data << uint32(l_PetsCount);                      ///< Pets count 
+    l_Data << uint32(l_PetsCount);                      ///< Pets count
 
     if (p_QueryResult)
     {
@@ -565,7 +565,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult p_QueryResult, uint
             l_Data << uint8(l_PetFlag);            ///< PetFlag
             l_Data.WriteBits(l_PetName.size(), 8); ///< PetName Length
             l_Data.WriteString(l_PetName);         ///< PetName
-        } 
+        }
         while (p_QueryResult->NextRow());
     }
 

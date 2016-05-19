@@ -40,7 +40,7 @@ class bc_teleport : public GameObjectScript
             }
 
             if (sender == GOSSIP_SENDER_PORT)
-            { 
+            {
                 if (action==1)
                    player->TeleportTo(645,233.02f,1128.43f,205.56f,3.40f);
                 if (action==2)

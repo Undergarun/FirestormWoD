@@ -170,7 +170,7 @@ class WeatherScript : public ScriptObjectImpl<true>, public UpdatableScript<Weat
         /// @p_Weather : Weather instance
         /// @p_State   : New weather state
         /// @p_Grade   : New weather grade
-        virtual void OnChange(Weather* p_Weather, WeatherState p_State, float p_Grade) 
+        virtual void OnChange(Weather* p_Weather, WeatherState p_State, float p_Grade)
         {
             UNUSED(p_Weather);
             UNUSED(p_State);

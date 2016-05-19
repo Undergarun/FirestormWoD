@@ -20,26 +20,26 @@ enum ScriptTexts
 enum Spells
 {
     SPELL_CHAIN_LIGHTNING                    = 87622,
-    SPELL_CHAIN_LIGHTNING_H                    = 93993,
+    SPELL_CHAIN_LIGHTNING_H                   = 93993,
     SPELL_UNSTABLE_GROUNDING_FIELD            = 86911,
     SPELL_GROUNDING_FIELD_VISUAL_BEAMS        = 87517,
 
-    SPELL_SUPREMACY_OF_THE_STORM            = 86930,
+    SPELL_SUPREMACY_OF_THE_STORM             = 86930,
     
     SPELL_SUPREMACY_OF_THE_STORM_DUMMY        = 86715,
-    SPELL_SUPREMACY_OF_THE_STORM_DMG        = 87553,
-    SPELL_SUPREMACY_OF_THE_STORM_DMG_H        = 93994,
+    SPELL_SUPREMACY_OF_THE_STORM_DMG         = 87553,
+    SPELL_SUPREMACY_OF_THE_STORM_DMG_H       = 93994,
 
-    SPELL_SUPREMACY_OF_THE_STORM_DUMMY_1    = 87521,
-    SPELL_SUPREMACY_OF_THE_STORM_SUM        = 87518,
+    SPELL_SUPREMACY_OF_THE_STORM_DUMMY_1     = 87521,
+    SPELL_SUPREMACY_OF_THE_STORM_SUM         = 87518,
     SPELL_SUPREMACY_OF_THE_STORM_TELE        = 87328,
 
-    SPELL_STATIC_CLING                        = 87618
+    SPELL_STATIC_CLING                       = 87618
 };
 
 enum Events
 {
-    EVENT_FIELD                = 1,
+    EVENT_FIELD              = 1,
     EVENT_FIELD_1            = 2,
     EVENT_FIELD_2            = 3,
     EVENT_FIELD_3            = 4,
@@ -47,7 +47,7 @@ enum Events
     EVENT_FIELD_5            = 6,
     EVENT_FIELD_6            = 7,
     EVENT_CHAIN_LIGHTNING    = 8,
-    EVENT_STATIC_CLING        = 9,
+    EVENT_STATIC_CLING       = 9,
     EVENT_SUMMON_STAR        = 10
 };
 
@@ -56,7 +56,7 @@ enum Adds
     NPC_UNSTABLE_GROUNDING_FIELD    = 46492,
     NPC_SKYFALL_STAR                = 52019,
     NPC_STORM_TARGET                = 46387,
-    NPC_GROUNDING_FIELD                = 47000
+    NPC_GROUNDING_FIELD             = 47000
 };
 
 const Position fieldPos[4]    =
@@ -67,7 +67,7 @@ const Position fieldPos[4]    =
     {-639.23f, 488.13f, 656.63f, 0.0f}
 };
 
-const Position starPos[6] = 
+const Position starPos[6] =
 {
     {-583.77f, 516.56f, 649.51f, 5.65f},
     {-591.65f, 476.39f, 649.19f, 4.39f},
@@ -136,7 +136,7 @@ class boss_asaad : public CreatureScript
                 bField = false;
                 DoZoneInCombat();
                 instance->SetBossState(DATA_ASAAD, IN_PROGRESS);
-            }    
+            }
             void KilledUnit(Unit* /*p_Killer*/)
             {
                 Talk(SAY_KILL);
@@ -192,7 +192,7 @@ class boss_asaad : public CreatureScript
                                 DoCast(c, SPELL_UNSTABLE_GROUNDING_FIELD);
                             }
                             events.ScheduleEvent(EVENT_FIELD_4, 20000);
-                            events.ScheduleEvent(EVENT_FIELD_1, 6000); 
+                            events.ScheduleEvent(EVENT_FIELD_1, 6000);
                             break;
                         case EVENT_FIELD_1:
                             if (Creature*c = me->SummonCreature(NPC_UNSTABLE_GROUNDING_FIELD, fieldPos[1]))

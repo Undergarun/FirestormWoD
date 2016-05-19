@@ -267,7 +267,7 @@ namespace Battlepay
             }
 
             DisplayInfo const* GetDisplayInfo(uint32 p_Id) const
-            { 
+            {
                 if (m_DisplayInfos.find(p_Id) == m_DisplayInfos.end())
                     return nullptr;
 

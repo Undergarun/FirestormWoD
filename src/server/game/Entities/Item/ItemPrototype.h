@@ -383,7 +383,7 @@ enum ItemClass
     ITEM_CLASS_MISCELLANEOUS                    = 15,
     ITEM_CLASS_GLYPH                            = 16,
     ITEM_CLASS_BATTLE_PET                       = 17,
-    ITEM_CLASS_WOW_TOKEN                        = 18  ///< WoW Token system    
+    ITEM_CLASS_WOW_TOKEN                        = 18  ///< WoW Token system
 };
 
 #define MAX_ITEM_CLASS                            19

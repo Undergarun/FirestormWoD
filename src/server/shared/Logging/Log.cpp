@@ -338,7 +338,7 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
     return true;
 }
 
-void Log::outCommand(uint32 gm_account_id  , std::string gm_account_name, 
+void Log::outCommand(uint32 gm_account_id  , std::string gm_account_name,
                      uint32 gm_character_id, std::string gm_character_name,
                      uint32 sc_account_id  , std::string sc_account_name,
                      uint32 sc_character_id, std::string sc_character_name,

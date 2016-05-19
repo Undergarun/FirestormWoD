@@ -418,7 +418,7 @@ enum eAuchindonTalk
     AUCHENAIDEFENDERTALK1   = 3,  ///< Nyami awaits you in the western ritual chamber, champions.()
     TUULANITALK1            = 0,  ///< Good! We must have arrived before Teron'gor and Gul'den! (44644)
     TUULANITALK2            = 1,  ///< Nyami is working to bolster the defenses against their assault - follow me,we will report to her. (44654)
-    TUULANITALK3            = 2,  ///< Beautiful, isn't it? Just think - you're one of the first outsiders to see inside the Auchindoum. (44655) 
+    TUULANITALK3            = 2,  ///< Beautiful, isn't it? Just think - you're one of the first outsiders to see inside the Auchindoum. (44655)
     TUULANITALK4            = 4,  ///< Strange... why the door is sealed? No matter... (44656)
     TUULANITALK5            = 5,  ///< The Vindicators and Exrachs of the past. Heroes all - their souls still remain with us here. (44658)
     TUULANITALK6            = 6,  ///< Nyami! We are here - (44659)

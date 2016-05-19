@@ -11,7 +11,7 @@
 
 #include "Common.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Building condition structure
     struct BuildingCondition

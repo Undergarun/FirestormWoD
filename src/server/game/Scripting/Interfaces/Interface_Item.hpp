@@ -45,7 +45,7 @@ class ItemScript : public ScriptObjectImpl<true>
             UNUSED(p_Item);
             UNUSED(p_Quest);
 
-            return false; 
+            return false;
         }
 
         /// Called when a player uses the item.

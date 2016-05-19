@@ -92,7 +92,7 @@ class boss_corla_herald_of_twilight : public CreatureScript
                                 me->InterruptSpell(CURRENT_GENERIC_SPELL);
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 DoCast(SPELL_AURA_ACELERATION);
                 events.ScheduleEvent(EVENT_DARK_COMMAND, urand(6000, 10000));

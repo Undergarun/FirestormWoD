@@ -403,8 +403,8 @@ class npc_raging_gnoul : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-                DoCast(me, SPELL_EMERGE_VISUAL); 
-                DoZoneInCombat(me, 100.00f); 
+                DoCast(me, SPELL_EMERGE_VISUAL);
+                DoZoneInCombat(me, 100.00f);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -438,7 +438,7 @@ class npc_raging_gnoul : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* victim = me->SelectVictim())
                             {
-                                DoResetThreat(); 
+                                DoResetThreat();
                                 AttackStart(victim);
                             }
                         }
@@ -500,8 +500,8 @@ class npc_risen_witch_doctor : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-                DoCast(me, SPELL_EMERGE_VISUAL); 
-                DoZoneInCombat(me, 100.00f); 
+                DoCast(me, SPELL_EMERGE_VISUAL);
+                DoZoneInCombat(me, 100.00f);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -535,7 +535,7 @@ class npc_risen_witch_doctor : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* victim = me->SelectVictim())
                             {
-                                DoResetThreat(); 
+                                DoResetThreat();
                                 AttackStart(victim);
                             }
                         }
@@ -597,7 +597,7 @@ class npc_abon : public CreatureScript
             }
 
             InstanceScript* _instance;
-            bool _doWalk; 
+            bool _doWalk;
             uint32 _strikeTimer;
             uint32 _vomitTimer;
 
@@ -622,7 +622,7 @@ class npc_abon : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* victim = me->SelectVictim())
                         {
-                            DoResetThreat(); 
+                            DoResetThreat();
                             AttackStart(victim);
                         }
                     }

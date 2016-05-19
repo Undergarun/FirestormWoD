@@ -273,7 +273,7 @@ class boss_archbishop_benedictus : public CreatureScript
                 for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
                      (*iter)->DespawnOrUnsummon();
             }
-        };   
+        };
 };
 
 class npc_archbishop_benedictus_purifying_light : public CreatureScript
@@ -312,7 +312,7 @@ class npc_archbishop_benedictus_purifying_light : public CreatureScript
                             float dist = me->GetExactDist2d(pTarget->GetPositionX(), pTarget->GetPositionY());
                             float speedXY = dist * 10.0f / speedZ;
                             me->GetMotionMaster()->MoveJump(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), speedXY, speedZ, EVENT_JUMP_2);
-                        }                   
+                        }
                 }
                 else if (action == ACTION_TWILIGHT)
                 {
@@ -323,10 +323,10 @@ class npc_archbishop_benedictus_purifying_light : public CreatureScript
                             float dist = me->GetExactDist2d(pTarget->GetPositionX(), pTarget->GetPositionY());
                             float speedXY = dist * 10.0f / speedZ;
                             me->GetMotionMaster()->MoveJump(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), speedXY, speedZ, EVENT_JUMP_2);
-                        } 
+                        }
                 }
             }
-        };   
+        };
 };
 
 class spell_archbishop_benedictus_purifying_light_targeting: public SpellScriptLoader

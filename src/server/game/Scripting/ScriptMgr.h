@@ -62,7 +62,7 @@ class ScriptMgr
     public:
         /// Called when the area trigger is activated by a player.
         /// @p_Player  : Player who trigger this area trigger
-        /// @p_Trigger : Area Trigger 
+        /// @p_Trigger : Area Trigger
         bool OnAreaTrigger(Player* p_Player, AreaTriggerEntry const* p_Trigger);
 
         /// Called when a player enters the AreaTrigger
@@ -550,7 +550,7 @@ class ScriptMgr
         void OnColorCodeCalculation(XPColorChar& p_Color, uint8 p_PlayerLevel, uint8 p_MobLevel);
 
         /// Called after calculating zero difference.
-        /// @p_Diff        : Level difference 
+        /// @p_Diff        : Level difference
         /// @p_PlayerLevel : Player level
         void OnZeroDifferenceCalculation(uint8& p_Diff, uint8 p_PlayerLevel);
 

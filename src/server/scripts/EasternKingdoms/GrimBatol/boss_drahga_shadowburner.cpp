@@ -148,7 +148,7 @@ class boss_drahga_shadowburner : public CreatureScript
             }
 
             void KilledUnit(Unit* /*victim*/)
-            {                
+            {
                 Talk(SAY_KILL);
             }
 

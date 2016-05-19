@@ -496,15 +496,6 @@ class boss_ji_kun : public CreatureScript
                 }
             }
 
-//             void MovementInform(uint32 p_Type, uint32 p_Id)
-//             {
-//                 if (p_Type != POINT_MOTION_TYPE)
-//                     return;
-// 
-//                 uint32 l_NextId = p_Id < 51 ? p_Id++ : 0;
-//                 me->GetMotionMaster()->MovePoint(l_NextId, waypointPos[l_NextId]);
-//             }
-
             void JustDied(Unit* /*p_Killer*/)
             {
                 m_Events.Reset();
@@ -787,7 +778,7 @@ class mob_jump_to_boss_platform : public CreatureScript
                         m_CheckTimer = 500;
                     }
                     else
-                        m_CheckTimer -= diff;   
+                        m_CheckTimer -= diff;
                 }
             }
         };
@@ -1042,7 +1033,7 @@ class mob_incubater : public CreatureScript
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
-                /* 
+                /*
                  * --- Setting Id order to allow boss to retrieve the incubater in the nest ---
                  * As the nest are triggered clockwise, we need to reorder them according to their position
                  */

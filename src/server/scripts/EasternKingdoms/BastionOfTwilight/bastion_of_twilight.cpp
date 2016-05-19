@@ -34,7 +34,7 @@ enum Spells
     SPELL_MIND_SEAR                = 85643,
     SPELL_MIND_SEAR_DMG            = 85647,
     SPELL_UMBRAL_FLAMES            = 85664,
-    SPELL_UMBRAL_FLAMES_DMG        = 85679,  
+    SPELL_UMBRAL_FLAMES_DMG        = 85679,
     SPELL_SHADOW_MENDING        = 85575,
     SPELL_SHADOW_MENDING_HEAL    = 85577
 };

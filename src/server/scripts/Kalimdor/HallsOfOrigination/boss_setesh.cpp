@@ -219,7 +219,7 @@ class npc_setesh_chaos_portal : public CreatureScript
                     return;
 
                 if (Creature* pSetesh = pInstance->instance->GetCreature(pInstance->GetData64(DATA_SETESH)))
-                {    
+                {
                     switch (type)
                     {
                         case SETESH_SUMMON_WURM:
@@ -288,7 +288,7 @@ class npc_setesh_chaos_portal : public CreatureScript
                             break;
                         case EVENT_SUMMON_12:
                             SeteshSummon(SETESH_SUMMON_SEEKER);
-                            events.ScheduleEvent(EVENT_SUMMON_15, 15000);   
+                            events.ScheduleEvent(EVENT_SUMMON_15, 15000);
                             break;
                         case EVENT_SUMMON_15:
                             if (IsHeroic())

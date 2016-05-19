@@ -72,14 +72,14 @@ enum Actions
     ACTION_CHARGE   = 1
 };
 
-const Position lumberingoafPos[3] = 
+const Position lumberingoafPos[3] =
 {
     {-301.93f, -516.32f, 51.71f, 2.03f},
     {-289.98f, -528.06f, 49.75f, 1.59f},
-    {-289.67f, -488.46f, 49.80f, 1.54f} 
+    {-289.67f, -488.46f, 49.80f, 1.54f}
 };
 
-const Position helixcrewPos[4] = 
+const Position helixcrewPos[4] =
 {
     {-295.26f,-503.38f,60.16f, 0.0f},
     {-280.85f,-503.98f,60.16f, 0.0f},
@@ -116,7 +116,7 @@ class boss_helix_gearbreaker : public CreatureScript
                 me->setActive(true);
             }
             
-            void Reset() 
+            void Reset()
             {
                 _Reset();
             }
@@ -178,7 +178,7 @@ class boss_helix_gearbreaker : public CreatureScript
                         case EVENT_STICKY_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
-                                me->SummonCreature(NPC_STICKY_BOMB, 
+                                me->SummonCreature(NPC_STICKY_BOMB,
                                     target->GetPositionX(),
                                     target->GetPositionY(),
                                     target->GetPositionZ(),
@@ -211,7 +211,7 @@ class npc_lumbering_oaf : public CreatureScript
      
         struct npc_lumbering_oafAI : public ScriptedAI
         {
-            npc_lumbering_oafAI(Creature *c) : ScriptedAI(c) 
+            npc_lumbering_oafAI(Creature *c) : ScriptedAI(c)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -410,7 +410,7 @@ class npc_helix_crew : public CreatureScript
      
         struct npc_helix_crewAI : public Scripted_NoMovementAI
         {
-            npc_helix_crewAI(Creature *c) : Scripted_NoMovementAI(c), summons(me) 
+            npc_helix_crewAI(Creature *c) : Scripted_NoMovementAI(c), summons(me)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);

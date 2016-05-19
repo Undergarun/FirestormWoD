@@ -83,7 +83,7 @@ enum Points
     POINT_JINDO = 1
 };
 
-const Position chainPos[3] = 
+const Position chainPos[3] =
 {
     {-11801.4f, -1678.39f, 53.0471f, 0.0f},
     {-11761.5f, -1649.87f, 52.9657f, 0.0f},
@@ -164,7 +164,7 @@ class boss_jindo_the_godbreaker : public CreatureScript
                 if (me->isInCombat() && (summon->GetEntry() != NPC_GURUBASHI_SPIRIT))
                     DoZoneInCombat(summon);
 
-                if (summon->GetEntry() == NPC_GURUBASHI_SPIRIT || 
+                if (summon->GetEntry() == NPC_GURUBASHI_SPIRIT ||
                     summon->GetEntry() == NPC_HAKKAR_CHAINS ||
                     summon->GetEntry() == NPC_SPIRIT_OF_HAKKAR)
                     summon->SetPhaseMask(2, true);
@@ -187,9 +187,9 @@ class boss_jindo_the_godbreaker : public CreatureScript
                             for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
                                 (*iter)->DespawnOrUnsummon();
 
-                        events.ScheduleEvent(EVENT_END_1, 4000);                            
+                        events.ScheduleEvent(EVENT_END_1, 4000);
                     }
-                }    
+                }
             }
 
             void MovementInform(uint32 type, uint32 id)
@@ -250,16 +250,16 @@ class boss_jindo_the_godbreaker : public CreatureScript
                             events.ScheduleEvent(EVENT_SHADOWS_OF_HAKKAR, 18000);
                             break;
                         case EVENT_PHASE_2:
-                            if (Creature* pHakkar = me->FindNearestCreature(NPC_SPIRIT_OF_HAKKAR, 100.0f))                               
+                            if (Creature* pHakkar = me->FindNearestCreature(NPC_SPIRIT_OF_HAKKAR, 100.0f))
                             {
                                 pHakkar->AI()->Talk(SAY_PHASE);
                                 for (SummonList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
-                                    if (Creature* pSummon = Unit::GetCreature(*me, (*itr))) 
+                                    if (Creature* pSummon = Unit::GetCreature(*me, (*itr)))
                                         if (pSummon->GetEntry() == NPC_HAKKAR_CHAINS)
                                             pSummon->CastSpell(pHakkar, SPELL_HAKKAR_CHAINS);
                             }
                             me->SetCanFly(true);
-                            me->GetMotionMaster()->MoveJump(jindoPos.GetPositionX(), jindoPos.GetPositionY(), jindoPos.GetPositionZ() + 15.0f, 20.0f, 40.0f); 
+                            me->GetMotionMaster()->MoveJump(jindoPos.GetPositionX(), jindoPos.GetPositionY(), jindoPos.GetPositionZ() + 15.0f, 20.0f, 40.0f);
                             events.ScheduleEvent(EVENT_SHADOW_SPIKE, 3000);
                             events.ScheduleEvent(EVENT_SUMMON_SPIRIT, 4000);
                             break;
@@ -281,7 +281,7 @@ class boss_jindo_the_godbreaker : public CreatureScript
                         case EVENT_END_2:
                             Talk(SAY_DEATH);
                             me->SetCanFly(false);
-                            me->GetMotionMaster()->MoveJump(jindoPos.GetPositionX(), jindoPos.GetPositionY(), jindoPos.GetPositionZ(), 20.0f, 40.0f); 
+                            me->GetMotionMaster()->MoveJump(jindoPos.GetPositionX(), jindoPos.GetPositionY(), jindoPos.GetPositionZ(), 20.0f, 40.0f);
                             events.ScheduleEvent(EVENT_END_3, 5000);
                             break;
                         case EVENT_END_3:
@@ -315,7 +315,7 @@ class npc_jindo_gurubashi_spirit : public CreatureScript
 
         struct npc_jindo_gurubashi_spiritAI : public ScriptedAI
         {
-            npc_jindo_gurubashi_spiritAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_jindo_gurubashi_spiritAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -400,7 +400,7 @@ class npc_jindo_spirit_of_hakkar : public CreatureScript
 
         struct npc_jindo_spirit_of_hakkarAI : public Scripted_NoMovementAI
         {
-            npc_jindo_spirit_of_hakkarAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_jindo_spirit_of_hakkarAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -436,7 +436,7 @@ class npc_jindo_chains_of_hakkar : public CreatureScript
 
         struct npc_jindo_chains_of_hakkarAI : public Scripted_NoMovementAI
         {
-            npc_jindo_chains_of_hakkarAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_jindo_chains_of_hakkarAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -472,7 +472,7 @@ class npc_jindo_spirit_portal : public CreatureScript
 
         struct npc_jindo_spirit_portalAI : public Scripted_NoMovementAI
         {
-            npc_jindo_spirit_portalAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_jindo_spirit_portalAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
             }
 
@@ -538,7 +538,7 @@ class spell_jindo_summon_spirit_target: public SpellScriptLoader
             PrepareSpellScript(spell_jindo_summon_spirit_target_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
-            { 
+            {
                 targets.remove_if(SpiritPortalCheck(NPC_SPIRIT_PORTAL));
                 if (targets.size() > 1)
                     JadeCore::RandomResizeList(targets, 1);

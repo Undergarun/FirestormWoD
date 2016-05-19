@@ -195,7 +195,7 @@ public:
                 return;
 
             switch (events.ExecuteEvent())
-            {   
+            {
                 case eGrimrailLaborerEvents::EventHaymaker:
                     if (Unit* l_Target = me->getVictim())
                         events.ScheduleEvent(eGrimrailLaborerEvents::EventHaymaker, 8 * TimeConstants::IN_MILLISECONDS);
@@ -943,7 +943,7 @@ public:
 };
 
 
-/// Dash - 164168  
+/// Dash - 164168
 class grimrail_depot_spell_dash_dummy : public SpellScriptLoader
 {
 public:

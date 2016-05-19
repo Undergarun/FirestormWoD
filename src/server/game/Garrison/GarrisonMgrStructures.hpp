@@ -12,7 +12,7 @@
 #ifndef GARRISON_STRUCTURES_HPP_GARRISON
 # define GARRISON_STRUCTURES_HPP_GARRISON
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     struct GarrisonPlotInstanceInfoLocation
     {

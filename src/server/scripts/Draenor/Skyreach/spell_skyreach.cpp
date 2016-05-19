@@ -860,7 +860,7 @@ namespace MS
 
             void HandleTriggerMissible(SpellEffIndex /*effIndex*/)
             {
-                static const uint32 k_spells1[2] = 
+                static const uint32 k_spells1[2] =
                 {
                     uint32(Spells::FOUR_WINDS_AT_1),
                     uint32(Spells::FOUR_WINDS_VISUAL_1)

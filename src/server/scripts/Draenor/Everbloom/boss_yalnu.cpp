@@ -1081,7 +1081,7 @@ public:
     }
 };
 
-/// Colossal Blow - 169179 
+/// Colossal Blow - 169179
 class the_everbloom_yalnu_spell_colossal_blow : public SpellScriptLoader
 {
 public:

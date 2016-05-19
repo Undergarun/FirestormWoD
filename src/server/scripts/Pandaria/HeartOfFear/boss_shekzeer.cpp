@@ -1425,8 +1425,8 @@ class mob_dissonance_field : public CreatureScript
                         uint8 dmg = 0;
                         for (Player* plr : playerList)
                         {
-                            if (plr->GetCurrentSpell(CURRENT_GENERIC_SPELL)    || 
-                                plr->GetCurrentSpell(CURRENT_MELEE_SPELL)      || 
+                            if (plr->GetCurrentSpell(CURRENT_GENERIC_SPELL)    ||
+                                plr->GetCurrentSpell(CURRENT_MELEE_SPELL)      ||
                                 plr->GetCurrentSpell(CURRENT_CHANNELED_SPELL)  ||
                                 plr->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL) ||
                                 plr->HasUnitState(UNIT_STATE_CASTING))

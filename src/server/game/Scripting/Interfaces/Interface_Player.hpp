@@ -52,7 +52,7 @@ class FormulaScript : public ScriptObjectImpl<false>
         }
 
         /// Called after calculating zero difference.
-        /// @p_Diff        : Level difference 
+        /// @p_Diff        : Level difference
         /// @p_PlayerLevel : Player level
         virtual void OnZeroDifferenceCalculation(uint8& p_Diff, uint8 p_PlayerLevel)
         {

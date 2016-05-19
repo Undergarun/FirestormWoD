@@ -102,7 +102,7 @@ enum Events
 
 #define ACHIEVEMENT_EVENT 27527
 
-const Position addsPos[3] = 
+const Position addsPos[3] =
 {
     {-67.115807f, -829.708740f, 40.959011f, 1.344201f},
     {-69.161903f, -814.125977f, 40.722912f, 1.611237f},
@@ -160,7 +160,7 @@ class boss_vanessa_vancleef : public CreatureScript
                     Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 Talk(SAY_AGGRO);
 

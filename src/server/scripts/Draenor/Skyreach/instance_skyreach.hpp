@@ -1,9 +1,17 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef SKYREACH_INSTANCE_H
 # define SKYREACH_INSTANCE_H
 
 # include "ScriptPCH.h"
 # include "ScriptMgr.h"
-# include "ScriptUtils.h" 
+# include "ScriptUtils.h"
 
 namespace MS
 {

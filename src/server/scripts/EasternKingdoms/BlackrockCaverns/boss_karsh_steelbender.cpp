@@ -67,7 +67,7 @@ class boss_karsh_steelbender : public CreatureScript
             }
 
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 7000));
                 events.ScheduleEvent(EVENT_HEAT_ARMOR, 1000);

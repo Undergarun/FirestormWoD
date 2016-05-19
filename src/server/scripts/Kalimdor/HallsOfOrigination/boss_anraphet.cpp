@@ -22,12 +22,12 @@ enum ScriptTexts
 enum Spells
 {
     SPELL_ALPHA_BEAMS           = 76184,
-    SPELL_ALPHA_BEAMS_AOE       = 76904, 
+    SPELL_ALPHA_BEAMS_AOE       = 76904,
     SPELL_ALPHA_BEAM            = 76912,
-    SPELL_ALPHA_BEAM_DMG        = 76956, 
+    SPELL_ALPHA_BEAM_DMG        = 76956,
     SPELL_ALPHA_BEAM_DMG_H      = 91177,
-    SPELL_CRUMBLING_RUIN        = 75609, 
-    SPELL_CRUMBLING_RUIN_H      = 91206, 
+    SPELL_CRUMBLING_RUIN        = 75609,
+    SPELL_CRUMBLING_RUIN_H      = 91206,
     SPELL_DESTRUCTION_PROTOCOL  = 77437,
     SPELL_NEMESIS_STRIKE        = 75604,
     SPELL_OMEGA_STANCE          = 75622
@@ -45,7 +45,7 @@ enum Events
 enum Adds
 {
     NPC_ALPHA_BEAM      = 41133,
-    NPC_OMEGA_STANCE    = 41194, // 77137 77117 
+    NPC_OMEGA_STANCE    = 41194, // 77137 77117
 };
 
 class boss_anraphet : public CreatureScript

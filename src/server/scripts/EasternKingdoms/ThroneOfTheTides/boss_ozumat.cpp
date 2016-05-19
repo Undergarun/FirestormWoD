@@ -57,7 +57,7 @@ enum Spells
     SPELL_ENTANGLING_GRASP              = 83463,
 
     SPELL_ENCOUNTER_COMPLETE            = 95673
-}; 
+};
 
 enum Events
 {
@@ -99,7 +99,7 @@ enum Achievement
     SPELL_KILL_OZUMAT   = 95673
 };
 
-const Position spawnPos[5] = 
+const Position spawnPos[5] =
 {
     {-142.48f, 950.78f, 231.05f, 1.88f},
     {-126.62f, 1015.55f, 230.37f, 4.48f},
@@ -243,9 +243,9 @@ class npc_neptulon : public CreatureScript
                 if (pInstance)
                 {
                     // Achievement
-                    pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_OZUMAT, 0, 0, me); 
+                    pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_OZUMAT, 0, 0, me);
                     
-                    pInstance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_ENCOUNTER_COMPLETE, me); 
+                    pInstance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_ENCOUNTER_COMPLETE, me);
                     pInstance->SetBossState(DATA_OZUMAT, DONE);
                 }
                 EnterEvadeMode();
@@ -340,7 +340,7 @@ class npc_neptulon : public CreatureScript
                         break;
                     }
                 }
-            }         
+            }
 
             Player* GetRandomPlayer()
             {
@@ -370,7 +370,7 @@ class npc_neptulon : public CreatureScript
                             return true;
                 return false;
             };
-        };        
+        };
 };
 
 class npc_vicious_mindslasher : public CreatureScript
@@ -440,7 +440,7 @@ class npc_vicious_mindslasher : public CreatureScript
                         events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
                         break;
                     }
-                }            
+                }
                 DoMeleeAttackIfReady();
             }
         };
@@ -499,7 +499,7 @@ class npc_unyielding_behemoth : public CreatureScript
                         events.ScheduleEvent(EVENT_BLIGHT_SPRAY, urand(15000, 23000));
                         break;
                     }
-                }            
+                }
                 DoMeleeAttackIfReady();
             }
         };
@@ -540,7 +540,7 @@ class npc_faceless_sapper : public CreatureScript
             }
 
             void UpdateAI(const uint32 /*diff*/)
-            {   
+            {
             }
         };
 };

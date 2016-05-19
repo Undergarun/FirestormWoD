@@ -676,7 +676,7 @@ class npc_icc_ring_recover : public CreatureScript
         uint32 static const rings[20];
 };
 
-uint32 const npc_icc_ring_recover::rings[MAX_RINGS_NUMBER] = 
+uint32 const npc_icc_ring_recover::rings[MAX_RINGS_NUMBER] =
 {
     50377, 50378, 52569, 50376, 50375, // Friendly
     50384, 50386, 52570, 50387, 50388, // Honored

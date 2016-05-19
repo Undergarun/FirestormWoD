@@ -957,7 +957,7 @@ bool PetBattleAbilityEffect::HandleHealLastHitTaken()
 
 bool PetBattleAbilityEffect::HandleRemoveAura()
 {
-    /// Data for this effect are unknown so we assume 100% unaura 
+    /// Data for this effect are unknown so we assume 100% unaura
     ///CalculateHit(EffectInfo->prop[0]);
     ///
     ///if (!(Flags & FailFlags))

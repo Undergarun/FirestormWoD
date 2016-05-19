@@ -177,7 +177,7 @@ class boss_general_umbriss : public CreatureScript
                     case EVENT_GROUND_SIEGE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                         {
-                            if (Creature* stalker = me->SummonCreature(NPC_GROUND_SIEGE_STALKER, 
+                            if (Creature* stalker = me->SummonCreature(NPC_GROUND_SIEGE_STALKER,
                                 target->GetPositionX(),
                                 target->GetPositionY(),
                                 target->GetPositionZ(),

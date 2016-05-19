@@ -773,7 +773,7 @@ public:
     }
 };
 
-/// Bounding Whirl - 172576 
+/// Bounding Whirl - 172576
 class the_everbloom_spell_bounding_whirl_dummy : public SpellScriptLoader
 {
 public:
@@ -819,7 +819,7 @@ public:
     }
 };
 
-/// Poisonous Claws - 169657 
+/// Poisonous Claws - 169657
 class the_everbloom_spell_poisonous_claws : public SpellScriptLoader
 {
 public:
@@ -868,6 +868,6 @@ void AddSC_the_everbloom()
     new the_everbloom_mob_everbloom_mender();       ///< 81820
     new the_everbloom_mob_everbloom_tender();       ///< 81985
     new the_everbloom_mob_twisted_abomination();    ///< 84767
-    new the_everbloom_spell_poisonous_claws();      ///< 169657    
+    new the_everbloom_spell_poisonous_claws();      ///< 169657
 }
 #endif

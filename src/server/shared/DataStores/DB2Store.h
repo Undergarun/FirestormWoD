@@ -169,12 +169,12 @@ template<class T> class DB2Storage : public DB2StorageBase
         /// @p_Format :  DB2 format
         explicit DB2Storage(char const* p_Format)
             : DB2StorageBase(p_Format), m_IndexTable(NULL), m_DataTable(NULL), m_SQL(nullptr)
-        { 
+        {
 
         }
         /// Destructor
         ~DB2Storage()
-        { 
+        {
             Clear();
         }
 

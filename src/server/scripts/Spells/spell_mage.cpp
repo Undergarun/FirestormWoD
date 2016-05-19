@@ -357,7 +357,7 @@ class spell_mage_comet_storm : public SpellScriptLoader
 
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        /// Damage split between all enemies 
+                        /// Damage split between all enemies
                         if (GetSpell()->GetUnitTargetCount() > 1)
                             l_Damage = int32(GetHitDamage() / GetSpell()->GetUnitTargetCount());
 

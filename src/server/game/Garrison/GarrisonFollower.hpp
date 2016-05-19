@@ -13,7 +13,7 @@
 #include "ByteBuffer.h"
 
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Garrison follower
     class GarrisonFollower

@@ -105,7 +105,7 @@ class go_end_time_teleport : public GameObjectScript
             if (!pInstance)
                 return true;
             
-            switch (action) 
+            switch (action)
             {
                 case START_TELEPORT:
                     player->CastSpell(player, SPELL_TELEPORT_TO_START, true);
@@ -143,7 +143,7 @@ class go_end_time_teleport : public GameObjectScript
             }
             
             return true;
-        }    
+        }
 };
 
 #ifndef __clang_analyzer__

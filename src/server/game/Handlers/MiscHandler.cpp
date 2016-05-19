@@ -420,7 +420,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
         if (DeclinedName const* l_DeclinedNames = l_It->second->GetDeclinedNames())
         {
             for (uint8 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
-                l_Buffer.WriteString(l_DeclinedNames->name[l_I]);                                       ///< DeclinedName[l_I] 
+                l_Buffer.WriteString(l_DeclinedNames->name[l_I]);                                       ///< DeclinedName[l_I]
         }
 
         l_Buffer.appendPackGUID(l_It->second ? l_It->second->GetSession()->GetWoWAccountGUID() : 0);    ///< WoW account GUID

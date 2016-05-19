@@ -8,7 +8,7 @@
 
 # include "upper_blackrock_spire.hpp"
 
-static const DoorData doordata[] = 
+static const DoorData doordata[] =
 {
     { GOB_OREBENDER_ENTRANCE,   DATA_OREBENDER_GORASHAN,    DOOR_TYPE_ROOM,     BOUNDARY_NONE },
     { GOB_OREBENDER_EXIT,       DATA_OREBENDER_GORASHAN,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },

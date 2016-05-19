@@ -50,7 +50,7 @@ enum Adds
     NPC_ZANZIL_TOXIC_GAS    = 52062
 };
 
-const Position berserkerPos[3] = 
+const Position berserkerPos[3] =
 {
     {-11603.59f, -1233.59f, 81.40f, 5.20f},
     {-11545.00f, -1240.56f, 81.55f, 3.92f},
@@ -103,14 +103,14 @@ class boss_zanzil : public CreatureScript
                 events.ScheduleEvent(EVENT_ZANZIL_FIRE, 6000);
                 events.ScheduleEvent(urand(0, 1)? EVENT_CAST_ZOMBIE: EVENT_CAST_BERSERK, 30000);
                 DoZoneInCombat();
-                instance->SetBossState(DATA_ZANZIL, IN_PROGRESS); 
+                instance->SetBossState(DATA_ZANZIL, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-            }   
+            }
             
             void KilledUnit(Unit* /*victim*/)
             {
@@ -198,7 +198,7 @@ class npc_zanzil_berserker : public CreatureScript
 
         struct npc_zanzil_berserkerAI : public ScriptedAI
         {
-            npc_zanzil_berserkerAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_zanzil_berserkerAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);

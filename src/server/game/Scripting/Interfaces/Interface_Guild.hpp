@@ -47,7 +47,7 @@ class GuildScript : public ScriptObjectImpl<false>
         /// @p_Guild   : Guild instance
         /// @p_NewMotd : New message of the day
         virtual void OnMOTDChanged(Guild * p_Guild, const std::string & p_NewMotd)
-        { 
+        {
             UNUSED(p_Guild);
             UNUSED(p_NewMotd);
         }
@@ -55,7 +55,7 @@ class GuildScript : public ScriptObjectImpl<false>
         /// @p_Guild   : Guild instance
         /// @p_NewInfo : New guild info
         virtual void OnInfoChanged(Guild * p_Guild, const std::string & p_NewInfo)
-        { 
+        {
             UNUSED(p_Guild);
             UNUSED(p_NewInfo);
         }
@@ -73,8 +73,8 @@ class GuildScript : public ScriptObjectImpl<false>
         /// Called when a guild is disbanded.
         /// @p_Guild : Guild instance
         virtual void OnDisband(Guild * p_Guild)
-        { 
-            UNUSED(p_Guild); 
+        {
+            UNUSED(p_Guild);
         }
 
         // Called when a guild member withdraws money from a guild bank.
@@ -83,7 +83,7 @@ class GuildScript : public ScriptObjectImpl<false>
         /// @p_Amount   : Dest gold amount
         /// @p_IsRepair : Is repair
         virtual void OnMemberWitdrawMoney(Guild * p_Guild, Player * p_Player, uint64 & p_Amount, bool p_IsRepair)
-        { 
+        {
             UNUSED(p_Guild);
             UNUSED(p_Player);
             UNUSED(p_Amount);
@@ -94,7 +94,7 @@ class GuildScript : public ScriptObjectImpl<false>
         /// @p_Player : Depositor player
         /// @p_Amount : Dest gold amount
         virtual void OnMemberDepositMoney(Guild * p_Guild, Player * p_Player, uint64 & p_Amount)
-        { 
+        {
             UNUSED(p_Guild);
             UNUSED(p_Player);
             UNUSED(p_Amount);

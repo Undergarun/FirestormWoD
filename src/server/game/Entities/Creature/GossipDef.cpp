@@ -513,7 +513,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID) 
     data.WriteBits(questTurnTargetName.size(), 8);
 
     data.WriteBit(l_DisplayPopup);
-    data.WriteBit(l_StartCheat); 
+    data.WriteBit(l_StartCheat);
     data.WriteBit(l_AutoLaunched);
     data.FlushBits();
 

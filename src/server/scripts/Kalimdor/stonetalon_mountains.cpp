@@ -49,7 +49,7 @@ public:
             if (who->GetEntry() == KOBOLD_SERVANT && me->IsWithinDistInMap(who, 10.0f))
             {
                 if (Player* owner = who->GetOwner()->ToPlayer())
-                {                    
+                {
                     if (owner->GetQuestStatus(26066) == QUEST_STATUS_INCOMPLETE)
                         owner->KilledMonsterCredit(KOBOLD_CREDIT,0);
 
@@ -57,7 +57,7 @@ public:
 
                     if (owner->GetQuestStatus(26066) == QUEST_STATUS_COMPLETE)
                         owner->RemoveAllMinionsByEntry(KOBOLD_SERVANT);
-                }                
+                }
             }
         }
     };

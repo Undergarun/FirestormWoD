@@ -109,15 +109,15 @@ public:
         void Reset() override
         {
             _Reset();
-            events.Reset();   
+            events.Reset();
             m_Vortex = false;
             m_VortexDiff = 0;
-            m_PhaseCounter = 0;             
+            m_PhaseCounter = 0;
             me->CastSpell(me, eNhalishSpells::SpellShadowChannel);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             HandleDoorEntranceActivation();
             if (!m_First)
-            {          
+            {
                 HandleDoorActivation();
                 m_First = true;
             }
@@ -126,7 +126,7 @@ public:
         void JustReachedHome() override
         {
             _JustReachedHome();
-            summons.DespawnAll(); 
+            summons.DespawnAll();
             DespawnCreaturesInArea(eShadowmoonBurialGroundsCreatures::CreatureExhumeSpirit, me);
             if (m_Instance != nullptr)
                 m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossNhallish, EncounterState::FAIL);
@@ -216,7 +216,7 @@ public:
         {
             _EnterCombat();
             Talk(eNhallishTalks::TalkAggro);
-            HandleDoorEntranceActivation();     
+            HandleDoorEntranceActivation();
             events.ScheduleEvent(eNhalishEvents::EventPlanarShift, 10 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eNhalishEvents::EventSoulSteal, 70 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eNhalishEvents::EventVoidBlast, 4 * TimeConstants::IN_MILLISECONDS);
@@ -303,7 +303,7 @@ public:
                         return;
 
                     Position l_Position;
-                    me->GetPosition(&l_Position);    
+                    me->GetPosition(&l_Position);
                     for (Player* l_Itr : l_ListPlayers)
                     {
                         if (l_Itr->IsWithinDist(me, 20.0f, true))
@@ -344,7 +344,7 @@ public:
                             break;
                         case 1:
                             events.ScheduleEvent(eNhalishEvents::EventVoidVortex, 5 * TimeConstants::IN_MILLISECONDS);
-                            break;    
+                            break;
                         default:
                             break;
                     }
@@ -421,7 +421,7 @@ public:
     };
 
     bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
-    {   
+    {
         if (p_Creature)
         {
             if (InstanceScript* l_Instance = p_Creature->GetInstanceScript())
@@ -461,17 +461,17 @@ public:
         bool m_HasDied;
 
         void Reset() override
-        {         
+        {
             events.Reset();
             me->SetReactState(ReactStates::REACT_PASSIVE);
             if (m_VictimGUID)
             {
                 if (Unit* l_Victim = Unit::GetUnit(*me, m_VictimGUID))
                 {
-                    me->CastSpell(l_Victim, ePossessedSoulSpells::SpellSoulShred); // automatically target the summoner TARGET_UNIT_SUMMONER 
+                    me->CastSpell(l_Victim, ePossessedSoulSpells::SpellSoulShred); // automatically target the summoner TARGET_UNIT_SUMMONER
                     me->CastSpell(me, ePossessedSoulSpells::SpellUnortodoxExistanceAuraDummy);
                 }
-            }      
+            }
         }
 
         void DoAction(int32 const p_Action) override
@@ -502,11 +502,11 @@ public:
                         DoAction(ePossessedSoulActions::ActionTimeout);
                     });
                 }
-            }         
+            }
         }
 
         void JustDied(Unit* /*p_Killer*/) override
-        {        
+        {
             me->Respawn();
             events.Reset();
             m_HasDied = true;
@@ -517,7 +517,7 @@ public:
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);    
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
             
             if (!m_HasDiedBeforeTimeout)
             {
@@ -572,7 +572,7 @@ public:
             me->setFaction(HostileFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->CastSpell(me, eNhalishSpells::SpellShadowChannel);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);       
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
         }
 
         void UpdateAI(uint32 const /*p_Diff*/) override
@@ -620,7 +620,7 @@ public:
             m_Timer = 1 * TimeConstants::IN_MILLISECONDS;
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);            
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -693,7 +693,7 @@ public:
     }
 };
 
-/// Void Blast - 152792  
+/// Void Blast - 152792
 class shadowmoon_burial_grounds_nhalish_spell_void_blast : public SpellScriptLoader
 {
 public:
@@ -746,7 +746,7 @@ public:
     }
 };
 
-/// Void Vortex - 152801 
+/// Void Vortex - 152801
 class shadowmoon_burial_grounds_nhalish_spell_void_vortex : public SpellScriptLoader
 {
 public:
@@ -794,7 +794,7 @@ public:
     }
 };
 
-/// Soul Steal - 152962 
+/// Soul Steal - 152962
 class shadowmoon_burial_grounds_nhalish_spell_soul_steal : public SpellScriptLoader
 {
 public:
@@ -860,7 +860,7 @@ public:
                             Soul->SetPhaseMask(m_PhaseId, true);
                             l_LinkAI->m_PhaseCounter++;
                             if (Soul->IsAIEnabled)
-                                Soul->AI()->SetGUID(GetHitUnit()->GetGUID(), 0);    
+                                Soul->AI()->SetGUID(GetHitUnit()->GetGUID(), 0);
                         }
                     }
                 }
@@ -879,7 +879,7 @@ public:
     }
 };
 
-/// Planar Shift - 153623   
+/// Planar Shift - 153623
 class shadowmoon_burial_grounds_nhalish_spell_planar_shift : public SpellScriptLoader
 {
 public:

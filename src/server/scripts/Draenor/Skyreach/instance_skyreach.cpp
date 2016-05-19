@@ -67,7 +67,7 @@ namespace MS
                 std::map<uint64, uint32> m_ReadyForRaidingIVAchievements;
                 bool m_HasFailedMonomaniaAchievement;
 
-                instance_SkyreachInstanceMapScript(Map* p_Map) 
+                instance_SkyreachInstanceMapScript(Map* p_Map)
                     : InstanceScript(p_Map),
                     m_AraknathGuid(0),
                     m_SkyreachArcanologistGuid(0),
@@ -87,7 +87,7 @@ namespace MS
                     m_HasFailedMonomaniaAchievement(false)
                 {
                     SetBossNumber(MaxEncounter::Number);
-                    LoadDoorData(k_DoorData); 
+                    LoadDoorData(k_DoorData);
                     LoadScenariosInfos(k_ScenarioData, p_Map->IsChallengeMode() ? ScenarioDatas::ChallengeScenarioId : ScenarioDatas::ScenarioId);
 
                     for (uint32 i = Blocks::FirstStair; i <= Blocks::SecondStair; i++)

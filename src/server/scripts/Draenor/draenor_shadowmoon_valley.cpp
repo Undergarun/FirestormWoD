@@ -50,7 +50,7 @@ class shadowmoon_prophet_velen_eventide_questgiver : public CreatureScript
 };
 
 
-/// 89319 - Prophet Velen 
+/// 89319 - Prophet Velen
 class shadowmoon_prophet_velen_eventide_escort : public CreatureScript
 {
     public:

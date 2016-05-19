@@ -386,7 +386,7 @@ public:
             {
                 EnfeebleResetHealth();
                 EnfeebleResetTimer = 0;
-            } 
+            }
             else
                 EnfeebleResetTimer -= diff;
 

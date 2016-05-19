@@ -288,7 +288,7 @@ GameObject* Transport::CreateGOPassenger(uint32 guid, GameObjectData const* data
     return go;
 }
 
-void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& o) 
+void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
 {
     float inx = x, iny = y, inz = z;
     if (o)

@@ -45,7 +45,7 @@ enum Creatures
     NPC_TEMPEST_WITCH                       = 40634
 };
 
-const Position eventPos[7] = 
+const Position eventPos[7] =
 {
     {-121.93f, 807.15f, 797.19f, 3.13f},
     {-122.00f, 799.22f, 797.13f, 3.13f},
@@ -96,7 +96,7 @@ public:
     }
 };
 
-const Position teleporterPos[2] = 
+const Position teleporterPos[2] =
 {
     {-560.25f, 819.19f, 245.28f, 5.20f}, // entrance;
     {-14.72f, 796.57f, 808.12f, 1.99f}, // upper

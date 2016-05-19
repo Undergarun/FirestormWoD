@@ -649,9 +649,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     }
 
     if (caster->IsPlayer()
-        && !caster->ToPlayer()->HasActiveSpell(l_SpellID) 
-        && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS) 
-        && !spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_ALWAYS_ACTIVE) 
+        && !caster->ToPlayer()->HasActiveSpell(l_SpellID)
+        && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS)
+        && !spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_ALWAYS_ACTIVE)
         && !spellInfo->IsRaidMarker())
     {
         // GameObject Use

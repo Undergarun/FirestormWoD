@@ -283,7 +283,7 @@ class boss_megaera : public CreatureScript
                             break;
                         case Difficulty::Difficulty10HC:
                             p_Killer->SummonGameObject(GOB_MEGAERA_CHEST_10_HEROIC, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
-                            break; 
+                            break;
                         case Difficulty::Difficulty25HC:
                             p_Killer->SummonGameObject(GOB_MEGAERA_CHEST_25_HEROIC, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;

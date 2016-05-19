@@ -50,7 +50,7 @@ class instance_oculus : public InstanceMapScript
                 VerdisaGUID         = 0;
             }
 
-            void OnCreatureCreate(Creature* creature) 
+            void OnCreatureCreate(Creature* creature)
             {
                 switch (creature->GetEntry())
                 {
@@ -112,7 +112,7 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) 
+            void OnGameObjectCreate(GameObject* go)
             {
                 switch (go->GetEntry())
                 {
@@ -128,7 +128,7 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void OnUnitDeath(Unit* unit) 
+            void OnUnitDeath(Unit* unit)
             {
                 Creature* creature = unit->ToCreature();
                 if (!creature)
@@ -168,7 +168,7 @@ class instance_oculus : public InstanceMapScript
                         drake->AI()->DoAction(ACTION_CALL_DRAGON_EVENT);
             }
 
-            bool SetBossState(uint32 type, EncounterState state) 
+            bool SetBossState(uint32 type, EncounterState state)
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -216,7 +216,7 @@ class instance_oculus : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 type) 
+            uint64 GetData64(uint32 type)
             {
                 switch (type)
                 {
@@ -263,7 +263,7 @@ class instance_oculus : public InstanceMapScript
                         gwhelp->SetPhaseMask(1, true);
             }
 
-            std::string GetSaveData() 
+            std::string GetSaveData()
             {
                 OUT_SAVE_INST_DATA;
 
@@ -274,7 +274,7 @@ class instance_oculus : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(char const* str) 
+            void Load(char const* str)
             {
                 if (!str)
                 {
@@ -323,7 +323,7 @@ class instance_oculus : public InstanceMapScript
             std::list<uint64> GreaterWhelpList;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const 
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
             return new instance_oculus_InstanceMapScript(map);
         }

@@ -61,13 +61,13 @@ namespace ACE_Based
                 m_storage.push_back(item);
             }
 
-            void insert(iterator pos, size_type n, const T& u ) 
+            void insert(iterator pos, size_type n, const T& u )
             {
                 WriteGuard Guard(GetLock());
-                m_storage.insert( pos, n, u ); 
+                m_storage.insert( pos, n, u );
             }
 
-            template <class InputIterator> 
+            template <class InputIterator>
             void insert(iterator pos, InputIterator begin, InputIterator end)
             {
                 WriteGuard Guard(GetLock());
@@ -137,7 +137,7 @@ namespace ACE_Based
                 m_storage.clear();
             }
 
-            T& operator[](size_type idx) 
+            T& operator[](size_type idx)
             {
                 ReadGuard Guard(GetLock());
                 return m_storage[idx];
@@ -149,7 +149,7 @@ namespace ACE_Based
                 return m_storage[idx];
             }
 
-            T& at(size_type idx) 
+            T& at(size_type idx)
             {
                 ReadGuard Guard(GetLock());
                 return m_storage.at(idx);
@@ -243,7 +243,7 @@ namespace ACE_Based
             {
                 clear();
                 WriteGuard Guard(GetLock());
-                for (typename std::vector<T>::const_iterator i = v.begin(); i != v.end(); ++i) 
+                for (typename std::vector<T>::const_iterator i = v.begin(); i != v.end(); ++i)
                 {
                     this->push_back(*i);
                 }
@@ -253,7 +253,7 @@ namespace ACE_Based
             LockedVector(const std::vector<T> &v)
             {
                 WriteGuard Guard(GetLock());
-                for (typename std::vector<T>::const_iterator i = v.begin(); i != v.end(); ++i) 
+                for (typename std::vector<T>::const_iterator i = v.begin(); i != v.end(); ++i)
                 {
                     this->push_back(*i);
                 }
@@ -263,7 +263,7 @@ namespace ACE_Based
             {
                 clear();
                 WriteGuard Guard(GetLock());
-                for (typename std::list<T>::const_iterator i = v.begin(); i != v.end(); ++i) 
+                for (typename std::list<T>::const_iterator i = v.begin(); i != v.end(); ++i)
                 {
                     this->push_back(*i);
                 }
@@ -273,7 +273,7 @@ namespace ACE_Based
             LockedVector(const std::list<T> &v)
             {
                 WriteGuard Guard(GetLock());
-                for (typename std::list<T>::const_iterator i = v.begin(); i != v.end(); ++i) 
+                for (typename std::list<T>::const_iterator i = v.begin(); i != v.end(); ++i)
                 {
                     this->push_back(*i);
                 }
@@ -298,7 +298,7 @@ namespace ACE_Based
             {
                 WriteGuard Guard(GetLock());
                 WriteGuard GuardX(x.GetLock());
-                m_storage.swap(x.m_storage); 
+                m_storage.swap(x.m_storage);
             }
 
             void resize(size_type num, T def = T())
@@ -311,7 +311,7 @@ namespace ACE_Based
             allocator_type get_allocator() const
             {
                 ReadGuard Guard(GetLock());
-                return m_storage.get_allocator(); 
+                return m_storage.get_allocator();
             }
 
             // Sort template

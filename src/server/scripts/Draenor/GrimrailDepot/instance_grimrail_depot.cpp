@@ -11,7 +11,7 @@
 
 class instance_grimrail_depot : public InstanceMapScript
 {
-public:                                                      
+public:
 
     instance_grimrail_depot() : InstanceMapScript("instance_grimrail_depot", 1208) { }
 

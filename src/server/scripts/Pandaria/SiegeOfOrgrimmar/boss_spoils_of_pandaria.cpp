@@ -212,7 +212,7 @@ class mob_mogu_shadow_ritualist : public CreatureScript
 };
 
 class mob_zarthik_amber_priest : public CreatureScript
-{ 
+{
     public:
         mob_zarthik_amber_priest() : CreatureScript("mob_zarthik_amber_priest") { }
 
@@ -371,7 +371,7 @@ class mob_quilen_gardians : public CreatureScript
         };
 
         CreatureAI* GetAI(Creature* creature) const
-        { 
+        {
             return new mob_quilen_gardiansAI(creature);
         }
 };
@@ -421,7 +421,7 @@ class mob_korthik_warcaller : public CreatureScript
                 pInstance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance; 
+            InstanceScript* pInstance;
             EventMap events;
 
             void Reset()
@@ -511,7 +511,7 @@ class mob_wise_misteweaver_spirit : public CreatureScript
 class mob_namelesse_windwallker_spirit : public CreatureScript
 {
     public:
-        mob_namelesse_windwallker_spirit() : CreatureScript("mob_namelesse_windwallker_spirit") { } 
+        mob_namelesse_windwallker_spirit() : CreatureScript("mob_namelesse_windwallker_spirit") { }
 
         struct mob_namelesse_windwallker_spiritAI : public ScriptedAI
         {
@@ -530,8 +530,8 @@ class mob_namelesse_windwallker_spirit : public CreatureScript
 
             void UpdateAI(const uint32 /*p_Diff*/)
             {
-                if (!UpdateVictim()) 
-                    return; 
+                if (!UpdateVictim())
+                    return;
             }
         };
 

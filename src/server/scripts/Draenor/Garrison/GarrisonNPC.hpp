@@ -940,7 +940,7 @@ namespace MS { namespace Garrison
                 virtual void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override;
 
                 virtual void JustDied(Unit* p_Killer) override;
-            };            
+            };
 
     };
 
@@ -983,7 +983,7 @@ namespace MS { namespace Garrison
                 virtual void EnterEvadeMode() override;
 
                 virtual void UpdateAI(uint32 const p_Diff) override;
-            };            
+            };
 
     };
 
@@ -1033,7 +1033,7 @@ namespace MS { namespace Garrison
                 virtual void IsSummonedBy(Unit* p_Summoner) override;
 
                 virtual uint64 GetGUID(int32 p_ID) override;
-            };            
+            };
 
     };
 

@@ -11,7 +11,7 @@
 
 enum Spells
 {
-    SPELL_CALL_OF_WIND            = 88244,    
+    SPELL_CALL_OF_WIND            = 88244,
     SPELL_CALL_OF_WIND_DUMMY_1    = 88276,
     SPELL_CALL_OF_WIND_DUMMY_2    = 88772,
     SPELL_DOWNWIND_OF_ALTAIRUS    = 88286,
@@ -41,13 +41,6 @@ enum Adds
 };
 
 const float orientations[4] = {5.70f, 2.54f, 0.84f, 4.44f};
-
-const Position twisterPos[8] =
-{
-    {-1213.09f, 37.58f, 734.17f, 0.0f},
-    {-1208.80f, 54.49f, 734.17f, 0.0f},
-    {-1219.45f, 68.33f, 734.17f, 0.0f}
-};
 
 class boss_altairus : public CreatureScript
 {
@@ -177,7 +170,7 @@ class boss_altairus : public CreatureScript
                             if (!c)
                                 break;
 
-                            for (Map::PlayerList::const_iterator itr = me->GetMap()->GetPlayers().begin(); itr != me->GetMap()->GetPlayers().end(); ++itr) 
+                            for (Map::PlayerList::const_iterator itr = me->GetMap()->GetPlayers().begin(); itr != me->GetMap()->GetPlayers().end(); ++itr)
                             {
                                 if (CheckOrientation(itr->getSource()->GetOrientation(), c->GetOrientation()))
                                 {

@@ -1108,7 +1108,7 @@ class spell_warl_soul_link: public SpellScriptLoader
         }
 };
 
-// Called by Hand of Gul'dan - 47960, 
+// Called by Hand of Gul'dan - 47960,
 // Molten Core - 122351
 class spell_warl_molten_core_dot: public SpellScriptLoader
 {
@@ -1901,7 +1901,7 @@ class spell_warl_soul_swap: public SpellScriptLoader
                 /// Target should have at least one DOT from the list
                 if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
                 {
-                    if (!l_Target->HasAura(WARLOCK_AGONY, l_Caster->GetGUID()) && !l_Target->HasAura(WARLOCK_SPELL_CORRUPTION_DOT, l_Caster->GetGUID()) && 
+                    if (!l_Target->HasAura(WARLOCK_AGONY, l_Caster->GetGUID()) && !l_Target->HasAura(WARLOCK_SPELL_CORRUPTION_DOT, l_Caster->GetGUID()) &&
                         !l_Target->HasAura(WARLOCK_UNSTABLE_AFFLICTION, l_Caster->GetGUID()) && !l_Caster->HasAura(WARLOCK_SOULBURN_AURA))
                         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 }
@@ -3415,7 +3415,7 @@ class spell_warl_siphon_life : public SpellScriptLoader
         }
 };
 
-// Siphon Life - 63106 
+// Siphon Life - 63106
 class spell_warl_siphon_life_heal : public SpellScriptLoader
 {
 public:
@@ -3561,7 +3561,7 @@ class spell_warl_dark_soul : public SpellScriptLoader
 
         class spell_warl_dark_soul_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_dark_soul_SpellScript);       
+            PrepareSpellScript(spell_warl_dark_soul_SpellScript);
 
             void HandleAfterCast()
             {
@@ -3650,7 +3650,7 @@ enum HavocSpells
     SPELL_GLYPH_OF_HAVOC    = 146962
 };
 
-// Havoc - 80240 
+// Havoc - 80240
 class spell_warl_havoc: public SpellScriptLoader
 {
     public:
@@ -3921,7 +3921,7 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
         }
 };
 
-/// last update : 6.2.3git 
+/// last update : 6.2.3
 /// Doom Bolt - 85692
 class spell_warl_doom_bolt : public SpellScriptLoader
 {

@@ -1501,7 +1501,7 @@ class auchindon_trigger_warden_hammer : public CreatureScript
         }
 };
 
-/// Void Mending - 154623 
+/// Void Mending - 154623
 class auchindon_spell_void_mending : public SpellScriptLoader
 {
     public:
@@ -1534,7 +1534,7 @@ class auchindon_spell_void_mending : public SpellScriptLoader
         }
 };
 
-/// Psychic Terrors - 154356  
+/// Psychic Terrors - 154356
 class auchindon_spell_psychic_terror : public SpellScriptLoader
 {
     public:
@@ -1576,7 +1576,7 @@ class auchindon_spell_psychic_terror : public SpellScriptLoader
     }
 };
 
-/// Warden's Chain - 154683 
+/// Warden's Chain - 154683
 class auchindon_spell_warden_chain : public SpellScriptLoader
 {
     public:
@@ -1610,7 +1610,7 @@ class auchindon_spell_warden_chain : public SpellScriptLoader
         }
 };
 
-/// Warden Chain Aura - 154831 
+/// Warden Chain Aura - 154831
 class auchindon_warden_chain_aura : public SpellScriptLoader
 {
     public:

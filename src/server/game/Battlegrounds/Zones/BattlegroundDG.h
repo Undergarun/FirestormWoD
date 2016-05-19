@@ -107,26 +107,26 @@ struct WorldStateIcon
 
 const WorldStateIcon BG_DG_NodesWs[BG_DG_ALL_NODES_COUNT][5] =
 {
-    { 
-        WorldStateIcon(WORLDSTATE_DG_GOBLIN_NEUTRAL,        1), 
-        WorldStateIcon(WORLDSTATE_DG_GOBLIN_ALLY_CONTEST,   1), 
-        WorldStateIcon(WORLDSTATE_DG_GOBLIN_HORDE_CONTEST,  1), 
-        WorldStateIcon(WORLDSTATE_DG_GOBLIN_ALLY_CONTROL,   2), 
-        WorldStateIcon(WORLDSTATE_DG_GOBLIN_HORDE_CONTROL,  1) 
+    {
+        WorldStateIcon(WORLDSTATE_DG_GOBLIN_NEUTRAL,        1),
+        WorldStateIcon(WORLDSTATE_DG_GOBLIN_ALLY_CONTEST,   1),
+        WorldStateIcon(WORLDSTATE_DG_GOBLIN_HORDE_CONTEST,  1),
+        WorldStateIcon(WORLDSTATE_DG_GOBLIN_ALLY_CONTROL,   2),
+        WorldStateIcon(WORLDSTATE_DG_GOBLIN_HORDE_CONTROL,  1)
     },
-    { 
-        WorldStateIcon(WORLDSTATE_DG_CENTER_NEUTRAL,        1), 
-        WorldStateIcon(WORLDSTATE_DG_CENTER_ALLY_CONTEST,   1), 
-        WorldStateIcon(WORLDSTATE_DG_CENTER_HORDE_CONTEST,  1), 
-        WorldStateIcon(WORLDSTATE_DG_CENTER_ALLY_CONTROL,   2), 
-        WorldStateIcon(WORLDSTATE_DG_CENTER_HORDE_CONTROL,  1) 
+    {
+        WorldStateIcon(WORLDSTATE_DG_CENTER_NEUTRAL,        1),
+        WorldStateIcon(WORLDSTATE_DG_CENTER_ALLY_CONTEST,   1),
+        WorldStateIcon(WORLDSTATE_DG_CENTER_HORDE_CONTEST,  1),
+        WorldStateIcon(WORLDSTATE_DG_CENTER_ALLY_CONTROL,   2),
+        WorldStateIcon(WORLDSTATE_DG_CENTER_HORDE_CONTROL,  1)
     },
-    { 
-        WorldStateIcon(WORLDSTATE_DG_PANDA_NEUTRAL,         1), 
-        WorldStateIcon(WORLDSTATE_DG_PANDA_ALLY_CONTEST,    1), 
-        WorldStateIcon(WORLDSTATE_DG_PANDA_HORDE_CONTEST,   1), 
-        WorldStateIcon(WORLDSTATE_DG_PANDA_ALLY_CONTROL,    2), 
-        WorldStateIcon(WORLDSTATE_DG_PANDA_HORDE_CONTROL,   1) 
+    {
+        WorldStateIcon(WORLDSTATE_DG_PANDA_NEUTRAL,         1),
+        WorldStateIcon(WORLDSTATE_DG_PANDA_ALLY_CONTEST,    1),
+        WorldStateIcon(WORLDSTATE_DG_PANDA_HORDE_CONTEST,   1),
+        WorldStateIcon(WORLDSTATE_DG_PANDA_ALLY_CONTROL,    2),
+        WorldStateIcon(WORLDSTATE_DG_PANDA_HORDE_CONTROL,   1)
     }
 };
 
@@ -357,7 +357,7 @@ class BattlegroundDG : public Battleground
         /*                      2: horde contested                              */
         /*                      3: ally occupied                                */
         /*                      4: horde occupied                               */
-        /************************************************************************/  
+        /************************************************************************/
         uint8               m_Nodes[BG_DG_ALL_NODES_COUNT];
         uint8               m_prevNodes[BG_DG_ALL_NODES_COUNT];
         uint32              m_NodeTimers[BG_DG_ALL_NODES_COUNT];

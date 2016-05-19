@@ -30,12 +30,6 @@ enum Adds
     NPC_RUNTY   = 40015
 };
 
-const Position pupsPos[2] =
-{
-    {116.70f, 572.05f, 76.45f, 0.04f},
-    {119.81f, 588.90f, 76.35f, 6.22f}
-};
-
 class boss_beauty : public CreatureScript
 {
  
@@ -71,7 +65,7 @@ public:
         }
  
 
-        void EnterCombat(Unit* /*who*/) 
+        void EnterCombat(Unit* /*who*/)
         {
             events.ScheduleEvent(EVENT_BERSERKER_CHARGE, 1000);
             events.ScheduleEvent(EVENT_FLAMEBREAK, 15000);

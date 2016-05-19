@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_CONSTANTS_HPP_GARRISON
 #define GARRISON_CONSTANTS_HPP_GARRISON
 
@@ -15,7 +16,7 @@
 /// @Hatters gonna hate, float doesn't go into the Globals enum, Change standard ?
 #define GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF (1.5f)
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     namespace Globals
     {
@@ -201,7 +202,7 @@ namespace MS { namespace Garrison
             ModWinRate                     = 2,    ///< Proc every time
             ModTravelTime                  = 3,    ///< Proc every time
             ModXpGain                      = 4,    ///< Mod the XP earn (self, party)
-            ModWinRateClass                = 5,    ///< Proc if Find(MissionFollowers[Class], MiscValueA) != NULL 
+            ModWinRateClass                = 5,    ///< Proc if Find(MissionFollowers[Class], MiscValueA) != NULL
             ModWinRateDurationMore         = 6,    ///< Proc if Duration > (3600 * MiscValueB)
             ModWinRateDurationLess         = 7,    ///< Proc if Duration < (3600 * MiscValueB)
             ModGarrCurrencyDrop            = 8,    ///< Implemented.

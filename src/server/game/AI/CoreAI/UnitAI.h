@@ -135,15 +135,15 @@ class UnitAI
         virtual void OnCharmed(bool apply) = 0;
 
         // Pass parameters between AI
-        virtual void DoAction(int32 const p_Param) 
+        virtual void DoAction(int32 const p_Param)
         {
             UNUSED(p_Param);
         }
 
-        virtual uint32 GetData(uint32 id = 0) 
+        virtual uint32 GetData(uint32 id = 0)
         {
             UNUSED(id);
-            return 0; 
+            return 0;
         }
 
         virtual float GetFData(uint32 p_ID = 0) const
@@ -152,7 +152,7 @@ class UnitAI
             return 0.0f;
         }
 
-        virtual void SetData(uint32 id, uint32 value) 
+        virtual void SetData(uint32 id, uint32 value)
         {
             UNUSED(id);
             UNUSED(value);
@@ -180,7 +180,7 @@ class UnitAI
 
         virtual uint64 GetGUID(int32 /*id*/ = 0) { return 0; }
 
-        virtual void SetDestTarget(WorldLocation const* dest) 
+        virtual void SetDestTarget(WorldLocation const* dest)
         {
             UNUSED(dest);
         }

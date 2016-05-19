@@ -10980,7 +10980,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                 if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId())
                     break;
 
-                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), applyStats); 
+                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), applyStats);
                 ApplyStatBuffMod(STAT_AGILITY, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_AGILITY, BASE_PCT_EXCLUDE_CREATE)), apply);
                 break;
             }
@@ -13758,14 +13758,14 @@ uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipIte
 Item* Player::GetItemByGuid(uint64 guid) const
 {
     for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
-        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))		
-            if (pItem->GetGUID() == guid)		
-                return pItem;		
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->GetGUID() == guid)
+                return pItem;
 		
-    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)		
-        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))		
-            if (pItem->GetGUID() == guid)		
-                return pItem;		
+    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->GetGUID() == guid)
+                return pItem;
 		
     for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
@@ -32554,7 +32554,7 @@ void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
     if (!p_Result)
         return;
 
-    std::map<uint32, uint32> l_SkillLearningSpells = 
+    std::map<uint32, uint32> l_SkillLearningSpells =
     {
         { SkillType::SKILL_ALCHEMY,        ProfessionBookSpells::Alchemy        },
         { SkillType::SKILL_BLACKSMITHING,  ProfessionBookSpells::Blacksmithing  },
@@ -32573,7 +32573,7 @@ void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
         { SkillType::SKILL_FISHING,        ProfessionBookSpells::Fishing        }
     };
 
-    do 
+    do
     {
         Field* l_Fields     = p_Result->Fetch();
         uint32 l_SkillID    = l_Fields[0].GetUInt32();
@@ -32678,7 +32678,7 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
     {
         case 16188: // Ancestral Swiftness
             if (!HasAura(51470))
-                CastSpell(this, 121617, true); ///< +5% melee/spell haste since 6.0.1 (Tue Oct 14 2014) Build 18537 
+                CastSpell(this, 121617, true); ///< +5% melee/spell haste since 6.0.1 (Tue Oct 14 2014) Build 18537
             break;
         case 96268: // Death's Advance
             if (!HasAura(124285))

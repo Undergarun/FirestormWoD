@@ -74,13 +74,13 @@ enum Spells
     //ascended waterlasher
     SPELL_FOCUSED_GAYSER            = 76797,
     SPELL_ABSORB_THUNDER            = 76095,
-    SPELL_LIGHTNING_CLOUD            = 76097, 
+    SPELL_LIGHTNING_CLOUD            = 76097,
     SPELL_LIGHTNING_STRIKE_DMG        = 76101,
     SPELL_WATER_SPOUT                = 76794,
 
     //ascended windwalker
-    SPELL_ABSORB_WATER                = 76029, 
-    SPELL_WATER_INFUSIED_BLADES        = 76036, 
+    SPELL_ABSORB_WATER                = 76029,
+    SPELL_WATER_INFUSIED_BLADES        = 76036,
     SPELL_TSUNAMI                    = 76045,
     SPELL_WINDWALK                    = 76557,
 
@@ -94,7 +94,7 @@ enum Spells
     SPELL_TWILIGHT_BOLT                = 76369,
     SPELL_TWISTED_ARCANE_TRIGGER    = 79446,
     SPELL_TWISTED_ARCANE            = 76340,
-    SPELL_TWISTED_ARCANE_H            = 90844, 
+    SPELL_TWISTED_ARCANE_H            = 90844,
     SPELL_WARPED_TWILIGHT            = 76370,
     SPELL_WARPED_TWILIGHT_H            = 90300,
     SPELL_WARPED_TWILIGHT_DUMMY        = 76373,
@@ -147,7 +147,7 @@ enum Spells
     SPELL_CHAINED_MIND                = 76711,
     SPELL_DECEITFUL_BLAST            = 76715,
 
-    //twilight drake                
+    //twilight drake
     SPELL_TWILIGHT_BREATH            = 76817,
 
     //twilight earthshaper
@@ -167,16 +167,16 @@ enum Spells
     //twilight firecatcher
     SPELL_MOLTEN_BLAST                = 76765,
     SPELL_FLAME_CONDUIT                = 76766,
-    SPELL_FLAME_CONDUIT_DMG            = 76768, 
+    SPELL_FLAME_CONDUIT_DMG            = 76768,
     SPELL_FLAME_CONDUIT_DMG_H        = 90850,
     SPELL_SUMMON_BURNING_EMBER        = 74551,
 
     //twilight shadow weaver
     SPELL_SHADOW_BOLT                = 76416,
-    SPELL_SHADOW_WEAVE_SCRIPT        = 90673, 
+    SPELL_SHADOW_WEAVE_SCRIPT        = 90673,
     SPELL_SHADOW_WEAVE_DUMMY        = 90674,
-    SPELL_SHADOW_WEAVE_DMG            = 90678, 
-    SPELL_SUMMON_FELHUNTER            = 76418, 
+    SPELL_SHADOW_WEAVE_DMG            = 90678,
+    SPELL_SUMMON_FELHUNTER            = 76418,
     SPELL_SPELL_LOCK                = 40953, //heroic?
 
     //twilight stormbreaker
@@ -199,7 +199,7 @@ enum Spells
     SPELL_POLYMORPH                    = 76826,
 
     //twilight wyrmcaller
-    SPELL_FEED_PET                    = 76816, 
+    SPELL_FEED_PET                    = 76816
 };
 
 enum Events
@@ -1737,7 +1737,7 @@ class npc_twilight_wyrmcaller : public CreatureScript
                     {
                     case EVENT_CALL_WYRM:
                         me->MonsterYell(SAY_CALL_WYRM, 0, 0);
-                        if (Creature* _wyrm = me->SummonCreature(NPC_TWILIGHT_DRAKE_1, 
+                        if (Creature* _wyrm = me->SummonCreature(NPC_TWILIGHT_DRAKE_1,
                             me->GetPositionX(),
                             me->GetPositionY(),
                             me->GetPositionZ() + 20.0f,

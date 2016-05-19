@@ -13,9 +13,9 @@ enum ScriptTexts
 
 enum Equipment
 {
-    EQUIPMENT_ID_SHIELD    = 40400, 
-    EQUIPMENT_ID_SWORD    = 65094, 
-    EQUIPMENT_ID_MACE    = 65090,  
+    EQUIPMENT_ID_SHIELD    = 40400,
+    EQUIPMENT_ID_SWORD    = 65094,
+    EQUIPMENT_ID_MACE    = 65090
 };
 
 enum Spells
@@ -28,20 +28,19 @@ enum Spells
     SPELL_ENCUMBERED_H            = 90729,
     SPELL_IMPALING_SLAM_0        = 75057,
     SPELL_IMPALING_SLAM            = 75056,
-    SPELL_IMPALING_SLAM_H        = 90756, 
+    SPELL_IMPALING_SLAM_H        = 90756,
     SPELL_DISORIENTING_ROAR        = 74976,
     SPELL_DISORIENTING_ROAR_H    = 90737,
     SPELL_BURNING_SHIELD        = 90819,
     SPELL_PERSONAL_PHALANX        = 74908,
     SPELL_FLAMING_ARROW            = 45101,
-    SPELL_FLAMING_ARROW_VISUAL    = 74944, 
+    SPELL_FLAMING_ARROW_VISUAL    = 74944,
     SPELL_CAVE_IN_DUMMY            = 74987,
     SPELL_CAVE_IN                = 74990,
     SPELL_CAVE_IN_DMG            = 74986,
     SPELL_CAVE_IN_DMG_H            = 90722,
     SPELL_FIRE_PATCH_AURA        = 90752,
-    SPELL_LAVA_PATCH_DMG        = 90754,
-    
+    SPELL_LAVA_PATCH_DMG        = 90754
 };
 
 enum Adds
@@ -66,24 +65,6 @@ enum Others
     ACTION_MACE            = 1,
     ACTION_DUAL_BLADES    = 2,
     ACTION_SHIELD        = 3
-};
-
-
-const Position  twilightarcherPos[13] =
-{
-    {-542.994f, -605.236f, 300.201f, 1.68049f},
-    {-543.59f, -605.413f, 283.784f, 1.50377f},
-    {-521.237f, -605.435f, 300.76f, 1.63886f},
-    {-483.862f, -588.658f, 297.574f, 2.38106f},
-    {-482.655f, -588.461f, 280.966f, 2.34571f},
-    {-471.266f, -575.324f, 295.906f, 2.30254f},
-    {-525.377f, -455.312f, 285.288f, 4.66187f},
-    {-544.49f, -454.961f, 295.831f, 4.79539f},
-    {-522.164f, -455.31f, 299.791f, 4.77575f},
-    {-468.703f, -489.004f, 300.462f, 3.78616f},
-    {-470.907f, -484.791f, 282.203f, 3.87255f},
-    {-485.052f, -474.621f, 296.525f, 3.92361f},
-    {-481.352f, -477.21f, 280.714f, 3.72334f}
 };
 
 class boss_forgemaster_throngus : public CreatureScript
@@ -272,7 +253,7 @@ class spell_throngus_pick_weapon: public SpellScriptLoader
                 case 2:
                     GetCaster()->GetAI()->DoAction(ACTION_SHIELD);
                     break;
-                }                
+                }
             }
 
             void Register()

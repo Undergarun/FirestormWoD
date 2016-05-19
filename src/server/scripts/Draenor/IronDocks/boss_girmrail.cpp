@@ -377,7 +377,7 @@ class boss_grimrail_makogg : public CreatureScript
             {
                 /// Makogg
                 EventFlamingSlash = 1,
-                EventLavaSweep,        
+                EventLavaSweep,
                 EventLavaSweepSpawn
             };
 
@@ -388,7 +388,7 @@ class boss_grimrail_makogg : public CreatureScript
             bool m_Dead;
 
             void Reset() override
-            {  
+            {
                 events.Reset();
                 m_Dead = false;
                 m_LavaSweeping = false;
@@ -503,7 +503,7 @@ class boss_grimrail_makogg : public CreatureScript
                             m_LavaSweepers = 0;
                             m_LavaSweeping = true;
                             me->SetReactState(ReactStates::REACT_PASSIVE);
-                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);                   
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                             events.ScheduleEvent(eMakoggEvents::EventLavaSweepSpawn, 2 * TimeConstants::IN_MILLISECONDS);
                             break;
                         }
@@ -511,12 +511,12 @@ class boss_grimrail_makogg : public CreatureScript
                         {
                             m_LavaSweepers++;
                             me->CastSpell(me, eMakoggSpells::SpellLavaWaveSwing);
-                            me->SummonCreature(eCreatures::CreatureLavaSweep, *me, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 8 * TimeConstants::IN_MILLISECONDS);                       
+                            me->SummonCreature(eCreatures::CreatureLavaSweep, *me, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 8 * TimeConstants::IN_MILLISECONDS);
                             if (m_LavaSweepers >= 2)
                             {
-                                m_LavaSweepers = 0;     
+                                m_LavaSweepers = 0;
                                 m_LavaSweeping = true;
-                                me->SetReactState(ReactStates::REACT_AGGRESSIVE);                           
+                                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                                 events.CancelEvent(eMakoggEvents::EventLavaSweepSpawn);
                                 events.ScheduleEvent(eMakoggEvents::EventLavaSweep, 50 * TimeConstants::IN_MILLISECONDS);
@@ -613,7 +613,7 @@ class boss_grimrail_noxx : public CreatureScript
                 {
                     switch (p_Summon->GetEntry())
                     {
-                        case eCreatures::CreatureBombsquad:           
+                        case eCreatures::CreatureBombsquad:
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                                 p_Summon->GetMotionMaster()->MoveJump(*l_Target, 40.0f, 20.0f);
                             p_Summon->CastSpell(p_Summon, eNoxxSpells::SpellBigBoom);
@@ -658,7 +658,7 @@ class boss_grimrail_noxx : public CreatureScript
                             break;
                         }
                     case eNoxxEvents::EventOgreTrap:
-                        {                  
+                        {
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                             {
                                 float l_Range = 5.0f;
@@ -677,7 +677,7 @@ class boss_grimrail_noxx : public CreatureScript
                             break;
                         }
                     case eNoxxEvents::EventJumperCables:
-                        {                
+                        {
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
                                 me->CastSpell(l_Target, eNoxxSpells::SpellJumperCables);
                             Talk(eTalks::TalkNoxxSpell01);
@@ -711,7 +711,7 @@ class iron_docks_grimrail_mob_ogre_trap : public CreatureScript
         struct iron_docks_grimrail_mob_ogre_trapAI : public Scripted_NoMovementAI
         {
             iron_docks_grimrail_mob_ogre_trapAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
-            {           
+            {
                 m_Instance = me->GetInstanceScript();
             }
 
@@ -734,7 +734,7 @@ class iron_docks_grimrail_mob_ogre_trap : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->CastSpell(me, eOgreTrapSpells::SpellOgreTrapOpenTeeth);
                 me->DespawnOrUnsummon(58 * TimeConstants::IN_MILLISECONDS);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);          
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
             }
 
             void UpdateAI(uint32 const /*p_Diff*/) override
@@ -783,7 +783,7 @@ public:
         void Reset() override
         {
             events.Reset();
-            me->setFaction(HostileFaction);         
+            me->setFaction(HostileFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             m_EffectDiff = 1 * TimeConstants::IN_MILLISECONDS;
             me->AddUnitState(UnitState::UNIT_STATE_CANNOT_AUTOATTACK);
@@ -881,7 +881,7 @@ class iron_docks_grimrail_spell_sanguine_sphere : public SpellScriptLoader
 };
 
 
-/// Big Boom - 163379  
+/// Big Boom - 163379
 class iron_docks_grimrail_spell_big_boom : public SpellScriptLoader
 {
 public:
@@ -958,7 +958,7 @@ void AddSC_boss_grimrail()
     /// Spells
     new iron_docks_grimrail_spell_sanguine_sphere(); /// 163689
     new iron_docks_grimrail_spell_big_boom(); /// 163379 Visual
-    //new iron_docks_grimrail_spell_lava_wave(); /// 98928 
+    //new iron_docks_grimrail_spell_lava_wave(); /// 98928
     /// Areatrigger
     new iron_docks_grimrail_at_event(); /// 10314
 }

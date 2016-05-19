@@ -22,7 +22,7 @@ namespace MS { namespace Garrison
     /// @t_SetupLevel1  : Function pour initializing sequence for level 1 building
     /// @t_SetupLevel2  : Function pour initializing sequence for level 2 building
     /// @t_SetupLevel3  : Function pour initializing sequence for level 3 building
-    template<char const* t_ScriptName, SkillType t_Skill, uint32 t_QuestID, InitSequenceFunction* t_SetupLevel1, InitSequenceFunction* t_SetupLevel2, InitSequenceFunction* t_SetupLevel3> 
+    template<char const* t_ScriptName, SkillType t_Skill, uint32 t_QuestID, InitSequenceFunction* t_SetupLevel1, InitSequenceFunction* t_SetupLevel2, InitSequenceFunction* t_SetupLevel3>
     class ProfessionBuilding_WorkOrderNPC : public SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>
     {
         public:

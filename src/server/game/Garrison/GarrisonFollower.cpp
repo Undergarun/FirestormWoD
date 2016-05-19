@@ -13,7 +13,7 @@
 #include "Player.h"
 #include "Object.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonFollower::GarrisonFollower()

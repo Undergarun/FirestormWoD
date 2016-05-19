@@ -11,7 +11,7 @@
 
 #define MAX_ENCOUNTER 3
 
-static const DoorData doordata[] = 
+static const DoorData doordata[] =
 {
     {GO_INVISIBLE_FIREWALL_DOOR, DATA_PEROTHARN, DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
     {0,                          0,              DOOR_TYPE_ROOM,    BOUNDARY_NONE}
@@ -69,7 +69,7 @@ class instance_well_of_eternity : public InstanceMapScript
                         break;
                     default:
                         break;
-                }                
+                }
             }
 
             void OnGameObjectCreate(GameObject* pGo)
@@ -226,7 +226,7 @@ class instance_well_of_eternity : public InstanceMapScript
                 std::string str_data;
 
                 std::ostringstream saveStream;
-                saveStream << "W o E " << GetBossSaveData() 
+                saveStream << "W o E " << GetBossSaveData()
                     << uiEventNozdormu << " " << uiEventDemon << " " << uiEventIllidan1 << " ";
 
                 str_data = saveStream.str();

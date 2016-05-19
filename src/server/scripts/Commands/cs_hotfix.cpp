@@ -9,9 +9,9 @@ class hotfix_commandscript : public CommandScript
 {
     public:
         /// Constructor
-        hotfix_commandscript() 
+        hotfix_commandscript()
             : CommandScript("hotfix_commandscript")
-        { 
+        {
 
         }
 

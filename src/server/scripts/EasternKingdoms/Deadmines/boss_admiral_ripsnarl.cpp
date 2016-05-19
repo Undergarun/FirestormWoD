@@ -49,7 +49,7 @@ enum Spells
 
 enum Adds
 {
-    NPC_VAPOR   = 47714, 
+    NPC_VAPOR   = 47714,
     NPC_DUMMY_2 = 45979, // 88755
     NPC_DUMMY_1 = 47242, // 88768
 };
@@ -69,7 +69,7 @@ enum Events
 
 #define ACTION_COALESCE 1
 
-const Position dummyPos[38] = 
+const Position dummyPos[38] =
 {
     {-62.6927f, -814.031f, 41.3843f, 0.0f },
     {-67.6128f, -814.219f, 40.944f, 0.0f },
@@ -301,7 +301,7 @@ class npc_admiral_ripsnarl_vapor : public CreatureScript
      
         struct npc_admiral_ripsnarl_vaporAI : public ScriptedAI
         {
-            npc_admiral_ripsnarl_vaporAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_admiral_ripsnarl_vaporAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
             }
      

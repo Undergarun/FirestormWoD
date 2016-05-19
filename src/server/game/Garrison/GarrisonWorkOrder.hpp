@@ -8,7 +8,7 @@
 #ifndef GARRISON_MGR_WORKORDER_HPP_GARRISON
 #define GARRISON_MGR_WORKORDER_HPP_GARRISON
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Garrison work order
     struct GarrisonWorkOrder

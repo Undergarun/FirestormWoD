@@ -266,7 +266,7 @@ class boss_lady_nazjar : public CreatureScript
                 }
 
                 if (me->HealthBelowPct(66) && uiPhase == 0)
-                {              
+                {
                     uiPhase = 1;
                     uiSpawnCount = 3;
                     me->InterruptNonMeleeSpells(false);
@@ -275,14 +275,14 @@ class boss_lady_nazjar : public CreatureScript
                     return;
                 }
                 if (me->HealthBelowPct(33) && uiPhase == 2)
-                {              
+                {
                     uiPhase = 3;
                     uiSpawnCount = 3;
                     me->InterruptNonMeleeSpells(false);
                     me->SetReactState(REACT_PASSIVE);
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_2, centerPos);
                     return;
-                } 
+                }
 
                 switch (uiPhase)
                 {
@@ -392,7 +392,7 @@ class npc_lady_nazjar_honnor_guard : public CreatureScript
                         break;
                     }
                 }
-                DoMeleeAttackIfReady();                
+                DoMeleeAttackIfReady();
             }
         };
 };

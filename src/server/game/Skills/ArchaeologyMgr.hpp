@@ -44,7 +44,7 @@ namespace MS { namespace Skill { namespace Archaeology
 
     namespace Zones
     {
-        enum 
+        enum
         {
             TwilightHightlands  = 4922,
             Hyjal               = 616,
@@ -246,7 +246,7 @@ namespace MS { namespace Skill { namespace Archaeology
             bool HasResearchProject(uint32 p_ProjectID) const;
 
             /// Get random loot for a research site
-            /// @p_SiteID : Site ID 
+            /// @p_SiteID : Site ID
             /// @p_Site   : [Out]Current site descriptor
             bool GenerateDigitLoot(uint16 p_SiteID, DigitSite &p_Site);
 

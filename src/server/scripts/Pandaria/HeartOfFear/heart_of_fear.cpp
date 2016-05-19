@@ -168,7 +168,7 @@ class mob_sra_thik_shield_master : public CreatureScript
         struct mob_sra_thik_shield_masterAI : public ScriptedAI
         {
             mob_sra_thik_shield_masterAI(Creature* creature) : ScriptedAI(creature)
-            {            
+            {
             }
 
             EventMap events;

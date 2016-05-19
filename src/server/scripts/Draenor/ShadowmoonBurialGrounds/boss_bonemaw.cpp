@@ -128,10 +128,10 @@ public:
             me->SetDisableGravity(true);
             m_DrowningDiff = 4 * TimeConstants::IN_MILLISECONDS;
             m_PoolDiff   = 3 * TimeConstants::IN_MILLISECONDS;;
-            m_InhaleDiff = 4 * TimeConstants::IN_MILLISECONDS;       
+            m_InhaleDiff = 4 * TimeConstants::IN_MILLISECONDS;
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);   
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
             if (m_Instance != nullptr)
             {
@@ -214,13 +214,13 @@ public:
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
                 if (m_Instance->instance->IsHeroic())
                     events.ScheduleEvent(eBoneMawEvents::EventCarrionWorm, 70 * TimeConstants::IN_MILLISECONDS);
-            }     
+            }
             events.ScheduleEvent(eBoneMawEvents::EventNecroticPitch, 50 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eBoneMawEvents::EventBodySlam, 30 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eBoneMawEvents::EventCorpseBreath, 20 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eBoneMawEvents::EventInhale, 60 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(70 * TimeConstants::IN_MILLISECONDS, 100 * TimeConstants::IN_MILLISECONDS));     
+            events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(70 * TimeConstants::IN_MILLISECONDS, 100 * TimeConstants::IN_MILLISECONDS));
         }
 
         void JustDied(Unit* /*p_Killer*/) override
@@ -230,7 +230,7 @@ public:
             HandleDoorActivation();
             HandleEntranceDoorActivation();
             if (m_Instance != nullptr)
-                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossBonemaw, EncounterState::DONE);    
+                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossBonemaw, EncounterState::DONE);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -319,7 +319,7 @@ public:
                 case eBoneMawEvents::EventSubmerge:
                     events.Reset();
                     me->MonsterTextEmote("Bonemaw hisses, sinking back into the depths", me->GetGUID(), false);
-                    me->CastSpell(me, eBoneMawSpells::SpellVisualSubmerge);             
+                    me->CastSpell(me, eBoneMawSpells::SpellVisualSubmerge);
                     events.ScheduleEvent(eBoneMawEvents::EventCancelSubmerge, 8 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eBoneMawEvents::EventBodySlam:
@@ -443,7 +443,7 @@ public:
             me->AddAura(eCarrionWormSpells::SpellVisualSubmerge, me);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS,  eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);         
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
         }
 
         void EnterCombat(Unit* /*p_Attacker*/) override
@@ -477,9 +477,9 @@ public:
                 else
                 {
                     if (m_PoolDiff <= p_Diff)
-                    {                
+                    {
                         m_HasVictimOut = true;
-                        DoCastAOE(eCarrionWormSpells::SpellFetidSpitDamage, true);               
+                        DoCastAOE(eCarrionWormSpells::SpellFetidSpitDamage, true);
                         events.CancelEvent(eCarrionWormEvents::EventFetidSpit);
                         m_PoolDiff = 5 * TimeConstants::IN_MILLISECONDS;
                     }
@@ -603,7 +603,7 @@ public:
             m_Timer = 2 * TimeConstants::IN_MILLISECONDS;
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);                
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -636,7 +636,7 @@ public:
     }
 };
 
-/// Inhale - 153804 
+/// Inhale - 153804
 class shadowmoon_burial_grounds_bonemaw_spell_inhale : public SpellScriptLoader
 {
 public:
@@ -663,7 +663,7 @@ public:
         }
 
         void Register()
-        {     
+        {
             AfterEffectRemove += AuraEffectRemoveFn(shadowmoon_burial_grounds_bonemaw_spell_inhale_AuraScript::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
         }
     };
@@ -728,7 +728,7 @@ public:
         
 
         void Register() override
-        {  
+        {
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(shadowmoon_burial_grounds_bonemaw_spell_body_slam_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CONE_ENEMY_129);
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(shadowmoon_burial_grounds_bonemaw_spell_body_slam_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CONE_ENEMY_129);
             AfterCast += SpellCastFn(shadowmoon_burial_grounds_bonemaw_spell_body_slam_SpellScript::HandleAfterCast);
@@ -741,7 +741,7 @@ public:
     }
 };
 
-/// Corpse Breath - 165578  
+/// Corpse Breath - 165578
 class shadowmoon_burial_grounds_bonemaw_spell_corpse_breath : public SpellScriptLoader
 {
 public:
@@ -794,7 +794,7 @@ public:
     }
 };
 
-/// Drowned - 154010  
+/// Drowned - 154010
 class shadowmoon_burial_grounds_bonemaw_spell_drowned : public SpellScriptLoader
 {
 public:

@@ -83,7 +83,7 @@ enum Adds
     NPC_TEMPLE_RAT          = 53108
 };
 
-const Position pridePos[16] = 
+const Position pridePos[16] =
 {
     {-11517.2f, -1646.82f, 44.4849f, 3.87463f},
     {-11519.2f, -1605.37f, 44.4849f, 3.56047f},
@@ -103,7 +103,7 @@ const Position pridePos[16] =
     {-11518.1f, -1651.48f, 44.4849f, 2.26893f}
 };
 
-const Position cavePos[4] = 
+const Position cavePos[4] =
 {
     {-11506.63f, -1605.05f, 44.41f, 0.0f},
     {-11506.26f, -1643.40f, 44.41f, 0.0f},
@@ -309,7 +309,7 @@ class npc_kilnara_pride_of_bethekk : public CreatureScript
 
         struct npc_kilnara_pride_of_bethekkAI : public ScriptedAI
         {
-            npc_kilnara_pride_of_bethekkAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_kilnara_pride_of_bethekkAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
             }
 
@@ -353,7 +353,7 @@ class npc_kilnara_wave_of_agony : public CreatureScript
 
         struct npc_kilnara_wave_of_agonyAI : public Scripted_NoMovementAI
         {
-            npc_kilnara_wave_of_agonyAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_kilnara_wave_of_agonyAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -377,7 +377,7 @@ class npc_kilnara_temple_rat : public CreatureScript
 
         struct npc_kilnara_temple_ratAI : public ScriptedAI
         {
-            npc_kilnara_temple_ratAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_kilnara_temple_ratAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
             }
 
@@ -406,7 +406,7 @@ class spell_kilnara_wave_of_agony_target: public SpellScriptLoader
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
-            { 
+            {
                 if (!GetCaster() || !GetHitUnit())
                     return;
 
@@ -486,7 +486,7 @@ class spell_kilnara_rat_lure: public SpellScriptLoader
             PrepareSpellScript(spell_kilnara_rat_lure_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
-            { 
+            {
                 targets.remove_if(PrideCheck());
                 if (targets.size() > 1)
                     JadeCore::RandomResizeList(targets, 1);

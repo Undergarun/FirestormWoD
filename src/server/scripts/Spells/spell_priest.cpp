@@ -868,7 +868,7 @@ class spell_pri_surge_of_light : public SpellScriptLoader
         }
 };
 
-/// Surge of Light (Discipline, Holy) - 109186 
+/// Surge of Light (Discipline, Holy) - 109186
 class spell_pri_surge_of_light_aura : public SpellScriptLoader
 {
     public:
@@ -1151,7 +1151,7 @@ class spell_pri_holy_word_sanctuary_heal : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                /// Healing up to 6 allies 
+                /// Healing up to 6 allies
                 if (p_Targets.size() > 6)
                     JadeCore::RandomResizeList(p_Targets, 6);
             }
@@ -1373,7 +1373,7 @@ public:
     }
 };
 
-// Smite - 585
+/// Smite - 585
 class spell_pri_smite: public SpellScriptLoader
 {
     public:
@@ -1388,7 +1388,7 @@ class spell_pri_smite: public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                     if (Unit* target = GetHitUnit())
                     {
-                        // Surge of light 
+                        /// Surge of light
                         const SpellInfo * l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_LIGHT_AURA);
 
                         if (l_SpellInfo != nullptr && l_Player->HasSpell(PRIEST_SURGE_OF_LIGHT_AURA) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))

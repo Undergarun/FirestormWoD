@@ -10,9 +10,9 @@ class garrison_commandscript: public CommandScript
 {
     public:
         /// Constructor
-        garrison_commandscript() 
+        garrison_commandscript()
             : CommandScript("garrison_commandscript")
-        { 
+        {
 
         }
 
@@ -26,7 +26,7 @@ class garrison_commandscript: public CommandScript
             };
 
             static ChatCommand plotCommandTable[] =
-            {                                                                
+            {
                 { "info",    SEC_ADMINISTRATOR, true,  &HandlePlotInfoCommand,   "", NULL },
                 { "add",     SEC_ADMINISTRATOR, true,  &HandlePlotAddCommand,    "", NULL },
                 { "del",     SEC_ADMINISTRATOR, true,  &HandlePlotDelCommand,    "", NULL },
@@ -224,9 +224,9 @@ class garrison_commandscript: public CommandScript
             uint32 l_MapID   = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
             uint32 l_TeamID  = l_TargetPlayer->GetTeamId();
 
-            l_TargetPlayer->AddMovieDelayedTeleport(l_MovieID, l_MapID, MS::Garrison::gGarrisonCreationCoords[l_TeamID][0], 
-                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][1], 
-                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][2], 
+            l_TargetPlayer->AddMovieDelayedTeleport(l_MovieID, l_MapID, MS::Garrison::gGarrisonCreationCoords[l_TeamID][0],
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][1],
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][2],
                                                                         MS::Garrison::gGarrisonCreationCoords[l_TeamID][3]);
 
             l_TargetPlayer->SendMovieStart(l_MovieID);

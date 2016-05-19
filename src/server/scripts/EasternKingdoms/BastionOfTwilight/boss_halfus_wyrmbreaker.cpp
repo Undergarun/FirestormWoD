@@ -213,7 +213,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                     case 0:
                         timewarden->CastSpell(timewarden, SPELL_UNRESPONSIVE_DRAKE, true);
                         for (uint8 i = 0; i < 8; i++)
-                            whelps[i]->CastSpell(whelps[i], SPELL_UNRESPONSIVE_WHELP, true); 
+                            whelps[i]->CastSpell(whelps[i], SPELL_UNRESPONSIVE_WHELP, true);
                         DoCast(me, SPELL_MALEVOLENT_STRIKES);
                         DoCast(me, SPELL_SHADOW_WARPED);
                         DoCast(me, SPELL_FRENZIED_ASSAULT);
@@ -223,14 +223,14 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         for (uint8 i = 0; i < 8; i++)
                             whelps[i]->CastSpell(whelps[i], SPELL_UNRESPONSIVE_WHELP, true);
                         proto->CastSpell(proto, SPELL_DANCING_FLAMES, true);
-                        DoCast(me, SPELL_SHADOW_WARPED); 
+                        DoCast(me, SPELL_SHADOW_WARPED);
                         DoCast(me, SPELL_FRENZIED_ASSAULT);
                         break;
                     case 2:
                         bWhelps = true;
                         timewarden->CastSpell(timewarden, SPELL_UNRESPONSIVE_DRAKE, true);
                         stormrider->CastSpell(stormrider, SPELL_UNRESPONSIVE_DRAKE, true);
-                        DoCast(me, SPELL_MALEVOLENT_STRIKES); 
+                        DoCast(me, SPELL_MALEVOLENT_STRIKES);
                         DoCast(me, SPELL_FRENZIED_ASSAULT);
                         proto->CastSpell(proto, SPELL_SUPERHEATED_BREATH, true);
                         break;
@@ -264,7 +264,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         netherscion->CastSpell(netherscion, SPELL_UNRESPONSIVE_DRAKE, true);
                         DoCast(me, SPELL_SHADOW_WARPED);
                         proto->CastSpell(proto, SPELL_DANCING_FLAMES, true);
-                        proto->CastSpell(proto, SPELL_SUPERHEATED_BREATH, true);                    
+                        proto->CastSpell(proto, SPELL_SUPERHEATED_BREATH, true);
                         break;
                     case 7:
                         bWhelps = true;
@@ -272,7 +272,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         netherscion->CastSpell(netherscion, SPELL_UNRESPONSIVE_DRAKE, true);
                         DoCast(me, SPELL_MALEVOLENT_STRIKES);
                         proto->CastSpell(proto, SPELL_DANCING_FLAMES, true);
-                        proto->CastSpell(proto, SPELL_SUPERHEATED_BREATH, true);                    
+                        proto->CastSpell(proto, SPELL_SUPERHEATED_BREATH, true);
                         break;
                     case 8:
                         bWhelps = true;
@@ -295,7 +295,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
             }
 
             void EnterCombat(Unit* who)
-            { 
+            {
                 if (!slatedrake->HasAura(SPELL_UNRESPONSIVE_DRAKE))
                     slatedrake->GetAI()->DoAction(ACTION_ACTIVE_GOSSIP);
                 if (!stormrider->HasAura(SPELL_UNRESPONSIVE_DRAKE))
@@ -335,7 +335,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                             return;
 
                         EntryCheckPredicate pred(NPC_ORPHANED_WHELP);
-                        summons.DoAction(ACTION_WHELPS_RELEASE, pred, 8); 
+                        summons.DoAction(ACTION_WHELPS_RELEASE, pred, 8);
                         break;
                     }
                     case ACTION_WHELP_DIED:
@@ -429,7 +429,7 @@ class npc_proto_behemoth : public CreatureScript
     public :
         npc_proto_behemoth() : CreatureScript("npc_proto_behemoth") { }
 
-        struct npc_proto_behemothAI : public ScriptedAI 
+        struct npc_proto_behemothAI : public ScriptedAI
         {
             npc_proto_behemothAI(Creature * creature) : ScriptedAI(creature)
             {
@@ -521,7 +521,7 @@ class npc_orphaned_whelp : public CreatureScript
             return new npc_orphaned_whelpAI(creature);
         }
 
-        struct npc_orphaned_whelpAI : public ScriptedAI 
+        struct npc_orphaned_whelpAI : public ScriptedAI
         {
             npc_orphaned_whelpAI(Creature * creature) : ScriptedAI(creature)
             {
@@ -566,7 +566,7 @@ class npc_orphaned_whelp : public CreatureScript
                         DoCast(proto, SPELL_ATROPHIC_POISON, true);
 
                     DoZoneInCombat();
-                }  
+                }
             }
 
             void JustDied(Unit* /*Killer*/)
@@ -583,7 +583,7 @@ class go_whelp_cage : public GameObjectScript
         go_whelp_cage() : GameObjectScript("go_whelp_cage") {}
 
         bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
-        {       
+        {
             InstanceScript* pInstance = pGo ? pGo->GetInstanceScript() : NULL;
             if (!pInstance)
                 return true;
@@ -623,7 +623,7 @@ class npc_halfus_dragon : public CreatureScript
             pPlayer->PlayerTalkClass->ClearMenus();
             InstanceScript* pInstance;
             pInstance = (InstanceScript*)creature->GetInstanceScript();
-            if (!pInstance) 
+            if (!pInstance)
                 return false;
             pPlayer->CLOSE_GOSSIP_MENU();
             switch (uiAction)
@@ -634,7 +634,7 @@ class npc_halfus_dragon : public CreatureScript
                     switch (creature->GetEntry())
                     {
                         case NPC_SLATE_DRAKE:
-                            creature->CastSpell(Halfus, SPELL_STONE_GRIP, false); 
+                            creature->CastSpell(Halfus, SPELL_STONE_GRIP, false);
                             break;
                         case NPC_NETHER_SCION:
                             creature->CastSpell(Halfus, SPELL_NETHER_BLINDNESS, false);
@@ -659,7 +659,7 @@ class npc_halfus_dragon : public CreatureScript
             return true;
         }
 
-        struct npc_halfus_dragonAI : public ScriptedAI 
+        struct npc_halfus_dragonAI : public ScriptedAI
         {
             npc_halfus_dragonAI(Creature * creature) : ScriptedAI(creature)
             {
@@ -707,15 +707,15 @@ class npc_halfus_dragon : public CreatureScript
 
 class spell_halfus_stone_grip: public SpellScriptLoader
 {
-    public:                                                      
+    public:
         spell_halfus_stone_grip() : SpellScriptLoader("spell_halfus_stone_grip") { }
 
 
-        class spell_halfus_stone_grip_AuraScript : public AuraScript 
+        class spell_halfus_stone_grip_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halfus_stone_grip_AuraScript) 
+            PrepareAuraScript(spell_halfus_stone_grip_AuraScript)
 
-            void OnPereodic(AuraEffect const* /*aurEff*/) 
+            void OnPereodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
 
@@ -723,7 +723,7 @@ class spell_halfus_stone_grip: public SpellScriptLoader
                     GetTarget()->CastSpell(GetTarget(), SPELL_PARALYSIS, true);
             }
 
-            void Register() 
+            void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_halfus_stone_grip_AuraScript::OnPereodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }

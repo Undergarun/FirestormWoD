@@ -16,7 +16,7 @@
 class npc_prince_anduin : public CreatureScript
 {
     public:
-        npc_prince_anduin() : CreatureScript("npc_prince_anduin") 
+        npc_prince_anduin() : CreatureScript("npc_prince_anduin")
         {
         }
 
@@ -67,7 +67,7 @@ class npc_prince_anduin : public CreatureScript
 class npc_kairoz : public CreatureScript
 {
     public:
-        npc_kairoz() : CreatureScript("npc_kairoz") 
+        npc_kairoz() : CreatureScript("npc_kairoz")
         {
         }
 

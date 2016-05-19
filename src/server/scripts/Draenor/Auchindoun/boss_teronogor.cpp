@@ -223,7 +223,7 @@ class EventTeronogorPostDeath : public BasicEvent
                     if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eDataAuchindonDatas::DataBossTeronogor)))
                     {
                         if (Creature* l_Tuulani = l_Instance->instance->GetCreature(l_Instance->GetData64(eDataAuchindonDatas::DataTuulani02)))
-                        { 
+                        {
                             if (l_Tuulani->AI() && l_Teronogor->AI())
                             {
                                 switch (m_Modifier)
@@ -691,7 +691,7 @@ class auchindon_teronogor_durag : public CreatureScript
             }
 
             void EnterCombat(Unit* /*p_Attacker*/) override
-            { 
+            {
                 me->CastSpell(me, 159021);
 
                 me->CastStop();
@@ -1037,7 +1037,7 @@ class auchindon_terongor_abyssal_dummy : public CreatureScript
         }
 };
 
-/// Chaos Wave - 
+/// Chaos Wave
 class auchindon_teronogor_spell_chaos_wave : public SpellScriptLoader
 {
     public:

@@ -1657,7 +1657,7 @@ void Guild::HandleInviteMember(WorldSession* p_Session, const std::string& p_Nam
     {
         SendCommandResult(p_Session, GUILD_INVITE_S, ERR_ALREADY_IN_GUILD_S, p_Name);
         return;
-    }    
+    }
 
     /// Inviting player must have rights to invite
     if (!_HasRankRight(l_Player, GR_RIGHT_INVITE))

@@ -24,7 +24,7 @@ class TransportScript : public ScriptObjectImpl<true>, public UpdatableScript<Tr
         /// @p_Transport : Transport instance
         /// @p_Player    : Added player passenger instance
         virtual void OnAddPassenger(Transport * p_Transport, Player * p_Player)
-        { 
+        {
             UNUSED(p_Transport);
             UNUSED(p_Player);
         }

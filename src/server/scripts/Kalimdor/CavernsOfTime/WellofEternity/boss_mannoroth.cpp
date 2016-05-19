@@ -125,24 +125,22 @@ enum Actions
     ACTION_DEBILITATING_OFF = 2
 };
 
-const Position portalPos = {3338.699951f, -5699.775879f, 13.01f, 3.87f};
-
 const Position varothenPos = {3319.669922f, -5716.470215f, 16.18f, 2.68f};
 
-const Position debilitatorPos[2] = 
+const Position debilitatorPos[2] =
 {
     {3295.439941f, -5687.229980f, 14.19f, 5.74f}, // left dreadlord
     {3324.479980f, -5694.270020f, 13.97f, 3.17f}  // right dreadlord
 };
 
-const Position devastatorPos[3] = 
+const Position devastatorPos[3] =
 {
     {3302.872803f, -5676.763672f, 12.53f, 4.74f},
     {3326.123047f, -5690.420410f, 13.14f, 3.81f},
     {3316.755127f, -5686.553711f, 14.03f, 4.26f}
 };
 
-const Position stalkerPos[3] = 
+const Position stalkerPos[3] =
 {
     {3295.44f, -5687.23f, 14.19f, 5.74213f},
     {3324.48f, -5694.27f, 13.97f, 3.1765f},
@@ -469,9 +467,9 @@ class boss_mannoroth : public CreatureScript
                 if (instance)
                 {
                     // Achievement
-                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_COMPLETE_ENCOUNTER, 0, 0, me); 
+                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_COMPLETE_ENCOUNTER, 0, 0, me);
                     instance->DoKilledMonsterKredit(QUEST_THE_PATH_TO_THE_DRAGON_SOUL, 54969, 0);
-                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_COMPLETE_ENCOUNTER, me); 
+                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_COMPLETE_ENCOUNTER, me);
                     instance->SetBossState(DATA_MANNOROTH, DONE);
                     instance->DoModifyPlayerCurrencies(395, 7000);
                 }

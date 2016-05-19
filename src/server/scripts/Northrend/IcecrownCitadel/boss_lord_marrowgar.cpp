@@ -219,7 +219,7 @@ class boss_lord_marrowgar : public CreatureScript
                             if (unit)
                                 if (unit->isPet() || unit->isTotem() || !me->IsWithinLOSInMap(unit))
                                     unit = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                                else 
+                                else
                                     me->GetMotionMaster()->MovePoint(POINT_TARGET_BONESTORM_PLAYER, unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ());
                             break;
                         }

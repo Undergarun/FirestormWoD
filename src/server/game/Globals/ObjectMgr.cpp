@@ -10876,7 +10876,7 @@ void ObjectMgr::LoadItemBonusGroup()
         m_ItemBonusGroupStore.insert(std::make_pair(l_GroupID, l_ItemBonusGroup));
 
         l_Count++;
-    } 
+    }
     while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));

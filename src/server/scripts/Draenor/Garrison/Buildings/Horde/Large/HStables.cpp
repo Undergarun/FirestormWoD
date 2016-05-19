@@ -388,7 +388,7 @@ namespace MS { namespace Garrison
         GarrisonNPCAI* l_AI = p_Creature->GetAI() ? dynamic_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
         if (l_AI == nullptr)
-            return true; 
+            return true;
 
         uint32 l_QuestID = p_Quest->GetQuestId();
 

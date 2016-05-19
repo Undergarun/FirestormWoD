@@ -4568,7 +4568,7 @@ enum VitalMistsSpell
     SPELL_MONK_VITALS_MISTS = 118674
 };
 
-/// Vital Mists - 118674  
+/// Vital Mists - 118674
 class spell_monk_vital_mists_power : public PlayerScript
 {
     public:
@@ -5462,7 +5462,7 @@ class spell_monk_detonate_chi : public SpellScriptLoader
 };
 
 /// Glyph of Freedom Roll - 159534
-/// Call by Flying Serpent Kick - 101545, Roll - 109132, and Chi Torpedo - 115008 
+/// Call by Flying Serpent Kick - 101545, Roll - 109132, and Chi Torpedo - 115008
 class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
 {
     public:

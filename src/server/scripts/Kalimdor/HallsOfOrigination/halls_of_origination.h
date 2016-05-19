@@ -8,7 +8,7 @@ enum Data
     DATA_TEMPLE_GUARDIAN_ANHUUR,
     DATA_EARTHRAGER_PTAH,
     DATA_ANRAPHET,
-    DATA_ISISET,                    
+    DATA_ISISET,
     DATA_AMMUNAE,
     DATA_SETESH,
     DATA_RAJH,

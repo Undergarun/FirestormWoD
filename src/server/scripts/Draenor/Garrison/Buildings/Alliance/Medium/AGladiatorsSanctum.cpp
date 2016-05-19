@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "AGladiatorsSanctum.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -13,24 +14,24 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 86639 - Altar of Bones                                            ////
     //////////////////////////////////////////////////////////////////////////
     namespace npc_AltarOfBonesAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * /*p_Me*/)
         {
             p_This->SetAIObstacleManagerEnabled(true);
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * /*p_This*/, Creature * /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * /*p_This*/, Creature * /*p_Me*/)
         {
 
         };

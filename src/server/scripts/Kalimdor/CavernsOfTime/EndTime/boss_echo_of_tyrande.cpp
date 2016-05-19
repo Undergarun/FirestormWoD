@@ -102,7 +102,7 @@ enum Other
     ACTION_START_EVENT  = 2
 };
 
-const Position poolPos[5] = 
+const Position poolPos[5] =
 {
     {2903.26f, 63.1788f, 3.2449f, 0.0f},
     {2862.83f, 131.462f, 3.18436f, 0.0f},
@@ -424,7 +424,7 @@ class boss_echo_of_tyrande : public CreatureScript
                 }
             }
         private:
-            uint8 phase; 
+            uint8 phase;
             uint64 moonlanceGUID;
             uint8 eventphase;
             Unit* curPool;
@@ -462,10 +462,10 @@ class npc_echo_of_tyrande_moonlance : public CreatureScript
                     {
                         Position pos1_1, pos1_2, pos2_1, pos2_2, pos3_1, pos3_2;
                         me->GetNearPosition(pos1_1, 3.0f, -(M_PI / 4.0f));
-                        me->GetNearPosition(pos1_2, 30.0f, -(M_PI / 4.0f)); 
-                        me->GetNearPosition(pos2_1, 3.0f, 0.0f); 
-                        me->GetNearPosition(pos2_2, 30.0f, 0.0f); 
-                        me->GetNearPosition(pos3_1, 3.0f, (M_PI / 4.0f)); 
+                        me->GetNearPosition(pos1_2, 30.0f, -(M_PI / 4.0f));
+                        me->GetNearPosition(pos2_1, 3.0f, 0.0f);
+                        me->GetNearPosition(pos2_2, 30.0f, 0.0f);
+                        me->GetNearPosition(pos3_1, 3.0f, (M_PI / 4.0f));
                         me->GetNearPosition(pos3_2, 30.0f, (M_PI / 4.0f));
                         if (Creature* pLance1 = me->SummonCreature(NPC_MOONLANCE_2_1, pos1_1, TEMPSUMMON_TIMED_DESPAWN, 30000))
                             pLance1->GetMotionMaster()->MovePoint(POINT_MOONLANCE, pos1_2);
@@ -573,7 +573,7 @@ class at_et_tyrande : public AreaTriggerScript
 
             if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
             {
-                if (pInstance->GetData(DATA_TYRANDE_EVENT) != IN_PROGRESS && 
+                if (pInstance->GetData(DATA_TYRANDE_EVENT) != IN_PROGRESS &&
                     pInstance->GetData(DATA_TYRANDE_EVENT) != DONE)
                 {
                     if (Creature* pTyrande = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetData64(DATA_ECHO_OF_TYRANDE)))

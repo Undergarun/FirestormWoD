@@ -23,8 +23,8 @@ class VehicleScript : public ScriptObjectImpl<true>
         /// Called after a vehicle is installed.
         /// @p_Vehicle : Vehicle instance
         virtual void OnInstall(Vehicle* p_Vehicle)
-        { 
-            UNUSED(p_Vehicle); 
+        {
+            UNUSED(p_Vehicle);
         }
         /// Called after a vehicle is uninstalled.
         /// @p_Vehicle : Vehicle instance

@@ -187,7 +187,7 @@ class boss_immerseus : public CreatureScript
                         break;
                     }
                     case EVENT_SEEPING_SHA:
-                    { 
+                    {
                         if (phase == PHASE_IMMERSEUS_BOSS && pInstance)
                         {
                             const Map::PlayerList &PlayerList = pInstance->instance->GetPlayers();

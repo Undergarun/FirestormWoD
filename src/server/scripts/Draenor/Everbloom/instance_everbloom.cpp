@@ -136,7 +136,7 @@ public:
         }
 
         void OnGameObjectCreate(GameObject* p_Go) override
-        { 
+        {
             switch (p_Go->GetEntry())
             {
                 case eEverbloomGameObjects::ObjectWebDoor:
@@ -174,7 +174,7 @@ public:
                     break;
                 case eEverbloomData::DataRpMage:
                     return m_MageTriggerGuid;
-                    break;       
+                    break;
                 case eEverbloomData::DataObjectWebDoor:
                     return m_WebDoorGuid;
                     break;

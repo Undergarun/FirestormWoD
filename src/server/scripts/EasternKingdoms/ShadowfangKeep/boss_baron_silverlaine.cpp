@@ -205,7 +205,7 @@ class npc_silverlaine_worgen_spirit : public CreatureScript
                         break;
                     case NPC_RAZORCLAW_DUMMY:
                         DoCast(me, SPELL_RAZORCLAW_T);
-                        break;    
+                        break;
                 }
             }
          };

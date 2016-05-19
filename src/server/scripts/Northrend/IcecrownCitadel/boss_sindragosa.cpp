@@ -221,7 +221,7 @@ class boss_sindragosa : public CreatureScript
                     me->SetDisableGravity(true);
                 }
                 else
-                {   
+                {
                     me->SetCanFly(false);
                     me->SetDisableGravity(false);
                 }

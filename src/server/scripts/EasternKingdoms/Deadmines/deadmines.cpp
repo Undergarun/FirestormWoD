@@ -12,7 +12,7 @@
 enum Adds
 {
     // quest
-    NPC_EDWIN_CANCLEEF_1    = 42697, 
+    NPC_EDWIN_CANCLEEF_1    = 42697,
     NPC_ALLIANCE_ROGUE      = 42700,
     NPC_VANESSA_VANCLEEF_1  = 42371, // little
 };

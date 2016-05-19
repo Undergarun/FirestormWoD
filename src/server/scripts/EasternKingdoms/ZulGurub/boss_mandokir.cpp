@@ -68,7 +68,7 @@ enum Other
     DATA_RES    = 1
 };
 
-const Position chainedspiritPos[8] = 
+const Position chainedspiritPos[8] =
 {
     {-12378.6f, -1861.22f, 127.542f, 5.34071f},
     {-12391.2f, -1905.27f, 127.32f, 0.610865f},
@@ -93,7 +93,7 @@ class boss_mandokir : public CreatureScript
             
         struct boss_mandokirAI : public BossAI
         {
-            boss_mandokirAI(Creature* pCreature) : BossAI(pCreature, DATA_MANDOKIR) 
+            boss_mandokirAI(Creature* pCreature) : BossAI(pCreature, DATA_MANDOKIR)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -239,7 +239,7 @@ class npc_mandokir_chained_spirit : public CreatureScript
 
         struct npc_mandokir_chained_spiritAI : public ScriptedAI
         {
-            npc_mandokir_chained_spiritAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_mandokir_chained_spiritAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 me->SetSpeed(MOVE_RUN, 0.9f);
                 me->SetReactState(REACT_PASSIVE);
@@ -311,7 +311,7 @@ class npc_mandokir_ohgan : public CreatureScript
 
         struct npc_mandokir_ohganAI : public ScriptedAI
         {
-            npc_mandokir_ohganAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_mandokir_ohganAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 me->SetSpeed(MOVE_RUN, 0.8f);
                 me->SetReactState(REACT_PASSIVE);

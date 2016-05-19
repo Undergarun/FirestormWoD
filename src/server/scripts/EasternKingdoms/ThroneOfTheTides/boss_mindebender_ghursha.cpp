@@ -202,7 +202,7 @@ class boss_erunak_stonespeaker : public CreatureScript
                         events.ScheduleEvent(EVENT_MAGMA_SPLASH, 13000);
                         break;
                     }
-                }            
+                }
                 DoMeleeAttackIfReady();
             }
         };

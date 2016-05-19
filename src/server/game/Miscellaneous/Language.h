@@ -994,12 +994,12 @@ enum TrinityStrings
     LANG_COMMAND_TICKETSHOWESCALATEDLIST  = 2026,
     LANG_COMMAND_TICKETPENDING            = 2027,
     LANG_COMMAND_TICKETRESET              = 2028,
-                                          
-    // Gold strings                       
+
+    // Gold strings
     LANG_GOLD_ERROR1                      = 3000,
     LANG_GOLD_ERROR2                      = 3001,
     LANG_GOLD_CONFIRM                     = 3002,
-                                          
+
     /// Debug                               3004-4999
     /// Quest Logs
     LANG_DEBUG_QUEST_LOGS_ON                  = 3004,
@@ -1114,7 +1114,7 @@ enum TrinityStrings
     LANG_OPVP_HP_LOSE_STADIUM_A         = 10010,
     LANG_OPVP_HP_LOSE_BROKENHILL_H      = 10011,
     LANG_OPVP_HP_LOSE_BROKENHILL_A      = 10012,
-    // opvp zm                         
+    // opvp zm
     LANG_OPVP_ZM_CAPTURE_WEST_H         = 10013,
     LANG_OPVP_ZM_CAPTURE_WEST_A         = 10014,
     LANG_OPVP_ZM_CAPTURE_EAST_H         = 10015,

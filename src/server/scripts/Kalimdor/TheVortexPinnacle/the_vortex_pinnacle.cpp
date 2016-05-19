@@ -152,7 +152,7 @@ enum Events
     EVENT_HOWLING_GALE            = 27
 };
 
-const Position teleportPos[2] = 
+const Position teleportPos[2] =
 {
     {-906.08f, -176.51f, 664.50f, 2.86f},
     {-1193.67f, 472.83f, 634.86f, 0.50f}
@@ -483,7 +483,7 @@ class npc_armored_mistral : public CreatureScript
             {
                 DoCast(me, SPELL_RISING_WINDS);
                 events.ScheduleEvent(EVENT_GALE_STRIKE, urand(2000, 4000));
-                events.ScheduleEvent(EVENT_STORM_SURGE, urand(10000, 15000));    
+                events.ScheduleEvent(EVENT_STORM_SURGE, urand(10000, 15000));
             }
 
             void UpdateAI(const uint32 diff)
@@ -541,7 +541,7 @@ class npc_empyrean_assassin : public CreatureScript
 
             void EnterCombat(Unit* /*p_Attacker*/)
             {
-                events.ScheduleEvent(EVENT_VAPOR_FORM, urand(15000, 20000));    
+                events.ScheduleEvent(EVENT_VAPOR_FORM, urand(15000, 20000));
             }
 
             void UpdateAI(const uint32 diff)

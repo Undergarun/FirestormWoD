@@ -137,7 +137,7 @@ public:
     npc_wind_vehicle() : CreatureScript("npc_wind_vehicle") { }
 
     struct npc_wind_vehicleAI : public npc_escortAI
-    {        
+    {
         npc_wind_vehicleAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -207,7 +207,7 @@ public:
     mob_aysa_wind_temple_escort() : CreatureScript("mob_aysa_wind_temple_escort") { }
 
     struct mob_aysa_wind_temple_escortAI : public npc_escortAI
-    {        
+    {
         mob_aysa_wind_temple_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 

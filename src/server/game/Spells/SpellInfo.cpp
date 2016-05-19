@@ -4700,7 +4700,7 @@ bool SpellInfo::IsAuraNeedPandemicEffect() const
     switch (Id)
     {
         case 5171:   ///< Slice and Dice
-        case 84617:  ///< Revealing Strike 
+        case 84617:  ///< Revealing Strike
         case 125359: ///< Tiger Power
             return true;
         default:

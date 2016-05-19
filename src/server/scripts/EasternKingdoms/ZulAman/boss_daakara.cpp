@@ -247,7 +247,7 @@ class boss_daakara : public CreatureScript
                 if (me->HealthBelowPct(80) && phase == 0)
                 {
                     phase++;
-                    events.CancelEvent(EVENT_WHIRLWIND); 
+                    events.CancelEvent(EVENT_WHIRLWIND);
                     events.CancelEvent(EVENT_GRIEVOUS_THROW);
                     EnterPhase(urand(0, 1));
                     return;
@@ -260,7 +260,7 @@ class boss_daakara : public CreatureScript
                     events.CancelEvent(EVENT_OVERPOWER);
                     events.CancelEvent(EVENT_LYNX_RUSH);
                     events.CancelEvent(EVENT_CLAW_RAGE);
-                    EnterPhase(urand(2, 3));                    
+                    EnterPhase(urand(2, 3));
                     return;
                 }
 
@@ -374,7 +374,7 @@ class npc_daakara_vortex : public CreatureScript
 
         struct npc_daakara_vortexAI : public Scripted_NoMovementAI
         {
-            npc_daakara_vortexAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_daakara_vortexAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 DoCast(me, SPELL_FEATHER_VORTEX_VISUAL, true);
                 me->SetReactState(REACT_PASSIVE);
@@ -430,7 +430,7 @@ class npc_daakara_pillar_of_flame : public CreatureScript
 
         struct npc_daakara_pillar_of_flameAI : public Scripted_NoMovementAI
         {
-            npc_daakara_pillar_of_flameAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_daakara_pillar_of_flameAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
                 DoCast(me, SPELL_PILLAR_OF_FLAME_VISUAL, true);
@@ -472,7 +472,7 @@ class npc_daakara_amani_lynx : public CreatureScript
 
         struct npc_daakara_amani_lynxAI : public ScriptedAI
         {
-            npc_daakara_amani_lynxAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_daakara_amani_lynxAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
             }
             

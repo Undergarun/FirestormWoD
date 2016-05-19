@@ -13,7 +13,7 @@ enum Data
 
 enum CreatureIds
 {
-    NPC_GRAND_VIZIER_ERTAN     = 43878, 
+    NPC_GRAND_VIZIER_ERTAN     = 43878,
     NPC_ALTAIRUS               = 43873,
     NPC_ASAAD                  = 43875
 };

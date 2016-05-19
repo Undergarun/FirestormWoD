@@ -455,7 +455,7 @@ public:
     npc_nourished_yak() : CreatureScript("npc_nourished_yak") { }
 
     struct npc_nourished_yakAI : public npc_escortAI
-    {        
+    {
         npc_nourished_yakAI(Creature* creature) : npc_escortAI(creature)
         {}
 

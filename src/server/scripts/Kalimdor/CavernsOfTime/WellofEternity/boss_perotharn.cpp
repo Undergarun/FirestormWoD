@@ -92,7 +92,7 @@ enum Events
 
 enum Actions
 {
-    ACTION_START        = 1, 
+    ACTION_START        = 1,
     ACTION_EASY_PREY    = 2
 };
 
@@ -210,7 +210,7 @@ class boss_perotharn : public CreatureScript
 
                 instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58239, 0);
                 instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58240, 0);
-                instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58241, 0);                               
+                instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58241, 0);
             }
             
             void KilledUnit(Unit* who)
@@ -265,7 +265,7 @@ class boss_perotharn : public CreatureScript
                             break;
                         case EVENT_CORRUPTING_TOUCH:
                             DoCastVictim(SPELL_CORRUPTING_TOUCH_DMG);
-                            events.ScheduleEvent(EVENT_CORRUPTING_TOUCH, urand(13000, 17000)); 
+                            events.ScheduleEvent(EVENT_CORRUPTING_TOUCH, urand(13000, 17000));
                             break;
                         case EVENT_FEL_FLAMES:
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -328,7 +328,7 @@ class boss_perotharn : public CreatureScript
                             break;
                         case EVENT_END_HUNT:
                             events.CancelEvent(EVENT_EASY_PREY);
-                            phase = 4; 
+                            phase = 4;
                             summons.DespawnEntry(NPC_EYE_OF_PEROTHARN_1);
                             summons.DespawnEntry(NPC_HUNTING_SUMMON_CIRCLE);
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -380,7 +380,7 @@ class npc_perotharn_eye_of_perotharn : public CreatureScript
             }
 
             void EnterCombat(Unit* /*who*/)
-            { 
+            {
                 events.ScheduleEvent(EVENT_NEXT_MOVE, urand(500, 2000));
             }
 
@@ -405,14 +405,14 @@ class npc_perotharn_eye_of_perotharn : public CreatureScript
                         {
                             pTarget->CastSpell(pTarget, SPELL_EASY_PREY, true);
                             pPerotharn->AI()->SetGUID(pTarget->GetGUID());
-                            pPerotharn->AI()->DoAction(ACTION_EASY_PREY);                        
+                            pPerotharn->AI()->DoAction(ACTION_EASY_PREY);
                         }
                     }
                 }
 
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent()) 
+                if (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
@@ -458,7 +458,7 @@ class spell_perotharn_drain_essence: public SpellScriptLoader
 
             void OnRemove(AuraEffect const*, AuraEffectHandleModes /*mode*/)
             {
-                if (GetUnitOwner()) 
+                if (GetUnitOwner())
                     GetUnitOwner()->SetControlled(false, UNIT_STATE_STUNNED);
             }
 

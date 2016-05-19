@@ -1051,7 +1051,7 @@ class boss_lei_shen : public CreatureScript
                         if (!l_PillarToDeactivate)
                             break;
 
-                        /// Deactivating pillar and floor associated to 
+                        /// Deactivating pillar and floor associated to
                         l_PillarToDeactivate->AI()->DoAction(ACTION_DEACTIVATE_PILLAR);
                         DisableFloors(l_Data);
                         m_InactivePillars |= g_PillarState[l_Data];

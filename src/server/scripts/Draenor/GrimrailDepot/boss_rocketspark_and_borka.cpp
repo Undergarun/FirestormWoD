@@ -196,7 +196,7 @@ public:
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             events.ScheduleEvent(eRocketsparkEvents::EventVx18BTargetEliminator, 0 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eRocketsparkEvents::EventX2101a, 0 * TimeConstants::IN_MILLISECONDS);
-        } 
+        }
 
         void KilledUnit(Unit* p_Who) override
         {
@@ -225,7 +225,7 @@ public:
         {
             switch (p_Action)
             {
-                case eRocksparkAndBorkaActions::ActionRocketSparkShootMissilesVX18: 
+                case eRocksparkAndBorkaActions::ActionRocketSparkShootMissilesVX18:
                     for (uint8 l_I = 0; l_I < 6; l_I)
                     {
                         Position l_Position;
@@ -285,11 +285,11 @@ public:
                         if (l_Borka->HasAura(eRocketsparkSpells::SpellMadDashAura))
                         {
                             if (l_Borka->IsWithinDistInMap(me, 2.0f, true))
-                            {                             
+                            {
                                 me->RemoveAllAuras();
                                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                                 me->CastSpell(me, eRocketsparkSpells::SpellRecovering);
-                                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);                       
+                                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                             }
                         }
                     }
@@ -312,15 +312,15 @@ public:
                     me->SetReactState(ReactStates::REACT_PASSIVE);
                     me->CastSpell(me, eRocketsparkSpells::SpellLockingOnAura);
                     me->CastSpell(me, eRocketsparkSpells::SpellBetterPositionJump, true);
-                    me->GetMotionMaster()->MoveJump(g_PostionRocketSparkHigherPlatform[m_MovementHigherGround], 20.0f, 15.0f);         
-                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);                 
+                    me->GetMotionMaster()->MoveJump(g_PostionRocketSparkHigherPlatform[m_MovementHigherGround], 20.0f, 15.0f);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                     events.ScheduleEvent(eRocketsparkEvents::EventX2101a, 40 * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eRocketsparkEvents::Eventx2101aCancelation, 20 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eRocketsparkEvents::Eventx2101aCancelation:
                     events.Reset();
                     me->RemoveAllAuras();
-                    m_x210IsActivated = false;          
+                    m_x210IsActivated = false;
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                     break;
@@ -357,7 +357,7 @@ public:
     }
 };
 
-/// Borka The Brute - 86226 
+/// Borka The Brute - 86226
 class grimrail_depot_rocketspark_mob_Borka : public CreatureScript
 {
 public:
@@ -501,7 +501,7 @@ public:
 
             /// Mad Rush
             if (m_Instance != nullptr)
-            {             
+            {
                 if (m_MadDashTargetGUID)
                 {
                     if (Player* l_Target = Player::GetPlayer(*me, m_MadDashTargetGUID))
@@ -593,7 +593,7 @@ public:
     }
 };
 
-/// VX18-B Target Eliminator - 162500 
+/// VX18-B Target Eliminator - 162500
 class grimrail_depot_rocketspark_spell_vx18_target_eliminator : public SpellScriptLoader
 {
 public:
@@ -625,7 +625,7 @@ public:
     }
 };
 
-/// X21-01A Missile Barrage - 162407 
+/// X21-01A Missile Barrage - 162407
 class grimrail_depot_rocketspark_spell_x21_01a_missile_barrage : public SpellScriptLoader
 {
 public:
@@ -676,7 +676,7 @@ public:
     }
 };
 
-/// New Plan - 161091  
+/// New Plan - 161091 
 class grimrail_depot_rocketspark_spell_new_plan : public SpellScriptLoader
 {
 public:

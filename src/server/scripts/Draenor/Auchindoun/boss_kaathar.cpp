@@ -242,7 +242,7 @@ class EventPostKaathar : public BasicEvent
                                     l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargereiDefender, g_PositionMagusAndDefenderHostile[1], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
 
                                     /// Hostile near Two corpses
-                                    Creature* l_Magus = l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargereiMagus, g_PositionMagusAndDefenderHostile[0], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);   
+                                    Creature* l_Magus = l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargereiMagus, g_PositionMagusAndDefenderHostile[0], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
                                     {
                                         l_Magus->CastSpell(l_Magus, SpellArcaneChanneling);
                                     }
@@ -338,7 +338,7 @@ class EventPostKaathar : public BasicEvent
                                     /// Magus
                                     m_Obj->CastSpell(m_Obj, eAuchindonSpells::SpellArcaneChanneling);
                                     m_Obj->SummonGameObject(eAuchindonObjects:: GameobjectTaladorPortal, g_PositionTuulaniGobjectPortalSpawn.GetPositionX(), g_PositionTuulaniGobjectPortalSpawn.GetPositionY(), g_PositionTuulaniGobjectPortalSpawn.GetPositionZ(), g_PositionTuulaniGobjectPortalSpawn.GetOrientation(), 0, 0, 0, 0, 0);
-                                    m_Obj->m_Events.AddEvent(new EventPostKaathar(m_Obj, 2), m_Obj->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));           
+                                    m_Obj->m_Events.AddEvent(new EventPostKaathar(m_Obj, 2), m_Obj->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                     break;
                                 }
                             }
@@ -426,7 +426,7 @@ class auchindon_boss_kaathar : public CreatureScript
                 ActivateDoors();
 
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                me->setFaction(eAuchindonInformation::InformationFriendlyFaction);     
+                me->setFaction(eAuchindonInformation::InformationFriendlyFaction);
             
                 me->CastSpell(me, eAuchindonSpells::SpellGuard);
 
@@ -443,7 +443,7 @@ class auchindon_boss_kaathar : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                events.Reset(); 
+                events.Reset();
 
                 me->SetCurrentEquipmentId(1); ///< Equipment Id
             }

@@ -161,13 +161,6 @@ enum Spells
     SPELL_FIRE_CANNON                  = 67461
 };
 
-const Position HallsofReflectionLocs[]=
-{
-    {5283.234863f, 1990.946777f, 707.695679f, 0.929097f},   // 2 Loralen Follows
-    {5408.031250f, 2102.918213f, 707.695251f, 0.792756f},   // 9 Sylvanas Follows
-    {5401.866699f, 2110.837402f, 707.695251f, 0.800610f},   // 10 Loralen follows
-};
-
 const Position IntroPos              = {5265.89f, 1952.98f, 707.6978f, 0.0f}; // Jaina/Sylvanas Intro Start Position
 const Position MoveThronePos         = {5306.952148f, 1998.499023f, 709.341431f, 1.277278f}; // Jaina/Sylvanas walks to throne
 const Position MoveGuardPos          = {5284.392090f, 1989.915405f, 707.694824f, 0.553165f};
@@ -177,8 +170,8 @@ const Position LichKingMoveThronePos = {5312.080566f, 2009.172119f, 709.341431f,
 const Position LichKingMoveAwayPos   = {5400.069824f, 2102.7131689f, 707.69525f, 0.843803f}; // Lich King walks away
 const Position GuardDiePos           = {5367.544434f, 2085.288086f, 707.695007f, 0.900312f}; // Lich King walks away
 const Position FalricStartPos        = {5334.979980f, 1982.399536f, 709.320129f, 2.347014f}; // Falric start position
-const Position MarwynStartPos        = {5283.878906f, 2030.459595f, 709.319641f, 5.506670f}; // Marwyn start position 
-const Position ChestPos              = {5246.187500f, 1649.079468f, 784.301758f, 0.901268f}; // Chest position 
+const Position MarwynStartPos        = {5283.878906f, 2030.459595f, 709.319641f, 5.506670f}; // Marwyn start position
+const Position ChestPos              = {5246.187500f, 1649.079468f, 784.301758f, 0.901268f}; // Chest position
 
 class npc_jaina_or_sylvanas_hor : public CreatureScript
 {
@@ -531,7 +524,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     }
                     if (Creature* marwyn = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MARWYN_EVENT)))
                         marwyn->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY1H);
-                    _instance->ProcessEvent(0, EVENT_SPAWN_WAVES); 
+                    _instance->ProcessEvent(0, EVENT_SPAWN_WAVES);
                     _events.ScheduleEvent(EVENT_INTRO_LK_10, 4000);
                     break;
                 case EVENT_INTRO_LK_10:
@@ -574,7 +567,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                         guard->SetCorpseDelay(604800);
                         guard->GetMotionMaster()->MovePoint(0, GuardDiePos);
                     }
-                    break;                    
+                    break;
                 case EVENT_SKIP_INTRO:
                     me->GetMotionMaster()->MovePoint(0, MoveThronePos);
                     if (Creature* guard = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_LORALEN_OR_KORELN)))
@@ -1103,7 +1096,7 @@ class npc_queldelar : public CreatureScript
         npc_queldelar() : CreatureScript("npc_queldelar") { }
 
         struct npc_queldelarAI  : public ScriptedAI
-        { 
+        {
             npc_queldelarAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);

@@ -652,7 +652,7 @@ class spell_hun_steady_focus: public SpellScriptLoader
                         }
 
                         DealWithCharges(p_AurEff, l_Player);
-                        break;  
+                        break;
                     }
                 }
             }
@@ -3291,7 +3291,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         return SPELL_FAILED_ROOTED;
 
                     /// Blinking Strikes
-                    if (!l_Owner->ToPlayer()->HasSpellCooldown(HUNTER_SPELL_BLINK_STRIKES) && l_Target->IsWithinLOSInMap(l_Caster) && 
+                    if (!l_Owner->ToPlayer()->HasSpellCooldown(HUNTER_SPELL_BLINK_STRIKES) && l_Target->IsWithinLOSInMap(l_Caster) &&
                         l_Caster->GetDistance(l_Target) > 10.0f && l_Caster->GetDistance(l_Target) < 30.0f && !l_Caster->isInRoots() && !l_Caster->isInStun())
                     {
                         l_Caster->CastSpell(l_Target, HUNTER_SPELL_BLINK_STRIKES_TELEPORT, true);

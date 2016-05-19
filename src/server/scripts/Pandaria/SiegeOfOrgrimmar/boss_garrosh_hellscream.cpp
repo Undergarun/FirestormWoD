@@ -37,10 +37,6 @@ enum eSpells
     SPELL_SHAARJS_PROTECTION            = 144945
 };
 
-enum eEvents 
-{
-};
-
 class boss_garrosh_hellscream : public CreatureScript
 {
     public:

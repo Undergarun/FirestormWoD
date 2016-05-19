@@ -1,16 +1,24 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "zulaman.h"
 
 #define MAX_ENCOUNTER 6
 
-static const DoorData doordata[] = 
+static const DoorData doordata[] =
 {
     {GO_AKILZON_EXIT,           DATA_AKILZON,            DOOR_TYPE_ROOM,     BOUNDARY_NONE},
     {GO_HALAZZI_ENTRANCE,       DATA_HALAZZI,            DOOR_TYPE_ROOM,     BOUNDARY_NONE},
     {GO_HALAZZI_EXIT,           DATA_HALAZZI,            DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
     {GO_MALACRASS_EXIT,         DATA_HEX_LORD_MALACRASS, DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
     {GO_DAAKARA_EXIT,           DATA_DAAKARA,            DOOR_TYPE_ROOM,     BOUNDARY_NONE},
-    {0,         0,              DOOR_TYPE_ROOM,     0}, // EOF
+    {0,                         0,                       DOOR_TYPE_ROOM,     0}, // EOF
 };
 
 class instance_zulaman : public InstanceMapScript
@@ -25,7 +33,7 @@ class instance_zulaman : public InstanceMapScript
 
         struct instance_zulaman_InstanceMapScript : public InstanceScript
         {
-            instance_zulaman_InstanceMapScript(Map* map) : InstanceScript(map) 
+            instance_zulaman_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
@@ -119,7 +127,7 @@ class instance_zulaman : public InstanceMapScript
                         m_MalacrassExitGuid = pGo->GetGUID();
                         break;
                     case GO_MALACRASS_ENTRANCE:
-                        HexLordGateGUID = pGo->GetGUID(); 
+                        HexLordGateGUID = pGo->GetGUID();
                         if (GetBossesDone() >= 2)
                             HandleGameObject(HexLordGateGUID, true, pGo);
                         break;
@@ -280,7 +288,7 @@ class instance_zulaman : public InstanceMapScript
                         return uiVendor1;
                     case DATA_VENDOR_2:
                         return uiVendor2;
-                    default: 
+                    default:
                         return 0;
                 }
             }
@@ -311,7 +319,7 @@ class instance_zulaman : public InstanceMapScript
                         {
                             DoUpdateWorldState(3104, 1);
                             DoUpdateWorldState(3106, QuestMinute);
-                        } 
+                        }
                         else
                         {
                             DoUpdateWorldState(3104, 0);

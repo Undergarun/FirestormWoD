@@ -383,9 +383,9 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     switch (l_AcceptedInvite)
     {
         /// Port to battleground
-        case 1:                                         
+        case 1:
             if (!m_Player->IsInvitedForBattlegroundQueueType(l_BGQueueTypeID))
-                return;                                 ///< cheating?
+                return; ///< cheating?
 
             if (!m_Player->InBattleground())
                 m_Player->SetBattlegroundEntryPoint();

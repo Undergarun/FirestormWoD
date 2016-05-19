@@ -33,7 +33,7 @@ enum Spells
     SPELL_SHIELD_OF_PERFIDIOUS      = 93693,
     SPELL_SHIELD_OF_PERFIDIOUS_DMG  = 93722,
     SPELL_SHIELD_OF_PERFIDIOUS_H    = 93736, //Heroic
-    SPELL_UNHOLY_POWER              = 93686, 
+    SPELL_UNHOLY_POWER              = 93686,
     SPELL_UNHOLY_POWER_H            = 93735, //Heroic
     SPELL_WORD_OF_SHAME             = 93852, //Heroic
     SPELL_SEPARATION_ANXIETY        = 96272, //Heroic
@@ -81,7 +81,7 @@ enum Adds
     NOC_DESECRATION_BUNNY   = 50503
 };
 
-const Position addSpawnPos[2] = 
+const Position addSpawnPos[2] =
 {
     {-250.85f, 2239.18f, 100.89f, 1.55f},
     {-249.71f, 2263.23f, 100.89f, 5.15f}
@@ -228,7 +228,7 @@ class npc_springvale_wailing_guardsman : public CreatureScript
             void EnterCombat(Unit* /*pWho*/)
             {
                 events.ScheduleEvent(EVENT_MORTAL_STRIKE, 3000);
-                events.ScheduleEvent(EVENT_SCREAMS_OF_THE_PAST, urand(15000, 20000));    
+                events.ScheduleEvent(EVENT_SCREAMS_OF_THE_PAST, urand(15000, 20000));
                 events.ScheduleEvent(EVENT_UNHOLY_EMPOWERMENT, 15000);
             }
 

@@ -94,7 +94,7 @@ class boss_halazzi : public CreatureScript
 
             uint8 phase;
             uint32 health;
-            bool isLynx; 
+            bool isLynx;
 
             void Reset()
             {
@@ -143,7 +143,7 @@ class boss_halazzi : public CreatureScript
                         summons.DespawnEntry(NPC_SPIRIT_LYNX);
                         me->RemoveAurasDueToSpell(SPELL_TRANSFORM_HUMAN2);
                         me->SetHealth(health);
-                        break;                    
+                        break;
                     case PHASE_HUMAN:
                         Talk(SAY_SPLIT);
                         events.CancelEvent(EVENT_ENRAGE);
@@ -256,7 +256,7 @@ class npc_halazzi_lynx : public CreatureScript
 
         struct npc_halazzi_lynxAI : public ScriptedAI
         {
-            npc_halazzi_lynxAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_halazzi_lynxAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);

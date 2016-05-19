@@ -135,7 +135,7 @@ class GameObjectScript : public ScriptObjectImpl<true>, public UpdatableScript<G
         /// @p_State      : Loot state
         /// @p_Unit       : Unit
         virtual void OnLootStateChanged(GameObject* p_GameObject, uint32 p_State, Unit* p_Unit)
-        { 
+        {
             UNUSED(p_GameObject);
             UNUSED(p_State);
             UNUSED(p_Unit);
@@ -168,11 +168,11 @@ class GameObjectScript : public ScriptObjectImpl<true>, public UpdatableScript<G
 
         /// Called when a GameObjectAI object is needed for the GameObject.
         /// @p_GameObject : GameObject instance
-        virtual GameObjectAI* GetAI(GameObject* p_GameObject) const 
+        virtual GameObjectAI* GetAI(GameObject* p_GameObject) const
         {
             UNUSED(p_GameObject);
 
-            return nullptr; 
+            return nullptr;
         }
 
 };

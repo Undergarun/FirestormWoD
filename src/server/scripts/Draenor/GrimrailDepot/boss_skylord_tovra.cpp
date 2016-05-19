@@ -86,7 +86,7 @@ public:
             EventFarSight,
             EventHealingRain,
             EventStormShield,
-            EventThunderZone 
+            EventThunderZone
         };
 
         InstanceScript* m_Instance;

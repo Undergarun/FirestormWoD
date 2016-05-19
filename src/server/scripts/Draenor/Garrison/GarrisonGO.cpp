@@ -20,7 +20,7 @@ namespace MS { namespace Garrison
     /// Constructor
     go_garrison_cache::go_garrison_cache()
         : GameObjectScript("go_garrison_cache")
-    { 
+    {
 
     }
 
@@ -63,7 +63,7 @@ namespace MS { namespace Garrison
     /// Constructor
     go_garrison_outhouse::go_garrison_outhouse()
         : GameObjectScript("go_garrison_outhouse")
-    { 
+    {
 
     }
 

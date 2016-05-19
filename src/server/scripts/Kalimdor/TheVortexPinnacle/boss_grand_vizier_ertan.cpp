@@ -42,7 +42,7 @@ enum Adds
     NPC_SLIPSTREAM        = 45455
 };
 
-const Position ertanvortexPos_1[8] = 
+const Position ertanvortexPos_1[8] =
 {
     {-702.11f, -13.50f, 635.67f, 0.0f},
     {-694.54f, 4.25f, 635.67f, 0.0f},
@@ -102,7 +102,7 @@ class boss_grand_vizier_ertan : public CreatureScript
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();
                 instance->SetBossState(DATA_ERTAN, IN_PROGRESS);
-            }    
+            }
 
             void AttackStart(Unit* who)
             {
@@ -112,7 +112,7 @@ class boss_grand_vizier_ertan : public CreatureScript
 
             void KilledUnit(Unit* /*p_Who*/)
             {
-                Talk(SAY_KILL);                
+                Talk(SAY_KILL);
             }
 
             void JustDied(Unit* /*p_Who*/)
@@ -181,7 +181,7 @@ class boss_grand_vizier_ertan : public CreatureScript
                             events.ScheduleEvent(EVENT_STORM_EDGE, 2000);
                             break;
                     }
-                }                    
+                }
             }
         };
 };

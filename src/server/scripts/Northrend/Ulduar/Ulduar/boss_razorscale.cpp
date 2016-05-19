@@ -306,7 +306,7 @@ class boss_razorscale_controller : public CreatureScript
                             if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_1, PosHarpoon[0].GetPositionX(), PosHarpoon[0].GetPositionY(), PosHarpoon[0].GetPositionZ(), 4.790f, 0.0f, 0.0f, 0.0f, 0.0f, 180000))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f)) //only nearest broken harpoon
-                                    BrokenHarpoon->RemoveFromWorld();                                  
+                                    BrokenHarpoon->RemoveFromWorld();
                                 events.ScheduleEvent(EVENT_BUILD_HARPOON_2, 20000);
                                 events.CancelEvent(EVENT_BUILD_HARPOON_1);
                             }
@@ -885,7 +885,7 @@ class npc_mole_machine_trigger : public CreatureScript
                             {
                                 case SPELL_SUMMON_IRON_DWARVES:
                                     // Emulator for DoCast(SPELL_SUMMON_IRON_DWARVES); -> SpellScript did not work!
-                                    for (uint8 n = 0; n < urand(1, 2); ++n) 
+                                    for (uint8 n = 0; n < urand(1, 2); ++n)
                                         me->CastSpell(me, SPELL_SUMMON_IRON_DWARF_GUARDIAN, false);
                                     me->CastSpell(me, SPELL_SUMMON_IRON_DWARF_WATCHER, false);
                                     break;
@@ -958,7 +958,7 @@ class npc_razorscale_harpoon_fire_state : public CreatureScript
         struct npc_razorscale_harpoon_fire_stateAI : public Scripted_NoMovementAI
         {
             npc_razorscale_harpoon_fire_stateAI(Creature* creature) : Scripted_NoMovementAI(creature)
-            { 
+            {
             }
 
             void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)

@@ -14,7 +14,7 @@
 #include "ObjectAccessor.h"
 #include "Chat.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     BuildingManager::BuildingManager()

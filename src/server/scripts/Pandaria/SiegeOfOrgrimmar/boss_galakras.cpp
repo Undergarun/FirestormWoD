@@ -30,7 +30,7 @@ class boss_galakras : public CreatureScript
 
         struct boss_galakrasAI : public BossAI
         {
-            boss_galakrasAI(Creature* creature) : BossAI(creature, DATA_GALAKRAS) 
+            boss_galakrasAI(Creature* creature) : BossAI(creature, DATA_GALAKRAS)
             {
                 pInstance = creature->GetInstanceScript();
             }

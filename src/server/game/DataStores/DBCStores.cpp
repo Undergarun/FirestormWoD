@@ -1495,8 +1495,8 @@ std::string UnpackWorldStateExpression(char const* p_Input)
 
 int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
 {
-#define UNPACK_UINT8(x) { x = *((uint8*)((char const*)*p_UnpackedExpression)); *p_UnpackedExpression += sizeof(uint8);} 
-#define UNPACK_INT32(x) { x = *((int32*)((char const*)*p_UnpackedExpression)); *p_UnpackedExpression += sizeof(int32);} 
+#define UNPACK_UINT8(x) { x = *((uint8*)((char const*)*p_UnpackedExpression)); *p_UnpackedExpression += sizeof(uint8);}
+#define UNPACK_INT32(x) { x = *((int32*)((char const*)*p_UnpackedExpression)); *p_UnpackedExpression += sizeof(int32);}
     uint8 l_OpType;
     UNPACK_UINT8(l_OpType);
 
@@ -1553,7 +1553,7 @@ int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_Unpac
 {
     UNUSED(p_ForA);
 
-#define UNPACK_UINT8(x) { x = *(uint8_t*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8_t);} 
+#define UNPACK_UINT8(x) { x = *(uint8_t*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8_t);}
     int l_LeftValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
     char l_Opperand;
     UNPACK_UINT8(l_Opperand);
@@ -1620,7 +1620,7 @@ int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_Unpac
 
 bool WorldStateExpression_EvalCompare(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
 {
-#define UNPACK_UINT8(x) { x = *(uint8*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8);} 
+#define UNPACK_UINT8(x) { x = *(uint8*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8);}
     int l_LeftValue = WorldStateExpression_EvalArithmetic(p_Player, p_UnpackedExpression, p_Instructions, true);
     char l_Opperand;
     UNPACK_UINT8(l_Opperand);
@@ -1710,7 +1710,7 @@ bool WorldStateExpression_EvalResult(char p_LogicResult, uint8_t p_EvalResultRou
 /// Eval a worldstate expression
 bool WorldStateExpressionEntry::Eval(Player* p_Player, std::vector<std::string> * p_OutStrResult) const
 {
-#define UNPACK_UINT8(x) { x = *l_UnpackedExpression; l_UnpackedExpression += sizeof(uint8);} 
+#define UNPACK_UINT8(x) { x = *l_UnpackedExpression; l_UnpackedExpression += sizeof(uint8);}
     std::vector<std::string> p_Instructions;
     std::vector<std::string> p_InstructionsSecond;
 

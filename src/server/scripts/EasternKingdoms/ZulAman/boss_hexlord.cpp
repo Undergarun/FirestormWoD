@@ -89,12 +89,12 @@ enum Events
 enum Adds
 {
     NPC_ALYSON_ANTILE   = 24240,
-    NPC_SLITHER         = 24242, 
-    NPC_GAZAKROTH       = 24244, 
+    NPC_SLITHER         = 24242,
+    NPC_GAZAKROTH       = 24244,
     NPC_DARKHEART       = 24246
 };
 
-const Position addPos[2] = 
+const Position addPos[2] =
 {
     {109.43f, 922.57f, 33.90f, 1.57f},
     {126.40f, 922.78f, 33.90f, 1.57f}
@@ -225,7 +225,7 @@ class boss_hex_lord_malacrass : public CreatureScript
                         me->SummonCreature(NPC_SLITHER, addPos[0], TEMPSUMMON_DEAD_DESPAWN);
                         me->SummonCreature(NPC_DARKHEART, addPos[1], TEMPSUMMON_DEAD_DESPAWN);
                         break;
-                }       
+                }
 
                 me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, 46916);
                 me->SetSheath(SHEATH_STATE_MELEE);
@@ -268,7 +268,7 @@ class boss_hex_lord_malacrass : public CreatureScript
                 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING)) 
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                 
                 while (uint32 eventId = events.ExecuteEvent())

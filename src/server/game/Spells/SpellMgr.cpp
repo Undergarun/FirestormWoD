@@ -3931,7 +3931,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
-                /// Iron Docks 
+                /// Iron Docks
             case 163705:  ///< Abrupt Restoration
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = 0;
@@ -5836,7 +5836,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 33110: ///< Prayer of Mending
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
-            case 119611: ///< Renewing Mist 
+            case 119611: ///< Renewing Mist
                 spellInfo->Effects[0].BonusMultiplier = 0.109984f;
                 break;
             case 109186: ///< Surge of light
@@ -6295,7 +6295,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 22568: ///< Ferocious Bite
             case 5221:  ///< Shred
             case 22599: ///< Chromatic Mantle of the Dawn
-            case 86273: ///< Illuminated Healing 
+            case 86273: ///< Illuminated Healing
             case 1752:  ///< Sinister Strike
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;

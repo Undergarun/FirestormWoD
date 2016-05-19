@@ -46,7 +46,7 @@ namespace Battlepay
 
         uint32 l_OldMSTime = getMSTime();
 
-        do 
+        do
         {
             Field* l_Fields = l_Result->Fetch();
 

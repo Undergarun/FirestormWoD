@@ -2387,7 +2387,7 @@ void AddSC_boss_iron_qon()
     new spell_frozen();                 ///< 135145
     new spell_dead_zones();             ///< 137232
     new spell_unleashed_flame();        ///< 134628
-    new at_quilen_spear();              ///< 134758 - 136421 - 136451 
+    new at_quilen_spear();              ///< 134758 - 136421 - 136451
     new at_rushing_winds();             ///< 136574
 }
 #endif

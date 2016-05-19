@@ -10,7 +10,7 @@
 
 #include "GarrisonMgrConstants.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Garrison mission
     struct GarrisonMission

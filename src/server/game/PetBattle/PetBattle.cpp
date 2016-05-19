@@ -759,7 +759,7 @@ bool PetBattleTeam::CanSwap(int8 p_ReplacementPet)
     if (HasPendingMultiTurnCast())
         return false;
 
-    if (PetBattleInstance->Pets[ActivePetID]->IsAlive() 
+    if (PetBattleInstance->Pets[ActivePetID]->IsAlive()
         &&  (  PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_swapOutLock]
             || PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsWebbed]))
         return false;
@@ -1079,7 +1079,7 @@ void PetBattle::Begin()
             l_Player->PetBattleCountBattleSpecies();
 
             l_Player->GetSession()->SendPetBattleInitialUpdate(this);
-            l_Player->GetSession()->SendPetBattleFirstRound(this); 
+            l_Player->GetSession()->SendPetBattleFirstRound(this);
         }
 
         RoundEvents.clear();

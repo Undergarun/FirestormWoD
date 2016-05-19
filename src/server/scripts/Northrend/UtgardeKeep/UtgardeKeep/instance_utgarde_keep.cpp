@@ -59,7 +59,7 @@ public:
 
     struct instance_utgarde_keep_InstanceMapScript : public InstanceScript
     {
-        instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map) 
+        instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             LoadDoorData(doorData);
         }
@@ -141,57 +141,57 @@ public:
             switch (go->GetEntry())
             {
                 // door and object id
-                case ENTRY_BELLOW_1: 
+                case ENTRY_BELLOW_1:
                     forge_bellow[0] = go->GetGUID();
                     if (forge_event[0] != NOT_STARTED)
                         HandleGameObject(0, true, go);
                     break;
-                case ENTRY_BELLOW_2: 
+                case ENTRY_BELLOW_2:
                     forge_bellow[1] = go->GetGUID();
                     if (forge_event[1] != NOT_STARTED)
                         HandleGameObject(0, true, go);
                         break;
-                case ENTRY_BELLOW_3: 
+                case ENTRY_BELLOW_3:
                     forge_bellow[2] = go->GetGUID();
                     if (forge_event[2] != NOT_STARTED)
                         HandleGameObject(0, true, go);
                     break;
-                case ENTRY_FORGEFIRE_1: 
+                case ENTRY_FORGEFIRE_1:
                     forge_fire[0] = go->GetGUID();
                     if (forge_event[0] != NOT_STARTED)
                         HandleGameObject(0, true, go);
                     break;
-                case ENTRY_FORGEFIRE_2: 
+                case ENTRY_FORGEFIRE_2:
                     forge_fire[1] = go->GetGUID();
                     if (forge_event[1] != NOT_STARTED)
                         HandleGameObject(0, true, go);
                     break;
-                case ENTRY_FORGEFIRE_3: 
+                case ENTRY_FORGEFIRE_3:
                     forge_fire[2] = go->GetGUID();
                     if (forge_event[2] != NOT_STARTED)
                         HandleGameObject(0, true, go);
                     break;
-                case ENTRY_GLOWING_ANVIL_1: 
+                case ENTRY_GLOWING_ANVIL_1:
                     forge_anvil[0] = go->GetGUID();
                     if (forge_event[0] != NOT_STARTED)
                         HandleGameObject(0, true, go);
                     break;
-                case ENTRY_GLOWING_ANVIL_2: 
+                case ENTRY_GLOWING_ANVIL_2:
                     forge_anvil[1] = go->GetGUID();
                     if (forge_event[1] != NOT_STARTED)
                         HandleGameObject(0, true, go);
                     break;
-                case ENTRY_GLOWING_ANVIL_3: 
+                case ENTRY_GLOWING_ANVIL_3:
                     forge_anvil[2] = go->GetGUID();
                     if (forge_event[2] != NOT_STARTED)
                         HandleGameObject(0, true, go);
                     break;
-                case ENTRY_GIANT_PORTCULLIS_1: 
+                case ENTRY_GIANT_PORTCULLIS_1:
                     portcullis[0] = go->GetGUID();
                     if (m_auiEncounter[2] == DONE)
                         HandleGameObject(0, true, go);
                     break;
-                case ENTRY_GIANT_PORTCULLIS_2: 
+                case ENTRY_GIANT_PORTCULLIS_2:
                     portcullis[1] = go->GetGUID();
                     if (m_auiEncounter[2] == DONE)
                         HandleGameObject(0, true, go);

@@ -73,7 +73,7 @@ public:
             EventBlackrockMortar,
             EventFlametongue,
             EventLavaWreath,
-            EventSharpnelBlast 
+            EventSharpnelBlast
         };
 
         InstanceScript* m_Instance;

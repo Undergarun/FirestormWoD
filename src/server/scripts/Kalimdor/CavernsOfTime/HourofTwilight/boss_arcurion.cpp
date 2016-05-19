@@ -57,7 +57,7 @@ enum Adds
 };
 
 #define MAX_SERVITOR 6
-const Position servitorPos[MAX_SERVITOR] = 
+const Position servitorPos[MAX_SERVITOR] =
 {
     {4810.14f, 31.5191f, 104.593f, 2.3692f},
     {4831.26f, 64.6198f, 108.553f, 3.28342f},
@@ -228,7 +228,7 @@ class boss_arcurion : public CreatureScript
                         servitors[i] = 0;
             }
 
-        };   
+        };
 };
 
 class npc_arcurion_frozen_servitor : public CreatureScript
@@ -270,7 +270,7 @@ class npc_arcurion_frozen_servitor : public CreatureScript
             }
         private:
             EventMap events;
-        };   
+        };
 };
 
 class spell_arcurion_icy_boulder: public SpellScriptLoader

@@ -54,9 +54,9 @@ enum Spells
     SPELL_HYDROLANCE_25         = 92509,
     SPELL_HYDROLANCE_10H        = 92510,
     SPELL_HYDROLANCE_25H        = 92511,
-    SPELL_GLACIATE                = 82746, 
+    SPELL_GLACIATE                = 82746,
     SPELL_GLACIATE_25            = 92506,
-    SPELL_GLACIATE_10H            = 92507, 
+    SPELL_GLACIATE_10H            = 92507,
     SPELL_GLACIATE_25H            = 92508,
     SPELL_FROZEN                = 82772,
     SPELL_WATER_BOMB_AURA       = 77349,
@@ -182,7 +182,7 @@ enum Events
     EVENT_THUNDERSHOCK                = 19,
     EVENT_PHASE_3_1                    = 20,
     EVENT_PHASE_3_2                    = 21,
-    EVENT_PHASE_3_3                    = 22, 
+    EVENT_PHASE_3_3                    = 22,
     EVENT_PHASE_3_4                    = 23,
     EVENT_CRYOGENIC_AURA            = 24,
     EVENT_LAVA_SEED                    = 25,
@@ -230,7 +230,7 @@ enum Actions
     ACTION_FLAME_STRIKE = 5
 };
 
-const Position councilPos[4] = 
+const Position councilPos[4] =
 {
     {-1053.54f, -564.38f, 835.02f, 5.81f},
     {-1054.04f, -600.60f, 835.03f, 0.42f},
@@ -238,7 +238,7 @@ const Position councilPos[4] =
     {-1057.93f, -533.38f, 877.68f, 5.47f},
 };
 
-const Position groundPos[7] = 
+const Position groundPos[7] =
 {
     {-1038.45f, -590.60f, 831.98f, 6.04f},
     {-1034.61f, -571.70f, 831.90f, 6.04f},
@@ -249,7 +249,7 @@ const Position groundPos[7] =
     {-1008.58f, -582.97f, 831.90f, 6.23f},
 };
 
-const Position randomPos[34] = 
+const Position randomPos[34] =
 {
     {-976.85f, -596.94f, 831.90f, 4.42f},
     {-985.56f, -607.92f, 831.90f, 3.61f},
@@ -448,7 +448,7 @@ class boss_feludius : public CreatureScript
                 {
                     DoAction(ACTION_PHASE_2);
                     if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_IGNACIOUS) : 0))
-                        _ignacious->AI()->DoAction(ACTION_PHASE_2);    
+                        _ignacious->AI()->DoAction(ACTION_PHASE_2);
                     return;
                 }
                     
@@ -504,7 +504,7 @@ class boss_feludius : public CreatureScript
                     }
                 }
                 DoMeleeAttackIfReady();
-            }            
+            }
         };
 };
 
@@ -691,7 +691,7 @@ class boss_ignacious : public CreatureScript
                             {
                                 _monstrocity->SetHealth(_health);
                                 _monstrocity->LowerPlayerDamageReq(me->GetMaxHealth());
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))    
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                     _monstrocity->AI()->AttackStart(target);
                             }
                             break;
@@ -844,7 +844,7 @@ class boss_arion : public CreatureScript
             }
 
             void EnterCombat(Unit* /*who*/)
-            {                
+            {
             }
 
             void JustSummoned(Creature* summon)
@@ -1789,7 +1789,7 @@ class spell_ignacious_inferno_rush: public SpellScriptLoader
             void HandleScript()
             {
                 if (!GetHitUnit())
-                    return; 
+                    return;
 
                 GetHitUnit()->RemoveAurasDueToSpell(SPELL_WATERLOGGED);
 

@@ -1462,7 +1462,7 @@ struct CompletedChallenge
     uint32 m_BestMedalDate;
 };
 
-///<             MapID
+/// MapID
 typedef std::map<uint32, CompletedChallenge> CompletedChallengesMap;
 
 enum BattlegroundTimerTypes
@@ -1485,7 +1485,7 @@ struct CharacterWorldState
     bool   Changed;
 };
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     class Manager;
 }   ///< namespace Garrison

@@ -1600,7 +1600,6 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet opcodes
     //////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////// 
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_BATTLE_PET_NAME,                           STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBattlePetQueryName);
 
     DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PETS_RECONVERT,                           STATUS_NEVER,       PROCESS_INPLACE,        &WorldSession::HandleBattlePetsReconvert);

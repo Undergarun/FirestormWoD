@@ -25,7 +25,7 @@
     #define GARRISON_CHEST_FORMULA_DEBUG 1
 #endif
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Garrison manager class
     class Manager
@@ -388,7 +388,7 @@ namespace MS { namespace Garrison
             Player*     m_Owner;            ///< Garrison owner
             uint32      m_ID;               ///< Garrison DB ID
             uint32      m_GarrisonLevel;    ///< Garrison level
-            uint32      m_GarrisonLevelID;  ///< Garrison level ID in 
+            uint32      m_GarrisonLevelID;  ///< Garrison level ID
             uint32      m_GarrisonSiteID;   ///< Garrison site ID
             uint32      m_NumFollowerActivation;
             uint32      m_NumFollowerActivationRegenTimestamp;

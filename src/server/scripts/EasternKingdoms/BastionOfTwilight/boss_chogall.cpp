@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include"ScriptPCH.h"
 #include"Spell.h"
 #include"bastion_of_twilight.h"
@@ -33,17 +41,17 @@ enum Spells
     SPELL_TWISTED_DEVOTION_25H                  = 93208,
     SPELL_FURY_OF_CHOGALL                        = 82524,
     SPELL_FLAME_ORDERS                            = 81171,
-    SPELL_FLAME_ORDERS_SUM_1                    = 81188, 
+    SPELL_FLAME_ORDERS_SUM_1                    = 81188,
     SPELL_FLAME_ORDERS_SUM_2                    = 81186,
     SPELL_FLAME_ORDERS_PERIODIC_TRIGGER            = 87581,
-    SPELL_FLAME_ORDERS_1                        = 87579,         
-    SPELL_FLAME_ORDERS_SUM_3                    = 87578, 
-    SPELL_FLAME_ORDERS_SUM_4                    = 87582, 
+    SPELL_FLAME_ORDERS_1                        = 87579,
+    SPELL_FLAME_ORDERS_SUM_3                    = 87578,
+    SPELL_FLAME_ORDERS_SUM_4                    = 87582,
     SPELL_SHADOW_ORDERS                            = 81556,
     SPELL_SHADOW_ORDERS_SUM_1                    = 81557,
     SPELL_SHADOW_ORDERS_SUM_2                    = 81558,
     SPELL_SHADOW_ORDERS_PERIODIC_TRIGGER        = 87576,
-    SPELL_SHADOW_ORDERS_1                        = 87575,         
+    SPELL_SHADOW_ORDERS_1                        = 87575,
     SPELL_SHADOW_ORDERS_SUM_3                    = 87574,
     SPELL_SHADOW_ORDERS_SUM_4                    = 87583,
     SPELL_SUMMON_CORRUPTING_ADHERENT            = 81628,
@@ -140,7 +148,7 @@ enum Adds
     NPC_FIRE_PORTAL_2            = 47020,
     NPC_FIRE_ELEMENTAL_2        = 47017,
     NPC_SHADOW_PORTAL_1            = 43603,
-    NPC_SHADOW_LORD_1            = 43592, 
+    NPC_SHADOW_LORD_1            = 43592,
     NPC_SHADOW_PORTAL_2            = 47019,
     NPC_SHADOW_LORD_2            = 47016,
     NPC_CORRUPTING_ADHERENT        = 43622,
@@ -148,10 +156,10 @@ enum Adds
     NPC_BLAZE                    = 43585,
     NPC_BLOOD_OF_THE_OLD_GOD    = 43707,
     NPC_SPRAY_BLOOD                = 45848,
-    NPC_CONGEALED_BLOOD            = 45858, //
-    NPC_OLD_GOD_PORTAL            = 45685, //
-    NPC_FACELESS_GUARDIAN        = 45676, //
-    NPC_TWILIGHT_PORTAL            = 45885, //
+    NPC_CONGEALED_BLOOD            = 45858,
+    NPC_OLD_GOD_PORTAL            = 45685,
+    NPC_FACELESS_GUARDIAN        = 45676,
+    NPC_TWILIGHT_PORTAL            = 45885,
     NPC_MALFORMATION            = 43888,
     NPC_CORRUPTION                = 43999
 };
@@ -185,11 +193,11 @@ enum Equipment
 
 enum DoCorruptionTypes
 {
-    CORRUPTION_INIT        = 1,
+    CORRUPTION_INIT     = 1,
     CORRUPTION_CLEAR    = 2
 };
 
-const Position corruptionPos = {-1162.15f, -799.06f, 836.0f, 0.0f}; 
+const Position corruptionPos = {-1162.15f, -799.06f, 836.0f, 0.0f};
 
 template <class C> typename C::value_type const& SelectRandomContainerElement(C const& container)
 {
@@ -280,7 +288,7 @@ class boss_chogall : public CreatureScript
                     Reset();
             }
             
-            void Reset() 
+            void Reset()
             {
                 _Reset();
 
@@ -380,7 +388,7 @@ class boss_chogall : public CreatureScript
                     case EVENT_CONVERSION:
                         Talk(SAY_CONVERSION);
                         me->CastCustomSpell(SPELL_CONVERSION, SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 3, 4, 6), 0, false);
-                        events.ScheduleEvent(EVENT_CONVERSION, urand(35000, 37000)); 
+                        events.ScheduleEvent(EVENT_CONVERSION, urand(35000, 37000));
                         break;
                     case EVENT_ORDERS:
                         switch (uiOrder)
@@ -526,7 +534,7 @@ class npc_chogall_fire_portal : public CreatureScript
                 events.ScheduleEvent(EVENT_ORDER_SUM, 3000);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
@@ -577,7 +585,7 @@ class npc_chogall_shadow_portal : public CreatureScript
                 events.ScheduleEvent(EVENT_ORDER_SUM, 3000);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
@@ -642,7 +650,7 @@ class npc_chogall_fire_elemental : public CreatureScript
                 events.ScheduleEvent(EVENT_ORDER_MOVE, 1000);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
@@ -713,7 +721,7 @@ class npc_chogall_shadow_lord : public CreatureScript
                 events.ScheduleEvent(EVENT_ORDER_MOVE, 1000);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
@@ -771,7 +779,7 @@ class npc_chogall_blaze : public CreatureScript
                 DoCast(me, SPELL_BLAZE_PERIODIC_TRIGGER);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
@@ -809,7 +817,7 @@ class npc_chogall_corruption : public CreatureScript
                 DoCast(me, SPELL_CORRUPTION_OF_THE_OLD_GOD_VISUAL);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
@@ -849,7 +857,7 @@ class npc_chogall_darkened_creation : public CreatureScript
                 events.ScheduleEvent(EVENT_DEBILITATING_BEAM, 2000);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
@@ -925,7 +933,7 @@ class npc_chogall_malformation : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
@@ -1010,7 +1018,7 @@ class npc_chogall_corrupting_adherent : public CreatureScript
                 events.ScheduleEvent(EVENT_CORRUPTING_CRASH, urand(5000, 8000));
             }
 
-            void Reset() 
+            void Reset()
             {
                 events.Reset();
             }
@@ -1138,7 +1146,7 @@ class npc_chogall_blood_of_the_old_god : public CreatureScript
             {
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 

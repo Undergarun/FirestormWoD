@@ -5946,7 +5946,7 @@ public:
                         case 4: ///< minRecommendedLevel for Blasted land is 0
                             l_minLevel = 55;
                             break;
-                        case 493: ///< minRecommendedLevel for Moonglade is 55 
+                        case 493: ///< minRecommendedLevel for Moonglade is 55
                             l_minLevel = 15;
                             break;
                         default:

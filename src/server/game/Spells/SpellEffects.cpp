@@ -4264,7 +4264,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                         if (m_originalCaster->HasAura(165995))
                             m_originalCaster->CastSpell(m_originalCaster, 165996, true);
 
-                        /// Glyph Of kick 
+                        /// Glyph Of kick
                         if (m_originalCaster->HasAura(56805))
                         {
                             AuraEffect* l_AuraEffect = m_originalCaster->GetAuraEffect(56805, EFFECT_2);

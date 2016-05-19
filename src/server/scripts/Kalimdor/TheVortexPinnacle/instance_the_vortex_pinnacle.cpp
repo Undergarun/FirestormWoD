@@ -74,7 +74,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
 
                 std::string str_data;
                 std::ostringstream saveStream;
-                saveStream << "V P" << GetBossSaveData(); 
+                saveStream << "V P" << GetBossSaveData();
                 str_data = saveStream.str();
 
                 OUT_SAVE_INST_DATA_COMPLETE;

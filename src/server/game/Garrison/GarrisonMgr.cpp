@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonMgr.hpp"
 #include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 #include "Player.h"
@@ -7,7 +15,7 @@
 #include "CreatureAI.h"
 #include "DisableMgr.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     Manager::Manager(Player* p_Owner)
@@ -1935,7 +1943,7 @@ namespace MS { namespace Garrison
         std::vector<GarrisonFollower*>          l_MissionFollowers = GetMissionFollowers(p_MissionRecID);
         std::vector<uint32>                     l_PassiveEffects = GetBuildingsPassiveAbilityEffects();
         std::map<uint64, double>                l_FollowersBiasMap;
-        std::vector<uint32>                     l_CounterAbilityUsed; 
+        std::vector<uint32>                     l_CounterAbilityUsed;
 
         for (uint32 l_I = 0; l_I < sGarrMissionXEncouterStore.GetNumRows(); ++l_I)
         {
@@ -2142,7 +2150,7 @@ namespace MS { namespace Garrison
                 }
             }
         }
-        #pragma endregion 
+        #pragma endregion
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
@@ -2180,7 +2188,7 @@ namespace MS { namespace Garrison
                 }
             }
         }
-        #pragma endregion 
+        #pragma endregion
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
@@ -2290,7 +2298,7 @@ namespace MS { namespace Garrison
                 }
             }
         }
-        #pragma endregion 
+        #pragma endregion
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
@@ -2313,7 +2321,7 @@ namespace MS { namespace Garrison
                 #endif // GARRISON_CHEST_FORMULA_DEBUG
             }
         }
-        #pragma endregion 
+        #pragma endregion
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
@@ -2690,7 +2698,7 @@ namespace MS { namespace Garrison
         if (!l_PlotInstanceEntry)
             return false;
 
-        /// Search building plot ID 
+        /// Search building plot ID
         for (uint32 l_I = 0; l_I < sGarrPlotBuildingStore.GetNumRows(); ++l_I)
         {
             GarrPlotBuildingEntry const* l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
@@ -3582,7 +3590,7 @@ namespace MS { namespace Garrison
 
             uint32 l_PlotID = 0;
 
-            /// Search building plot ID 
+            /// Search building plot ID
             for (uint32 l_I = 0; l_I < sGarrPlotBuildingStore.GetNumRows(); ++l_I)
             {
                 GarrPlotBuildingEntry const* l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
@@ -3742,7 +3750,7 @@ namespace MS { namespace Garrison
             if (!l_Building.Active &&
                 (l_BuildingEntry->Type != BuildingType::Mine &&
                  l_BuildingEntry->Type != BuildingType::Farm &&
-                 l_BuildingEntry->Type != BuildingType::Fishing && 
+                 l_BuildingEntry->Type != BuildingType::Fishing &&
                  l_BuildingEntry->Type != BuildingType::PetMenagerie))
             {
                 l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * PlotTypes::Max)];
@@ -3756,7 +3764,7 @@ namespace MS { namespace Garrison
             {
                 l_GobEntry = l_BuildingEntry->GameObjects[GetGarrisonFactionIndex()];
 
-                if (!l_Building.Active && l_BuildingEntry->Level > 1 && 
+                if (!l_Building.Active && l_BuildingEntry->Level > 1 &&
                     (l_BuildingEntry->Type == BuildingType::Mine ||
                      l_BuildingEntry->Type == BuildingType::Farm ||
                      l_BuildingEntry->Type == BuildingType::Fishing ||
@@ -3847,16 +3855,16 @@ namespace MS { namespace Garrison
                     l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
                 }
 
-                std::vector<GarrisonPlotBuildingContent> l_Contents; 
+                std::vector<GarrisonPlotBuildingContent> l_Contents;
 
                 if (l_IsPlotBuilding)
                     l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
-                else if ((l_Building.Active || 
-                         (l_BuildingEntry && (l_BuildingEntry->Type == BuildingType::Mine 
-                                           || l_BuildingEntry->Type == BuildingType::PetMenagerie 
-                                           || l_BuildingEntry->Type == BuildingType::Fishing 
+                else if ((l_Building.Active ||
+                         (l_BuildingEntry && (l_BuildingEntry->Type == BuildingType::Mine
+                                           || l_BuildingEntry->Type == BuildingType::PetMenagerie
+                                           || l_BuildingEntry->Type == BuildingType::Fishing
                                            || l_BuildingEntry->Type == BuildingType::Farm))
-                         ) 
+                         )
                         && l_Building.BuildingID)
                 {
                     uint32 l_BuildingID = l_Building.BuildingID;

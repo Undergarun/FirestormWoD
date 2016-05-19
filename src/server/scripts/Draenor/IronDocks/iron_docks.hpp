@@ -65,10 +65,10 @@ Position const g_OutTeleportPos = { 8852.49f, 1364.35f, 97.0f, 1.581f };
 
 Position const g_TrainSpawnPos  = { 6617.87f, -1200.69f, 9.801f, 3.089053f };
 
-Position const g_TrainMovePos[2]  = 
-{ 
+Position const g_TrainMovePos[2]  =
+{
     { 6503.10f, -1200.09f, 9.802f, 3.282539f },
-    { 6407.73f, -1200.30f, 9.800f, 3.126752f }  
+    { 6407.73f, -1200.30f, 9.800f, 3.126752f }
 };
 
 #define FriendlyFaction 35

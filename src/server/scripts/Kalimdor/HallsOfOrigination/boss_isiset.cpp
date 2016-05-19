@@ -197,7 +197,7 @@ class boss_isiset : public CreatureScript
                     me->SetReactState(REACT_PASSIVE);
                     if (CelestialCall)
                          DoCast(me, SPELL_MIRROR_IMAGE_CC);
-                    if (AstralRain)    
+                    if (AstralRain)
                         DoCast(me, SPELL_MIRROR_IMAGE_AR);
                     if (VeilOfSky)
                         DoCast(me, SPELL_MIRROR_IMAGE_VS);

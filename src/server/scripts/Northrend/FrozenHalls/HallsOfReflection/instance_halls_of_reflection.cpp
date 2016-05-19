@@ -308,7 +308,7 @@ public:
                     {
                         HandleGameObject(_entranceDoorGUID, true);
                         HandleGameObject(_frostwornDoorGUID, true);
-                        DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 0); 
+                        DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 0);
                         if (Creature* general = instance->GetCreature(_frostwornGeneralGUID))
                             general->SetPhaseMask(1, true);
                     }
@@ -433,7 +433,7 @@ public:
                             _summonsCount = 0;
                             break;
                     }
-                    data = NOT_STARTED;                    
+                    data = NOT_STARTED;
                     break;
             }
 
@@ -447,34 +447,6 @@ public:
             Creature* creature = unit->ToCreature();
             if (!creature)
                 return;
-
-            /*switch (creature->GetEntry())
-            {
-                case NPC_WAVE_MERCENARY:
-                case NPC_WAVE_FOOTMAN:
-                case NPC_WAVE_RIFLEMAN:
-                case NPC_WAVE_PRIEST:
-                case NPC_WAVE_MAGE:
-                {
-                    uint32 deadNpcs = 0;
-                    uint32 waveId = creature->AI()->GetData(0);
-                    for (std::set<uint64>::const_iterator itr = waveGuidList[waveId].begin(); itr != waveGuidList[waveId].end(); ++itr)
-                    {
-                        Creature* npc = instance->GetCreature(*itr);
-                        if (!npc || !npc->isAlive())
-                            ++deadNpcs;
-                    }
-
-                    // because the current npc returns isAlive when OnUnitDeath happens
-                    // we check if the number of dead npcs is equal to the list-1
-                    if (deadNpcs == waveGuidList[waveId].size() - 1)
-                    {
-                        ++_waveCount;
-                        events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
-                    }
-                    break;
-                }
-            }*/
         }
 
         void Update(uint32 diff)

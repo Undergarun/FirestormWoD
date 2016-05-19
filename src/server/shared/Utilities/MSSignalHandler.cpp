@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "MSSignalHandler.h"
 
 namespace MS
@@ -36,7 +44,7 @@ namespace MS
             system("pause");
 #endif
 
-            // We can't rescue the thread, shutdown the server 
+            // We can't rescue the thread, shutdown the server
             exit(SIGTERM);
         }
     }

@@ -408,7 +408,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if ((!UpdateVictim() && !events.IsInPhase(PHASE_INTRO)) || !CheckInRoom()) 
+                if ((!UpdateVictim() && !events.IsInPhase(PHASE_INTRO)) || !CheckInRoom())
                     return;
 
                 events.Update(diff);

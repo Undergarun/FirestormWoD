@@ -446,7 +446,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
         m_Player->RewardQuest(l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry, l_Object);
 
         switch (l_Object->GetTypeId())
-        { 
+        {
             case TYPEID_UNIT:
             case TYPEID_PLAYER:
             {

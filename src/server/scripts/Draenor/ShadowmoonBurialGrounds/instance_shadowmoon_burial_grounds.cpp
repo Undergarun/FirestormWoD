@@ -38,12 +38,12 @@ public:
         uint64 m_PortalToTheShadowLandReturnGUID;
         uint64 m_WandererFirstTalkGUID;
         uint64 m_WandererSecondTalkGUID;
-        uint64 m_WandererThirdTalkGUID; 
+        uint64 m_WandererThirdTalkGUID;
         uint64 m_DoorGobjectSadanaGUID;
         uint64 m_DoorGobjectNerzulGUID;
         uint64 m_DoorGobjectSadanaFightDoorGUID;
         uint64 m_DoorGobjectNhalishEntranceGUID;
-        uint64 m_DoorGobjectBonemawEntranceGUID;    
+        uint64 m_DoorGobjectBonemawEntranceGUID;
 
         void Initialize() override
         {

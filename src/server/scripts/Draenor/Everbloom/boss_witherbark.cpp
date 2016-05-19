@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///  MILLENIUM-STUDIO
-///  Copyright 2016 Millenium-studio SARL 
+///  Copyright 2016 Millenium-studio SARL
 ///  All Rights Reserved.
 ///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ enum eWitherbarkTalks
 {
     WitherbarkAggro = 4, ///< So... Thirsty(45108)
     WitherbarkKill01 = 5, ///< Return to the earth...(45110)
-    WitherbarkKill02 = 6, ///< Feed my roots.(45111) 
+    WitherbarkKill02 = 6, ///< Feed my roots.(45111)
     WitherbarkSpell01 = 7, ///< Refreshed.(45112)
     WitherbarkSpell02 = 8, ///< I Cannot Be Stopped.(45113)
     WitherbarkDeath = 9  ///< Arghh...(45109)
@@ -881,7 +881,7 @@ public:
     }
 };
 
-/// Agitated Waters - 177731 
+/// Agitated Waters - 177731
 class the_everbloom_witherbark_spell_agitated_waters : public SpellScriptLoader
 {
 public:

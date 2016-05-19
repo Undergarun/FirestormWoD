@@ -542,8 +542,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     LootTemplate const* tab = store.GetLootFor(lootId);
 
     // if the creature was killed by players in a dungeon
-    // only those players can loot the creature 
-    // but not group members who was out of a dungeon 
+    // only those players can loot the creature
+    // but not group members who was out of a dungeon
     if (Map* map = lootOwner->GetMap())
     {
         if (map->IsDungeon())

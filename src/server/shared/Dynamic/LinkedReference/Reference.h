@@ -46,7 +46,7 @@ template <class TO, class FROM> class Reference : public LinkedListElement
         // We don't need the reference anymore. Call comes from the refFrom object
         // Tell our refTo object, that the link is cut
         void unlink()
-        { 
+        {
             targetObjectDestroyLink();
             delink();
             iRefTo = NULL;

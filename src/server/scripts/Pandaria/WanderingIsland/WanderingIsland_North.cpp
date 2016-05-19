@@ -491,7 +491,7 @@ public:
         }
 
         void UpdateAI(const uint32 diff)
-        {            
+        {
             m_Events.Update(diff);
 
             if (!UpdateVictim())
@@ -734,7 +734,7 @@ public:
     mob_aysa_lake_escort() : CreatureScript("mob_aysa_lake_escort") { }
 
     struct mob_aysa_lake_escortAI : public npc_escortAI
-    {        
+    {
         mob_aysa_lake_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -889,7 +889,7 @@ public:
                 if (player->GetQuestStatus(29414) == QUEST_STATUS_INCOMPLETE)
                     playersInvolved.push_back(player);
 
-                if (player->GetQuestStatus(29419) == QUEST_STATUS_COMPLETE && player->GetQuestStatus(29424) == QUEST_STATUS_COMPLETE 
+                if (player->GetQuestStatus(29419) == QUEST_STATUS_COMPLETE && player->GetQuestStatus(29424) == QUEST_STATUS_COMPLETE
                     && me->GetPositionX() == 1206.310059f && me->GetPositionY() == 3507.459961f)
                 {
                     DoAction(ACTION_TALK_1);
