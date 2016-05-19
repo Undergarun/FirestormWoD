@@ -6014,6 +6014,8 @@ public:
     }
 };
 
+/// Last update 6.2.3
+/// Glyph of One with Nature - 146656
 class spell_dru_one_with_nature_glyph : public SpellScriptLoader
 {
 public:

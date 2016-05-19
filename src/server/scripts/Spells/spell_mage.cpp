@@ -3306,12 +3306,55 @@ public:
     }
 };
 
+/// Last update 6.2.3
+/// Glyph of Conjure Familiar - 126748
+class spell_mage_conjure_familiar_glyph : public SpellScriptLoader
+{
+public:
+    spell_mage_conjure_familiar_glyph() : SpellScriptLoader("spell_mage_conjure_familiar_glyph") { }
+
+    class spell_mage_conjure_familiar_glyph_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_conjure_familiar_glyph_AuraScript);
+
+        enum eSpells
+        {
+            GlyphOfConjureFamiliar = 126748,
+            ConjureFamiliar = 126578
+        };
+
+        void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                l_Player->learnSpell(ConjureFamiliar, true);
+        }
+
+        void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                l_Player->removeSpell(ConjureFamiliar);
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_mage_conjure_familiar_glyph_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectApplyFn(spell_mage_conjure_familiar_glyph_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_conjure_familiar_glyph_AuraScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
     new spell_areatrigger_mage_wod_frost_2p_bonus();
 
     /// Spells
+    new spell_mage_conjure_familiar_glyph();
     new spell_mage_ice_block();
     new spell_mage_finger_of_frost();
     new spell_mage_arcane_missiles_visual();
