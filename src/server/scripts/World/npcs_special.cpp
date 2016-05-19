@@ -1701,6 +1701,9 @@ class npc_snake_trap : public CreatureScript
                     return;
                 }
 
+                if (me->getVictim()->isInStun() && me->getVictim()->HasAura(3355))
+                    return;
+
                 if (SpellTimer <= diff)
                 {
                     if (IsViper) //Viper
