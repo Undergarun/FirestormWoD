@@ -97,7 +97,7 @@ enum WorldDatabaseStatements
     WORLD_DEL_DISABLES,
     WORLD_SEL_BLACKMARKET_TEMPLATE,
     WORLD_SEL_MAX_CREATURE_GUID,
-    MAX_WORLDDATABASE_STATEMENTS,
+    MAX_WORLDDATABASE_STATEMENTS
 };
 
 class WorldDatabaseConnection : public MySQLConnection

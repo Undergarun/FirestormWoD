@@ -260,7 +260,7 @@ namespace MS { namespace Garrison
     {
         GARRISON_SPELL_GARR_ABILITY                 = 161691,
         GARRISON_SPELL_GARR_ABILITY_HORDE_BASE      = 161693,
-        GARRISON_SPELL_GARR_ABILITY_ALLIANCE_BASE   = 161694,
+        GARRISON_SPELL_GARR_ABILITY_ALLIANCE_BASE   = 161694
     };
 
     enum GarrisonAbilities
@@ -437,7 +437,7 @@ namespace MS { namespace Garrison
             BaseA       = 15585,
             BaseH       = 20508,
             BaseBarn    = 13845,
-            AllComplete = 16091,
+            AllComplete = 16091
         };
     }
 
@@ -448,10 +448,10 @@ namespace MS { namespace Garrison
         {
             CanRenameFollower           = 1,    ///< The specified type can be renamed, eg ships - LUA RenameFollower
             CanStartMissionPastSoftCap  = 2,    ///< You can start a mission above follower soft cap - LUA AllowMissionStartAboveSoftCap
-            Unk1                        = 4,    /// Unk, only regular follower has it
-            Unk2                        = 8,    /// Unk, only ships have it
+            Unk1                        = 4,    ///< Unk, only regular follower has it
+            Unk2                        = 8     ///< Unk, only ships have it
         };
-    };
+    }
 
     static const uint32 gGarrisonBuildingMaxWorkOrderPerBuildingLevel[Globals::MaxLevel] =
     {

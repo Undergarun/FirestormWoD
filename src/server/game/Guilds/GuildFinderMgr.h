@@ -174,8 +174,8 @@ struct LFGuildSettings : public LFGuildPlayer
         LFGuildSettings(bool listed, TeamId team, uint32 guid, uint8 role, uint8 availability, uint8 interests, uint8 level) :
             LFGuildPlayer(guid, role, availability, interests, level), _team(team), _listed(listed) {}
 
-        LFGuildSettings(bool listed, TeamId team, uint32 guid, uint8 role, uint8 availability, uint8 interests, uint8 level, std::string& comment) : _listed(listed),
-            LFGuildPlayer(guid, role, availability, interests, level, comment), _team(team) {}
+        LFGuildSettings(bool listed, TeamId team, uint32 guid, uint8 role, uint8 availability, uint8 interests, uint8 level, std::string& comment) :
+            LFGuildPlayer(guid, role, availability, interests, level, comment), _team(team), _listed(listed) {}
 
         LFGuildSettings(LFGuildSettings const& settings) : LFGuildPlayer(settings), _team(settings.GetTeam()), _listed(settings.IsListed()) {}
 

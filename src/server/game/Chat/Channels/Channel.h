@@ -90,7 +90,7 @@ enum ChannelDBCFlags
     CHANNEL_DBC_FLAG_DEFENSE    = 0x10000,              // LocalDefense, WorldDefense
     CHANNEL_DBC_FLAG_GUILD_REQ  = 0x20000,              // GuildRecruitment
     CHANNEL_DBC_FLAG_LFG        = 0x40000,              // LFG
-    CHANNEL_DBC_FLAG_UNK1       = 0x80000,              // General
+    CHANNEL_DBC_FLAG_UNK1       = 0x80000               // General
 };
 
 enum ChannelMemberFlags

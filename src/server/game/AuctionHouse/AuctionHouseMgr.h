@@ -30,7 +30,7 @@ enum AuctionError
     ERR_AUCTION_HIGHER_BID          = 5,
     ERR_AUCTION_BID_INCREMENT       = 7,
     ERR_AUCTION_BID_OWN             = 10,
-    ERR_RESTRICTED_ACCOUNT          = 13,
+    ERR_RESTRICTED_ACCOUNT          = 13
 };
 
 enum AuctionAction

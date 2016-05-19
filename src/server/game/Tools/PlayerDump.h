@@ -47,7 +47,7 @@ enum DumpTableType
     DTT_GARR_B,         ///< Garrison building
     DTT_GARR_F,         ///< Garrison followers
     DTT_GARR_M,         ///< Garrison missions
-    DTT_GARR_WO,        ///< Garrison work orders
+    DTT_GARR_WO         ///< Garrison work orders
 };
 
 enum DumpReturn

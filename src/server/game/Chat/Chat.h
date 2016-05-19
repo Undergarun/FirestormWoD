@@ -23,7 +23,7 @@ struct GameTele;
 
 enum class SpecificSecurityLevel : uint32
 {
-    DisableByFailure = 0xFFFFFFFF,
+    DisableByFailure = 0xFFFFFFFF
 };
 
 class ChatCommand

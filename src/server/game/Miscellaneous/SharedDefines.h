@@ -51,14 +51,14 @@ enum SpellEffIndex
     EFFECT_29,
     EFFECT_30,
     EFFECT_31,
-    MAX_EFFECTS,
+    MAX_EFFECTS
 };
 
 enum Roles
 {
     ROLE_TANK      = 0,
     ROLE_HEALER    = 1,
-    ROLE_DAMAGE    = 2,
+    ROLE_DAMAGE    = 2
 };
 
 enum MoneyConstants
@@ -973,7 +973,7 @@ enum SpellClickCastFlags
 {
     NPC_CLICK_CAST_CASTER_CLICKER      = 0x01,
     NPC_CLICK_CAST_TARGET_CLICKER      = 0x02,
-    NPC_CLICK_CAST_ORIG_CASTER_OWNER   = 0x04,
+    NPC_CLICK_CAST_ORIG_CASTER_OWNER   = 0x04
 };
 
 enum SheathTypes
@@ -4940,7 +4940,7 @@ enum SpellFamilyNames
     SPELLFAMILY_UNK8        = 71,                           // 2 Only
     SPELLFAMILY_UNK9        = 78,
     SPELLFAMILY_UNK10       = 91,
-    SPELLFAMILY_UNK11       = 100,
+    SPELLFAMILY_UNK11       = 100
 };
 
 // stored in character_pet.slot
@@ -4993,7 +4993,7 @@ enum TradeStatus
     TRADE_STATUS_COMPLETE              = 28,
     TRADE_STATUS_PLAYER_BUSY           = 29,
     TRADE_STATUS_TOO_FAR_AWAY          = 30,
-    TRADE_STATUS_NO_TARGET             = 31,
+    TRADE_STATUS_NO_TARGET             = 31
 };
 
 enum eUpdateCollisionReasons
@@ -5084,7 +5084,7 @@ enum MountResult
     ERROR_YOU_CANT_RIDE_WHILE_LOOTING         = 6,
     ERROR_YOUR_RACE_CANT_RIDE                 = 7,
     ERROR_YOU_CANT_RIDE_WHILE_IN_ANOTHER_FORM = 8,
-    ERROR_YOU_CANT_CONTINUE                   = 9,
+    ERROR_YOU_CANT_CONTINUE                   = 9
 };
 
 #define CURRENCY_PRECISION 100
@@ -6043,7 +6043,7 @@ namespace GameError
         ERR_SET_LOOT_PERSONAL = 0x3A5,
         ERR_SET_LOOT_METHOD_FAILED_COMBAT = 0x3A6,
         ERR_REAGENT_BANK_FULL = 0x3A7,
-        ERR_REAGENT_BANK_LOCKED = 0x3A8,
+        ERR_REAGENT_BANK_LOCKED = 0x3A8
     };
 }
 

@@ -42,7 +42,7 @@ enum BattlegroundDSCreatureTypes
 
 enum BattlegroundDSCreatures
 {
-    BG_DS_NPC_TYPE_WATER_SPOUT    = 28567,
+    BG_DS_NPC_TYPE_WATER_SPOUT    = 28567
 };
 
 enum BattlegroundDSSpells
@@ -66,15 +66,14 @@ enum BattlegroundDSData
 
     BG_DS_WATERFALL_STATUS_WARNING               = 1, // Water starting to fall, but no LoS Blocking nor movement blocking
     BG_DS_WATERFALL_STATUS_ON                    = 2, // LoS and Movement blocking active
-    BG_DS_WATERFALL_STATUS_OFF                   = 3,
+    BG_DS_WATERFALL_STATUS_OFF                   = 3
 };
 
 class BattlegroundDSScore : public BattlegroundScore
 {
     public:
-        BattlegroundDSScore() {};
-        virtual ~BattlegroundDSScore() {};
-        //TODO fix me
+        BattlegroundDSScore() {}
+        virtual ~BattlegroundDSScore() {}
 };
 
 class BattlegroundDS : public Battleground

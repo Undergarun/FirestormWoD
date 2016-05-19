@@ -58,15 +58,15 @@ namespace MS { namespace Skill { namespace Archaeology
         {
             DigSite_Far_SurveyBot   = 206590,
             DigSite_Med_SurveyBot   = 206589,
-            DigSite_Close_SurveyBot = 204272,
+            DigSite_Close_SurveyBot = 204272
         };
     }
 
     enum ResearchWithLevelResult
     {
         RS_RESULT_FAIL = 0,
-        RS_RESULT_OK = 1,
-        RS_RESULT_HIDE = 2,
+        RS_RESULT_OK   = 1,
+        RS_RESULT_HIDE = 2
     };
 
     /// Player research site

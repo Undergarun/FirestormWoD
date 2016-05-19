@@ -51,7 +51,7 @@ enum LfgType : uint8
     LFG_SUBTYPEID_DUNGEON                        = 1,
     LFG_SUBTYPEID_HEROIC                         = 2,
     LFG_SUBTYPEID_RAID                           = 3,
-    LFG_SUBTYPEID_SCENARIO                       = 4,
+    LFG_SUBTYPEID_SCENARIO                       = 4
 };
 
 enum LfgCategory
@@ -106,7 +106,7 @@ enum LfgJoinResult : uint8
     LFG_JOIN_TOO_MUCH_MEMBERS                    = 0x2B,     // You can not enter dungeons with more that 5 party members
     LFG_JOIN_NOT_ENOUGH_MEMBERS                  = 0x33,     // You do not have enough group members to queue for that
     LFG_JOIN_USING_BG_SYSTEM                     = 0x2C,     // You can not use the dungeon system while in BG or arenas
-    LFG_JOIN_QUEUED_TO_MANY_INSTANCES            = 0x34,     // You are queued for too many instances
+    LFG_JOIN_QUEUED_TO_MANY_INSTANCES            = 0x34      // You are queued for too many instances
 };
 
 /// Role check states

@@ -86,7 +86,7 @@ enum BG_AB_ObjectType
     BG_AB_OBJECT_SPEEDBUFF_GOLD_MINE     = 19,
     BG_AB_OBJECT_REGENBUFF_GOLD_MINE     = 20,
     BG_AB_OBJECT_BERSERKBUFF_GOLD_MINE   = 21,
-    BG_AB_OBJECT_MAX                     = 22,
+    BG_AB_OBJECT_MAX                     = 22
 };
 
 /* Object id templates from DB */
@@ -121,7 +121,7 @@ enum BG_AB_BattlegroundNodes
     BG_AB_SPIRIT_ALLIANCE       = 5,
     BG_AB_SPIRIT_HORDE          = 6,
 
-    BG_AB_ALL_NODES_COUNT       = 7,                        // all nodes (dynamic and static)
+    BG_AB_ALL_NODES_COUNT       = 7                        // all nodes (dynamic and static)
 };
 
 enum BG_AB_NodeStatus

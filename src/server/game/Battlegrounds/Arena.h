@@ -54,7 +54,7 @@ enum ArenaTeamCommandErrors
     ERR_ARENA_TEAM_TOO_MANY_MEMBERS_S       = 0x17,
     ERR_ARENA_TEAM_NOT_FOUND                = 0x1B,
     ERR_ARENA_TEAMS_LOCKED                  = 0x1E,
-    ERR_ARENA_TEAM_TOO_MANY_CREATE          = 0x21,
+    ERR_ARENA_TEAM_TOO_MANY_CREATE          = 0x21
 };
 
 enum ArenaTeamEvents

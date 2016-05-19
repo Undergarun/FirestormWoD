@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef __BATTLEGROUNDRV_H
 #define __BATTLEGROUNDRV_H
 
@@ -40,7 +41,7 @@ enum BattlegroundRVObjectTypes
     BG_RV_OBJECT_FENCE_1,
     BG_RV_OBJECT_FENCE_2,
 
-    BG_RV_OBJECT_MAX,
+    BG_RV_OBJECT_MAX
 };
 
 enum BattlegroundRVObjects
@@ -70,7 +71,7 @@ enum BattlegroundRVObjects
     BG_RV_OBJECT_TYPE_PILAR_1                    = 194583, // axe
     BG_RV_OBJECT_TYPE_PILAR_2                    = 194584, // arena
     BG_RV_OBJECT_TYPE_PILAR_3                    = 194585, // lightning
-    BG_RV_OBJECT_TYPE_PILAR_4                    = 194587, // ivory
+    BG_RV_OBJECT_TYPE_PILAR_4                    = 194587  // ivory
 };
 
 enum BattlegroundRVData
@@ -81,18 +82,18 @@ enum BattlegroundRVData
 
     BG_RV_PILLAR_SWITCH_TIMER                    = 25000,
     BG_RV_FIRE_TO_PILLAR_TIMER                   = 20000,
-    BG_RV_CLOSE_FIRE_TIMER                       =  5000,
+    BG_RV_CLOSE_FIRE_TIMER                       = 5000,
     BG_RV_FIRST_TIMER                            = 20133,
-    BG_RV_WORLD_STATE_A                          = 0xe10,
-    BG_RV_WORLD_STATE_H                          = 0xe11,
-    BG_RV_WORLD_STATE                            = 0xe1a,
+    BG_RV_WORLD_STATE_A                          = 0xE10,
+    BG_RV_WORLD_STATE_H                          = 0xE11,
+    BG_RV_WORLD_STATE                            = 0xE1A
 };
 
 class BattlegroundRVScore : public BattlegroundScore
 {
     public:
-        BattlegroundRVScore() {};
-        virtual ~BattlegroundRVScore() {};
+        BattlegroundRVScore() {}
+        virtual ~BattlegroundRVScore() {}
 };
 
 class BattlegroundRV : public Battleground

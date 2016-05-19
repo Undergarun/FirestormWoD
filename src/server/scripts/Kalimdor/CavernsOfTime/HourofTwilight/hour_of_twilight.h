@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef DEF_HOUROFTWILIGHT_H
 #define DEF_HOUROFTWILIGHT_H
 
@@ -36,7 +44,7 @@ enum GameObjectIds
     GO_GATE                 = 190236,
 
     GO_ICEWALL_2            = 210048, // after Arcurion
-    GO_ICEWALL_1            = 210049, // before Arcurion
+    GO_ICEWALL_1            = 210049  // before Arcurion
 };
 
 enum OtherSpells

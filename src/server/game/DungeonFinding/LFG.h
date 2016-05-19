@@ -39,10 +39,10 @@ enum LfgUpdateType : uint8
 
 
 
-    LFG_UPDATETYPE_ROLECHECK_FAILED              = 6,  //  -
-    LFG_UPDATETYPE_PROPOSAL_FAILED               = 8,  //  -
-    LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 16, //  - 6
-    LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 17, //  -    FIXME: Sometimes at group disband
+    LFG_UPDATETYPE_ROLECHECK_FAILED              = 6,  ///<  -
+    LFG_UPDATETYPE_PROPOSAL_FAILED               = 8,  ///<  -
+    LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 16, ///<  - 6
+    LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 17  ///<  -    FIXME: Sometimes at group disband
 
     // 25 - related to party guid
     // 52 - update status

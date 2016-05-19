@@ -24,7 +24,7 @@ enum GILNEAS_BG_WorldStates
     GILNEAS_BG_OP_RESOURCES_ALLY             = 1776,
     GILNEAS_BG_OP_RESOURCES_HORDE            = 1777,
     GILNEAS_BG_OP_RESOURCES_MAX              = 1780,
-    GILNEAS_BG_OP_RESOURCES_WARNING          = 1955,
+    GILNEAS_BG_OP_RESOURCES_WARNING          = 1955
 };
 
 const uint32 GILNEAS_BG_OP_NODESTATES[3] = { 1767, 1772, 1782 };
@@ -34,7 +34,7 @@ enum GILNEAS_BG_NodeObjectId
 {
     GILNEAS_BG_OBJECTID_NODE_BANNER_0    = 228050,       // Lighthouse banner
     GILNEAS_BG_OBJECTID_NODE_BANNER_1    = 228052,       // Waterworks banner
-    GILNEAS_BG_OBJECTID_NODE_BANNER_2    = 228053,       // Mines banner
+    GILNEAS_BG_OBJECTID_NODE_BANNER_2    = 228053        // Mines banner
 };
 
 enum GILNEAS_BG_ObjectType
@@ -54,7 +54,7 @@ enum GILNEAS_BG_ObjectType
     GILNEAS_BG_OBJECT_SPEEDBUFF_MINE          = 15,
     GILNEAS_BG_OBJECT_REGENBUFF_MINE          = 16,
     GILNEAS_BG_OBJECT_BERSERKBUFF_MINE        = 17,
-    GILNEAS_BG_OBJECT_MAX                     = 18,
+    GILNEAS_BG_OBJECT_MAX                     = 18
 };
 
 enum GILNEAS_BG_ObjectTypes
@@ -62,12 +62,12 @@ enum GILNEAS_BG_ObjectTypes
     GILNEAS_BG_OBJECTID_GATE_A_1             = 207177,
     GILNEAS_BG_OBJECTID_GATE_A_2             = 180322,
     GILNEAS_BG_OBJECTID_GATE_H_1             = 207178,
-    GILNEAS_BG_OBJECTID_GATE_H_2             = 180322,
+    GILNEAS_BG_OBJECTID_GATE_H_2             = 180322
 };
 
 enum GILNEAS_BG_Timers
 {
-    GILNEAS_BG_FLAG_CAPTURING_TIME           = 60000,
+    GILNEAS_BG_FLAG_CAPTURING_TIME           = 60000
 };
 
 enum GILNEAS_BG_Score
@@ -88,7 +88,7 @@ enum GILNEAS_BG_BattlegroundNodes
     GILNEAS_BG_SPIRIT_ALIANCE        = 3,
     GILNEAS_BG_SPIRIT_HORDE          = 4,
 
-    GILNEAS_BG_ALL_NODES_COUNT       = 5,                        // All nodes (dynamic and static)
+    GILNEAS_BG_ALL_NODES_COUNT       = 5                         // All nodes (dynamic and static)
 };
 
 enum GILNEAS_BG_NodeStatus

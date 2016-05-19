@@ -56,7 +56,7 @@ namespace MS
             ENERGIZE_VISUAL_3 = 154177,
             DespawnAreaTriggers = 115905,
             Wind = 170818,
-            LensFlare = 154034,
+            LensFlare = 154034
         };
 
         enum GameObjectEntries
@@ -71,7 +71,7 @@ namespace MS
             DOOR_RUKHRAN_ENTRANCE = 229038,
             DOOR_RUKHRAN_EXIT = 234316,
             DOOR_HIGH_SAVE_VIRYX_ENTRANCE= 235994,
-            DOOR_CHALLENGE_ENTRANCE = 239409,
+            DOOR_CHALLENGE_ENTRANCE = 239409
         };
 
         enum BossEntries
@@ -79,7 +79,7 @@ namespace MS
             RANJIT = 75964,
             ARAKNATH = 76141,
             RUKHRAN = 76143,
-            HIGH_SAGE_VIRYX = 76266,
+            HIGH_SAGE_VIRYX = 76266
         };
 
         enum MobEntries
@@ -104,7 +104,7 @@ namespace MS
             AraokkoaMagnifyingConstructA = 76285,
             ArakkoaMagnifyingGlassFocus = 76083,
             ReshadOutro = 84782,
-            SkyreachDefenseConstruct = 76292,
+            SkyreachDefenseConstruct = 76292
         };
 
         enum Data
@@ -121,7 +121,7 @@ namespace MS
             SolarFlareDying,
             StartingLensFlare,
             PlayerIsHittedByRanjitSpells,
-            MonomaniaAchievementFail,
+            MonomaniaAchievementFail
         };
 
         enum class Achievements : uint32
@@ -136,7 +136,7 @@ namespace MS
             SkyreachChallenger = 8871,
             SkyreachBronze = 8872,
             SkyreachGold = 8874,
-            SkyreachSilver = 8873,
+            SkyreachSilver = 8873
         };
 
         namespace ScenarioDatas
@@ -208,7 +208,7 @@ namespace MS
             { 991.710f, 1873.664f, 240.71f, 0.0f  }, // 44
             // Convex vertices.
             { 1209.13f, 1924.793f, 229.83f, 0.0f  }, // 45
-            { 1000.53f, 1968.087f, 227.00f, 0.0f  }, // 46
+            { 1000.53f, 1968.087f, 227.00f, 0.0f  }  // 46
         };
 
         enum Blocks
@@ -221,7 +221,7 @@ namespace MS
             InnersEnd = 23,
             Center = 24,
             SecondStair = 25,
-            ConvexHull = 26,
+            ConvexHull = 26
         };
 
         // Clockwise ordered.

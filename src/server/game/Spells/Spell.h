@@ -97,8 +97,8 @@ enum PredictionType
 enum SpellRangeFlag
 {
     SPELL_RANGE_DEFAULT = 0,
-    SPELL_RANGE_MELEE = 1,     //melee
-    SPELL_RANGE_RANGED = 2,     //hunter range and ranged weapon
+    SPELL_RANGE_MELEE   = 1,     ///< Melee
+    SPELL_RANGE_RANGED  = 2      ///< Hunter range and ranged weapon
 };
 
 struct SpellDestination
@@ -336,12 +336,12 @@ struct SpellValue
 
 enum SpellState
 {
-    SPELL_STATE_NULL = 0,
-    SPELL_STATE_PREPARING = 1,
-    SPELL_STATE_CASTING = 2,
-    SPELL_STATE_FINISHED = 3,
-    SPELL_STATE_IDLE = 4,
-    SPELL_STATE_DELAYED = 5
+    SPELL_STATE_NULL        = 0,
+    SPELL_STATE_PREPARING   = 1,
+    SPELL_STATE_CASTING     = 2,
+    SPELL_STATE_FINISHED    = 3,
+    SPELL_STATE_IDLE        = 4,
+    SPELL_STATE_DELAYED     = 5
 };
 
 enum SpellEffectHandleMode
@@ -349,7 +349,7 @@ enum SpellEffectHandleMode
     SPELL_EFFECT_HANDLE_LAUNCH,
     SPELL_EFFECT_HANDLE_LAUNCH_TARGET,
     SPELL_EFFECT_HANDLE_HIT,
-    SPELL_EFFECT_HANDLE_HIT_TARGET,
+    SPELL_EFFECT_HANDLE_HIT_TARGET
 };
 
 #define MAX_POWERS_COST MAX_POWERS + 1

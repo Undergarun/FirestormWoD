@@ -163,7 +163,7 @@ namespace MS
 
             enum class Spells : uint32
             {
-                BLAZE_OF_GLORY = 153926,
+                BLAZE_OF_GLORY = 153926
             };
 
             enum class Events : uint32
@@ -248,7 +248,7 @@ namespace MS
             {
                 PIERCE_ARMOR = 1,    // Every 11 to 12 seconds.
                 SUMMON_SOLAR_FLARE = 2,         // Every 15 to 16 seconds.
-                QUILLS = 3,
+                QUILLS = 3
             };
 
             CreatureAI* GetAI(Creature* creature) const

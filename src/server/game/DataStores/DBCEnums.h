@@ -361,7 +361,7 @@ enum SummonPropType
     SUMMON_PROP_TYPE_UNKNOWN_8       = 21,                  // unk
     SUMMON_PROP_TYPE_UNKNOWN_9       = 24,                  // unk
     SUMMON_PROP_TYPE_UNKNOWN_10      = 25,                  // unk
-    SUMMON_PROP_TYPE_UNKNOWN_11      = 26,                  // unk
+    SUMMON_PROP_TYPE_UNKNOWN_11      = 26                   // unk
 };
 
 // SummonProperties.dbc, col 5
