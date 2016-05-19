@@ -593,6 +593,45 @@ class spell_mage_pet_frost_nova: public SpellScriptLoader
 };
 
 // Called by Ice Block - 45438
+class spell_mage_ice_block : public SpellScriptLoader
+{
+    public:
+        spell_mage_ice_block() : SpellScriptLoader("spell_mage_ice_block") { }
+        
+        class spell_mage_ice_block_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_ice_block_SpellScript);
+              
+            enum eSpells
+            {
+                Cyclone = 33786
+            };
+
+            SpellCastResult CheckCyclone()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(Cyclone))
+                        l_Caster->RemoveAura(Cyclone);
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_mage_ice_block_SpellScript::CheckCyclone);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_ice_block_SpellScript();
+        }
+};
+
+
+// Called by Ice Block - 45438
 // Glyph of Ice Block - 115723
 class spell_mage_glyph_of_ice_block: public SpellScriptLoader
 {
@@ -3264,6 +3303,7 @@ void AddSC_mage_spell_scripts()
     new spell_areatrigger_mage_wod_frost_2p_bonus();
 
     /// Spells
+    new spell_mage_ice_block();
     new spell_mage_finger_of_frost();
     new spell_mage_arcane_missiles_visual();
     new spell_mage_illusion();

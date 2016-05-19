@@ -936,21 +936,21 @@ public:
                 return;
 
             ///Germination
-            if (l_Caster->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Target->HasAura(SPELL_DRUID_REJUVENATION))
+            if (l_Caster->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Target->HasAura(SPELL_DRUID_REJUVENATION, l_Caster->GetGUID()))
             {
-                Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+                Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION, l_Caster->GetGUID());
                 if (!l_RejuvenationAura)
                     return;
 
-                if (!l_Target->HasAura(SPELL_DRUID_GERMINATION))
+                if (!l_Target->HasAura(SPELL_DRUID_GERMINATION, l_Caster->GetGUID()))
                 {
                     l_Caster->CastSpell(l_Target, SPELL_DRUID_GERMINATION, true);
                     m_RejuvenationAura = l_RejuvenationAura->GetDuration();
                 }
                 else
                 {
-                    Aura* l_GerminationAura = l_Target->GetAura(SPELL_DRUID_GERMINATION);
-                    Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+                    Aura* l_GerminationAura = l_Target->GetAura(SPELL_DRUID_GERMINATION, l_Caster->GetGUID());
+                    Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION, l_Caster->GetGUID());
                     if (l_GerminationAura && l_RejuvenationAura)
                     {
                         int32 l_GerminationDuration = l_GerminationAura->GetDuration();

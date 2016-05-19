@@ -4222,8 +4222,8 @@ template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T&
             DropModCharge(l_SpellMod, p_Spell);
     }
 
-    float l_Diff = (float)p_Basevalue * (l_TotalMul - 1.0f) + (float)l_TotalFlat;
-    p_Basevalue = T((float)p_Basevalue + l_Diff);
-    return T(l_Diff);
+    T l_OldBaseValue = p_Basevalue;
+    p_Basevalue = T(float(p_Basevalue + l_TotalFlat) * l_TotalMul);
+    return T(l_OldBaseValue - p_Basevalue);
 }
 #endif

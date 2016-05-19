@@ -3981,7 +3981,7 @@ class npc_spectral_guise : public CreatureScript
 
 enum eForceOfNatureSpells
 {
-    SPELL_TREANT_TAUNT          = 130793,
+    SPELL_TREANT_TAUNT          = 113830,
     SPELL_TREANT_ROOT           = 113770,
     SPELL_TREANT_SWIFTMEND      = 142421,
     SPELL_TREANT_HEAL           = 113828,

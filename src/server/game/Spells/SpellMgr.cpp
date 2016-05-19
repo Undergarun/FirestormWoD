@@ -6251,6 +6251,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
+            case 45438:
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                break;
             case 170995:///< Cripple
                 spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(2); ///< 250ms - hack fix to imagine Seduction mechanic
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;

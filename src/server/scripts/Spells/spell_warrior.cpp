@@ -3370,9 +3370,63 @@ class spell_warr_taunt : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Commanding Shout - 469,  Battle Shout - 6673
+class spell_warr_shout : public SpellScriptLoader
+{
+    public:
+        spell_warr_shout() : SpellScriptLoader("spell_warr_shout") { }
+
+        class spell_warr_shout_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_shout_AuraScript);
+
+            enum eSpells
+            {
+                CommandingShout = 469,
+                BattleShout     = 6673
+            };
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == eSpells::BattleShout && l_Target->HasAura(eSpells::CommandingShout, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(eSpells::CommandingShout, l_Caster->GetGUID());
+                else if (GetSpellInfo()->Id == eSpells::CommandingShout && l_Target->HasAura(eSpells::BattleShout, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(eSpells::BattleShout, l_Caster->GetGUID());
+            }
+
+            void Register() override
+            {
+                switch (m_scriptSpellId)
+                {
+                    case eSpells::BattleShout:
+                        OnEffectApply += AuraEffectApplyFn(spell_warr_shout_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER_PCT, AURA_EFFECT_HANDLE_REAL);
+                        break;
+                    case eSpells::CommandingShout:
+                        OnEffectApply += AuraEffectApplyFn(spell_warr_shout_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, AURA_EFFECT_HANDLE_REAL);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_shout_AuraScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_shout();
     new spell_warr_taunt();
     new spell_warr_crazed_berserker();
     new spell_warr_stances();

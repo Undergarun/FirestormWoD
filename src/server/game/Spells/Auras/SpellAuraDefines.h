@@ -529,7 +529,7 @@ enum AuraType
     SPELL_AURA_478                                          = 478,  // 6.0.X Gladiator stance (new warrior stance in WoD)
     SPELL_AURA_479                                          = 479,  // 6.1.2 unused
     SPELL_AURA_480                                          = 480,  // 6.1.2 unused
-    SPELL_AURA_481                                          = 481,  // 6.1.2 Deathknight rune of death generation related (SpellID in value)
+    SPELL_AURA_CONVERT_CONSUMED_RUNE                        = 481,  // 6.1.2 Deathknight rune of death generation related (SpellID in value)
     SPELL_AURA_482                                          = 482,  // 6.1.2 S.E.L.F.I.E. Camera
     SPELL_AURA_483                                          = 483,  // 6.1.2 Rated PvP Transform Suppression
     SPELL_AURA_484                                          = 484,  // 6.2.0 Value is SpellID
