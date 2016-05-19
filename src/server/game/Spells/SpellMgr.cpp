@@ -3465,6 +3465,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].MiscValue = 305;
                 spellInfo->Effects[0].MiscValueB = 230;
                 break;
+            case 1949:
+                spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
+                break;
             case 173702: ///< Lasso Break
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                 break;
