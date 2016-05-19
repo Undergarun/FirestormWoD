@@ -1082,7 +1082,7 @@ public:
                 case eAuchindonEvents::EventShadowWordPainSoulPriest:
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true, -eAuchindonSpells::SpellShadowWordPainPriest))
                     {
-                        me->CastSpell(me, eAuchindonSpells::SpellShadowWordPainPriest);
+                        me->CastSpell(l_Target, eAuchindonSpells::SpellShadowWordPainPriest);
                     }
                     events.ScheduleEvent(eAuchindonEvents::EventShadowWordPainSoulPriest, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
                     break;
