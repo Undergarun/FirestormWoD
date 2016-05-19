@@ -837,7 +837,12 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
                 m_Player->SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, 0);
                 m_Player->SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
             }
-            m_Player->SaveToDB();
+
+            uint32 l_AccountID = GetAccountId();
+            m_Player->SaveToDB(false, std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+            {
+                CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'", l_AccountID));
+            }));
         }
 
         InterRealmSession* tunnel = sWorld->GetInterRealmSession();
