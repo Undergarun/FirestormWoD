@@ -21,7 +21,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_AltarOfBonesAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * /*p_Me*/)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * /*p_This*/, Creature * /*p_Me*/)
         {
         };
 

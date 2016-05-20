@@ -129,7 +129,7 @@ namespace MS { namespace Garrison
             /// @p_Creature : Target creature instance
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/) override
             {
                 p_Player->CLOSE_GOSSIP_MENU();
 
