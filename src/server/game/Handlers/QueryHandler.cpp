@@ -169,7 +169,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         data << float(creatureInfo->ModMana);                           ///< Mana modifier
         data << uint32(itemCount);                                      ///< Quest item count
         data << uint32(creatureInfo->movementId);                       ///< CreatureMovementInfo.dbc
-        data << uint32(creatureInfo->expansionUnknown);                 ///< RequiredExpansion
+        data << uint32(creatureInfo->RequiredExpansion);                ///< RequiredExpansion
         data << uint32(creatureInfo->TrackingQuestID);                  ///< QuestTrackingId
 
         if (SubName.size())

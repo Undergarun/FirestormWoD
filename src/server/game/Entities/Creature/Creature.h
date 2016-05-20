@@ -129,7 +129,7 @@ struct CreatureTemplate
     uint8   minlevel;
     uint8   maxlevel;
     uint32  expansion;
-    uint32  expansionUnknown;                               // either 0 or 5, sent to the client / wdb
+    uint32  RequiredExpansion;
     uint32  faction;
     uint32  NpcFlags1;
     uint32  NpcFlags2;

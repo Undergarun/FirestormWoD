@@ -397,7 +397,7 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                                 0           1          2           3          4       5
     QueryResult result = WorldDatabase.Query("SELECT entry, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
     //                                           6        7      8           9       10           11            12       13      14     15       16       17         18        19        20
-                                             "modelid4, name, femaleName, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, "
+                                             "modelid4, name, femaleName, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_req, faction, npcflag, npcflag2, speed_walk, speed_run, "
     //                                             21       22   23      24            25           26               27               28          29             30
                                              "speed_fly, scale, rank,  dmgschool, dmg_multiplier, baseattacktime, rangeattacktime, baseVariance, rangeVariance,  unit_class, "
     //                                             31         32           33          34            35              36          37            38          39            40           41
@@ -458,7 +458,7 @@ void ObjectMgr::LoadCreatureTemplates()
         l_CreatureTemplate->minlevel          = fields[index++].GetUInt8();
         l_CreatureTemplate->maxlevel          = fields[index++].GetUInt8();
         l_CreatureTemplate->expansion         = uint32(fields[index++].GetInt16());
-        l_CreatureTemplate->expansionUnknown  = uint32(fields[index++].GetUInt16());
+        l_CreatureTemplate->RequiredExpansion = uint32(fields[index++].GetUInt16());
         l_CreatureTemplate->faction           = uint32(fields[index++].GetUInt16());
         l_CreatureTemplate->NpcFlags1         = fields[index++].GetUInt32();
         l_CreatureTemplate->NpcFlags2         = fields[index++].GetUInt32();
@@ -918,10 +918,10 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->expansion = 0;
     }
 
-    if (cInfo->expansionUnknown > MAX_CREATURE_BASE_HP)
+    if (cInfo->RequiredExpansion > MAX_CREATURE_BASE_HP)
     {
-        sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with `exp_unk` %u. Ignored and set to 0.", cInfo->Entry, cInfo->expansionUnknown);
-        const_cast<CreatureTemplate*>(cInfo)->expansionUnknown = 0;
+        sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with `exp_req` %u. Ignored and set to 0.", cInfo->Entry, cInfo->RequiredExpansion);
+        const_cast<CreatureTemplate*>(cInfo)->RequiredExpansion = 0;
     }
 
     if (uint32 badFlags = (cInfo->flags_extra & ~CREATURE_FLAG_EXTRA_DB_ALLOWED))

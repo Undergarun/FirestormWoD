@@ -480,7 +480,7 @@ public:
             cInfo->minlevel            = fields[l_Index++].GetUInt8();
             cInfo->maxlevel            = fields[l_Index++].GetUInt8();
             cInfo->expansion           = fields[l_Index++].GetUInt16();
-            cInfo->expansionUnknown    = fields[l_Index++].GetUInt16();
+            cInfo->RequiredExpansion   = fields[l_Index++].GetUInt16();
             cInfo->faction             = fields[l_Index++].GetUInt16();
             cInfo->NpcFlags1           = fields[l_Index++].GetUInt32();
             cInfo->NpcFlags2           = fields[l_Index++].GetUInt32();
