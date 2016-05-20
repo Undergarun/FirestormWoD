@@ -363,13 +363,13 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // Delete orphaned guild bank tab entries
+    /// Delete orphaned guild bank tab
     CharacterDatabase.DirectExecute("DELETE gbt FROM guild_bank_tab gbt LEFT JOIN guild g ON gbt.guildId = g.guildId WHERE g.guildId IS NULL");
 
-    // Delete orphan guild bank items
+    /// Delete orphan guild bank items
     CharacterDatabase.DirectExecute("DELETE gbi FROM guild_bank_item gbi LEFT JOIN guild g ON gbi.guildId = g.guildId WHERE g.guildId IS NULL");
 
-    // Remove log entries that exceed the number of allowed entries per guild
+    /// Remove log entries that exceed the number of allowed entries per guild
     CharacterDatabase.DirectPExecute("DELETE FROM guild_bank_eventlog WHERE LogGuid > %u", sWorld->getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT));
 }
 
