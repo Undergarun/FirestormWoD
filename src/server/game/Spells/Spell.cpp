@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -582,7 +572,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_spellAura = nullptr;
     isStolen = false;
 
-    m_CustomCritChance = -1.f;
+    m_CustomCritChance = -1.0f;
 
     //Auto Shot & Shoot (wand)
     m_autoRepeat = m_spellInfo->IsAutoRepeatRangedSpell();
@@ -1418,7 +1408,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
                                 while (l_Types[++l_TypesI]);
 
                                 if (l_Found)
-                                    l_Iterator++;
+                                    ++l_Iterator;
                                 else
                                     l_Iterator = l_UnitTargets.erase(l_Iterator);
                             }
@@ -4105,7 +4095,7 @@ void Spell::cast(bool skipCheck)
             m_caster->SetSoulSwapRefreshDuration(true);
     }
 
-    // Kil'Jaeden's Cunning - 10% speed less for each cast while moving (up to 2 charges) ///< @todo Kil'Jaeden's Cunning  is removed 
+    // Kil'Jaeden's Cunning - 10% speed less for each cast while moving (up to 2 charges) ///< @todo Kil'Jaeden's Cunning  is removed
     if (m_caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && m_caster->IsMoving() && !m_caster->HasAura(119048) && m_spellInfo->CalcCastTime(m_caster) > 0)
         m_caster->CastSpell(m_caster, 119050, true);
 
@@ -4839,17 +4829,11 @@ void Spell::SendSpellStart()
 
     WorldPacket data(SMSG_SPELL_START);
 
-    uint32 unkStringLength = 0;
-    uint32 powerCount = 0;
-    uint32 unkCounter1 = 0;
-    uint32 unkCounter2 = 0;
     uint32 l_ExtraTargetsCount = m_targets.GetExtraTargetsCount();
 
     uint64 l_PredicOverrideTarget = 0;
     uint32 l_PredictAmount = 0;
     uint8 l_PredicType = 0;
-
-    uint32 unkCounter4 = 0;
 
     uint64 l_CasterGuid1    = m_CastItem ? m_CastItem->GetGUID() : m_caster->GetGUID();
     uint64 l_CasterGuid2    = m_caster->GetGUID();
@@ -5220,7 +5204,7 @@ void Spell::SendSpellGo()
     }
 
     // Remaining Power
-    for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
+    for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); ++l_Itr)
     {
         Powers l_Power = Powers((*l_Itr));
         l_Data << int32(m_caster->GetPower(l_Power));
@@ -5275,7 +5259,7 @@ void Spell::SendSpellGo()
         uint32 l_PowerDataSize = l_UsablePowers.size();
 
         l_Data << uint32(l_PowerDataSize);
-        for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
+        for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); ++l_Itr)
         {
             Powers l_Power = Powers((*l_Itr));
             l_Data << int32(l_Power);                           ///< Power type
@@ -5363,7 +5347,7 @@ void Spell::ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit* victim, uint32 at
     m_effectExecuteData[effIndex].AddExtraAttack(victim->GetGUID(), attCount);
 }
 
-void Spell::ExecuteLogEffectInterruptCast(uint8 effIndex, Unit* victim, uint32 spellId)
+void Spell::ExecuteLogEffectInterruptCast(uint8 /*effIndex*/, Unit* /*victim*/, uint32 /*spellId*/)
 {
     /// Why is commented ?
     /*InitEffectExecuteData(effIndex);
@@ -6056,11 +6040,6 @@ void Spell::HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_
     uint8 l_Effect = m_spellInfo->Effects[p_I].Effect;
     damage = CalculateDamage(p_I, unitTarget);
 
-    /// Prevent recalculating base damage for every posible target in case of AoE spells 
-    /// @TODO_SOVAK: Rewrite this shit! :P
-    /*if (p_Mode == SPELL_EFFECT_HANDLE_HIT || p_Mode == SPELL_EFFECT_HANDLE_LAUNCH)
-        damage = CalculateDamage(p_I, unitTarget, p_Mode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET);*/
-
     bool l_PreventDefault = CallScriptEffectHandlers((SpellEffIndex)p_I, p_Mode);
     if (!l_PreventDefault && l_Effect < TOTAL_SPELL_EFFECTS)
         (this->*SpellEffects[l_Effect])((SpellEffIndex)p_I);
@@ -6660,7 +6639,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
                 if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
-                    return SPELL_FAILED_OUT_OF_RANGE; 
+                    return SPELL_FAILED_OUT_OF_RANGE;
                 else if (!result)
                     return SPELL_FAILED_NOPATH;
 
@@ -8670,7 +8649,7 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         }
     }
     
-    if (m_CustomCritChance < 0.f)
+    if (m_CustomCritChance < 0.0f)
         targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
     else
         targetInfo.crit = roll_chance_f(m_CustomCritChance);
@@ -8809,7 +8788,7 @@ void Spell::FinishTargetProcessing()
     SendLogExecute();
 }
 
-void Spell::InitEffectExecuteData(uint8 effIndex)
+void Spell::InitEffectExecuteData(uint8 /*effIndex*/)
 {
 }
 
@@ -9170,7 +9149,7 @@ void Spell::PrepareTriggersExecutedOnHit()
         {
              // Permafrost
              if (m_spellInfo->SpellFamilyFlags[1] & 0x00001000 ||  m_spellInfo->SpellFamilyFlags[0] & 0x00100220)
-                 m_preCastSpell = 68391; ///< @todo SpellID removed 
+                 m_preCastSpell = 68391; ///< @todo SpellID removed
              break;
         }
     }

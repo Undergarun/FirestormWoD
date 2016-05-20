@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _OBJECT_H
 #define _OBJECT_H
@@ -28,11 +18,6 @@
 #include "Map.h"
 #include "UpdateMask.h"
 
-#include <set>
-#include <string>
-#include <sstream>
-#include <unordered_set>
-#include <unordered_map>
 
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f
@@ -647,8 +632,7 @@ static float dotProductXY(Position const& p_Pos1, Position const& p_Pos2)
     return p_Pos1.m_positionX * p_Pos2.m_positionX + p_Pos1.m_positionY * p_Pos2.m_positionY;
 }
 
-/// unused function 22/02/16
-static Position& normalizeXY(Position& p_Pos)
+inline Position& normalizeXY(Position& p_Pos)
 {
     float l_Norme = std::sqrt(dotProductXY(p_Pos, p_Pos));
     p_Pos.m_positionX /= l_Norme;
@@ -657,8 +641,7 @@ static Position& normalizeXY(Position& p_Pos)
     return p_Pos;
 }
 
-/// unused function 22/02/16
-static float DistanceFromLine(Position const& p_PointLine1, Position const& p_PointLine2, Position const& p_Point3)
+inline float DistanceFromLine(Position const& p_PointLine1, Position const& p_PointLine2, Position const& p_Point3)
 {
     float l_x1 = p_PointLine1.GetPositionX();
     float l_x2 = p_PointLine2.GetPositionX();
@@ -806,7 +789,7 @@ enum MapObjectCellMoveState
 {
     MAP_OBJECT_CELL_MOVE_NONE, //not in move list
     MAP_OBJECT_CELL_MOVE_ACTIVE, //in move list
-    MAP_OBJECT_CELL_MOVE_INACTIVE, //in move list but should not move
+    MAP_OBJECT_CELL_MOVE_INACTIVE //in move list but should not move
 };
 
 class MapObject
@@ -1014,7 +997,7 @@ class WorldObject : public Object, public WorldLocation
         void MonsterYellToZone(int32 textId, uint32 language, uint64 TargetGuid);
         void BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const* text, uint32 language, char const* name, uint64 TargetGuid) const;
 
-        void PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_SoundKitID, WorldObject * p_TargetObject = NULL, float p_SourceX = 0.f, float p_SourceY = 0.f, float p_SourceZ = 0.f);
+        void PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_SoundKitID, WorldObject * p_TargetObject = NULL, float p_SourceX = 0.0f, float p_SourceY = 0.0f, float p_SourceZ = 0.0f);
         void PlayDirectSound(uint32 sound_id, Player* target = NULL);
 
         void SendObjectDeSpawnAnim(uint64 guid);

@@ -1,10 +1,16 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
-#ifndef _PACKET_STRUCTURES_H_
+# ifndef _PACKET_STRUCTURES_H_
 #define _PACKET_STRUCTURES_H_
 
 #include "Common.h"
-#include <vector>
-#include <string>
 
 template<typename T> struct Optional
 {

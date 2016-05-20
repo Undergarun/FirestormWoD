@@ -1,16 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonFollower.hpp"
 #include "GarrisonMgrConstants.hpp"
 #include "DB2Stores.h"
 #include "GarrisonMgr.hpp"
+#include "Player.h"
+#include "Object.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonFollower::GarrisonFollower()

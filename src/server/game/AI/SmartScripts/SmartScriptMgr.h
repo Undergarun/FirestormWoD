@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_SMARTSCRIPTMGR_H
 #define TRINITY_SMARTSCRIPTMGR_H
@@ -55,7 +46,7 @@ enum SMART_EVENT_PHASE
     SMART_EVENT_PHASE_6       = 6,
     SMART_EVENT_PHASE_MAX     = 7,
 
-    SMART_EVENT_PHASE_COUNT   = 6,
+    SMART_EVENT_PHASE_COUNT   = 6
 };
 
 enum SMART_EVENT_PHASE_BITS
@@ -67,7 +58,7 @@ enum SMART_EVENT_PHASE_BITS
     SMART_EVENT_PHASE_4_BIT        = 8,
     SMART_EVENT_PHASE_5_BIT        = 16,
     SMART_EVENT_PHASE_6_BIT        = 32,
-    SMART_EVENT_PHASE_ALL          = SMART_EVENT_PHASE_1_BIT + SMART_EVENT_PHASE_2_BIT + SMART_EVENT_PHASE_3_BIT + SMART_EVENT_PHASE_4_BIT + SMART_EVENT_PHASE_5_BIT + SMART_EVENT_PHASE_6_BIT,
+    SMART_EVENT_PHASE_ALL          = SMART_EVENT_PHASE_1_BIT + SMART_EVENT_PHASE_2_BIT + SMART_EVENT_PHASE_3_BIT + SMART_EVENT_PHASE_4_BIT + SMART_EVENT_PHASE_5_BIT + SMART_EVENT_PHASE_6_BIT
 };
 
 const uint32 SmartPhaseMask[SMART_EVENT_PHASE_COUNT][2] =
@@ -157,7 +148,7 @@ enum SMART_EVENT
     SMART_EVENT_ACTION_DONE              = 72,      // eventId (SharedDefines.EventId)
     SMART_EVENT_ON_SPELLCLICK            = 73,      // clicker (unit)
 
-    SMART_EVENT_END                      = 74,
+    SMART_EVENT_END                      = 74
 };
 
 struct SmartEvent
@@ -375,9 +366,9 @@ struct SmartEvent
 enum SMART_SCRIPT_RESPAWN_CONDITION
 {
     SMART_SCRIPT_RESPAWN_CONDITION_NONE = 0,
-    SMART_SCRIPT_RESPAWN_CONDITION_MAP = 1,
+    SMART_SCRIPT_RESPAWN_CONDITION_MAP  = 1,
     SMART_SCRIPT_RESPAWN_CONDITION_AREA = 2,
-    SMART_SCRIPT_RESPAWN_CONDITION_END = 3,
+    SMART_SCRIPT_RESPAWN_CONDITION_END  = 3
 };
 
 enum SMART_ACTION
@@ -1331,10 +1322,10 @@ struct SmartScriptHolder
     bool enableTimed;
 };
 
-typedef UNORDERED_MAP<uint32, WayPoint*> WPPath;
+typedef std::unordered_map<uint32, WayPoint*> WPPath;
 
 typedef std::list<WorldObject*> ObjectList;
-typedef UNORDERED_MAP<uint32, ObjectList*> ObjectListMap;
+typedef std::unordered_map<uint32, ObjectList*> ObjectListMap;
 
 class SmartWaypointMgr
 {
@@ -1353,14 +1344,14 @@ class SmartWaypointMgr
         }
 
     private:
-        UNORDERED_MAP<uint32, WPPath*> waypoint_map;
+        std::unordered_map<uint32, WPPath*> waypoint_map;
 };
 
 // all events for a single entry
 typedef std::vector<SmartScriptHolder> SmartAIEventList;
 
 // all events for all entries / guids
-typedef UNORDERED_MAP<int32, SmartAIEventList> SmartAIEventMap;
+typedef std::unordered_map<int32, SmartAIEventList> SmartAIEventMap;
 
 class SmartAIMgr
 {

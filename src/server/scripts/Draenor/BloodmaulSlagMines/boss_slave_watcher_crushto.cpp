@@ -1,11 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common.h"
+#include "Object.h"
 #include "instance_bloodmaul.hpp"
 
 namespace MS
@@ -117,7 +119,7 @@ namespace MS
                                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                         }
 
-                        void MovementInform(uint32 p_Type, uint32 p_Id)
+                        void MovementInform(uint32 p_Type, uint32 /*p_Id*/)
                         {
                             switch (p_Type)
                             {
@@ -249,7 +251,9 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_boss_SlaveWatcherCrushto()
 {
     new MS::Instances::Bloodmaul::boss_SlaveWatcherCrushto();
 }
+#endif

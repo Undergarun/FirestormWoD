@@ -1,17 +1,12 @@
-# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
 #
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
+#  MILLENIUM-STUDIO
+#  Copyright 2016 Millenium-studio SARL
+#  All Rights Reserved.
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if (USE_COREPCH)
-  set(collision_STAT_PCH_HDR PrecompiledHeaders/collisionPCH.h)
-  set(collision_STAT_PCH_SRC PrecompiledHeaders/collisionPCH.cpp)
-endif ()
+if( USE_COREPCH )
+  include_directories(${CMAKE_CURRENT_BINARY_DIR})
+endif()
 
 file(GLOB_RECURSE sources_Management Management/*.cpp Management/*.h)
 file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
@@ -31,27 +26,6 @@ set(collision_STAT_SRCS
   ${sources_Models}
   ${sources_Pathfinding}
   ${sources_localdir}
-)
-
-MACRO( auto_group ProjectDirectory ProjectSources )
-	SET( DirectorySources "${ProjectSources}" )
-	FOREACH( Source ${DirectorySources} )
-		if ("${Source}" MATCHES "(/)+")
-			STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
-			STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
-			STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
-			STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
-			SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
-		else()
-			SOURCE_GROUP( "" FILES ${Source} )
-		endif()
-	ENDFOREACH( Source )
-ENDMACRO( auto_group )
-
-auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${collision_STAT_SRCS}")
-
-set(collision_STAT_SRCS
-  ${collision_STAT_SRCS}
 )
 
 include_directories(
@@ -107,11 +81,12 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
 )
 
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
+
 add_library(collision STATIC
   ${collision_STAT_SRCS}
   ${collision_STAT_PCH_SRC}
 )
-set_property(TARGET collision PROPERTY FOLDER "server")
 
 target_link_libraries(collision
   shared

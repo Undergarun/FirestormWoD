@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "the_stonecore.h"
 
@@ -6,7 +14,7 @@ enum ScriptTexts
     SAY_AGGRO    = 0,
     SAY_KILL    = 1,
     SAY_SKILL    = 2,
-    SAY_DEATH    = 3,
+    SAY_DEATH    = 3
 };
 enum Spells
 {
@@ -20,7 +28,7 @@ enum Spells
     SPELL_SHIELD        = 78835,
     SPELL_SHIELD_H        = 92429,
     SPELL_BULWARK        = 78939,
-    SPELL_BULWARK_H        = 92659,
+    SPELL_BULWARK_H        = 92659
 };
 
 enum Events
@@ -30,7 +38,7 @@ enum Events
     EVENT_PARALYZE        = 3,
     EVENT_SHIELD        = 4,
     EVENT_BULWARK        = 5,
-    EVENT_SHATTER_1        = 6,
+    EVENT_SHATTER_1        = 6
 };
 
 class boss_ozruk : public CreatureScript
@@ -89,13 +97,13 @@ class boss_ozruk : public CreatureScript
                 instance->SetBossState(DATA_OZRUK, IN_PROGRESS);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_KILL);
             }
@@ -154,7 +162,9 @@ class boss_ozruk : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ozruk()
 {
     new boss_ozruk();
 }
+#endif

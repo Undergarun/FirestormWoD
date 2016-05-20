@@ -1,28 +1,18 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef THREADING_H
 #define THREADING_H
 
 #include <ace/Thread.h>
 #include <ace/TSS_T.h>
-#include <atomic>
-#include <assert.h>
+#include "Define.h"
+#include "Common.h"
 
 namespace ACE_Based
 {
@@ -81,7 +71,7 @@ namespace ACE_Based
             void resume();
 
             void setPriority(Priority type);
-            void setName(char* p_Name);
+            void setName(const char* p_Name);
 
             static void Sleep(unsigned long msecs);
             static ACE_thread_t currentId();

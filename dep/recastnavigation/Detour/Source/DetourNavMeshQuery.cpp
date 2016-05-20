@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#ifndef __clang_analyzer__
 #include <float.h>
 #include <string.h>
 #include "DetourNavMeshQuery.h"
@@ -3541,3 +3542,4 @@ bool dtNavMeshQuery::isInClosedList(dtPolyRef ref) const
 
 	return false;
 }
+#endif

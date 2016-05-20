@@ -1,10 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+#include "Common.h"
 #include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -15,9 +17,7 @@
 #include "Sites/GarrisonSiteBase.hpp"
 #include "GarrisonScriptData.hpp"
 
-#include <random>
-
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     npc_Skaggit::npc_Skaggit()
@@ -34,7 +34,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_Skaggit::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_Skaggit::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         p_Player->CLOSE_GOSSIP_MENU();
         p_Creature->AI()->Talk(0);
@@ -146,7 +146,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_SeniorPeonII::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_SeniorPeonII::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         if (p_Player->HasQuest(Quests::QUEST_WHAT_WE_GOT) && p_Player->GetQuestObjectiveCounter(275373) != 1)
         {
@@ -213,7 +213,7 @@ namespace MS { namespace Garrison
 
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_SeniorPeonII::npc_SeniorPeonIIAI::UpdateAI(const uint32 p_Diff)
+    void npc_SeniorPeonII::npc_SeniorPeonIIAI::UpdateAI(const uint32 /*p_Diff*/)
     {
         while (!m_DelayedOperations.empty())
         {
@@ -286,7 +286,7 @@ namespace MS { namespace Garrison
 
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_Gazlowe::npc_GazloweAI::UpdateAI(const uint32 p_Diff)
+    void npc_Gazlowe::npc_GazloweAI::UpdateAI(const uint32 /*p_Diff*/)
     {
         while (!m_DelayedOperations.empty())
         {

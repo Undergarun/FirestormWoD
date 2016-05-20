@@ -1,16 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "PetBattle.h"
-#include <map>
-#include <mutex>
+#include "Common.h"
 
 class PlayerScriptPetBattle : public PlayerScript
 {
@@ -39,7 +39,7 @@ class PlayerScriptPetBattle : public PlayerScript
         /// Called when a update() of a player is done
         /// @p_Player : Player instance
         /// @p_Diff : diff time
-        void OnUpdate(Player* p_Player, uint32 p_Diff)
+        void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
         {
             m_Mutex.lock();
 
@@ -69,7 +69,9 @@ class PlayerScriptPetBattle : public PlayerScript
         std::mutex m_Mutex;
 };
 
+#ifndef __clang_analyzer__
 void AddSC_PetBattlePlayerScript()
 {
     new PlayerScriptPetBattle;
 }
+#endif

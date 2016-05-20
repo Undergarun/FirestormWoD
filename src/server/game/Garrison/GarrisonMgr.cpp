@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonMgr.hpp"
 #include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 #include "Player.h"
@@ -7,7 +15,7 @@
 #include "CreatureAI.h"
 #include "DisableMgr.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     Manager::Manager(Player* p_Owner)
@@ -292,7 +300,7 @@ namespace MS { namespace Garrison
             {
                 GarrisonMission & l_Mission = m_Missions[l_I];
 
-                uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_Mission](const GarrisonMission& p_Mission)
+                uint32 l_Count = (uint32)std::count_if(m_Missions.begin(), m_Missions.end(), [l_Mission](const GarrisonMission& p_Mission)
                 {
                     return p_Mission.MissionID == l_Mission.MissionID;
                 });
@@ -339,7 +347,7 @@ namespace MS { namespace Garrison
                 if (l_Mission.State != MissionStates::InProgress)
                     continue;
 
-                uint32 l_FollowerCount = std::count_if(m_Followers.begin(), m_Followers.end(), [l_Mission](const GarrisonFollower & p_Follower) -> bool
+                uint32 l_FollowerCount = (uint32)std::count_if(m_Followers.begin(), m_Followers.end(), [l_Mission](const GarrisonFollower & p_Follower) -> bool
                 {
                     if (p_Follower.CurrentMissionID == l_Mission.MissionID)
                         return true;
@@ -1070,7 +1078,7 @@ namespace MS { namespace Garrison
         if (!l_MissionEntry || DisableMgr::IsDisabledFor(DISABLE_TYPE_GARRISON_MISSION, p_MissionRecID, m_Owner))
             return false;
 
-        uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [p_MissionRecID](const GarrisonMission& p_Mission)
+        uint32 l_Count = (uint32)std::count_if(m_Missions.begin(), m_Missions.end(), [p_MissionRecID](const GarrisonMission& p_Mission)
         {
             return p_Mission.MissionID == p_MissionRecID;
         });
@@ -1935,7 +1943,7 @@ namespace MS { namespace Garrison
         std::vector<GarrisonFollower*>          l_MissionFollowers = GetMissionFollowers(p_MissionRecID);
         std::vector<uint32>                     l_PassiveEffects = GetBuildingsPassiveAbilityEffects();
         std::map<uint64, double>                l_FollowersBiasMap;
-        std::vector<uint32>                     l_CounterAbilityUsed; 
+        std::vector<uint32>                     l_CounterAbilityUsed;
 
         for (uint32 l_I = 0; l_I < sGarrMissionXEncouterStore.GetNumRows(); ++l_I)
         {
@@ -2142,7 +2150,7 @@ namespace MS { namespace Garrison
                 }
             }
         }
-        #pragma endregion 
+        #pragma endregion
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
@@ -2180,7 +2188,7 @@ namespace MS { namespace Garrison
                 }
             }
         }
-        #pragma endregion 
+        #pragma endregion
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
@@ -2290,7 +2298,7 @@ namespace MS { namespace Garrison
                 }
             }
         }
-        #pragma endregion 
+        #pragma endregion
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
@@ -2313,7 +2321,7 @@ namespace MS { namespace Garrison
                 #endif // GARRISON_CHEST_FORMULA_DEBUG
             }
         }
-        #pragma endregion 
+        #pragma endregion
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
@@ -2617,7 +2625,7 @@ namespace MS { namespace Garrison
     /// Get activated followers count
     uint32 Manager::GetActiveFollowerCount(uint32 p_FollowerType) const
     {
-        return std::count_if(m_Followers.begin(), m_Followers.end(), [p_FollowerType](GarrisonFollower p_Folloser) -> bool
+        return (uint32)std::count_if(m_Followers.begin(), m_Followers.end(), [p_FollowerType](GarrisonFollower p_Folloser) -> bool
         {
             auto l_Entry = p_Folloser.GetEntry();
             return l_Entry ? (l_Entry->Type == p_FollowerType && (p_FollowerType == FollowerType::Ship || !(p_Folloser.Flags & GARRISON_FOLLOWER_FLAG_INACTIVE))) : -1;
@@ -2690,7 +2698,7 @@ namespace MS { namespace Garrison
         if (!l_PlotInstanceEntry)
             return false;
 
-        /// Search building plot ID 
+        /// Search building plot ID
         for (uint32 l_I = 0; l_I < sGarrPlotBuildingStore.GetNumRows(); ++l_I)
         {
             GarrPlotBuildingEntry const* l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
@@ -3148,7 +3156,7 @@ namespace MS { namespace Garrison
     /// Get in progress work order count
     uint32 Manager::GetWorkOrderCount(uint32 p_PlotInstanceID) const
     {
-        return std::count_if(m_WorkOrders.begin(), m_WorkOrders.end(), [p_PlotInstanceID](const GarrisonWorkOrder& p_Order) -> bool
+        return (uint32)std::count_if(m_WorkOrders.begin(), m_WorkOrders.end(), [p_PlotInstanceID](const GarrisonWorkOrder& p_Order) -> bool
         {
             return p_Order.PlotInstanceID == p_PlotInstanceID;
         });
@@ -3582,7 +3590,7 @@ namespace MS { namespace Garrison
 
             uint32 l_PlotID = 0;
 
-            /// Search building plot ID 
+            /// Search building plot ID
             for (uint32 l_I = 0; l_I < sGarrPlotBuildingStore.GetNumRows(); ++l_I)
             {
                 GarrPlotBuildingEntry const* l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
@@ -3742,7 +3750,7 @@ namespace MS { namespace Garrison
             if (!l_Building.Active &&
                 (l_BuildingEntry->Type != BuildingType::Mine &&
                  l_BuildingEntry->Type != BuildingType::Farm &&
-                 l_BuildingEntry->Type != BuildingType::Fishing && 
+                 l_BuildingEntry->Type != BuildingType::Fishing &&
                  l_BuildingEntry->Type != BuildingType::PetMenagerie))
             {
                 l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * PlotTypes::Max)];
@@ -3756,7 +3764,7 @@ namespace MS { namespace Garrison
             {
                 l_GobEntry = l_BuildingEntry->GameObjects[GetGarrisonFactionIndex()];
 
-                if (!l_Building.Active && l_BuildingEntry->Level > 1 && 
+                if (!l_Building.Active && l_BuildingEntry->Level > 1 &&
                     (l_BuildingEntry->Type == BuildingType::Mine ||
                      l_BuildingEntry->Type == BuildingType::Farm ||
                      l_BuildingEntry->Type == BuildingType::Fishing ||
@@ -3847,16 +3855,16 @@ namespace MS { namespace Garrison
                     l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
                 }
 
-                std::vector<GarrisonPlotBuildingContent> l_Contents; 
+                std::vector<GarrisonPlotBuildingContent> l_Contents;
 
                 if (l_IsPlotBuilding)
                     l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
-                else if ((l_Building.Active || 
-                         (l_BuildingEntry && (l_BuildingEntry->Type == BuildingType::Mine 
-                                           || l_BuildingEntry->Type == BuildingType::PetMenagerie 
-                                           || l_BuildingEntry->Type == BuildingType::Fishing 
+                else if ((l_Building.Active ||
+                         (l_BuildingEntry && (l_BuildingEntry->Type == BuildingType::Mine
+                                           || l_BuildingEntry->Type == BuildingType::PetMenagerie
+                                           || l_BuildingEntry->Type == BuildingType::Fishing
                                            || l_BuildingEntry->Type == BuildingType::Farm))
-                         ) 
+                         )
                         && l_Building.BuildingID)
                 {
                     uint32 l_BuildingID = l_Building.BuildingID;
@@ -4389,7 +4397,7 @@ namespace MS { namespace Garrison
                     if (!l_Entry)
                         continue;
 
-                    uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_Entry](const GarrisonMission & p_Mission)
+                    uint32 l_Count = (uint32)std::count_if(m_Missions.begin(), m_Missions.end(), [l_Entry](const GarrisonMission & p_Mission)
                     {
                         return p_Mission.MissionID == l_Entry->MissionRecID;
                     });
@@ -4652,7 +4660,7 @@ namespace MS { namespace Garrison
 
     uint32 Manager::GetTotalFollowerCount(uint32 p_Type)
     {
-        return std::count_if(m_Followers.begin(), m_Followers.end(), [p_Type](GarrisonFollower l_Follower) -> bool
+        return (uint32)std::count_if(m_Followers.begin(), m_Followers.end(), [p_Type](GarrisonFollower l_Follower) -> bool
         {
             GarrFollowerEntry const* l_Entry = l_Follower.GetEntry();
             return l_Entry && l_Entry->Type == p_Type;
@@ -4831,7 +4839,7 @@ namespace MS { namespace Garrison
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
     }
 
-    void Manager::GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset /* = true */, bool p_Abilities /* = true */, bool p_Traits /* = true */, bool p_Update /* = false */) ///< p_Abilities & p_Traits are unused
+    void Manager::GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset /* = true */, bool /*p_Abilities*/ /* = true */, bool /*p_Traits*/ /* = true */, bool p_Update /* = false */)
     {
         if (p_Reset)
             p_Follower.Abilities.clear();
@@ -4954,7 +4962,7 @@ namespace MS { namespace Garrison
         if (l_Iter == m_Followers.end())
             return 0;
 
-        return std::count_if(l_Iter->Abilities.begin(), l_Iter->Abilities.end(), [p_Type](uint32 p_Ability) -> bool
+        return (uint32)std::count_if(l_Iter->Abilities.begin(), l_Iter->Abilities.end(), [p_Type](uint32 p_Ability) -> bool
         {
             auto l_Ability = sGarrAbilityStore.LookupEntry(p_Ability);
             return l_Ability ? l_Ability->AbilityType == p_Type : false;

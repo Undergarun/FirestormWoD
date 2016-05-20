@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_GLADIATORS_SANCTUM_ALLIANCE_GARRISON
 #define GARRISON_GLADIATORS_SANCTUM_ALLIANCE_GARRISON
 
@@ -14,7 +15,7 @@
 #include "../../MultiFactionaProfessionlBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 86639 - Altar of Bones                                            ////

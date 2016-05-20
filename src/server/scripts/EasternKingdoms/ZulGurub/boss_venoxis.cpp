@@ -1,5 +1,12 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
-//#include "GridNotifiers.h"
 #include "zulgurub.h"
 
 enum ScriptTexts
@@ -9,7 +16,7 @@ enum ScriptTexts
     SAY_BLOODVENOM  = 3, // ?
     SAY_X           = 2, // ?
     SAY_KILL        = 4,
-    SAY_AGGRO       = 5,
+    SAY_AGGRO       = 5
 };
 
 enum Spells
@@ -30,13 +37,13 @@ enum Spells
     SPELL_BLOODVENOM_DUMMY          = 97110,
     SPELL_BLOODVENOM_AURA           = 97099,
     SPELL_VENOM_WITHDRAWAL          = 96653,
-    SPELL_VENOMOUS_EFFUSION         = 96678, 
+    SPELL_VENOMOUS_EFFUSION         = 96678,
     SPELL_VENOMOUS_EFFUSION_SUMMON  = 96680,
     SPELL_VENOMOUS_EFFUSION_AURA    = 96681,
     SPELL_VENOMOUS_EFFUSION_DUMMY   = 96534,
     SPELL_VENOM_TOTEM_BEAM_RIGHT    = 96937,
     SPELL_VENOM_TOTEM_BEAM_LEFT     = 96936,
-    SPELL_VENOM_TOTEM_BEAM_CENTER   = 97098,
+    SPELL_VENOM_TOTEM_BEAM_CENTER   = 97098
 };
 
 enum Events
@@ -50,7 +57,7 @@ enum Events
     EVENT_TRANSFORM             = 7,
     EVENT_WHISPER_OF_HETHISS    = 8,
     EVENT_MOVE_UP               = 9,
-    EVENT_BLOODVENOM            = 10,
+    EVENT_BLOODVENOM            = 10
 };
 
 enum Adds
@@ -65,13 +72,13 @@ enum Points
 {
     POINT_DOWN          = 1,
     POINT_UP            = 2,
-    POINT_WITHDRAWAL    = 3,
+    POINT_WITHDRAWAL    = 3
 };
 
 const Position downPos = {-12000.54f, -1685.88f, 32.28f, 0.68f};
 const Position upPos = {-12020.12f, -1699.96f, 39.53f, 0.60f};
 
-const Position mazeleftPos[18] = 
+const Position mazeleftPos[18] =
 {
     {-12003.12f, -1700.04f, 32.29f, 0.0f},
     {-11999.17f, -1705.85f, 32.29f, 0.0f},
@@ -153,7 +160,7 @@ class boss_venoxis : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void MovementInform (uint32 type, uint32 id)
+            void MovementInform (uint32 /*type*/, uint32 id)
             {
                 if (id == POINT_DOWN && phase == 2)
                 {
@@ -261,7 +268,7 @@ class npc_venoxis_bloodvenom : public CreatureScript
 
         struct npc_venoxis_bloodvenomAI : public Scripted_NoMovementAI
         {
-            npc_venoxis_bloodvenomAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_venoxis_bloodvenomAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetSpeed(MOVE_RUN, 0.3f);
                 me->SetReactState(REACT_PASSIVE);
@@ -279,7 +286,7 @@ class npc_venoxis_bloodvenom : public CreatureScript
                 moveTimer = 1000;
             }
             
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 if (Creature* pVenoxis = me->FindNearestCreature(NPC_VENOXIS, 120.0f))
                     DoCast(pVenoxis, SPELL_VENOM_TOTEM_BEAM_CENTER);
@@ -321,7 +328,7 @@ class npc_venoxis_venomous_effusion_stalker : public CreatureScript
 
         struct npc_venoxis_venomous_effusion_stalkerAI : public Scripted_NoMovementAI
         {
-            npc_venoxis_venomous_effusion_stalkerAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_venoxis_venomous_effusion_stalkerAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetSpeed(MOVE_RUN, 0.3f);
                 me->SetReactState(REACT_PASSIVE);
@@ -341,7 +348,7 @@ class npc_venoxis_venomous_effusion_stalker : public CreatureScript
                 moveTimer = 1;
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 /*id*/)
             {
                 if (waypoint == 18)
                     me->DespawnOrUnsummon();
@@ -349,7 +356,7 @@ class npc_venoxis_venomous_effusion_stalker : public CreatureScript
                     moveTimer = 1;
             }
             
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_KILL);
             }
@@ -360,7 +367,7 @@ class npc_venoxis_venomous_effusion_stalker : public CreatureScript
                     DoZoneInCombat(summon);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!pInstance || pInstance->GetBossState(DATA_VENOXIS) != IN_PROGRESS)
                 {
@@ -392,7 +399,7 @@ class npc_venoxis_venomous_effusion : public CreatureScript
 
         struct npc_venoxis_venomous_effusionAI : public Scripted_NoMovementAI
         {
-            npc_venoxis_venomous_effusionAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_venoxis_venomous_effusionAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
                 pInstance = pCreature->GetInstanceScript();
@@ -402,7 +409,7 @@ class npc_venoxis_venomous_effusion : public CreatureScript
 
             InstanceScript* pInstance;
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!pInstance || pInstance->GetBossState(DATA_VENOXIS) != IN_PROGRESS)
                 {
@@ -426,7 +433,7 @@ class npc_venoxis_venoxis_pool_of_acid_tears : public CreatureScript
 
         struct npc_venoxis_venoxis_pool_of_acid_tearsAI : public Scripted_NoMovementAI
         {
-            npc_venoxis_venoxis_pool_of_acid_tearsAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_venoxis_venoxis_pool_of_acid_tearsAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
                 DoCast(me, SPELL_POOL_OF_ACID_TEARS_AURA, true);
@@ -441,7 +448,7 @@ class spell_venoxis_toxic_link: public SpellScriptLoader
 
         class spell_venoxis_toxic_link_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_venoxis_toxic_link_SpellScript);
+            PrepareSpellScript(spell_venoxis_toxic_link_SpellScript)
             
             bool Load()
             {
@@ -503,7 +510,7 @@ class spell_venoxis_toxic_link_aura: public SpellScriptLoader
 
         class spell_venoxis_toxic_link_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_venoxis_toxic_link_aura_AuraScript);
+            PrepareAuraScript(spell_venoxis_toxic_link_aura_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -511,7 +518,7 @@ class spell_venoxis_toxic_link_aura: public SpellScriptLoader
                     GetCaster()->CastSpell(GetCaster(), SPELL_TOXIC_EXPLOSION, true);
             }
             
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetCaster() || !GetTarget())
                     return;
@@ -573,7 +580,7 @@ class spell_venoxis_pool_of_acid_tears_dmg: public SpellScriptLoader
 
         class spell_venoxis_pool_of_acid_tears_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_venoxis_pool_of_acid_tears_dmg_SpellScript);
+            PrepareSpellScript(spell_venoxis_pool_of_acid_tears_dmg_SpellScript)
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
@@ -592,6 +599,7 @@ class spell_venoxis_pool_of_acid_tears_dmg: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_venoxis()
 {
     new boss_venoxis();
@@ -603,3 +611,4 @@ void AddSC_boss_venoxis()
     new spell_venoxis_toxic_link_aura();
     new spell_venoxis_pool_of_acid_tears_dmg();
 }
+#endif

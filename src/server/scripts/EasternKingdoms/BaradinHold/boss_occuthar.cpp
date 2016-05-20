@@ -3,14 +3,14 @@
 
 enum Spells
 {
-    SPELL_BERSERK                   = 47008, 
-    SPELL_SEARING_SHADOW            = 96913, 
+    SPELL_BERSERK                   = 47008,
+    SPELL_SEARING_SHADOW            = 96913,
 
     SPELL_FOCUSED_FIRE              = 96872,
     SPELL_FOCUSED_FIRE_DUMMY        = 96886,
     SPELL_FOCUSED_FIRE_1            = 96884,
 
-    SPELL_EYE_OF_OCCUTHAR           = 96920, 
+    SPELL_EYE_OF_OCCUTHAR           = 96920,
     SPELL_EYE_OF_OCCUTHAR_25        = 101006,
     SPELL_EYE_OF_OCCUTHAR_VEHICLE   = 96932,
 
@@ -25,13 +25,13 @@ enum Events
     EVENT_BERSERK           = 1,
     EVENT_SEARING_SHADOWS   = 2,
     EVENT_EYE_OF_OCCUTHAR   = 3,
-    EVENT_FOCUSED_FIRE      = 4,
+    EVENT_FOCUSED_FIRE      = 4
 };
 
 enum Adds
 {
     NPC_EYE_OF_OCCUTHAR = 52389,
-    NPC_EYESTALK        = 52369,
+    NPC_EYESTALK        = 52369
 };
 
 class boss_occuthar : public CreatureScript
@@ -46,7 +46,7 @@ class boss_occuthar : public CreatureScript
 
         struct boss_occutharAI : public BossAI
         {
-            boss_occutharAI(Creature* pCreature) : BossAI(pCreature, DATA_OCCUTHAR) 
+            boss_occutharAI(Creature* pCreature) : BossAI(pCreature, DATA_OCCUTHAR)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -82,16 +82,16 @@ class boss_occuthar : public CreatureScript
                 _JustReachedHome();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
                 events.ScheduleEvent(EVENT_EYE_OF_OCCUTHAR, 59000);
                 events.ScheduleEvent(EVENT_FOCUSED_FIRE, 26000);
-                events.ScheduleEvent(EVENT_SEARING_SHADOWS, 24000); 
+                events.ScheduleEvent(EVENT_SEARING_SHADOWS, 24000);
                 instance->SetBossState(DATA_OCCUTHAR, IN_PROGRESS);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
             }
@@ -153,7 +153,7 @@ class npc_occuthar_eyestalk : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 if (Creature* pOccuthar = me->FindNearestCreature(NPC_OCCUTHAR, 200.0f))
                 {
@@ -221,7 +221,7 @@ class spell_occuthar_eye_of_occuthar: public SpellScriptLoader
 
         class spell_occuthar_eye_of_occuthar_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_occuthar_eye_of_occuthar_SpellScript);
+            PrepareSpellScript(spell_occuthar_eye_of_occuthar_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -231,7 +231,7 @@ class spell_occuthar_eye_of_occuthar: public SpellScriptLoader
                 GetCaster()->CastSpell(GetCaster(), SPELL_EYE_OF_OCCUTHAR_VEHICLE, true);
                 
                 if (Creature* pEye = GetCaster()->SummonCreature(NPC_EYE_OF_OCCUTHAR, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), GetCaster()->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 11000))
-                    pEye->CastSpell(GetCaster(), SPELL_EYE_OF_OCCUTHAR_DMG, true); 
+                    pEye->CastSpell(GetCaster(), SPELL_EYE_OF_OCCUTHAR_DMG, true);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -253,6 +253,7 @@ class spell_occuthar_eye_of_occuthar: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_occuthar()
 {
     new boss_occuthar();
@@ -260,3 +261,4 @@ void AddSC_boss_occuthar()
     new npc_occuthar_eye_of_occuthar();
     new spell_occuthar_eye_of_occuthar();
 }
+#endif

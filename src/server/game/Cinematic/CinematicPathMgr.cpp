@@ -1,9 +1,18 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#include <fstream>
+#include <stdint.h>
+
+#include "Common.h"
 #include "CinematicPathMgr.h"
 #include "DBCStores.h"
 #include "World.h"
-#include <fstream>
-#include <algorithm>
-#include <stdint.h>
 #include "G3D/platform.h"
 #include "G3D/CoordinateFrame.h"
 #include "G3D/Quat.h"
@@ -20,6 +29,7 @@
 #include "G3D/stringutils.h"
 #include "G3D/PhysicsFrame.h"
 #include "G3D/UprightFrame.h"
+#include "DB2Stores.h"
 
 enum
 {
@@ -108,7 +118,7 @@ struct ModelHeader
     uint32_t ofsAttachments;        // Attachments are for weapons etc.
     uint32_t nAttachLookup;         // P, Miscellaneous
     uint32_t ofsAttachLookup;       // Of course with a lookup.
-    uint32_t nEvents;               // 
+    uint32_t nEvents;
     uint32_t ofsEvents;             // Used for playing sounds when dying and a lot else.
     uint32_t nLights;               // R
     uint32_t ofsLights;             // Lights are mainly used in loginscreens but in wands and some doodads too.
@@ -176,7 +186,7 @@ CinematicSequenceMgr::CinematicSequenceMgr()
 /// Destructor
 CinematicSequenceMgr::~CinematicSequenceMgr()
 {
-    for (std::map<uint32, CinematicSequence*>::iterator l_It = m_Sequences.begin() ; l_It != m_Sequences.end() ; l_It++)
+    for (std::map<uint32, CinematicSequence*>::iterator l_It = m_Sequences.begin() ; l_It != m_Sequences.end() ; ++l_It)
         delete l_It->second;
 }
 

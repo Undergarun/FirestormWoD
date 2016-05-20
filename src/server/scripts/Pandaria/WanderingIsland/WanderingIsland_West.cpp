@@ -11,7 +11,7 @@ class mob_master_shang_xi_temple : public CreatureScript
 public:
     mob_master_shang_xi_temple() : CreatureScript("mob_master_shang_xi_temple") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
     {
         if (quest->GetQuestId() == 29776) // Brise du matin
         {
@@ -137,7 +137,7 @@ public:
     npc_wind_vehicle() : CreatureScript("npc_wind_vehicle") { }
 
     struct npc_wind_vehicleAI : public npc_escortAI
-    {        
+    {
         npc_wind_vehicleAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -189,7 +189,7 @@ public:
     AreaTrigger_at_wind_temple_entrance() : AreaTriggerScript("AreaTrigger_at_wind_temple_entrance")
     {}
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
     {
         if (player->GetQuestStatus(29785) == QUEST_STATUS_INCOMPLETE)
         {
@@ -207,7 +207,7 @@ public:
     mob_aysa_wind_temple_escort() : CreatureScript("mob_aysa_wind_temple_escort") { }
 
     struct mob_aysa_wind_temple_escortAI : public npc_escortAI
-    {        
+    {
         mob_aysa_wind_temple_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -329,7 +329,7 @@ class npc_aysa_in_wind_temple : public CreatureScript
 public:
     npc_aysa_in_wind_temple() : CreatureScript("npc_aysa_in_wind_temple") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
     {
         if (quest->GetQuestId() == 29786) // Bataille Pyrotechnique
         {
@@ -355,18 +355,18 @@ enum Enums
 
     SPELL_SERPENT_SWEEP = 125990,
     SPELL_STUNNED       = 125992,
-    SPELL_LIGHTNING     = 126006,
+    SPELL_LIGHTNING     = 126006
 };
 
-Position ZhaoPos[] = 
+Position ZhaoPos[] =
 {
-    {719.36f, 4164.60f, 216.06f}, // Center
-    {745.91f, 4154.35f, 223.48f},
-    {717.04f, 4141.16f, 219.83f},
-    {689.62f, 4153.16f, 217.63f},
-    {684.53f, 4173.24f, 216.98f},
-    {704.77f, 4190.16f, 218.24f},
-    {736.90f, 4183.85f, 221.41f}
+    {719.36f, 4164.60f, 216.06f, 0.0f}, // Center
+    {745.91f, 4154.35f, 223.48f, 0.0f},
+    {717.04f, 4141.16f, 219.83f, 0.0f},
+    {689.62f, 4153.16f, 217.63f, 0.0f},
+    {684.53f, 4173.24f, 216.98f, 0.0f},
+    {704.77f, 4190.16f, 218.24f, 0.0f},
+    {736.90f, 4183.85f, 221.41f, 0.0f}
 };
 
 class boss_zhao_ren : public CreatureScript
@@ -405,7 +405,7 @@ public:
             me->GetMotionMaster()->MovePoint(0, ZhaoPos[0].GetPositionX(), ZhaoPos[0].GetPositionY(), ZhaoPos[0].GetPositionZ());
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_ROCKET_LAUNCH)
             {
@@ -465,7 +465,7 @@ public:
             _events.ScheduleEvent(EVENT_NEXT_MOVEMENT, 200);
         }
 
-        void JustDied(Unit* attacker)
+        void JustDied(Unit* /*attacker*/)
         {
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 50.0f);
@@ -549,7 +549,7 @@ public:
             me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
-        void OnSpellClick(Unit* Clicker)
+        void OnSpellClick(Unit* /*Clicker*/)
         {
             if (cooldown)
                 return;
@@ -603,7 +603,7 @@ public:
     mob_master_shang_xi_after_zhao_escort() : CreatureScript("mob_master_shang_xi_after_zhao_escort") { }
 
     struct mob_master_shang_xi_after_zhao_escortAI : public npc_escortAI
-    {        
+    {
         mob_master_shang_xi_after_zhao_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -695,7 +695,7 @@ public:
     mob_master_shang_xi_thousand_staff_escort() : CreatureScript("mob_master_shang_xi_thousand_staff_escort") { }
 
     struct mob_master_shang_xi_thousand_staff_escortAI : public npc_escortAI
-    {        
+    {
         mob_master_shang_xi_thousand_staff_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -862,7 +862,7 @@ public:
     }
 
     struct mob_shang_xi_air_balloonAI : public npc_escortAI
-    {        
+    {
         mob_shang_xi_air_balloonAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -966,7 +966,7 @@ public:
 
     }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
     {
         std::list<Creature*> summonList;
         GetCreatureListWithEntryInGrid(summonList, player, 59960, 6.0f);
@@ -1019,7 +1019,7 @@ public:
             me->GetMotionMaster()->MoveFollow(summoner, 1.0f, 1.0f, MOTION_SLOT_ACTIVE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             Player* summoner = sObjectAccessor->FindPlayer(playerGuid);
             if (!summoner)
@@ -1032,7 +1032,7 @@ public:
                 return;
             }
 
-            if ((summoner->GetQuestStatus(29780) == QUEST_STATUS_COMPLETE || summoner->GetQuestStatus(29780) == QUEST_STATUS_REWARDED) && (summoner->GetQuestStatus(29779) == QUEST_STATUS_COMPLETE 
+            if ((summoner->GetQuestStatus(29780) == QUEST_STATUS_COMPLETE || summoner->GetQuestStatus(29780) == QUEST_STATUS_REWARDED) && (summoner->GetQuestStatus(29779) == QUEST_STATUS_COMPLETE
                 || summoner->GetQuestStatus(29779) == QUEST_STATUS_REWARDED) && (summoner->GetQuestStatus(29781) == QUEST_STATUS_COMPLETE || summoner->GetQuestStatus(29781) == QUEST_STATUS_REWARDED))
                 me->DespawnOrUnsummon();
         }
@@ -1112,6 +1112,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_WanderingIsland_West()
 {
     new mob_guardian_of_the_elders();
@@ -1133,3 +1134,4 @@ void AddSC_WanderingIsland_West()
     new gob_defaced_scroll_of_wisdom();
     new mob_shang_xi_second_air_balloon();
 }
+#endif

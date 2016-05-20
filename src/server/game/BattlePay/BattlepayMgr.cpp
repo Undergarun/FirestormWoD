@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ namespace Battlepay
 
         uint32 l_OldMSTime = getMSTime();
 
-        do 
+        do
         {
             Field* l_Fields = l_Result->Fetch();
 

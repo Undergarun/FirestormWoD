@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -30,13 +21,13 @@ enum Spells
     SPELL_NECROTIC_POISON_10    = 28776,
     SPELL_NECROTIC_POISON_25    = 54121,
     SPELL_FRENZY_10             = 54123,
-    SPELL_FRENZY_25             = 54124,
+    SPELL_FRENZY_25             = 54124
 };
 
 enum Creatures
 {
     MOB_WEB_WRAP                = 16486,
-    MOB_SPIDERLING              = 17055,
+    MOB_SPIDERLING              = 17055
 };
 
 #define MAX_POS_WRAP            3
@@ -44,7 +35,7 @@ const Position PosWrap[MAX_POS_WRAP] =
 {
     {3546.796f, -3869.082f, 296.450f, 0.0f},
     {3531.271f, -3847.424f, 299.450f, 0.0f},
-    {3497.067f, -3843.384f, 302.384f, 0.0f},
+    {3497.067f, -3843.384f, 302.384f, 0.0f}
 };
 
 enum Events
@@ -55,7 +46,7 @@ enum Events
     EVENT_POISON,
     EVENT_WRAP,
     EVENT_SUMMON,
-    EVENT_FRENZY,
+    EVENT_FRENZY
 };
 
 class boss_maexxna : public CreatureScript
@@ -183,8 +174,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_maexxna()
 {
     new boss_maexxna();
     new mob_webwrap();
 }
+#endif

@@ -1,8 +1,10 @@
-/*
-    Dungeon : Template of the Jade Serpent 85-87
-    Sha of doubt fourth boss
-    Jade servers
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -12,7 +14,7 @@
 
 enum eBosses
 {
-    BOSS_SHA_OF_DOUBT,
+    BOSS_SHA_OF_DOUBT
 };
 
 enum eSpells
@@ -37,7 +39,7 @@ enum eSpells
     SPELL_GATHERING_DOUBT_2     = 117571,
     SPELL_INVISIBILITY_DETECTION= 126839,
     SPELL_WEAKENED_BLOWS        = 115798,
-    SPELL_RELEASE_DOUBT         = 106112,
+    SPELL_RELEASE_DOUBT         = 106112
 };
 
 enum eEvents
@@ -56,12 +58,12 @@ enum eEvents
     EVENT_STUN = 10,
     EVENT_BLADE_SONG = 11,
     EVENT_UNTAMED_FURY = 12,
-    EVENT_GLIMPSE_OF_MADNESS = 13,
+    EVENT_GLIMPSE_OF_MADNESS = 13
 };
 
 enum eCreatures
 {
-    CREATURE_SHA_OF_DOUBT           = 56439,
+    CREATURE_SHA_OF_DOUBT           = 56439
 };
 
 enum eTalks
@@ -72,7 +74,7 @@ enum eTalks
     TALK_FIGMENT_02,
     TALK_RESET,
     TALK_SLAY_01,
-    TALK_SLAY_02,
+    TALK_SLAY_02
 };
 
 class boss_sha_of_doubt : public CreatureScript
@@ -100,17 +102,17 @@ class boss_sha_of_doubt : public CreatureScript
                 _Reset();
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*p_Unit*/)
             {
                 Talk(TALK_SLAY_01 + urand(0, 1));
             }
 
-            void JustDied(Unit* u)
+            void JustDied(Unit* /*p_Unit*/)
             {
                 Talk(TALK_DEATH);
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_AGGRO);
                 events.ScheduleEvent(EVENT_WITHER_WILL, 5000);
@@ -214,7 +216,7 @@ class mob_figment_of_doubt : public CreatureScript
             EventMap events;
             Classes _class;
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->CastSpell(me, SPELL_DROWNED_STATE, false);
                 me->RemoveAura(SPELL_GATHERING_DOUBT);
@@ -222,7 +224,7 @@ class mob_figment_of_doubt : public CreatureScript
                 me->GetInstanceScript()->SetData(TYPE_CLASS_FIGMENT_DIE, _class);
             }
 
-            void EnterCombat(Unit* u)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 me->CastSpell(me, SPELL_GATHERING_DOUBT, false);
                 events.ScheduleEvent(EVENT_GATHERING_DOUBT, 1000);
@@ -334,8 +336,10 @@ class mob_figment_of_doubt : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_sha_of_doubt()
 {
     new boss_sha_of_doubt();
     new mob_figment_of_doubt();
 }
+#endif

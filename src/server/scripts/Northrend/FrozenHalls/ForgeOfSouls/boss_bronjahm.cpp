@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "SpellAuraEffects.h"
@@ -28,7 +19,7 @@ enum Yells
     SAY_SLAY_2          = -1632003,
     SAY_DEATH           = -1632004,
     SAY_SOUL_STORM      = -1632005,
-    SAY_CORRUPT_SOUL    = -1632006,
+    SAY_CORRUPT_SOUL    = -1632006
 };
 
 enum Spells
@@ -51,7 +42,7 @@ enum Events
     EVENT_SHADOW_BOLT   = 2,
     EVENT_CORRUPT_SOUL  = 3,
     EVENT_SOULSTORM     = 4,
-    EVENT_FEAR          = 5,
+    EVENT_FEAR          = 5
 };
 
 enum CombatPhases
@@ -123,7 +114,7 @@ class boss_bronjahm : public CreatureScript
                     DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (events.GetPhaseMask() & (1 << PHASE_1) && !HealthAbovePct(30))
                 {
@@ -146,7 +137,7 @@ class boss_bronjahm : public CreatureScript
                 soulCount++;
             }
 
-            void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+            void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/)
             {
                 if (soulCount > 0)
                     soulCount--;
@@ -238,7 +229,7 @@ class mob_corrupted_soul_fragment : public CreatureScript
                 instance = me->GetInstanceScript();
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 if (instance)
                 {
@@ -278,7 +269,7 @@ class spell_bronjahm_magic_bane: public SpellScriptLoader
 
         class spell_bronjahm_magic_bane_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_bronjahm_magic_bane_SpellScript);
+            PrepareSpellScript(spell_bronjahm_magic_bane_SpellScript)
 
             void RecalculateDamage()
             {
@@ -312,7 +303,7 @@ class spell_bronjahm_consume_soul: public SpellScriptLoader
 
         class spell_bronjahm_consume_soul_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_bronjahm_consume_soul_SpellScript);
+            PrepareSpellScript(spell_bronjahm_consume_soul_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -339,7 +330,7 @@ class spell_bronjahm_soulstorm_channel: public SpellScriptLoader
 
         class spell_bronjahm_soulstorm_channel_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_bronjahm_soulstorm_channel_AuraScript);
+            PrepareAuraScript(spell_bronjahm_soulstorm_channel_AuraScript)
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -367,7 +358,7 @@ class spell_bronjahm_soulstorm_visual: public SpellScriptLoader
 
         class spell_bronjahm_soulstorm_visual_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_bronjahm_soulstorm_visual_AuraScript);
+            PrepareAuraScript(spell_bronjahm_soulstorm_visual_AuraScript)
 
             void HandlePeriodicTick(AuraEffect const* aurEff)
             {
@@ -413,7 +404,7 @@ class spell_bronjahm_soulstorm_targeting: public SpellScriptLoader
 
         class spell_bronjahm_soulstorm_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_bronjahm_soulstorm_targeting_SpellScript);
+            PrepareSpellScript(spell_bronjahm_soulstorm_targeting_SpellScript)
 
             void FilterTargetsInitial(std::list<WorldObject*>& targets)
             {
@@ -460,6 +451,7 @@ class achievement_soul_power : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_bronjahm()
 {
     new boss_bronjahm();
@@ -471,3 +463,4 @@ void AddSC_boss_bronjahm()
     new spell_bronjahm_soulstorm_targeting();
     new achievement_soul_power();
 }
+#endif

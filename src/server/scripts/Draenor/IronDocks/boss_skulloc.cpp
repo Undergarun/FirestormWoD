@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "iron_docks.hpp"
@@ -44,14 +44,14 @@ Position const g_HomeSkullcHomePos = { 6729.220f, -977.335f, 23.046f, 6.230830f}
 
 Position const g_BladestormPositions[8] =
 {
-    {6730.51f, -986.184f, 23.046f},
-    {6770.27f, -999.860f, 23.047f},
-    {6740.20f, -1002.999f, 23.046f},
-    {6783.170f, -967.849f, 23.180f},
-    {6807.46f, -1001.870f, 23.048f},
-    {6785.44f, -1001.138f, 23.046f},
-    {6839.651f, -968.411f, 23.046f},
-    {6757.62f, -986.855f,  22.815f}
+    {6730.51f, -986.184f, 23.046f, 0.0f },
+    {6770.27f, -999.860f, 23.047f, 0.0f },
+    {6740.20f, -1002.999f, 23.046f, 0.0f },
+    {6783.170f, -967.849f, 23.180f, 0.0f },
+    {6807.46f, -1001.870f, 23.048f, 0.0f },
+    {6785.44f, -1001.138f, 23.046f, 0.0f },
+    {6839.651f, -968.411f, 23.046f, 0.0f },
+    {6757.62f, -986.855f,  22.815f, 0.0f }
 };
 
 class basicevent_pre_boss : public BasicEvent
@@ -196,7 +196,7 @@ public:
                                 {
                                     l_Koramar->AI()->Talk(eTalks::TalkKoramarPastBombardment02);
                                     break;
-                                }          
+                                }
                                 default:
                                     break;
                             }
@@ -214,7 +214,7 @@ private:
     int m_Modifier;
 };
 
-static void SkullocEnforcersStart(InstanceScript* p_Instance, Creature* p_Me)
+static void SkullocEnforcersStart(InstanceScript* p_Instance, Creature* /*p_Me*/)
 {
     if (p_Instance == nullptr)
         return;
@@ -332,7 +332,7 @@ class boss_skulloc : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                events.Reset();       
+                events.Reset();
                 if (me->GetMap())
                 {
                     me->GetMap()->SetObjectVisibility(5000.0f);
@@ -354,7 +354,7 @@ class boss_skulloc : public CreatureScript
             }
 
             void EnterCombat(Unit* /*p_Who*/) override
-            {            
+            {
                 events.ScheduleEvent(eSkullocEvents::EventCannonBarrage, 50 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eSkullocEvents::EventBackdraft, 20 * TimeConstants::IN_MILLISECONDS);
                 if (m_Instance != nullptr)
@@ -533,18 +533,18 @@ class iron_docks_skulloc_mob_koramar : public CreatureScript
                 if (me->GetMap())
                 {
                     me->GetMap()->SetObjectVisibility(5000.0f);
-                }            
+                }
             }
 
             void EnterCombat(Unit* p_Attacker) override
-            {             
+            {
                 me->GetMotionMaster()->MoveChase(p_Attacker); ///< He get bugs out upon combat, this seems to fix it. I guess...
                 events.ScheduleEvent(eKoramarEvents::EventBladestorm, 40 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eKoramarEvents::EventShatteringBlades, 15 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eKoramarEvents::EventBerserkerLeap, 20 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                 {
@@ -567,7 +567,7 @@ class iron_docks_skulloc_mob_koramar : public CreatureScript
             }
 
             void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
-            {             
+            {
                 switch (p_Id)
                 {
                     case eMovementInformed::MovementInformedKoramarBladestorm:
@@ -673,11 +673,11 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
                 }
                 m_TargetGuid = 0;
                 ASSERT(m_Vehicle);
-                me->setFaction(HostileFaction);       
+                me->setFaction(HostileFaction);
                 me->SetUnitMovementFlags(MovementFlags::MOVEMENTFLAG_ROOT);
                 DespawnCreaturesInArea(eIronDocksCreatures::CreatureZoggosh, me);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE); 
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                 events.ScheduleEvent(eTurretEvents::EventInstallAccessories, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
@@ -694,7 +694,7 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
                 switch (p_Action)
                 {
                     case eIronDocksActions::ActionLeaveTurret:
-                        {                                   
+                        {
                             if (m_Instance != nullptr)
                             {
                                 if (Creature* l_Zoggosh = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataZuggosh)))
@@ -724,7 +724,7 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
             }
 
             void UpdateAI(uint32 const p_Diff) override
-            {       
+            {
                 events.Update(p_Diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
@@ -832,7 +832,7 @@ class iron_docks_skulloc_spell_back_draft : public SpellScriptLoader
 
         class iron_docks_skulloc_spell_back_draft_SpellScript : public SpellScript
         {
-            PrepareSpellScript(iron_docks_skulloc_spell_back_draft_SpellScript);
+            PrepareSpellScript(iron_docks_skulloc_spell_back_draft_SpellScript)
 
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
@@ -867,9 +867,9 @@ class iron_docks_skulloc_spell_gronn_smash : public SpellScriptLoader
 
         class iron_docks_skulloc_spell_gronn_smash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(iron_docks_skulloc_spell_gronn_smash_SpellScript);
+            PrepareSpellScript(iron_docks_skulloc_spell_gronn_smash_SpellScript)
 
-            void HandleScriptEffect(SpellEffIndex p_EffIndex)
+            void HandleScriptEffect(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -905,7 +905,7 @@ class iron_docks_skulloc_spell_cannon_barrage : public SpellScriptLoader
 
         class iron_docks_skulloc_spell_cannon_barrage_SpellScript : public AuraScript
         {
-            PrepareAuraScript(iron_docks_skulloc_spell_cannon_barrage_SpellScript);
+            PrepareAuraScript(iron_docks_skulloc_spell_cannon_barrage_SpellScript)
 
             enum eCannonBarrageSpells
             {
@@ -1022,7 +1022,7 @@ class iron_docks_skulloc_spell_berserker_jump : public SpellScriptLoader
 
         class iron_docks_skulloc_spell_berserker_jump_AuraScript : public AuraScript
         {
-            PrepareAuraScript(iron_docks_skulloc_spell_berserker_jump_AuraScript);
+            PrepareAuraScript(iron_docks_skulloc_spell_berserker_jump_AuraScript)
 
             void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {
@@ -1050,6 +1050,7 @@ class iron_docks_skulloc_spell_berserker_jump : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_skulloc()
 {
     /// Bosses
@@ -1063,3 +1064,4 @@ void AddSC_boss_skulloc()
     new iron_docks_skulloc_spell_cannon_barrage(); /// 168537
     new iron_docks_skulloc_spell_berserker_jump(); /// 168965
 }
+#endif

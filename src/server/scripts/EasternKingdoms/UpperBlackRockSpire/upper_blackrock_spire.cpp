@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "upper_blackrock_spire.hpp"
@@ -130,7 +130,7 @@ class mob_black_iron_grunt : public CreatureScript
                 m_DeathEventDone = false;
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 Talk(TALK_IRON_GRUNT_AGGRO);
 
@@ -138,7 +138,7 @@ class mob_black_iron_grunt : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_RALLYING_BANNER, 10000);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->HealthBelowPctDamaged(20, p_Damage) && !m_DeathEventDone)
                 {
@@ -244,13 +244,13 @@ class mob_black_iron_leadbelcher : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_INCENDIARY_SHELL, 4000);
                 m_Events.ScheduleEvent(EVENT_RIFLE_SHOT, 8000);
             }
 
-            void DamageTaken(Unit* p_Atacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->HealthBelowPctDamaged(50, p_Damage) && !m_Canon)
                 {
@@ -301,7 +301,7 @@ class mob_black_iron_leadbelcher : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID)
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID)
             {
                 if (p_ID == 1)
                 {
@@ -342,7 +342,7 @@ class mob_sentry_cannon : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_CANNON_SHOT, 2000);
             }
@@ -395,12 +395,12 @@ class mob_ragemaw_worg : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_FRANTIC_MAULING, 10000);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->HealthBelowPctDamaged(50, p_Damage) && !me->HasAura(SPELL_BLACKROCK_RABIES))
                     me->CastSpell(me, SPELL_BLACKROCK_RABIES, true);
@@ -455,7 +455,7 @@ class mob_black_iron_warcaster : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_BOLT_OF_STEEL, 8000);
                 m_Events.ScheduleEvent(EVENT_SHRAPNEL_STORM, 15000);
@@ -530,7 +530,7 @@ class mob_rune_glow : public CreatureScript
                 {
                     case EVENT_CHECK_ADDS:
                     {
-                        if (me->SelectNearbyTarget(me, 10.f))
+                        if (me->SelectNearbyTarget(me, 10.0f))
                         {
                             m_Events.ScheduleEvent(EVENT_CHECK_ADDS, 1000);
                             break;
@@ -570,7 +570,7 @@ class mob_black_iron_alchemist : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_DEBILITATING_RAY, 5000);
                 m_Events.ScheduleEvent(EVENT_REJUVENATING_SERUM, 20000);
@@ -629,7 +629,7 @@ class mob_black_iron_engineer : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_DEBILITATING_RAY, 5000);
             }
@@ -685,7 +685,7 @@ class mob_drakonid_monstrosity : public CreatureScript
                 me->CastSpell(me, eSpells::SPELL_MONSTRUOUS_CLAWS, true);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_ERUPTION, 7000);
             }
@@ -738,7 +738,7 @@ class mob_black_iron_veteran : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_SUNDER_ARMOR, 5000);
                 m_Events.ScheduleEvent(EVENT_SHIELD_SMASH, 15000);
@@ -798,7 +798,7 @@ class mob_black_iron_dreadweaver : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
                 m_Events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 20000);
@@ -862,7 +862,7 @@ class mob_black_iron_summoner : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_FIREBALL, 2000);
                 m_Events.ScheduleEvent(EVENT_FROST_NOVA, 8000);
@@ -932,7 +932,7 @@ class mob_black_iron_elite : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_BERSERKER_CHARGE, 8000);
                 m_Events.ScheduleEvent(EVENT_BESTIAL_ROAR, 10000);
@@ -995,7 +995,7 @@ class mob_black_iron_siegebreaker : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_SMASH, 5000);
                 m_Events.ScheduleEvent(EVENT_FRENZY, 10000);
@@ -1279,7 +1279,7 @@ class mob_leeroy_jenkins : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+            void SpellHit(Unit* /*p_Caster*/, SpellInfo const* p_SpellInfo)
             {
                 if (p_SpellInfo->Id == Spells::CosmeticHearthstone)
                 {
@@ -1437,7 +1437,7 @@ class mob_leeroy_jenkins : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID)
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID)
             {
                 switch (p_ID)
                 {
@@ -1902,7 +1902,7 @@ class areatrigger_rallying_banner : public AreaTriggerEntityScript
 
         uint32 m_GrowTime;
 
-        void OnCreate(AreaTrigger* p_AreaTrigger)
+        void OnCreate(AreaTrigger* /*p_AreaTrigger*/)
         {
             m_GrowTime = 1000;
         }
@@ -1959,7 +1959,7 @@ class areatrigger_fiery_trail : public AreaTriggerEntityScript
             FieryTrailDmg = 157420
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 3.0f;
@@ -1989,7 +1989,7 @@ class spell_shrapnel_storm: public SpellScriptLoader
 
         class spell_shrapnel_storm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_shrapnel_storm_SpellScript);
+            PrepareSpellScript(spell_shrapnel_storm_SpellScript)
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
@@ -2020,7 +2020,7 @@ class spell_eruption: public SpellScriptLoader
 
         class spell_eruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_eruption_SpellScript);
+            PrepareSpellScript(spell_eruption_SpellScript)
 
             enum eSpell
             {
@@ -2083,7 +2083,7 @@ class spell_class_specific_res: public SpellScriptLoader
 
         class spell_class_specific_res_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_class_specific_res_SpellScript);
+            PrepareSpellScript(spell_class_specific_res_SpellScript)
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
@@ -2159,6 +2159,7 @@ class go_ubrs_whelp_cage : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_upper_blackrock_spire()
 {
     new mob_black_iron_grunt();
@@ -2193,3 +2194,4 @@ void AddSC_upper_blackrock_spire()
     new spell_class_specific_res();
     new go_ubrs_whelp_cage();
 }
+#endif

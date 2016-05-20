@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
@@ -716,7 +707,7 @@ void SmartAI::DoAction(const int32 param)
     GetScript()->ProcessEventsFor(SMART_EVENT_ACTION_DONE, NULL, param);
 }
 
-uint32 SmartAI::GetData(uint32 id)
+uint32 SmartAI::GetData(uint32 /*id*/)
 {
     return 0;
 }
@@ -726,11 +717,11 @@ void SmartAI::SetData(uint32 id, uint32 value)
     GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, NULL, id, value);
 }
 
-void SmartAI::SetGUID(uint64 guid, int32 id)
+void SmartAI::SetGUID(uint64 /*guid*/, int32 /*id*/)
 {
 }
 
-uint64 SmartAI::GetGUID(int32 id)
+uint64 SmartAI::GetGUID(int32 /*id*/)
 {
     return 0;
 }
@@ -950,7 +941,9 @@ class SmartTrigger : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_SmartSCripts()
 {
     new SmartTrigger();
 }
+#endif

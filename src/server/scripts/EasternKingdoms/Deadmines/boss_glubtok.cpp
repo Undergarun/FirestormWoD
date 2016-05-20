@@ -10,7 +10,7 @@ enum ScriptTexts
     SAY_FIRE         = 4,
     SAY_HEAD1        = 5,
     SAY_FROST        = 6,
-    SAY_HEAD2        = 7,
+    SAY_HEAD2        = 7
 };
 enum Spells
 {
@@ -27,7 +27,7 @@ enum Spells
     SPELL_FROST_BLOSSOM_H   = 91287,
     SPELL_FROST_BLOSSOM_0   = 88177,
     SPELL_FROST_BLOSSOM_0_H = 91274,
-    SPELL_BLINK             = 38932,
+    SPELL_BLINK             = 38932
 };
 
 enum Events
@@ -38,7 +38,7 @@ enum Events
     EVENT_BLOSSOM       = 4,
     EVENT_ARCANE_POWER1 = 5,
     EVENT_ARCANE_POWER2 = 6,
-    EVENT_ARCANE_POWER3 = 7,
+    EVENT_ARCANE_POWER3 = 7
 };
 
 enum Adds
@@ -49,7 +49,7 @@ enum Adds
     NPC_FIREWALL_1A     = 48975,
     NPC_FIREWALL_1B     = 49039,
     NPC_FIREWALL_2B     = 49041,
-    NPC_FIREWALL_2C     = 49042,
+    NPC_FIREWALL_2C     = 49042
 };
 
 class boss_glubtok : public CreatureScript
@@ -99,7 +99,7 @@ class boss_glubtok : public CreatureScript
                     Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 stage = 0;
                 Talk(SAY_AGGRO);
@@ -108,7 +108,7 @@ class boss_glubtok : public CreatureScript
                 instance->SetBossState(DATA_GLUBTOK, IN_PROGRESS);
             }
 
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit * /*victim*/)
             {
                 Talk(SAY_KILL);
             }
@@ -193,7 +193,9 @@ class boss_glubtok : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_glubtok()
 {
     new boss_glubtok();
 }
+#endif

@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "zulgurub.h"
 
@@ -8,7 +16,7 @@ enum ScriptTexts
     SAY_KILL    = 2,
     SAY_LEVEL   = 3,
     SAY_OHGAN   = 4,
-    SAY_RES     = 5,
+    SAY_RES     = 5
 };
 
 enum Spells
@@ -41,26 +49,26 @@ enum Events
     EVENT_OHGAN_ORDERS      = 5,
     EVENT_DEVASTATING_SLAM  = 6,
     EVENT_OHGAN_RES         = 7,
-    EVENT_LEVEL_UP          = 8,
+    EVENT_LEVEL_UP          = 8
 };
 
 enum Adds
 {
     NPC_OHGAN               = 52157,
     NPC_DEVASTATING_SLAM    = 52324,
-    NPC_CHAINED_SPIRIT      = 52156,
+    NPC_CHAINED_SPIRIT      = 52156
 };
 
 enum Points
 {
-    POINT_RES,
+    POINT_RES
 };
 enum Other
 {
-    DATA_RES    = 1,
+    DATA_RES    = 1
 };
 
-const Position chainedspiritPos[8] = 
+const Position chainedspiritPos[8] =
 {
     {-12378.6f, -1861.22f, 127.542f, 5.34071f},
     {-12391.2f, -1905.27f, 127.32f, 0.610865f},
@@ -85,7 +93,7 @@ class boss_mandokir : public CreatureScript
             
         struct boss_mandokirAI : public BossAI
         {
-            boss_mandokirAI(Creature* pCreature) : BossAI(pCreature, DATA_MANDOKIR) 
+            boss_mandokirAI(Creature* pCreature) : BossAI(pCreature, DATA_MANDOKIR)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -143,7 +151,7 @@ class boss_mandokir : public CreatureScript
                 return bAchieve;
             }
             
-            void SummonedCreatureDies(Creature* summon, Unit* killer)
+            void SummonedCreatureDies(Creature* summon, Unit* /*p_Killer*/)
             {
                 if (summon->GetEntry() == NPC_OHGAN)
                 {
@@ -231,7 +239,7 @@ class npc_mandokir_chained_spirit : public CreatureScript
 
         struct npc_mandokir_chained_spiritAI : public ScriptedAI
         {
-            npc_mandokir_chained_spiritAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_mandokir_chained_spiritAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 me->SetSpeed(MOVE_RUN, 0.9f);
                 me->SetReactState(REACT_PASSIVE);
@@ -251,7 +259,7 @@ class npc_mandokir_chained_spirit : public CreatureScript
                 despawnTimer = 5000;
             }
 
-            void SetGUID(uint64 guid, int32 data)
+            void SetGUID(uint64 guid, int32 /*p_Data*/)
             {
                 if (playerGUID)
                     return;
@@ -260,7 +268,7 @@ class npc_mandokir_chained_spirit : public CreatureScript
                     me->GetMotionMaster()->MovePoint(POINT_RES, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 if (id == POINT_RES)
                 {
@@ -303,7 +311,7 @@ class npc_mandokir_ohgan : public CreatureScript
 
         struct npc_mandokir_ohganAI : public ScriptedAI
         {
-            npc_mandokir_ohganAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_mandokir_ohganAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 me->SetSpeed(MOVE_RUN, 0.8f);
                 me->SetReactState(REACT_PASSIVE);
@@ -314,15 +322,15 @@ class npc_mandokir_ohgan : public CreatureScript
             {
             }
 
-            void SetGUID(uint64 guid, int32 data)
+            void SetGUID(uint64 /*guid*/, int32 /*p_Data*/)
             {
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 /*id*/)
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
 
@@ -336,9 +344,9 @@ class spell_mandokir_bloodletting: public SpellScriptLoader
 
         class spell_mandokir_bloodletting_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mandokir_bloodletting_AuraScript);
+            PrepareAuraScript(spell_mandokir_bloodletting_AuraScript)
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetCaster() || !GetTarget())
                     return;
@@ -368,7 +376,7 @@ class achievement_ohganot_so_fast : public AchievementCriteriaScript
     public:
         achievement_ohganot_so_fast() : AchievementCriteriaScript("achievement_ohganot_so_fast") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;
@@ -380,6 +388,7 @@ class achievement_ohganot_so_fast : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_mandokir()
 {
     new boss_mandokir();
@@ -388,3 +397,4 @@ void AddSC_boss_mandokir()
     new spell_mandokir_bloodletting();
     new achievement_ohganot_so_fast();
 }
+#endif

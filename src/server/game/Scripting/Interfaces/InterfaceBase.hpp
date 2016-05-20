@@ -1,16 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 #ifndef SCRIPTING_INTERFACES_INTERFACEBASE_HPP_INCLUDED
 #define SCRIPTING_INTERFACES_INTERFACEBASE_HPP_INCLUDED
 
 #include "Common.h"
-#include <ace/Singleton.h>
 #include <ace/Atomic_Op.h>
 
 #include "Player.h"
@@ -135,7 +135,7 @@ class ScriptObject
         /// It indicates whether or not this script type must be assigned in the database.
         virtual bool IsDatabaseBound() const = 0;
         /// Return script name
-        const std::string & GetName() 
+        const std::string & GetName()
         {
             return m_Name;
         }
@@ -200,8 +200,8 @@ template<class TObject> class UpdatableScript
         /// On update
         /// @p_Object : Updated object instance
         /// @p_Diff   : Time since last update
-        virtual void OnUpdate(TObject * p_Object, uint32 p_Diff) 
-        { 
+        virtual void OnUpdate(TObject * p_Object, uint32 p_Diff)
+        {
             UNUSED(p_Object);
             UNUSED(p_Diff);
         }

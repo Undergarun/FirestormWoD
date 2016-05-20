@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -41,7 +32,7 @@ enum Spells
     SPELL_STRANGULATING                         = 69413, //krick's selfcast in intro
     SPELL_SUICIDE                               = 7,
     SPELL_KRICK_KILL_CREDIT                     = 71308,
-    SPELL_NECROMANTIC_POWER                     = 69753,
+    SPELL_NECROMANTIC_POWER                     = 69753
 };
 
 enum Yells
@@ -73,7 +64,7 @@ enum Yells
     SAY_KRICK_OUTRO_8                           = -1658038,
     SAY_TYRANNUS_OUTRO_9                        = -1658039,
     SAY_JAYNA_OUTRO_10                          = -1658040,
-    SAY_SYLVANAS_OUTRO_10                       = -1658041,
+    SAY_SYLVANAS_OUTRO_10                       = -1658041
 };
 
 enum Events
@@ -100,24 +91,24 @@ enum Events
     EVENT_OUTRO_11              = 18,
     EVENT_OUTRO_12              = 19,
     EVENT_OUTRO_13              = 20,
-    EVENT_OUTRO_END             = 21,
+    EVENT_OUTRO_END             = 21
 };
 
 enum KrickPhase
 {
     PHASE_COMBAT    = 1,
-    PHASE_OUTRO     = 2,
+    PHASE_OUTRO     = 2
 };
 
 enum Actions
 {
-    ACTION_OUTRO    = 1,
+    ACTION_OUTRO    = 1
 };
 
 enum Points
 {
     POINT_KRICK_INTRO       = 364770,
-    POINT_KRICK_DEATH       = 364771,
+    POINT_KRICK_DEATH       = 364771
 };
 
 static const Position outroPos[8] =
@@ -522,7 +513,7 @@ class spell_krick_explosive_barrage: public SpellScriptLoader
 
         class spell_krick_explosive_barrage_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_krick_explosive_barrage_AuraScript);
+            PrepareAuraScript(spell_krick_explosive_barrage_AuraScript)
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -557,7 +548,7 @@ class spell_ick_explosive_barrage: public SpellScriptLoader
 
         class spell_ick_explosive_barrage_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ick_explosive_barrage_AuraScript);
+            PrepareAuraScript(spell_ick_explosive_barrage_AuraScript)
 
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -596,7 +587,7 @@ class spell_exploding_orb_hasty_grow: public SpellScriptLoader
 
         class spell_exploding_orb_hasty_grow_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_exploding_orb_hasty_grow_AuraScript);
+            PrepareAuraScript(spell_exploding_orb_hasty_grow_AuraScript)
 
             void OnStackChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -631,7 +622,7 @@ class spell_krick_pursuit: public SpellScriptLoader
 
         class spell_krick_pursuit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_krick_pursuit_SpellScript);
+            PrepareSpellScript(spell_krick_pursuit_SpellScript)
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
@@ -658,7 +649,7 @@ class spell_krick_pursuit: public SpellScriptLoader
 
         class spell_krick_pursuit_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_krick_pursuit_AuraScript);
+            PrepareAuraScript(spell_krick_pursuit_AuraScript)
 
             void HandleExtraEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -691,7 +682,7 @@ class spell_krick_pursuit_confusion: public SpellScriptLoader
 
         class spell_krick_pursuit_confusion_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_krick_pursuit_confusion_AuraScript);
+            PrepareAuraScript(spell_krick_pursuit_confusion_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -718,6 +709,7 @@ class spell_krick_pursuit_confusion: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ick()
 {
     new boss_ick();
@@ -728,3 +720,4 @@ void AddSC_boss_ick()
     new spell_krick_pursuit();
     new spell_krick_pursuit_confusion();
 }
+#endif

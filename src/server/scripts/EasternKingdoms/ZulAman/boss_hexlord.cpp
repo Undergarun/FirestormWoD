@@ -8,7 +8,7 @@ enum ScriptTexts
     SAY_SIPHON  = 2,
     SAY_BOLTS   = 3,
     SAY_PET     = 4,
-    SAY_DEATH   = 5,
+    SAY_DEATH   = 5
 };
 
 enum Spells
@@ -83,18 +83,18 @@ enum Events
     EVENT_SIPHON_SOUL           = 2,
     EVENT_DRAIN_POWER           = 3,
     EVENT_PLAYER_ABILITY        = 4,
-    EVENT_PLAYER_ABILITY_OFF    = 5,
+    EVENT_PLAYER_ABILITY_OFF    = 5
 };
 
 enum Adds
 {
     NPC_ALYSON_ANTILE   = 24240,
-    NPC_SLITHER         = 24242, 
-    NPC_GAZAKROTH       = 24244, 
-    NPC_DARKHEART       = 24246,
+    NPC_SLITHER         = 24242,
+    NPC_GAZAKROTH       = 24244,
+    NPC_DARKHEART       = 24246
 };
 
-const Position addPos[2] = 
+const Position addPos[2] =
 {
     {109.43f, 922.57f, 33.90f, 1.57f},
     {126.40f, 922.78f, 33.90f, 1.57f}
@@ -225,7 +225,7 @@ class boss_hex_lord_malacrass : public CreatureScript
                         me->SummonCreature(NPC_SLITHER, addPos[0], TEMPSUMMON_DEAD_DESPAWN);
                         me->SummonCreature(NPC_DARKHEART, addPos[1], TEMPSUMMON_DEAD_DESPAWN);
                         break;
-                }       
+                }
 
                 me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, 46916);
                 me->SetSheath(SHEATH_STATE_MELEE);
@@ -245,7 +245,7 @@ class boss_hex_lord_malacrass : public CreatureScript
                 Talk(SAY_KILL);
             }
             
-            void SummonedCreatureDies(Creature* summon, Unit* killer)
+            void SummonedCreatureDies(Creature* /*summon*/, Unit* /*p_Killer*/)
             {
                 Talk(SAY_PET);
             }
@@ -268,7 +268,7 @@ class boss_hex_lord_malacrass : public CreatureScript
                 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING)) 
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -539,7 +539,7 @@ class spell_hexlord_unstable_affliction: public SpellScriptLoader
 
         class spell_hexlord_unstable_affliction_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_hexlord_unstable_affliction_AuraScript);
+            PrepareAuraScript(spell_hexlord_unstable_affliction_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -566,6 +566,7 @@ class spell_hexlord_unstable_affliction: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_hex_lord_malacrass()
 {
     new boss_hex_lord_malacrass();              ///< 24239
@@ -575,4 +576,4 @@ void AddSC_boss_hex_lord_malacrass()
     new npc_alyson_antille();                   ///< 24240
     new spell_hexlord_unstable_affliction();    ///< 43522
 }
-
+#endif

@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "WowTime.hpp"
 #include <ace/OS_NS_time.h>
 
@@ -38,7 +39,7 @@ namespace MS { namespace Utilities
     {
         WowTime l_Time;
         l_Time.SetUTCTimeFromPosixTime(p_Time);
-    
+
         return l_Time.Encode();
     }
 
@@ -190,7 +191,7 @@ namespace MS { namespace Utilities
 
             l_RemainMinutes += Globals::InMinutes::Day;
         }
-    
+
         this->Hour      = l_RemainMinutes / Globals::InMinutes::Hour;
         this->Minute    = l_RemainMinutes % Globals::InMinutes::Hour;
     }
@@ -397,7 +398,6 @@ namespace MS { namespace Utilities
     {
         bool l_Cond1 = p_Left <= p_Right;
         bool l_Cond2 = *this >= p_Left;
-        bool l_Result = false;
 
         if (!l_Cond1)
         {

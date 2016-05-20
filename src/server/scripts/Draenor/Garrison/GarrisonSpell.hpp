@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Garrison Hearthstone item spell script
     class spell_garrison_hearthstone : public SpellScriptLoader
@@ -23,7 +23,7 @@ namespace MS { namespace Garrison
             /// Spell script
             class spell_garrison_hearthstone_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_garrison_hearthstone_SpellScript);
+                PrepareSpellScript(spell_garrison_hearthstone_SpellScript)
 
                 /// Function called on server startup, if returns false script won't be used in core
                 /// use for: dbc/template data presence/correctness checks
@@ -58,7 +58,7 @@ namespace MS { namespace Garrison
             /// Spell script
             class spell_garrison_portal_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_garrison_portal_SpellScript);
+                PrepareSpellScript(spell_garrison_portal_SpellScript)
 
                 /// Function called on server startup, if returns false script won't be used in core
                 /// use for: dbc/template data presence/correctness checks
@@ -93,7 +93,7 @@ namespace MS { namespace Garrison
         /// Spell script
         class spell_garrison_shipyard_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_garrison_shipyard_SpellScript);
+            PrepareSpellScript(spell_garrison_shipyard_SpellScript)
 
             /// On spell check cast
             SpellCastResult HandleCheckCast();

@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "deadmines.h"
 
@@ -13,7 +21,7 @@ enum ScriptedTexts
     SAY_INTRO_2 = 9,
     SAY_INTRO_3 = 10,
     SAY_INTRO_4 = 11,
-    SAY_INTRO_5 = 12,
+    SAY_INTRO_5 = 12
 };
 
 enum Spells
@@ -72,7 +80,7 @@ enum Adds
     NPC_ERIK_HARRINGTON             = 49535, // 2
     NPC_EMME_HARRINGTON             = 49534, // 1
     NPC_CALISSA_HARRINGTON          = 49536, // 3 92608
-    NPC_JAMES_HARRINGTON            = 49539,
+    NPC_JAMES_HARRINGTON            = 49539
 };
 
 enum Events
@@ -89,12 +97,12 @@ enum Events
     EVENT_ADDS_3        = 10,
     EVENT_BACKSLASH     = 11,
     EVENT_DEFLECTION    = 12,
-    EVENT_CONTINUE      = 13,
+    EVENT_CONTINUE      = 13
 };
 
 #define ACHIEVEMENT_EVENT 27527
 
-const Position addsPos[3] = 
+const Position addsPos[3] =
 {
     {-67.115807f, -829.708740f, 40.959011f, 1.344201f},
     {-69.161903f, -814.125977f, 40.722912f, 1.611237f},
@@ -152,7 +160,7 @@ class boss_vanessa_vancleef : public CreatureScript
                     Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 Talk(SAY_AGGRO);
 
@@ -235,7 +243,7 @@ class npc_vanessa_vancleef_a_note_from_vanessa : public CreatureScript
     public:
         npc_vanessa_vancleef_a_note_from_vanessa() : CreatureScript("npc_vanessa_vancleef_a_note_from_vanessa") { }
      
-        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+        bool OnGossipHello(Player* /*pPlayer*/, Creature* pCreature)
         {
             InstanceScript* pInstance = pCreature->GetInstanceScript();
             if (!pInstance)
@@ -322,7 +330,7 @@ class npc_vanessa_vancleef_vanessa_sitting : public CreatureScript
                             events.ScheduleEvent(EVENT_INTRO_6, 5000);
                             break;
                         case EVENT_INTRO_6:
-                            me->GetMotionMaster()->MoveJump(centershipPos.GetPositionX(), centershipPos.GetPositionY(), centershipPos.GetPositionZ(), 5.f, 10.f);
+                            me->GetMotionMaster()->MoveJump(centershipPos.GetPositionX(), centershipPos.GetPositionY(), centershipPos.GetPositionZ(), 5.0f, 10.0f);
                             events.ScheduleEvent(EVENT_INTRO_7, 5000);
                             break;
                         case EVENT_INTRO_7:
@@ -405,10 +413,10 @@ class spell_vanessa_vancleef_backslash_targeting: public SpellScriptLoader
 
         class spell_vanessa_vancleef_backslash_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_vanessa_vancleef_backslash_targeting_SpellScript);
+            PrepareSpellScript(spell_vanessa_vancleef_backslash_targeting_SpellScript)
 
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -428,6 +436,7 @@ class spell_vanessa_vancleef_backslash_targeting: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_vanessa_vancleef()
 {
     new boss_vanessa_vancleef();
@@ -435,3 +444,4 @@ void AddSC_boss_vanessa_vancleef()
     new npc_vanessa_vancleef_vanessa_sitting();
     new spell_vanessa_vancleef_backslash_targeting();
 }
+#endif

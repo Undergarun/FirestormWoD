@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "hour_of_twilight.h"
 
@@ -12,7 +20,7 @@ enum ScriptTexts
     SAY_EVENT_4 = 6,
     SAY_KILL    = 7,
     SAY_EVENT_5 = 8,
-    SAY_TOMB    = 9,
+    SAY_TOMB    = 9
 };
 
 enum Spells
@@ -29,7 +37,7 @@ enum Spells
     // Frozen Servitor
     SPELL_ICY_BOULDER_AOE           = 102480,
     SPELL_ICY_BOULDER               = 102198,
-    SPELL_ICY_BOULDER_DMG           = 102199,
+    SPELL_ICY_BOULDER_DMG           = 102199
 };
 
 enum Events
@@ -38,18 +46,18 @@ enum Events
     EVENT_CHAINS_OF_FROST   = 2,
     EVENT_ICY_TOMB          = 3,
     EVENT_ICY_BOULDER       = 4,
-    EVENT_FROZEN_SERVITOR   = 5,
+    EVENT_FROZEN_SERVITOR   = 5
 };
 
 enum Adds
 {
     NPC_FROZEN_SERVITOR = 54600,
     NPC_ICY_TOMB        = 54995,
-    NPC_SPAWN_STALKER   = 57197,
+    NPC_SPAWN_STALKER   = 57197
 };
 
 #define MAX_SERVITOR 6
-const Position servitorPos[MAX_SERVITOR] = 
+const Position servitorPos[MAX_SERVITOR] =
 {
     {4810.14f, 31.5191f, 104.593f, 2.3692f},
     {4831.26f, 64.6198f, 108.553f, 3.28342f},
@@ -220,7 +228,7 @@ class boss_arcurion : public CreatureScript
                         servitors[i] = 0;
             }
 
-        };   
+        };
 };
 
 class npc_arcurion_frozen_servitor : public CreatureScript
@@ -262,7 +270,7 @@ class npc_arcurion_frozen_servitor : public CreatureScript
             }
         private:
             EventMap events;
-        };   
+        };
 };
 
 class spell_arcurion_icy_boulder: public SpellScriptLoader
@@ -272,9 +280,9 @@ class spell_arcurion_icy_boulder: public SpellScriptLoader
 
         class spell_arcurion_icy_boulder_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_arcurion_icy_boulder_SpellScript);
+            PrepareSpellScript(spell_arcurion_icy_boulder_SpellScript)
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -294,9 +302,11 @@ class spell_arcurion_icy_boulder: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_arcurion()
 {
     new boss_arcurion();
     new npc_arcurion_frozen_servitor();
     new spell_arcurion_icy_boulder();
 }
+#endif

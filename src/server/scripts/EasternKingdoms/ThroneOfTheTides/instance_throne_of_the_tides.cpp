@@ -1,16 +1,24 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "throne_of_the_tides.h"
 
 #define MAX_ENCOUNTER 4
 
-static const DoorData doordata[] = 
+static const DoorData doordata[] =
 {
     {GO_LADY_NAZJAR_DOOR, DATA_LADY_NAZJAR, DOOR_TYPE_ROOM, BOUNDARY_NONE},
     {GO_LADY_NAZJAR_DOOR, DATA_COMMANDER_ULTHOK, DOOR_TYPE_ROOM, BOUNDARY_NONE},
     {GO_COMMANDER_ULTHOK_DOOR, DATA_COMMANDER_ULTHOK, DOOR_TYPE_ROOM, BOUNDARY_NONE},
     {GO_ERUNAK_STONESPEAKER_DOOR, DATA_MINDBENDER_GHURSHA, DOOR_TYPE_ROOM, BOUNDARY_NONE},
     {GO_OZUMAT_DOOR, DATA_OZUMAT, DOOR_TYPE_ROOM, BOUNDARY_NONE},
-    {0, 0, DOOR_TYPE_ROOM, BOUNDARY_NONE},
+    {0, 0, DOOR_TYPE_ROOM, BOUNDARY_NONE}
 };
 
 class instance_throne_of_the_tides : public InstanceMapScript
@@ -336,7 +344,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_throne_of_the_tides()
 {
     new instance_throne_of_the_tides();
 }
+#endif

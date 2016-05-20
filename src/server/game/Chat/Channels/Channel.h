@@ -1,27 +1,13 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CHANNEL_H
 #define _CHANNEL_H
-
-#include <list>
-#include <map>
-#include <string>
 
 #include "Common.h"
 
@@ -104,7 +90,7 @@ enum ChannelDBCFlags
     CHANNEL_DBC_FLAG_DEFENSE    = 0x10000,              // LocalDefense, WorldDefense
     CHANNEL_DBC_FLAG_GUILD_REQ  = 0x20000,              // GuildRecruitment
     CHANNEL_DBC_FLAG_LFG        = 0x40000,              // LFG
-    CHANNEL_DBC_FLAG_UNK1       = 0x80000,              // General
+    CHANNEL_DBC_FLAG_UNK1       = 0x80000               // General
 };
 
 enum ChannelMemberFlags

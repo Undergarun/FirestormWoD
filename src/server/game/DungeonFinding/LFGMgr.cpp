@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "SharedDefines.h"
@@ -1064,9 +1055,6 @@ void LFGMgr::Leave(Player* player, Group* grp /* = NULL*/)
     {
         case LFG_STATE_QUEUED:
             {
-                uint8 tankAdded = 0; ///< unused
-                uint8 healerAdded = 0; ///< unused
-                uint8 dpsAdded = 0; ///< unused
                 LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
 
                 if (grp)
@@ -2607,7 +2595,7 @@ void LFGMgr::RewardDungeonDoneFor(uint32 const p_DungeonID, Player* p_Player)
    @param[in]     randomdungeon Random dungeon id (if value = 0 will return all dungeons)
    @returns Set of dungeons that can be done.
 */
-const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Check) ///< p_Check is unused
+const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool /*p_Check*/)
 {
     LFGDungeonEntry const* l_Dungeon = sLFGDungeonStore.LookupEntry(p_RandDungeon);
     uint32 l_GroupType = l_Dungeon ? l_Dungeon->grouptype : 0;
@@ -2667,7 +2655,7 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
    @param[in]     level Player level
    @returns Reward
 */
-LfgReward const* LFGMgr::GetRandomDungeonReward(uint32 p_DungeonID, uint8 p_Level)
+LfgReward const* LFGMgr::GetRandomDungeonReward(uint32 p_DungeonID, uint8 /*p_Level*/)
 {
     LfgReward const* l_Reward = nullptr;
     LfgRewardMap::const_iterator l_Itr = m_RewardMap.find(p_DungeonID & 0x00FFFFFF);

@@ -1,14 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_STRUCTURES_HPP_GARRISON
-#define GARRISON_STRUCTURES_HPP_GARRISON
 
-namespace MS { namespace Garrison 
+#include "Define.h"
+#include "Common.h"
+
+#ifndef GARRISON_STRUCTURES_HPP_GARRISON
+# define GARRISON_STRUCTURES_HPP_GARRISON
+
+namespace MS { namespace Garrison
 {
     struct GarrisonPlotInstanceInfoLocation
     {

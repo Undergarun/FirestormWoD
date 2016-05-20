@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /// \addtogroup world The World
 /// @{
@@ -25,7 +15,6 @@
 
 #include "Common.h"
 #include "Timer.h"
-#include <ace/Singleton.h>
 #include <ace/Atomic_Op.h>
 #include "SharedDefines.h"
 #include "QueryResult.h"
@@ -33,10 +22,6 @@
 #include "TimeDiffMgr.h"
 #include "DatabaseWorkerPool.h"
 
-#include <unordered_map>
-#include <map>
-#include <set>
-#include <list>
 #include <atomic>
 
 class Object;
@@ -643,7 +628,7 @@ struct CliCommandHolder
     ~CliCommandHolder() { delete[] m_command; }
 };
 
-typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
+typedef std::unordered_map<uint32, WorldSession*> SessionMap;
 
 struct CharacterInfo
 {
@@ -666,19 +651,6 @@ enum RecordDiffType
     RECORD_DIFF_CALLBACK,
     RECORD_DIFF_MAX
 };
-
-struct QueryHolderCallback
-{
-    QueryHolderCallback(QueryResultHolderFuture p_QueryResultHolderFuture, std::function<void(SQLQueryHolder*)> p_Callback)
-    {
-        m_QueryResultHolderFuture = p_QueryResultHolderFuture;
-        m_Callback = p_Callback;
-    }
-
-    QueryResultHolderFuture m_QueryResultHolderFuture;
-    std::function<void(SQLQueryHolder*)>   m_Callback;
-};
-
 
 struct MotdText
 {
@@ -704,12 +676,12 @@ class World
         /// Get the number of current active sessions
         void UpdateMaxSessionCounters();
         const SessionMap& GetAllSessions() const { return m_sessions; }
-        uint32 GetActiveAndQueuedSessionCount() const { return m_sessions.size() * getRate(RATE_ONLINE); }
-        uint32 GetActiveSessionCount() const { return (m_sessions.size() - m_QueuedPlayer.size()) * getRate(RATE_ONLINE); }
+        uint32 GetActiveAndQueuedSessionCount() const { return uint32(m_sessions.size() * getRate(RATE_ONLINE)); }
+        uint32 GetActiveSessionCount() const { return uint32((m_sessions.size() - m_QueuedPlayer.size()) * getRate(RATE_ONLINE)); }
         uint32 GetQueuedSessionCount() const { return m_QueuedPlayer.size(); }
         /// Get the maximum number of parallel sessions on the server since last reboot
         uint32 GetMaxQueuedSessionCount() const { return m_maxQueuedSessionCount; }
-        uint32 GetMaxActiveSessionCount() const { return m_maxActiveSessionCount * getRate(RATE_ONLINE); }
+        uint32 GetMaxActiveSessionCount() const { return uint32(m_maxActiveSessionCount * getRate(RATE_ONLINE)); }
         /// Get number of players
         inline uint32 GetPlayerCount() const { return m_PlayerCount; }
         inline uint32 GetMaxPlayerCount() const { return m_MaxPlayerCount; }
@@ -772,9 +744,9 @@ class World
         /// What time is it?
         time_t const& GetGameTime() const { return m_gameTime; }
         /// Get server region ID (used in wow time calculation)
-        uint32 const GetServerRegionID() const { return 1135753200; }
+        uint32 GetServerRegionID() const { return 1135753200; }
         /// Get server raid origin (used in wow time calculation)
-        uint32 const GetServerRaidOrigin() const { return 0; }
+        uint32 GetServerRaidOrigin() const { return 0; }
         /// Uptime (in secs)
         uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
         /// Update time
@@ -965,30 +937,6 @@ class World
 
         bool ModerateMessage(std::string l_Text);
 
-        //////////////////////////////////////////////////////////////////////////
-        /// New callback system
-        //////////////////////////////////////////////////////////////////////////
-        void AddTransactionCallback(std::shared_ptr<MS::Utilities::Callback> p_Callback)
-        {
-            m_TransactionCallbackLock.lock();
-            m_TransactionCallbacksBuffer->push_front(p_Callback);
-            m_TransactionCallbackLock.unlock();
-        }
-
-        void AddPrepareStatementCallback(std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture> p_Callback)
-        {
-            m_PreparedStatementCallbackLock.lock();
-            m_PreparedStatementCallbacksBuffer->push_front(p_Callback);
-            m_PreparedStatementCallbackLock.unlock();
-        }
-
-        void AddQueryHolderCallback(QueryHolderCallback p_QueryHolderCallback)
-        {
-            m_QueryHolderCallbackLock.lock();
-            m_QueryHolderCallbacksBuffer->push_front(p_QueryHolderCallback);
-            m_QueryHolderCallbackLock.unlock();
-        }
-
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -1035,7 +983,7 @@ class World
         uint32 m_serverUpdateCount;
 
         SessionMap m_sessions;
-        typedef UNORDERED_MAP<uint32, time_t> DisconnectMap;
+        typedef std::unordered_map<uint32, time_t> DisconnectMap;
         DisconnectMap m_disconnects;
         uint32 m_maxActiveSessionCount;
         uint32 m_maxQueuedSessionCount;
@@ -1116,31 +1064,6 @@ class World
         PreparedQueryResultFuture m_transfersExpLoadCallback;
         uint32 m_recordDiff[RECORD_DIFF_MAX];
         LexicsCutter *m_lexicsCutter;
-
-        //////////////////////////////////////////////////////////////////////////
-        /// New query holder callback system
-        //////////////////////////////////////////////////////////////////////////
-        using QueryHolderCallbacks = std::forward_list<QueryHolderCallback>;
-        std::unique_ptr<QueryHolderCallbacks> m_QueryHolderCallbacks;
-        std::unique_ptr<QueryHolderCallbacks> m_QueryHolderCallbacksBuffer;
-        std::mutex m_QueryHolderCallbackLock;
-
-        //////////////////////////////////////////////////////////////////////////
-        /// New transaction query callback system
-        //////////////////////////////////////////////////////////////////////////
-        using TransactionCallbacks = std::forward_list<std::shared_ptr<MS::Utilities::Callback>>;
-        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacks;
-        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacksBuffer;
-        std::mutex m_TransactionCallbackLock;
-
-        //////////////////////////////////////////////////////////////////////////
-        /// New prepare statement query callback system
-        //////////////////////////////////////////////////////////////////////////
-        using PrepareStatementCallback = std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture>;
-        using PreparedStatementCallbacks = std::forward_list<PrepareStatementCallback>;
-        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacks;
-        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
-        std::mutex m_PreparedStatementCallbackLock;
 };
 
 extern uint32 g_RealmID;

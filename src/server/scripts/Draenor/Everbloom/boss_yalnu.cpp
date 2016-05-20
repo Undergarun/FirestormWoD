@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
+///  Copyright 2016 Millenium-studio SARL
 ///  All Rights Reserved.
 ///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
@@ -10,31 +10,31 @@
 
 enum eYalnuSpells
 {
-    SpellColossalBlow            = 169179,
-    SpellEntanglmentDummy        = 169247,
-    SpellEntaglementTrigger      = 169251,
-    SpellGenesis                 = 169613,
-    SpellGenesisProjectile       = 175975,
+    SpellColossalBlow = 169179,
+    SpellEntanglmentDummy = 169247,
+    SpellEntaglementTrigger = 169251,
+    SpellGenesis = 169613,
+    SpellGenesisProjectile = 175975,
     SpellGerminateAborbladeDummy = 169265,
-    SpellGeiminateAborbladeAura  = 169266,
-    SpellFontOfLife              = 169120,
-    SpellFontOfLifeSummon        = 169121,
-    SpellDragonBreathVisual      = 101837,
-    SpellChannelArcaneYalnu      = 171984,
-    SpellPyroBlast               = 170738,
-    SpellPyroBlastFinish         = 170741
+    SpellGeiminateAborbladeAura = 169266,
+    SpellFontOfLife = 169120,
+    SpellFontOfLifeSummon = 169121,
+    SpellDragonBreathVisual = 101837,
+    SpellChannelArcaneYalnu = 171984,
+    SpellPyroBlast = 170738,
+    SpellPyroBlastFinish = 170741
 };
 
 enum eYalnuEvents
 {
-    EventColossalBlow        = 1,
+    EventColossalBlow = 1,
     EventEntaglement,
     EventGenesis,
     EventGerminateAbroblade,
     EventFontOfLife,
     EventFeralLasherActivate,
     EventNoxiousBreath,
-    EventLumberingSwipe,
+    EventLumberingSwipe
 };
 
 enum eYalnuMovementInformed
@@ -46,20 +46,20 @@ enum eYalnuMovementInformed
 enum eYalnuTalks
 {
     ///< Lady Baihu
-    LadyBaihuIntro    = 50 , ///< The portal is lost! we must stop the beast before it can escape!
-    LadyBaihuAggro    = 51,  ///< We've got its attention!
-    LadyBaihuSpell01  = 52,  ///< The vines are overtaking everything!
-    LadyBaihuSpell02  = 53,  ///< Quickly. drow it towards the flames!
-    LadyBaihuSpell03  = 54   ///< Look out!
+    LadyBaihuIntro = 50, ///< The portal is lost! we must stop the beast before it can escape!
+    LadyBaihuAggro = 51,  ///< We've got its attention!
+    LadyBaihuSpell01 = 52,  ///< The vines are overtaking everything!
+    LadyBaihuSpell02 = 53,  ///< Quickly. drow it towards the flames!
+    LadyBaihuSpell03 = 54   ///< Look out!
 };
 
 enum eYalnuCreatures
 {
-    CreatureFeralLasher       = 86684,
-    CreatureSwiftSproutling   = 84401,
+    CreatureFeralLasher = 86684,
+    CreatureSwiftSproutling = 84401,
     CreatureViciousMandragora = 84399,
-    CreatureGnarledAncient    = 84312,
-    CreatureEntangling        = 84499
+    CreatureGnarledAncient = 84312,
+    CreatureEntangling = 84499
 };
 
 enum eYalnuActions
@@ -67,28 +67,15 @@ enum eYalnuActions
     ActionAchievementWeedWhacker = 1
 };
 
-Position const g_PositionYalnuMoveToPortal     = {623.67f, 1730.01f, 143.357f};
+Position const g_PositionYalnuMoveToPortal = { 623.67f, 1730.01f, 143.357f, 0.0f };
 
-Position const g_PositionPortalToOverLook      =  {876.61f, -1221.62f, 196.700f, 0.076986f};
+Position const g_PositionPortalToOverLook = { 876.61f, -1221.62f, 196.700f, 0.076986f };
 
-Position const g_PositionYalnuMoveToMiddle     = {963.22f, -1229.370f, 181.250f};
+Position const g_PositionYalnuMoveToMiddle = { 963.22f, -1229.370f, 181.250f, 0.0f };
 
-Position const g_PositionBaihuSpawn            = {955.670f, -1239.352f, 181.249f, 0.920571f};
+Position const g_PositionBaihuSpawn = { 955.670f, -1239.352f, 181.249f, 0.920571f };
 
-Position const g_PositionLadyBayeu             = { 693.75f, -1227.05f, 181.249f, 6.011444f };
-
-Position const g_PositionMoveToVineWallKealson = { 635.642f, 1640.213f, 124.989f };
-
-Position const g_PositionWallPos[7] =
-{
-    {659.50f, 1677.284f, 133.746f, 1.980766f},
-    {651.77f, 1674.292f, 133.555f, 1.910080f},
-    {645.53f, 1671.924f, 132.954f, 4.796197f},
-    {639.40f, 1670.620f, 131.356f, 1.780489f},
-    {634.46f, 1670.076f, 130.416f, 1.658752f},
-    {629.35f, 1669.642f, 130.290f, 1.639117f},
-    {622.48f, 1670.313f, 131.578f, 1.466329f}
-};
+Position const g_PositionMoveToVineWallKealson = { 635.642f, 1640.213f, 124.989f, 0.0f };
 
 Position const g_PositionMages[6] =
 {
@@ -127,17 +114,17 @@ public:
 
         enum eYalnuSpells
         {
-            SpellColossalBlow            = 169179,
-            SpellEntanglmentDummy        = 169247,
-            SpellEntaglementTrigger      = 169251,
-            SpellGenesis                 = 169613,
-            SpellGenesisProjectile       = 175975,
-            SpellFontOfLife              = 169120,
-            SpellFontOfLifeSummon        = 169121,
-            SpellChannelArcaneYalnu      = 171984,
-            SpellBlinkMageUponSummon     = 142193
+            SpellColossalBlow = 169179,
+            SpellEntanglmentDummy = 169247,
+            SpellEntaglementTrigger = 169251,
+            SpellGenesis = 169613,
+            SpellGenesisProjectile = 175975,
+            SpellFontOfLife = 169120,
+            SpellFontOfLifeSummon = 169121,
+            SpellChannelArcaneYalnu = 171984,
+            SpellBlinkMageUponSummon = 142193
         };
- 
+
         bool m_Intro;
         bool m_First;
         bool m_EncounterBegin;
@@ -145,7 +132,7 @@ public:
         uint64 m_BaihuGuid;
         InstanceScript* m_Instance;
 
-        void Reset() override
+        void Reset()
         {
             _Reset();
             events.Reset();
@@ -156,7 +143,7 @@ public:
             { eEverbloomCreature::CreatureKirinTorBattleMage, eEverbloomCreature::CreatureLadyBayeu, eYalnuCreatures::CreatureSwiftSproutling,
             eYalnuCreatures::CreatureViciousMandragora, eYalnuCreatures::CreatureGnarledAncient, eYalnuCreatures::CreatureFeralLasher };
             for (uint8 l_I = 0; l_I < 5; l_I++)
-                DespawnCreaturesInArea(l_Entries[l_I], me);        
+                DespawnCreaturesInArea(l_Entries[l_I], me);
             if (!m_First)
             {
                 m_First = true;
@@ -168,10 +155,10 @@ public:
             {
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            }     
+            }
         }
-    
-        void MoveInLineOfSight(Unit* p_Who) override
+
+        void MoveInLineOfSight(Unit* p_Who)
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 14.0f) && !m_EncounterBegin)
             {
@@ -184,26 +171,26 @@ public:
             }
         }
 
-        void MovementInform(uint32 p_Type, uint32 p_Id) override
+        void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
         {
             switch (p_Id)
             {
-                case eYalnuMovementInformed::MovementYalnuPoint1:            
-                    me->NearTeleportTo(g_PositionYalnuMoveToMiddle);
-                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-                   break;
-                default:
-                    break;
+            case eYalnuMovementInformed::MovementYalnuPoint1:
+                me->NearTeleportTo(g_PositionYalnuMoveToMiddle);
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                break;
+            default:
+                break;
             }
         }
- 
+
         void SummonMages()
         {
             for (uint8 l_I = 0; l_I <= 5; l_I++)
             {
-               if (Creature* l_Mages = me->SummonCreature(eEverbloomCreature::CreatureKirinTorBattleMage, g_PositionMages[l_I], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                   l_Mages->CastSpell(l_Mages, eYalnuSpells::SpellBlinkMageUponSummon);
+                if (Creature* l_Mages = me->SummonCreature(eEverbloomCreature::CreatureKirinTorBattleMage, g_PositionMages[l_I], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    l_Mages->CastSpell(l_Mages, eYalnuSpells::SpellBlinkMageUponSummon);
             }
             if (Creature* l_Baihu = me->SummonCreature(eEverbloomCreature::CreatureLadyBayeu, g_PositionBaihuSpawn, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
             {
@@ -216,22 +203,22 @@ public:
             }
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const p_Action)
         {
             switch (p_Action)
             {
-                case eYalnuActions::ActionAchievementWeedWhacker:             
-                    if (m_Achievement)
-                        m_Achievement = false;
-                    break;
-                default:
-                    break;
+            case eYalnuActions::ActionAchievementWeedWhacker:
+                if (m_Achievement)
+                    m_Achievement = false;
+                break;
+            default:
+                break;
             }
         }
 
-        void EnterCombat(Unit* /*p_Who*/) override
+        void EnterCombat(Unit* /*p_Who*/)
         {
-            _EnterCombat();  
+            _EnterCombat();
             SummonMages();   /// Summon Mages and Lady Baihu
             events.ScheduleEvent(eYalnuEvents::EventGenesis, 45 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eYalnuEvents::EventColossalBlow, 25 * TimeConstants::IN_MILLISECONDS);
@@ -244,7 +231,7 @@ public:
                     if (Creature * l_Baihu = Creature::GetCreature(*me, m_BaihuGuid))
                         l_Baihu->MonsterYell("We've got its attention!", Language::LANG_UNIVERSAL, l_Baihu->GetGUID());
                 }
-                m_Instance->SetBossState(eEverbloomData::DataYalnu, EncounterState::IN_PROGRESS);        
+                m_Instance->SetBossState(eEverbloomData::DataYalnu, EncounterState::IN_PROGRESS);
             }
             // Move to the Middle
             me->GetMotionMaster()->MovePoint(0, g_PositionYalnuMoveToMiddle);
@@ -252,7 +239,7 @@ public:
             me->SetHomePosition(g_PositionYalnuMoveToMiddle.GetPositionX(), g_PositionYalnuMoveToMiddle.GetPositionY(), g_PositionYalnuMoveToMiddle.GetPositionZ(), 2.992742f);
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*p_Killer*/)
         {
             _JustDied();
             if (m_Achievement)
@@ -260,87 +247,71 @@ public:
                 if (m_Instance != nullptr)
                 {
                     if (me->GetMap() && me->GetMap()->IsHeroic())
-                    m_Instance->DoCompleteAchievement(eEverbloomAchievements::AchivementWeedWhacker);
+                        m_Instance->DoCompleteAchievement(eEverbloomAchievements::AchivementWeedWhacker);
                 }
             }
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const p_Diff)
         {
             if (!UpdateVictim())
                 return;
 
             events.Update(p_Diff);
-      
+
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eYalnuEvents::EventGenesis:
+            case eYalnuEvents::EventGenesis:
+            {
+                me->MonsterTextEmote("|TInterface\\Icons\\Ability_Druid_EmpoweredTouch:20|t Yalnu begins to channel |cFFFF0404|Hspell:169613|h[Genesis]|h|r.", LANG_UNIVERSAL, me->GetGUID());
+                me->CastSpell(me, eYalnuSpells::SpellGenesis);
+                events.ScheduleEvent(eYalnuEvents::EventGenesis, 45 * TimeConstants::IN_MILLISECONDS);
+                break;
+            }
+            case eYalnuEvents::EventColossalBlow:
+            {
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f))
                 {
-                    me->MonsterTextEmote("|TInterface\\Icons\\Ability_Druid_EmpoweredTouch:20|t Yalnu begins to channel |cFFFF0404|Hspell:169613|h[Genesis]|h|r.", LANG_UNIVERSAL, me->GetGUID());
-                    me->CastSpell(me, eYalnuSpells::SpellGenesis);
-                    events.ScheduleEvent(eYalnuEvents::EventGenesis, 45 * TimeConstants::IN_MILLISECONDS);
+                    me->SetFacingToObject(l_Target);
+                    me->CastSpell(l_Target, eYalnuSpells::SpellColossalBlow);
+                    events.ScheduleEvent(eYalnuEvents::EventColossalBlow, 25 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
-                case eYalnuEvents::EventColossalBlow:
+            }
+            case eYalnuEvents::EventFontOfLife:
+            {
+                me->CastSpell(me, eYalnuSpells::SpellFontOfLife);
+                events.ScheduleEvent(eYalnuEvents::EventFontOfLife, 30 * TimeConstants::IN_MILLISECONDS);
+                break;
+            }
+            case eYalnuEvents::EventEntaglement:
+            {
+                // If Heroic 50% to strike players
+                if (me->GetMap() && me->GetMap()->IsHeroic())
                 {
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f))
+                    if (roll_chance_i(50))
                     {
-                        me->SetFacingToObject(l_Target);
-                        me->CastSpell(l_Target, eYalnuSpells::SpellColossalBlow);
-                        events.ScheduleEvent(eYalnuEvents::EventColossalBlow, 25 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
-                }
-                case eYalnuEvents::EventFontOfLife:
-                {
-                    me->CastSpell(me, eYalnuSpells::SpellFontOfLife);
-                    events.ScheduleEvent(eYalnuEvents::EventFontOfLife, 30 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                }
-                case eYalnuEvents::EventEntaglement:
-                {
-                    // If Heroic 50% to strike players
-                    if (me->GetMap() && me->GetMap()->IsHeroic())
-                    {
-                        if (roll_chance_i(50))
+                        ///< Target players
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         {
-                            ///< Target players
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            {
-                                if (Creature* l_Wrap = DoSummon(eYalnuCreatures::CreatureEntangling, l_Target, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
-                                {
-                                    if (l_Wrap->IsAIEnabled)
-                                        l_Wrap->AI()->SetGUID(l_Target->GetGUID());
-                                }
-                            }
-                        }
-                        else
-                        {
-                            std::list<Creature*> l_MagesAndBaihu;
-                            me->GetCreatureListWithEntryInGrid(l_MagesAndBaihu, eEverbloomCreature::CreatureLadyBayeu, 100.0f);
-                            me->GetCreatureListWithEntryInGrid(l_MagesAndBaihu, eEverbloomCreature::CreatureKirinTorBattleMage, 100.0f);
-                            if (l_MagesAndBaihu.empty())
-                                return;
-
-                            std::list<Creature*>::const_iterator l_It = l_MagesAndBaihu.begin();
-                            std::advance(l_It, urand(0, l_MagesAndBaihu.size() - 1));
-                            if (Creature* l_Wrap = DoSummon(eYalnuCreatures::CreatureEntangling, (*l_It), 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
+                            if (Creature* l_Wrap = DoSummon(eYalnuCreatures::CreatureEntangling, l_Target, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
                             {
                                 if (l_Wrap->IsAIEnabled)
-                                    l_Wrap->AI()->SetGUID((*l_It)->GetGUID());
+                                    l_Wrap->AI()->SetGUID(l_Target->GetGUID());
                             }
                         }
                     }
-                    else  /// If not heroic, 100% to strike npcs.
+                    else
                     {
                         std::list<Creature*> l_MagesAndBaihu;
                         me->GetCreatureListWithEntryInGrid(l_MagesAndBaihu, eEverbloomCreature::CreatureLadyBayeu, 100.0f);
                         me->GetCreatureListWithEntryInGrid(l_MagesAndBaihu, eEverbloomCreature::CreatureKirinTorBattleMage, 100.0f);
                         if (l_MagesAndBaihu.empty())
                             return;
+
                         std::list<Creature*>::const_iterator l_It = l_MagesAndBaihu.begin();
                         std::advance(l_It, urand(0, l_MagesAndBaihu.size() - 1));
                         if (Creature* l_Wrap = DoSummon(eYalnuCreatures::CreatureEntangling, (*l_It), 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
@@ -349,11 +320,27 @@ public:
                                 l_Wrap->AI()->SetGUID((*l_It)->GetGUID());
                         }
                     }
-                    events.ScheduleEvent(eYalnuEvents::EventEntaglement, 15 * TimeConstants::IN_MILLISECONDS);
-                    break;
                 }
-                default:
-                    break;
+                else  /// If not heroic, 100% to strike npcs.
+                {
+                    std::list<Creature*> l_MagesAndBaihu;
+                    me->GetCreatureListWithEntryInGrid(l_MagesAndBaihu, eEverbloomCreature::CreatureLadyBayeu, 100.0f);
+                    me->GetCreatureListWithEntryInGrid(l_MagesAndBaihu, eEverbloomCreature::CreatureKirinTorBattleMage, 100.0f);
+                    if (l_MagesAndBaihu.empty())
+                        return;
+                    std::list<Creature*>::const_iterator l_It = l_MagesAndBaihu.begin();
+                    std::advance(l_It, urand(0, l_MagesAndBaihu.size() - 1));
+                    if (Creature* l_Wrap = DoSummon(eYalnuCreatures::CreatureEntangling, (*l_It), 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
+                    {
+                        if (l_Wrap->IsAIEnabled)
+                            l_Wrap->AI()->SetGUID((*l_It)->GetGUID());
+                    }
+                }
+                events.ScheduleEvent(eYalnuEvents::EventEntaglement, 15 * TimeConstants::IN_MILLISECONDS);
+                break;
+            }
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -392,7 +379,7 @@ public:
         enum eKealsonSpells
         {
             SpellDragonBreathVisual = 101837,
-            SpellBubble             = 170665
+            SpellBubble = 170665
         };
 
         InstanceScript* m_Instance;
@@ -414,35 +401,35 @@ public:
         {
             switch (p_Action)
             {
-                case eEverbloomActions::ActionYalnuEvent:
-                    me->CastSpell(me, eKealsonSpells::SpellBubble);
-                    me->GetMotionMaster()->MovePoint(eYalnuMovementInformed::MovementInformedKealson01, g_PositionMoveToVineWallKealson);
-                    break;
-                default:
-                    break;
+            case eEverbloomActions::ActionYalnuEvent:
+                me->CastSpell(me, eKealsonSpells::SpellBubble);
+                me->GetMotionMaster()->MovePoint(eYalnuMovementInformed::MovementInformedKealson01, g_PositionMoveToVineWallKealson);
+                break;
+            default:
+                break;
             }
         }
 
-        void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
+        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
         {
             switch (p_Id)
             {
-                case eYalnuMovementInformed::MovementInformedKealson01:
+            case eYalnuMovementInformed::MovementInformedKealson01:
+            {
+                me->RemoveAura(eKealsonSpells::SpellBubble);
+                me->CastSpell(me, eKealsonSpells::SpellDragonBreathVisual);
+                me->MonsterSay("If that beast crosses through, the unchecked growth will choke the whole of Azeroth, Hurry!", LANG_UNIVERSAL, me->GetGUID());
+                std::list<GameObject*> m_GuidsWalls;
+                me->GetGameObjectListWithEntryInGrid(m_GuidsWalls, eEverbloomGameObjects::ObjectVineWall, 250.0f);
+                if (!m_GuidsWalls.empty())
                 {
-                    me->RemoveAura(eKealsonSpells::SpellBubble);
-                    me->CastSpell(me, eKealsonSpells::SpellDragonBreathVisual);
-                    me->MonsterSay("If that beast crosses through, the unchecked growth will choke the whole of Azeroth, Hurry!", LANG_UNIVERSAL, me->GetGUID());
-                    std::list<GameObject*> m_GuidsWalls;
-                    me->GetGameObjectListWithEntryInGrid(m_GuidsWalls, eEverbloomGameObjects::ObjectVineWall, 250.0f);
-                    if (!m_GuidsWalls.empty())
-                    {
-                        for (GameObject* l_Itr : m_GuidsWalls)
-                            l_Itr->Delete();
-                    }
-                    break;
+                    for (GameObject* l_Itr : m_GuidsWalls)
+                        l_Itr->Delete();
                 }
-                default:
-                    break;
+                break;
+            }
+            default:
+                break;
             }
         }
     };
@@ -480,19 +467,19 @@ public:
 
         enum eKirinTorSpells
         {
-            SpellFrostbolt             = 169840,
-            SpellFrostbolt4Th          = 170028,
-            SpellFlamestrikeAura       = 169100,
-            SpellFlamestikeAreatriger  = 169094,
-            SpellIceComet              = 170032,
-            SpellArcaneBlast           = 169825,
-            SpellArcaneBlast4Th        = 170035,
-            SpellArcaneOrbDummy        = 167018,
-            SpellArcaneOrbAreatriger   = 170040,
-            SpellArcaneOrbDamage       = 170077,
-            SpellFireball              = 168666,
-            SpellDragonsBreath         = 169843,
-            SpellFireBall              = 169839
+            SpellFrostbolt = 169840,
+            SpellFrostbolt4Th = 170028,
+            SpellFlamestrikeAura = 169100,
+            SpellFlamestikeAreatriger = 169094,
+            SpellIceComet = 170032,
+            SpellArcaneBlast = 169825,
+            SpellArcaneBlast4Th = 170035,
+            SpellArcaneOrbDummy = 167018,
+            SpellArcaneOrbAreatriger = 170040,
+            SpellArcaneOrbDamage = 170077,
+            SpellFireball = 168666,
+            SpellDragonsBreath = 169843,
+            SpellFireBall = 169839
         };
 
         InstanceScript* m_Instance;
@@ -501,26 +488,26 @@ public:
         {
             events.Reset();
             me->SetInCombatWithZone();
-            me->setFaction(FriendlyFaction);  
+            me->setFaction(FriendlyFaction);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             switch (urand(0, 2))
             {
-                case 0:
-                    events.ScheduleEvent(eKirinTorEvents::EventFrostbolt, urand(15 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-                    break;
-                case 1:
-                    events.ScheduleEvent(eKirinTorEvents::EventArcaneBlast, urand(15 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-                    break;
-                case 2:
-                    events.ScheduleEvent(eKirinTorEvents::EventFireBall, urand(15 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-                    break;   
-                default:
-                    break;
+            case 0:
+                events.ScheduleEvent(eKirinTorEvents::EventFrostbolt, urand(15 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case 1:
+                events.ScheduleEvent(eKirinTorEvents::EventArcaneBlast, urand(15 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case 2:
+                events.ScheduleEvent(eKirinTorEvents::EventFireBall, urand(15 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                break;
+            default:
+                break;
             }
         }
 
@@ -553,43 +540,43 @@ public:
                 switch (events.ExecuteEvent())
                 {
                 case eKirinTorEvents::EventArcaneBlast:
-                    {
-                        me->CastSpell(l_Target, eKirinTorSpells::SpellArcaneBlast);
-                        events.ScheduleEvent(eKirinTorEvents::EventFireBall, urand(15 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    }
+                {
+                    me->CastSpell(l_Target, eKirinTorSpells::SpellArcaneBlast);
+                    events.ScheduleEvent(eKirinTorEvents::EventFireBall, urand(15 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                }
                 case eKirinTorEvents::EventArcaneOrb:
-                    {
-                        me->CastSpell(l_Target, eKirinTorSpells::SpellArcaneOrbDummy);
-                        events.ScheduleEvent(eKirinTorEvents::EventFireBall, 25 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
+                {
+                    me->CastSpell(l_Target, eKirinTorSpells::SpellArcaneOrbDummy);
+                    events.ScheduleEvent(eKirinTorEvents::EventFireBall, 25 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                }
                 case eKirinTorEvents::EventFireBall:
-                    {
-                        me->CastSpell(l_Target, eKirinTorSpells::SpellFireBall);
-                        events.ScheduleEvent(eKirinTorEvents::EventFireBall, 15 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
+                {
+                    me->CastSpell(l_Target, eKirinTorSpells::SpellFireBall);
+                    events.ScheduleEvent(eKirinTorEvents::EventFireBall, 15 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                }
                 case eKirinTorEvents::EventFlamestike:
-                    {
-                        me->CastSpell(l_Target, eKirinTorSpells::SpellFlamestikeAreatriger);
-                        events.ScheduleEvent(eKirinTorEvents::EventFlamestike, 40 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
+                {
+                    me->CastSpell(l_Target, eKirinTorSpells::SpellFlamestikeAreatriger);
+                    events.ScheduleEvent(eKirinTorEvents::EventFlamestike, 40 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                }
                 case eKirinTorEvents::EventFrostbolt:
-                    {
-                        me->CastSpell(l_Target, eKirinTorSpells::SpellFrostbolt4Th);
-                        events.ScheduleEvent(eKirinTorEvents::EventFrostbolt, 15 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
+                {
+                    me->CastSpell(l_Target, eKirinTorSpells::SpellFrostbolt4Th);
+                    events.ScheduleEvent(eKirinTorEvents::EventFrostbolt, 15 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                }
                 case eKirinTorEvents::EventIceComet:
-                    {
-                        me->CastSpell(l_Target, eKirinTorSpells::SpellIceComet);
-                        events.ScheduleEvent(eKirinTorEvents::EventIceComet, 40 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
-                    default:
-                        break;
+                {
+                    me->CastSpell(l_Target, eKirinTorSpells::SpellIceComet);
+                    events.ScheduleEvent(eKirinTorEvents::EventIceComet, 40 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                }
+                default:
+                    break;
                 }
             }
         }
@@ -633,7 +620,7 @@ public:
             DoZoneInCombat();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eSwiftSproutlingEvents::EventTendonRip, urand(7 * TimeConstants::IN_MILLISECONDS, 11 * TimeConstants::IN_MILLISECONDS));
         }
@@ -651,12 +638,12 @@ public:
             switch (events.ExecuteEvent())
             {
             case eSwiftSproutlingEvents::EventTendonRip:
-                    if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(l_Target, eSwiftSproutlingSpells::SpellTendonRip);
-                    events.ScheduleEvent(eSwiftSproutlingEvents::EventTendonRip, urand(7 * TimeConstants::IN_MILLISECONDS, 11 * TimeConstants::IN_MILLISECONDS));
-                    break;
-                default:
-                    break;
+                if (Unit* l_Target = me->getVictim())
+                    me->CastSpell(l_Target, eSwiftSproutlingSpells::SpellTendonRip);
+                events.ScheduleEvent(eSwiftSproutlingEvents::EventTendonRip, urand(7 * TimeConstants::IN_MILLISECONDS, 11 * TimeConstants::IN_MILLISECONDS));
+                break;
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -692,7 +679,7 @@ public:
         {
             EventNoxiousBreath = 1
         };
-        
+
         InstanceScript* m_Instance;
 
         void Reset() override
@@ -701,7 +688,7 @@ public:
             DoZoneInCombat();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eYalnuEvents::EventNoxiousBreath, 12 * TimeConstants::IN_MILLISECONDS);
         }
@@ -712,19 +699,19 @@ public:
                 return;
 
             events.Update(p_Diff);
-           
+
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eYalnuEvents::EventNoxiousBreath:
-                    if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(l_Target, eViciousMandragoraSpells::SpellNoxiousBreath);
-                    events.ScheduleEvent(eYalnuEvents::EventNoxiousBreath, 12 * TimeConstants::IN_MILLISECONDS);
-                    break; 
-                default:
-                    break;
+            case eYalnuEvents::EventNoxiousBreath:
+                if (Unit* l_Target = me->getVictim())
+                    me->CastSpell(l_Target, eViciousMandragoraSpells::SpellNoxiousBreath);
+                events.ScheduleEvent(eYalnuEvents::EventNoxiousBreath, 12 * TimeConstants::IN_MILLISECONDS);
+                break;
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -764,12 +751,12 @@ public:
         InstanceScript* m_Instance;
 
         void Reset() override
-        { 
+        {
             events.Reset();
             DoZoneInCombat();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGnarledAncientEvents::EventLumberingSwipe, urand(11 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
         }
@@ -780,20 +767,20 @@ public:
                 return;
 
             events.Update(p_Diff);
-       
+
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
             case eGnarledAncientEvents::EventLumberingSwipe:
-                        DoCastAOE(eGnarledAncientSpells::SpellLumberingSwipe);
-                        events.ScheduleEvent(eGnarledAncientEvents::EventLumberingSwipe, urand(12 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    default:
-                        break;
+                DoCastAOE(eGnarledAncientSpells::SpellLumberingSwipe);
+                events.ScheduleEvent(eGnarledAncientEvents::EventLumberingSwipe, urand(12 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                break;
+            default:
+                break;
             }
-            
+
             DoMeleeAttackIfReady();
         }
     };
@@ -821,7 +808,7 @@ public:
         enum eEntanglingSpells
         {
             SpellEntanglementVisual = 169192,
-            SpellEntanglmentAura    = 169240
+            SpellEntanglmentAura = 169240
         };
 
         uint64 m_VictimGUID;
@@ -882,8 +869,8 @@ public:
 
         enum eFeralLasherSpells
         {
-            SpellTrample     = 154535,
-            SpellSubmerge    = 175123,
+            SpellTrample = 154535,
+            SpellSubmerge = 175123,
             SpellLasherVenom = 173563
         };
 
@@ -903,7 +890,7 @@ public:
         void Trample() // Hardcoded
         {
             if (me->FindNearestPlayer(1.8f, true) && m_SleepMode)
-            {       
+            {
                 me->Kill(me);
                 m_SleepMode = false;
                 me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
@@ -923,25 +910,25 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eFeralLasherEvents::EventLasherVenom:
-                    {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            me->CastSpell(l_Target, eFeralLasherSpells::SpellLasherVenom);
-                        events.ScheduleEvent(eFeralLasherEvents::EventLasherVenom, urand(3 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    }
-                case eFeralLasherEvents::EventFeralLasherActivate:
-                    {
-                        m_SleepMode = false;
-                        me->RemoveAllAuras();
-                        me->setFaction(HostileFaction);              
-                        me->RemoveAura(eFeralLasherSpells::SpellSubmerge);
-                        me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                        events.ScheduleEvent(eFeralLasherEvents::EventLasherVenom, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    }
-                    default:
-                        break;
+            case eFeralLasherEvents::EventLasherVenom:
+            {
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    me->CastSpell(l_Target, eFeralLasherSpells::SpellLasherVenom);
+                events.ScheduleEvent(eFeralLasherEvents::EventLasherVenom, urand(3 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
+                break;
+            }
+            case eFeralLasherEvents::EventFeralLasherActivate:
+            {
+                m_SleepMode = false;
+                me->RemoveAllAuras();
+                me->setFaction(HostileFaction);
+                me->RemoveAura(eFeralLasherSpells::SpellSubmerge);
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                events.ScheduleEvent(eFeralLasherEvents::EventLasherVenom, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+                break;
+            }
+            default:
+                break;
             }
 
             Trample();
@@ -1005,7 +992,7 @@ public:
 
     class the_everbloom_yalnu_spell_genesis_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_yalnu_spell_genesis_SpellScript);
+        PrepareSpellScript(the_everbloom_yalnu_spell_genesis_SpellScript)
 
         enum eGenesisSpells
         {
@@ -1042,35 +1029,35 @@ public:
 
     class the_everbloom_yalnu_spell_font_of_life_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_yalnu_spell_font_of_life_SpellScript);
+        PrepareSpellScript(the_everbloom_yalnu_spell_font_of_life_SpellScript)
 
         enum eFontOfLifeSpells
         {
             SpellFontOfLifeSummon = 169121
         };
 
-        void HandleSummon(SpellEffIndex p_EffIndex)
+        void HandleSummon(SpellEffIndex /*p_EffIndex*/)
         {
             if (!GetCaster())
                 return;
 
             if (SpellInfo const* l_Spell = sSpellMgr->GetSpellInfo(eFontOfLifeSpells::SpellFontOfLifeSummon))
             {
-                uint32 l_Value = 0;    
+                uint32 l_Value = 0;
 
                 switch (urand(0, 2))
                 {
-                    case 0:
-                        l_Value = eYalnuCreatures::CreatureViciousMandragora;
-                        break;
-                    case 1:
-                        l_Value = eYalnuCreatures::CreatureSwiftSproutling;
-                        break;
-                    case 2:
-                        l_Value = eYalnuCreatures::CreatureGnarledAncient;
-                        break;
-                    default:
-                        break;
+                case 0:
+                    l_Value = eYalnuCreatures::CreatureViciousMandragora;
+                    break;
+                case 1:
+                    l_Value = eYalnuCreatures::CreatureSwiftSproutling;
+                    break;
+                case 2:
+                    l_Value = eYalnuCreatures::CreatureGnarledAncient;
+                    break;
+                default:
+                    break;
                 }
 
                 if (l_Value)
@@ -1094,7 +1081,7 @@ public:
     }
 };
 
-/// Colossal Blow - 169179 
+/// Colossal Blow - 169179
 class the_everbloom_yalnu_spell_colossal_blow : public SpellScriptLoader
 {
 public:
@@ -1103,7 +1090,7 @@ public:
 
     class the_everbloom_yalnu_spell_colossal_blow_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_yalnu_spell_colossal_blow_SpellScript);
+        PrepareSpellScript(the_everbloom_yalnu_spell_colossal_blow_SpellScript)
 
         void HandleOnHit()
         {
@@ -1129,7 +1116,7 @@ public:
     }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_boss_yalnu()
 {
     new boss_yalnu();                                   ///< 83846
@@ -1145,3 +1132,4 @@ void AddSC_boss_yalnu()
     new the_everbloom_yalnu_spell_genesis();            ///< 169613
     new the_everbloom_yalnu_spell_colossal_blow();      ///< 169179
 }
+#endif

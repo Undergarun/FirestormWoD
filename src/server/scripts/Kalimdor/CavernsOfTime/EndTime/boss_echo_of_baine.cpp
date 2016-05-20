@@ -7,7 +7,7 @@ enum Yells
     SAY_DEATH   = 1,
     SAY_INTRO   = 2,
     SAY_KILL    = 3,
-    SAY_SPELL   = 4,
+    SAY_SPELL   = 4
 };
 
 enum Spells
@@ -15,26 +15,26 @@ enum Spells
     SPELL_BAINE_VISUALS     = 101624,
 
     SPELL_THROW_TOTEM       = 101615,
-    SPELL_PULVERIZE         = 101626, 
-    SPELL_PULVERIZE_DMG     = 101627, 
+    SPELL_PULVERIZE         = 101626,
+    SPELL_PULVERIZE_DMG     = 101627,
     SPELL_PULVERIZE_AOE     = 101625,
     SPELL_MOLTEN_AXE        = 101836,
     SPELL_MOLTEN_FIST       = 101866,
     SPELL_THROW_TOTEM_BACK  = 101602,
-    SPELL_THROW_TOTEM_AURA  = 107837,
+    SPELL_THROW_TOTEM_AURA  = 107837
 };
 
 enum Events
 {
     EVENT_PULVERIZE     = 1,
     EVENT_THROW_TOTEM   = 2,
-    EVENT_CHECK_SELF    = 3,
+    EVENT_CHECK_SELF    = 3
 };
 
 enum Adds
 {
     NPC_ROCK_ISLAND     = 54496,
-    NPC_BAINES_TOTEM    = 54434,
+    NPC_BAINES_TOTEM    = 54434
 };
 
 class boss_echo_of_baine : public CreatureScript
@@ -118,7 +118,7 @@ class boss_echo_of_baine : public CreatureScript
                 bIntroDone = true;
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -210,8 +210,7 @@ class boss_echo_of_baine : public CreatureScript
 
                         return true;
                     }
-                private:
-                    bool _b;
+
             };
         };      
 };
@@ -244,7 +243,7 @@ class npc_echo_of_baine_baines_totem : public CreatureScript
                     me->DespawnOrUnsummon();
                 }
             }
-        };      
+        };
 };
 
 class spell_echo_of_baine_pulverize_aoe: public SpellScriptLoader
@@ -254,7 +253,7 @@ class spell_echo_of_baine_pulverize_aoe: public SpellScriptLoader
 
         class spell_echo_of_baine_pulverize_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_echo_of_baine_pulverize_aoe_SpellScript);
+            PrepareSpellScript(spell_echo_of_baine_pulverize_aoe_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -295,9 +294,11 @@ class spell_echo_of_baine_pulverize_aoe: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_echo_of_baine()
 {
     new boss_echo_of_baine();
     new npc_echo_of_baine_baines_totem();
     new spell_echo_of_baine_pulverize_aoe();
 }
+#endif

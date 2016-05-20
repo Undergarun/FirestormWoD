@@ -1,24 +1,13 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _DATABASEWORKERPOOL_H
 #define _DATABASEWORKERPOOL_H
-
-#include <ace/Thread_Mutex.h>
 
 #include "Common.h"
 #include "Callback.h"
@@ -31,10 +20,8 @@
 #include "QueryHolder.h"
 #include "AdhocStatement.h"
 #include "MSCallback.hpp"
-
-# ifdef GAME_SERVER_PROJECTS
-#   include "World.h"
-# endif
+#include <forward_list>
+#include <mutex>
 
 class PingOperation : public SQLOperation
 {
@@ -44,6 +31,18 @@ class PingOperation : public SQLOperation
         m_conn->Ping();
         return true;
     }
+};
+
+struct QueryHolderCallback
+{
+    QueryHolderCallback(QueryResultHolderFuture p_QueryResultHolderFuture, std::function<void(SQLQueryHolder*)> p_Callback)
+    {
+        m_QueryResultHolderFuture = p_QueryResultHolderFuture;
+        m_Callback = p_Callback;
+    }
+    
+    QueryResultHolderFuture m_QueryResultHolderFuture;
+    std::function<void(SQLQueryHolder*)>   m_Callback;
 };
 
 template <class T>
@@ -58,9 +57,16 @@ class DatabaseWorkerPool
             
             /// Update queue size limit, 16 kb is not enough
             _queue->queue()->high_water_mark(8 * 1024 * 1024);
-            _queue->queue()->low_water_mark(8 * 1024 * 1024);            
+            _queue->queue()->low_water_mark(8 * 1024 * 1024);
 
             WPFatal (mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
+    
+            m_QueryHolderCallbacks             = std::unique_ptr<QueryHolderCallbacks>(new QueryHolderCallbacks());
+            m_QueryHolderCallbacksBuffer       = std::unique_ptr<QueryHolderCallbacks>(new QueryHolderCallbacks());
+            m_TransactionCallbacks             = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
+            m_TransactionCallbacksBuffer       = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
+            m_PreparedStatementCallbacks       = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
+            m_PreparedStatementCallbacksBuffer = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
         }
 
         ~DatabaseWorkerPool()
@@ -388,7 +394,7 @@ class DatabaseWorkerPool
         //! Enqueues a query in prepared format that will set the value of the PreparedQueryResultFuture return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
         //! Statement must be prepared with CONNECTION_ASYNC flag.
-        PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt, std::function<void(PreparedQueryResult)> p_Callback) ///< p_Callback is unused 22/02/16
+        PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt, std::function<void(PreparedQueryResult)> p_Callback)
         {
             if (stmt->getIndex() == 0)
             {
@@ -401,10 +407,8 @@ class DatabaseWorkerPool
             PreparedQueryResultFuture res;
             PreparedStatementTask* task = new PreparedStatementTask(stmt, res);
             Enqueue(task);
-
-            # ifdef GAME_SERVER_PROJECTS
-                sWorld->AddPrepareStatementCallback(std::make_pair(p_Callback, res));
-            # endif
+            
+            AddPrepareStatementCallback(std::make_pair(p_Callback, res));
 
             return res;
         }
@@ -452,10 +456,7 @@ class DatabaseWorkerPool
             }
             #endif // TRINITY_DEBUG
 
-            #ifdef GAME_SERVER_PROJECTS
-            if (p_Callback != nullptr)
-                sWorld->AddTransactionCallback(p_Callback);
-            #endif
+            AddTransactionCallback(p_Callback);
 
             Enqueue(new TransactionTask(transaction, p_Callback));
         }
@@ -570,7 +571,110 @@ class DatabaseWorkerPool
                 Enqueue(new PingOperation);
         }
 
+        void ProcessQueriesCallback()
+        {
+            /// - Update querys holders callbacks
+            if (!m_QueryHolderCallbacks->empty())
+            {
+                m_QueryHolderCallbacks->remove_if([](QueryHolderCallback const& p_Callback) -> bool
+                {
+                    if (p_Callback.m_QueryResultHolderFuture.ready())
+                    {
+                        SQLQueryHolder* l_QueryHolder;
+                        p_Callback.m_QueryResultHolderFuture.get(l_QueryHolder);
+                                                          
+                        p_Callback.m_Callback(l_QueryHolder);
+                        return true;
+                    }
+                    return false;
+                });
+            }
+            
+            /// - Add querys holders callbacks in buffer queue to real queue
+            while (!m_QueryHolderCallbacksBuffer->empty())
+            {
+                m_QueryHolderCallbacks->push_front(m_QueryHolderCallbacksBuffer->front());
+                m_QueryHolderCallbacksBuffer->pop_front();
+            }
+            
+            /// - Update transactions callbacks
+            if (!m_TransactionCallbacks->empty())
+            {
+                m_TransactionCallbacks->remove_if([](MS::Utilities::CallBackPtr const& l_Callback) -> bool
+                {
+                    if (l_Callback->m_State == MS::Utilities::CallBackState::Waiting)
+                        return false;
+                                                      
+                    l_Callback->m_CallBack(l_Callback->m_State == MS::Utilities::CallBackState::Success);
+                    return true;
+                });
+            }
+            
+            /// - Add transactions callbacks in buffer queue to real queue
+            while (!m_TransactionCallbacksBuffer->empty())
+            {
+                m_TransactionCallbacks->push_front(m_TransactionCallbacksBuffer->front());
+                m_TransactionCallbacksBuffer->pop_front();
+            }
+            
+            /// - Update prepared statements callbacks
+            if (!m_PreparedStatementCallbacks->empty())
+            {
+                m_PreparedStatementCallbacks->remove_if([](PrepareStatementCallback const& p_Callback) -> bool
+                {
+                    /// If the query result is avaiable ...
+                    if (p_Callback.second.ready())
+                    {
+                        /// Then get it
+                        PreparedQueryResult l_Result;
+                        p_Callback.second.get(l_Result);
+                                                                
+                        /// Give the result to the callback, and execute it
+                        p_Callback.first(l_Result);
+
+                        /// Delete the callback from the forward list
+                        return true;
+                    }
+                                                            
+                    /// We havn't the query result yet, we keep the callback and wait for the result!
+                    return false;
+                });
+            }
+            
+            /// - Add prepared statements in buffer queue to real queue
+            while (!m_PreparedStatementCallbacksBuffer->empty())
+            {
+                m_PreparedStatementCallbacks->push_front(m_PreparedStatementCallbacksBuffer->front());
+                m_PreparedStatementCallbacksBuffer->pop_front();
+            }
+        }
+    
+    //////////////////////////////////////////////////////////////////////////
+    /// New callback system
+    //////////////////////////////////////////////////////////////////////////
+    void AddTransactionCallback(std::shared_ptr<MS::Utilities::Callback> p_Callback)
+    {
+        m_TransactionCallbackLock.lock();
+        m_TransactionCallbacksBuffer->push_front(p_Callback);
+        m_TransactionCallbackLock.unlock();
+    }
+    
+    void AddPrepareStatementCallback(std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture> p_Callback)
+    {
+        m_PreparedStatementCallbackLock.lock();
+        m_PreparedStatementCallbacksBuffer->push_front(p_Callback);
+        m_PreparedStatementCallbackLock.unlock();
+    }
+    
+    void AddQueryHolderCallback(QueryHolderCallback p_QueryHolderCallback)
+    {
+        m_QueryHolderCallbackLock.lock();
+        m_QueryHolderCallbacksBuffer->push_front(p_QueryHolderCallback);
+        m_QueryHolderCallbackLock.unlock();
+    }
+
     private:
+
         unsigned long EscapeString(char *to, const char *from, unsigned long length)
         {
             if (!to || !from || !length)
@@ -613,13 +717,38 @@ class DatabaseWorkerPool
         {
             IDX_ASYNC,
             IDX_SYNCH,
-            IDX_SIZE,
+            IDX_SIZE
         };
 
         ACE_Activation_Queue*           _queue;             //! Queue shared by async worker threads.
         std::vector<T*>                 _connections[IDX_SIZE];
         uint32                          _connectionCount[IDX_SIZE];       //! Counter of MySQL connections;
         MySQLConnectionInfo             _connectionInfo;
+    
+        //////////////////////////////////////////////////////////////////////////
+        /// New query holder callback system
+        //////////////////////////////////////////////////////////////////////////
+        using QueryHolderCallbacks = std::forward_list<QueryHolderCallback>;
+        std::unique_ptr<QueryHolderCallbacks> m_QueryHolderCallbacks;
+        std::unique_ptr<QueryHolderCallbacks> m_QueryHolderCallbacksBuffer;
+        std::mutex m_QueryHolderCallbackLock;
+    
+        //////////////////////////////////////////////////////////////////////////
+        /// New transaction query callback system
+        //////////////////////////////////////////////////////////////////////////
+        using TransactionCallbacks = std::forward_list<std::shared_ptr<MS::Utilities::Callback>>;
+        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacks;
+        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacksBuffer;
+        std::mutex m_TransactionCallbackLock;
+    
+        //////////////////////////////////////////////////////////////////////////
+        /// New prepare statement query callback system
+        //////////////////////////////////////////////////////////////////////////
+        using PrepareStatementCallback = std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture>;
+        using PreparedStatementCallbacks = std::forward_list<PrepareStatementCallback>;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacks;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
+        std::mutex m_PreparedStatementCallbackLock;
 };
 
 #endif

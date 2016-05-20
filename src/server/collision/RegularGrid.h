@@ -28,7 +28,7 @@ public:
         CELL_NUMBER = 64,
     };
 
-    #define HGRID_MAP_SIZE  (533.33333f * 64.f)     // shouldn't be changed
+    #define HGRID_MAP_SIZE  (533.33333f * 64.0f)     // shouldn't be changed
     #define CELL_SIZE       float(HGRID_MAP_SIZE/(float)CELL_NUMBER)
 
     typedef G3D::Table<const T*, Node*> MemberTable;
@@ -80,7 +80,7 @@ public:
 
         static Cell ComputeCell(float fx, float fy)
         {
-            Cell c = { int(fx * (1.f/CELL_SIZE) + (CELL_NUMBER/2)), int(fy * (1.f/CELL_SIZE) + (CELL_NUMBER/2)) };
+            Cell c = { int(fx * (1.0f/CELL_SIZE) + (CELL_NUMBER/2)), int(fy * (1.0f/CELL_SIZE) + (CELL_NUMBER/2)) };
             return c;
         }
 

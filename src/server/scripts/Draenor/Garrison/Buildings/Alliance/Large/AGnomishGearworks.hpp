@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_GNOMISH_GEARWORKS_ALLIANCE_HPP_GARRISON
 #define GARRISON_GNOMISH_GEARWORKS_ALLIANCE_HPP_GARRISON
 
@@ -49,7 +50,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
     class npc_Zee_GarrisonAI : public GarrisonNPCAI

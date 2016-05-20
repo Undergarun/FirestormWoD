@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* Script Data Start
 SDName: Boss Malygos
@@ -163,7 +154,7 @@ enum Movements
     POINT_FLY_OUT_OF_PLATFORM_P_TWO,
     POINT_SURGE_OF_POWER_P_TWO,
     POINT_DESTROY_PLATFORM_P_TWO,
-    POINT_IDLE_P_THREE,
+    POINT_IDLE_P_THREE
 };
 
 enum Seats
@@ -323,7 +314,7 @@ enum MiscData
     // DATA_THIRD_SURGE_TARGET_GUID  = 16,
     DATA_LAST_TARGET_BARRAGE_GUID    = 17,
 
-    NUM_MAX_SURGE_TARGETS            = 3,
+    NUM_MAX_SURGE_TARGETS            = 3
 };
 
 // Used to check if summons guids come from vehicles
@@ -1218,7 +1209,7 @@ public:
             _wpCount = 0;
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             damage = 0;
         }
@@ -1309,7 +1300,7 @@ public:
         {
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             damage = 0;
         }
@@ -2538,6 +2529,7 @@ class achievement_denyin_the_scion : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_malygos()
 {
     new boss_malygos();
@@ -2569,3 +2561,4 @@ void AddSC_boss_malygos()
     new spell_alexstrasza_gift_beam_visual();
     new achievement_denyin_the_scion();
 }
+#endif

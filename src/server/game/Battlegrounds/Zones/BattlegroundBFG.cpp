@@ -1,24 +1,10 @@
-/*
- * Copyright (C) 2005-2011 MaNGOS <http://www.getmangos.com/>
- *
- * Copyright (C) 2008-2011 Trinity <http://www.trinitycore.org/>
- *
- * Copyright (C) 2010-2011 Project SkyFire <http://www.projectskyfire.org/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "gamePCH.h"
 #include "Player.h"
@@ -41,8 +27,8 @@ uint32 GILNEAS_BG_HonorScoreTicks[BG_HONOR_MODE_NUM] = ///< this is unused !
 
 uint32 GILNEAS_BG_Reputation[BG_HONOR_MODE_NUM][GILNEAS_BG_REWARD_NUM] = ///< this is unused !
 {
-    200, // normal honor
-    150  // holiday
+    {200}, // normal honor
+    {150}  // holiday
 };
 
 BattlegroundBFG::BattlegroundBFG()
@@ -221,7 +207,7 @@ void BattlegroundBFG::AddPlayer(Player* player)
     PlayerScores[player->GetGUID()] = score;
 }
 
-void BattlegroundBFG::RemovePlayer(Player* /*player*/, uint64 guid)
+void BattlegroundBFG::RemovePlayer(Player* /*player*/, uint64 /*guid*/)
 {
 }
 
@@ -453,7 +439,7 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*tar
     // If node is neutral, change to contested
     if (m_Nodes[node] == GILNEAS_BG_NODE_TYPE_NEUTRAL)
     {
-        UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
+        UpdatePlayerScore(source, nullptr, SCORE_BASES_ASSAULTED, 1);
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + 1;
 
@@ -476,7 +462,7 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*tar
         // If last state is NOT occupied, change node to enemy-contested
         if (m_prevNodes[node] < GILNEAS_BG_NODE_TYPE_OCCUPIED)
         {
-            UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
+            UpdatePlayerScore(source, nullptr, SCORE_BASES_ASSAULTED, 1);
             m_prevNodes[node] = m_Nodes[node];
             m_Nodes[node] = teamIndex + GILNEAS_BG_NODE_TYPE_CONTESTED;
 
@@ -494,7 +480,7 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*tar
         // If contested, change back to occupied
         else
         {
-            UpdatePlayerScore(source, SCORE_BASES_DEFENDED, 1);
+            UpdatePlayerScore(source, nullptr, SCORE_BASES_DEFENDED, 1);
             m_prevNodes[node] = m_Nodes[node];
             m_Nodes[node] = teamIndex + GILNEAS_BG_NODE_TYPE_OCCUPIED;
 
@@ -515,7 +501,7 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*tar
     // If node is occupied, change to enemy-contested
     else
     {
-        UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
+        UpdatePlayerScore(source, nullptr, SCORE_BASES_ASSAULTED, 1);
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + GILNEAS_BG_NODE_TYPE_CONTESTED;
 
@@ -607,25 +593,25 @@ void BattlegroundBFG::Reset()
             DelCreature(i);
 }
 
-void BattlegroundBFG::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+void BattlegroundBFG::UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType)
 {
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
+    BattlegroundScoreMap::iterator itr = PlayerScores.find(p_Source->GetGUID());
 
     if (itr == PlayerScores.end())      // player was not found...
         return;
 
-    switch (type)
+    switch (p_Type)
     {
         case SCORE_BASES_ASSAULTED:
-            ((BattlegroundBFGScore*)itr->second)->BasesAssaulted += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_OBJECTIVE_ASSAULT_BASE);
+            ((BattlegroundBFGScore*)itr->second)->BasesAssaulted += p_Value;
+            p_Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_OBJECTIVE_ASSAULT_BASE);
             break;
         case SCORE_BASES_DEFENDED:
-            ((BattlegroundBFGScore*)itr->second)->BasesDefended += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_OBJECTIVE_DEFEND_BASE);
+            ((BattlegroundBFGScore*)itr->second)->BasesDefended += p_Value;
+            p_Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_OBJECTIVE_DEFEND_BASE);
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, NULL, type, value, doAddHonor);
+            Battleground::UpdatePlayerScore(p_Source, p_Victim, p_Type, p_Value, p_DoAddHonor, p_RewardType);
             break;
     }
 }

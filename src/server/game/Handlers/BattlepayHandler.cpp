@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
-//////////////////////////////////////////////////////////////////////////////// 
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -14,12 +14,12 @@
 #include "BattlepayPacketFactory.h"
 #include "ScriptMgr.h"
 
-void WorldSession::HandleBattlepayGetPurchaseList(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleBattlepayGetPurchaseList(WorldPacket& /*p_RecvData*/)
 {
     Battlepay::PacketFactory::SendPurchaseList(this);
 }
 
-void WorldSession::HandleBattlepayGetProductListQuery(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleBattlepayGetProductListQuery(WorldPacket& /*p_RecvData*/)
 {
     if (!sBattlepayMgr->IsAvailable(this))
         return;

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Shade_of_Aran
@@ -78,7 +68,7 @@ enum SuperSpell
 {
     SUPER_FLAME = 0,
     SUPER_BLIZZARD,
-    SUPER_AE,
+    SUPER_AE
 };
 
 class boss_shade_of_aran : public CreatureScript
@@ -480,7 +470,7 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*pAttacker*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*pAttacker*/, uint32 &damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (!DrinkInturrupted && Drinking && damage)
                 DrinkInturrupted = true;
@@ -549,8 +539,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_shade_of_aran()
 {
     new boss_shade_of_aran();
     new mob_aran_elemental();
 }
+#endif

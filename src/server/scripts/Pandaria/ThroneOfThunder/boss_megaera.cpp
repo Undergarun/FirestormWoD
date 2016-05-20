@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -241,7 +230,7 @@ class boss_megaera : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 _EnterCombat();
 
@@ -294,7 +283,7 @@ class boss_megaera : public CreatureScript
                             break;
                         case Difficulty::Difficulty10HC:
                             p_Killer->SummonGameObject(GOB_MEGAERA_CHEST_10_HEROIC, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
-                            break; 
+                            break;
                         case Difficulty::Difficulty25HC:
                             p_Killer->SummonGameObject(GOB_MEGAERA_CHEST_25_HEROIC, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
@@ -652,7 +641,7 @@ class boss_megaera_head : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CHECK_MELEE, 1000);
 
@@ -693,7 +682,7 @@ class boss_megaera_head : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -986,7 +975,7 @@ class boss_megaera_back_head : public CreatureScript
                 me->CastSpell(me, SPELL_SUBMERGED, true);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 switch (me->GetEntry())
                 {
@@ -1366,7 +1355,7 @@ class mob_nether_wyrm : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_NETHER_SPIKE, 5000);
                 events.ScheduleEvent(EVENT_SUPPRESSION, 10000);
@@ -1509,7 +1498,7 @@ class spell_acid_rain_damage: public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        float dist = std::max(1.f, caster->GetDistance(target));
+                        float dist = std::max(1.0f, caster->GetDistance(target));
                         SetHitDamage(int32(ceil(GetHitDamage() / dist)));
                     }
                 }
@@ -1537,7 +1526,7 @@ class spell_diffusion: public SpellScriptLoader
         {
             PrepareAuraScript(spell_diffusion_AuraScript);
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* target = GetTarget();
@@ -1608,7 +1597,7 @@ class spell_nether_tear: public SpellScriptLoader
         {
             PrepareAuraScript(spell_nether_tear_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetTarget() || !GetTarget()->ToCreature())
                     return;
@@ -1639,7 +1628,7 @@ class spell_rampage_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rampage_periodic_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetTarget() || !GetTarget()->ToCreature())
                     return;
@@ -1678,6 +1667,7 @@ class spell_rampage_periodic: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_megaera()
 {
     new boss_megaera();
@@ -1694,3 +1684,4 @@ void AddSC_boss_megaera()
     new spell_nether_tear();
     new spell_rampage_periodic();
 }
+#endif

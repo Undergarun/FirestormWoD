@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectAccessor.h"
 #include "GridNotifiersImpl.h"
@@ -94,7 +84,7 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     AreaTriggerTemplateList const* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(p_SpellInfo->Id);
     if (l_Templates != nullptr)
     {
-        for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
+        for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); ++l_Itr)
         {
             AreaTriggerTemplate const& l_AreaTriggerTemplate = *l_Itr;
             if (l_AreaTriggerTemplate.m_EffIndex == p_EffIndex)
@@ -190,7 +180,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
     AreaTriggerTemplateList const* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForEntry(p_Entry);
     if (l_Templates != nullptr)
     {
-        for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
+        for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); ++l_Itr)
             m_Templates.push_back(*l_Itr);
     }
     else
@@ -447,7 +437,7 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
                 for (auto& l_Path : m_PathToLinearDestination)
                     l_PathList[l_Itr++] = l_Path;
 
-                float l_Dist = 0.f;
+                float l_Dist = 0.0f;
                 for (int l_I = 1; l_I < (int)l_PathList.size(); l_I++)
                     l_Dist += l_PathList[l_I].GetExactDist(&l_PathList[l_I - 1]);
                 

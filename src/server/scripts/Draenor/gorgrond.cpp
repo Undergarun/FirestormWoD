@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ class boss_tarlna_the_ageless : public CreatureScript
                 SetEquipmentSlots(false, eDatas::MainHandEquipID);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 summons.DespawnAll();
             }
@@ -148,7 +148,7 @@ class boss_tarlna_the_ageless : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
@@ -237,7 +237,7 @@ class boss_drov_the_ruiner : public CreatureScript
                 me->RemoveAura(eSpells::SouthshoreMobScalingAura);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 summons.DespawnAll();
                 m_GorenList.clear();
@@ -331,7 +331,7 @@ class boss_drov_the_ruiner : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
@@ -389,7 +389,7 @@ class npc_untamed_mandragora : public CreatureScript
                 me->RemoveAllAreasTrigger();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(eEvents::EventNoxiousSpit, 8 * TimeConstants::IN_MILLISECONDS);
             }
@@ -458,7 +458,7 @@ class npc_giant_lasher : public CreatureScript
                 me->CastSpell(me, eSpells::SpellSubmerged, true);
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+            void SpellHit(Unit* /*p_Caster*/, SpellInfo const* p_SpellInfo)
             {
                 if (p_SpellInfo->Id == eSpells::SpellGenesisAwake)
                 {
@@ -634,7 +634,7 @@ class npc_drov_frenzied_rumbler : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventAcidBreath, 5000);
             }
@@ -678,7 +678,7 @@ class spell_drov_call_of_earth : public SpellScriptLoader
 
         class spell_drov_call_of_earth_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_drov_call_of_earth_AuraScript);
+            PrepareAuraScript(spell_drov_call_of_earth_AuraScript)
 
             enum eAction
             {
@@ -694,7 +694,7 @@ class spell_drov_call_of_earth : public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, p_AurEff->GetAmount(), true);
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (!GetCaster())
                     return;
@@ -728,7 +728,7 @@ class spell_drov_colossal_slam : public SpellScriptLoader
 
         class spell_drov_colossal_slam_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_drov_colossal_slam_SpellScript);
+            PrepareSpellScript(spell_drov_colossal_slam_SpellScript)
 
             enum eSpell
             {
@@ -790,7 +790,7 @@ class spell_drov_acid_breath : public SpellScriptLoader
 
         class spell_drov_acid_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_drov_acid_breath_SpellScript);
+            PrepareSpellScript(spell_drov_acid_breath_SpellScript)
 
             enum eSpell
             {
@@ -847,7 +847,7 @@ class areatrigger_tarlna_noxious_spit : public AreaTriggerEntityScript
             SpellNoxiousSpitDot = 176037
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             if (p_AreaTrigger->GetCaster() == nullptr)
                 return;
@@ -874,6 +874,7 @@ class areatrigger_tarlna_noxious_spit : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
     /// Bosses
@@ -894,3 +895,4 @@ void AddSC_gorgrond()
     /// Areatriggers
     new areatrigger_tarlna_noxious_spit();
 }
+#endif

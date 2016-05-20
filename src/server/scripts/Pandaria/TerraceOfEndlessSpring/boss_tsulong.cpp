@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "GameObjectAI.h"
 #include "ScriptMgr.h"
@@ -95,7 +84,7 @@ enum eTsulongTimers
     TIMER_TERRORIZE       = 13500,
     TIMER_FRIGHT          =  6000,
     TIMER_UNSTABLE_SHA    = 18000,
-    TIMER_BOLT            =  2000,
+    TIMER_BOLT            =  2000
 };
 
 enum eTsulongPhase
@@ -110,7 +99,7 @@ enum eTsulongWaypoints
 {
     WAYPOINT_FIRST         = 10001,
     WAYPOINT_SECOND        = 10002,
-    WAYPOINT_TO_DAY_PHASE  = 10003,
+    WAYPOINT_TO_DAY_PHASE  = 10003
 };
 
 enum eTsulongDisplay
@@ -121,7 +110,7 @@ enum eTsulongDisplay
 
 enum eTsulongActions
 {
-    ACTION_SPAWN_SUNBEAM = 3,
+    ACTION_SPAWN_SUNBEAM = 3
 };
 
 enum eTsulongCreatures
@@ -130,7 +119,7 @@ enum eTsulongCreatures
     EMBODIED_TERROR         = 62969,
     UNSTABLE_SHA_DUMMY      = 62962,
     TINY_TERROR             = 62977,
-    NPC_DARK_OF_NIGHT       = 63346,
+    NPC_DARK_OF_NIGHT       = 63346
 };
 
 enum eTsulongTexts
@@ -240,7 +229,7 @@ class boss_tsulong : public CreatureScript
                     pInstance->SetBossState(DATA_TSULONG, FAIL);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (pInstance)
                 {
@@ -323,12 +312,12 @@ class boss_tsulong : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers power, int32& value)
+            void RegeneratePower(Powers /*power*/, int32& value)
             {
                 value = 0;
             }
 
-            void DamageTaken(Unit* doneBy, uint32 &damage, const SpellInfo* /*p_SpellInfo*/)
+            void DamageTaken(Unit* /*doneBy*/, uint32 &damage, const SpellInfo* /*p_SpellInfo*/)
             {
                 if (pInstance && pInstance->GetBossState(DATA_TSULONG) == DONE)
                 {
@@ -489,7 +478,7 @@ class boss_tsulong : public CreatureScript
                         DoCast(SPELL_BERSERK);
                         berserkTimer = 8*60000;
                     }
-                    else 
+                    else
                         berserkTimer -= diff;
                 }
 
@@ -733,7 +722,7 @@ class npc_sunbeam : public CreatureScript
                 me->DespawnOrUnsummon(1000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (IsHeroic())
                     DespawnDark();
@@ -915,7 +904,7 @@ class npc_embodied_terror : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_EMBODIED_TERROR_MOVE, 500);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 for (int i = 0; i < 5; i++)
                     me->CastSpell(me, SPELL_SUMMON_TINY_TERROR, false);
@@ -1383,6 +1372,7 @@ class spell_light_of_the_day : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_tsulong()
 {
     new boss_tsulong();                 // 62442
@@ -1400,3 +1390,4 @@ void AddSC_boss_tsulong()
     new spell_instability();            // 123697
     new spell_light_of_the_day();       // 123716
 }
+#endif

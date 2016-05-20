@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Npc_Professions
@@ -172,7 +162,7 @@ enum ProfessionSpells
 
     S_UNLEARN_TRANSMUTE     = 41565,
     S_UNLEARN_ELIXIR        = 41564,
-    S_UNLEARN_POTION        = 41563,
+    S_UNLEARN_POTION        = 41563
 };
 
 /*###
@@ -779,7 +769,7 @@ enum eEngineeringTrinkets
     SPELL_TO_EVERLOOK           = 23486,
     SPELL_TO_GADGET             = 23489,
     SPELL_TO_AREA52             = 36954,
-    SPELL_TO_TOSHLEY            = 36955,
+    SPELL_TO_TOSHLEY            = 36955
 };
 
 #define GOSSIP_ITEM_ZAP         "[PH] Unknown"
@@ -1158,6 +1148,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_npc_professions()
 {
     new npc_prof_alchemy();
@@ -1166,3 +1157,4 @@ void AddSC_npc_professions()
     new npc_prof_leather();
     new npc_prof_tailor();
 }
+#endif

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef GROUP_H
 #define GROUP_H
@@ -73,20 +63,20 @@ enum GroupMemberOnlineStatus
     MEMBER_STATUS_PVP_FFA   = 0x0010,                       // Lua_UnitIsPVPFreeForAll
     MEMBER_STATUS_UNK3      = 0x0020,                       // used in calls from Lua_GetPlayerMapPosition/Lua_GetBattlefieldFlagPosition
     MEMBER_STATUS_AFK       = 0x0040,                       // Lua_UnitIsAFK
-    MEMBER_STATUS_DND       = 0x0080,                       // Lua_UnitIsDND
+    MEMBER_STATUS_DND       = 0x0080                        // Lua_UnitIsDND
 };
 
 enum GroupMemberFlags
 {
     MEMBER_FLAG_ASSISTANT   = 0x01,
     MEMBER_FLAG_MAINTANK    = 0x02,
-    MEMBER_FLAG_MAINASSIST  = 0x04,
+    MEMBER_FLAG_MAINASSIST  = 0x04
 };
 
 enum GroupMemberAssignment
 {
     GROUP_ASSIGN_MAINTANK   = 0,
-    GROUP_ASSIGN_MAINASSIST = 1,
+    GROUP_ASSIGN_MAINASSIST = 1
 };
 
 enum PartyFlags
@@ -99,14 +89,14 @@ enum PartyFlags
     PARTY_FLAG_LFG                      = 0x08,
     PARTY_FLAG_EVERYONE_IS_ASSISTANT    = 0x40,
 
-    PARTY_FLAG_MASK_INSTANCE            = PARTY_FLAG_BG | PARTY_FLAG_RAID | PARTY_FLAG_LFG,
+    PARTY_FLAG_MASK_INSTANCE            = PARTY_FLAG_BG | PARTY_FLAG_RAID | PARTY_FLAG_LFG
     // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
 };
 
 enum PartyIndex
 {
     PARTY_INDEX_NORMAL      = 0,
-    PARTY_INDEX_INSTANCE    = 1,
+    PARTY_INDEX_INSTANCE    = 1
 };
 
 enum GroupUpdateFlags
@@ -266,7 +256,7 @@ class Group
             uint8  Slot;
         };
 
-        typedef UNORDERED_MAP< uint32 /*mapId*/, InstanceGroupBind> BoundInstancesMap;
+        typedef std::unordered_map< uint32 /*mapId*/, InstanceGroupBind> BoundInstancesMap;
     protected:
         typedef MemberSlotList::iterator member_witerator;
         typedef std::set<uint64> InvitesList;
@@ -366,7 +356,7 @@ class Group
         Difficulty GetLegacyRaidDifficultyID() const;
         void SetDungeonDifficultyID(Difficulty difficulty);
         void SetRaidDifficultyID(Difficulty difficulty);
-        void SetLegacyRaidDifficultyID(Difficulty difficulty);        
+        void SetLegacyRaidDifficultyID(Difficulty difficulty);
         uint16 InInstance();
         bool InCombatToInstance(uint32 instanceId);
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* SendMsgTo);

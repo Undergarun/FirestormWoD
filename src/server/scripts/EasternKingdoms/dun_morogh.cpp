@@ -1,21 +1,13 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
+#include "ScriptedGossip.h"
+#include "GossipDef.h"
 #include "ScriptedEscortAI.h"
 #include "Vehicle.h"
 
@@ -125,7 +117,7 @@ public:
             SetEscortPaused(true);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 /*waypointId*/)
         {
             /*if (waypointId == 10)
                 Playemote garde a vous*/
@@ -186,14 +178,14 @@ public:
             me->SetWalk(true);
         }
 
-        void PassengerBoarded(Unit* who, int8 seatId, bool apply)
+        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool /*apply*/)
         {
             timer = 3000;
             phase = 1;
             PassengerGUID = who->GetGUID();
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id)
         {
             switch (id)
             {
@@ -286,7 +278,7 @@ public:
             hasPassenger = false;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
             if (hasPassenger)
                 return;
@@ -322,7 +314,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -359,21 +351,21 @@ public:
             hasTarget = false;
         }
 
-        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (doneBy->ToCreature())
                 if (me->GetHealth() <= damage || me->GetHealthPct() <= 80.0f)
                     damage = 0;
         }
 
-        void DamageDealt(Unit* target, uint32& damage, DamageEffectType damageType)
+        void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
         {
             if (target->ToCreature())
                 if (target->GetHealth() <= damage || target->GetHealthPct() <= 70.0f)
                     damage = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
             if (hasTarget)
             {
@@ -395,6 +387,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_dun_morogh()
 {
     new npc_gnomeregan_survivor();
@@ -406,3 +399,4 @@ void AddSC_dun_morogh()
     new npc_gnomeregan_torben();
     new npc_gnomeregan_recrue();
 }
+#endif

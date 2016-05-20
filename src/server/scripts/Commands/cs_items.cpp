@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
@@ -178,7 +178,9 @@ class items_commandscript : public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_items_commandscript()
 {
     new items_commandscript();
 }
+#endif

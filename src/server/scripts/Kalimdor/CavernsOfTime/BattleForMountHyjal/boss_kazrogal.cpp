@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -34,12 +25,12 @@ enum Texts
 {
     SAY_ONSLAY          = 0,
     SAY_MARK            = 1,
-    SAY_ONAGGRO         = 2,
+    SAY_ONAGGRO         = 2
 };
 
 enum Sounds
 {
-    SOUND_ONDEATH       = 11018,
+    SOUND_ONDEATH       = 11018
 };
 
 class boss_kazrogal : public CreatureScript
@@ -184,7 +175,7 @@ class spell_mark_of_kazrogal: public SpellScriptLoader
 
         class spell_mark_of_kazrogal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mark_of_kazrogal_SpellScript);
+            PrepareSpellScript(spell_mark_of_kazrogal_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -199,7 +190,7 @@ class spell_mark_of_kazrogal: public SpellScriptLoader
 
         class spell_mark_of_kazrogal_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mark_of_kazrogal_AuraScript);
+            PrepareAuraScript(spell_mark_of_kazrogal_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -237,8 +228,10 @@ class spell_mark_of_kazrogal: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kazrogal()
 {
     new boss_kazrogal();
     new spell_mark_of_kazrogal();
 }
+#endif

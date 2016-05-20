@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Dustwallow_Marsh
@@ -165,7 +155,7 @@ enum SpellScripts
     SPELL_OOZE_ZAP              = 42489,
     SPELL_OOZE_ZAP_CHANNEL_END  = 42485,
     SPELL_OOZE_CHANNEL_CREDIT   = 42486,
-    SPELL_ENERGIZED             = 42492,
+    SPELL_ENERGIZED             = 42492
 };
 
 class spell_ooze_zap: public SpellScriptLoader
@@ -175,7 +165,7 @@ class spell_ooze_zap: public SpellScriptLoader
 
         class spell_ooze_zap_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ooze_zap_SpellScript);
+            PrepareSpellScript(spell_ooze_zap_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
@@ -222,7 +212,7 @@ class spell_ooze_zap_channel_end: public SpellScriptLoader
 
         class spell_ooze_zap_channel_end_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ooze_zap_channel_end_SpellScript);
+            PrepareSpellScript(spell_ooze_zap_channel_end_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
@@ -258,7 +248,7 @@ class spell_energize_aoe: public SpellScriptLoader
 
         class spell_energize_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_energize_aoe_SpellScript);
+            PrepareSpellScript(spell_energize_aoe_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
@@ -306,7 +296,7 @@ class spell_energize_aoe: public SpellScriptLoader
 enum PrisonersOfTheGrimTotems
 {
     NPC_THERAMORE_PRISONER                          = 23720,
-    SAY_FREE                                        = 0,
+    SAY_FREE                                        = 0
 };
 
 class go_blackhoof_cage : public GameObjectScript
@@ -329,6 +319,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_dustwallow_marsh()
 {
     new npc_stinky();
@@ -337,3 +328,4 @@ void AddSC_dustwallow_marsh()
     new spell_energize_aoe();
     new go_blackhoof_cage();
 }
+#endif

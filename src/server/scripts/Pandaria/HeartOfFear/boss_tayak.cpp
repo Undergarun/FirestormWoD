@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "ObjectMgr.h"
@@ -105,27 +94,27 @@ enum eTayakAdds
 {
     NPC_US_TORNADO          = 63278,
     NPC_GALE_WINDS_STALKER  = 63292,
-    NPC_SETTHIK_TEMPEST     = 64358,
+    NPC_SETTHIK_TEMPEST     = 64358
 };
 
 enum eTayakActions
 {
     ACTION_WIND             = 1,
     ACTION_STOP_WIND        = 2,
-    ACTION_TAYAK_BT_PULL    = 7,
+    ACTION_TAYAK_BT_PULL    = 7
 };
 
 enum eTayakPhases
 {
     PHASE_TAYAK1                    = 2,
-    PHASE_TAYAK2                    = 3,
+    PHASE_TAYAK2                    = 3
 };
 
 enum eTayakTypes
 {
     TYPE_STORM_POINT    = 3,
     TYPE_PHASE_TAYAK    = 4,
-    TYPE_STORM_PHASE    = 5,
+    TYPE_STORM_PHASE    = 5
 };
 
 Position TayakStormPoints[2] =
@@ -256,7 +245,7 @@ class boss_tayak : public CreatureScript
                 return true;
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 /// P2 first part
                 if (me->HealthBelowPctDamaged(20, p_Damage) && Phase == PHASE_NORMAL)
@@ -771,7 +760,7 @@ class npc_tempest_slash_tornado : public CreatureScript
                 if (!id || type != POINT_MOTION_TYPE)
                     return;
 
-                float l_NewAngle = 0.f;
+                float l_NewAngle = 0.0f;
 
                 if (id == 7)
                     /// In circle loop : just change the orientation from 1/16 of circle (that is 2 * Pi / 16, so Pi / 8)
@@ -838,7 +827,7 @@ class npc_storm_unleashed_tornado : public CreatureScript
             bool storm1;
             Position m_ReachPoint;
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 m_Events.Reset();
                 storm1 = true;
@@ -1021,7 +1010,7 @@ class mob_gale_winds_stalker : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 // Check force
                 if (!pInstance || !isActive)
@@ -1041,7 +1030,7 @@ class mob_gale_winds_stalker : public CreatureScript
                         {
                             // Player doesn't have forcedMovement
                             if (player->isAlive() && !player->HasMovementForce(NPC_GALE_WINDS_STALKER, true))
-                                player->SendApplyMovementForce(me->GetGUID(), true, pos, -7.f, 1);
+                                player->SendApplyMovementForce(me->GetGUID(), true, pos, -7.0f, 1);
                             // Dead player has forcedMovement
                             else if (!player->isAlive() && player->HasMovementForce(NPC_GALE_WINDS_STALKER, true))
                                 player->RemoveAllMovementForces(NPC_GALE_WINDS_STALKER);
@@ -1216,7 +1205,7 @@ class spell_tayak_storms_vehicle: public SpellScriptLoader
                     targets.push_back(target);
             }
 
-            void EffectScriptEffect(SpellEffIndex effIndex)
+            void EffectScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -1484,6 +1473,7 @@ class spell_blade_tempest : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_tayak()
 {
     new boss_tayak();                       // 62543
@@ -1504,3 +1494,4 @@ void AddSC_boss_tayak()
     new spell_su_dumaura();                 // 123616
     new spell_blade_tempest();              // 125310
 }
+#endif

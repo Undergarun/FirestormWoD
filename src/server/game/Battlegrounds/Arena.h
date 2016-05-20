@@ -1,28 +1,16 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef ARENATEAM_H
 #define ARENATEAM_H
 
 #include "QueryResult.h"
-#include <ace/Singleton.h>
-#include <list>
-#include <map>
+#include "Common.h"
 
 class WorldSession;
 class WorldPacket;
@@ -66,7 +54,7 @@ enum ArenaTeamCommandErrors
     ERR_ARENA_TEAM_TOO_MANY_MEMBERS_S       = 0x17,
     ERR_ARENA_TEAM_NOT_FOUND                = 0x1B,
     ERR_ARENA_TEAMS_LOCKED                  = 0x1E,
-    ERR_ARENA_TEAM_TOO_MANY_CREATE          = 0x21,
+    ERR_ARENA_TEAM_TOO_MANY_CREATE          = 0x21
 };
 
 enum ArenaTeamEvents
@@ -134,15 +122,15 @@ enum ArenaSlots
 
 namespace Arena
 {
-    const float g_PvpMinCPPerWeek = 1500.f;
-    const float g_PvpMaxCPPerWeek = 3000.f;
+    const float g_PvpMinCPPerWeek = 1500.0f;
+    const float g_PvpMaxCPPerWeek = 3000.0f;
     const float g_PvpCPNumerator = 1511.26f;
     const float g_PvpCPBaseCoefficient = 1639.28f;
     const float g_PvpCPExpCoefficient = 0.00412f;
 
     inline float CalculateRatingFactor(int p_Rating)
     {
-        return g_PvpCPNumerator / (expf(p_Rating * g_PvpCPExpCoefficient * -1.f) * g_PvpCPBaseCoefficient + 1.0f);
+        return g_PvpCPNumerator / (expf(p_Rating * g_PvpCPExpCoefficient * -1.0f) * g_PvpCPBaseCoefficient + 1.0f);
     }
 
     inline uint32 GetConquestCapFromRating(int p_Rating)
@@ -159,7 +147,7 @@ namespace Arena
             v4 = CalculateRatingFactor(p_Rating);
 
             v2 = v5 <= v4 ? (v4 > v3 ? v3 : v4) : v5;
-            return g_PvpMinCPPerWeek + floor(((v2 - v5) / (v3 - v5)) * (float)(g_PvpMaxCPPerWeek - g_PvpMinCPPerWeek));
+            return uint32(g_PvpMinCPPerWeek + floor(((v2 - v5) / (v3 - v5)) * (float)(g_PvpMaxCPPerWeek - g_PvpMinCPPerWeek)));
         }
         else
             return 0;

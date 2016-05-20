@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "GameObjectAI.h"
 #include "ScriptMgr.h"
@@ -115,7 +104,7 @@ enum eEvents
 
     // Titan Spark
     EVENT_LEVITATING            = 34,
-    EVENT_CHECK_DISTANCE        = 35,
+    EVENT_CHECK_DISTANCE        = 35
 };
 
 enum eAddActions
@@ -130,7 +119,7 @@ enum eAddActions
     ACTION_MOGU_ACTIVATE        = 4,
     ACTION_MOGU_STOP            = 5,
     ACTION_BUNNY_RESET          = 6,
-    ACTION_CONSOLE_RESET        = 7,
+    ACTION_CONSOLE_RESET        = 7
 };
 
 enum eDisplayID
@@ -323,7 +312,7 @@ class boss_jin_qin_xi : public CreatureScript
                         me->GetInstanceScript()->SetData(ACHIEVE, 1);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 DoZoneInCombat();
 
@@ -965,7 +954,7 @@ class mob_woe_add_generic : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 targetGuid = 0;
                 if (me->GetEntry() != NPC_EMPEROR_COURAGE)
@@ -973,7 +962,7 @@ class mob_woe_add_generic : public CreatureScript
 
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 if (IsHeroic())
                     me->CastSpell(me, SPELL_SUMMON_TITAN_SPARK, true);
@@ -1317,7 +1306,7 @@ class mob_woe_titan_spark : public CreatureScript
                 me->GetMotionMaster()->MoveChase(target);
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 me->CastSpell(me, SPELL_ENERGY_OF_CREATION, false);
                 me->RemoveAura(SPELL_ENERGY_OF_CREATION);
@@ -1485,7 +1474,7 @@ class mob_general_purpose_bunnyJMF : public CreatureScript
                 isCentralMob = false;
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damages, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damages, SpellInfo const*  /*p_SpellInfo*/)
             {
                 p_Damages = 0;
             }
@@ -1953,7 +1942,7 @@ class go_ancien_control_console : public GameObjectScript
                     if (Creature* console = GetClosestCreatureWithEntry(go, NPC_ANCIENT_MOGU_MACHINE, 200.0f))
                         console->AI()->DoAction(ACTION_MOGU_ACTIVATE);
 
-                    player->MonsterTextEmote("The machine hums to life! Get to the lower level!", 0, true); 
+                    player->MonsterTextEmote("The machine hums to life! Get to the lower level!", 0, true);
 
                     go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
@@ -1986,6 +1975,7 @@ class achievement_show_me_you_moves : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_will_of_emperor()
 {
     new boss_jin_qin_xi();
@@ -2008,3 +1998,4 @@ void AddSC_boss_will_of_emperor()
     new go_ancien_control_console();
     new achievement_show_me_you_moves();
 }
+#endif

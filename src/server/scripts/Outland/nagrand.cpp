@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Nagrand
@@ -500,7 +490,7 @@ enum KurenaiCaptive
     NPC_KUR_MURK_RAIDER             = 18203,
     NPC_KUR_MURK_BRUTE              = 18211,
     NPC_KUR_MURK_SCAVENGER          = 18207,
-    NPC_KUR_MURK_PUTRIFIER          = 18202,
+    NPC_KUR_MURK_PUTRIFIER          = 18202
 };
 
 static float kurenaiAmbushA[]= {-1568.805786f, 8533.873047f, 1.958f};
@@ -671,7 +661,7 @@ enum FindingTheSurvivorsData
     QUEST_FINDING_THE_SURVIVORS                     = 9948,
     NPC_MAGHAR_PRISONER                             = 18428,
 
-    SAY_FREE                                        = 0,
+    SAY_FREE                                        = 0
 };
 
 class go_warmaul_prison : public GameObjectScript
@@ -696,6 +686,7 @@ class go_warmaul_prison : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_nagrand()
 {
     new npc_greatmother_geyah();
@@ -706,3 +697,4 @@ void AddSC_nagrand()
     new npc_kurenai_captive();
     new go_warmaul_prison();
 }
+#endif

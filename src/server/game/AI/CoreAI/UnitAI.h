@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_UNITAI_H
 #define TRINITY_UNITAI_H
@@ -22,7 +12,7 @@
 #include "Define.h"
 #include "Unit.h"
 #include "Containers.h"
-#include <list>
+#include "Common.h"
 
 class Unit;
 class Player;
@@ -133,27 +123,27 @@ class UnitAI
         explicit UnitAI(Unit* unit) : me(unit) {}
         virtual ~UnitAI() {}
 
-        virtual bool CanAIAttack(Unit const* target) const { return true; } ///< target is unused
+        virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
         virtual void AttackStart(Unit* target);
         virtual void UpdateAI(uint32 const p_Diff) = 0;
 
         virtual void InitializeAI() { if (!me->isDead()) Reset(); }
 
-        virtual void Reset() {};
+        virtual void Reset() {}
 
         // Called when unit is charmed
         virtual void OnCharmed(bool apply) = 0;
 
         // Pass parameters between AI
-        virtual void DoAction(int32 const p_Param) 
+        virtual void DoAction(int32 const p_Param)
         {
             UNUSED(p_Param);
         }
 
-        virtual uint32 GetData(uint32 id = 0) 
+        virtual uint32 GetData(uint32 id = 0)
         {
             UNUSED(id);
-            return 0; 
+            return 0;
         }
 
         virtual float GetFData(uint32 p_ID = 0) const
@@ -162,7 +152,7 @@ class UnitAI
             return 0.0f;
         }
 
-        virtual void SetData(uint32 id, uint32 value) 
+        virtual void SetData(uint32 id, uint32 value)
         {
             UNUSED(id);
             UNUSED(value);
@@ -188,9 +178,9 @@ class UnitAI
 
         virtual void DropCharge() {}
 
-        virtual uint64 GetGUID(int32 id = 0) { return 0; } ///< id is unused
+        virtual uint64 GetGUID(int32 /*id*/ = 0) { return 0; }
 
-        virtual void SetDestTarget(WorldLocation const* dest) 
+        virtual void SetDestTarget(WorldLocation const* dest)
         {
             UNUSED(dest);
         }
@@ -284,15 +274,15 @@ class UnitAI
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage
         // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
-        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo) { } ///< p_SpellInfo is unused
+        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* /*p_SpellInfo*/) { }
 
         // Called when we calculate hit result of a spell or a melee attack
         // Note: it allows to put some conditions to change the result of melee/spell attacks on the Unit
-        virtual void CheckHitResult(MeleeHitOutcome& /*p_MeleeResult*/, SpellMissInfo& /*p_SpellResult*/, Unit* /*p_Attacker*/, SpellInfo const* const p_SpellInfo = nullptr) { } ///< p_SpellInfo is unused
+        virtual void CheckHitResult(MeleeHitOutcome& /*p_MeleeResult*/, SpellMissInfo& /*p_SpellResult*/, Unit* /*p_Attacker*/, SpellInfo const* const /*p_SpellInfo*/ = nullptr) { }
 
         /// Called when Unit::BuildValuesUpdate is called
         /// Used for send differents factions for players for a same unit
-        virtual void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target) { } ///< p_FactionID is unused
+        virtual void OnSendFactionTemplate(uint32& /*p_FactionID*/, Player* /*p_Target*/) { }
 
         // Called when the creature receives heal
         virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) { }

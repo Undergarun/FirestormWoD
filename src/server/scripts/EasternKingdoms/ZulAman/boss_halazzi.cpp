@@ -7,7 +7,7 @@ enum ScriptTexts
     SAY_SPLIT   = 1,
     SAY_COMBINE = 2,
     SAY_ENRAGE  = 3,
-    SAY_DEATH   = 4,
+    SAY_DEATH   = 4
 };
 
 enum Spells
@@ -28,13 +28,13 @@ enum Spells
     
     SPELL_FIXATE                    = 97486,
     SPELL_SHRED_ARMOR               = 43243,
-    SPELL_LYNX_FLURRY               = 43290,
+    SPELL_LYNX_FLURRY               = 43290
 };
 enum Adds
 {
     NPC_SPIRIT_LYNX     = 24143,
     NPC_LIGHTNING_TOTEM = 24224,
-    NPC_WATER_TOTEM     = 52755,
+    NPC_WATER_TOTEM     = 52755
 };
 
 enum Events
@@ -49,18 +49,18 @@ enum Events
     EVENT_LYNX_FLURRY       = 7,
     EVENT_SHRED_ARMOR       = 8,
 
-    EVENT_LIGHTNING         = 9,
+    EVENT_LIGHTNING         = 9
 };
 
 enum Phases
 {
     PHASE_LYNX  = 1,
-    PHASE_HUMAN = 2,
+    PHASE_HUMAN = 2
 };
 
 enum Actions
 {
-    ACTION_COMBINE  = 1,
+    ACTION_COMBINE  = 1
 };
 
 class boss_halazzi : public CreatureScript
@@ -94,7 +94,7 @@ class boss_halazzi : public CreatureScript
 
             uint8 phase;
             uint32 health;
-            bool isLynx; 
+            bool isLynx;
 
             void Reset()
             {
@@ -143,7 +143,7 @@ class boss_halazzi : public CreatureScript
                         summons.DespawnEntry(NPC_SPIRIT_LYNX);
                         me->RemoveAurasDueToSpell(SPELL_TRANSFORM_HUMAN2);
                         me->SetHealth(health);
-                        break;                    
+                        break;
                     case PHASE_HUMAN:
                         Talk(SAY_SPLIT);
                         events.CancelEvent(EVENT_ENRAGE);
@@ -256,7 +256,7 @@ class npc_halazzi_lynx : public CreatureScript
 
         struct npc_halazzi_lynxAI : public ScriptedAI
         {
-            npc_halazzi_lynxAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_halazzi_lynxAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -281,7 +281,7 @@ class npc_halazzi_lynx : public CreatureScript
                 bDespawn = false;
             }
             
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_SHRED_ARMOR, urand(3000, 10000));
                 events.ScheduleEvent(EVENT_LYNX_FLURRY, urand(5000, 8000));
@@ -376,7 +376,7 @@ class npc_halazzi_lightning_totem : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_LIGHTNING, 1000);
             }
@@ -406,6 +406,7 @@ class npc_halazzi_lightning_totem : public CreatureScript
       };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_halazzi()
 {
     new boss_halazzi();
@@ -413,4 +414,4 @@ void AddSC_boss_halazzi()
     new npc_halazzi_water_totem();
     new npc_halazzi_lightning_totem();
 }
-
+#endif

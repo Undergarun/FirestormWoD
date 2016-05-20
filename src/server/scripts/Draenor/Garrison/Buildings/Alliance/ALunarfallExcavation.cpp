@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "../Horde/HFrostwallMines.hpp"
 #include "ALunarfallExcavation.hpp"
 #include "ScriptMgr.h"
@@ -16,7 +17,7 @@
 #include "../../GarrisonScriptData.hpp"
 #include "../../Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     std::vector<uint32> g_AllyDepositsEntry
     {
@@ -119,7 +120,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_TimothyLeens::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_TimothyLeens::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
@@ -159,7 +160,7 @@ namespace MS { namespace Garrison
         me->DespawnCreaturesInArea({ NPCs::NpcLunarfallGorenHatchling, NPCs::NpcLunarfallGoren, NPCs::NpcStonetooth }, 200.0f);
     }
 
-    void npc_TimothyLeensAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_TimothyLeensAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 
@@ -212,7 +213,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    void npc_TimothyLeensAI::sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Option)
+    void npc_TimothyLeensAI::sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 /*p_Option*/)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 
@@ -257,7 +258,7 @@ namespace MS { namespace Garrison
 
     /// Select game object entry for a fresh gathering spawn
     /// @p_MiscData : Misc data
-    uint32 npc_TimothyLeensAI::SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData)
+    uint32 npc_TimothyLeensAI::SelectGameObjectEntryForGatheringSpawn(uint32 /*p_MiscData*/)
     {
         uint32 l_Entry = 0;
 

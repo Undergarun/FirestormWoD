@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "violet_hold.h"
@@ -34,7 +25,7 @@ enum Spells
 
 enum IchoronCreatures
 {
-    NPC_ICHOR_GLOBULE                           = 29321,
+    NPC_ICHOR_GLOBULE                           = 29321
 };
 
 enum Yells
@@ -53,7 +44,7 @@ enum Yells
 enum Actions
 {
     ACTION_WATER_ELEMENT_HIT                    = 1,
-    ACTION_WATER_ELEMENT_KILLED                 = 2,
+    ACTION_WATER_ELEMENT_KILLED                 = 2
 };
 
 // TODO get those positions from spawn of creature 29326
@@ -64,7 +55,7 @@ static Position SpawnLoc[MAX_SPAWN_LOC]=
     {1886.24f, 757.733f, 47.750f, 5.201f},
     {1877.91f, 845.915f, 43.417f, 3.560f},
     {1918.97f, 850.645f, 47.225f, 4.136f},
-    {1935.50f, 796.224f, 52.492f, 4.224f},
+    {1935.50f, 796.224f, 52.492f, 4.224f}
 };
 
 #define DATA_DEHYDRATION                        1
@@ -415,9 +406,11 @@ class achievement_dehydration : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ichoron()
 {
     new boss_ichoron();
     new mob_ichor_globule();
     new achievement_dehydration();
 }
+#endif

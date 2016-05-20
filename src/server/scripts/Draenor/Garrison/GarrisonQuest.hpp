@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Misc script for some quest
     class GarrisonQuestPlayerScript : PlayerScript
@@ -36,7 +36,7 @@ namespace MS { namespace Garrison
 
             class spell_learning_blueprint_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_learning_blueprint_SpellScript);
+                PrepareSpellScript(spell_learning_blueprint_SpellScript)
 
                 /// After cast
                 void HandleAfterCast();

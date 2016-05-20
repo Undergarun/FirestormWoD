@@ -1,20 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_SHAREDDEFINES_H
 #define TRINITY_SHAREDDEFINES_H
@@ -61,14 +51,14 @@ enum SpellEffIndex
     EFFECT_29,
     EFFECT_30,
     EFFECT_31,
-    MAX_EFFECTS,
+    MAX_EFFECTS
 };
 
 enum Roles
 {
     ROLE_TANK      = 0,
     ROLE_HEALER    = 1,
-    ROLE_DAMAGE    = 2,
+    ROLE_DAMAGE    = 2
 };
 
 enum MoneyConstants
@@ -983,7 +973,7 @@ enum SpellClickCastFlags
 {
     NPC_CLICK_CAST_CASTER_CLICKER      = 0x01,
     NPC_CLICK_CAST_TARGET_CLICKER      = 0x02,
-    NPC_CLICK_CAST_ORIG_CASTER_OWNER   = 0x04,
+    NPC_CLICK_CAST_ORIG_CASTER_OWNER   = 0x04
 };
 
 enum SheathTypes
@@ -3824,6 +3814,7 @@ uint32 const CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CREATURE_TYPE_ME
 ///< CreatureFamily.db2
 enum CreatureFamily
 {
+    CREATURE_FAMILY_NONE                = 0,
     CREATURE_FAMILY_WOLF                = 1,
     CREATURE_FAMILY_CAT                 = 2,
     CREATURE_FAMILY_SPIDER              = 3,
@@ -4950,7 +4941,7 @@ enum SpellFamilyNames
     SPELLFAMILY_UNK8        = 71,                           // 2 Only
     SPELLFAMILY_UNK9        = 78,
     SPELLFAMILY_UNK10       = 91,
-    SPELLFAMILY_UNK11       = 100,
+    SPELLFAMILY_UNK11       = 100
 };
 
 // stored in character_pet.slot
@@ -5003,7 +4994,7 @@ enum TradeStatus
     TRADE_STATUS_COMPLETE              = 28,
     TRADE_STATUS_PLAYER_BUSY           = 29,
     TRADE_STATUS_TOO_FAR_AWAY          = 30,
-    TRADE_STATUS_NO_TARGET             = 31,
+    TRADE_STATUS_NO_TARGET             = 31
 };
 
 enum eUpdateCollisionReasons
@@ -5094,7 +5085,7 @@ enum MountResult
     ERROR_YOU_CANT_RIDE_WHILE_LOOTING         = 6,
     ERROR_YOUR_RACE_CANT_RIDE                 = 7,
     ERROR_YOU_CANT_RIDE_WHILE_IN_ANOTHER_FORM = 8,
-    ERROR_YOU_CANT_CONTINUE                   = 9,
+    ERROR_YOU_CANT_CONTINUE                   = 9
 };
 
 #define CURRENCY_PRECISION 100
@@ -6053,7 +6044,7 @@ namespace GameError
         ERR_SET_LOOT_PERSONAL = 0x3A5,
         ERR_SET_LOOT_METHOD_FAILED_COMBAT = 0x3A6,
         ERR_REAGENT_BANK_FULL = 0x3A7,
-        ERR_REAGENT_BANK_LOCKED = 0x3A8,
+        ERR_REAGENT_BANK_LOCKED = 0x3A8
     };
 }
 

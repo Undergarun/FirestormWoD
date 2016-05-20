@@ -1,16 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "grimrail_depot.hpp"
 
 enum eRocketsparkTalks
 {
-	TalkRocketsparkDeath,   ///< This was not the plan [43731]
+    TalkRocketsparkDeath,   ///< This was not the plan [43731]
     TalkRocketsparkEvent03, ///< [43732]
     TalkRocketsparkEvent04, ///< That was my entire collection of heartstone cards [43733]
     TalkRocketsparkEvent05, ///< [43734]
@@ -24,14 +24,14 @@ enum eRocketsparkTalks
 
 enum eBorkaTalks
 {
-	TalkBorkaAggro = 1,     ///< I got this boss [45775]
-	TalkBorkaDeath,         ///<   [45776] משהו שלא הצלחתי להבין
-	TalkBorkaSpell01,       ///< Don't get in my way [45782]
-	TalkBorkaSpell02,       ///< I'm unstoppable! [45783]
-	TalkBorkaIntro01,       ///< [45778]
-	TalkBorkaIntro02,       ///< [45779]
-	TalkBorkaKill01,        ///<  Hahaha is to much fun [45780]
-	TalkBorkaKill02         ///< [45781]
+    TalkBorkaAggro = 1,     ///< I got this boss [45775]
+    TalkBorkaDeath,         ///<   [45776]
+    TalkBorkaSpell01,       ///< Don't get in my way [45782]
+    TalkBorkaSpell02,       ///< I'm unstoppable! [45783]
+    TalkBorkaIntro01,       ///< [45778]
+    TalkBorkaIntro02,       ///< [45779]
+    TalkBorkaKill01,        ///<  Hahaha is to much fun [45780]
+    TalkBorkaKill02         ///< [45781]
 };
 
 enum eRocksparkAndBorkaActions
@@ -44,12 +44,12 @@ enum eRocksparkAndBorkaActions
 
 enum eRocksparkAndBorkaMovementInformed
 {
-    MovementInformedRocketsparkHigherGroundsStartx2101aMissileBarrage = 1,
+    MovementInformedRocketsparkHigherGroundsStartx2101aMissileBarrage = 1
 };
 
 enum eRocksparkAndBorkaCreatures
 {
-    CreatureTriggerLineOfSight = 0,
+    CreatureTriggerLineOfSight = 0
 };
 
 Position const g_PositionRandomRocketSparkMovements[4] =
@@ -57,16 +57,16 @@ Position const g_PositionRandomRocketSparkMovements[4] =
     { 1718.639f, 1572.846f, 7.7136f, 3.616752f },
     { 1687.059f, 1572.249f, 7.7136f, 0.032194f },
     { 1719.248f, 1553.528f, 7.7136f, 2.866693f },
-    { 1692.416f, 1583.240f, 7.7136f, 5.500137f },
+    { 1692.416f, 1583.240f, 7.7136f, 5.500137f }
 };
 
 Position const g_PostionRocketSparkHigherPlatform[2]= /// X21-01A Missile Barrage
 {
     { 1708.924f, 1647.510f, 17.315f, 1.610062f },
-    { 1726.215f, 1580.797f, 14.062f, 4.130380f },
+    { 1726.215f, 1580.797f, 14.062f, 4.130380f }
 };
 
-static void StartRocketSparkAndBorka(InstanceScript* p_Instance, Creature* p_Me, Unit* /*p_Target*/)
+static void StartRocketSparkAndBorka(InstanceScript* p_Instance, Creature* /*p_Me*/, Unit* /*p_Target*/)
 {
     if (p_Instance == nullptr)
         return;
@@ -78,7 +78,7 @@ static void StartRocketSparkAndBorka(InstanceScript* p_Instance, Creature* p_Me,
         l_Rocketspark->SetInCombatWithZone();
 }
 
-static void WipingConditionRocketSparkAndBorka(InstanceScript* p_Instance, Creature* p_Me)
+static void WipingConditionRocketSparkAndBorka(InstanceScript* p_Instance, Creature* /*p_Me*/)
 {
     if (p_Instance == nullptr)
         return;
@@ -96,7 +96,7 @@ static void WipingConditionRocketSparkAndBorka(InstanceScript* p_Instance, Creat
     }
 }
 
-static void WiningConditionRocketsparkAndBurka(InstanceScript* p_Instance, Creature* p_Me, Unit* l_Killer)
+static void WiningConditionRocketsparkAndBurka(InstanceScript* p_Instance, Creature* /*p_Me*/, Unit* l_Killer)
 {
     if (p_Instance == nullptr)
         return;
@@ -130,38 +130,38 @@ public:
             m_First = false;
         }
 
-		enum eRocketsparkSpells
-		{
-			SpellAcquiringTargetsDummy               = 162489,
-			SpellAcquiringTargetsAura                = 162507,
-			SpellBetterPositionDummy                 = 162571,
-			SpellBetterPositionJump                  = 162171,
-			SpellLockingOn                           = 166561,
-			SpellLockingOnAura                       = 166559,
-			SpellMissileSmoke                        = 162752,
-			SpellNewPlanDummy                        = 163927,
-			SpellNewPlanAura                         = 161091,
-			SpellNewPlanDamage                       = 163929,
-			SpellX2101aMissileBarrage                = 162407,
-			SpellX2101aMissileBarrageDamage          = 162422,
-			SpellVx18BTargetEliminatorDummy          = 162500,
-			SpellVx18BTargetEliminatorTriggerMissile = 162509,
-			SpellVx18BTargetEliminatorDamage         = 162513,
+        enum eRocketsparkSpells
+        {
+            SpellAcquiringTargetsDummy               = 162489,
+            SpellAcquiringTargetsAura                = 162507,
+            SpellBetterPositionDummy                 = 162571,
+            SpellBetterPositionJump                  = 162171,
+            SpellLockingOn                           = 166561,
+            SpellLockingOnAura                       = 166559,
+            SpellMissileSmoke                        = 162752,
+            SpellNewPlanDummy                        = 163927,
+            SpellNewPlanAura                         = 161091,
+            SpellNewPlanDamage                       = 163929,
+            SpellX2101aMissileBarrage                = 162407,
+            SpellX2101aMissileBarrageDamage          = 162422,
+            SpellVx18BTargetEliminatorDummy          = 162500,
+            SpellVx18BTargetEliminatorTriggerMissile = 162509,
+            SpellVx18BTargetEliminatorDamage         = 162513,
             SpellMadDashAura                         = 169225,
             SpellRecovering                          = 163947
-		};
+        };
 
-		enum eRocketsparkEvents
-		{
-			EventBetterPosition = 1,
-			EventNewPlan,
-			EventVx18BTargetEliminator,
-			EventX2101a,
+        enum eRocketsparkEvents
+        {
+            EventBetterPosition = 1,
+            EventNewPlan,
+            EventVx18BTargetEliminator,
+            EventX2101a,
             Eventx2101aCancelation,
             EventRandomMovement
-		};
+        };
 
-		InstanceScript* m_Instance;
+        InstanceScript* m_Instance;
         bool m_First;
         bool m_x210IsActivated;
         bool m_NewPlan;
@@ -184,30 +184,30 @@ public:
                 WipingConditionRocketSparkAndBorka(m_Instance, me);
         }
 
-		void EnterCombat(Unit* p_Who) override
-		{
+        void EnterCombat(Unit* p_Who) override
+        {
             if (m_Instance != nullptr)
             {
                 StartRocketSparkAndBorka(m_Instance, me, p_Who);
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
             }
 
-			_EnterCombat();
+            _EnterCombat();
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             events.ScheduleEvent(eRocketsparkEvents::EventVx18BTargetEliminator, 0 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eRocketsparkEvents::EventX2101a, 0 * TimeConstants::IN_MILLISECONDS);
-		} 
+        }
 
-      	void KilledUnit(Unit* p_Who) override
-		{
-			if (p_Who && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
-			{
-				if (roll_chance_i(50))
+        void KilledUnit(Unit* p_Who) override
+        {
+            if (p_Who && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
+            {
+                if (roll_chance_i(50))
                     Talk(eRocketsparkTalks::TalkRocketsparkKill01);
-				else
+                else
                     Talk(eRocketsparkTalks::TalkRocketsparkKill02);
-			}
-		}
+            }
+        }
 
         void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
         {
@@ -225,7 +225,7 @@ public:
         {
             switch (p_Action)
             {
-                case eRocksparkAndBorkaActions::ActionRocketSparkShootMissilesVX18: 
+                case eRocksparkAndBorkaActions::ActionRocketSparkShootMissilesVX18:
                     for (uint8 l_I = 0; l_I < 6; l_I)
                     {
                         Position l_Position;
@@ -285,11 +285,11 @@ public:
                         if (l_Borka->HasAura(eRocketsparkSpells::SpellMadDashAura))
                         {
                             if (l_Borka->IsWithinDistInMap(me, 2.0f, true))
-                            {                             
+                            {
                                 me->RemoveAllAuras();
                                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                                 me->CastSpell(me, eRocketsparkSpells::SpellRecovering);
-                                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);                       
+                                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                             }
                         }
                     }
@@ -312,15 +312,15 @@ public:
                     me->SetReactState(ReactStates::REACT_PASSIVE);
                     me->CastSpell(me, eRocketsparkSpells::SpellLockingOnAura);
                     me->CastSpell(me, eRocketsparkSpells::SpellBetterPositionJump, true);
-                    me->GetMotionMaster()->MoveJump(g_PostionRocketSparkHigherPlatform[m_MovementHigherGround], 20.0f, 15.0f);         
-                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);                 
+                    me->GetMotionMaster()->MoveJump(g_PostionRocketSparkHigherPlatform[m_MovementHigherGround], 20.0f, 15.0f);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                     events.ScheduleEvent(eRocketsparkEvents::EventX2101a, 40 * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eRocketsparkEvents::Eventx2101aCancelation, 20 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eRocketsparkEvents::Eventx2101aCancelation:
                     events.Reset();
                     me->RemoveAllAuras();
-                    m_x210IsActivated = false;          
+                    m_x210IsActivated = false;
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                     break;
@@ -357,7 +357,7 @@ public:
     }
 };
 
-/// Borka The Brute - 86226 
+/// Borka The Brute - 86226
 class grimrail_depot_rocketspark_mob_Borka : public CreatureScript
 {
 public:
@@ -407,7 +407,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+        void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
         {
             if (p_Damage && p_Damage > 0)
             {
@@ -501,7 +501,7 @@ public:
 
             /// Mad Rush
             if (m_Instance != nullptr)
-            {             
+            {
                 if (m_MadDashTargetGUID)
                 {
                     if (Player* l_Target = Player::GetPlayer(*me, m_MadDashTargetGUID))
@@ -570,9 +570,9 @@ public:
 
     class grimrail_depot_rocketspark_spell_mad_dash_SpellScript : public SpellScript
     {
-        PrepareSpellScript(grimrail_depot_rocketspark_spell_mad_dash_SpellScript);
+        PrepareSpellScript(grimrail_depot_rocketspark_spell_mad_dash_SpellScript)
 
-        void HandleDummy(SpellEffIndex p_EffIndex)
+        void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {
             if (GetCaster())
             {
@@ -593,7 +593,7 @@ public:
     }
 };
 
-/// VX18-B Target Eliminator - 162500 
+/// VX18-B Target Eliminator - 162500
 class grimrail_depot_rocketspark_spell_vx18_target_eliminator : public SpellScriptLoader
 {
 public:
@@ -602,9 +602,9 @@ public:
 
     class grimrail_depot_rocketspark_spell_vx18_target_eliminator_SpellScript : public SpellScript
     {
-        PrepareSpellScript(grimrail_depot_rocketspark_spell_vx18_target_eliminator_SpellScript);
+        PrepareSpellScript(grimrail_depot_rocketspark_spell_vx18_target_eliminator_SpellScript)
 
-        void HandleDummy(SpellEffIndex p_EffIndex)
+        void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {
             if (GetCaster())
             {
@@ -625,7 +625,7 @@ public:
     }
 };
 
-/// X21-01A Missile Barrage - 162407 
+/// X21-01A Missile Barrage - 162407
 class grimrail_depot_rocketspark_spell_x21_01a_missile_barrage : public SpellScriptLoader
 {
 public:
@@ -633,7 +633,7 @@ public:
 
     class grimrail_depot_rocketspark_spell_x21_01a_missile_barrage_AuraScript : public AuraScript
     {
-        PrepareAuraScript(grimrail_depot_rocketspark_spell_x21_01a_missile_barrage_AuraScript);
+        PrepareAuraScript(grimrail_depot_rocketspark_spell_x21_01a_missile_barrage_AuraScript)
 
         enum eSpells
         {
@@ -641,11 +641,11 @@ public:
             SpellX2101AMissileBarrage01 = 162423
         };
 
-        void HandlePeriodic(AuraEffect const* p_AurEff)
+        void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
         {
             PreventDefaultAction();
 
-            ///< There are two entries, both must be casted at once. (It seems like a pretty tough fight for dem scrubs).
+            /// There are two entries, both must be casted at once. (It seems like a pretty tough fight for dem scrubs).
             uint32 l_Entries[2] = { eSpells::SpellX2101AMissileBarrage01, eSpells::SpellX2101AMissileBarrage };
 
             if (GetCaster())
@@ -676,7 +676,7 @@ public:
     }
 };
 
-/// New Plan - 161091  
+/// New Plan - 161091 
 class grimrail_depot_rocketspark_spell_new_plan : public SpellScriptLoader
 {
 public:
@@ -684,7 +684,7 @@ public:
 
     class grimrail_depot_rocketspark_spell_new_plan_AuraScript : public AuraScript
     {
-        PrepareAuraScript(grimrail_depot_rocketspark_spell_new_plan_AuraScript);
+        PrepareAuraScript(grimrail_depot_rocketspark_spell_new_plan_AuraScript)
 
         enum eSpells
         {
@@ -692,11 +692,11 @@ public:
             SpellNewPlanMissile01 = 163930
         };
 
-        void HandlePeriodic(AuraEffect const* p_AurEff)
+        void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
         {
             PreventDefaultAction();
 
-            ///< There are two entries, both must be casted at once. (It seems like a pretty tough fight for dem scrubs).
+            /// There are two entries, both must be casted at once. (It seems like a pretty tough fight for dem scrubs).
             uint32 l_Entries[2] = { eSpells::SpellNewPlanMissile, eSpells::SpellNewPlanMissile01 };
 
             if (GetCaster())
@@ -721,6 +721,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_RocketsparkandBorka()
 {
     new boss_rocketspark();
@@ -730,3 +731,4 @@ void AddSC_RocketsparkandBorka()
     new grimrail_depot_rocketspark_spell_new_plan();
     new grimrail_depot_rocketspark_spell_mad_dash();
 };
+#endif

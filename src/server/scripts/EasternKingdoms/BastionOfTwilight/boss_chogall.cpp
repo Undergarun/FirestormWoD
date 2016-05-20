@@ -1,11 +1,14 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include"ScriptPCH.h"
 #include"Spell.h"
 #include"bastion_of_twilight.h"
-
-//todo: разобраться с entry мобов у orders
-//todo: реализовать правильные absorb fire, absorb shadow
-//todo: сделать героик скиллы
-//todo: разобраться с таргетами fester blood
 
 enum ScriptTexts
 {
@@ -17,7 +20,7 @@ enum ScriptTexts
     SAY_CREATIONS    = 8,
     SAY_DEATH_1        = 11,
     SAY_DEATH_2        = 12,
-    SAY_WIPE        = 13,
+    SAY_WIPE        = 13
 };
 
 enum Spells
@@ -38,17 +41,17 @@ enum Spells
     SPELL_TWISTED_DEVOTION_25H                  = 93208,
     SPELL_FURY_OF_CHOGALL                        = 82524,
     SPELL_FLAME_ORDERS                            = 81171,
-    SPELL_FLAME_ORDERS_SUM_1                    = 81188, 
+    SPELL_FLAME_ORDERS_SUM_1                    = 81188,
     SPELL_FLAME_ORDERS_SUM_2                    = 81186,
     SPELL_FLAME_ORDERS_PERIODIC_TRIGGER            = 87581,
-    SPELL_FLAME_ORDERS_1                        = 87579,         
-    SPELL_FLAME_ORDERS_SUM_3                    = 87578, 
-    SPELL_FLAME_ORDERS_SUM_4                    = 87582, 
+    SPELL_FLAME_ORDERS_1                        = 87579,
+    SPELL_FLAME_ORDERS_SUM_3                    = 87578,
+    SPELL_FLAME_ORDERS_SUM_4                    = 87582,
     SPELL_SHADOW_ORDERS                            = 81556,
     SPELL_SHADOW_ORDERS_SUM_1                    = 81557,
     SPELL_SHADOW_ORDERS_SUM_2                    = 81558,
     SPELL_SHADOW_ORDERS_PERIODIC_TRIGGER        = 87576,
-    SPELL_SHADOW_ORDERS_1                        = 87575,         
+    SPELL_SHADOW_ORDERS_1                        = 87575,
     SPELL_SHADOW_ORDERS_SUM_3                    = 87574,
     SPELL_SHADOW_ORDERS_SUM_4                    = 87583,
     SPELL_SUMMON_CORRUPTING_ADHERENT            = 81628,
@@ -135,7 +138,7 @@ enum Spells
     SPELL_SHADOW_BOLT_10H                        = 93194,
     SPELL_SHADOW_BOLT_25H                        = 93195,
     SPELL_CORRUPTION_ABSOLUTE                    = 82170,
-    SPELL_CORRUPTION_ABSOLUTE_VISUAL            = 82193,
+    SPELL_CORRUPTION_ABSOLUTE_VISUAL            = 82193
 };
 
 enum Adds
@@ -145,7 +148,7 @@ enum Adds
     NPC_FIRE_PORTAL_2            = 47020,
     NPC_FIRE_ELEMENTAL_2        = 47017,
     NPC_SHADOW_PORTAL_1            = 43603,
-    NPC_SHADOW_LORD_1            = 43592, 
+    NPC_SHADOW_LORD_1            = 43592,
     NPC_SHADOW_PORTAL_2            = 47019,
     NPC_SHADOW_LORD_2            = 47016,
     NPC_CORRUPTING_ADHERENT        = 43622,
@@ -153,12 +156,12 @@ enum Adds
     NPC_BLAZE                    = 43585,
     NPC_BLOOD_OF_THE_OLD_GOD    = 43707,
     NPC_SPRAY_BLOOD                = 45848,
-    NPC_CONGEALED_BLOOD            = 45858, //
-    NPC_OLD_GOD_PORTAL            = 45685, //
-    NPC_FACELESS_GUARDIAN        = 45676, //
-    NPC_TWILIGHT_PORTAL            = 45885, //
+    NPC_CONGEALED_BLOOD            = 45858,
+    NPC_OLD_GOD_PORTAL            = 45685,
+    NPC_FACELESS_GUARDIAN        = 45676,
+    NPC_TWILIGHT_PORTAL            = 45885,
     NPC_MALFORMATION            = 43888,
-    NPC_CORRUPTION                = 43999,
+    NPC_CORRUPTION                = 43999
 };
 
 enum Events
@@ -180,21 +183,21 @@ enum Events
     EVENT_BERSERK                = 17,
     EVENT_SHADOW_BOLT            = 18,
     EVENT_ORDER_SUM                = 19,
-    EVENT_SPILLED_BLOOD         = 20,
+    EVENT_SPILLED_BLOOD         = 20
 };
 
 enum Equipment
 {
-    EQUIPMENT_ID_WEAPON    = 63680,
+    EQUIPMENT_ID_WEAPON    = 63680
 };
 
 enum DoCorruptionTypes
 {
-    CORRUPTION_INIT        = 1,
-    CORRUPTION_CLEAR    = 2,
+    CORRUPTION_INIT     = 1,
+    CORRUPTION_CLEAR    = 2
 };
 
-const Position corruptionPos = {-1162.15f, -799.06f, 836.0f, 0.0f}; 
+const Position corruptionPos = {-1162.15f, -799.06f, 836.0f, 0.0f};
 
 template <class C> typename C::value_type const& SelectRandomContainerElement(C const& container)
 {
@@ -285,7 +288,7 @@ class boss_chogall : public CreatureScript
                     Reset();
             }
             
-            void Reset() 
+            void Reset()
             {
                 _Reset();
 
@@ -311,7 +314,7 @@ class boss_chogall : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoCorruption(CORRUPTION_CLEAR);
                 DoCorruption(CORRUPTION_INIT);
@@ -337,7 +340,7 @@ class boss_chogall : public CreatureScript
                     instance->SetBossState(DATA_CHOGALL, FAIL);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 summons.DespawnAll();
@@ -385,7 +388,7 @@ class boss_chogall : public CreatureScript
                     case EVENT_CONVERSION:
                         Talk(SAY_CONVERSION);
                         me->CastCustomSpell(SPELL_CONVERSION, SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 3, 4, 6), 0, false);
-                        events.ScheduleEvent(EVENT_CONVERSION, urand(35000, 37000)); 
+                        events.ScheduleEvent(EVENT_CONVERSION, urand(35000, 37000));
                         break;
                     case EVENT_ORDERS:
                         switch (uiOrder)
@@ -526,12 +529,12 @@ class npc_chogall_fire_portal : public CreatureScript
 
             EventMap events;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 events.ScheduleEvent(EVENT_ORDER_SUM, 3000);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
@@ -577,16 +580,16 @@ class npc_chogall_shadow_portal : public CreatureScript
 
             EventMap events;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 events.ScheduleEvent(EVENT_ORDER_SUM, 3000);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
             }
 
@@ -635,7 +638,7 @@ class npc_chogall_fire_elemental : public CreatureScript
             Creature* pChogall;
             bool bNear;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 if (!pInstance)
                     return;
@@ -647,7 +650,7 @@ class npc_chogall_fire_elemental : public CreatureScript
                 events.ScheduleEvent(EVENT_ORDER_MOVE, 1000);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
@@ -706,7 +709,7 @@ class npc_chogall_shadow_lord : public CreatureScript
             Creature* pChogall;
             bool bNear;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 if (!pInstance)
                     return;
@@ -718,7 +721,7 @@ class npc_chogall_shadow_lord : public CreatureScript
                 events.ScheduleEvent(EVENT_ORDER_MOVE, 1000);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
@@ -771,20 +774,20 @@ class npc_chogall_blaze : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoCast(me, SPELL_BLAZE_PERIODIC_TRIGGER);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
             }
         };
@@ -809,20 +812,20 @@ class npc_chogall_corruption : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoCast(me, SPELL_CORRUPTION_OF_THE_OLD_GOD_VISUAL);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
             }
         };
@@ -848,17 +851,17 @@ class npc_chogall_darkened_creation : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoZoneInCombat(me);
                 events.ScheduleEvent(EVENT_DEBILITATING_BEAM, 2000);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_DEBILITATING_BEAM ||
@@ -870,7 +873,7 @@ class npc_chogall_darkened_creation : public CreatureScript
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -924,17 +927,17 @@ class npc_chogall_malformation : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoZoneInCombat(me);
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -1009,18 +1012,18 @@ class npc_chogall_corrupting_adherent : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 events.ScheduleEvent(EVENT_DEPRAVITY, urand(19000, 21000));
                 events.ScheduleEvent(EVENT_CORRUPTING_CRASH, urand(5000, 8000));
             }
 
-            void Reset() 
+            void Reset()
             {
                 events.Reset();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_DEPRAVITY ||
@@ -1032,7 +1035,7 @@ class npc_chogall_corrupting_adherent : public CreatureScript
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1139,21 +1142,21 @@ class npc_chogall_blood_of_the_old_god : public CreatureScript
 
             InstanceScript* pInstance;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
             }
 
-            void Reset() 
+            void Reset()
             {
             }
 
-            void DamageDealt(Unit* victim, uint32& damage, DamageEffectType type)
+            void DamageDealt(Unit* victim, uint32& /*damage*/, DamageEffectType type)
             {
                 if (type == DIRECT_DAMAGE)
                     AddCorruption(victim, 2);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (pInstance->GetBossState(DATA_CHOGALL) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -1173,7 +1176,7 @@ class spell_chogall_conversion: public SpellScriptLoader
 
         class spell_chogall_conversion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_conversion_SpellScript);
+            PrepareSpellScript(spell_chogall_conversion_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1204,7 +1207,7 @@ class spell_chogall_summon_corrupting_adherent: public SpellScriptLoader
 
         class spell_chogall_summon_corrupting_adherent_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_summon_corrupting_adherent_SpellScript);
+            PrepareSpellScript(spell_chogall_summon_corrupting_adherent_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1233,7 +1236,7 @@ class spell_chogall_fester_blood_script: public SpellScriptLoader
 
         class spell_chogall_fester_blood_script_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_fester_blood_script_SpellScript);
+            PrepareSpellScript(spell_chogall_fester_blood_script_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1263,7 +1266,7 @@ class spell_chogall_corruption_accelerated_corruption: public SpellScriptLoader
 
         class spell_chogall_corruption_accelerated_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_corruption_accelerated_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_corruption_accelerated_corruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1292,7 +1295,7 @@ class spell_chogall_corruption_sickness_corruption: public SpellScriptLoader
 
         class spell_chogall_corruption_sickness_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_corruption_sickness_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_corruption_sickness_corruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1322,7 +1325,7 @@ class spell_chogall_corrupting_crash_corruption: public SpellScriptLoader
 
         class spell_chogall_corrupting_crash_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_corrupting_crash_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_corrupting_crash_corruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1351,7 +1354,7 @@ class spell_chogall_depravity_corruption: public SpellScriptLoader
 
         class spell_chogall_depravity_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_depravity_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_depravity_corruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1380,7 +1383,7 @@ class spell_chogall_sprayed_corruption_corruption: public SpellScriptLoader
 
         class spell_chogall_sprayed_corruption_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_sprayed_corruption_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_sprayed_corruption_corruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1409,7 +1412,7 @@ class spell_chogall_spilled_blood_of_the_old_god_corruption: public SpellScriptL
 
         class spell_chogall_spilled_blood_of_the_old_god_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_spilled_blood_of_the_old_god_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_spilled_blood_of_the_old_god_corruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1438,7 +1441,7 @@ class spell_chogall_corruption_of_the_old_god_corruption: public SpellScriptLoad
 
         class spell_chogall_corruption_of_the_old_god_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_corruption_of_the_old_god_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_corruption_of_the_old_god_corruption_SpellScript)
 
             void OnCast()
             {
@@ -1481,9 +1484,9 @@ class spell_chogall_worshipping: public SpellScriptLoader
 
         class spell_chogall_worshipping_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_chogall_worshipping_AuraScript);
+            PrepareAuraScript(spell_chogall_worshipping_AuraScript)
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1492,7 +1495,7 @@ class spell_chogall_worshipping: public SpellScriptLoader
                     GetTarget()->ToPlayer()->SetClientControl(GetTarget(), 0);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1523,7 +1526,7 @@ class spell_chogall_festering_blood : public SpellScriptLoader
 
         class spell_chogall_festering_blood_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_chogall_festering_blood_AuraScript);
+            PrepareAuraScript(spell_chogall_festering_blood_AuraScript)
 
             enum eData
             {
@@ -1552,6 +1555,7 @@ class spell_chogall_festering_blood : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_chogall()
 {
     new boss_chogall();
@@ -1578,3 +1582,4 @@ void AddSC_boss_chogall()
     new spell_chogall_worshipping();
     new spell_chogall_festering_blood();
 }
+#endif

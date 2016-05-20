@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Areatrigger_Scripts
@@ -176,7 +166,7 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
 enum eAtLastRites
 {
     QUEST_LAST_RITES                          = 12019,
-    QUEST_BREAKING_THROUGH                    = 11898,
+    QUEST_BREAKING_THROUGH                    = 11898
 };
 
 class AreaTrigger_at_last_rites : public AreaTriggerScript
@@ -233,7 +223,7 @@ enum eWaygate
     AT_UNGORO                                   = 5047,
 
     QUEST_THE_MAKERS_OVERLOOK                   = 12613,
-    QUEST_THE_MAKERS_PERCH                      = 12559,
+    QUEST_THE_MAKERS_PERCH                      = 12559
 };
 
 class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
@@ -324,7 +314,7 @@ enum BringYourOrphanTo
     AT_STONEWROUGHT_DAM             = 3548,
     AT_DARK_PORTAL                  = 4356,
 
-    AURA_ORPHAN_OUT                 = 58818,
+    AURA_ORPHAN_OUT                 = 58818
 };
 
 class AreaTrigger_at_bring_your_orphan_to : public AreaTriggerScript
@@ -439,7 +429,7 @@ enum Area52Entrance
     AT_AREA_52_SOUTH      = 4472,
     AT_AREA_52_NORTH      = 4466,
     AT_AREA_52_WEST       = 4471,
-    AT_AREA_52_EAST       = 4422,
+    AT_AREA_52_EAST       = 4422
 };
 
 class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
@@ -506,7 +496,7 @@ class AreaTrigger_at_bael_modan : public AreaTriggerScript
     public:
         AreaTrigger_at_bael_modan() : AreaTriggerScript("AreaTrigger_at_bael_modan") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(SABOTAGE_QUEST) == QUEST_STATUS_INCOMPLETE)
                 player->KilledMonsterCredit(KILL_CREDIT, 0);
@@ -522,7 +512,7 @@ class AreaTrigger_at_klaxxi_vess : public AreaTriggerScript
     public:
         AreaTrigger_at_klaxxi_vess() : AreaTriggerScript("AreaTrigger_at_klaxxi_vess") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(KLAXXI_COUNCIL_QUEST) == QUEST_STATUS_INCOMPLETE)
                 player->KilledMonsterCredit(62538);
@@ -536,7 +526,7 @@ class AreaTrigger_at_farmer_fung : public AreaTriggerScript
     public:
         AreaTrigger_at_farmer_fung() : AreaTriggerScript("AreaTrigger_at_farmer_fung") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(30518) == QUEST_STATUS_INCOMPLETE)
                 if (player->IsOnVehicle())
@@ -558,7 +548,7 @@ class areatrigger_at_serpent_nests : public AreaTriggerScript
     public:
         areatrigger_at_serpent_nests() : AreaTriggerScript("areatrigger_at_serpent_nests") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(30136) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(30157) == QUEST_STATUS_INCOMPLETE)
             {
@@ -593,7 +583,7 @@ class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
     public:
         AreaTrigger_at_mason_s_folly() : AreaTriggerScript("AreaTrigger_at_mason_s_folly") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(31482) == QUEST_STATUS_INCOMPLETE)
             {
@@ -608,7 +598,7 @@ class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
             return true;
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -627,3 +617,4 @@ void AddSC_areatrigger_scripts()
     new areatrigger_at_serpent_nests();
     new AreaTrigger_at_mason_s_folly();
 }
+#endif

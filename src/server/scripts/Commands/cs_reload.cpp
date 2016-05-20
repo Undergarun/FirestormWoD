@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 Name: reload_commandscript
@@ -173,7 +164,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleReloadDisabledRankingCommand(ChatHandler* p_Handler, char const* p_Args)
+    static bool HandleReloadDisabledRankingCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
     {
         sObjectMgr->LoadDisabledEncounters();
         p_Handler->SendGlobalGMSysMessage("DB table `instance_disabled_rankings` reloaded.");
@@ -482,13 +473,14 @@ public:
             cInfo->Modelid3            = fields[l_Index++].GetUInt32();
             cInfo->Modelid4            = fields[l_Index++].GetUInt32();
             cInfo->Name                = fields[l_Index++].GetString();
+            cInfo->FemaleName          = fields[l_Index++].GetString();
             cInfo->SubName             = fields[l_Index++].GetString();
             cInfo->IconName            = fields[l_Index++].GetString();
             cInfo->GossipMenuId        = fields[l_Index++].GetUInt32();
             cInfo->minlevel            = fields[l_Index++].GetUInt8();
             cInfo->maxlevel            = fields[l_Index++].GetUInt8();
             cInfo->expansion           = fields[l_Index++].GetUInt16();
-            cInfo->expansionUnknown    = fields[l_Index++].GetUInt16();
+            cInfo->RequiredExpansion   = fields[l_Index++].GetUInt16();
             cInfo->faction             = fields[l_Index++].GetUInt16();
             cInfo->NpcFlags1           = fields[l_Index++].GetUInt32();
             cInfo->NpcFlags2           = fields[l_Index++].GetUInt32();
@@ -509,7 +501,7 @@ public:
             cInfo->UnitFlags3          = fields[l_Index++].GetUInt32();
             cInfo->dynamicflags        = fields[l_Index++].GetUInt32();
             cInfo->WorldEffectID       = fields[l_Index++].GetUInt32();
-            cInfo->family              = fields[l_Index++].GetUInt8();
+            cInfo->family              = CreatureFamily(fields[l_Index++].GetUInt8());
             cInfo->trainer_type        = fields[l_Index++].GetUInt8();
             cInfo->trainer_spell       = fields[l_Index++].GetUInt32();
             cInfo->trainer_class       = fields[l_Index++].GetUInt8();
@@ -1378,7 +1370,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_reload_commandscript()
 {
     new reload_commandscript();
 }
+#endif

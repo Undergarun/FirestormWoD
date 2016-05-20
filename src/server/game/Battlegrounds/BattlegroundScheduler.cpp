@@ -96,7 +96,6 @@ namespace MS
 
         BattlegroundScheduler::BattlegroundScheduler()
             : m_QueuedGroups(),
-            m_NumInstances(0),
             m_BattlegroundOccurences()
         {
             /// Initialize BattlegroundOccurences.
@@ -456,6 +455,8 @@ namespace MS
                                 case ArenaType::Arena5v5:
                                     l_MaxPlayerPerTeam = 5;
                                     break;
+                                default:
+                                    return;
                             }
 
                             /// Arena type couldn't be deduced.
@@ -514,6 +515,8 @@ namespace MS
                                     break;
                                 case BattlegroundType::Arena5v5:
                                     l_NumberOfPlayersRequired = 5;
+                                    break;
+                                default:
                                     break;
                             }
 
@@ -691,6 +694,8 @@ namespace MS
                             if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < 10 || l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < 10)
                                 continue;
                             break;
+                            default:
+                                break;
                         }
 
                         if (TryCreateBattleground(l_BGType, l_PotentialGroups, l_BracketId))
@@ -723,7 +728,6 @@ namespace MS
 
                 for (std::size_t i = 0; i < BattlegroundType::Max; i++)
                 {
-                    float l_OldFrequency = m_BattlegroundOccurences[p_BracketId][i].first; ///< l_OldFrequency is unused
                     float l_OldNumProc = m_BattlegroundOccurences[p_BracketId][i].first / (1.0f / (std::max((int32)(l_TotalOccurences - 1), (int32)1)));
 
                     if (i == p_DecidedBg)

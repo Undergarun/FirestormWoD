@@ -9,9 +9,9 @@ class hotfix_commandscript : public CommandScript
 {
     public:
         /// Constructor
-        hotfix_commandscript() 
+        hotfix_commandscript()
             : CommandScript("hotfix_commandscript")
-        { 
+        {
 
         }
 
@@ -40,13 +40,13 @@ class hotfix_commandscript : public CommandScript
             return commandTable;
         }
 
-        static bool HandleReloadBlob(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandleReloadBlob(ChatHandler * /*p_Handler*/, char const* /*p_Args*/)
         {
             sObjectMgr->LoadHotfixData(true);
             return true;
         }
 
-        static bool HandleReloadHash(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandleReloadHash(ChatHandler * /*p_Handler*/, char const* /*p_Args*/)
         {
             sObjectMgr->LoadHotfixTableHashs();
             return true;
@@ -106,7 +106,9 @@ class hotfix_commandscript : public CommandScript
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_hotfix_commandscript()
 {
     new hotfix_commandscript();
 }
+#endif

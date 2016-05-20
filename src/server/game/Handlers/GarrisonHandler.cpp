@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
-void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -146,7 +146,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& p_RecvData) ///< p_R
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -196,7 +196,7 @@ void WorldSession::HandleUpgradeGarrisonOpcode(WorldPacket& p_RecvData)
     l_Garrison->Upgrade();
 }
 
-void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -261,7 +261,7 @@ void WorldSession::HandleGarrisonRequestSetMissionNPC(WorldPacket& p_RecvData)
     SendGarrisonSetMissionNpc(l_NpcGUID);
 }
 
-void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -876,7 +876,7 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData)
     }
 }
 
-void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -965,7 +965,7 @@ void WorldSession::SendGarrisonOpenArchitect(uint64 p_CreatureGUID)
 
     SendPacket(&l_Data);
 }
-void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID) ///< p_CreatureGUID is unused
+void WorldSession::SendGarrisonOpenMissionNpc(uint64 /*p_CreatureGUID*/)
 {
     MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
 

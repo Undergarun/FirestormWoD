@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "highmaul.hpp"
@@ -234,7 +234,7 @@ class boss_the_butcher : public CreatureScript
                 m_MaggotSpawned.clear();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 _EnterCombat();
 
@@ -275,7 +275,7 @@ class boss_the_butcher : public CreatureScript
                 return false;
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HasAura(eSpells::SpellFrenzy))
                     return;
@@ -301,13 +301,13 @@ class boss_the_butcher : public CreatureScript
                     m_Instance->SetBossState(eHighmaulDatas::BossTheButcher, EncounterState::FAIL);
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers /*p_Power*/, int32& p_Value) override
             {
                 /// The Butcher only regens by script
                 p_Value = 0;
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 _JustDied();
 
@@ -532,7 +532,7 @@ class boss_the_butcher : public CreatureScript
                     {
                         /// Every four waves of adds, The Butcher spawns one add more
                         ++m_AddCount;
-                        uint8 l_Count = floor(float(m_AddCount) / 4.0f) + 1;
+                        uint8 l_Count = uint8(floor(float(m_AddCount) / 4.0f) + 1);
 
                         float l_Radius  = 50.0f;
                         float l_PosX    = me->GetHomePosition().m_positionX;
@@ -559,7 +559,7 @@ class boss_the_butcher : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void ScheduleEnergy(uint32 const p_Diff)
+            void ScheduleEnergy(uint32 const /*p_Diff*/)
             {
                 /// Bounding Cleave Icon Bounding Cleave is an ability that The Butcher uses when he reaches 100 Energy
                 /// (this happens exactly every 60 seconds before The Butcher reaches 30% health, and every 30 seconds after that).
@@ -678,7 +678,7 @@ class npc_highmaul_maggot : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                 {
@@ -710,9 +710,9 @@ class spell_highmaul_heavy_handed : public SpellScriptLoader
 
         class spell_highmaul_heavy_handed_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_heavy_handed_AuraScript);
+            PrepareAuraScript(spell_highmaul_heavy_handed_AuraScript)
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -747,7 +747,7 @@ class spell_highmaul_heavy_handed_proc : public SpellScriptLoader
 
         class spell_highmaul_heavy_handed_proc_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_heavy_handed_proc_SpellScript);
+            PrepareSpellScript(spell_highmaul_heavy_handed_proc_SpellScript)
 
             uint64 m_Target;
 
@@ -827,7 +827,7 @@ class spell_highmaul_bounding_cleave_dummy : public SpellScriptLoader
 
         class spell_highmaul_bounding_cleave_dummy_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_bounding_cleave_dummy_AuraScript);
+            PrepareAuraScript(spell_highmaul_bounding_cleave_dummy_AuraScript)
 
             void OnTick(AuraEffect const* p_AurEff)
             {
@@ -868,14 +868,14 @@ class spell_highmaul_gushing_wounds : public SpellScriptLoader
 
         class spell_highmaul_gushing_wounds_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_gushing_wounds_AuraScript);
+            PrepareAuraScript(spell_highmaul_gushing_wounds_AuraScript)
 
             enum eSpell
             {
                 GushingWoundsKill = 156153
             };
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -921,7 +921,7 @@ class areatrigger_highmaul_pale_vitriol : public AreaTriggerEntityScript
             PaleVitriol = 163046
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -943,6 +943,7 @@ class areatrigger_highmaul_pale_vitriol : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_the_butcher()
 {
     /// Boss
@@ -961,3 +962,4 @@ void AddSC_boss_the_butcher()
     /// AreaTrigger
     new areatrigger_highmaul_pale_vitriol();
 }
+#endif
