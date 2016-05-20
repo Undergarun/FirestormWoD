@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "hour_of_twilight.h"
 
@@ -15,7 +23,7 @@ enum Adds
     NPC_SHADOW_BORER                = 54686,
     NPC_TWILIGHT_PORTAL             = 58233,
 
-    NPC_EARTHEN_SHELL_TARGET        = 55445,
+    NPC_EARTHEN_SHELL_TARGET        = 55445
 };
 
 class npc_hour_of_twilight_life_warden : public CreatureScript
@@ -23,7 +31,7 @@ class npc_hour_of_twilight_life_warden : public CreatureScript
     public:
         npc_hour_of_twilight_life_warden() : CreatureScript("npc_hour_of_twilight_life_warden") { }
 
-        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+        bool OnGossipHello(Player* pPlayer, Creature* /*pCreature*/)
         {
             if (pPlayer->isInCombat())
                 return true;
@@ -34,7 +42,9 @@ class npc_hour_of_twilight_life_warden : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_hour_of_twilight()
 {
     new npc_hour_of_twilight_life_warden();
 }
+#endif

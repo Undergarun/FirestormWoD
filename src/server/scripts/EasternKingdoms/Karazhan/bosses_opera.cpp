@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Bosses_Opera
@@ -965,7 +955,7 @@ enum RAJPhase
 {
     PHASE_JULIANNE      = 0,
     PHASE_ROMULO        = 1,
-    PHASE_BOTH          = 2,
+    PHASE_BOTH          = 2
 };
 
 void PretendToDie(Creature* creature)
@@ -1172,7 +1162,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (damage < me->GetHealth())
                 return;
@@ -1506,6 +1496,7 @@ void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &dama
     sLog->outError(LOG_FILTER_TSCR, "boss_julianneAI: DamageTaken reach end of code, that should not happen.");
 }
 
+#ifndef __clang_analyzer__
 void AddSC_bosses_opera()
 {
     new boss_dorothee();
@@ -1520,3 +1511,4 @@ void AddSC_bosses_opera()
     new boss_julianne();
     new boss_romulo();
 }
+#endif

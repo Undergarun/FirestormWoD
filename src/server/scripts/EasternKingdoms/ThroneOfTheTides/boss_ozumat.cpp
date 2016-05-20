@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "throne_of_the_tides.h"
 #include "Group.h"
@@ -17,7 +25,7 @@ enum ScriptTexts
     SAY_PHASE_3_1   = 8,
     SAY_PHASE_3_2   = 9,
     SAY_DEATH       = 10,
-    SAY_KILL        = 11,
+    SAY_KILL        = 11
 };
 
 enum Spells
@@ -48,8 +56,8 @@ enum Spells
     // Faceless Sapper
     SPELL_ENTANGLING_GRASP              = 83463,
 
-    SPELL_ENCOUNTER_COMPLETE            = 95673,
-}; 
+    SPELL_ENCOUNTER_COMPLETE            = 95673
+};
 
 enum Events
 {
@@ -66,7 +74,7 @@ enum Events
     EVENT_BRAIN_SPIKE           = 11,
     EVENT_VEIL_OF_SHADOW        = 12,
     EVENT_BLIGHT_SPRAY          = 13,
-    EVENT_PHASE_2_2             = 14,
+    EVENT_PHASE_2_2             = 14
 };
 
 enum Adds
@@ -77,27 +85,27 @@ enum Adds
     NPC_FACELESS_SAPPER         = 44752,
     NPC_BLIGHT_BEAST            = 44841,
     NPC_BLIGHT_OF_OZUMAT_1      = 44801,
-    NPC_BLIGHT_OF_OZUMAT_2      = 44834,
+    NPC_BLIGHT_OF_OZUMAT_2      = 44834
 };
 
 enum Actions
 {
     ACTION_NEPTULON_START_EVENT = 1,
-    ACTION_NEPTULON_START       = 2,
+    ACTION_NEPTULON_START       = 2
 };
 
 enum Achievement
 {
-    SPELL_KILL_OZUMAT   = 95673,
+    SPELL_KILL_OZUMAT   = 95673
 };
 
-const Position spawnPos[5] = 
+const Position spawnPos[5] =
 {
     {-142.48f, 950.78f, 231.05f, 1.88f},
     {-126.62f, 1015.55f, 230.37f, 4.48f},
     {-171.65f, 1006.13f, 230.67f, 5.90f},
     {-162.53f, 966.55f, 229.43f, 0.65f},
-    {-110.35f, 981.47f, 229.90f, 2.83f},
+    {-110.35f, 981.47f, 229.90f, 2.83f}
 };
 
 class npc_neptulon : public CreatureScript
@@ -125,7 +133,7 @@ class npc_neptulon : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 /*uiAction*/)
         {
             if (InstanceScript* pInstance = pCreature->GetInstanceScript())
             {
@@ -200,7 +208,7 @@ class npc_neptulon : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void SummonedCreatureDies(Creature* pCreature, Unit* pKiller)
+            void SummonedCreatureDies(Creature* pCreature, Unit* /*pKiller*/)
             {
                 summons.Despawn(pCreature);
                 if (pCreature->GetEntry() == NPC_VICIOUS_MINDLASHER)
@@ -235,15 +243,15 @@ class npc_neptulon : public CreatureScript
                 if (pInstance)
                 {
                     // Achievement
-                    pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_OZUMAT, 0, 0, me); 
+                    pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_OZUMAT, 0, 0, me);
                     
-                    pInstance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_ENCOUNTER_COMPLETE, me); 
+                    pInstance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_ENCOUNTER_COMPLETE, me);
                     pInstance->SetBossState(DATA_OZUMAT, DONE);
                 }
                 EnterEvadeMode();
             }
 
-            void DamageTaken(Unit* pAttacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*pAttacker*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -332,7 +340,7 @@ class npc_neptulon : public CreatureScript
                         break;
                     }
                 }
-            }         
+            }
 
             Player* GetRandomPlayer()
             {
@@ -362,7 +370,7 @@ class npc_neptulon : public CreatureScript
                             return true;
                 return false;
             };
-        };        
+        };
 };
 
 class npc_vicious_mindslasher : public CreatureScript
@@ -390,7 +398,7 @@ class npc_vicious_mindslasher : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_BRAIN_SPIKE, urand(6000, 10000));
                 if (IsHeroic())
@@ -398,7 +406,7 @@ class npc_vicious_mindslasher : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 if (pInstance)
                     if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_NEPTULON)))
@@ -432,7 +440,7 @@ class npc_vicious_mindslasher : public CreatureScript
                         events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
                         break;
                     }
-                }            
+                }
                 DoMeleeAttackIfReady();
             }
         };
@@ -463,14 +471,14 @@ class npc_unyielding_behemoth : public CreatureScript
                 events.Reset();
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 if (pInstance)
                     if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_NEPTULON)))
                         pNeptulon->AI()->Talk(SAY_KILL);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_BLIGHT_SPRAY, urand(8000, 12000));
             }
@@ -491,7 +499,7 @@ class npc_unyielding_behemoth : public CreatureScript
                         events.ScheduleEvent(EVENT_BLIGHT_SPRAY, urand(15000, 23000));
                         break;
                     }
-                }            
+                }
                 DoMeleeAttackIfReady();
             }
         };
@@ -531,8 +539,8 @@ class npc_faceless_sapper : public CreatureScript
 
             }
 
-            void UpdateAI(const uint32 diff)
-            {   
+            void UpdateAI(const uint32 /*diff*/)
+            {
             }
         };
 };
@@ -561,7 +569,7 @@ class npc_blight_of_ozumat : public CreatureScript
                 DoCast(me, SPELL_BLIGHT_OF_OZUMAT_AURA);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
             }
         };
@@ -591,6 +599,7 @@ class at_tott_ozumat : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ozumat()
 {
     new npc_neptulon();
@@ -600,3 +609,4 @@ void AddSC_boss_ozumat()
     new npc_blight_of_ozumat();
     new at_tott_ozumat();
 }
+#endif

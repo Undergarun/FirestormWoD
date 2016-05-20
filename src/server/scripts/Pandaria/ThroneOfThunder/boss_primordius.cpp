@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http:///www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http:///www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http:///getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http:///www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -243,7 +232,7 @@ class boss_primordius : public CreatureScript
                 if (m_IntroDone)
                     return;
 
-                if (p_Who->IsPlayer() && p_Who->GetDistance(me) <= 60.f)
+                if (p_Who->IsPlayer() && p_Who->GetDistance(me) <= 60.0f)
                 {
                     Talk(TALK_INTRO_01);
                     m_IntroDone = true;
@@ -349,7 +338,7 @@ class boss_primordius : public CreatureScript
 
                 if (!m_HasEvolued)
                 {
-                    if (me->GetPowerPct(POWER_ENERGY) >= 100.f)
+                    if (me->GetPowerPct(POWER_ENERGY) >= 100.0f)
                     {
                         me->AddAura(SPELL_EVOLUTION, me);
                         me->SetPower(POWER_ENERGY, 0, true);
@@ -548,7 +537,7 @@ class mob_living_fluid : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (p_Damage >= me->GetHealth())
                 {
@@ -828,6 +817,7 @@ class spell_primordius_evolution: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_primordius()
 {
     new boss_primordius();
@@ -836,3 +826,4 @@ void AddSC_boss_primordius()
     new spell_congeal_blood();
     new spell_primordius_evolution();
 }
+#endif

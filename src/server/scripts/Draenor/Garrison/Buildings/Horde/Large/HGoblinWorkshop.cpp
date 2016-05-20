@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "HGoblinWorkshop.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../../GarrisonScriptData.hpp"
@@ -18,15 +19,15 @@ namespace MS { namespace Garrison
 
     namespace npc_VeeData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
     }
@@ -55,7 +56,7 @@ namespace MS { namespace Garrison
         return new npc_Vee_GarrisonAI(p_Creature);
     }
 
-    bool npc_Vee_Garrison::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_Vee_Garrison::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         if (p_Quest->GetQuestId() == Quests::Horde_UnconventionalInventions)
         {
@@ -80,7 +81,7 @@ namespace MS { namespace Garrison
             if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
             {
                 GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
-                SequencePosition const l_GameObjectPos = { -10.5838f, /*19.9354*/21.f, 4.2703f, 1.5092f };
+                SequencePosition const l_GameObjectPos = { -10.5838f, /*19.9354*/21.0f, 4.2703f, 1.5092f };
 
                 if (l_AI == nullptr)
                     return true;
@@ -103,7 +104,7 @@ namespace MS { namespace Garrison
             m_OwnerGUID = p_Guid;
     }
 
-    void npc_Vee_GarrisonAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_Vee_GarrisonAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         Player* l_Owner = ObjectAccessor::GetPlayer(*me, m_OwnerGUID);
 

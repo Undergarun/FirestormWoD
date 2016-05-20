@@ -9,7 +9,7 @@ enum ScriptTexts
     SAY_WIPE            = 3,
     SAY_KILL            = 4,
     SAY_SEETHING_HATE   = 5,
-    SAY_SKEWER          = 6,
+    SAY_SKEWER          = 6
 };
 
 enum Spells
@@ -24,7 +24,7 @@ enum Spells
     SPELL_BLADE_DANCE_SELF      = 105828,
     SPELL_BLADE_DANCE_AURA_1    = 105784,
     SPELL_BLADE_DANCE_AURA_2    = 104995,
-    SPELL_BERSERK               = 47008,
+    SPELL_BERSERK               = 47008
 };
 
 enum Events
@@ -34,7 +34,7 @@ enum Events
     EVENT_BLADE_DANCE           = 3,
     EVENT_BERSERK               = 4,
     EVENT_BLADE_DANCE_CHARGE    = 5,
-    EVENT_BLADE_DANCE_AURA      = 6,
+    EVENT_BLADE_DANCE_AURA      = 6
 };
 
 class boss_alizabal : public CreatureScript
@@ -99,13 +99,13 @@ class boss_alizabal : public CreatureScript
                 Talk(SAY_WIPE);
             }
 
-            void MovementInform(uint32 type, uint32 data)
+            void MovementInform(uint32 /*type*/, uint32 data)
             {
                 if (data == EVENT_CHARGE)
                     events.ScheduleEvent(EVENT_BLADE_DANCE_AURA, 500);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 uiCharges = 0;
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
@@ -130,7 +130,7 @@ class boss_alizabal : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -218,7 +218,7 @@ class spell_alizabal_seething_hate: public SpellScriptLoader
 
         class spell_alizabal_seething_hate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alizabal_seething_hate_SpellScript);
+            PrepareSpellScript(spell_alizabal_seething_hate_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -247,7 +247,7 @@ class spell_alizabal_blade_dance: public SpellScriptLoader
 
         class spell_alizabal_blade_dance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alizabal_blade_dance_SpellScript);
+            PrepareSpellScript(spell_alizabal_blade_dance_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -277,7 +277,7 @@ class spell_alizabal_blade_dance_dmg: public SpellScriptLoader
 
         class spell_alizabal_blade_dance_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alizabal_blade_dance_dmg_SpellScript);
+            PrepareSpellScript(spell_alizabal_blade_dance_dmg_SpellScript)
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
@@ -304,6 +304,7 @@ class spell_alizabal_blade_dance_dmg: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_alizabal()
 {
     new boss_alizabal();
@@ -311,3 +312,4 @@ void AddSC_boss_alizabal()
     new spell_alizabal_blade_dance();
     new spell_alizabal_blade_dance_dmg();
 }
+#endif

@@ -6,8 +6,8 @@ enum Yells
     SAY_AGGRO   = 0,
     SAY_DEATH   = 1,
     SAY_INTRO   = 2,
-    SAY_KILL    = 3,   
-    SAY_SPELL   = 4,
+    SAY_KILL    = 3,
+    SAY_SPELL   = 4
 };
 
 enum Spells
@@ -15,24 +15,24 @@ enum Spells
     SPELL_BLINK                 = 101812,
     SPELL_FLARECORE_MISSILE     = 101927,
     SPELL_UNSTABLE_FLARE        = 101980,
-    SPELL_TIME_EXPIRE_FLARE     = 101587, 
+    SPELL_TIME_EXPIRE_FLARE     = 101587,
     SPELL_CHECK_PLAYER_DIST     = 101588,
 
     SPELL_FROSTBOLT_VOLLEY      = 101810,
     SPELL_PYROBLAST             = 101809,
 
-    SPELL_FROST_BLADES_SUMMON   = 101339,
+    SPELL_FROST_BLADES_SUMMON   = 101339
 };
 
 enum Events
 {
-    EVENT_FLARECORE         = 1, 
-    EVENT_BLINK             = 2, 
-    EVENT_FROSTBOLT_VOLLEY  = 3, 
-    EVENT_PYROBLAST         = 4, 
-    EVENT_FROST_BLADES      = 5, 
+    EVENT_FLARECORE         = 1,
+    EVENT_BLINK             = 2,
+    EVENT_FROSTBOLT_VOLLEY  = 3,
+    EVENT_PYROBLAST         = 4,
+    EVENT_FROST_BLADES      = 5,
     EVENT_CHECK_PLAYER      = 6,
-    EVENT_EXPLODE           = 7,
+    EVENT_EXPLODE           = 7
 };
 
 enum Creatures
@@ -41,18 +41,15 @@ enum Creatures
     NPC_FROSTBLADES     = 54494,
     NPC_BLINK_TARGET    = 54542,
     NPC_ARCANE_CIRCLE   = 54639,
-    NPC_JAINA           = 54641,
+    NPC_JAINA           = 54641
 };
 
 enum Others
 {
-    ACTION_FRAGMENTS = 1,
+    ACTION_FRAGMENTS = 1
 };
 
 uint32 FragmentsCount = 1;
-
-
-static const Position jainaPos = {3004.780029f, 515.729004f, 21.55f, 3.12f};
 
 class boss_echo_of_jaina : public CreatureScript
 {
@@ -142,7 +139,7 @@ class boss_echo_of_jaina : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -300,7 +297,7 @@ class npc_echo_of_jaina_flarecore : public CreatureScript
 
         struct npc_echo_of_jaina_flarecoreAI : public Scripted_NoMovementAI
         {
-            npc_echo_of_jaina_flarecoreAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_echo_of_jaina_flarecoreAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -351,7 +348,7 @@ class go_echo_of_jaina_jaina_staff_fragment : public GameObjectScript
     public:
         go_echo_of_jaina_jaina_staff_fragment() : GameObjectScript("go_echo_of_jaina_jaina_staff_fragment") { }
 
-        bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+        bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
         {
             InstanceScript* pInstance = pGo->GetInstanceScript();
             if (!pInstance)
@@ -366,6 +363,7 @@ class go_echo_of_jaina_jaina_staff_fragment : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_echo_of_jaina()
 {
     new boss_echo_of_jaina();
@@ -373,3 +371,4 @@ void AddSC_boss_echo_of_jaina()
     new npc_echo_of_jaina_blink_target();
     new go_echo_of_jaina_jaina_staff_fragment();
 }
+#endif

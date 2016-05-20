@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2011 TrintiyCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_DB2STRUCTURE_H
 #define TRINITY_DB2STRUCTURE_H
@@ -25,11 +16,6 @@
 #include "Util.h"
 #include "SharedDefines.h"
 #include "ItemPrototype.h"
-
-#include <map>
-#include <set>
-#include <vector>
-#include <array>
 
 /// GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
@@ -308,10 +294,10 @@ struct CreatureDisplayInfoEntry
     //uint32    m_sounID;                                           ///< 2      m_SoundID
     uint32  ExtendedDisplayInfoID;                                  ///< 3      m_ExtendedDisplayInfoID
     float   scale;                                                  ///< 4      m_CreatureModelScale
-    //float     620_unk                                             ///< 5
+    //float     PlayerModelScale;                                   ///< 5      Used for players if greater than 0, see client's CGUnit_C::GetModelScale
     //uint32    m_creatureModelAlpha;                               ///< 6      m_CreatureModelAlpha
     //char*     m_textureName;                                      ///< 7-9    m_TextureVariation[3]
-    //char*     m_portraitTextureName ;                             ///< 10      m_PortraitTextureName
+    //char*     m_portraitTextureName ;                             ///< 10     m_PortraitTextureName
     //uint32    m_PortraitCreatureDisplayInfoID                     ///< 11     m_PortraitCreatureDisplayInfoID
     //uint32    m_SizeClass;                                        ///< 12     m_SizeClasss
     //uint32    m_BloodID;                                          ///< 13     m_BloodID
@@ -566,10 +552,10 @@ struct GarrFollowerEntry
     uint32 Flags;                                                   ///< 15
     char * HordeSourceText;                                         ///< 16     Descr1 : zoneH (where you find this follower)
     char * AllinaceSourceText;                                      ///< 17     Descr2 : zoneA (where you find this follower)
-    int32  Unk1;                                                    ///< 18     H
-    int32  Unk2;                                                    ///< 19     A
-    uint32 HordePortraitIconID;                                     ///< 20
-    uint32 AlliancePortraitIconID;                                  ///< 21
+    int32  HordePortraitIconID;                                     ///< 18
+    int32  AlliancePortraitIconID;                                  ///< 19
+    uint32 HordeListPortraitTextureKitID;                           ///< 20
+    uint32 AllianceListPortraitTextureKitID;                        ///< 21
 };
 
 struct GarrFollowerTypeEntry
@@ -1398,7 +1384,7 @@ struct SpellProcsPerMinuteEntry
 {
     uint32 Id;                                                      ///< 0        m_ID
     float  ProcsPerMinute;                                          ///< 1        m_procsPerMinute
-    //bool unk;                                                     ///< 2
+    uint32 Flags;                                                   ///< 2
 };
 
 struct SpellRadiusEntry

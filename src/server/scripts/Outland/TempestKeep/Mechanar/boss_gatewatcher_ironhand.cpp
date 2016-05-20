@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Gatewatcher_Ironhand
@@ -34,7 +24,7 @@ enum eSays
     SAY_SLAY_1                     = -1554009,
     SAY_SLAY_2                     = -1554010,
     SAY_DEATH_1                    = -1554011,
-    EMOTE_HAMMER                   = -1554012,
+    EMOTE_HAMMER                   = -1554012
 };
 
 enum eSpells
@@ -45,7 +35,7 @@ enum eSpells
     SPELL_HAMMER_PUNCH             = 35326,
     SPELL_JACKHAMMER               = 35327,
     H_SPELL_JACKHAMMER             = 39194,
-    SPELL_STREAM_OF_MACHINE_FLUID  = 35311,
+    SPELL_STREAM_OF_MACHINE_FLUID  = 35311
 };
 
 class boss_gatewatcher_iron_hand : public CreatureScript
@@ -144,8 +134,9 @@ class boss_gatewatcher_iron_hand : public CreatureScript
             }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gatewatcher_iron_hand()
 {
     new boss_gatewatcher_iron_hand();
 }
-
+#endif

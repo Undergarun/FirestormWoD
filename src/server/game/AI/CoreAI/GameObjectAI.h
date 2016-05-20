@@ -1,26 +1,16 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_GAMEOBJECTAI_H
 #define TRINITY_GAMEOBJECTAI_H
 
 #include "Define.h"
-#include <list>
+#include "Common.h"
 #include "Object.h"
 #include "GameObject.h"
 #include "CreatureAI.h"
@@ -41,7 +31,7 @@ class GameObjectAI
 
         // Pass parameters between AI
         virtual void DoAction(const int32 /*param = 0 */) {}
-        virtual void SetGUID(const uint64& guid, int32 /*id = 0 */) {}
+        virtual void SetGUID(const uint64& /*guid*/, int32 /*id = 0 */) {}
         virtual uint64 GetGUID(int32 /*id = 0 */) { return 0; }
 
         static int Permissible(GameObject const* go);
@@ -52,15 +42,15 @@ class GameObjectAI
         virtual bool QuestAccept(Player* /*player*/, Quest const* /*quest*/) { return false; }
         virtual bool QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
         virtual uint32 GetDialogStatus(Player* /*player*/) { return 100; }
-        virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) {}
-        virtual uint32 GetData(uint32 id) { return 0; }
-        virtual void SetData64(uint32 id, uint64 value) {}
-        virtual uint64 GetData64(uint32 id) { return 0; }
-        virtual void SetData(uint32 id, uint32 value) {}
-        virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
-        virtual void OnLootStateChanged(uint32 /*state*/, Unit* /*unit*/) {}
+        virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) { }
+        virtual uint32 GetData(uint32 /*id*/) { return 0; }
+        virtual void SetData64(uint32 /*id*/, uint64 /*value*/) { }
+        virtual uint64 GetData64(uint32 /*id*/) { return 0; }
+        virtual void SetData(uint32 /*id*/, uint32 /*value*/) { }
+        virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
+        virtual void OnLootStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
         virtual void OnStateChanged(uint32 /*p_State*/) { }
-        virtual void EventInform(uint32 /*eventId*/) {}
+        virtual void EventInform(uint32 /*eventId*/) { }
 
         /// Add timed delayed operation
         /// @p_Timeout  : Delay time

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "LootMgr.h"
 #include "Log.h"
@@ -552,8 +542,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     LootTemplate const* tab = store.GetLootFor(lootId);
 
     // if the creature was killed by players in a dungeon
-    // only those players can loot the creature 
-    // but not group members who was out of a dungeon 
+    // only those players can loot the creature
+    // but not group members who was out of a dungeon
     if (Map* map = lootOwner->GetMap())
     {
         if (map->IsDungeon())
@@ -1724,7 +1714,7 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
     }
 }
 
-void LootTemplate::FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList, Player* p_Player /*= nullpltr*/, bool p_IsBGReward /*= false*/) const
+void LootTemplate::FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList, Player* /*p_Player*/ /*= nullpltr*/, bool p_IsBGReward /*= false*/) const
 {
     for (LootStoreItemList::const_iterator l_Ia = Entries.begin(); l_Ia != Entries.end(); ++l_Ia)
     {
@@ -1943,7 +1933,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, Player const*
 }
 
 // True if template includes at least 1 quest drop entry
-bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) const
+bool LootTemplate::HasQuestDrop(LootTemplateMap const& /*store*/, uint8 groupId) const
 {
     if (groupId)                                            // Group reference
     {

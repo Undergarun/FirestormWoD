@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "GameObjectAI.h"
 #include "ScriptMgr.h"
@@ -91,7 +80,7 @@ enum eUnsokEvents
     EVENT_DRAW_POWER,
     EVENT_AMBER_GLOBULE,
     EVENT_BERSERK,
-    EVENT_SCALPEL_DESPAWN,
+    EVENT_SCALPEL_DESPAWN
 };
 
 enum eUnsokTalk
@@ -104,7 +93,7 @@ enum eUnsokTalk
     TALK_PHASE2     = 5,
     TALK_PHASE3     = 6,
     TALK_SLAY       = 7,
-    TALK_DEATH      = 8,
+    TALK_DEATH      = 8
 };
 
 enum eUnsokActions
@@ -113,7 +102,7 @@ enum eUnsokActions
     ACTION_AMBER_POOL,
     ACTION_END_POOL,
     ACTION_AMBER_CONSUMED,
-    ACTION_LAUNCH_LAST_PHASE,
+    ACTION_LAUNCH_LAST_PHASE
 };
 
 enum eUnsokAdds
@@ -123,12 +112,12 @@ enum eUnsokAdds
     NPC_MUTATED_CONSTRUCT           = 62701,
     NPC_AMBER_MONSTRUOSITY          = 62711,
     NPC_AMBER_POOL_STALKER          = 62762,
-    NPC_AMBER_GLOBULE               = 64283,
+    NPC_AMBER_GLOBULE               = 64283
 };
 
 enum eUnsokTypes
 {
-    TYPE_GET_SCALPEL_TARGET         = 1,
+    TYPE_GET_SCALPEL_TARGET         = 1
 };
 
 Position spawnAmberMonstruosity = {-2549.87f, 770.0f, 582.92f, 0.0f};
@@ -243,7 +232,7 @@ class boss_unsok : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (!CheckTrash() || (!instance->CheckRequiredBosses(DATA_UNSOK) && !IsLFR()))
                 {
@@ -325,7 +314,7 @@ class boss_unsok : public CreatureScript
                         EnterCombat(who);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (!fightInProgress)
                     EnterCombat(attacker);
@@ -459,7 +448,7 @@ class boss_unsok : public CreatureScript
                                             canCast = true;
 
                                     ++itr;
-                                }   
+                                }
                             }
 
                             if (canCast)
@@ -761,7 +750,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32 &p_Damage, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* /*p_Attacker*/, uint32 &p_Damage, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (me->HasAura(SPELL_TEMP_FEIGN_DEATH) || me->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
             {
@@ -1014,7 +1003,7 @@ class mob_amber_globule : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 // Checking if another Amber Globule is in contact - we need a list not to detect only itself
                 std::list<Creature*> globuleList;
@@ -1297,7 +1286,7 @@ class spell_fling : public SpellScriptLoader
         {
             PrepareSpellScript(spell_fling_SpellScript);
 
-            void Handle(SpellEffIndex effIndex)
+            void Handle(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1436,6 +1425,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_unsok()
 {
     new boss_unsok();                   // 62511
@@ -1455,3 +1445,4 @@ void AddSC_boss_unsok()
     new spell_unsok_draw_power();       // 122547
     new spell_volatile_amber();         // 123014
 }
+#endif

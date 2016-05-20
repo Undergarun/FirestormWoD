@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Scripts for spells with SPELLFAMILY_PALADIN and SPELLFAMILY_GENERIC spells used by paladin players.
@@ -1059,7 +1050,7 @@ class spell_pal_divine_shield: public SpellScriptLoader
                         return SPELL_FAILED_TARGET_AURASTATE;
 
                     /// Divine Shield can be casted even in Cyclone
-                    /// To prevent hacks with MiscValues on this aura effect SPELL_AURA_SCHOOL_IMMUNITY - let's remove cyclone here 
+                    /// To prevent hacks with MiscValues on this aura effect SPELL_AURA_SCHOOL_IMMUNITY - let's remove cyclone here
                     if (l_Caster->HasAura(eSpells::Cyclone))
                         l_Caster->RemoveAura(eSpells::Cyclone);
 
@@ -1081,7 +1072,7 @@ class spell_pal_divine_shield: public SpellScriptLoader
                     if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_DIVINE_SHIELD))
                     {
                         Unit::AuraApplicationMap l_AppliedAuras = l_Caster->GetAppliedAuras();
-                        for (Unit::AuraApplicationMap::iterator itr = l_AppliedAuras.begin(); itr != l_AppliedAuras.end(); itr++)
+                        for (Unit::AuraApplicationMap::iterator itr = l_AppliedAuras.begin(); itr != l_AppliedAuras.end(); ++itr)
                         {
                             AuraApplication const* l_AurApp = itr->second;
                             Aura const* aura = l_AurApp->GetBase();
@@ -1145,7 +1136,7 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
                 StayOfExecution = 114917
             };
 
-            void HandleDispel(DispelInfo* dispelData)
+            void HandleDispel(DispelInfo* /*dispelData*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetAura()->GetOwner()->ToUnit();
@@ -1529,7 +1520,7 @@ class spell_pal_word_of_glory_heal: public SpellScriptLoader
                 LawfulWords             = 166780
             };
 
-            void HandleHeal(SpellEffIndex p_EffIndex)
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1603,7 +1594,7 @@ class spell_pal_word_of_glory_damage: public SpellScriptLoader
                 LawfulWords = 166780
             };
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1659,7 +1650,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
             int32 m_HolyPower = 0;
 
-            bool Validate(SpellInfo const* p_SpellInfo)
+            bool Validate(SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_WORD_OF_GLORY))
                     return false;
@@ -1908,7 +1899,7 @@ class spell_pal_ardent_defender: public SpellScriptLoader
                 return GetUnitOwner()->IsPlayer();
             }
 
-            void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 // Set absorbtion amount to unlimited
                 amount = -1;
@@ -2248,7 +2239,7 @@ class spell_pal_eternal_flame : public SpellScriptLoader
                 }
             }
 
-            void HandleHeal(SpellEffIndex p_EffIndex)
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2431,7 +2422,7 @@ public:
             || (p_Player->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT) && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_LIGHT)->GetCaster()->ToPlayer() != nullptr && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_LIGHT)->GetCaster()->ToPlayer()->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
             || p_Player->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT)) && p_Player->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT_PROC) == false)
             if (const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
-            { 
+            {
                 // When you or your Beacon of Light target drop below 30 % health
                 if (((p_Value * 100) / p_Player->GetMaxHealth()) < (uint32)l_SpellInfo->Effects[EFFECT_0].BasePoints)
                 {
@@ -2521,7 +2512,7 @@ class spell_pal_seal_of_justice : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_seal_of_justice_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2570,7 +2561,7 @@ class spell_pal_holy_shield: public SpellScriptLoader
                 HolyShieldDamage = 157122
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2715,7 +2706,7 @@ class spell_pal_light_of_dawn : public SpellScriptLoader
                 }
             }
 
-            void HandleHeal(SpellEffIndex p_EffIndex)
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2774,7 +2765,7 @@ class spell_pal_enhanced_holy_shock : public SpellScriptLoader
                 HolyLight       = 82326
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2928,7 +2919,7 @@ class spell_pal_selfless_healer_proc : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_selfless_healer_proc_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3282,7 +3273,7 @@ class spell_pal_shining_protector : public SpellScriptLoader
                 ShiningProtectorHeal = 159375
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
                 Unit* l_Caster = GetCaster();
@@ -3334,7 +3325,7 @@ class spell_pal_glyph_of_flash_of_light : public SpellScriptLoader
                 GlyphOfLightAura = 54957
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3462,7 +3453,7 @@ class spell_pal_beacon_of_light_proc : public SpellScriptLoader
                 return l_Percent;
             }
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3567,7 +3558,7 @@ class spell_pal_t17_protection_4p : public SpellScriptLoader
                 DefenderOfTheLight = 167742
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3723,7 +3714,7 @@ public:
             GlyphOfPillarofLightVisual = 148064
         };
 
-        void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+        void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
         {
             PreventDefaultAction();
 
@@ -3889,6 +3880,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_glyph_of_pillar_of_light();
@@ -3965,3 +3957,4 @@ void AddSC_paladin_spell_scripts()
     new PlayerScript_saved_by_the_light();
     new PlayerScript_paladin_wod_pvp_4p_bonus();
 }
+#endif

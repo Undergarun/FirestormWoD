@@ -1,17 +1,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_THE_FORGE_LEVEL_1_DATA_HORDE_HPP_GARRISON
 #define GARRISON_THE_FORGE_LEVEL_1_DATA_HORDE_HPP_GARRISON
 
 #include "../../../GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     namespace OrgekIronhand_Level1
     {

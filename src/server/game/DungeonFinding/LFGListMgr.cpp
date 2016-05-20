@@ -1,11 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Object.h"
 #include "LFGListMgr.h"
 #include "GroupMgr.h"
 
@@ -34,7 +35,6 @@ bool LFGListMgr::Insert(LFGListEntry* p_LFGEntry, Player* p_Requester)
         return false;
     }
 
-    uint32 l_GroupId = 0; ///< l_GroupId is unused
     Group* l_Group = p_Requester->GetGroup();
     if (l_Group && l_Group->isBGGroup())
         l_Group = p_Requester->GetOriginalGroup();
@@ -178,7 +178,7 @@ void LFGListMgr::PlayerRemoveFromGroup(Player* p_Player, Group* p_Group)
     SendLFGListStatusUpdate(l_Iter->second, p_Player->GetSession(), false);
 }
 
-std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString, Player* p_Player)
+std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 p_ActivityCategory, uint32 /*p_ActivitySubCategory*/, std::string p_FilterString, Player* p_Player)
 {
     std::list<LFGListEntry const*> l_LFGFiltered;
 
@@ -292,7 +292,7 @@ void LFGListEntry::BroadcastApplicantUpdate(LFGListApplicationEntry const* l_App
     BroadcastPacketToGrop(&l_Data);
 }
 
-void LFGListEntry::InviteApplicant(LFGListApplicationEntry const* l_Applicant)
+void LFGListEntry::InviteApplicant(LFGListApplicationEntry const* /*l_Applicant*/)
 {
 }
 
@@ -457,7 +457,7 @@ bool LFGListEntry::Update(uint32 const p_Diff)
     return m_Timeout > time(nullptr);
 }
 
-bool LFGListEntry::LFGListApplicationEntry::Update(uint32 const p_Diff) ///< p_Diff is unused
+bool LFGListEntry::LFGListApplicationEntry::Update(uint32 const /*p_Diff*/)
 {
     return m_Timeout > time(nullptr); ///< Bye bye
 }
@@ -559,13 +559,13 @@ float LFGListMgr::GetPlayerItemLevelForActivity(GroupFinderActivityEntry const* 
 
 float LFGListMgr::GetLowestItemLevelInGroup(LFGListEntry* p_Entry) const
 {
-    float l_MinIlvl = 100000.f;
+    float l_MinIlvl = 100000.0f;
 
     for (GroupReference const* l_Ref = p_Entry->m_Group->GetFirstMember(); l_Ref != NULL; l_Ref = l_Ref->next())
         if (Player* l_Player = l_Ref->getSource())
             l_MinIlvl = std::min(l_MinIlvl, GetPlayerItemLevelForActivity(p_Entry->m_ActivityEntry, l_Player));
 
-    return l_MinIlvl != 100000.f ? l_MinIlvl : 0.f;
+    return l_MinIlvl != 100000.0f ? l_MinIlvl : 0.0f;
 }
 
 uint8 LFGListMgr::GetMemeberCountInGroupIncludingInvite(LFGListEntry* p_Entry)
@@ -576,7 +576,7 @@ uint8 LFGListMgr::GetMemeberCountInGroupIncludingInvite(LFGListEntry* p_Entry)
 
 uint8 LFGListMgr::CountEntryApplicationsWithStatus(LFGListEntry* p_Entry, LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus p_Status)
 {
-    return std::count_if(p_Entry->m_Applications.begin(), p_Entry->m_Applications.end(), [&](const std::pair<uint32, LFGListEntry::LFGListApplicationEntry>& l_Iter) { return l_Iter.second.m_Status == p_Status; });
+    return (uint8)std::count_if(p_Entry->m_Applications.begin(), p_Entry->m_Applications.end(), [&](std::pair<uint32, LFGListEntry::LFGListApplicationEntry> const& l_Iter) { return l_Iter.second.m_Status == p_Status; });
 }
 
 void LFGListMgr::AutoInviteApplicantsIfPossible(LFGListEntry* p_Entry)

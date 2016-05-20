@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
@@ -11,7 +19,7 @@ class AreaTrigger_at_mandori : public AreaTriggerScript
         AreaTrigger_at_mandori() : AreaTriggerScript("AreaTrigger_at_mandori")
         {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
            if (player->GetPositionX() < 710.0f)
                return true;
@@ -45,7 +53,7 @@ class mob_mandori_escort : public CreatureScript
         mob_mandori_escort() : CreatureScript("mob_mandori_escort") { }
 
     struct mob_mandori_escortAI : public npc_escortAI
-    {        
+    {
         mob_mandori_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -82,7 +90,7 @@ class mob_mandori_escort : public CreatureScript
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void SetGUID(uint64 guid, int32 type)
+        void SetGUID(uint64 guid, int32 /*type*/)
         {
             playerGuid = guid;
 
@@ -233,9 +241,9 @@ class npc_korga : public CreatureScript
     public:
         npc_korga() : CreatureScript("npc_korga") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
         {
-            if (quest->GetQuestId() == 30589) // Détruire l'épave
+            if (quest->GetQuestId() == 30589) // Detruire l'epave
                 if (Creature* jiEscort = player->SummonCreature(60900, 424.71f, 3635.59f, 92.70f, 2.498430f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID()))
                     jiEscort->AI()->SetGUID(player->GetGUID());
 
@@ -249,7 +257,7 @@ public:
     mob_ji_forest_escort() : CreatureScript("mob_ji_forest_escort") { }
 
     struct mob_ji_forest_escortAI : public npc_escortAI
-    {        
+    {
         mob_ji_forest_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -264,12 +272,12 @@ public:
             IntroTimer      = 100;
         }
 
-        void SetGUID(uint64 guid, int32 type)
+        void SetGUID(uint64 guid, int32 /*type*/)
         {
             playerGuid = guid;
         }
         
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 /*waypointId*/)
         {}
 
         void LastWaypointReached()
@@ -308,7 +316,7 @@ class AreaTrigger_at_rescue_soldiers : public AreaTriggerScript
         AreaTrigger_at_rescue_soldiers() : AreaTriggerScript("AreaTrigger_at_rescue_soldiers")
         {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
            if (player->GetQuestStatus(29794) != QUEST_STATUS_INCOMPLETE)
                return true;
@@ -409,7 +417,7 @@ class boss_vordraka : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_DEEP_ATTACK, 6000);
                 m_Events.ScheduleEvent(SPELL_DEEP_SEA_RUPTURE, 10000);
@@ -480,11 +488,11 @@ class mob_aysa_gunship_crash : public CreatureScript
         }
 
         struct mob_aysa_gunship_crashAI : public ScriptedAI
-        {        
+        {
             mob_aysa_gunship_crashAI(Creature* creature) : ScriptedAI(creature)
             {}
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* /*_SpellInfo*/)
             {
                 if (HealthBelowPct(70))
                     damage = 0;
@@ -503,7 +511,7 @@ public:
     mob_aysa_gunship_crash_escort() : CreatureScript("mob_aysa_gunship_crash_escort") { }
 
     struct mob_aysa_gunship_crash_escortAI : public npc_escortAI
-    {        
+    {
         mob_aysa_gunship_crash_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -528,7 +536,7 @@ public:
             discussEvent    = 0;
         }
 
-        void SetGUID(uint64 guid, int32 type)
+        void SetGUID(uint64 guid, int32 /*type*/)
         {
             playerGuid = guid;
 
@@ -647,8 +655,8 @@ public:
 
 Position ennemiesPositions[MAX_ENNEMIES_POS] =
 {
-    {215.0f, 3951.0f, 71.4f},
-    {290.0f, 3939.0f, 86.7f}
+    {215.0f, 3951.0f, 71.4f, 0.0f},
+    {290.0f, 3939.0f, 86.7f, 0.0f}
 };
 
 enum eEnums
@@ -668,7 +676,7 @@ enum eEnums
 
     SPELL_SHEN_HEALING      = 117783,
     SPELL_HEALER_A          = 117784,
-    SPELL_HEALER_H          = 117932,
+    SPELL_HEALER_H          = 117932
 };
 
 class npc_ji_end_event : public CreatureScript
@@ -862,7 +870,7 @@ class npc_shen_healer : public CreatureScript
         npc_shen_healer() : CreatureScript("npc_shen_healer") { }
 
         struct npc_shen_healerAI : public ScriptedAI
-        {        
+        {
             npc_shen_healerAI(Creature* creature) : ScriptedAI(creature)
             {}
 
@@ -968,6 +976,7 @@ class npc_shang_xi_choose_faction : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_WanderingIsland_South()
 {
     new AreaTrigger_at_mandori();
@@ -983,3 +992,4 @@ void AddSC_WanderingIsland_South()
     new npc_shen_healer();
     new npc_shang_xi_choose_faction();
 }
+#endif

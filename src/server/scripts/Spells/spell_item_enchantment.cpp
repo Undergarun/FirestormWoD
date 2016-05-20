@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
@@ -84,7 +85,7 @@ class spell_enchantment_mark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_enchantment_mark_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 if (!GetOwner())
                     return;
@@ -235,8 +236,10 @@ class spell_Mark_Of_The_Shattered_Bleed : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_spell_item_enchantment()
 {
     new spell_enchantment_mark();
     new spell_Mark_Of_The_Shattered_Bleed();
 }
+#endif

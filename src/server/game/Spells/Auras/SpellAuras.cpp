@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "SharedPtrs.h"
@@ -39,7 +29,7 @@
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, Aura* aura, uint32 effMask):
 _target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), m_Slot(MAX_AURAS),
-_flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectMask(0)
+_flags(AFLAG_NONE), _effectMask(0), _effectsToApply(effMask), _needClientUpdate(false)
 {
     ASSERT(GetTarget() && GetBase());
 
@@ -3282,7 +3272,7 @@ bool Aura::CallScriptCanRrefreshProcHandlers()
     return l_CanRefresh;
 }
 
-UnitAura::UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID)
+UnitAura::UnitAura(SpellInfo const* spellproto, uint32 /*effMask*/, WorldObject* owner, Unit* caster, int32* /*baseAmount*/, Item* castItem, uint64 casterGUID)
     : Aura(spellproto, owner, caster, castItem, casterGUID)
 {
     m_AuraDRGroup = DIMINISHING_NONE;
@@ -3392,7 +3382,7 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
     }
 }
 
-DynObjAura::DynObjAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID)
+DynObjAura::DynObjAura(SpellInfo const* spellproto, uint32 /*effMask*/, WorldObject* owner, Unit* caster, int32* /*baseAmount*/, Item* castItem, uint64 casterGUID)
     : Aura(spellproto, owner, caster, castItem, casterGUID)
 {
 }

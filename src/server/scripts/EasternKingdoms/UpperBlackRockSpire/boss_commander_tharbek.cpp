@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "upper_blackrock_spire.hpp"
@@ -238,7 +238,7 @@ class boss_commander_tharbek : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 _EnterCombat();
 
@@ -252,7 +252,7 @@ class boss_commander_tharbek : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -312,7 +312,7 @@ class boss_commander_tharbek : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (!me->HasAura(SPELL_IRON_RAGE) && me->HealthBelowPctDamaged(50, p_Damage))
                     me->CastSpell(me, SPELL_IRON_RAGE, true);
@@ -542,7 +542,7 @@ class boss_commander_tharbek : public CreatureScript
                     m_SeventhTalkTimer -= p_Diff;
             }
 
-            bool IsWaveCompleted(const uint32 p_Diff)
+            bool IsWaveCompleted(const uint32 /*p_Diff*/)
             {
                 for (uint64 l_Guid : m_WaveGuidsContainer)
                 {
@@ -558,7 +558,7 @@ class boss_commander_tharbek : public CreatureScript
 
             void SummonFirstWave()
             {
-                if (Player* l_Player = me->FindNearestPlayer(50.f))
+                if (Player* l_Player = me->FindNearestPlayer(50.0f))
                 {
                     if (m_Instance)
                     {
@@ -604,7 +604,7 @@ class boss_commander_tharbek : public CreatureScript
 
             void SummonSecondWave()
             {
-                if (Player* l_Player = me->FindNearestPlayer(50.f))
+                if (Player* l_Player = me->FindNearestPlayer(50.0f))
                 {
                     if (m_Instance)
                     {
@@ -650,7 +650,7 @@ class boss_commander_tharbek : public CreatureScript
 
             void SummonThirdWave()
             {
-                if (Player* l_Player = me->FindNearestPlayer(50.f))
+                if (Player* l_Player = me->FindNearestPlayer(50.0f))
                 {
                     if (m_Instance)
                     {
@@ -742,7 +742,7 @@ class mob_ironbarb_skyreaver : public CreatureScript
                 }
             }
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 m_MoveTimer  = 1000;
                 m_ActualMove = MOVE_NONE;
@@ -806,7 +806,7 @@ class mob_ironbarb_skyreaver : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (!m_BossOut && me->HealthBelowPctDamaged(50, p_Damage))
                 {
@@ -871,8 +871,8 @@ class mob_ironbarb_skyreaver : public CreatureScript
                     {
                         case MOVE_NONE:
                         {
-                            float l_X = me->GetPositionX() + (25.f * cos(me->GetOrientation()));
-                            float l_Y = me->GetPositionY() + (25.f * sin(me->GetOrientation()));
+                            float l_X = me->GetPositionX() + (25.0f * cos(me->GetOrientation()));
+                            float l_Y = me->GetPositionY() + (25.0f * sin(me->GetOrientation()));
 
                             m_ActualMove = MOVE_LAND;
                             me->GetMotionMaster()->MovePoint(m_ActualMove, l_X, l_Y, me->GetPositionZ());
@@ -951,7 +951,7 @@ class mob_imbued_iron_axe_stalker : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
 
                 me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveRandom(10.f);
+                me->GetMotionMaster()->MoveRandom(10.0f);
             }
         };
 
@@ -1055,7 +1055,7 @@ class areatrigger_noxious_spit : public AreaTriggerEntityScript
             SpellNoxiousSpitDot = 161833
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 3.0f;
@@ -1079,6 +1079,7 @@ class areatrigger_noxious_spit : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_commander_tharbek()
 {
     new boss_commander_tharbek();
@@ -1087,3 +1088,4 @@ void AddSC_boss_commander_tharbek()
     new mob_awbee();
     new areatrigger_noxious_spit();
 }
+#endif

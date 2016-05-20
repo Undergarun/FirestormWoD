@@ -1,16 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_BUILDING_HPP_GARRISON
 #define GARRISON_BUILDING_HPP_GARRISON
 
-#include <string>
+#include "Common.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Garrison building
     struct GarrisonBuilding

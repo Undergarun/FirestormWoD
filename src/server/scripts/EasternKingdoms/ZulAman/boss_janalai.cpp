@@ -8,7 +8,7 @@ enum ScriptTexts
     SAY_HATCHER     = 2,
     SAY_35          = 3,
     SAY_KILL        = 4,
-    SAY_DEATH       = 5,
+    SAY_DEATH       = 5
 };
 
 enum Spells
@@ -26,7 +26,7 @@ enum Spells
     SPELL_SUMMON_HATCHLING      = 42493,
     SPELL_FRENZY                = 44779,
     SPELL_FLAMEBUFFET           = 43299,
-    SPELL_SUMMON_PLAYERS        = 43097,
+    SPELL_SUMMON_PLAYERS        = 43097
 };
 
 enum Adds
@@ -36,7 +36,7 @@ enum Adds
     NPC_AMANISHI_HATCHER2   = 24504,
     NPC_EGG                 = 23817,
     NPC_HATCHLING           = 23598,
-    NPC_WORLD_TRIGGER       = 21252,
+    NPC_WORLD_TRIGGER       = 21252
 };
 
 enum Events
@@ -48,15 +48,13 @@ enum Events
     EVENT_SUMMON_BOMBS      = 5,
     EVENT_DETONATE_BOMBS    = 6,
     EVENT_TELEPORT          = 7,
-    EVENT_FLAMEBUFFET       = 8,
+    EVENT_FLAMEBUFFET       = 8
 };
 
 const int area_dx = 44;
 const int area_dy = 51;
 
-const Position posJanalai = {-33.93f, 1149.27f, 19.0f, 0.0f};
-
-const Position posFireWall[4] = 
+const Position posFireWall[4] =
 {
     {-33.89f, 1122.81f, 18.80f, 1.58f},
     {-10.28f, 1149.97f, 18.80f, 3.14f},
@@ -64,7 +62,7 @@ const Position posFireWall[4] =
     {-53.62f, 1150.03f, 18.80f, 0.00f}
 };
 
-const Position posHatchersWay[2][5] = 
+const Position posHatchersWay[2][5] =
 {
     {
         {-87.46f, 1170.09f, 6.0f, 0.0f},
@@ -478,12 +476,12 @@ class npc_janalai_hatchling : public CreatureScript
                 //me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_FLAMEBUFFET, urand(7000, 15000));
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!pInstance || !(pInstance->GetBossState(DATA_JANALAI) == IN_PROGRESS))
                 {
@@ -516,7 +514,7 @@ class spell_janalai_flame_breath: public SpellScriptLoader
 
         class spell_janalai_flame_breath_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_janalai_flame_breath_AuraScript);
+            PrepareAuraScript(spell_janalai_flame_breath_AuraScript)
             
             bool Load()
             {
@@ -524,7 +522,7 @@ class spell_janalai_flame_breath: public SpellScriptLoader
                 return true;
             }
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetCaster())
                     return;
@@ -550,6 +548,7 @@ class spell_janalai_flame_breath: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_janalai()
 {
     new boss_janalai();
@@ -559,4 +558,4 @@ void AddSC_boss_janalai()
     new npc_janalai_egg();
     new spell_janalai_flame_breath();
 }
-
+#endif

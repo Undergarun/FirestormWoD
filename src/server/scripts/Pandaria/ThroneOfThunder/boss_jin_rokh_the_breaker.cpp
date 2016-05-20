@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -139,7 +128,7 @@ enum eDatas
     DATA_PHASE
 };
 
-Position const conductiveWatersPos[4] = 
+Position const conductiveWatersPos[4] =
 {
     { 5918.442f, 6290.155f, 124.0338f, 0.0f }, // NW
     { 5864.987f, 6290.292f, 124.0336f, 0.0f }, // SW
@@ -251,7 +240,7 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                 Talk(TALK_SLAY);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 Talk(TALK_AGGRO);
 
@@ -272,7 +261,7 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                     events.ScheduleEvent(EVENT_IONIZATION, 60000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 Talk(TALK_DEATH);
 
@@ -525,7 +514,7 @@ class mob_focused_lightning : public CreatureScript
                 me->CastSpell(me, SPELL_FOCUSED_LIGHTNING_PERIODIC, true);
             }
 
-            void SetGUID(uint64 guid, int32 id /*= 0*/)
+            void SetGUID(uint64 guid, int32 /*id*/ /*= 0*/)
             {
                 focusedGuid = guid;
 
@@ -623,7 +612,7 @@ class mob_lightning_fissure : public CreatureScript
                 me->CastSpell(me, SPELL_LIGHTNING_FISSURE_PERIODIC, true);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 std::list<Creature*> conductiveWaters;
                 me->GetCreatureListWithEntryInGrid(conductiveWaters, NPC_CONDUCTIVE_WATER, 200.0f);
@@ -682,7 +671,7 @@ class mob_statue : public CreatureScript
                 events.Reset();
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(uint64 guid, int32 /*type*/)
             {
                 returned = false;
                 playerGuid = guid;
@@ -846,7 +835,7 @@ class mob_call_da_storm_stalker : public CreatureScript
         {
             mob_call_da_storm_stalkerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 me->CastSpell(me, SPELL_LIGHTNING_STORM_SPAWN_EFFECT, false);
 
@@ -879,7 +868,7 @@ class mob_lightning_spark : public CreatureScript
 
             EventMap events;
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 events.Reset();
 
@@ -923,7 +912,7 @@ class mob_lightning_pillar_stalker : public CreatureScript
 
             EventMap events;
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 events.Reset();
 
@@ -983,7 +972,7 @@ class spell_static_burst: public SpellScriptLoader
         {
             PrepareAuraScript(spell_static_burst_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1134,7 +1123,7 @@ class spell_focused_lightning_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_focused_lightning_periodic_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* target = GetTarget())
                     target->CastSpell(target, SPELL_FOCUSED_LIGHTNING_AREA, true);
@@ -1276,7 +1265,7 @@ class spell_lightning_storm_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_lightning_storm_periodic_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1345,7 +1334,7 @@ class spell_ionization: public SpellScriptLoader
         {
             PrepareAuraScript(spell_ionization_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1424,6 +1413,7 @@ class spell_ionization_conduction: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_jin_rokh_the_breaker()
 {
     new boss_jin_rokh_the_breaker();
@@ -1445,3 +1435,4 @@ void AddSC_boss_jin_rokh_the_breaker()
     new spell_ionization();
     new spell_ionization_conduction();
 }
+#endif

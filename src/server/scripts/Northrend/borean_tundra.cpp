@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Borean_Tundra
@@ -52,7 +42,7 @@ enum eSinkhole
     SPELL_SET_CART                = 46797,
     SPELL_EXPLODE_CART            = 46799,
     SPELL_SUMMON_CART             = 46798,
-    SPELL_SUMMON_WORM             = 46800,
+    SPELL_SUMMON_WORM             = 46800
 };
 
 class npc_sinkhole_kill_credit : public CreatureScript
@@ -466,7 +456,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDone_by*/, uint32& /*uiDamage*/, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*pDone_by*/, uint32& /*uiDamage*/, SpellInfo const*  /*p_SpellInfo*/)
         {
             DoCast(me, SPELL_DROP_CRATE, true);
         }
@@ -561,7 +551,7 @@ enum eNesingwaryTrapper
     GO_CARIBOU_TRAP_14  = 188007,
     GO_CARIBOU_TRAP_15  = 188008,
 
-    SPELL_TRAPPED       = 46104,
+    SPELL_TRAPPED       = 46104
 };
 
 #define CaribouTrapsNum 15
@@ -569,7 +559,7 @@ const uint32 CaribouTraps[CaribouTrapsNum] =
 {
     GO_CARIBOU_TRAP_1, GO_CARIBOU_TRAP_2, GO_CARIBOU_TRAP_3, GO_CARIBOU_TRAP_4, GO_CARIBOU_TRAP_5,
     GO_CARIBOU_TRAP_6, GO_CARIBOU_TRAP_7, GO_CARIBOU_TRAP_8, GO_CARIBOU_TRAP_9, GO_CARIBOU_TRAP_10,
-    GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15,
+    GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15
 };
 
 class npc_nesingwary_trapper : public CreatureScript
@@ -694,7 +684,7 @@ enum eLurgglbr
     GO_CAGE                             = 187369,
 
     FACTION_ESCORTEE_A                  = 774,
-    FACTION_ESCORTEE_H                  = 775,
+    FACTION_ESCORTEE_H                  = 775
 };
 
 /*#define SAY_WP_1_LUR_START  -1571004
@@ -977,7 +967,7 @@ enum eThassarian
     SAY_LERYSSA_3           = -1571020,
     SAY_THASSARIAN_6        = -1571021,
     SAY_LERYSSA_4           = -1571022,
-    SAY_THASSARIAN_7        = -1571023,
+    SAY_THASSARIAN_7        = -1571023
 };
 
 #define GOSSIP_ITEM_T   "Let's do this, Thassarian. It's now or never."
@@ -1360,7 +1350,7 @@ public:
 enum eCounselorTalbot
 {
     SPELL_DEFLECTION    = 51009,
-    SPELL_SOUL_BLAST    = 50992,
+    SPELL_SOUL_BLAST    = 50992
 };
 
 class npc_counselor_talbot : public CreatureScript
@@ -1700,7 +1690,7 @@ enum eImprisionedBerylSorcerer
     SAY_IMPRISIONED_BERYL_4         = -1571027,
     SAY_IMPRISIONED_BERYL_5         = -1571028,
     SAY_IMPRISIONED_BERYL_6         = -1571029,
-    SAY_IMPRISIONED_BERYL_7         = -1571030,
+    SAY_IMPRISIONED_BERYL_7         = -1571030
 };
 
 class npc_imprisoned_beryl_sorcerer : public CreatureScript
@@ -2014,7 +2004,7 @@ enum eHelpThemselves
     GO_MAMMOTH_TRAP_19                            = 188041,
     GO_MAMMOTH_TRAP_20                            = 188042,
     GO_MAMMOTH_TRAP_21                            = 188043,
-    GO_MAMMOTH_TRAP_22                            = 188044,
+    GO_MAMMOTH_TRAP_22                            = 188044
 };
 
 #define MammothTrapsNum 22
@@ -2592,6 +2582,7 @@ class go_frozen_phylactery : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_borean_tundra()
 {
     new npc_sinkhole_kill_credit();
@@ -2623,3 +2614,4 @@ void AddSC_borean_tundra()
     new npc_hidden_cultist();
     new go_frozen_phylactery();
 }
+#endif

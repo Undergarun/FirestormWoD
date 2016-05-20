@@ -19,7 +19,7 @@ enum InstanceTeleporter
     SYLVANAS_TELEPORT       = 3,
     TYRANDE_TELEPORT        = 4,
     BAINE_TELEPORT          = 5,
-    MUROZOND_TELEPORT       = 6,
+    MUROZOND_TELEPORT       = 6
 };
 
 class go_end_time_teleport : public GameObjectScript
@@ -95,7 +95,7 @@ class go_end_time_teleport : public GameObjectScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) 
+        bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 /*p_Sender*/, uint32 action)
         {
             //player->PlayerTalkClass->ClearMenus();
             if (player->isInCombat())
@@ -105,7 +105,7 @@ class go_end_time_teleport : public GameObjectScript
             if (!pInstance)
                 return true;
             
-            switch (action) 
+            switch (action)
             {
                 case START_TELEPORT:
                     player->CastSpell(player, SPELL_TELEPORT_TO_START, true);
@@ -143,10 +143,12 @@ class go_end_time_teleport : public GameObjectScript
             }
             
             return true;
-        }    
+        }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_end_time_teleport()
 {
     new go_end_time_teleport();
 }
+#endif

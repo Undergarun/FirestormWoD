@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "upper_blackrock_spire.hpp"
@@ -132,7 +132,7 @@ class boss_warlord_zaela : public CreatureScript
                 m_IntroDone              = false;
                 m_BlackIronCycloneTarget = 0;
                 m_EmberscaleIronflight   = 0;
-                m_NextHealthPct          = 60.0f;
+                m_NextHealthPct          = 60;
                 m_Phase = eMisc::PhaseGround;
             }
 
@@ -148,7 +148,7 @@ class boss_warlord_zaela : public CreatureScript
             Position m_JumpPos;
             uint32 m_BurningBreathCount;
 
-            float m_NextHealthPct;
+            int32 m_NextHealthPct;
             eMisc m_Phase;
 
             bool m_IntroDone;
@@ -178,7 +178,7 @@ class boss_warlord_zaela : public CreatureScript
 
                 m_Phase = eMisc::PhaseGround;
                 m_BurningBreathCount = 0;
-                m_NextHealthPct = 60.0f;
+                m_NextHealthPct = 60;
             }
 
             void KilledUnit(Unit* p_Who)
@@ -213,7 +213,7 @@ class boss_warlord_zaela : public CreatureScript
 
             void MoveInLineOfSight(Unit* p_Who)
             {
-                if (p_Who->GetTypeId() != TypeID::TYPEID_PLAYER || p_Who->GetDistance(me) > 35.f)
+                if (p_Who->GetTypeId() != TypeID::TYPEID_PLAYER || p_Who->GetDistance(me) > 35.0f)
                     return;
 
                 if (!m_TharbekIntroDone && m_Instance != nullptr && m_Instance->GetBossState(eDatas::DATA_COMMANDER_THARBEK) != EncounterState::DONE)
@@ -314,7 +314,7 @@ class boss_warlord_zaela : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (m_Phase == eMisc::PhaseAir)
                 {
@@ -322,9 +322,9 @@ class boss_warlord_zaela : public CreatureScript
                     return;
                 }
 
-                if (m_NextHealthPct > 0.0f && me->HealthBelowPctDamaged(m_NextHealthPct, p_Damage))
+                if (m_NextHealthPct > 0 && me->HealthBelowPctDamaged(m_NextHealthPct, p_Damage))
                 {
-                    m_NextHealthPct = 0.0f;
+                    m_NextHealthPct = 0;
                     m_Phase = eMisc::PhaseAir;
                     m_Events.ScheduleEvent(eEvents::BackOnTheGround, 40000);
                     m_Events.ScheduleEvent(eEvents::SummonRiders, 1000);
@@ -664,7 +664,7 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID)
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID)
             {
                 if (p_ID == 999)
                 {
@@ -730,7 +730,7 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
                 }
             }
 
-            void SetData(uint32 p_ID, uint32 p_Value)
+            void SetData(uint32 /*p_ID*/, uint32 p_Value)
             {
                 m_BurningBreathCount = p_Value;
             }
@@ -856,7 +856,7 @@ class spell_burning_breath: public SpellScriptLoader
 
         class spell_burning_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_burning_breath_SpellScript);
+            PrepareSpellScript(spell_burning_breath_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -891,6 +891,7 @@ class spell_burning_breath: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_warlord_zaela()
 {
     new boss_warlord_zaela();
@@ -899,3 +900,4 @@ void AddSC_boss_warlord_zaela()
     new areatrigger_burning_bridge();
     new spell_burning_breath();
 }
+#endif

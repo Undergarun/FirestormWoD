@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -15,9 +15,8 @@
 #include "Spell.h"
 #include "GarrisonNPC.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
-
     /// Garrison map ids
     enum MapIDs
     {
@@ -318,7 +317,7 @@ namespace MS { namespace Garrison
 
         static uint32 const g_ThirdLevelInvention = GobWorkshopWorkorder;
         
-        static std::map<uint32, uint32> g_GobItemRelations = 
+        static std::map<uint32, uint32> g_GobItemRelations =
         {
             /// Level 1
             { InventionsGobIDs::GobStickyGrenades,                   InventionItemIDs::ItemStickyGrenades },
@@ -1102,7 +1101,7 @@ namespace MS { namespace Garrison
         /// Alliance
         { 1850.71f,   254.430f,  78.08300f, 1.76f    }, ///< Alliance Level 1
         { 1947.08f,   324.883f,  90.28076f, 0.00f    }, ///< Alliance Level 2
-        {    0.f,       0.f,      0.f,      0.00f    }  ///< Alliance Level 3
+        {    0.0f,       0.0f,      0.0f,      0.00f    }  ///< Alliance Level 3
     };
 
     /// Creature that follow garrison owner level
@@ -1217,7 +1216,7 @@ namespace MS { namespace Garrison
         };
     }
 
-    namespace HordePeonData 
+    namespace HordePeonData
     {
         enum
         {

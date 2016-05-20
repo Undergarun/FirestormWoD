@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Comment: there is missing code on triggers,
@@ -83,7 +74,7 @@ enum Spells
     SPELL_DUSTY_EXPLOSION          = 63360,
     SPELL_DUST_CLOUD_IMPACT        = 54740,
     AURA_STEALTH_DETECTION         = 18950,
-    SPELL_RIDE_VEHICLE             = 46598,
+    SPELL_RIDE_VEHICLE             = 46598
 };
 
 enum Creatures
@@ -111,7 +102,7 @@ enum Towers
     GO_TOWER_OF_STORMS    = 194377,
     GO_TOWER_OF_FLAMES    = 194371,
     GO_TOWER_OF_FROST     = 194370,
-    GO_TOWER_OF_LIFE      = 194375,
+    GO_TOWER_OF_LIFE      = 194375
 };
 
 enum Events
@@ -134,14 +125,14 @@ enum Seats
     SEAT_PLAYER    = 0,
     SEAT_TURRET    = 1,
     SEAT_DEVICE    = 2,
-    SEAT_CANNON    = 7,
+    SEAT_CANNON    = 7
 };
 
 enum Vehicles
 {
     VEHICLE_SIEGE         = 33060,
     VEHICLE_CHOPPER       = 33062,
-    VEHICLE_DEMOLISHER    = 33109,
+    VEHICLE_DEMOLISHER    = 33109
 };
 
 enum DisplayIds
@@ -174,7 +165,7 @@ enum Yells
     SAY_PLAYER_RIDING    = -1603072,
     SAY_OVERLOAD_1       = -1603073,
     SAY_OVERLOAD_2       = -1603074,
-    SAY_OVERLOAD_3       = -1603075,
+    SAY_OVERLOAD_3       = -1603075
 };
 
 enum MiscellanousData
@@ -184,17 +175,17 @@ enum MiscellanousData
     ACTION_SPAWN_VEHICLES     = 6,
     // Amount of seats depending on Raid mode
     TWO_SEATS                 = 2,
-    FOUR_SEATS                = 4,
+    FOUR_SEATS                = 4
 };
 
 Position const Center[]=
 {
-    {354.8771f, -12.90240f, 409.803650f, 0.0f},
+    {354.8771f, -12.90240f, 409.803650f, 0.0f}
 };
 
 Position const InfernoStart[]=
 {
-    {390.93f, -13.91f, 409.81f, 0.0f},
+    {390.93f, -13.91f, 409.81f, 0.0f}
 };
 
 Position const PosSiege[VEHICLE_SPAWNS] =
@@ -203,7 +194,7 @@ Position const PosSiege[VEHICLE_SPAWNS] =
     {-784.37f, -33.31f, 429.92f, 5.096f},
     {-808.99f, -52.10f, 429.92f, 5.668f},
     {-798.59f, -44.00f, 429.92f, 5.663f},
-    {-812.83f, -77.71f, 429.92f, 0.046f},
+    {-812.83f, -77.71f, 429.92f, 0.046f}
 };
 
 Position const PosChopper[VEHICLE_SPAWNS] =
@@ -212,7 +203,7 @@ Position const PosChopper[VEHICLE_SPAWNS] =
     {-717.83f, -114.23f, 430.44f, 0.122f},
     {-717.83f, -109.70f, 430.22f, 0.122f},
     {-718.45f, -118.24f, 430.26f, 0.052f},
-    {-718.45f, -123.58f, 430.41f, 0.085f},
+    {-718.45f, -123.58f, 430.41f, 0.085f}
 };
 
 Position const PosDemolisher[VEHICLE_SPAWNS] =
@@ -221,7 +212,7 @@ Position const PosDemolisher[VEHICLE_SPAWNS] =
     {-766.70f, -225.03f, 430.50f, 1.710f},
     {-729.54f, -186.26f, 430.12f, 1.902f},
     {-756.01f, -219.23f, 430.50f, 2.369f},
-    {-798.01f, -227.24f, 429.84f, 1.446f},
+    {-798.01f, -227.24f, 429.84f, 1.446f}
 };
 
 Position const FreyaBeacons[FREYA_SPAWNS] =
@@ -229,7 +220,7 @@ Position const FreyaBeacons[FREYA_SPAWNS] =
     {377.02f, -119.10f, 409.81f, 0.0f},
     {185.62f, -119.10f, 409.81f, 0.0f},
     {377.02f, 54.78f, 409.81f, 0.0f},
-    {185.62f, 54.78f, 409.81f, 0.0f},
+    {185.62f, 54.78f, 409.81f, 0.0f}
 };
 
 class boss_flame_leviathan : public CreatureScript
@@ -699,7 +690,7 @@ class boss_flame_leviathan_defense_turret : public CreatureScript
         {
             boss_flame_leviathan_defense_turretAI(Creature* creature) : TurretAI(creature) {}
 
-            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!CanAIAttack(who))
                     damage = 0;
@@ -872,7 +863,7 @@ class npc_liquid_pyrite : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 damage = 0;
             }
@@ -913,7 +904,7 @@ class npc_pool_of_tar : public CreatureScript
                 me->CastSpell(me, SPELL_TAR_PASSIVE, true);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 damage = 0;
             }
@@ -1865,6 +1856,7 @@ class spell_vehicle_throw_passenger: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_flame_leviathan()
 {
     new boss_flame_leviathan();
@@ -1902,3 +1894,4 @@ void AddSC_boss_flame_leviathan()
     new spell_pursue();
     new spell_vehicle_throw_passenger();
 }
+#endif

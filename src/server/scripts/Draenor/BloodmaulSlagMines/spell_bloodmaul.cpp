@@ -22,7 +22,7 @@ namespace MS
 
                 class spell_SpellScript : public SpellScript
                 {
-                    PrepareSpellScript(spell_SpellScript);
+                    PrepareSpellScript(spell_SpellScript)
 
                     void HandleDummy(SpellEffIndex /*effIndex*/)
                     {
@@ -62,7 +62,7 @@ namespace MS
 
                 class spell_SpellScript : public SpellScript
                 {
-                    PrepareSpellScript(spell_SpellScript);
+                    PrepareSpellScript(spell_SpellScript)
 
                     void HandleDummy(SpellEffIndex /*effIndex*/)
                     {
@@ -102,7 +102,7 @@ namespace MS
 
                 class spell_SpellScript : public SpellScript
                 {
-                    PrepareSpellScript(spell_SpellScript);
+                    PrepareSpellScript(spell_SpellScript)
 
                     void HandleDummy(SpellEffIndex /*effIndex*/)
                     {
@@ -134,7 +134,7 @@ namespace MS
 
                 class spell_SpellScript : public SpellScript
                 {
-                    PrepareSpellScript(spell_SpellScript);
+                    PrepareSpellScript(spell_SpellScript)
 
                     void CheckTarget(std::list<WorldObject*>& unitList)
                     {
@@ -174,7 +174,7 @@ namespace MS
 
                 class spell_SpellScript : public SpellScript
                 {
-                    PrepareSpellScript(spell_SpellScript);
+                    PrepareSpellScript(spell_SpellScript)
 
                     void HandleDummy(SpellEffIndex /*effIndex*/)
                     {
@@ -215,7 +215,7 @@ namespace MS
 
                 class spell_SpellScript : public SpellScript
                 {
-                    PrepareSpellScript(spell_SpellScript);
+                    PrepareSpellScript(spell_SpellScript)
 
                     void HandleDummy(SpellEffIndex /*effIndex*/)
                     {
@@ -244,6 +244,7 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_spell_Bloodmaul()
 {
     new MS::Instances::Bloodmaul::spell_ChainGrip();
@@ -253,3 +254,4 @@ void AddSC_spell_Bloodmaul()
     new MS::Instances::Bloodmaul::spell_VolcanicEruption();
     new MS::Instances::Bloodmaul::spell_LavaSplash();
 }
+#endif

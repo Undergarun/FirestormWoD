@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "World.h"
@@ -370,6 +360,9 @@ void BattlegroundEY::UpdatePointsCount(uint32 Team)
 
 void BattlegroundEY::UpdatePointsIcons(uint32 Team, uint32 Point)
 {
+    if (Point >= EY_POINTS_MAX)
+        return;
+
     //we MUST firstly send 0, after that we can send 1!!!
     if (m_PointState[Point] == EY_POINT_UNDER_CONTROL)
     {
@@ -859,23 +852,23 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* Source, uint32 BgObjectType
     if (m_TeamPointsCount[team_id] > 0)
         AddPoints(Source->GetBGTeam(), BG_EY_FlagPoints[m_TeamPointsCount[team_id] - 1]);
 
-    UpdatePlayerScore(Source, SCORE_FLAG_CAPTURES, 1);
+    UpdatePlayerScore(Source, nullptr, SCORE_FLAG_CAPTURES, 1);
 }
 
-void BattlegroundEY::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+void BattlegroundEY::UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType)
 {
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
+    BattlegroundScoreMap::iterator itr = PlayerScores.find(p_Source->GetGUID());
     if (itr == PlayerScores.end())                         // player not found
         return;
 
-    switch (type)
+    switch (p_Type)
     {
         case SCORE_FLAG_CAPTURES:                           // flags captured
-            ((BattlegroundEYScore*)itr->second)->FlagCaptures += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, EY_OBJECTIVE_CAPTURE_FLAG);
+            ((BattlegroundEYScore*)itr->second)->FlagCaptures += p_Value;
+            p_Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, EY_OBJECTIVE_CAPTURE_FLAG);
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, NULL, type, value, doAddHonor);
+            Battleground::UpdatePlayerScore(p_Source, p_Victim, p_Type, p_Value, p_DoAddHonor, p_RewardType);
             break;
     }
 }

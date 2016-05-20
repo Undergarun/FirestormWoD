@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "CreatureTextMgr.h"
@@ -95,14 +84,14 @@ enum eEvents
     // Enrage
     EVENT_FINAL_DESTINATION     = 12,
     EVENT_SOUL_EXPLOSION        = 13,
-    EVENT_CHECK_POSITION        = 14,
+    EVENT_CHECK_POSITION        = 14
 };
 
 enum GarajalTalk
 {
     TALK_AGGRO  = 0,
     TALK_SLAY   = 1,
-    TALK_FRENZY = 2,
+    TALK_FRENZY = 2
 };
 
 enum GarajalGhostTalk
@@ -149,7 +138,7 @@ class boss_garajal : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 m_Instance->SetBossState(DATA_GARAJAL, DONE);
                 _JustDied();
@@ -255,7 +244,7 @@ class boss_garajal : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!m_Instance)
                     return;
@@ -504,7 +493,7 @@ class mob_spirit_totem : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 6.0f);
@@ -536,7 +525,7 @@ class mob_spirit_totem : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_GARAJAL) != IN_PROGRESS)
@@ -604,7 +593,7 @@ class mob_shadowy_minion : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 if (me->GetEntry() == NPC_SHADOWY_MINION_SPIRIT)
                     if (me->ToTempSummon())
@@ -682,7 +671,7 @@ class mob_soul_cutter : public CreatureScript
                     events.ScheduleEvent(EVENT_SOUL_EXPLOSION, 30000);
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 std::list<uint64> playerList;
                 me->GetMustBeVisibleForPlayersList(playerList);
@@ -777,7 +766,7 @@ class mob_spirit_totem_intro : public CreatureScript
                     me->SetDisplayId(11686);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (Unit* skull = me->FindNearestCreature(NPC_SPIRIT_TOTEM_SKULL_INTRO, 15))
                     if (!skull->HasAura(SPELL_CHANNEL_SPIRIT_TOTEM))
@@ -812,7 +801,7 @@ class spell_soul_back : public SpellScriptLoader
                         target->AddAura(SPELL_FRAIL_SOUL, target);
                     target->SetHealth(target->CountPctFromCurHealth(30));
 
-                    // Todo : Jump le joueur là ou était son corps
+                    // Todo : Jump le joueur la ou etait son corps
                 }
             }
 
@@ -838,7 +827,7 @@ class spell_final_destination : public SpellScriptLoader
         {
             PrepareAuraScript(spell_final_destination_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* Garajal = GetCaster())
                 {
@@ -895,6 +884,7 @@ class spell_voodoo_doll : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_garajal()
 {
     new boss_garajal();
@@ -907,3 +897,4 @@ void AddSC_boss_garajal()
     new spell_final_destination();
     new spell_voodoo_doll();
 }
+#endif

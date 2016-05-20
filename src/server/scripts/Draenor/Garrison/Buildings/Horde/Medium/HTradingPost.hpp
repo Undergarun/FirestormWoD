@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_TRADING_POST_HORDE_HPP_GARRISON
 #define GARRISON_TRADING_POST_HORDE_HPP_GARRISON
 
@@ -12,7 +13,7 @@
 #include "../../../GarrisonNPC.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 87112 - Fayla Fairfeather                                          ///

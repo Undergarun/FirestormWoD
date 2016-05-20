@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "ObjectAccessor.h"
@@ -393,9 +383,9 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     switch (l_AcceptedInvite)
     {
         /// Port to battleground
-        case 1:                                         
+        case 1:
             if (!m_Player->IsInvitedForBattlegroundQueueType(l_BGQueueTypeID))
-                return;                                 ///< cheating?
+                return; ///< cheating?
 
             if (!m_Player->InBattleground())
                 m_Player->SetBattlegroundEntryPoint();
@@ -454,7 +444,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     }
 }
 
-void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData) ///< recvData is unused
+void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& /*recvData*/)
 {
     if (m_Player->InArena())
         if (m_Player->GetBattleground()->GetStatus() == STATUS_WAIT_JOIN)
@@ -835,7 +825,7 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
     //sBattlegroundMgr->ScheduleQueueUpdate(0, l_ArenaType, l_BGQueueTypeID, l_BGTypeId, l_BracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet) ///< p_Packet is unused
+void WorldSession::HandleBattlemasterJoinRated(WorldPacket & /*p_Packet*/)
 {
     // ignore if we already in BG or BG queue
     if (m_Player->InBattleground())
@@ -935,7 +925,7 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet) ///< p_Pac
     }
 }
 
-void WorldSession::HandleBattleFieldRequestScoreData(WorldPacket & p_Packet) ///< p_Packet is unused
+void WorldSession::HandleBattleFieldRequestScoreData(WorldPacket & /*p_Packet*/) ///< p_Packet is unused
 {
     if (!m_Player || !m_Player->GetBattleground())
         return;

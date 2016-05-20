@@ -4,7 +4,6 @@
 #include "Common.h"
 #include "Config.h"
 #include "Object.h"
-#include <ace/Singleton.h>
 
 /// Cinematic sequence key frame
 struct CinematicKeyFrame

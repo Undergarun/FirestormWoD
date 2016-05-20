@@ -1,8 +1,10 @@
-/*
-    Dungeon : Template of the Jade Serpent 85-87
-    Liu Flameheat third boss
-    Jade servers
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -14,7 +16,7 @@ enum eBosses
 {
     BOSS_LIU_FLAMEHEART,
     BOSS_YU_LON,
-    BOSS_TRIGGER,
+    BOSS_TRIGGER
 };
 
 enum eSpells
@@ -59,14 +61,14 @@ enum eSpells
     SPELL_JADE_SERPENT_WAVE                 = 119508,
     SPELL_SERPENT_WAVE                      = 106938,
 
-    SPELL_JADE_FIRE_PERIODIC                = 107108,
+    SPELL_JADE_FIRE_PERIODIC                = 107108
 };
 
 enum eStatus
 {
     PHASE_1,
     PHASE_2,
-    PHASE_3,
+    PHASE_3
 };
 
 enum eEvents
@@ -83,7 +85,7 @@ enum eEvents
     EVENT_JADE_FIRE             = 8,
 
     EVENT_AURA_JADE             = 9,
-    EVENT_LIU_FALL              = 10,
+    EVENT_LIU_FALL              = 10
 };
 
 enum eTexts
@@ -94,12 +96,12 @@ enum eTexts
     TALK_EVENT_02,
     TALK_INTRO_01,
     TALK_KILL_01,
-    TALK_KILL_02,
+    TALK_KILL_02
 };
 
 enum eCreatures
 {
-    CREATURE_TRIGGER_WAVE = 56789,
+    CREATURE_TRIGGER_WAVE = 56789
 };
 
 class boss_liu_flameheart : public CreatureScript
@@ -143,7 +145,7 @@ class boss_liu_flameheart : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*p_Unit*/)
             {
                 if (urand(0, 1))
                     Talk(TALK_KILL_01);
@@ -151,7 +153,7 @@ class boss_liu_flameheart : public CreatureScript
                     Talk(TALK_KILL_02);
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_AGGRO_01);
                 events.ScheduleEvent(EVENT_SERPENT_STRIKE, 5000);
@@ -176,7 +178,7 @@ class boss_liu_flameheart : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->GetHealthPct() < 70.f && status == PHASE_1)
+                if (me->GetHealthPct() < 70.0f && status == PHASE_1)
                 {
                     me->AddAura(SPELL_JADE_ESSENCE, me);
 
@@ -186,7 +188,7 @@ class boss_liu_flameheart : public CreatureScript
                     Talk(TALK_EVENT_01);
                     status = PHASE_2;
                 }
-                if (me->GetHealthPct() < 30.f && status == PHASE_2)
+                if (me->GetHealthPct() < 30.0f && status == PHASE_2)
                 {
                     events.Reset();
                     events.ScheduleEvent(EVENT_SUMMON_YULON, 500);
@@ -210,7 +212,7 @@ class boss_liu_flameheart : public CreatureScript
                                     Player* plr = i->getSource();
                                     if (!plr)
                                         continue;
-                                    if (plr->GetDistance2d(me) < 10.f)
+                                    if (plr->GetDistance2d(me) < 10.0f)
                                         plr->KnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10, 10);
                                 }
                             }
@@ -276,7 +278,7 @@ class boss_liu_flameheart : public CreatureScript
                                     Player* plr = i->getSource();
                                     if (!plr)
                                         continue;
-                                    if (plr->GetDistance2d(me) < 10.f)
+                                    if (plr->GetDistance2d(me) < 10.0f)
                                         plr->KnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10, 10);
                                 }
                             }
@@ -368,12 +370,12 @@ class boss_yu_lon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(EVENT_JADE_FIRE, 100);
             }
 
-            void JustDied(Unit* died)
+            void JustDied(Unit* /*died*/)
             {
                 me->CastSpell(me, 132387, false);
             }
@@ -455,7 +457,7 @@ class mob_minion_of_doubt : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
                 events.ScheduleEvent(2, 4000);
@@ -507,7 +509,7 @@ class mob_lesser_sha : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
             }
@@ -534,6 +536,7 @@ class mob_lesser_sha : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_liu_flameheat()
 {
     new boss_liu_flameheart();
@@ -543,3 +546,4 @@ void AddSC_boss_liu_flameheat()
     new mob_minion_of_doubt();
     new mob_lesser_sha();
 }
+#endif

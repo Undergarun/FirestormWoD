@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2011-2012 /dev/rsa for MangosR2 <http://github.com/MangosR2>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* based on LockedQueue class from MaNGOS */
 /* written for use instead not locked std::list && std::vector */
@@ -23,9 +13,6 @@
 #define LOCKEDVECTOR_H
 
 #include "Common.h"
-#include <vector>
-#include <list>
-#include <assert.h>
 
 namespace ACE_Based
 {
@@ -74,13 +61,13 @@ namespace ACE_Based
                 m_storage.push_back(item);
             }
 
-            void insert(iterator pos, size_type n, const T& u ) 
+            void insert(iterator pos, size_type n, const T& u )
             {
                 WriteGuard Guard(GetLock());
-                m_storage.insert( pos, n, u ); 
+                m_storage.insert( pos, n, u );
             }
 
-            template <class InputIterator> 
+            template <class InputIterator>
             void insert(iterator pos, InputIterator begin, InputIterator end)
             {
                 WriteGuard Guard(GetLock());
@@ -150,7 +137,7 @@ namespace ACE_Based
                 m_storage.clear();
             }
 
-            T& operator[](size_type idx) 
+            T& operator[](size_type idx)
             {
                 ReadGuard Guard(GetLock());
                 return m_storage[idx];
@@ -162,7 +149,7 @@ namespace ACE_Based
                 return m_storage[idx];
             }
 
-            T& at(size_type idx) 
+            T& at(size_type idx)
             {
                 ReadGuard Guard(GetLock());
                 return m_storage.at(idx);
@@ -256,7 +243,7 @@ namespace ACE_Based
             {
                 clear();
                 WriteGuard Guard(GetLock());
-                for (typename std::vector<T>::const_iterator i = v.begin(); i != v.end(); ++i) 
+                for (typename std::vector<T>::const_iterator i = v.begin(); i != v.end(); ++i)
                 {
                     this->push_back(*i);
                 }
@@ -266,7 +253,7 @@ namespace ACE_Based
             LockedVector(const std::vector<T> &v)
             {
                 WriteGuard Guard(GetLock());
-                for (typename std::vector<T>::const_iterator i = v.begin(); i != v.end(); ++i) 
+                for (typename std::vector<T>::const_iterator i = v.begin(); i != v.end(); ++i)
                 {
                     this->push_back(*i);
                 }
@@ -276,7 +263,7 @@ namespace ACE_Based
             {
                 clear();
                 WriteGuard Guard(GetLock());
-                for (typename std::list<T>::const_iterator i = v.begin(); i != v.end(); ++i) 
+                for (typename std::list<T>::const_iterator i = v.begin(); i != v.end(); ++i)
                 {
                     this->push_back(*i);
                 }
@@ -286,7 +273,7 @@ namespace ACE_Based
             LockedVector(const std::list<T> &v)
             {
                 WriteGuard Guard(GetLock());
-                for (typename std::list<T>::const_iterator i = v.begin(); i != v.end(); ++i) 
+                for (typename std::list<T>::const_iterator i = v.begin(); i != v.end(); ++i)
                 {
                     this->push_back(*i);
                 }
@@ -311,7 +298,7 @@ namespace ACE_Based
             {
                 WriteGuard Guard(GetLock());
                 WriteGuard GuardX(x.GetLock());
-                m_storage.swap(x.m_storage); 
+                m_storage.swap(x.m_storage);
             }
 
             void resize(size_type num, T def = T())
@@ -324,7 +311,7 @@ namespace ACE_Based
             allocator_type get_allocator() const
             {
                 ReadGuard Guard(GetLock());
-                return m_storage.get_allocator(); 
+                return m_storage.get_allocator();
             }
 
             // Sort template

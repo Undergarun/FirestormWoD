@@ -1,12 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonPlayerCondition.hpp"
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_PlayerConditions()
 {
     new MS::Garrison::PlayerCondition_HasMine();
@@ -34,3 +36,4 @@ void AddSC_Garrison_PlayerConditions()
     new MS::Garrison::PlayerCondition_EngineeringWorks_Level2_Second();
     new MS::Garrison::PlayerCondition_EngineeringWorks_Level3_Second();
 }
+#endif

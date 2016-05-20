@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "zulgurub.h"
 
@@ -8,7 +16,7 @@ enum ScriptTexts
     SAY_GAS     = 2,
     SAY_KILL    = 3,
     SAY_BERSERK = 4,
-    SAY_TROLLS  = 5,
+    SAY_TROLLS  = 5
 };
 
 enum Spells
@@ -22,7 +30,7 @@ enum Spells
 
     SPELL_PURSUIT       = 96342,
     SPELL_THUNDERCLAP   = 96340,
-    SPELL_KNOCK_AWAY    = 96341,
+    SPELL_KNOCK_AWAY    = 96341
 };
 
 enum Events
@@ -32,17 +40,17 @@ enum Events
     EVENT_CAST_ZOMBIE   = 3,
     EVENT_CAST_BERSERK  = 4,
     EVENT_RES_ZOMBIE    = 5,
-    EVENT_RES_BERSERK   = 6,
+    EVENT_RES_BERSERK   = 6
 };
 
 enum Adds
 {
     NPC_ZANZIL_ZOMBIE       = 52055,
     NPC_ZANZIL_BERSERKER    = 52054,
-    NPC_ZANZIL_TOXIC_GAS    = 52062,
+    NPC_ZANZIL_TOXIC_GAS    = 52062
 };
 
-const Position berserkerPos[3] = 
+const Position berserkerPos[3] =
 {
     {-11603.59f, -1233.59f, 81.40f, 5.20f},
     {-11545.00f, -1240.56f, 81.55f, 3.92f},
@@ -95,21 +103,21 @@ class boss_zanzil : public CreatureScript
                 events.ScheduleEvent(EVENT_ZANZIL_FIRE, 6000);
                 events.ScheduleEvent(urand(0, 1)? EVENT_CAST_ZOMBIE: EVENT_CAST_BERSERK, 30000);
                 DoZoneInCombat();
-                instance->SetBossState(DATA_ZANZIL, IN_PROGRESS); 
+                instance->SetBossState(DATA_ZANZIL, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-            }   
+            }
             
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_KILL);
             }
             
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_VOODOO_BOLT ||
@@ -190,7 +198,7 @@ class npc_zanzil_berserker : public CreatureScript
 
         struct npc_zanzil_berserkerAI : public ScriptedAI
         {
-            npc_zanzil_berserkerAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_zanzil_berserkerAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -265,10 +273,10 @@ class spell_zanzil_pursuit: public SpellScriptLoader
 
         class spell_zanzil_pursuit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_zanzil_pursuit_SpellScript);
+            PrepareSpellScript(spell_zanzil_pursuit_SpellScript)
             
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -300,7 +308,7 @@ class spell_zanzil_fire: public SpellScriptLoader
 
         class spell_zanzil_fire_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_zanzil_fire_AuraScript);
+            PrepareAuraScript(spell_zanzil_fire_AuraScript)
             
             bool Load()
             {
@@ -308,7 +316,7 @@ class spell_zanzil_fire: public SpellScriptLoader
                 return true;
             }
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetCaster())
                     return;
@@ -348,10 +356,10 @@ class spell_frostburn_formula: public SpellScriptLoader
 
         class spell_frostburn_formula_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_frostburn_formula_SpellScript);
+            PrepareSpellScript(spell_frostburn_formula_SpellScript)
             
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -372,6 +380,7 @@ class spell_frostburn_formula: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_zanzil()
 {
     new boss_zanzil();
@@ -380,3 +389,4 @@ void AddSC_boss_zanzil()
     new spell_zanzil_fire();
     new spell_frostburn_formula();
 }
+#endif

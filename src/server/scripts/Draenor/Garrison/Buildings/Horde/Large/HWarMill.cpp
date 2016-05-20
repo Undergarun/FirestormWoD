@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "HWarMill.hpp"
 #include "HWarMill_Level1Data.hpp"
 #include "ScriptMgr.h"
@@ -14,7 +15,7 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 82436 - Grun Lek                                                  ////
@@ -67,12 +68,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -116,7 +117,7 @@ namespace MS { namespace Garrison
 
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_FrostWallGrunt::npc_FrostWallGruntAI::UpdateAI(const uint32 p_Diff)
+    void npc_FrostWallGrunt::npc_FrostWallGruntAI::UpdateAI(const uint32 /*p_Diff*/)
     {
 
     }
@@ -169,7 +170,7 @@ namespace MS { namespace Garrison
 
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_FrostWallSmith::npc_FrostWallSmithAI::UpdateAI(const uint32 p_Diff)
+    void npc_FrostWallSmith::npc_FrostWallSmithAI::UpdateAI(const uint32 /*p_Diff*/)
     {
 
     }
@@ -246,7 +247,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    bool npc_Magrish_Garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_Magrish_Garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         if (p_Action == GOSSIP_ACTION_INFO_DEF)
         {

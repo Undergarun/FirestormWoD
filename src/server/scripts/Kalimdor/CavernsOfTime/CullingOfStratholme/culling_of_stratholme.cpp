@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "culling_of_stratholme.h"
@@ -99,7 +90,7 @@ enum NPCs
     NPC_INVIS_TARGET                           = 20562,
 
     NPC_KNIGHT_ESCORT                          = 27745,
-    NPC_PRIEST_ESCORT                          = 27747,
+    NPC_PRIEST_ESCORT                          = 27747
 };
 
 enum Spells
@@ -109,7 +100,7 @@ enum Spells
     SPELL_EXORCISM_N                           = 52445,
     SPELL_EXORCISM_H                           = 58822,
     SPELL_HOLY_LIGHT                           = 52444,
-    SPELL_ARCANE_DISRUPTION                    = 49590,
+    SPELL_ARCANE_DISRUPTION                    = 49590
 };
 
 enum GossipMenuArthas
@@ -1334,7 +1325,7 @@ class npc_chromie : public CreatureScript
 public:
     npc_chromie() : CreatureScript("npc_chromie") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
 
@@ -1388,7 +1379,7 @@ class npc_cos_zombie : public CreatureScript
                 instance = me->GetInstanceScript();
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -1412,6 +1403,7 @@ class npc_cos_zombie : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_culling_of_stratholme()
 {
     new npc_arthas();
@@ -1419,3 +1411,4 @@ void AddSC_culling_of_stratholme()
     new npc_chromie();
     new npc_cos_zombie();
 }
+#endif

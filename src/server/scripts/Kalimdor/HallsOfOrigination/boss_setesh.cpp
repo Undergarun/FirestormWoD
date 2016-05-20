@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "halls_of_origination.h"
 
@@ -5,7 +13,7 @@ enum Texts
 {
     SAY_DEATH   = 0,
     SAY_AGGRO   = 1,
-    SAY_KILL    = 2,
+    SAY_KILL    = 2
 };
 
 enum Spells
@@ -53,14 +61,14 @@ enum Events
     EVENT_VOID_BARRIER          = 9,
     EVENT_CHARGED_FISTS         = 10,
 
-    EVENT_MOVE                  = 11,
+    EVENT_MOVE                  = 11
 };
 
 enum SeteshSummonTypes
 {
     SETESH_SUMMON_WURM      = 1,
     SETESH_SUMMON_SENTINEL  = 2,
-    SETESH_SUMMON_SEEKER    = 3,
+    SETESH_SUMMON_SEEKER    = 3
 };
 
 const Position movepos[9] =
@@ -135,7 +143,7 @@ class boss_setesh : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
                 Talk(SAY_KILL);
             }
@@ -211,7 +219,7 @@ class npc_setesh_chaos_portal : public CreatureScript
                     return;
 
                 if (Creature* pSetesh = pInstance->instance->GetCreature(pInstance->GetData64(DATA_SETESH)))
-                {    
+                {
                     switch (type)
                     {
                         case SETESH_SUMMON_WURM:
@@ -280,7 +288,7 @@ class npc_setesh_chaos_portal : public CreatureScript
                             break;
                         case EVENT_SUMMON_12:
                             SeteshSummon(SETESH_SUMMON_SEEKER);
-                            events.ScheduleEvent(EVENT_SUMMON_15, 15000);   
+                            events.ScheduleEvent(EVENT_SUMMON_15, 15000);
                             break;
                         case EVENT_SUMMON_15:
                             if (IsHeroic())
@@ -384,7 +392,7 @@ class npc_setesh_void_seeker : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 if (urand(0, 1))
                     events.ScheduleEvent(EVENT_ANTI_MAGIC_PRISON, urand(3000, 5000));
@@ -424,6 +432,7 @@ class npc_setesh_void_seeker : public CreatureScript
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_setesh()
 {
     new boss_setesh();
@@ -431,3 +440,4 @@ void AddSC_boss_setesh()
     new npc_setesh_void_sentinel();
     new npc_setesh_void_seeker();
 }
+#endif

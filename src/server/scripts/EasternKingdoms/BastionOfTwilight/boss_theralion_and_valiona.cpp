@@ -8,7 +8,7 @@ enum ValionaScriptTexts
     SAY_VALIONA_KILL        = 2,
     SAY_VALIONA_DEATH        = 3,
     SAY_VALIONA_DEEP        = 4,
-    SAY_VALIONA_BLACKOUT    = 5,
+    SAY_VALIONA_BLACKOUT    = 5
 };
 enum TheralionScriptTexts
 {
@@ -19,7 +19,7 @@ enum TheralionScriptTexts
     SAY_THERALION_DAZ1        = 4,
     SAY_THERALION_DAZ2        = 5,
     SAY_THERALION_MAGIC1    = 6,
-    SAY_THERALION_MAGIC2    = 7,
+    SAY_THERALION_MAGIC2    = 7
 };
 
 enum Spells
@@ -49,13 +49,13 @@ enum Spells
     SPELL_TWILIGHT_METEORITE_MARK    = 88518,
     SPELL_DEEP_BREATH                = 86059,
     SPELL_TWILIGHT_FLAMES_TRIGGER    = 86194,
-    SPELL_TWILIGHT_FLAME_DMG_1        = 86199, //бьет по обычному миру
-    SPELL_TWILIGHT_FLAME_DMG_25_1    = 92868, //бьет по обычному миру
-    SPELL_TWILIGHT_FLAME_DMG_10H_1    = 92869, //бьет по обычному миру
-    SPELL_TWILIGHT_FLAME_DMG_25H_1    = 92870, //бьет по обычному миру
-    SPELL_TWILIGHT_FLAME_DMG_2        = 86228, //бьет по сумеречному миру
-    SPELL_TWILIGHT_FLAME_DMG_25_2    = 92867, //бьет по сумеречному миру
-    SPELL_COSMETIC_TWILIGHT_BREATH    = 78954, //возможно неверный
+    SPELL_TWILIGHT_FLAME_DMG_1        = 86199,
+    SPELL_TWILIGHT_FLAME_DMG_25_1    = 92868,
+    SPELL_TWILIGHT_FLAME_DMG_10H_1    = 92869,
+    SPELL_TWILIGHT_FLAME_DMG_25H_1    = 92870,
+    SPELL_TWILIGHT_FLAME_DMG_2        = 86228,
+    SPELL_TWILIGHT_FLAME_DMG_25_2    = 92867,
+    SPELL_COSMETIC_TWILIGHT_BREATH    = 78954,
 
     //theralion
     SPELL_ENGULFING_MAGIC                            = 86607,
@@ -100,14 +100,14 @@ enum Spells
 
     //twilight ream & mobs spells
     SPELL_TWILIGHT_PROTECTION_BUFF                    = 86415,
-    SPELL_TWILIGHT_SHIFT_AURA_1                        = 86202, //от глубокого дыхания
-    SPELL_TWILIGHT_SHIFT_AURA_25_1                    = 92889, //от глубокого дыхания
-    SPELL_TWILIGHT_SHIFT_AURA_10H_1                    = 92890, //от глубокого дыхания
-    SPELL_TWILIGHT_SHIFT_AURA_25H_1                    = 92891, //от глубокого дыхания
-    SPELL_TWILIGHT_SHIFT_AURA_2                        = 88436, //от разрушения
-    SPELL_TWILIGHT_SHIFT_AURA_25_2                    = 92892, //от разрушения
-    SPELL_TWILIGHT_SHIFT_AURA_10H_2                    = 92893, //от разрушения
-    SPELL_TWILIGHT_SHIFT_AURA_25H_2                    = 92894, //от разрушения
+    SPELL_TWILIGHT_SHIFT_AURA_1                        = 86202,
+    SPELL_TWILIGHT_SHIFT_AURA_25_1                    = 92889,
+    SPELL_TWILIGHT_SHIFT_AURA_10H_1                    = 92890,
+    SPELL_TWILIGHT_SHIFT_AURA_25H_1                    = 92891,
+    SPELL_TWILIGHT_SHIFT_AURA_2                        = 88436,
+    SPELL_TWILIGHT_SHIFT_AURA_25_2                    = 92892,
+    SPELL_TWILIGHT_SHIFT_AURA_10H_2                    = 92893,
+    SPELL_TWILIGHT_SHIFT_AURA_25H_2                    = 92894,
     SPELL_COLLAPSING_TWILIGHT_PORTAL_VISUAL            = 86291,
     SPELL_UNSTABLE_TWILIGHT_VISUAL                    = 86302,
     SPELL_UNSTABLE_TWILIGHT_DMG                        = 86305,
@@ -130,7 +130,7 @@ enum Spells
 
     //shared
     SPELL_TWILIGHT_SHIFT_BUFF                        = 86360,
-    SPELL_BERSERK                                    = 47008,
+    SPELL_BERSERK                                    = 47008
 };
 
 enum Adds
@@ -140,13 +140,13 @@ enum Adds
     NPC_THERALION_FLIGHT_TARGET_STALKER     = 46364,
     NPC_CONVECTIVE_FLAMES                   = 46588,
     NPC_TWILIGHT_FLAMES                     = 40718,
-    NPC_UNSTABLE_TWILIGHT                   = 46304, 
+    NPC_UNSTABLE_TWILIGHT                   = 46304,
     NPC_COLLAPSING_TWILIGHT_PORTAL          = 46301,
     NPC_DEVOURING_FLAMES                    = 48798,
     NPC_TWILIGHT_SENTRY                     = 50008,
     NPC_TWILIGHT_RIFT                       = 50014,
-    NPC_VALIONA_STALKER                     = 46147, // ?
-    NPC_FLAME_BREATH_TARGET_STALKER         = 46296, 
+    NPC_VALIONA_STALKER                     = 46147,
+    NPC_FLAME_BREATH_TARGET_STALKER         = 46296,
 };
 
 enum Action
@@ -155,7 +155,7 @@ enum Action
     ACTION_VALIONA_FLY_START    = 2,
     ACTION_VALIONA_FLY_STOP        = 3,
     ACTION_THERALION_FLY_STOP    = 4,
-    ACTION_DAZZLING_DESTRUCTION    = 5,
+    ACTION_DAZZLING_DESTRUCTION    = 5
 };
 
 enum Points
@@ -167,7 +167,7 @@ enum Points
     POINT_VALIONA_3    = 5,
     POINT_VALIONA_4    = 6,
     POINT_VALIONA_5    = 7,
-    POINT_VALIONA_6    = 8,
+    POINT_VALIONA_6    = 8
 };
 
 enum Events
@@ -187,7 +187,7 @@ enum Events
     EVENT_DEEP_BREATH                    = 13,
     EVENT_VALIONA_ON                    = 14,
     EVENT_TWILIGHT_METEORITE            = 15,
-    EVENT_VALIONA_1                        = 16, 
+    EVENT_VALIONA_1                        = 16,
     EVENT_VALIONA_2                        = 17,
     EVENT_VALIONA_3                        = 18,
     EVENT_VALIONA_4                        = 19,
@@ -199,13 +199,13 @@ enum Events
     EVENT_COLLAPSING_TWILIGHT_PORTAL    = 25,
     EVENT_TWILIGHT_SENTRY                = 26,
     EVENT_TWILIGHT_SHIFT_STACK            = 27,
-    EVENT_BERSERK                        = 28,
+    EVENT_BERSERK                        = 28
 };
 
-const Position valionatheralionlandPos = {-740.86f, -681.37f, 831.89f};
-const Position valionatheralionflightPos = {-740.86f, -681.37f, 861.89f};
+const Position valionatheralionlandPos = {-740.86f, -681.37f, 831.89f, 0.0f };
+const Position valionatheralionflightPos = {-740.86f, -681.37f, 861.89f, 0.0f };
 
-const Position valionadeepbreathPos[2][3] = 
+const Position valionadeepbreathPos[2][3] =
 {
     {
         {-760.49f, -770.87f, 866.68f, 6.17f},
@@ -216,10 +216,10 @@ const Position valionadeepbreathPos[2][3] =
         {-759.03f, -597.33f, 866.68f, 4.65f},
         {-737.71f, -597.60f, 866.68f, 4.65f},
         {-721.66f, -598.78f, 866.68f, 4.65f},
-    },
+    }
 };
 
-const Position valionatwilightflamePos[3][25] = 
+const Position valionatwilightflamePos[3][25] =
 {
     {
         {-759.53f, -603.89f, 836.68f, 0.0f},
@@ -301,12 +301,10 @@ const Position valionatwilightflamePos[3][25] =
         {-724.91f, -736.80f, 836.69f, 0.0f},
         {-724.91f, -742.80f, 836.69f, 0.0f},
         {-724.90f, -750.80f, 836.69f, 0.0f},
-    },
+    }
 };
 
-const Position twilightportalPos = {-745.01f, -688.87f, 831.89f, 0.0f};
-
-const Position unstabletwilightPos[10] = 
+const Position unstabletwilightPos[10] =
 {
     {-721.71f, -683.42f, 835.89f, 4.64f},
     {-720.54f, -664.70f, 835.89f, 4.64f},
@@ -317,7 +315,7 @@ const Position unstabletwilightPos[10] =
     {-757.44f, -740.75f, 840.69f, 4.64f},
     {-723.40f, -710.33f, 835.89f, 4.64f},
     {-739.04f, -725.81f, 837.82f, 4.64f},
-    {-758.30f, -646.80f, 837.87f, 1.44f},
+    {-758.30f, -646.80f, 837.87f, 1.44f}
 };
 
 const Position collapsingtwilightportalPos = {-741.16f, -689.19f, 831.89f, 1.47f};
@@ -390,7 +388,7 @@ class boss_theralion : public CreatureScript
                 instance->SetData(DATA_HEALTH_VALIONA_THERALION, me->GetMaxHealth());
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (!me || !me->isAlive())
                     return;
@@ -446,7 +444,7 @@ class boss_theralion : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 instance->SetData(DATA_HEALTH_VALIONA_THERALION, me->GetMaxHealth());
                 //DoCast(me, SPELL_TWILIGHT_SHIFT_BUFF);
@@ -623,11 +621,11 @@ class boss_theralion : public CreatureScript
                         DoCast(me, SPELL_DAZZLING_DESTRUCTION);
                         events.ScheduleEvent(EVENT_THERALION_ON, 6000);
                         break;
-                     case EVENT_THERALION_ON:      
+                     case EVENT_THERALION_ON:
                         me->AI()->DoAction(ACTION_THERALION_FLY_STOP);
                         break;
                     }
-                }            
+                }
                 DoMeleeAttackIfReady();
             }
         };
@@ -678,8 +676,6 @@ class boss_valiona : public CreatureScript
             {
                 _Reset();
 
-                //правки общих спеллов тоже тут
-
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_PROTECTION_BUFF);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_SHIFT_AURA_1);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_SHIFT_AURA_2);
@@ -704,7 +700,7 @@ class boss_valiona : public CreatureScript
                 instance->SetBossState(DATA_VALIONA_THERALION, NOT_STARTED);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (!me || !me->isAlive())
                     return;
@@ -781,7 +777,7 @@ class boss_valiona : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 //DoCast(me, SPELL_TWILIGHT_SHIFT_BUFF);
                 /*if (Creature* _zone = me->SummonCreature(NPC_THERALION_FLIGHT_TARGET_STALKER,
@@ -831,7 +827,7 @@ class boss_valiona : public CreatureScript
                         AttackStart(me->getVictim());
                         break;
                     case POINT_FLY:
-                        events.ScheduleEvent(EVENT_TWILIGHT_METEORITE, urand(6000, 8000)); 
+                        events.ScheduleEvent(EVENT_TWILIGHT_METEORITE, urand(6000, 8000));
                         events.ScheduleEvent(EVENT_DEEP_BREATH, 98000);
                         break;
                     case POINT_VALIONA_1:
@@ -959,7 +955,7 @@ class boss_valiona : public CreatureScript
                         break;
                     }
                 }
-                DoMeleeAttackIfReady();      
+                DoMeleeAttackIfReady();
             }
         };
 };
@@ -982,13 +978,13 @@ class npc_fabolous_flames : public CreatureScript
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void IsSummonedBy(Unit* who)
+            void IsSummonedBy(Unit* /*who*/)
             {
                 DoCast(me, SPELL_FABOLOUS_FLAMES_AURA);
             }
 
             void Reset()
-            {                
+            {
             }
         };
 };
@@ -1011,7 +1007,7 @@ class npc_valiona_twilight_flames : public CreatureScript
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoCast(me, SPELL_TWILIGHT_FLAMES_TRIGGER);
             }
@@ -1114,7 +1110,7 @@ class npc_twilight_sentry : public CreatureScript
                     summon->SetPhaseMask(1, true);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoCast(me, SPELL_TWILIGHT_RIFT_CHANNEL);
             }
@@ -1123,7 +1119,7 @@ class npc_twilight_sentry : public CreatureScript
             {
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 summons.DespawnAll();
                 me->DespawnOrUnsummon();
@@ -1155,18 +1151,18 @@ class npc_twilight_rift : public CreatureScript
             InstanceScript* pInstance;
             Unit* sentry;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 me->SetPosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+5.0f, me->GetOrientation());
                 DoCast(me, SPELL_TWILIGHT_RIFT_10H);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!pInstance)
                     return;
@@ -1187,7 +1183,7 @@ class npc_collapsing_twilight_portal : public CreatureScript
             return new npc_collapsing_twilight_portalAI(creature);
         }
 
-        bool OnGossipHello(Player* pPlayer, Creature* creature)
+        bool OnGossipHello(Player* pPlayer, Creature* /*creature*/)
         {
             pPlayer->RemoveAurasDueToSpell(SPELL_TWILIGHT_PROTECTION_BUFF);
             pPlayer->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_AURA_1);
@@ -1258,7 +1254,7 @@ class npc_dazzling_destruction_stalker : public CreatureScript
                 //DoCast(me, SPELL_DAZZLING_DESTRUCTION_STALKER_VISUAL);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_DAZZLING_DESTRUCTION_DMG ||
                     spell->Id == SPELL_DAZZLING_DESTRUCTION_DMG_25 ||
@@ -1287,13 +1283,13 @@ class npc_theralion_flight_target_stalker : public CreatureScript
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void IsSummonedBy(Unit* who)
+            void IsSummonedBy(Unit* /*who*/)
             {
                 DoCast(me, SPELL_TWILIGHT_ZONE);
             }
 
             void Reset()
-            {    
+            {
             }
         };
 };
@@ -1305,9 +1301,9 @@ class spell_valiona_blackout: public SpellScriptLoader
 
         class spell_valiona_blackout_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valiona_blackout_AuraScript);
+            PrepareAuraScript(spell_valiona_blackout_AuraScript)
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1335,9 +1331,9 @@ class spell_valiona_twilight_meteorite: public SpellScriptLoader
 
         class spell_valiona_twilight_meteorite_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valiona_twilight_meteorite_AuraScript);
+            PrepareAuraScript(spell_valiona_twilight_meteorite_AuraScript)
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster() || !GetTarget())
                     return;
@@ -1365,10 +1361,10 @@ class spell_valiona_twilight_flame_dmg_1: public SpellScriptLoader
 
         class spell_valiona_twilight_flame_dmg_1_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_twilight_flame_dmg_1_SpellScript);
+            PrepareSpellScript(spell_valiona_twilight_flame_dmg_1_SpellScript)
 
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -1400,10 +1396,10 @@ class spell_valiona_twilight_flame_dmg_2: public SpellScriptLoader
 
         class spell_valiona_twilight_flame_dmg_2_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_twilight_flame_dmg_2_SpellScript);
+            PrepareSpellScript(spell_valiona_twilight_flame_dmg_2_SpellScript)
 
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetHitUnit())
                     return;
@@ -1439,15 +1435,15 @@ class spell_theralion_dazzling_destruction: public SpellScriptLoader
 
         class spell_theralion_dazzling_destruction_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_dazzling_destruction_SpellScript);
+            PrepareSpellScript(spell_theralion_dazzling_destruction_SpellScript)
 
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit() || !GetCaster()->GetAI())
                     return;
 
-                GetCaster()->GetAI()->DoAction(ACTION_DAZZLING_DESTRUCTION);                
+                GetCaster()->GetAI()->DoAction(ACTION_DAZZLING_DESTRUCTION);
             }
 
             void Register()
@@ -1470,10 +1466,10 @@ class spell_theralion_dazzling_destruction_dmg: public SpellScriptLoader
 
         class spell_theralion_dazzling_destruction_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_dazzling_destruction_dmg_SpellScript);
+            PrepareSpellScript(spell_theralion_dazzling_destruction_dmg_SpellScript)
 
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -1504,10 +1500,10 @@ class spell_valiona_devouring_flames_dmg: public SpellScriptLoader
 
         class spell_valiona_devouring_flames_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_devouring_flames_dmg_SpellScript);
+            PrepareSpellScript(spell_valiona_devouring_flames_dmg_SpellScript)
 
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -1538,10 +1534,10 @@ class spell_twilight_shift_stack: public SpellScriptLoader
 
         class spell_twilight_shift_stack_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_twilight_shift_stack_SpellScript);
+            PrepareSpellScript(spell_twilight_shift_stack_SpellScript)
 
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -1579,10 +1575,10 @@ class spell_shifting_reality: public SpellScriptLoader
 
         class spell_shifting_reality_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_shifting_reality_SpellScript);
+            PrepareSpellScript(spell_shifting_reality_SpellScript)
 
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -1603,6 +1599,7 @@ class spell_shifting_reality: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_theralion_and_valiona()
 {
     new boss_theralion();
@@ -1625,3 +1622,4 @@ void AddSC_boss_theralion_and_valiona()
     new spell_twilight_shift_stack();
     new spell_shifting_reality();
 }
+#endif

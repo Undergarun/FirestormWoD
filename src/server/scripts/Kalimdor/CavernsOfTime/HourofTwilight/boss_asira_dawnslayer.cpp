@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "hour_of_twilight.h"
 
@@ -9,7 +17,7 @@ enum ScriptTexts
     SAY_EVENT_2 = 3,
     SAY_EVENT_3 = 4,
     SAY_KILL    = 5,
-    SAY_SPELL   = 6,
+    SAY_SPELL   = 6
 };
 
 enum Spells
@@ -20,13 +28,13 @@ enum Spells
     SPELL_CHOKING_SMOKE_BOMB        = 103558,
     SPELL_CHOKING_SMOKE_BOMB_DMG    = 103790,
     SPELL_BLADE_BARRIER             = 103419,
-    SPELL_LESSER_BLADE_BARRIER      = 103562,
+    SPELL_LESSER_BLADE_BARRIER      = 103562
 };
 
 enum Events
 {
     EVENT_MARK_OF_SILENCE       = 1,
-    EVENT_CHOKING_SMOKE_BOMB    = 2,
+    EVENT_CHOKING_SMOKE_BOMB    = 2
 };
 
 enum Adds
@@ -145,7 +153,7 @@ class boss_asira_dawnslayer : public CreatureScript
 
         private:
             bool bBarrier;
-        };   
+        };
 };
 
 class spell_asira_dawnslayer_blade_barrier: public SpellScriptLoader
@@ -155,14 +163,14 @@ class spell_asira_dawnslayer_blade_barrier: public SpellScriptLoader
 
         class spell_asira_dawnslayer_blade_barrier_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_asira_dawnslayer_blade_barrier_AuraScript);
+            PrepareAuraScript(spell_asira_dawnslayer_blade_barrier_AuraScript)
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool& /*canBeRecalculated*/)
             {
                 amount = -1;
             }
 
-            void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* /*p_AurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 if (dmgInfo.GetDamage() < (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
                     absorbAmount = dmgInfo.GetDamage() - 1;
@@ -192,13 +200,13 @@ class spell_asira_dawnslayer_blade_barrier: public SpellScriptLoader
 };
 
 class spell_asira_dawnslayer_throw_knife: public SpellScriptLoader
-{ 
+{
     public:
         spell_asira_dawnslayer_throw_knife() : SpellScriptLoader("spell_asira_dawnslayer_throw_knife") { }
 
         class spell_asira_dawnslayer_throw_knife_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_asira_dawnslayer_throw_knife_SpellScript);
+            PrepareSpellScript(spell_asira_dawnslayer_throw_knife_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -248,13 +256,13 @@ class spell_asira_dawnslayer_throw_knife: public SpellScriptLoader
 };
 
 class spell_asira_dawnslayer_mark_of_silence: public SpellScriptLoader
-{ 
+{
     public:
         spell_asira_dawnslayer_mark_of_silence() : SpellScriptLoader("spell_asira_dawnslayer_mark_of_silence") { }
 
         class spell_asira_dawnslayer_mark_of_silence_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_asira_dawnslayer_mark_of_silence_SpellScript);
+            PrepareSpellScript(spell_asira_dawnslayer_mark_of_silence_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -314,6 +322,7 @@ class spell_asira_dawnslayer_mark_of_silence: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_asira_dawnslayer()
 {
     new boss_asira_dawnslayer();
@@ -321,3 +330,4 @@ void AddSC_boss_asira_dawnslayer()
     new spell_asira_dawnslayer_throw_knife();
     new spell_asira_dawnslayer_mark_of_silence();
 }
+#endif

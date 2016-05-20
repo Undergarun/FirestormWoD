@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _ITEMPROTOTYPE_H
 #define _ITEMPROTOTYPE_H
@@ -393,7 +383,7 @@ enum ItemClass
     ITEM_CLASS_MISCELLANEOUS                    = 15,
     ITEM_CLASS_GLYPH                            = 16,
     ITEM_CLASS_BATTLE_PET                       = 17,
-    ITEM_CLASS_WOW_TOKEN                        = 18  ///< WoW Token system    
+    ITEM_CLASS_WOW_TOKEN                        = 18  ///< WoW Token system
 };
 
 #define MAX_ITEM_CLASS                            19
@@ -1060,7 +1050,7 @@ enum ItemSpecStat
 extern float GetCurveValue(uint32 CurveParameter, float level);
 
 // Benchmarked: Faster than std::map (insert/find)
-typedef UNORDERED_MAP<uint32, ItemTemplate> ItemTemplateContainer;
+typedef std::unordered_map<uint32, ItemTemplate> ItemTemplateContainer;
 
 struct ItemLocale
 {

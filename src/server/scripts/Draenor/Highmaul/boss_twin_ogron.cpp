@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "highmaul.hpp"
@@ -295,7 +295,7 @@ class boss_twin_ogron_pol : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 _JustDied();
 
@@ -329,7 +329,7 @@ class boss_twin_ogron_pol : public CreatureScript
                 CreatureAI::EnterEvadeMode();
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
             {
                 switch (p_ID)
                 {
@@ -744,7 +744,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            void SetGUID(uint64 p_Guid, int32 /*p_ID*/) override
             {
                 m_TrashsMobs.erase(p_Guid);
             }
@@ -775,7 +775,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 _JustDied();
 
@@ -812,7 +812,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                 CreatureAI::EnterEvadeMode();
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
             {
                 switch (p_ID)
                 {
@@ -1082,14 +1082,14 @@ class spell_highmaul_warming_up : public SpellScriptLoader
 
         class spell_highmaul_warming_up_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_warming_up_AuraScript);
+            PrepareAuraScript(spell_highmaul_warming_up_AuraScript)
 
             enum eSpell
             {
                 Disposition = 157953
             };
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::Disposition, true);
@@ -1115,7 +1115,7 @@ class spell_highmaul_disposition : public SpellScriptLoader
 
         class spell_highmaul_disposition_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_disposition_AuraScript);
+            PrepareAuraScript(spell_highmaul_disposition_AuraScript)
 
             uint8 m_TickCount;
 
@@ -1137,7 +1137,7 @@ class spell_highmaul_disposition : public SpellScriptLoader
                 return true;
             }
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -1220,9 +1220,9 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
 
         class spell_highmaul_enfeebling_roar_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_enfeebling_roar_AuraScript);
+            PrepareAuraScript(spell_highmaul_enfeebling_roar_AuraScript)
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -1263,9 +1263,9 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
 
         class spell_highmaul_enfeebling_roar_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_enfeebling_roar_SpellScript);
+            PrepareSpellScript(spell_highmaul_enfeebling_roar_SpellScript)
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -1304,7 +1304,7 @@ class spell_highmaul_pol_shield_charge : public SpellScriptLoader
 
         class spell_highmaul_pol_shield_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_pol_shield_charge_SpellScript);
+            PrepareSpellScript(spell_highmaul_pol_shield_charge_SpellScript)
 
             WorldLocation m_Location;
 
@@ -1334,7 +1334,7 @@ class spell_highmaul_pol_shield_charge : public SpellScriptLoader
 
         class spell_highmaul_pol_shield_charge_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_pol_shield_charge_AuraScript);
+            PrepareAuraScript(spell_highmaul_pol_shield_charge_AuraScript)
 
             enum eSpell
             {
@@ -1343,7 +1343,7 @@ class spell_highmaul_pol_shield_charge : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 500;
                 return true;
@@ -1397,7 +1397,7 @@ class spell_highmaul_twin_ogron_dispositions : public SpellScriptLoader
 
         class spell_highmaul_twin_ogron_dispositions_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_twin_ogron_dispositions_AuraScript);
+            PrepareAuraScript(spell_highmaul_twin_ogron_dispositions_AuraScript)
 
             enum eSpells
             {
@@ -1408,7 +1408,7 @@ class spell_highmaul_twin_ogron_dispositions : public SpellScriptLoader
 
             uint32 m_CheckTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_CheckTimer = 200;
                 return true;
@@ -1497,9 +1497,9 @@ class spell_highmaul_pulverize_third_wave : public SpellScriptLoader
 
         class spell_highmaul_pulverize_third_wave_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_pulverize_third_wave_SpellScript);
+            PrepareSpellScript(spell_highmaul_pulverize_third_wave_SpellScript)
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 if (WorldLocation const* l_Loc = GetExplTargetDest())
                 {
@@ -1532,14 +1532,14 @@ class spell_highmaul_phemos_whirlwind : public SpellScriptLoader
 
         class spell_highmaul_phemos_whirlwind_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_phemos_whirlwind_AuraScript);
+            PrepareAuraScript(spell_highmaul_phemos_whirlwind_AuraScript)
 
             enum eSpell
             {
                 WeakenedDefenses = 159709
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eSpell::WeakenedDefenses, true);
@@ -1565,7 +1565,7 @@ class spell_highmaul_blaze_dot : public SpellScriptLoader
 
         class spell_highmaul_blaze_dot_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_blaze_dot_AuraScript);
+            PrepareAuraScript(spell_highmaul_blaze_dot_AuraScript)
 
             enum eSpells
             {
@@ -1652,6 +1652,7 @@ class areatrigger_highmaul_phemos_blaze : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_twin_ogron()
 {
     /// Bosses
@@ -1671,3 +1672,4 @@ void AddSC_boss_twin_ogron()
     /// AreaTrigger
     new areatrigger_highmaul_phemos_blaze();
 }
+#endif

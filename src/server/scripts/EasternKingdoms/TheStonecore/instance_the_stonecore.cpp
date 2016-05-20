@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "the_stonecore.h"
 
@@ -71,7 +79,7 @@ public:
                     SetBossState(i, EncounterState(tmpState));
                 }
 
-            } 
+            }
             else OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;
@@ -79,8 +87,9 @@ public:
     };
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_instance_the_stonecore()
 {
     new instance_the_stonecore();
 }
+#endif

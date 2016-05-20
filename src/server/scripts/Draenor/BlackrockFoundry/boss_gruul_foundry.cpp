@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "blackrock_foundry.hpp"
@@ -190,7 +190,7 @@ class boss_gruul_foundry : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 _EnterCombat();
 
@@ -215,7 +215,7 @@ class boss_gruul_foundry : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 _JustDied();
 
@@ -353,7 +353,7 @@ class boss_gruul_foundry : public CreatureScript
                 }
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType) override
+            void DamageDealt(Unit* /*p_Victim*/, uint32& /*p_Damage*/, DamageEffectType p_DamageType) override
             {
                 if (p_DamageType != DamageEffectType::DIRECT_DAMAGE)
                     return;
@@ -362,13 +362,13 @@ class boss_gruul_foundry : public CreatureScript
                     m_Events.ScheduleEvent(eEvents::EventOverwhelmingBlows, 3 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers /*p_Power*/, int32& p_Value) override
             {
                 /// Gruul only regens by script
                 p_Value = 0;
             }
 
-            void OnAddThreat(Unit* p_Attacker, float& p_Threat, SpellSchoolMask p_SchoolMask, SpellInfo const* p_SpellInfo) override
+            void OnAddThreat(Unit* /*p_Attacker*/, float& p_Threat, SpellSchoolMask /*p_SchoolMask*/, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HasAura(eSpells::SpellDestructiveRampage))
                     p_Threat = 0;
@@ -625,7 +625,7 @@ class npc_foundry_pristine_true_iron_ore : public CreatureScript
                 }
             }
 
-            void OnSpellClick(Unit* p_Clicker) override
+            void OnSpellClick(Unit* /*p_Clicker*/) override
             {
                 if (m_Instance != nullptr && !m_Clicked)
                 {
@@ -653,7 +653,7 @@ class spell_foundry_rage_regeneration : public SpellScriptLoader
 
         class spell_foundry_rage_regeneration_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_rage_regeneration_AuraScript);
+            PrepareAuraScript(spell_foundry_rage_regeneration_AuraScript)
 
             enum eAction
             {
@@ -697,7 +697,7 @@ class spell_foundry_inferno_slice : public SpellScriptLoader
 
         class spell_foundry_inferno_slice_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_inferno_slice_SpellScript);
+            PrepareSpellScript(spell_foundry_inferno_slice_SpellScript)
 
             uint8 m_TargetCount;
 
@@ -712,7 +712,7 @@ class spell_foundry_inferno_slice : public SpellScriptLoader
                 m_TargetCount = (uint8)p_Targets.size();
             }
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 if (m_TargetCount)
                     SetHitDamage(GetHitDamage() / m_TargetCount);
@@ -752,7 +752,7 @@ class spell_foundry_cave_in : public SpellScriptLoader
 
         class spell_foundry_cave_in_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_cave_in_AuraScript);
+            PrepareAuraScript(spell_foundry_cave_in_AuraScript)
 
             enum eSpell
             {
@@ -761,7 +761,7 @@ class spell_foundry_cave_in : public SpellScriptLoader
 
             std::set<uint64> m_AffectedPlayers;
 
-            void OnUpdate(uint32 p_Diff)
+            void OnUpdate(uint32 /*p_Diff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -806,7 +806,7 @@ class spell_foundry_cave_in : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -839,14 +839,14 @@ class spell_foundry_petrifying_slam_aoe : public SpellScriptLoader
 
         class spell_foundry_petrifying_slam_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_petrifying_slam_aoe_SpellScript);
+            PrepareSpellScript(spell_foundry_petrifying_slam_aoe_SpellScript)
 
             bool Load() override
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     std::list<HostileReference*> l_ThreatList = l_Caster->getThreatManager().getThreatList();
-                    uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this, l_Caster](HostileReference* p_HostileRef) -> bool
+                    uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this, l_Caster](HostileReference* p_HostileRef) -> bool
                     {
                         Unit* l_Unit = Unit::GetUnit(*l_Caster, p_HostileRef->getUnitGuid());
                         if (l_Unit == nullptr)
@@ -907,7 +907,7 @@ class spell_foundry_petrifying_slam : public SpellScriptLoader
 
         class spell_foundry_petrifying_slam_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_petrifying_slam_AuraScript);
+            PrepareAuraScript(spell_foundry_petrifying_slam_AuraScript)
 
             enum eSpell
             {
@@ -945,7 +945,7 @@ class spell_foundry_overhead_smash : public SpellScriptLoader
 
         class spell_foundry_overhead_smash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_overhead_smash_SpellScript);
+            PrepareSpellScript(spell_foundry_overhead_smash_SpellScript)
 
             enum eSpell
             {
@@ -981,7 +981,7 @@ class spell_foundry_overhead_smash : public SpellScriptLoader
                 });
             }
 
-            void HandleKnockBack(SpellEffIndex p_EffIndex)
+            void HandleKnockBack(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Boss = GetCaster())
                 {
@@ -1009,6 +1009,7 @@ class spell_foundry_overhead_smash : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gruul_foundry()
 {
     /// Boss
@@ -1026,3 +1027,4 @@ void AddSC_boss_gruul_foundry()
     new spell_foundry_petrifying_slam();
     new spell_foundry_overhead_smash();
 }
+#endif

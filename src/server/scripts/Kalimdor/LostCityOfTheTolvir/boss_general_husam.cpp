@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "lost_city_of_the_tolvir.h"
 #include "Vehicle.h"
@@ -25,13 +33,13 @@ enum eSpells
     SPELL_SHOCKWAVE_VISUAL                         = 83130,
     SPELL_SHOCKWAVE_STALKER_VISUAL                 = 83127,
     SPELL_SHOCKWAVE_DAMAGE                         = 83454,
-    SPELL_SUMMON_SHOCKWAVE                         = 83128,
+    SPELL_SUMMON_SHOCKWAVE                         = 83128
 };
 
 enum eCreatures
 {
     NPC_MYSTIC_TRAP_TARGET                         = 44840,
-    NPC_BAD_INTENTIONS_TARGET                      = 44586,
+    NPC_BAD_INTENTIONS_TARGET                      = 44586
 };
 
 enum eEvents
@@ -41,7 +49,7 @@ enum eEvents
     EVENT_SUMMON_SHOCKWAVE                         = 3,
     EVENT_HAMMER_FIST                              = 4,
     EVENT_BAD_INTENTIONS                           = 5,
-    EVENT_AFTER_SHOCKWAVE                          = 6,
+    EVENT_AFTER_SHOCKWAVE                          = 6
 };
 
 enum ePhases
@@ -49,7 +57,7 @@ enum ePhases
     LAND_MINE_STATE_JUSTADDED                      = 0x1,
     LAND_MINE_STATE_ACTIVATED                      = 0x2,
     LAND_MINE_STATE_COUNTDOWN                      = 0x4,
-    LAND_MINE_STATE_DETONATED                      = 0x8,
+    LAND_MINE_STATE_DETONATED                      = 0x8
 };
 
 enum Texts
@@ -59,7 +67,7 @@ enum Texts
     SAY_CAST_SHOCKVAWE_1                           = -1877002,
     SAY_CAST_SHOCKVAWE_2                           = -1877003,
     YELL_KILL_PLAYER_1                             = -1877021,
-    YELL_TREAD_LIGHTLY                             = -1877022,
+    YELL_TREAD_LIGHTLY                             = -1877022
 };
 
 class boss_general_husam : public CreatureScript
@@ -572,6 +580,7 @@ class spell_hurl: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_general_husam()
 {
     new boss_general_husam();
@@ -582,3 +591,4 @@ void AddSC_boss_general_husam()
     new spell_bad_intentions();
     new spell_hurl();
 }
+#endif

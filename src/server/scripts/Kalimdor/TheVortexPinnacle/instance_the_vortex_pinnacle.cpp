@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "the_vortex_pinnacle.h"
 
@@ -66,7 +74,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
 
                 std::string str_data;
                 std::ostringstream saveStream;
-                saveStream << "V P" << GetBossSaveData(); 
+                saveStream << "V P" << GetBossSaveData();
                 str_data = saveStream.str();
 
                 OUT_SAVE_INST_DATA_COMPLETE;
@@ -106,7 +114,9 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_the_vortex_pinnacle()
 {
     new instance_the_vortex_pinnacle();
 }
+#endif

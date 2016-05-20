@@ -21,7 +21,7 @@ enum NPCs
     NPC_CAPTAIN         = 47739,
     NPC_VANESSA         = 49541,
     NPC_NOTE            = 49564,
-    NPC_VANESSA_SITTING = 49429,
+    NPC_VANESSA_SITTING = 49429
 };
 
 enum Data
@@ -34,7 +34,7 @@ enum Data
     DATA_VANESSA        = 5,
     DATA_CANNON_EVENT   = 6,
     DATA_OAF            = 7,
-    DATA_VANESSA_EVENT  = 8,
+    DATA_VANESSA_EVENT  = 8
 };
 
 enum GameObjects
@@ -44,13 +44,13 @@ enum GameObjects
     GO_MAST_ROOM_DOOR = 16400,
     GO_IRONCLAD_DOOR  = 16397,
     GO_DEFIAS_CANNON  = 16398,
-    GO_DOOR_LEVER     = 101833,
+    GO_DOOR_LEVER     = 101833
 };
 
 enum Sounds
 {
     SOUND_CANNONFIRE  = 1400,
-    SOUND_DESTROYDOOR = 3079,
+    SOUND_DESTROYDOOR = 3079
 };
 
 const Position centershipPos = {-63.167f, -819.315f, 41.27f, 6.25f};

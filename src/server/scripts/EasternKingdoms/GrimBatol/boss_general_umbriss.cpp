@@ -5,7 +5,7 @@ enum ScriptTexts
 {
     SAY_AGGRO    = 0,
     SAY_KILL    = 1,
-    SAY_ADDS    = 4,
+    SAY_ADDS    = 4
 };
 
 enum Spells
@@ -26,7 +26,7 @@ enum Spells
     SPELL_MODGUD_MALICE_H       = 90169,
     SPELL_MODGUD_MALICE_AURA    = 90170,
     SPELL_MODGUD_MALADY            = 74837,
-    SPELL_MODGUD_MALADY_H        = 90179,
+    SPELL_MODGUD_MALADY_H        = 90179
 };
 
 enum Events
@@ -35,7 +35,7 @@ enum Events
     EVENT_GROUND_SIEGE         = 2,
     EVENT_BLITZ                 = 3,
     EVENT_CLAW_PUNCTURE         = 4,
-    EVENT_ADDS                 = 5,
+    EVENT_ADDS                 = 5
 };
 
 enum Adds
@@ -43,7 +43,7 @@ enum Adds
     NPC_GROUND_SIEGE_STALKER    = 40030,
     NPC_BLITZ_STALKER            = 40040,
     NPC_MALIGNANT_TROGG            = 39984,
-    NPC_TROGG_DWELLER            = 45467,
+    NPC_TROGG_DWELLER            = 45467
 };
 
 const Position troggPos[2]=
@@ -98,7 +98,7 @@ class boss_general_umbriss : public CreatureScript
                 pInstance->SetData(DATA_GENERAL_UMBRISS, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 if (!pInstance)
                     return;
@@ -111,7 +111,7 @@ class boss_general_umbriss : public CreatureScript
                 pInstance->SetData(DATA_GENERAL_UMBRISS, IN_PROGRESS);
             }
 
-            void JustDied(Unit* pKiller)
+            void JustDied(Unit* /*pKiller*/)
             {
                 if (!pInstance)
                     return;
@@ -177,7 +177,7 @@ class boss_general_umbriss : public CreatureScript
                     case EVENT_GROUND_SIEGE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                         {
-                            if (Creature* stalker = me->SummonCreature(NPC_GROUND_SIEGE_STALKER, 
+                            if (Creature* stalker = me->SummonCreature(NPC_GROUND_SIEGE_STALKER,
                                 target->GetPositionX(),
                                 target->GetPositionY(),
                                 target->GetPositionZ(),
@@ -240,12 +240,12 @@ class npc_malignant_trogg : public CreatureScript
                 DoCast(me, SPELL_MODGUD_MALICE);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 events.ScheduleEvent(EVENT_CLAW_PUNCTURE, 5000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 DoCast(me, SPELL_MODGUD_MALADY, true);
                 if (IsHeroic())
@@ -296,7 +296,7 @@ class npc_umbriss_trogg_dweller : public CreatureScript
             
             EventMap events;
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 events.ScheduleEvent(EVENT_CLAW_PUNCTURE, 5000);
             }
@@ -326,9 +326,11 @@ class npc_umbriss_trogg_dweller : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_general_umbriss()
 {
     new boss_general_umbriss();
     new npc_malignant_trogg();
     new npc_umbriss_trogg_dweller();
 }
+#endif

@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -91,7 +80,7 @@ enum eSpells
     /// Heroic mode
     SPELL_TALON_STRIKE                      = 139100,
     SPELL_SCREECH                           = 140640,
-    SPELL_SCREECH_REDUCE_CASTING_SPEED      = 134372,
+    SPELL_SCREECH_REDUCE_CASTING_SPEED      = 134372
 };
 
 enum eEvents
@@ -124,7 +113,7 @@ enum eActions
     ACTION_FEED_EATEN,
     ACTION_FEEDPOOL_DESPAWN,
     ACTION_TAKE_FEED,
-    ACTION_INCUBATER_WIPE,
+    ACTION_INCUBATER_WIPE
 };
 
 enum eTypes
@@ -216,7 +205,7 @@ int const g_ActivationOrder10[11][2] =
     { 1, 0 },
     { 1, 2 }, ///< Activation 8 activates both a lower and an upper nest
     { 0, 1 }, // Activation 9-10 activate a upper nest each
-    { 0, 2 },
+    { 0, 2 }
 };
 
 int const g_ActivationOrder25[12][2] =
@@ -238,7 +227,7 @@ int const g_ActivationOrder25[12][2] =
 enum eActivationLengths
 {
     ACTIVATION_LENGTH_10 = 11,
-    ACTIVATION_LENGTH_25 = 12,
+    ACTIVATION_LENGTH_25 = 12
 };
 
 Position const g_LowerNestPos[5] =
@@ -247,7 +236,7 @@ Position const g_LowerNestPos[5] =
     { 6070.82f, 4284.69f, -101.62f, 0.0f },
     { 6096.32f, 4338.76f,  -93.88f, 0.0f },
     { 6159.26f, 4371.19f,  -70.80f, 0.0f },
-    { 6219.60f, 4333.81f,  -59.09f, 0.0f },
+    { 6219.60f, 4333.81f,  -59.09f, 0.0f }
 };
 
 Position const g_UpperNestPos[5] =
@@ -256,7 +245,7 @@ Position const g_UpperNestPos[5] =
     { 6077.58f, 4270.47f, 37.64f, 0.0f },
     { 6081.75f, 4372.00f, 43.45f, 0.0f },
     { 6152.44f, 4330.51f, 69.82f, 0.0f },
-    { 6217.60f, 4353.01f, 66.18f, 0.0f },
+    { 6217.60f, 4353.01f, 66.18f, 0.0f }
 };
 
 Position const g_FeatherPos[5] =
@@ -506,15 +495,6 @@ class boss_ji_kun : public CreatureScript
                     }
                 }
             }
-
-//             void MovementInform(uint32 p_Type, uint32 p_Id)
-//             {
-//                 if (p_Type != POINT_MOTION_TYPE)
-//                     return;
-// 
-//                 uint32 l_NextId = p_Id < 51 ? p_Id++ : 0;
-//                 me->GetMotionMaster()->MovePoint(l_NextId, waypointPos[l_NextId]);
-//             }
 
             void JustDied(Unit* /*p_Killer*/)
             {
@@ -790,7 +770,7 @@ class mob_jump_to_boss_platform : public CreatureScript
                     if (m_CheckTimer <= diff)
                     {
                         std::list<Player*> l_PlayerList;
-                        me->GetPlayerListInGrid(l_PlayerList, 13.f);
+                        me->GetPlayerListInGrid(l_PlayerList, 13.0f);
 
                         for (Player* l_Player : l_PlayerList)
                             l_Player->CastSpell(g_BossPlatformPos.m_positionX, g_BossPlatformPos.m_positionY, g_BossPlatformPos.m_positionZ, SPELL_FORCE_TO_JUMP, true);
@@ -798,7 +778,7 @@ class mob_jump_to_boss_platform : public CreatureScript
                         m_CheckTimer = 500;
                     }
                     else
-                        m_CheckTimer -= diff;   
+                        m_CheckTimer -= diff;
                 }
             }
         };
@@ -975,7 +955,7 @@ class mob_fall_catcher : public CreatureScript
                     float l_PlayerX = p_Player->GetPositionX();
                     float l_PlayerY = p_Player->GetPositionY();
 
-                    if (l_PlayerX > 6045.f && l_PlayerX < 6247.f && l_PlayerY > 4220.f && l_PlayerY < 4446.f)
+                    if (l_PlayerX > 6045.0f && l_PlayerX < 6247.0f && l_PlayerY > 4220.0f && l_PlayerY < 4446.0f)
                         return true;
                 }
 
@@ -984,7 +964,7 @@ class mob_fall_catcher : public CreatureScript
 
             bool IsTransportablePlayer(Player* p_Player)
             {
-                if (!IsPlayerInPreventDamageArea(p_Player) || !p_Player->isAlive() || p_Player->HasAura(SPELL_SAFETY_NET_TRIGGER) || p_Player->IsOnVehicle() || p_Player->GetPositionZ() > -183.f)
+                if (!IsPlayerInPreventDamageArea(p_Player) || !p_Player->isAlive() || p_Player->HasAura(SPELL_SAFETY_NET_TRIGGER) || p_Player->IsOnVehicle() || p_Player->GetPositionZ() > -183.0f)
                     return false;
                 return true;
             }
@@ -1053,7 +1033,7 @@ class mob_incubater : public CreatureScript
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
-                /* 
+                /*
                  * --- Setting Id order to allow boss to retrieve the incubater in the nest ---
                  * As the nest are triggered clockwise, we need to reorder them according to their position
                  */
@@ -1167,7 +1147,7 @@ class mob_young_egg_of_jikun : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_HATCH, 10000);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &/*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32 &/*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 m_Events.CancelEvent(EVENT_HATCH);
                 DoAction(ACTION_HATCH);
@@ -1768,7 +1748,7 @@ class mob_jikun_exit_chamber : public CreatureScript
                 me->CastSpell(me, SPELL_DROP_FEATHERS_GOB, false);
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
                 if (!GetClosestGameObjectWithEntry(me, GOB_FEATHER_OF_JI_KUN, 10.0f))
                     me->CastSpell(me, SPELL_DROP_FEATHERS_GOB, false);
@@ -2188,24 +2168,24 @@ class at_down_draft : public AreaTriggerEntityScript
     public:
         at_down_draft() : AreaTriggerEntityScript("at_down_draft") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
                 return;
 
             std::list<Player*> l_PlayerList;
-            GetPlayerListInGrid(l_PlayerList, p_AreaTrigger, 40.f);
+            GetPlayerListInGrid(l_PlayerList, p_AreaTrigger, 40.0f);
 
             Position l_Pos;
             p_AreaTrigger->GetPosition(&l_Pos);
 
             for (Player* l_Player : l_PlayerList)
             {
-                if (l_Player->IsWithinDist(l_Caster, 30.f, false))
+                if (l_Player->IsWithinDist(l_Caster, 30.0f, false))
                 {
                     if (l_Player->isAlive() && !l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
-                        l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), true, l_Pos, -7.f, 1);
+                        l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), true, l_Pos, -7.0f, 1);
                     else if (!l_Player->isAlive() && l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
                         l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, l_Pos);
                 }
@@ -2214,7 +2194,7 @@ class at_down_draft : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Position l_Pos;
             p_AreaTrigger->GetPosition(&l_Pos);
@@ -2236,6 +2216,7 @@ class at_down_draft : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ji_kun()
 {
     new boss_ji_kun();                  ///< 69712
@@ -2260,3 +2241,4 @@ void AddSC_boss_ji_kun()
     new go_feather_of_jikun();          ///< 218543
     new at_down_draft();                ///< 134370
 }
+#endif

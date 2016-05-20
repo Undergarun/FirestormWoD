@@ -6,7 +6,7 @@ enum ScriptTexts
     SAY_AGGRO   = 0,
     SAY_KILL    = 1,
     SAY_BURN    = 2,
-    SAY_DEATH   = 3,
+    SAY_DEATH   = 3
 };
 enum Spells
 {
@@ -17,13 +17,13 @@ enum Spells
     SPELL_SUPERHEATED_QUICKSILVER_ARMOR_H   = 93567,
     SPELL_SUPERHEATED_QUICKSILVER_ARMOR_0   = 76015,
 
-    SPELL_BURNING                           = 77490,
+    SPELL_BURNING                           = 77490
 };
 
 enum Events
 {
     EVENT_CLEAVE        = 1,
-    EVENT_HEAT_ARMOR    = 2,
+    EVENT_HEAT_ARMOR    = 2
 };
 
 enum Adds
@@ -67,7 +67,7 @@ class boss_karsh_steelbender : public CreatureScript
             }
 
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 7000));
                 events.ScheduleEvent(EVENT_HEAT_ARMOR, 1000);
@@ -132,14 +132,16 @@ class boss_karsh_steelbender : public CreatureScript
                     pInstance->SetData(DATA_KARSH, DONE);
             }
 
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit * /*victim*/)
             {
                 Talk(SAY_KILL);
             }
         };
 };
- 
+
+#ifndef __clang_analyzer__
 void AddSC_boss_karsh_steelbender()
 {
     new boss_karsh_steelbender();
 }
+#endif

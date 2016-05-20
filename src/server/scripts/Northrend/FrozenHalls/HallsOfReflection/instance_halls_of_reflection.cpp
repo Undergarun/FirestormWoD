@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -61,7 +52,7 @@ Position const SpawnPos[] =
     {5318.704f, 2036.108f, 707.7781f, 4.223697f},
     {5280.513f, 1997.842f, 707.7781f, 0.296706f},
     {5337.833f, 2010.057f, 707.7781f, 3.228859f},
-    {5299.250f, 2035.998f, 707.7781f, 5.026548f},
+    {5299.250f, 2035.998f, 707.7781f, 5.026548f}
 };
 
 class instance_halls_of_reflection : public InstanceMapScript
@@ -317,7 +308,7 @@ public:
                     {
                         HandleGameObject(_entranceDoorGUID, true);
                         HandleGameObject(_frostwornDoorGUID, true);
-                        DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 0); 
+                        DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 0);
                         if (Creature* general = instance->GetCreature(_frostwornGeneralGUID))
                             general->SetPhaseMask(1, true);
                     }
@@ -442,7 +433,7 @@ public:
                             _summonsCount = 0;
                             break;
                     }
-                    data = NOT_STARTED;                    
+                    data = NOT_STARTED;
                     break;
             }
 
@@ -456,34 +447,6 @@ public:
             Creature* creature = unit->ToCreature();
             if (!creature)
                 return;
-
-            /*switch (creature->GetEntry())
-            {
-                case NPC_WAVE_MERCENARY:
-                case NPC_WAVE_FOOTMAN:
-                case NPC_WAVE_RIFLEMAN:
-                case NPC_WAVE_PRIEST:
-                case NPC_WAVE_MAGE:
-                {
-                    uint32 deadNpcs = 0;
-                    uint32 waveId = creature->AI()->GetData(0);
-                    for (std::set<uint64>::const_iterator itr = waveGuidList[waveId].begin(); itr != waveGuidList[waveId].end(); ++itr)
-                    {
-                        Creature* npc = instance->GetCreature(*itr);
-                        if (!npc || !npc->isAlive())
-                            ++deadNpcs;
-                    }
-
-                    // because the current npc returns isAlive when OnUnitDeath happens
-                    // we check if the number of dead npcs is equal to the list-1
-                    if (deadNpcs == waveGuidList[waveId].size() - 1)
-                    {
-                        ++_waveCount;
-                        events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
-                    }
-                    break;
-                }
-            }*/
         }
 
         void Update(uint32 diff)
@@ -798,7 +761,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_halls_of_reflection()
 {
     new instance_halls_of_reflection();
 }
+#endif

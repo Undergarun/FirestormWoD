@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 // Known bugs:
 // Gormok - Snobolled (creature at back)
@@ -145,7 +135,7 @@ enum Phases
 {
     PHASE_MOBILE            = 1,
     PHASE_STATIONARY        = 2,
-    PHASE_SUBMERGED         = 3 
+    PHASE_SUBMERGED         = 3
 };
 
 class boss_gormok : public CreatureScript
@@ -225,7 +215,7 @@ class boss_gormok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 // despawn the remaining passengers on death
                 if (damage >= me->GetHealth())
@@ -334,7 +324,7 @@ class mob_snobold_vassal : public CreatureScript
                 DoCast(who, SPELL_SNOBOLLED);
             }
 
-            void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (pDoneBy->GetGUID() == _targetGUID)
                     uiDamage = 0;
@@ -627,9 +617,9 @@ struct boss_jormungarAI : public BossAI
                     return;
             }
         }
-        if (events.IsInPhase(PHASE_MOBILE)) 
+        if (events.IsInPhase(PHASE_MOBILE))
             DoMeleeAttackIfReady();
-        if (events.IsInPhase(PHASE_STATIONARY)) 
+        if (events.IsInPhase(PHASE_STATIONARY))
             DoSpellAttackIfReady(SpitSpell);
     }
 
@@ -840,7 +830,7 @@ class spell_gormok_fire_bomb: public SpellScriptLoader
 
         class spell_gormok_fire_bomb_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gormok_fire_bomb_SpellScript);
+            PrepareSpellScript(spell_gormok_fire_bomb_SpellScript)
 
             void TriggerFireBomb(SpellEffIndex /*effIndex*/)
             {
@@ -1132,7 +1122,6 @@ class boss_icehowl : public CreatureScript
                 bool   _movementFinish;
                 bool   _trampleCasted;
                 uint8  _stage;
-                Unit*  _target;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1141,6 +1130,7 @@ class boss_icehowl : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_northrend_beasts()
 {
     new boss_gormok();
@@ -1154,3 +1144,4 @@ void AddSC_boss_northrend_beasts()
 
     new boss_icehowl();
 }
+#endif

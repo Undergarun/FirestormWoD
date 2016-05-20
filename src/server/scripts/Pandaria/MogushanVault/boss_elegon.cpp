@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -129,7 +118,7 @@ enum eEvents
     EVENT_END_OF_PHASE_3            = 12,
     EVENT_RADIATING_ENERGIES        = 13,
     EVENT_LAUNCH_COSMIC_SPARK       = 14,
-    EVENT_COSMICSPARK_ATTACK        = 15,
+    EVENT_COSMICSPARK_ATTACK        = 15
 };
 
 enum elegonActions
@@ -138,24 +127,24 @@ enum elegonActions
     ACTION_SPAWN_ENERGY_CHARGES     = 2,
     ACTION_DESPAWN_ENERGY_CHARGES   = 3,
     ACTION_EMPYREAL_FOCUS_KILLED    = 4,
-    ACTION_WIPE                     = 5,
+    ACTION_WIPE                     = 5
 };
 
 enum eMovementPoints
 {
-    POINT_EMPYEREAN_FOCUS   = 1,
+    POINT_EMPYEREAN_FOCUS   = 1
 };
 
 enum empyrealFocusActions
 {
     ACTION_ACTIVATE_EMPYREAL_FOCUS  = 1,
-    ACTION_RESET_EMPYREAL_FOCUS     = 2,
+    ACTION_RESET_EMPYREAL_FOCUS     = 2
 };
 
 enum empyrealFocusEvents
 {
     EVENT_ACTIVATE_EMPYREAL_FOCUS   = 1,
-    EVENT_APPEAR_WALL_OF_LIGHTNING  = 2,
+    EVENT_APPEAR_WALL_OF_LIGHTNING  = 2
 };
 
 enum eTalk
@@ -172,7 +161,7 @@ enum eTalk
     TALK_C_TO_A_3       = 9,
     TALK_ENRAGE_HARD    = 10,
     TALK_ENRAGE_SOFT    = 11,
-    TALK_SLAY           = 12,
+    TALK_SLAY           = 12
 };
 
 // Set values in reset of mob_empyreal_focus
@@ -218,7 +207,7 @@ enum infiniteActions
     ACTION_INFINITE_FLASH_SPAWN     = 4,
     ACTION_INFINITE_SPAWN_PLATFORM  = 5,
     ACTION_INFINITE_SPAWN_BOSS      = 6,
-    ACTION_INFINITE_LOOT            = 7,
+    ACTION_INFINITE_LOOT            = 7
 };
 
 // Elegon - 60410
@@ -286,7 +275,7 @@ class boss_elegon : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (!pInstance->CheckRequiredBosses(DATA_ELEGON))
                 {
@@ -568,7 +557,7 @@ class boss_elegon : public CreatureScript
                     caster->SendSpellMiss(me, spell->Id, SPELL_MISS_MISS);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (phase == PHASE_1 && me->HealthBelowPctDamaged(nextPhase1EndingHealthPct, damage))
                 {
@@ -592,7 +581,7 @@ class boss_elegon : public CreatureScript
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY|MOVEMENTFLAG_FLYING|MOVEMENTFLAG_CAN_FLY);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (pInstance)
                     pInstance->SetBossState(DATA_ELEGON, DONE);
@@ -986,7 +975,7 @@ class mob_empyreal_focus : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->GetHealth() < damage)
                 {
@@ -1073,7 +1062,7 @@ class mob_celestial_protector : public CreatureScript
                     AttackStart(player);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!stabilityFluxCasted)
                 {
@@ -1270,7 +1259,7 @@ class mob_cosmic_spark : public CreatureScript
 
 enum energyChargeActions
 {
-    ACTION_ENERGIZE_EMPYREAL_FOCUS  = 1,
+    ACTION_ENERGIZE_EMPYREAL_FOCUS  = 1
 };
 
 // Energy Charge - 60913
@@ -1296,12 +1285,12 @@ class mob_energy_charge : public CreatureScript
                 me->AddAura(SPELL_CORE_CHECKER, me);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->CastSpell(me, SPELL_DISCHARGE, true);
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 switch (id)
                 {
@@ -1344,7 +1333,7 @@ class mob_energy_charge : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
         };
@@ -1358,7 +1347,7 @@ enum infiniteEvents
     EVENT_FLASH_SPAWN       = 4,
     EVENT_BOSS_ACTIVATION   = 5,
     EVENT_BOSS_INTRO_2      = 6,
-    EVENT_CHECK_AURAS       = 7,
+    EVENT_CHECK_AURAS       = 7
 };
 
 // Infinite Energy - 65293
@@ -1592,11 +1581,11 @@ class go_celestial_control_console : public GameObjectScript
     public:
         go_celestial_control_console() : GameObjectScript("go_celestial_control_console") { }
 
-        void OnGameObjectStateChanged(const GameObject* go, uint32 state)
+        void OnGameObjectStateChanged(const GameObject* go, uint32 /*state*/)
         {
             std::list<Player*> playerList;
             playerList.clear();
-            go->GetPlayerListInGrid(playerList, 10.f);
+            go->GetPlayerListInGrid(playerList, 10.0f);
 
             if (!playerList.empty())
             {
@@ -1720,7 +1709,7 @@ class spell_touch_of_titans : public SpellScriptLoader
         {
             PrepareAuraScript(spell_touch_of_titans_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetTarget())
                     return;
@@ -1840,7 +1829,7 @@ class spell_core_checker : public SpellScriptLoader
         {
             PrepareAuraScript(spell_core_checker_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* energyCharge = GetTarget())
                 {
@@ -2005,7 +1994,7 @@ class spell_unstable_energy : public SpellScriptLoader
         {
             PrepareAuraScript(spell_unstable_energy_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* elegon = GetTarget())
                     elegon->CastSpell(elegon, SPELL_UNSTABLE_ENERGY_DAMAGE, true);
@@ -2029,10 +2018,10 @@ class at_draw_power : public AreaTriggerEntityScript
     public:
         at_draw_power() : AreaTriggerEntityScript("at_draw_power") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
-            float l_Radius = 30.f;
+            float l_Radius = 30.0f;
             Unit* l_Caster = p_AreaTrigger->GetCaster();
 
             if (!l_Caster)
@@ -2044,7 +2033,7 @@ class at_draw_power : public AreaTriggerEntityScript
 
             for (Unit* l_Unit : l_TargetList)
             {
-                if (l_Unit->IsInAxe(l_Caster, p_AreaTrigger, 2.f))
+                if (l_Unit->IsInAxe(l_Caster, p_AreaTrigger, 2.0f))
                 {
                     if (l_Unit->HasAura(SPELL_ENERGY_CONDUIT))
                         l_Caster->AddAura(SPELL_ENERGY_CONDUIT, l_Unit);
@@ -2060,6 +2049,7 @@ class at_draw_power : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_elegon()
 {
     new boss_elegon();                      ///< 60410
@@ -2082,3 +2072,4 @@ void AddSC_boss_elegon()
     new spell_unstable_energy();            ///< 116994
     new at_draw_power();                    ///< 116546
 }
+#endif

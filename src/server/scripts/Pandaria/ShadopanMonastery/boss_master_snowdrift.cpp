@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -48,7 +38,7 @@ enum eSpells
     SPELL_WHIRLING_STEEL_DAMAGE = 106646,
 
     // Both
-    SPELL_FLARE                 = 132951,
+    SPELL_FLARE                 = 132951
 };
 
 enum eEvents
@@ -313,7 +303,7 @@ class boss_master_snowdrift : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (phase == PHASE_FIGHT_1)
                 {
@@ -484,7 +474,7 @@ class npc_snowdrift_novice : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!stillInFight)
                     return;
@@ -508,7 +498,7 @@ class npc_snowdrift_novice : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -584,7 +574,7 @@ class npc_snowdrift_miniboss : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!stillInFight)
                     return;
@@ -760,6 +750,7 @@ class npc_snowdrift_fireball : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_master_snowdrift()
 {
     new boss_master_snowdrift();
@@ -768,3 +759,4 @@ void AddSC_boss_master_snowdrift()
     new npc_snowdrift_clone();
     new npc_snowdrift_fireball();
 }
+#endif

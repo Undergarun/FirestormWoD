@@ -1,19 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -39,7 +30,7 @@ enum Says
 
     // Razorscale
     EMOTE_BREATH                = 0,
-    EMOTE_PERMA                 = 1,
+    EMOTE_PERMA                 = 1
 };
 
 enum Spells
@@ -92,7 +83,7 @@ enum DarkRuneSpells
     SPELL_BATTLE_SHOUT_10                        = 46763,
     SPELL_BATTLE_SHOUT_25                        = 64062,
     SPELL_HEROIC_STRIKE                          = 45026,
-    SPELL_WHIRLWIND                              = 63808,
+    SPELL_WHIRLWIND                              = 63808
 };
 
 enum Actions
@@ -106,14 +97,14 @@ enum Actions
     ACTION_DESPAWN_ADDS                          = 8,
     ACTION_SUMMON_MOLE_MACHINES                  = 9,
     ACTION_FIRE_OUT                              = 10,
-    ACTION_CANCEL_BUILD_HARPOON                  = 11,
+    ACTION_CANCEL_BUILD_HARPOON                  = 11
 };
 
 enum Phases
 {
     PHASE_PERMAGROUND                            = 1,
     PHASE_GROUND                                 = 2,
-    PHASE_FLIGHT                                 = 3,
+    PHASE_FLIGHT                                 = 3
 };
 
 enum Events
@@ -165,7 +156,7 @@ const Position PosEngRepair[4] =
     { 590.442f, -130.550f, GROUND_Z, 4.789f },
     { 574.850f, -133.687f, GROUND_Z, 4.252f },
     { 606.567f, -143.369f, GROUND_Z, 4.434f },
-    { 560.609f, -142.967f, GROUND_Z, 5.074f },
+    { 560.609f, -142.967f, GROUND_Z, 5.074f }
 };
 
 const Position PosDefSpawn[4] =
@@ -173,7 +164,7 @@ const Position PosDefSpawn[4] =
     { 600.75f, -104.850f, GROUND_Z, 0 },
     { 596.38f, -110.262f, GROUND_Z, 0 },
     { 566.47f, -103.633f, GROUND_Z, 0 },
-    { 570.41f, -108.791f, GROUND_Z, 0 },
+    { 570.41f, -108.791f, GROUND_Z, 0 }
 };
 
 const Position PosDefCombat[4] =
@@ -181,7 +172,7 @@ const Position PosDefCombat[4] =
     { 614.975f, -155.138f, GROUND_Z, 4.154f },
     { 609.814f, -204.968f, GROUND_Z, 5.385f },
     { 563.531f, -201.557f, GROUND_Z, 4.108f },
-    { 560.231f, -153.677f, GROUND_Z, 5.403f },
+    { 560.231f, -153.677f, GROUND_Z, 5.403f }
 };
 
 const Position PosHarpoon[4] =
@@ -189,7 +180,7 @@ const Position PosHarpoon[4] =
     { 571.901f, -136.554f, GROUND_Z, 0 },
     { 589.450f, -134.888f, GROUND_Z, 0 },
     { 559.119f, -140.505f, GROUND_Z, 0 },
-    { 606.229f, -136.721f, GROUND_Z, 0 },
+    { 606.229f, -136.721f, GROUND_Z, 0 }
 };
 
 const Position RazorFlight      = { 588.050f, -251.191f, 470.536f,      1.498f };
@@ -315,7 +306,7 @@ class boss_razorscale_controller : public CreatureScript
                             if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_1, PosHarpoon[0].GetPositionX(), PosHarpoon[0].GetPositionY(), PosHarpoon[0].GetPositionZ(), 4.790f, 0.0f, 0.0f, 0.0f, 0.0f, 180000))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f)) //only nearest broken harpoon
-                                    BrokenHarpoon->RemoveFromWorld();                                  
+                                    BrokenHarpoon->RemoveFromWorld();
                                 events.ScheduleEvent(EVENT_BUILD_HARPOON_2, 20000);
                                 events.CancelEvent(EVENT_BUILD_HARPOON_1);
                             }
@@ -894,7 +885,7 @@ class npc_mole_machine_trigger : public CreatureScript
                             {
                                 case SPELL_SUMMON_IRON_DWARVES:
                                     // Emulator for DoCast(SPELL_SUMMON_IRON_DWARVES); -> SpellScript did not work!
-                                    for (uint8 n = 0; n < urand(1, 2); ++n) 
+                                    for (uint8 n = 0; n < urand(1, 2); ++n)
                                         me->CastSpell(me, SPELL_SUMMON_IRON_DWARF_GUARDIAN, false);
                                     me->CastSpell(me, SPELL_SUMMON_IRON_DWARF_WATCHER, false);
                                     break;
@@ -967,10 +958,10 @@ class npc_razorscale_harpoon_fire_state : public CreatureScript
         struct npc_razorscale_harpoon_fire_stateAI : public Scripted_NoMovementAI
         {
             npc_razorscale_harpoon_fire_stateAI(Creature* creature) : Scripted_NoMovementAI(creature)
-            { 
+            {
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 damage = 0;
             }
@@ -1301,6 +1292,7 @@ class achievement_quick_shave : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_razorscale()
 {
     new boss_razorscale_controller();
@@ -1320,6 +1312,7 @@ void AddSC_boss_razorscale()
     new achievement_quick_shave();
 }
 
+#endif
 #undef SPELL_FIREBALL
 #undef SPELL_FLAMEBREATH
 #undef SPELL_BATTLE_SHOUT

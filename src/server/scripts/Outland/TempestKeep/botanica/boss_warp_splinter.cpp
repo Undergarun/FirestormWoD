@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Warp_Splinter
@@ -33,7 +23,7 @@ enum eSays
     SAY_SLAY_2         = -1553009,
     SAY_SUMMON_1       = -1553010,
     SAY_SUMMON_2       = -1553011,
-    SAY_DEATH          = -1553012,
+    SAY_DEATH          = -1553012
 };
 
 enum eSpells
@@ -42,7 +32,7 @@ enum eSpells
     SUMMON_TREANTS     = 34727, // DBC: 34727, 34731, 34733, 34734, 34736, 34739, 34741 (with Ancestral Life spell 34742)   // won't work (guardian summon)
     ARCANE_VOLLEY      = 36705,
     ARCANE_VOLLEY_H    = 39133,
-    SPELL_HEAL_FATHER  = 6262,
+    SPELL_HEAL_FATHER  = 6262
 };
 
 enum eOthers
@@ -233,9 +223,10 @@ class boss_warp_splinter : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_warp_splinter()
 {
     new boss_warp_splinter();
     new mob_warp_splinter_treant();
 }
-
+#endif

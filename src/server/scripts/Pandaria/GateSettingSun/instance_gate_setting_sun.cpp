@@ -1,7 +1,10 @@
-/*
-    Dungeon : Gate of the Setting Sun 90-90
-    Instance General Script
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -89,7 +92,7 @@ public:
             secondaryDoorGUIDs.clear();
         }
 
-        void OnDestroy(InstanceMap* pMap)
+        void OnDestroy(InstanceMap* /*pMap*/)
         {
             if (Creature* weakSpot = instance->GetCreature(GetData64(NPC_WEAK_SPOT)))
                 weakSpot->_ExitVehicle();
@@ -383,7 +386,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_gate_setting_sun()
 {
     new instance_gate_setting_sun();
 }
+#endif

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -42,7 +33,7 @@ enum Spells
     SPELL_CHILLING_WAVE     = 68778,
     SPELL_DEEP_FREEZE       = 70381,
     SPELL_FORGE_MACE        = 68785,
-    SPELL_FORGE_BLADE       = 68774,
+    SPELL_FORGE_BLADE       = 68774
 };
 
 #define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(68786, 70336)
@@ -55,7 +46,7 @@ enum Events
     EVENT_DEEP_FREEZE       = 3,
     EVENT_JUMP_TO           = 4,
     EVENT_FORGING           = 5,
-    EVENT_RESUME_ATTACK     = 6,
+    EVENT_RESUME_ATTACK     = 6
 };
 
 enum Phases
@@ -66,7 +57,7 @@ enum Phases
 
     PHASE_ONE_MASK      = 1 << PHASE_ONE,
     PHASE_TWO_MASK      = 1 << PHASE_TWO,
-    PHASE_THREE_MASK    = 1 << PHASE_THREE,
+    PHASE_THREE_MASK    = 1 << PHASE_THREE
 };
 
 enum MiscData
@@ -74,7 +65,7 @@ enum MiscData
     EQUIP_ID_SWORD              = 49345,
     EQUIP_ID_MACE               = 49344,
     ACHIEV_DOESNT_GO_TO_ELEVEN  = 0,
-    POINT_FORGE                 = 0,
+    POINT_FORGE                 = 0
 };
 
 Position const northForgePos = {722.5643f, -234.1615f, 527.182f, 2.16421f};
@@ -135,7 +126,7 @@ class boss_garfrost : public CreatureScript
                 instance->SetBossState(DATA_GARFROST, DONE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*uiDamage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*uiDamage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (events.GetPhaseMask() & PHASE_ONE_MASK && !HealthAbovePct(66))
                 {
@@ -266,7 +257,7 @@ class spell_garfrost_permafrost: public SpellScriptLoader
 
         class spell_garfrost_permafrost_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_garfrost_permafrost_SpellScript);
+            PrepareSpellScript(spell_garfrost_permafrost_SpellScript)
 
             bool Load()
             {
@@ -345,9 +336,11 @@ class achievement_doesnt_go_to_eleven : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_garfrost()
 {
     new boss_garfrost();
     new spell_garfrost_permafrost();
     new achievement_doesnt_go_to_eleven();
 }
+#endif

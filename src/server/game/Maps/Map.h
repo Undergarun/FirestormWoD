@@ -1,27 +1,15 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_MAP_H
 #define TRINITY_MAP_H
 
 #include "Define.h"
-#include <ace/RW_Thread_Mutex.h>
-#include <ace/Thread_Mutex.h>
 
 #include "DBCStructure.h"
 #include "GridDefines.h"
@@ -32,9 +20,9 @@
 #include "MapRefManager.h"
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
+#include "Common.h"
 
 #include <bitset>
-#include <list>
 
 class Unit;
 class WorldPacket;
@@ -496,7 +484,7 @@ class Map : public GridRefManager<NGridType>
         time_t GetLinkedRespawnTime(uint64 guid) const;
         time_t GetCreatureRespawnTime(uint32 dbGuid) const
         {
-            UNORDERED_MAP<uint32 /*dbGUID*/, time_t>::const_iterator itr = _creatureRespawnTimes.find(dbGuid);
+            std::unordered_map<uint32 /*dbGUID*/, time_t>::const_iterator itr = _creatureRespawnTimes.find(dbGuid);
             if (itr != _creatureRespawnTimes.end())
                 return itr->second;
 
@@ -505,7 +493,7 @@ class Map : public GridRefManager<NGridType>
 
         time_t GetGORespawnTime(uint32 dbGuid) const
         {
-            UNORDERED_MAP<uint32 /*dbGUID*/, time_t>::const_iterator itr = _goRespawnTimes.find(dbGuid);
+            std::unordered_map<uint32 /*dbGUID*/, time_t>::const_iterator itr = _goRespawnTimes.find(dbGuid);
             if (itr != _goRespawnTimes.end())
                 return itr->second;
 
@@ -676,8 +664,8 @@ class Map : public GridRefManager<NGridType>
                 m_activeNonPlayers.erase(obj);
         }
 
-        UNORDERED_MAP<uint32 /*dbGUID*/, time_t> _creatureRespawnTimes;
-        UNORDERED_MAP<uint32 /*dbGUID*/, time_t> _goRespawnTimes;
+        std::unordered_map<uint32 /*dbGUID*/, time_t> _creatureRespawnTimes;
+        std::unordered_map<uint32 /*dbGUID*/, time_t> _goRespawnTimes;
 };
 
 enum InstanceResetMethod

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -26,7 +17,7 @@ enum Horsemen
     HORSEMEN_THANE,
     HORSEMEN_LADY,
     HORSEMEN_BARON,
-    HORSEMEN_SIR,
+    HORSEMEN_SIR
 };
 
 enum Spells
@@ -39,7 +30,7 @@ enum Events
     EVENT_NONE,
     EVENT_MARK,
     EVENT_CAST,
-    EVENT_BERSERK,
+    EVENT_BERSERK
 };
 
 const Position WaypointPositions[12] =
@@ -59,7 +50,7 @@ const Position WaypointPositions[12] =
     // Sir waypoints
     {2534.5f, -2921.7f, 241.53f, 1.363f},
     {2523.5f, -2902.8f, 241.28f, 2.095f},
-    {2517.8f, -2896.6f, 241.28f, 2.315f},
+    {2517.8f, -2896.6f, 241.28f, 2.315f}
 };
 
 const uint32 MOB_HORSEMEN[]     =   {16064, 16065, 30549, 16063};
@@ -474,8 +465,10 @@ class spell_four_horsemen_mark: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_four_horsemen()
 {
     new boss_four_horsemen();
     new spell_four_horsemen_mark();
 }
+#endif

@@ -14,7 +14,7 @@ enum Data
     DATA_ROYAL_CACHE        = 6,
     DATA_EVENT_ILLIDAN_2    = 7,
     DATA_VAROTHEN           = 8,
-    DATA_MINOR_CACHE        = 9,
+    DATA_MINOR_CACHE        = 9
 };
 
 
@@ -23,13 +23,13 @@ enum CreatureIds
     NPC_PEROTHARN   = 55085,
     NPC_ILLIDAN_1   = 55500,
     NPC_AZSHARA     = 54853,
-    NPC_TYRANDE     = 55524, 
-    NPC_ILLIDAN_2   = 55532, 
+    NPC_TYRANDE     = 55524,
+    NPC_ILLIDAN_2   = 55532,
     NPC_MALFURION   = 55570,
     NPC_VAROTHEN    = 55419,
     NPC_ABYSSAL     = 55510,
     NPC_DOOMGUARD   = 55519,
-    NPC_MANNOROTH   = 54969,
+    NPC_MANNOROTH   = 54969
 };
 
 enum GameObjectIds
@@ -40,7 +40,7 @@ enum GameObjectIds
     GO_INVISIBLE_FIREWALL_DOOR  = 210097,
 
     GO_ROYAL_CACHE              = 210025,
-    GO_MINOR_CACHE              = 209541,
+    GO_MINOR_CACHE              = 209541
 };
 
 enum QuestIds
@@ -48,7 +48,7 @@ enum QuestIds
     QUEST_DOCUMENTING_THE_TIMEWAYS      = 30104,
     QUEST_IN_UNENDING_NUMBERS           = 30099,
     QUEST_THE_VAINGLORIOUS              = 30100,
-    QUEST_THE_PATH_TO_THE_DRAGON_SOUL   = 30101,
+    QUEST_THE_PATH_TO_THE_DRAGON_SOUL   = 30101
 };
 
 enum QuestSpells
@@ -58,7 +58,7 @@ enum QuestSpells
     SPELL_ARCHIVED_HANDMAIDEN_1 = 109270,
     SPELL_ARCHIVED_HANDMAIDEN_2 = 109271,
     SPELL_ARCHIVED_VAROTHEN_1   = 109273,
-    SPELL_ARCHIVED_VAROTHEN_2   = 109274,
+    SPELL_ARCHIVED_VAROTHEN_2   = 109274
 };
 
 #endif

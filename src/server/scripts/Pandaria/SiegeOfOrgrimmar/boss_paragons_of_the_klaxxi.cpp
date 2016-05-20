@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -50,7 +39,7 @@ class boss_kilruk_the_wind_reaver : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
                 
@@ -68,7 +57,7 @@ class boss_kilruk_the_wind_reaver : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -88,11 +77,11 @@ class boss_kilruk_the_wind_reaver : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -138,7 +127,7 @@ class boss_xaril_the_poisoned_mind : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
                 
@@ -156,7 +145,7 @@ class boss_xaril_the_poisoned_mind : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -176,11 +165,11 @@ class boss_xaril_the_poisoned_mind : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -226,7 +215,7 @@ class boss_kaztik_the_manipulator : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
                 
@@ -244,7 +233,7 @@ class boss_kaztik_the_manipulator : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -264,11 +253,11 @@ class boss_kaztik_the_manipulator : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
             _JustDied();
 
@@ -314,7 +303,7 @@ class boss_korven_the_prime : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
                 
@@ -332,7 +321,7 @@ class boss_korven_the_prime : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -352,11 +341,11 @@ class boss_korven_the_prime : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -402,7 +391,7 @@ class boss_iyyokuk_the_lucid : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
                 
@@ -420,7 +409,7 @@ class boss_iyyokuk_the_lucid : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -440,11 +429,11 @@ class boss_iyyokuk_the_lucid : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -490,7 +479,7 @@ class boss_karoz_the_locust : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
                 
@@ -508,7 +497,7 @@ class boss_karoz_the_locust : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -528,11 +517,11 @@ class boss_karoz_the_locust : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -578,7 +567,7 @@ class boss_skeer_the_bloodseeker : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
                 
@@ -596,7 +585,7 @@ class boss_skeer_the_bloodseeker : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -616,11 +605,11 @@ class boss_skeer_the_bloodseeker : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -666,7 +655,7 @@ class boss_rikkal_the_dissector : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
                 
@@ -684,7 +673,7 @@ class boss_rikkal_the_dissector : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -704,11 +693,11 @@ class boss_rikkal_the_dissector : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
             _JustDied();
 
@@ -754,7 +743,7 @@ class boss_hisek_the_swarmkeeper : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
                 
@@ -772,7 +761,7 @@ class boss_hisek_the_swarmkeeper : public CreatureScript
                     pInstance->SetBossState(DATA_PARAGONS_OF_THE_KLAXXI, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -792,11 +781,11 @@ class boss_hisek_the_swarmkeeper : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -825,6 +814,7 @@ class boss_hisek_the_swarmkeeper : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_paragons_of_the_klaxxi()
 {
     new boss_kilruk_the_wind_reaver();
@@ -837,3 +827,4 @@ void AddSC_paragons_of_the_klaxxi()
     new boss_rikkal_the_dissector();
     new boss_hisek_the_swarmkeeper();
 };
+#endif

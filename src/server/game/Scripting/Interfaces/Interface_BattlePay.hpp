@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 #ifndef SCRIPTING_INTERFACES_BATTLEPAY_HPP_INCLUDED
 #define SCRIPTING_INTERFACES_BATTLEPAY_HPP_INCLUDED

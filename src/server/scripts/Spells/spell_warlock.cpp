@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Scripts for spells with SPELLFAMILY_WARLOCK and SPELLFAMILY_GENERIC spells used by warlock players.
@@ -130,7 +121,7 @@ class spell_warl_fire_and_brimstone : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_fire_and_brimstone_AuraScript);
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -971,7 +962,7 @@ class spell_warl_flames_of_xoroth: public SpellScriptLoader
 
                             auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);
 
-                            sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
+                            CharacterDatabase.AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
                             {
                                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
                                 if (!l_Player || !p_QueryHolder)
@@ -1117,7 +1108,7 @@ class spell_warl_soul_link: public SpellScriptLoader
         }
 };
 
-// Called by Hand of Gul'dan - 47960, 
+// Called by Hand of Gul'dan - 47960,
 // Molten Core - 122351
 class spell_warl_molten_core_dot: public SpellScriptLoader
 {
@@ -1910,7 +1901,7 @@ class spell_warl_soul_swap: public SpellScriptLoader
                 /// Target should have at least one DOT from the list
                 if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
                 {
-                    if (!l_Target->HasAura(WARLOCK_AGONY, l_Caster->GetGUID()) && !l_Target->HasAura(WARLOCK_SPELL_CORRUPTION_DOT, l_Caster->GetGUID()) && 
+                    if (!l_Target->HasAura(WARLOCK_AGONY, l_Caster->GetGUID()) && !l_Target->HasAura(WARLOCK_SPELL_CORRUPTION_DOT, l_Caster->GetGUID()) &&
                         !l_Target->HasAura(WARLOCK_UNSTABLE_AFFLICTION, l_Caster->GetGUID()) && !l_Caster->HasAura(WARLOCK_SOULBURN_AURA))
                         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 }
@@ -2367,7 +2358,7 @@ public:
     {
         PrepareAuraScript(spell_warl_ember_tap_glyph_AuraScript);
 
-        void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
+        void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
         {
             Unit* l_Caster = GetCaster();
             SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfEmberTap);
@@ -2745,7 +2736,7 @@ class spell_warl_burning_embers_regen : public PlayerScript
         }
 
         /// Override
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_OldValue*/, int32& p_NewValue, bool /*p_Regen*/)
         {
             if (!CanUseBuringEmbers(p_Player, p_Power))
                 return;
@@ -3439,7 +3430,7 @@ class spell_warl_siphon_life : public SpellScriptLoader
         }
 };
 
-// Siphon Life - 63106 
+// Siphon Life - 63106
 class spell_warl_siphon_life_heal : public SpellScriptLoader
 {
 public:
@@ -3585,7 +3576,7 @@ class spell_warl_dark_soul : public SpellScriptLoader
 
         class spell_warl_dark_soul_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_dark_soul_SpellScript);       
+            PrepareSpellScript(spell_warl_dark_soul_SpellScript);
 
             void HandleAfterCast()
             {
@@ -3671,10 +3662,10 @@ class spell_warl_cataclysm : public SpellScriptLoader
 
 enum HavocSpells
 {
-    SPELL_GLYPH_OF_HAVOC    = 146962,
+    SPELL_GLYPH_OF_HAVOC    = 146962
 };
 
-// Havoc - 80240 
+// Havoc - 80240
 class spell_warl_havoc: public SpellScriptLoader
 {
     public:
@@ -3896,8 +3887,6 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
                 WildImp = 55659
             };
 
-            int8 m_Charges = 10;
-
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -3947,7 +3936,7 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
         }
 };
 
-/// last update : 6.2.3git 
+/// last update : 6.2.3
 /// Doom Bolt - 85692
 class spell_warl_doom_bolt : public SpellScriptLoader
 {
@@ -4140,7 +4129,7 @@ class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
             ChaoticInfusion     = 170000
         };
 
-        void OnModifyHealth(Player* p_Player, int32 p_Value) override
+        void OnModifyHealth(Player* p_Player, int32 /*p_Value*/) override
         {
             if (p_Player->getClass() == CLASS_WARLOCK && p_Player->HasAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonusAura))
             {
@@ -4242,7 +4231,7 @@ class spell_warl_healthstone : public SpellScriptLoader
                 GlyphOfHealthstone = 56224
             };
 
-            void HandleHeal(SpellEffIndex p_EffIndex)
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 if (GetCaster()->HasAura(eSpells::GlyphOfHealthstone))
                     PreventHitHeal();
@@ -4294,7 +4283,7 @@ public:
     }
 
     /// Override
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_OldValue*/, int32& p_NewValue, bool /*p_Regen*/)
     {
         ///< Works only in Afflication spec and if warlock doesn't have Glyph of Subtlety
         if (p_Power == POWER_SOUL_SHARDS && p_Player->GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
@@ -4550,7 +4539,7 @@ class spell_warl_demonbolt : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_demonbolt_AuraScript);
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& /*p_Amount*/, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -4680,8 +4669,7 @@ public:
     }
 };
 
-
-
+#ifndef __clang_analyzer__
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_dark_soul_knowledge();
@@ -4773,3 +4761,4 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_cripple_doomguard();
     new PlayerScript_DemonicFury_On_Kill();
 }
+#endif

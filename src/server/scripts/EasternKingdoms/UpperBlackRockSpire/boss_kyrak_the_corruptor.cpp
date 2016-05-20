@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "upper_blackrock_spire.hpp"
@@ -82,7 +82,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 _EnterCombat();
 
@@ -107,7 +107,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                     m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -138,7 +138,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+            void SpellHit(Unit* /*p_Caster*/, SpellInfo const* p_SpellInfo)
             {
                 if (p_SpellInfo->Id == SPELL_VILEBLOOD_SERUM_ACTIVATED)
                 {
@@ -147,7 +147,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (!me->HasAura(SPELL_VILEBLOOD_SERUM_ACTIVATED) && me->HealthBelowPctDamaged(50, p_Damage))
                     me->CastSpell(me, SPELL_VILEBLOOD_SERUM_SEARCHER, true);
@@ -176,7 +176,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                         m_Events.ScheduleEvent(EVENT_REJUVENATING_SERUM, 33000);
                         break;
                     case EVENT_VILEBLOOD_SERUM:
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.f, true))
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                         {
                             std::list<Unit*> l_PlayerList;
                             l_Target->GetPartyMembers(l_PlayerList);
@@ -217,7 +217,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                     m_InitializeAdds = 0;
 
                     std::list<Creature*> l_DrakonidList;
-                    me->GetCreatureListWithEntryInGrid(l_DrakonidList, NPC_DRAKONID_MONSTROSITY_2, 10.f);
+                    me->GetCreatureListWithEntryInGrid(l_DrakonidList, NPC_DRAKONID_MONSTROSITY_2, 10.0f);
 
                     // Should be 2
                     if (l_DrakonidList.empty() || l_DrakonidList.size() != 2)
@@ -261,7 +261,7 @@ class spell_vilebloom_serum: public SpellScriptLoader
 
         class spell_vilebloom_serum_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_vilebloom_serum_SpellScript);
+            PrepareSpellScript(spell_vilebloom_serum_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -284,7 +284,7 @@ class spell_vilebloom_serum: public SpellScriptLoader
                 });
             }
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Target = GetHitUnit())
                 {
@@ -317,7 +317,7 @@ class areatrigger_vileblood_serum : public AreaTriggerEntityScript
             VilebloodSerum = 161288
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 2.0f;
@@ -339,9 +339,11 @@ class areatrigger_vileblood_serum : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kyrak_the_corruptor()
 {
     new boss_kyrak_the_corruptor();
     new spell_vilebloom_serum();
     new areatrigger_vileblood_serum();
 }
+#endif

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -48,7 +38,7 @@ enum eEvents
     // Azure Serpent
     EVENT_STATIC_FIELD      = 3,
     EVENT_LIGHTNING_BREATH  = 4,
-    EVENT_MAGNETIC_SHROUD   = 5,
+    EVENT_MAGNETIC_SHROUD   = 5
 };
 
 enum eActions
@@ -60,7 +50,7 @@ enum eActions
     // Azure Serpent
     ACTION_AZURE_SERPENT_P_1    = 3,
     ACTION_AZURE_SERPENT_P_2    = 4,
-    ACTION_AZURE_SERPENT_RESET  = 5,
+    ACTION_AZURE_SERPENT_RESET  = 5
 };
 
 enum ePhases
@@ -112,7 +102,7 @@ class boss_gu_cloudstrike : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (phase == 1 && me->HealthBelowPctDamaged(50, damage))
                 {
@@ -154,7 +144,7 @@ class boss_gu_cloudstrike : public CreatureScript
                 summons.Summon(summoned);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 if (Creature* azureSerpent = GetAzureSerpent())
                     if (azureSerpent->AI())
@@ -196,10 +186,10 @@ class boss_gu_cloudstrike : public CreatureScript
 
 Position azureSerpentPositions[4] =
 {
-    {3835.01f, 2906.63f, 753.33f},
-    {3850.37f, 2738.14f, 814.84f},
-    {3758.79f, 2692.08f, 778.60f},
-    {3736.37f, 2680.89f, 778.60f}
+    {3835.01f, 2906.63f, 753.33f, 0.0f },
+    {3850.37f, 2738.14f, 814.84f, 0.0f },
+    {3758.79f, 2692.08f, 778.60f, 0.0f },
+    {3736.37f, 2680.89f, 778.60f, 0.0f }
 };
 
 class npc_azure_serpent : public CreatureScript
@@ -377,7 +367,7 @@ class spell_kill_guardians: public SpellScriptLoader
         {
             PrepareSpellScript(spell_kill_guardians_SpellScript);
 
-            bool Validate(SpellInfo const* spell)
+            bool Validate(SpellInfo const* /*p_Spell*/)
             {
                 return true;
             }
@@ -428,7 +418,7 @@ class spell_overcharged_soul_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_overcharged_soul_damage_SpellScript);
 
-            void ChangeDamage(SpellEffIndex effIndex)
+            void ChangeDamage(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                     SetHitDamage(25000 / caster->GetHealthPct());
@@ -446,6 +436,7 @@ class spell_overcharged_soul_damage: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gu_cloudstrike()
 {
     new boss_gu_cloudstrike();
@@ -454,3 +445,4 @@ void AddSC_boss_gu_cloudstrike()
     new spell_kill_guardians();
     new spell_overcharged_soul_damage();
 }
+#endif

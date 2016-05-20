@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Battleground.h"
 #include "BattlegroundSA.h"
@@ -177,7 +167,7 @@ bool BattlegroundSA::ResetObjs()
     /*if (GameObject* l_BoatOne = GetBGObject(BG_SA_BOAT_ONE))
     {
         if (l_BoatOne->GetCustomFlags() & eGoBCustomFlags::CustomFlagUseQuaternion)
-            l_BoatOne->SetRotationAngles(acosf(0.0002f), 0.f, 0.f);
+            l_BoatOne->SetRotationAngles(acosf(0.0002f), 0.0f, 0.0f);
         else
             l_BoatOne->UpdateRotationFields(1.0f, 0.0002f);
 
@@ -188,7 +178,7 @@ bool BattlegroundSA::ResetObjs()
     if (GameObject* l_BoatTwo = GetBGObject(BG_SA_BOAT_ONE))
     {
         if (l_BoatTwo->GetCustomFlags() & eGoBCustomFlags::CustomFlagUseQuaternion)
-            l_BoatTwo->SetRotationAngles(acosf(0.00001f), 0.f, 0.f);
+            l_BoatTwo->SetRotationAngles(acosf(0.00001f), 0.0f, 0.0f);
         else
             l_BoatTwo->UpdateRotationFields(1.0f, 0.00001f);
 
@@ -585,7 +575,7 @@ void BattlegroundSA::AddPlayer(Player* player)
     }*/
 }
 
-void BattlegroundSA::RemovePlayer(Player* /*player*/, uint64 guid, uint32 /*team*/)
+void BattlegroundSA::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
 {
 }
 
@@ -596,18 +586,24 @@ void BattlegroundSA::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
         return;
 }
 
-void BattlegroundSA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+void BattlegroundSA::UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType)
 {
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
+    BattlegroundScoreMap::iterator itr = PlayerScores.find(p_Source->GetGUID());
     if (itr == PlayerScores.end())                         // player not found...
         return;
 
-    if (type == SCORE_DESTROYED_DEMOLISHER)
-        ((BattlegroundSAScore*)itr->second)->demolishers_destroyed += value;
-    else if (type == SCORE_DESTROYED_WALL)
-        ((BattlegroundSAScore*)itr->second)->gates_destroyed += value;
-    else
-        Battleground::UpdatePlayerScore(Source, NULL, type, value, doAddHonor);
+    switch (p_Type)
+    {
+        case SCORE_DESTROYED_DEMOLISHER:
+            ((BattlegroundSAScore*) itr->second)->demolishers_destroyed += p_Value;
+            break;
+        case SCORE_DESTROYED_WALL:
+            ((BattlegroundSAScore*) itr->second)->gates_destroyed += p_Value;
+            break;
+        default:
+            Battleground::UpdatePlayerScore(p_Source, p_Victim, p_Type, p_Value, p_DoAddHonor, p_RewardType);
+            break;
+    }
 }
 
 void BattlegroundSA::TeleportPlayers()
@@ -675,7 +671,7 @@ void BattlegroundSA::HandleKillUnit(Creature* creature, Player* killer)
 {
     if (creature->GetEntry() == NPC_DEMOLISHER_SA)
     {
-        UpdatePlayerScore(killer, SCORE_DESTROYED_DEMOLISHER, 1);
+        UpdatePlayerScore(killer, nullptr, SCORE_DESTROYED_DEMOLISHER, 1);
         _notEvenAScratch[Attackers] = false;
     }
 }
@@ -787,9 +783,9 @@ void BattlegroundSA::DestroyGate(Player* player, GameObject* go)
 
             if (i < 5)
                 DelObject(i + 14);
-            UpdatePlayerScore(player, SCORE_DESTROYED_WALL, 1);
+            UpdatePlayerScore(player, nullptr, SCORE_DESTROYED_WALL, 1);
             if (rewardHonor)
-                UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(1));
+                UpdatePlayerScore(player, nullptr, SCORE_BONUS_HONOR, GetBonusHonorFromKill(1));
         }
     }
 }
@@ -1092,13 +1088,15 @@ class go_sa_boat : public GameObjectScript
     public:
         go_sa_boat() : GameObjectScript("go_sa_boat") {}
 
-        bool OnGameObjectElevatorCheck(GameObject const* p_GameObject) const
+        bool OnGameObjectElevatorCheck(GameObject const* /*p_GameObject*/) const
         {
             return false;
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_BattlegroundSAScripts()
 {
     new go_sa_boat();
 }
+#endif

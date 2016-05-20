@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ namespace MS
                             LoadScenariosInfos(g_BossScenarios, p_Map->IsChallengeMode() ? eScenarioDatas::BloodmaulChallengeID : eScenarioDatas::BloodmaulScenarioID);
                         }
 
-                        void OnCreatureCreate(Creature* p_Creature)
+                        void OnCreatureCreate(Creature* p_Creature) override
                         {
                             switch (p_Creature->GetEntry())
                             {
@@ -106,7 +106,7 @@ namespace MS
                                     break;
                                 case uint32(MobEntries::BloodmaulWarder):
                                 {
-                                    static const Position k_CrushtoPosition = { 2038.51f, -361.126f, 223.f };
+                                    static const Position k_CrushtoPosition = { 2038.51f, -361.126f, 223.0f, 0.0f };
 
                                     if (k_CrushtoPosition.GetExactDist2d(p_Creature) < 50.0f)
                                         m_NearestWarderGuids.emplace_back(p_Creature->GetGUID());
@@ -130,7 +130,7 @@ namespace MS
                             }
                         }
 
-                        void OnGameObjectCreate(GameObject* p_GameObject)
+                        void OnGameObjectCreate(GameObject* p_GameObject) override
                         {
                             switch (p_GameObject->GetEntry())
                             {
@@ -167,7 +167,7 @@ namespace MS
                             }
                         }
 
-                        void OnCreatureKilled(Creature* p_Creature, Player* p_Player)
+                        void OnCreatureKilled(Creature* p_Creature, Player* p_Player) override
                         {
                             switch (p_Creature->GetEntry())
                             {
@@ -222,13 +222,13 @@ namespace MS
                                 return;
 
                             ++m_CreatureKilled;
-                            SendScenarioProgressUpdate(CriteriaProgressData(eScenarioDatas::BloodmaulEnnemies, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+                            SendScenarioProgressUpdate(CriteriaProgressData(eScenarioDatas::BloodmaulEnnemies, m_CreatureKilled, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
 
                             if (m_CreatureKilled >= eScenarioDatas::BloodmaulKillCount)
                                 m_ConditionCompleted = true;
                         }
 
-                        bool SetBossState(uint32 p_ID, EncounterState p_State)
+                        bool SetBossState(uint32 p_ID, EncounterState p_State) override
                         {
                             if (!InstanceScript::SetBossState(p_ID, p_State))
                                 return false;
@@ -313,7 +313,7 @@ namespace MS
                             return true;
                         }
 
-                        void SetData(uint32 p_Type, uint32 p_Data)
+                        void SetData(uint32 p_Type, uint32 /*p_Data*/) override
                         {
                             switch (p_Type)
                             {
@@ -325,7 +325,7 @@ namespace MS
                                             Position l_Pos;
                                             l_Spawn->GetPosition(&l_Pos);
                                             TempSummon* l_Summon = l_Spawn->SummonCreature(uint32(MobEntries::CapturedMiner1), l_Pos);
-                                            l_Summon->SetHealth(l_Summon->GetMaxHealth() / 2.0f);
+                                            l_Summon->SetHealth(uint32(l_Summon->GetMaxHealth() / 2.0f));
                                             if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(l_Summon, 80.0f, false))
                                                 l_Summon->GetMotionMaster()->MoveChase(l_Plr);
                                             m_CapturedMinerGuids.emplace_back(l_Summon->GetGUID());
@@ -337,7 +337,7 @@ namespace MS
                                     if (m_SlagnaSpawned)
                                         break;
 
-                                    static const Position k_SpawnSlagna = { 2191.21f, -191.67f, 213.72f };
+                                    static const Position k_SpawnSlagna = { 2191.21f, -191.67f, 213.72f, 0.0f};
                                     if (Creature* l_Slagna = instance->SummonCreature(uint32(MobEntries::Slagna), k_SpawnSlagna))
                                     {
                                         m_SlagnaSpawned = true;
@@ -350,7 +350,7 @@ namespace MS
                             }
                         }
 
-                        void SetData64(uint32 p_Type, uint64 p_Data)
+                        void SetData64(uint32 p_Type, uint64 p_Data) override
                         {
                             switch (p_Type)
                             {
@@ -367,7 +367,7 @@ namespace MS
                             }
                         }
 
-                        uint64 GetData64(uint32 p_Type)
+                        uint64 GetData64(uint32 p_Type) override
                         {
                             switch (p_Type)
                             {
@@ -386,7 +386,7 @@ namespace MS
                             return 0;
                         }
 
-                        void Update(uint32 p_Diff)
+                        void Update(uint32 p_Diff) override
                         {
                             UpdateOperations(p_Diff);
 
@@ -447,8 +447,10 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_instance_Bloodmaul()
 {
     new MS::Instances::Bloodmaul::instance_Bloodmaul();
     new MS::Instances::Bloodmaul::AreaTrigger_at_SpawnSlagna();
 }
+#endif

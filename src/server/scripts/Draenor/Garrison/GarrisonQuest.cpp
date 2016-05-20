@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonQuest.hpp"
 #include "Buildings/BuildingScripts.hpp"
 #include "ScriptMgr.h"
@@ -15,7 +16,7 @@
 #include "GarrisonScriptData.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonQuestPlayerScript::GarrisonQuestPlayerScript()
@@ -122,7 +123,7 @@ namespace MS { namespace Garrison
                 uint64 l_ItemGuid    = p_Item->GetGUID();
                 uint32 l_RewardCount = 1;
 
-                std::vector<uint32> l_Rewards = 
+                std::vector<uint32> l_Rewards =
                 {
                     118592,
                     119094,
@@ -361,7 +362,7 @@ namespace MS { namespace Garrison
         p_Player->SetPhaseMask(l_PhaseMask, true);
     }
 
-    void playerScript_Garrison_Portals_Phases::OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId)
+    void playerScript_Garrison_Portals_Phases::OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 /*p_OldZoneID*/, uint32 /*p_NewAreaId*/)
     {
         /// World Map Phases
         switch (p_NewZoneId)
@@ -458,7 +459,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    void playerScript_Garrison_Portals_Phases::OnQuestCleared(Player* p_Player, Quest const* p_Quest)
+    void playerScript_Garrison_Portals_Phases::OnQuestCleared(Player* p_Player, Quest const* /*p_Quest*/)
     {
         switch (p_Player->GetMapId())
         {
@@ -491,7 +492,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    void playerScript_Garrison_Portals_Phases::OnQuestReward(Player* p_Player, const Quest* p_Quest)
+    void playerScript_Garrison_Portals_Phases::OnQuestReward(Player* p_Player, const Quest* /*p_Quest*/)
     {
         switch (p_Player->GetMapId())
         {
@@ -617,6 +618,7 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_Quest()
 {
     new MS::Garrison::GarrisonBuildingAuraPlayerScript;
@@ -626,3 +628,4 @@ void AddSC_Garrison_Quest()
     new MS::Garrison::playerScript_Garrison_Quests_Phases;
     new MS::Garrison::spell_learning_blueprint;
 }
+#endif

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef COMMON_H
 #define COMMON_H
@@ -61,10 +51,13 @@
 
 #include "Define.h"
 
-#include "Dynamic/UnorderedMap.h"
+#include <LockedMap.h>
+#include <unordered_map>
+#include <unordered_set>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdexcept>
 #include <time.h>
 #include <cmath>
 #include <math.h>
@@ -72,6 +65,7 @@
 #include <signal.h>
 #include <assert.h>
 #include <random>
+#include <limits>
 
 #if PLATFORM == PLATFORM_WINDOWS
 #define STRCASECMP stricmp
@@ -85,10 +79,17 @@
 #include <map>
 #include <queue>
 #include <sstream>
-#include <algorithm>
 #include <forward_list>
 
+#include <iostream>     ///< std::cout
+#include <functional>   ///< std::less
+#include <algorithm>    ///< std::sort, std::includes
+
+#include <atomic>
 #include <mutex>
+#include <thread>
+#include <array>
+#include <vector>
 #include "Threading/LockedQueue.h"
 #include "Threading/Threading.h"
 
@@ -96,8 +97,9 @@
 #include <ace/Guard_T.h>
 #include <ace/RW_Thread_Mutex.h>
 #include <ace/Thread_Mutex.h>
+#include <ace/Singleton.h>
 
-// To remove later, when VS will support thread_local (c++11)
+/// MSVC 18 (2013) have only partial support of thread_local (c++11)
 #ifdef __GNUC__
 # define thread_local __thread
 #elif __STDC_VERSION__ >= 201112L

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,18 +45,18 @@ class ItemScript : public ScriptObjectImpl<true>
             UNUSED(p_Item);
             UNUSED(p_Quest);
 
-            return false; 
+            return false;
         }
 
         /// Called when a player uses the item.
         /// @p_Player           : Player who use this item
         /// @p_Item             : Used Item instance
         /// @p_SpellCastTargets : Item spell action targets
-        virtual bool OnUse(Player * p_Player, Item * p_Item, const SpellCastTargets & p_SpellCastTargets) ///< p_SpellCastTargets is unused
+        virtual bool OnUse(Player * p_Player, Item * p_Item, const SpellCastTargets & p_SpellCastTargets)
         {
             UNUSED(p_Player);
             UNUSED(p_Item);
-            //UNUSED(p_SpellCastTargets);
+            UNUSED(p_SpellCastTargets);
 
             return false;
         }
