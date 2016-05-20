@@ -505,7 +505,7 @@ enum AuraType
     SPELL_AURA_444                                          = 444,  // 6.0.X
     SPELL_AURA_445                                          = 445,  // 6.0.X
     SPELL_AURA_446                                          = 446,  // 6.0.X Can use opening abilities without being stealthed.(?)
-    SPELL_AURA_MOD_XP_PCT_FROM_KILLING_UNIT_TYPE            = 447,  // 6.0.X
+    SPELL_AURA_MOD_XP_FROM_CREATURE_TYPE                    = 447,  // 6.0.X SPELL_AURA_MOD_XP_FROM_CREATURE_TYPE implemented in KillRewarder::_RewardXP
     SPELL_AURA_448                                          = 448,  // 6.0.X Battle fatigue (unused)
     SPELL_AURA_449                                          = 449,  // 6.0.X
     SPELL_AURA_450                                          = 450,  // 6.0.X Character upgrade system
