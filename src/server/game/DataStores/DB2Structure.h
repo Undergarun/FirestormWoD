@@ -294,10 +294,10 @@ struct CreatureDisplayInfoEntry
     //uint32    m_sounID;                                           ///< 2      m_SoundID
     uint32  ExtendedDisplayInfoID;                                  ///< 3      m_ExtendedDisplayInfoID
     float   scale;                                                  ///< 4      m_CreatureModelScale
-    //float     620_unk                                             ///< 5
+    //float     PlayerModelScale;                                   ///< 5      Used for players if greater than 0, see client's CGUnit_C::GetModelScale
     //uint32    m_creatureModelAlpha;                               ///< 6      m_CreatureModelAlpha
     //char*     m_textureName;                                      ///< 7-9    m_TextureVariation[3]
-    //char*     m_portraitTextureName ;                             ///< 10      m_PortraitTextureName
+    //char*     m_portraitTextureName ;                             ///< 10     m_PortraitTextureName
     //uint32    m_PortraitCreatureDisplayInfoID                     ///< 11     m_PortraitCreatureDisplayInfoID
     //uint32    m_SizeClass;                                        ///< 12     m_SizeClasss
     //uint32    m_BloodID;                                          ///< 13     m_BloodID
@@ -552,10 +552,10 @@ struct GarrFollowerEntry
     uint32 Flags;                                                   ///< 15
     char * HordeSourceText;                                         ///< 16     Descr1 : zoneH (where you find this follower)
     char * AllinaceSourceText;                                      ///< 17     Descr2 : zoneA (where you find this follower)
-    int32  Unk1;                                                    ///< 18     H
-    int32  Unk2;                                                    ///< 19     A
-    uint32 HordePortraitIconID;                                     ///< 20
-    uint32 AlliancePortraitIconID;                                  ///< 21
+    int32  HordePortraitIconID;                                     ///< 18
+    int32  AlliancePortraitIconID;                                  ///< 19
+    uint32 HordeListPortraitTextureKitID;                           ///< 20
+    uint32 AllianceListPortraitTextureKitID;                        ///< 21
 };
 
 struct GarrFollowerTypeEntry
@@ -1384,7 +1384,7 @@ struct SpellProcsPerMinuteEntry
 {
     uint32 Id;                                                      ///< 0        m_ID
     float  ProcsPerMinute;                                          ///< 1        m_procsPerMinute
-    //bool unk;                                                     ///< 2
+    uint32 Flags;                                                   ///< 2
 };
 
 struct SpellRadiusEntry

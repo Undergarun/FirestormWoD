@@ -37,7 +37,7 @@ void WorldSession::SendTradeStatus(TradeStatus p_Status)
             l_Data << uint32(0);
             break;
         case TRADE_STATUS_NOT_ON_TAPLIST:
-            l_Data << uint8(0); // unk
+            l_Data << uint8(0); ///< TradeSlot
             break;
         case TRADE_STATUS_INITIATED:
             m_Player->InitializeClientStateIndex();
