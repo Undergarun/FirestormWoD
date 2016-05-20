@@ -294,6 +294,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
         case SMART_TARGET_CLOSEST_CREATURE:
         case SMART_TARGET_CLOSEST_ENEMY:
+        case SMART_TARGET_CLOSEST_FRIENDLY:
         case SMART_TARGET_STORED:
             break;
         default:
@@ -537,6 +538,105 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 }
                 break;
             }
+            case SMART_EVENT_FRIENDLY_HEALTH_PCT:
+            {
+                if (!IsMinMaxValid(e, e.event.friendlyHealthPct.repeatMin, e.event.friendlyHealthPct.repeatMax))
+                    return false;
+
+                if (e.event.friendlyHealthPct.maxHpPct > 100 || e.event.friendlyHealthPct.minHpPct > 100)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u has pct value above 100, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                    return false;
+                }
+
+                switch (e.GetTargetType())
+                {
+                    case SMART_TARGET_CREATURE_RANGE:
+                    case SMART_TARGET_CREATURE_GUID:
+                    case SMART_TARGET_CREATURE_DISTANCE:
+                    case SMART_TARGET_CLOSEST_CREATURE:
+                    case SMART_TARGET_CLOSEST_PLAYER:
+                    case SMART_TARGET_PLAYER_RANGE:
+                    case SMART_TARGET_PLAYER_DISTANCE:
+                        break;
+                    default:
+                        sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid target_type %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.GetTargetType());
+                        return false;
+                }
+                break;
+            }
+            case SMART_EVENT_DISTANCE_CREATURE:
+            {
+                if (e.event.distance.guid == 0 && e.event.distance.entry == 0)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE did not provide creature guid or entry, skipped.");
+                    return false;
+                }
+
+                if (e.event.distance.guid != 0 && e.event.distance.entry != 0)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE provided both an entry and guid, skipped.");
+                    return false;
+                }
+
+                if (e.event.distance.guid != 0 && !sObjectMgr->GetCreatureData(e.event.distance.guid))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature guid %u, skipped.", e.event.distance.guid);
+                    return false;
+                }
+
+                if (e.event.distance.entry != 0 && !sObjectMgr->GetCreatureTemplate(e.event.distance.entry))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature entry %u, skipped.", e.event.distance.entry);
+                    return false;
+                }
+                break;
+            }
+            case SMART_EVENT_DISTANCE_GAMEOBJECT:
+            {
+                if (e.event.distance.guid == 0 && e.event.distance.entry == 0)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT did not provide gameobject guid or entry, skipped.");
+                    return false;
+                }
+
+                if (e.event.distance.guid != 0 && e.event.distance.entry != 0)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT provided both an entry and guid, skipped.");
+                    return false;
+                }
+
+                if (e.event.distance.guid != 0 && !sObjectMgr->GetGOData(e.event.distance.guid))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject guid %u, skipped.", e.event.distance.guid);
+                    return false;
+                }
+
+                if (e.event.distance.entry != 0 && !sObjectMgr->GetGameObjectTemplate(e.event.distance.entry))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject entry %u, skipped.", e.event.distance.entry);
+                    return false;
+                }
+                break;
+            }
+            case SMART_EVENT_COUNTER_SET:
+            {
+                if (!IsMinMaxValid(e, e.event.counter.cooldownMin, e.event.counter.cooldownMax))
+                    return false;
+
+                if (e.event.counter.id == 0)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Event SMART_EVENT_COUNTER_SET using invalid counter id %u, skipped.", e.event.counter.id);
+                    return false;
+                }
+
+                if (e.event.counter.value == 0)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Event SMART_EVENT_COUNTER_SET using invalid value %u, skipped.", e.event.counter.value);
+                    return false;
+                }
+                break;
+            }
             case SMART_EVENT_GO_STATE_CHANGED:
             case SMART_EVENT_GO_EVENT_INFORM:
             case SMART_EVENT_TIMED_EVENT_TRIGGERED:
@@ -653,6 +753,23 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (e.action.randomEmote.emote6 && !IsEmoteValid(e, e.action.randomEmote.emote6))
                 return false;
             break;
+        case SMART_ACTION_RANDOM_SOUND:
+        {
+            if (std::all_of(e.action.randomSound.sounds.begin(), e.action.randomSound.sounds.end(), [](uint32 sound) { return sound == 0; }))
+            {
+                sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u does not have any non-zero sound", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+
+                return false;
+            }
+
+            for (uint32 sound : e.action.randomSound.sounds)
+            {
+                if (sound && !IsSoundValid(e, sound))
+                    return false;
+            }
+
+            break;
+        }
         case SMART_ACTION_ADD_AURA:
         case SMART_ACTION_CAST:
         case SMART_ACTION_INVOKER_CAST:
@@ -873,6 +990,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         }
+        case SMART_ACTION_START_CLOSEST_WAYPOINT:
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
@@ -945,6 +1063,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_ADD_GO_FLAG:
         case SMART_ACTION_REMOVE_GO_FLAG:
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
+        case SMART_ACTION_RISE_UP:
+        case SMART_ACTION_SET_CORPSE_DELAY:
         case SMART_ACTION_SEND_SCENARIO_STATE:
         case SMART_ACTION_SEND_SCENARIO_PROGRESS_UPDATE:
         case SMART_ACTION_UPDATE_PLOT_INSTANCE:

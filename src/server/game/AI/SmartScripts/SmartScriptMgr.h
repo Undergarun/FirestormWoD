@@ -147,8 +147,12 @@ enum SMART_EVENT
     SMART_EVENT_GO_EVENT_INFORM          = 71,      // eventId
     SMART_EVENT_ACTION_DONE              = 72,      // eventId (SharedDefines.EventId)
     SMART_EVENT_ON_SPELLCLICK            = 73,      // clicker (unit)
+    SMART_EVENT_FRIENDLY_HEALTH_PCT      = 74,      // minHpPct, maxHpPct, repeatMin, repeatMax
+    SMART_EVENT_DISTANCE_CREATURE        = 75,      // guid, entry, distance, repeat
+    SMART_EVENT_DISTANCE_GAMEOBJECT      = 76,      // guid, entry, distance, repeat
+    SMART_EVENT_COUNTER_SET              = 77,      // id, value, cooldownMin, cooldownMax
 
-    SMART_EVENT_END                      = 74
+    SMART_EVENT_END
 };
 
 struct SmartEvent
@@ -355,6 +359,30 @@ struct SmartEvent
 
         struct
         {
+            uint32 minHpPct;
+            uint32 maxHpPct;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } friendlyHealthPct;
+
+        struct
+        {
+            uint32 guid;
+            uint32 entry;
+            uint32 dist;
+            uint32 repeat;
+        } distance;
+
+        struct
+        {
+            uint32 id;
+            uint32 value;
+            uint32 cooldownMin;
+            uint32 cooldownMax;
+        } counter;
+
+        struct
+        {
             uint32 param1;
             uint32 param2;
             uint32 param3;
@@ -488,11 +516,17 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_POWER                       = 110,    // PowerType, newPower
     SMART_ACTION_GAME_EVENT_STOP                    = 111,    // GameEventId
     SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
-    SMART_ACTION_SEND_SCENARIO_PROGRESS_UPDATE      = 113,
-    SMART_ACTION_SEND_SCENARIO_STATE                = 114,
-    SMART_ACTION_UPDATE_PLOT_INSTANCE               = 115,
-    SMART_ACTION_PLAY_SCENE_OBJECT                  = 116,
-    SMART_ACTION_ENTER_LFG_QUEUE                    = 117,
+    SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
+    SMART_ACTION_RISE_UP                            = 114,    // distance
+    SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
+    SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
+
+    /// IDs custom for Firestorm (check structures to get params)
+    SMART_ACTION_SEND_SCENARIO_PROGRESS_UPDATE      = 1001,
+    SMART_ACTION_SEND_SCENARIO_STATE                = 1002,
+    SMART_ACTION_UPDATE_PLOT_INSTANCE               = 1003,
+    SMART_ACTION_PLAY_SCENE_OBJECT                  = 1004,
+    SMART_ACTION_ENTER_LFG_QUEUE                    = 1005,
 
     SMART_ACTION_END
 };
@@ -965,6 +999,27 @@ struct SmartAction
 
         struct
         {
+            uint32 wp1;
+            uint32 wp2;
+            uint32 wp3;
+            uint32 wp4;
+            uint32 wp5;
+            uint32 wp6;
+        } closestWaypointFromList;
+
+        struct
+        {
+            std::array<uint32, SMART_ACTION_PARAM_COUNT - 1> sounds;
+            uint32 onlySelf;
+        } randomSound;
+
+        struct
+        {
+            uint32 timer;
+        } corpseDelay;
+
+        struct
+        {
             uint32 CriteriaID;
             uint32 CriteriaCount;
         } sendScenarioProgressUpdate;
@@ -1040,8 +1095,9 @@ enum SMARTAI_TARGETS
     SMART_TARGET_OWNER_OR_SUMMONER              = 23,   // Unit's owner or summoner
     SMART_TARGET_THREAT_LIST                    = 24,   // All units on creature's threat list
     SMART_TARGET_CLOSEST_ENEMY                  = 25,   // maxDist
+    SMART_TARGET_CLOSEST_FRIENDLY               = 26,   // maxDist, playerOnly
 
-    SMART_TARGET_END                            = 26
+    SMART_TARGET_END
 };
 
 struct SmartTarget
@@ -1266,6 +1322,7 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_GO_EVENT_INFORM,           SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_ACTION_DONE,               SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_SPELLCLICK,             SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_FRIENDLY_HEALTH_PCT,       SMART_SCRIPT_TYPE_MASK_CREATURE }
 };
 
 enum SmartEventFlags

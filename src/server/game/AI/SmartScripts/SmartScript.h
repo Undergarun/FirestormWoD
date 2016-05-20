@@ -37,6 +37,7 @@ class SmartScript
         void UpdateTimer(SmartScriptHolder& e, uint32 const diff);
         void InitTimer(SmartScriptHolder& e);
         void ProcessAction(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
+        void ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob);
         ObjectList* GetTargets(SmartScriptHolder const& e, Unit* invoker = NULL);
         ObjectList* GetWorldObjectsInDist(float dist);
         void InstallTemplate(SmartScriptHolder const& e);
@@ -135,6 +136,42 @@ class SmartScript
             return NULL;
         }
 
+        void StoreCounter(uint32 id, uint32 value, uint32 reset)
+        {
+            CounterMap::const_iterator itr = mCounterList.find(id);
+
+            if (itr != mCounterList.end())
+            {
+                if (reset == 0)
+                    value += GetCounterValue(id);
+
+                mCounterList.erase(id);
+            }
+
+            mCounterList.insert(std::make_pair(id, value));
+            ProcessEventsFor(SMART_EVENT_COUNTER_SET);
+        }
+
+        uint32 GetCounterId(uint32 id)
+        {
+            CounterMap::iterator itr = mCounterList.find(id);
+
+            if (itr != mCounterList.end())
+                return itr->first;
+
+            return 0;
+        }
+
+        uint32 GetCounterValue(uint32 id)
+        {
+            CounterMap::iterator itr = mCounterList.find(id);
+
+            if (itr != mCounterList.end())
+                return itr->second;
+
+            return 0;
+        }
+
         GameObject* FindGameObjectNear(WorldObject* searchObject, uint32 guid) const
         {
             GameObject* gameObject = NULL;
@@ -195,6 +232,8 @@ class SmartScript
         void SetScript9(SmartScriptHolder& e, uint32 entry);
         Unit* GetLastInvoker();
         uint64 mLastInvoker;
+        typedef std::unordered_map<uint32, uint32> CounterMap;
+        CounterMap mCounterList;
 
     private:
         void IncPhase(int32 p = 1)

@@ -1094,6 +1094,14 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             me->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, x, y, z);
             break;
         }
+        case SMART_ACTION_RISE_UP:
+        {
+            if (!me)
+                break;
+
+            me->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + (float)e.action.moveRandom.distance);
+            break;
+        }
         case SMART_ACTION_SET_VISIBILITY:
         {
             if (me)
@@ -1390,7 +1398,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 e.GetTargetType() == SMART_TARGET_GAMEOBJECT_GUID || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_DISTANCE ||
                 e.GetTargetType() == SMART_TARGET_CLOSEST_CREATURE || e.GetTargetType() == SMART_TARGET_CLOSEST_GAMEOBJECT ||
                 e.GetTargetType() == SMART_TARGET_OWNER_OR_SUMMONER || e.GetTargetType() == SMART_TARGET_ACTION_INVOKER ||
-                e.GetTargetType() == SMART_TARGET_CLOSEST_ENEMY)
+                e.GetTargetType() == SMART_TARGET_CLOSEST_ENEMY || e.GetTargetType() == SMART_TARGET_CLOSEST_FRIENDLY)
             {
                 ObjectList* targets = GetTargets(e, unit);
                 if (!targets)
@@ -1996,15 +2004,35 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
         case SMART_ACTION_SET_HOME_POS:
         {
-            if (!me)
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (!targets)
                 break;
 
-            if (e.GetTargetType() == SMART_TARGET_SELF)
-                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-            else if (e.GetTargetType() == SMART_TARGET_POSITION)
-                me->SetHomePosition(e.target.x, e.target.y, e.target.z, e.target.o);
-            else
-                sLog->outError(LOG_FILTER_SQL, "SmartScript: Action target for SMART_ACTION_SET_HOME_POS is not using SMART_TARGET_SELF or SMART_TARGET_POSITION, skipping");
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+            {
+                if (IsCreature(*itr))
+                {
+                    if (e.GetTargetType() == SMART_TARGET_SELF)
+                        (*itr)->ToCreature()->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+                    else if (e.GetTargetType() == SMART_TARGET_POSITION)
+                        (*itr)->ToCreature()->SetHomePosition(e.target.x, e.target.y, e.target.z, e.target.o);
+                    else if (e.GetTargetType() == SMART_TARGET_CREATURE_RANGE || e.GetTargetType() == SMART_TARGET_CREATURE_GUID ||
+                    e.GetTargetType() == SMART_TARGET_CREATURE_DISTANCE || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_RANGE ||
+                    e.GetTargetType() == SMART_TARGET_GAMEOBJECT_GUID || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_DISTANCE ||
+                    e.GetTargetType() == SMART_TARGET_CLOSEST_CREATURE || e.GetTargetType() == SMART_TARGET_CLOSEST_GAMEOBJECT ||
+                    e.GetTargetType() == SMART_TARGET_OWNER_OR_SUMMONER || e.GetTargetType() == SMART_TARGET_ACTION_INVOKER ||
+                    e.GetTargetType() == SMART_TARGET_CLOSEST_ENEMY || e.GetTargetType() == SMART_TARGET_CLOSEST_FRIENDLY)
+                    {
+                        (*itr)->ToCreature()->SetHomePosition((*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ(), (*itr)->GetOrientation());
+                    }
+
+                    else
+                        sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript: Action target for SMART_ACTION_SET_HOME_POS is invalid, skipping");
+                }
+            }
+
+            delete targets;
 
             break;
         }
@@ -2134,6 +2162,106 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             sGameEventMgr->StartEvent(eventId, true);
             break;
         }
+        case SMART_ACTION_START_CLOSEST_WAYPOINT:
+        {
+            uint32 waypoints[SMART_ACTION_PARAM_COUNT];
+            waypoints[0] = e.action.closestWaypointFromList.wp1;
+            waypoints[1] = e.action.closestWaypointFromList.wp2;
+            waypoints[2] = e.action.closestWaypointFromList.wp3;
+            waypoints[3] = e.action.closestWaypointFromList.wp4;
+            waypoints[4] = e.action.closestWaypointFromList.wp5;
+            waypoints[5] = e.action.closestWaypointFromList.wp6;
+            float distanceToClosest = std::numeric_limits<float>::max();
+            WayPoint* closestWp = NULL;
+
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+            {
+                for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                {
+                    if (Creature* target = (*itr)->ToCreature())
+                    {
+                        if (IsSmart(target))
+                        {
+                            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT; i++)
+                            {
+                                if (!waypoints[i])
+                                    continue;
+
+                                WPPath* path = sSmartWaypointMgr->GetPath(waypoints[i]);
+
+                                if (!path || path->empty())
+                                    continue;
+
+                                WPPath::const_iterator itrWp = path->find(0);
+
+                                if (itrWp != path->end())
+                                {
+                                    if (WayPoint* wp = itrWp->second)
+                                    {
+                                        float distToThisPath = target->GetDistance(wp->x, wp->y, wp->z);
+
+                                        if (distToThisPath < distanceToClosest)
+                                        {
+                                            distanceToClosest = distToThisPath;
+                                            closestWp = wp;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (closestWp)
+                            CAST_AI(SmartAI, target->AI())->StartPath(false, closestWp->id, true);
+                        }
+                    }
+                }
+
+                delete targets;
+            }
+
+            break;
+        }
+        case SMART_ACTION_RANDOM_SOUND:
+        {
+            std::vector<uint32> sounds;
+            std::copy_if(e.action.randomSound.sounds.begin(), e.action.randomSound.sounds.end(),
+                std::back_inserter(sounds), [](uint32 sound) { return sound != 0; });
+
+            bool onlySelf = e.action.randomSound.onlySelf != 0;
+
+            if (ObjectList* targets = GetTargets(e, unit))
+            {
+                for (WorldObject* const obj : *targets)
+                {
+                    if (IsUnit(obj))
+                    {
+                        uint32 sound = Trinity::Containers::SelectRandomContainerElement(sounds);
+                        obj->PlayDirectSound(sound, onlySelf ? obj->ToPlayer() : nullptr);
+                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: %s (%s), sound: %u, onlyself: %s",
+                            obj->GetName().c_str(), obj->GetGUID().ToString().c_str(), sound, onlySelf ? "true" : "false");
+                    }
+                }
+
+                delete targets;
+                break;
+            }
+        }
+        case SMART_ACTION_SET_CORPSE_DELAY:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+            {
+                if (IsCreature(*itr))
+                    (*itr)->ToCreature()->SetCorpseDelay(e.action.corpseDelay.timer);
+            }
+
+            delete targets;
+            break;
+        }
         case SMART_ACTION_SEND_SCENARIO_PROGRESS_UPDATE:
         {
             WorldObject* l_Object = GetBaseObject();
@@ -2227,6 +2355,14 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         else
             sLog->outDebug(LOG_FILTER_SQL, "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
     }
+}
+
+void SmartScript::ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob)
+{
+    if (sConditionMgr->IsObjectMeetingSmartEventConditions(e.entryOrGuid, e.event_id, e.source_type, unit, GetBaseObject()))
+        ProcessAction(e, unit, var0, var1, bvar, spell, gob);
+
+    RecalcTimer(e, min, max);
 }
 
 void SmartScript::InstallTemplate(SmartScriptHolder const& e)
@@ -3067,6 +3203,119 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessAction(e, unit, var0);
             break;
         }
+        case SMART_EVENT_FRIENDLY_HEALTH_PCT:
+        {
+            if (!me || !me->isInCombat())
+                return;
+
+            ObjectList* _targets = NULL;
+
+            switch (e.GetTargetType())
+            {
+                case SMART_TARGET_CREATURE_RANGE:
+                case SMART_TARGET_CREATURE_GUID:
+                case SMART_TARGET_CREATURE_DISTANCE:
+                case SMART_TARGET_CLOSEST_CREATURE:
+                case SMART_TARGET_CLOSEST_PLAYER:
+                case SMART_TARGET_PLAYER_RANGE:
+                case SMART_TARGET_PLAYER_DISTANCE:
+                    _targets = GetTargets(e);
+                    break;
+                default:
+                    return;
+            }
+
+            if (!_targets)
+                return;
+
+            Unit* target = NULL;
+
+            for (ObjectList::const_iterator itr = _targets->begin(); itr != _targets->end(); ++itr)
+            {
+                if (IsUnit(*itr) && me->IsFriendlyTo((*itr)->ToUnit()) && (*itr)->ToUnit()->isAlive() && (*itr)->ToUnit()->isInCombat())
+                {
+                    uint32 healthPct = uint32((*itr)->ToUnit()->GetHealthPct());
+
+                    if (healthPct > e.event.friendlyHealthPct.maxHpPct || healthPct < e.event.friendlyHealthPct.minHpPct)
+                        continue;
+
+                    target = (*itr)->ToUnit();
+                    break;
+                }
+            }
+
+            delete _targets;
+
+            if (!target)
+                return;
+
+            ProcessTimedAction(e, e.event.friendlyHealthPct.repeatMin, e.event.friendlyHealthPct.repeatMax, target);
+            break;
+        }
+        case SMART_EVENT_DISTANCE_CREATURE:
+        {
+            if (!me)
+                return;
+
+            Creature* creature = nullptr;
+
+            if (e.event.distance.guid != 0)
+            {
+                creature = FindCreatureNear(me, e.event.distance.guid);
+                if (!creature)
+                    return;
+
+                if (!me->IsInRange(creature, 0, static_cast<float>(e.event.distance.dist)))
+                    return;
+            }
+            else if (e.event.distance.entry != 0)
+            {
+                std::list<Creature*> list;
+                me->GetCreatureListWithEntryInGrid(list, e.event.distance.entry, static_cast<float>(e.event.distance.dist));
+
+                if (!list.empty())
+                    creature = list.front();
+            }
+
+            if (creature)
+                ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat, creature);
+
+            break;
+        }
+        case SMART_EVENT_DISTANCE_GAMEOBJECT:
+        {
+            if (!me)
+                return;
+
+            GameObject* gameobject = nullptr;
+
+            if (e.event.distance.guid != 0)
+            {
+                gameobject = FindGameObjectNear(me, e.event.distance.guid);
+                if (!gameobject)
+                    return;
+
+                if (!me->IsInRange(gameobject, 0, static_cast<float>(e.event.distance.dist)))
+                    return;
+            }
+            else if (e.event.distance.entry != 0)
+            {
+                std::list<GameObject*> list;
+                me->GetGameObjectListWithEntryInGrid(list, e.event.distance.entry, static_cast<float>(e.event.distance.dist));
+
+                if (!list.empty())
+                    gameobject = list.front();
+            }
+
+            if (gameobject)
+                ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat, nullptr, 0, 0, false, nullptr, gameobject);
+
+            break;
+        }
+        case SMART_EVENT_COUNTER_SET:
+            if (GetCounterId(e.event.counter.id) != 0 && GetCounterValue(e.event.counter.id) == e.event.counter.value)
+                ProcessTimedAction(e, e.event.counter.cooldownMin, e.event.counter.cooldownMax);
+            break;
         default:
             sLog->outError(LOG_FILTER_SQL, "SmartScript::ProcessEvent: Unhandled Event type %u", e.GetEventType());
             break;
@@ -3084,6 +3333,10 @@ void SmartScript::InitTimer(SmartScriptHolder& e)
         case SMART_EVENT_OOC_LOS:
         case SMART_EVENT_IC_LOS:
             RecalcTimer(e, e.event.minMaxRepeat.min, e.event.minMaxRepeat.max);
+            break;
+        case SMART_EVENT_DISTANCE_CREATURE:
+        case SMART_EVENT_DISTANCE_GAMEOBJECT:
+            RecalcTimer(e, e.event.distance.repeat, e.event.distance.repeat);
             break;
         default:
             e.active = true;
@@ -3144,6 +3397,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
             case SMART_EVENT_HAS_AURA:
             case SMART_EVENT_TARGET_BUFFED:
             case SMART_EVENT_IS_BEHIND_TARGET:
+            case SMART_EVENT_FRIENDLY_HEALTH_PCT:
             {
                 ProcessEvent(e);
                 if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
