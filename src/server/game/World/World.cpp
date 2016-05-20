@@ -1227,7 +1227,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ENABLE_LOOTS]              = ConfigMgr::GetBoolDefault("loading.loot", true);
     m_bool_configs[CONFIG_ENABLE_GAMEOBJECTS]        = ConfigMgr::GetBoolDefault("loading.gameobject", true);
     m_bool_configs[CONFIG_ENABLE_LOCALES]            = ConfigMgr::GetBoolDefault("loading.locales", true);
-    m_bool_configs[CONFIG_ENABLE_ONLY_SPECIFIC_MAP]  = ConfigMgr::GetBoolDefault("loading.onlyspecificmap", false);
+    m_bool_configs[CONFIG_ENABLE_ONLY_SPECIFIC_MAP]  = ConfigMgr::GetBoolDefault("loading.onlyspecificmaps", false);
     m_bool_configs[CONFIG_ENABLE_RESEARCH_SITE_LOAD] = ConfigMgr::GetBoolDefault("loading.researchsite", true);
     m_bool_configs[CONFIG_ENABLE_ITEM_SPEC_LOAD]     = ConfigMgr::GetBoolDefault("loading.itemspecload", true);
 
@@ -1577,7 +1577,7 @@ void World::SetInitialWorldSettings()
 
     uint32 oldMSTime = getMSTime();
 
-    if (!sWorld->getBoolConfig(CONFIG_ENABLE_LOCALES))
+    if (sWorld->getBoolConfig(CONFIG_ENABLE_LOCALES))
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Localization strings...");
         sObjectMgr->LoadCreatureLocales();
@@ -1740,7 +1740,7 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Addon Data...");
     sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
-    if (!sWorld->getBoolConfig(CONFIG_ENABLE_GAMEOBJECTS))
+    if (sWorld->getBoolConfig(CONFIG_ENABLE_GAMEOBJECTS))
     {
         /// sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Restructuring Gameobjects GUIDs...");
         /// sObjectMgr->RestructGameObjectGUID(10000);
@@ -3761,7 +3761,7 @@ void World::LoadWorldStates()
 void World::FillMapsToLoad()
 {
     std::string options = ConfigMgr::GetStringDefault("loading.onlymaps", "");
-    Tokenizer l_Tokens(options, ', ');
+    Tokenizer l_Tokens(options, ',');
 
     for (Tokenizer::const_iterator l_Iter = l_Tokens.begin(); l_Iter != l_Tokens.end(); ++l_Iter)
         m_MapsToLoad.push_back(uint32(atol(*l_Iter)));

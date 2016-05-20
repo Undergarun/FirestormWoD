@@ -20,6 +20,7 @@
 #include "Language.h"
 #include "AccountMgr.h"
 #include "SpellAuraEffects.h"
+#include "TradeData.h"
 
 void WorldSession::SendTradeStatus(TradeStatus p_Status)
 {
