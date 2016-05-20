@@ -2248,8 +2248,22 @@ class spell_warl_ember_tap: public SpellScriptLoader
                 GlyphOfEmberTap   = 63304,
                 MasteryEmberstorm = 77220,
                 EnhancedEmberTap  = 157121,
-                SearingFlames     = 174848
+                SearingFlames     = 174848,
+                Hex               = 51514
             };
+
+            SpellCastResult CheckCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(Hex))
+                        return SPELL_FAILED_SILENCED;
+                    else
+                        return SPELL_CAST_OK;
+                }
+                else
+                    return SPELL_FAILED_SUCCESS;
+            }
 
             void HandleBeforeHit()
             {
@@ -2319,6 +2333,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warl_ember_tap_SpellScript::CheckCast);
                 BeforeHit += SpellHitFn(spell_warl_ember_tap_SpellScript::HandleBeforeHit);
                 OnHit += SpellHitFn(spell_warl_ember_tap_SpellScript::HandleOnHit);
                 AfterHit += SpellHitFn(spell_warl_ember_tap_SpellScript::HandleAfterHit);
