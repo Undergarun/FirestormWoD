@@ -3580,7 +3580,8 @@ class spell_dru_swift_flight_passive: public SpellScriptLoader
         }
 };
 
-/// 114338 - Glyph of the Stag
+/// Last Update 6.2.3
+/// Glyph of the Stag - 114338
 class spell_dru_glyph_of_the_stag: public SpellScriptLoader
 {
     public:
@@ -3590,12 +3591,17 @@ class spell_dru_glyph_of_the_stag: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_glyph_of_the_stag_AuraScript);
 
+            enum eSpells
+            {
+                GlyphOfTheStagMountedAura = 115034
+            };
+
             bool Load()
             {
                 return GetCaster()->IsPlayer();
             }
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (!l_Target)
@@ -3609,9 +3615,12 @@ class spell_dru_glyph_of_the_stag: public SpellScriptLoader
                     l_Player->learnSpell(SPELL_DRUID_SWIFT_FLIGHT_FORM, false);
                 else if (l_Player->getLevel() >= 60 && !l_Player->HasSpell(SPELL_DRUID_FLIGHT_FORM))
                     l_Player->learnSpell(SPELL_DRUID_FLIGHT_FORM, false);
+
+                if (!l_Player->HasAura(eSpells::GlyphOfTheStagMountedAura))
+                    l_Player->CastSpell(l_Player, eSpells::GlyphOfTheStagMountedAura, true);
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (!l_Target)
@@ -3625,16 +3634,19 @@ class spell_dru_glyph_of_the_stag: public SpellScriptLoader
                     l_Player->removeSpell(SPELL_DRUID_SWIFT_FLIGHT_FORM, false, false);
                 else if (l_Player->getLevel() >= 60 && l_Player->HasSpell(SPELL_DRUID_FLIGHT_FORM))
                     l_Player->removeSpell(SPELL_DRUID_FLIGHT_FORM, false, false);
+
+                if (l_Player->HasAura(eSpells::GlyphOfTheStagMountedAura))
+                    l_Player->RemoveAura(GlyphOfTheStagMountedAura);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_the_stag_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_the_stag_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_dru_glyph_of_the_stag_AuraScript();
         }
@@ -6047,42 +6059,42 @@ public:
 
 class spell_dru_glyph_of_charm_woodland_creature : public SpellScriptLoader
 {
-public:
-    spell_dru_glyph_of_charm_woodland_creature() : SpellScriptLoader("spell_dru_glyph_of_charm_woodland_creature") { }
+    public:
+        spell_dru_glyph_of_charm_woodland_creature() : SpellScriptLoader("spell_dru_glyph_of_charm_woodland_creature") { }
 
-    class spell_dru_glyph_of_charm_woodland_creature_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_glyph_of_charm_woodland_creature_AuraScript);
-
-        enum eSpells
+        class spell_dru_glyph_of_charm_woodland_creature_AuraScript : public AuraScript
         {
-            GlyphOfCharmWoodlandCreature = 57855,
-            CharmWoodlandCreature = 127757
+            PrepareAuraScript(spell_dru_glyph_of_charm_woodland_creature_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfCharmWoodlandCreature = 57855,
+                CharmWoodlandCreature = 127757
+            };
+
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    l_Player->learnSpell(CharmWoodlandCreature, true);
+            }
+
+            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    l_Player->removeSpell(CharmWoodlandCreature);
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
         };
 
-        void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+        AuraScript* GetAuraScript() const override
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->learnSpell(CharmWoodlandCreature, true);
+            return new spell_dru_glyph_of_charm_woodland_creature_AuraScript();
         }
-
-        void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
-        {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->removeSpell(CharmWoodlandCreature);
-        }
-
-        void Register()
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_glyph_of_charm_woodland_creature_AuraScript();
-    }
 };
 
 #ifndef __clang_analyzer__
