@@ -43,7 +43,7 @@ EndScriptData */
 
 struct UnitStates
 {
-	UnitState   Flag;
+    UnitState   Flag;
     char const* Text;
 };
 
@@ -194,6 +194,7 @@ class debug_commandscript: public CommandScript
                 { "critical",                    SEC_ADMINISTRATOR,  false, &HandleDebugCriticalCommand,             "", NULL },
                 { "haste",                       SEC_ADMINISTRATOR,  false, &HandleDebugHasteCommand,                "", NULL },
                 { "mastery",                     SEC_ADMINISTRATOR,  false, &HandleDebugMasteryCommand,              "", NULL },
+                { "multistrike",                 SEC_ADMINISTRATOR,  false, &HandleDebugMultistrikeCommand,          "", NULL },
                 { "setaura",                     SEC_ADMINISTRATOR,  false, &HandleDebugAuraCommand,                 "", NULL },
                 { "cleardr",                     SEC_ADMINISTRATOR,  false, &HandleDebugCancelDiminishingReturn,     "", NULL },
                 { NULL,                          SEC_PLAYER,         false, NULL,                                    "", NULL }
@@ -295,6 +296,29 @@ class debug_commandscript: public CommandScript
             {
                 rapidCast->SetDuration(HOUR * IN_MILLISECONDS);
                 rapidCast->GetEffect(EFFECT_0)->ChangeAmount(pct);
+            }
+
+            return true;
+        }
+
+        static bool HandleDebugMultistrikeCommand(ChatHandler* handler, char const* args)
+        {
+            Unit* unit = handler->getSelectedUnit();
+            if (!unit)
+            {
+                handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int pct = atoi(args);
+            if (pct == 0)
+                pct = 100;
+
+            if (Aura* perfectAim = unit->AddAura(167732, unit))
+            {
+                perfectAim->SetDuration(HOUR * IN_MILLISECONDS);
+                perfectAim->GetEffect(EFFECT_0)->ChangeAmount(pct);
             }
 
             return true;
