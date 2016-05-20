@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "ObjectMgr.h"
@@ -131,18 +120,18 @@ enum eGaralonActions
     // Garalon's Legs
     ACTION_LEG_DIED,
     ACTION_MEND_LEG,          // Heal leg.
-    ACTION_LEG_WIPE,
+    ACTION_LEG_WIPE
 };
 
 enum eGaralonEntries
 {
     NPC_GARALON_LEG                 = 63053,
-    NPC_PHEROMONE_TRAIL             = 63021,
+    NPC_PHEROMONE_TRAIL             = 63021
 };
 
 enum eGaralonDisplayId
 {
-    DISPLAY_LEG_ACTIVE = 42852,
+    DISPLAY_LEG_ACTIVE = 42852
 };
 
 enum eGaralonGuids
@@ -271,7 +260,7 @@ public:
             return true;
         }
 
-        void DamageTaken(Unit* attacker, uint32 /*damage*/, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* attacker, uint32 /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (!fightInProgress)
             {
@@ -494,7 +483,7 @@ public:
 
                     break;
                 }
-                default: 
+                default:
                     break;
             }
         }
@@ -676,7 +665,7 @@ public:
             wipe = false;
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             // Players cannot actually kill the legs, they damage them enough and they become unselectable etc.
             if (me->GetHealth() <= damage)
@@ -742,7 +731,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) { }
+        void UpdateAI(const uint32 /*p_Diff*/) { }
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -920,7 +909,7 @@ class spell_garalon_mend_leg: public SpellScriptLoader
                 }
             }
 
-            void HandleScriptEffect(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -981,7 +970,7 @@ class spell_garalon_crush_trigger: public SpellScriptLoader
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 // If there are no hit players, means there are no players underneath Garalon's body, so there's nothing to do.
                 if (!GetCaster() || !GetHitUnit())
@@ -1232,7 +1221,7 @@ public:
             if (Unit* target = GetHitUnit())
             {
                 if (Aura* aur = target->GetAura(SPELL_PUNGENCY))
-                    SetHitDamage(int32(GetHitDamage() * (1.0f + float(aur->GetStackAmount() / 10.0f))));       
+                    SetHitDamage(int32(GetHitDamage() * (1.0f + float(aur->GetStackAmount() / 10.0f))));
             }
         }
 
@@ -1274,7 +1263,7 @@ public:
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
-            if (!GetCaster() || !GetHitUnit()) 
+            if (!GetCaster() || !GetHitUnit())
                 return;
 
             GetCaster()->RemoveAurasDueToSpell(SPELL_PHEROMONES_AURA);
@@ -1335,6 +1324,7 @@ class spell_garalon_pungency : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_garalon()
 {
     new boss_garalon();                         // 62164
@@ -1352,3 +1342,4 @@ void AddSC_boss_garalon()
     new spell_garalon_pheromones_switch();      // 123100 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (123100, "spell_garalon_pheromones_switch");
     new spell_garalon_pungency();               // 123081
 }
+#endif

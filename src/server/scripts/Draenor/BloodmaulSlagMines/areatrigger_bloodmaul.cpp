@@ -1,5 +1,13 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "instance_bloodmaul.hpp"
-#include <forward_list>
+#include "Common.h"
 
 namespace MS
 {
@@ -30,7 +38,7 @@ namespace MS
                     return new AreaTrigger_SuppresionField();
                 }
 
-                void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+                void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
                 {
                     // If We are on the last tick.
                     if (p_AreaTrigger->GetDuration() < 100)
@@ -45,7 +53,7 @@ namespace MS
                     }
                 }
 
-                void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+                void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
                 {
                     std::list<Unit*> l_TargetList;
                     float l_Radius = 5.0f;
@@ -86,8 +94,9 @@ namespace MS
         }
     }
 }
-
+#ifndef __clang_analyzer__
 void AddSC_areatrigger_Bloodmaul()
 {
     new MS::Instances::Bloodmaul::AreaTrigger_SuppresionField();
 }
+#endif

@@ -1,22 +1,23 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_NPC_HPP_GARRISON
-#define GARRISON_NPC_HPP_GARRISON
+# define GARRISON_NPC_HPP_GARRISON
 
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../../game/AI/ScriptedAI/ScriptedEscortAI.h"
-#include <map>
+#include "Common.h"
 #include "ScriptedCosmeticAI.hpp"
 #include "Vehicle.h"
 #include "CombatAI.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Sequence position structure
     struct SequencePosition
@@ -478,7 +479,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const; ///< 'GetAI' overrides a member function but is not marked 'override'
+            CreatureAI* GetAI(Creature* p_Creature) const override;
 
             /// Creature AI
             struct npc_SeniorPeonIIAI : public CreatureAI
@@ -611,7 +612,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const; ///< 'GetAI' overrides a member function but is not marked 'override'
+            CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
     class npc_garrison_atheeru_palestarAI : public GarrisonNPCAI
@@ -939,7 +940,7 @@ namespace MS { namespace Garrison
                 virtual void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override;
 
                 virtual void JustDied(Unit* p_Killer) override;
-            };            
+            };
 
     };
 
@@ -982,7 +983,7 @@ namespace MS { namespace Garrison
                 virtual void EnterEvadeMode() override;
 
                 virtual void UpdateAI(uint32 const p_Diff) override;
-            };            
+            };
 
     };
 
@@ -1016,7 +1017,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const override;
 
             /// Creature AI
             struct npc_GarrisonWalterAI : public VehicleAI
@@ -1032,7 +1033,7 @@ namespace MS { namespace Garrison
                 virtual void IsSummonedBy(Unit* p_Summoner) override;
 
                 virtual uint64 GetGUID(int32 p_ID) override;
-            };            
+            };
 
     };
 

@@ -1,19 +1,20 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_LUNARFALL_EXCAVATION_ALLIANCE_HPP_GARRISON
-#define GARRISON_LUNARFALL_EXCAVATION_ALLIANCE_HPP_GARRISON
+# define GARRISON_LUNARFALL_EXCAVATION_ALLIANCE_HPP_GARRISON
 
-#include "../../GarrisonScriptData.hpp"
-#include "../../GarrisonNPC.hpp"
-#include "../GatheringBuilding.hpp"
-#include "GarrisonMgr.hpp"
+# include "../../GarrisonScriptData.hpp"
+# include "../../GarrisonNPC.hpp"
+# include "../GatheringBuilding.hpp"
+# include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     namespace LunarfallExcavation
     {
@@ -74,7 +75,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
 }   ///< namespace Garrison

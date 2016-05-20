@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ class FormulaScript : public ScriptObjectImpl<false>
         }
 
         /// Called after calculating zero difference.
-        /// @p_Diff        : Level difference 
+        /// @p_Diff        : Level difference
         /// @p_PlayerLevel : Player level
         virtual void OnZeroDifferenceCalculation(uint8& p_Diff, uint8 p_PlayerLevel)
         {
@@ -633,11 +633,12 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_DamageEffectTyp : Damage type
         /// @p_Damage          : Amount of damage taken
         /// @p_SchoolMask      : school mask of the damage
-        virtual void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage) ///< p_SchoolMask is unused
+        virtual void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage)
         {
             UNUSED(p_Player);
             UNUSED(p_DamageEffectType);
             UNUSED(p_Damage);
+            UNUSED(p_SchoolMask);
             UNUSED(p_CleanDamage);
         }
 

@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include <ScriptPCH.h>
 #include <ScriptMgr.h>
 #include "ChannelMgr.h"
@@ -72,7 +80,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_StressTest()
 {
     new StressTest();
 };
+#endif

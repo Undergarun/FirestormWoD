@@ -1,21 +1,10 @@
-/*
-* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -171,7 +160,7 @@ class boss_galion : public CreatureScript
                 p_Summon->setActive(true);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (Unit* l_ChiefSalyis = me->GetVehicleKit()->GetPassenger(2))
                     l_ChiefSalyis->ToCreature()->AI()->Talk(TALK_DEATH);
@@ -210,7 +199,7 @@ class boss_galion : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (p_Damage >= me->GetHealth())
                 {
@@ -324,7 +313,7 @@ class npc_chief_salyis : public CreatureScript
 
             bool m_IntroDone;
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 m_IntroDone = false;
             }
@@ -338,7 +327,7 @@ class npc_chief_salyis : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 p_Diff) { }
+            void UpdateAI(const uint32 /*p_Diff*/) { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const
@@ -367,7 +356,7 @@ class npc_salyin_warmonger : public CreatureScript
                 m_IsInCombat = false;
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (me->IsOnVehicle())
                     m_Events.ScheduleEvent(EVENT_FIRE_SHOT, urand(5000, 10000));
@@ -446,9 +435,11 @@ class spell_impaling_pull: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_galion()
 {
     new boss_galion();
     new npc_salyin_warmonger();
     new spell_impaling_pull();
 }
+#endif

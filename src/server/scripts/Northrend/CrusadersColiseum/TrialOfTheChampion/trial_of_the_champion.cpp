@@ -1,19 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Trial Of the Champion
@@ -59,7 +50,7 @@ const Position FactionChampionPos[2][3] =
         {767.643f, 639.450f, 411.757f, 3.3663f},
         {779.169f, 618.351f, 411.607f, 3.06471f},
         {769.012f, 596.386f, 411.569f, 2.92883f},
-    },
+    }
 };
 const Position ArgentSoldierPosition[3] =
 {
@@ -113,7 +104,7 @@ enum Says
     SAY_BK_INTRO_2 = 11,
     SAY_BK_INTRO_3 = 12,
     SAY_VARIAN_INTRO_BK = 10,
-    SAY_GARROSH_INTRO_BK = 10,
+    SAY_GARROSH_INTRO_BK = 10
 };
 
 enum GossipTexts
@@ -121,7 +112,7 @@ enum GossipTexts
     GOSSIP_TEXT_NOT_MOUNTED_HORDE = 15043,
     GOSSIP_TEXT_NOT_MOUNTED_ALLIANCE = 14757,
     GOSSIP_TEXT_FACTION_CHAMPIONS_DEFEATED = 14737,
-    GOSSIP_TEXT_ARGENT_CHAMPIONS_DEFEATED = 14738,
+    GOSSIP_TEXT_ARGENT_CHAMPIONS_DEFEATED = 14738
 };
 class npc_announcer_toc5 : public CreatureScript
 {
@@ -839,7 +830,7 @@ public:
                                 bossGUID[i] = boss->GetGUID();
                                 boss->SetTarget(stalkerGUID);
                                 //we force faction due to interfaction
-                                boss->setFaction(16); 
+                                boss->setFaction(16);
                                 // Save current boss entry to inst for achievement check
                                 instance->SetData64(DATA_GRAND_CHAMPION_GUID, boss->GetGUID());
                                 instance->SetData(DATA_GRAND_CHAMPION_ENTRY, boss->GetEntry());
@@ -1472,7 +1463,9 @@ and teleporting and unmounting them after defeating the mounted waves.
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_trial_of_the_champion()
 {
     new npc_announcer_toc5();
 }
+#endif

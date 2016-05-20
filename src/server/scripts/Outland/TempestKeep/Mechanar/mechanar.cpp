@@ -1,3 +1,10 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -28,14 +35,14 @@ class gatewatcher_gyro_kill : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (pInstance)
                     if (GameObject* pGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_CACHE_LEGION)))
                             pGob->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
         };
@@ -46,8 +53,9 @@ class gatewatcher_gyro_kill : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_mechanar()
 {
     new gatewatcher_gyro_kill();
 }
-
+#endif

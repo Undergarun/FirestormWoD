@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "Spell.h"
 #include "throne_of_the_tides.h"
@@ -5,7 +13,7 @@
 enum ScriptTextsErunak
 {
     SAY_FREED   = 0,
-    SAY_VICTORY = 1,
+    SAY_VICTORY = 1
 };
 
 enum ScriptTextsGhursha
@@ -14,7 +22,7 @@ enum ScriptTextsGhursha
     SAY_KILL    = 1,
     SAY_DEATH   = 2,
     SAY_ENCLAVE = 3,
-    SAY_FOG     = 4,
+    SAY_FOG     = 4
 };
 
 enum Spells
@@ -38,7 +46,7 @@ enum Spells
     SPELL_MIND_FOG_VISUAL           = 76231,
     SPELL_UNRELENTING_AGONY         = 76339,
     SPELL_UNRELENTING_AGONY_DMG     = 76341,
-    SPELL_UNRELENTING_AGONY_DMG_H   = 91493,
+    SPELL_UNRELENTING_AGONY_DMG_H   = 91493
 };
 
 enum Events
@@ -50,18 +58,18 @@ enum Events
     EVENT_ENSLAVE           = 5,
     EVENT_ABSORB_MAGIC      = 6,
     EVENT_MIND_FOG          = 7,
-    EVENT_UNRELENTING_AGONY = 8,
+    EVENT_UNRELENTING_AGONY = 8
 };
 
 enum Actions
 {
-    ACTION_GHURSHA_START    = 1,
+    ACTION_GHURSHA_START    = 1
 };
 
 enum Adds
 {
     NPC_EARTH_SHARDS    = 45469,
-    NPC_MIND_FOG        = 40861,
+    NPC_MIND_FOG        = 40861
 };
 
 class boss_erunak_stonespeaker : public CreatureScript
@@ -109,14 +117,14 @@ class boss_erunak_stonespeaker : public CreatureScript
                         me->setFaction(35);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 if (pInstance)
                     if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_MINDBENDER_GHURSHA)))
                         pGhursha->AI()->Talk(SAY_KILL);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_LAVA_BOLT
@@ -194,7 +202,7 @@ class boss_erunak_stonespeaker : public CreatureScript
                         events.ScheduleEvent(EVENT_MAGMA_SPLASH, 13000);
                         break;
                     }
-                }            
+                }
                 DoMeleeAttackIfReady();
             }
         };
@@ -305,7 +313,7 @@ class boss_mindbender_ghursha : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_KILL);
             }
@@ -387,12 +395,13 @@ class npc_ghursha_mind_fog : public CreatureScript
                 DoCast(me, SPELL_MIND_FOG_VISUAL, true);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
             }
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_erunak_stonespeaker()
 {
     new boss_erunak_stonespeaker();
@@ -400,3 +409,4 @@ void AddSC_boss_erunak_stonespeaker()
     new npc_erunak_earth_shards();
     new npc_ghursha_mind_fog();
 }
+#endif

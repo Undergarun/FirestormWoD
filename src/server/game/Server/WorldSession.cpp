@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /** \file
     \ingroup u2w
@@ -867,7 +857,7 @@ const char *WorldSession::GetTrinityString(int32 entry) const
     return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
 }
 
-void WorldSession::Handle_NULL(WorldPacket& recvPacket)
+void WorldSession::Handle_NULL(WorldPacket& /*recvPacket*/)
 {
     ///sLog->outError(LOG_FILTER_OPCODES, "Received unhandled opcode %s from %s", GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
 }
@@ -882,7 +872,7 @@ void WorldSession::Handle_ServerSide(WorldPacket& recvPacket)
     sLog->outError(LOG_FILTER_OPCODES, "Received server-side opcode %s from %s", GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
 }
 
-void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
+void WorldSession::Handle_Deprecated(WorldPacket& /*recvPacket*/)
 {
     ///sLog->outError(LOG_FILTER_OPCODES, "Received deprecated opcode %s from %s", GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
 }
@@ -1232,7 +1222,7 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data.WriteBit(l_IsRestrictedAccount);                         ///< Is restricted account
     l_Data.WriteBit(l_IsTutorialEnabled);                           ///< Is tutorial system enabled
     l_Data.WriteBit(l_ShowNPETutorial);                             ///< Show NPE tutorial
-    l_Data.WriteBit(l_TwitterEnabled);                              ///< Enable ingame twitter interface 
+    l_Data.WriteBit(l_TwitterEnabled);                              ///< Enable ingame twitter interface
     l_Data.WriteBit(l_CommerceSystemEnabled);                       ///< Commerce System Enabled (WoWToken)
     l_Data.WriteBit(1);                                             ///< Unk 6.1.2 19796
     l_Data.WriteBit(1);                                             ///< WillKickFromWorld
@@ -1299,9 +1289,9 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& p_Packet)
 {
     /// This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
     uint32 l_Count = 0;
-    
+
     p_Packet >> l_Count;
-    
+
     if (l_Count > REGISTERED_ADDON_PREFIX_SOFTCAP)
     {
         /// if we have hit the softcap (64) nothing should be filtered

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "ulduar.h"
@@ -65,7 +56,7 @@ enum AuriayaNPCs
     NPC_SANCTUM_SENTRY          = 34014,
     NPC_FERAL_DEFENDER          = 34035,
     NPC_FERAL_DEFENDER_TRIGGER  = 34096,
-    NPC_SEEPING_TRIGGER         = 34098,
+    NPC_SEEPING_TRIGGER         = 34098
 };
 
 enum AuriayaEvents
@@ -86,7 +77,7 @@ enum AuriayaEvents
 
     // Feral Defender
     EVENT_FERAL_POUNCE              = 11,
-    EVENT_RUSH                      = 12,
+    EVENT_RUSH                      = 12
 };
 
 enum AuriayaYells
@@ -98,7 +89,7 @@ enum AuriayaYells
 
     // Emotes
     EMOTE_FEAR      = 3,
-    EMOTE_DEFENDER  = 4,
+    EMOTE_DEFENDER  = 4
 };
 
 enum SoundIds
@@ -649,6 +640,7 @@ class achievement_crazy_cat_lady : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_auriaya()
 {
     new boss_auriaya();
@@ -660,6 +652,7 @@ void AddSC_boss_auriaya()
     new achievement_nine_lives();
     new achievement_crazy_cat_lady();
 }
+#endif
 
 #undef SPELL_SENTINEL_BLAST
 #undef SPELL_SONIC_SCREECH

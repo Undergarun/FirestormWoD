@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "AshranMgr.hpp"
@@ -318,7 +318,7 @@ class spell_ashran_artifacts_collected : public SpellScriptLoader
                 }
             }
 
-            void SetMaxCount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void SetMaxCount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -377,7 +377,7 @@ class spell_ashran_stone_empowerment : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ashran_stone_empowerment_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -492,7 +492,7 @@ class spell_ashran_vile_blood : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ashran_vile_blood_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -644,7 +644,7 @@ class spell_ashran_darkness_within : public SpellScriptLoader
                 SpellDarknessWithinSearcher = 158844
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::SpellDarknessWithinSearcher, true);
@@ -725,7 +725,7 @@ class spell_ashran_preserved_discombobulator_ray : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ashran_preserved_discombobulator_ray_AuraScript);
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->Dismount();
@@ -807,7 +807,7 @@ class spell_ashran_ancient_artifact : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ashran_ancient_artifact_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (Unit* l_Target = GetTarget())
@@ -855,7 +855,7 @@ class spell_ashran_horde_and_alliance_racer : public SpellScriptLoader
 
             uint32 m_CheckTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_CheckTimer = 200;
                 return true;
@@ -927,6 +927,7 @@ class spell_ashran_horde_and_alliance_racer : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_AshranSpells()
 {
     new spell_ashran_blade_twister();
@@ -947,3 +948,4 @@ void AddSC_AshranSpells()
     new spell_ashran_ancient_artifact();
     new spell_ashran_horde_and_alliance_racer();
 }
+#endif

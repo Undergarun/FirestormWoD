@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
@@ -15,7 +15,7 @@
 #include "NPCHandler.h"
 #include "Vehicle.h"
 #include "PhaseMgr.h"
-#include <random>
+#include "Common.h"
 
 /// 83746 - Rukhmar
 class boss_rukhmar : public CreatureScript
@@ -44,7 +44,7 @@ class boss_rukhmar : public CreatureScript
             float m_ZRef;
             float m_ZNew;
 
-            void Reset()
+            void Reset() override
             {
                 m_ZRef               = 0.0f;
                 me->m_CombatDistance = 90.0f;
@@ -90,7 +90,7 @@ class boss_rukhmar : public CreatureScript
                   m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 38000);
             }
 
-            void EnterCombat(Unit* p_Who) override
+            void EnterCombat(Unit* /*p_Who*/) override
             {
                 me->SetHomePosition(*me);
                 me->AddAura(SpiresOfArakSpells::SpellSolarRadiationAura, me);
@@ -162,7 +162,7 @@ class boss_rukhmar : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_MoveType, uint32 p_ID) override
+            void MovementInform(uint32 /*p_MoveType*/, uint32 p_ID) override
             {
                 switch (p_ID)
                 {
@@ -460,9 +460,7 @@ class spell_rukhmar_blaze_of_glory : public SpellScriptLoader
 
         class spell_rukhmar_blaze_of_glory_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rukhmar_blaze_of_glory_SpellScript);
-
-            uint64 m_MainTarget;
+            PrepareSpellScript(spell_rukhmar_blaze_of_glory_SpellScript)
 
             void HandleOnCast()
             {
@@ -520,7 +518,7 @@ class spell_rukhmar_loose_quills : public SpellScriptLoader
 
         class spell_rukhmar_loose_quills_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rukhmar_loose_quills_AuraScript);
+            PrepareAuraScript(spell_rukhmar_loose_quills_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -556,9 +554,9 @@ class spell_aura_pierced_armor : public SpellScriptLoader
 
         class spell_aura_pierced_armor_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_aura_pierced_armor_AuraScript);
+            PrepareAuraScript(spell_aura_pierced_armor_AuraScript)
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 WorldObject* l_Owner = GetOwner();
 
@@ -581,6 +579,7 @@ class spell_aura_pierced_armor : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_spires_of_arak()
 {
     new boss_rukhmar();
@@ -589,3 +588,4 @@ void AddSC_spires_of_arak()
     new spell_rukhmar_loose_quills();
     new spell_aura_pierced_armor();
 }
+#endif

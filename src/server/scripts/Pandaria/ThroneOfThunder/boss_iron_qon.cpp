@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -140,7 +129,7 @@ enum eQonEvents
 
     // Dam'Ren
     EVENT_DEAD_ZONE,
-    EVENT_FREEZE,
+    EVENT_FREEZE
 };
 
 enum eQonActions
@@ -156,7 +145,7 @@ enum eQonActions
     ACTION_MOUNT_DIES           = 10,
     ACTION_ACTIVATE_PHASE       = 11,
     ACTION_WINDSTORM_DELAY      = 12,
-    ACTION_WINDSTORM_LINGER     = 13,
+    ACTION_WINDSTORM_LINGER     = 13
 };
 
 enum eQonTypes
@@ -164,7 +153,7 @@ enum eQonTypes
     TYPE_GET_PHASE              = 1,
     TYPE_UPDATE_PHASE,
     TYPE_GET_SPEAR_INDEX,
-    TYPE_SET_STORM_INDEX,
+    TYPE_SET_STORM_INDEX
 };
 
 enum eQonAdds
@@ -174,17 +163,17 @@ enum eQonAdds
     NPC_IRON_QON_INVISIBLE_MAN  = 64693,
     NPC_RUSHING_WINDS_A         = 68852,
     NPC_RUSHING_WINDS_B         = 69703,
-    NPC_STORM_CLOUD             = 70660,
+    NPC_STORM_CLOUD             = 70660
 };
 
 enum eQonWeapons
 {
-    EQUIP_IRON_QON              = 93234,
+    EQUIP_IRON_QON              = 93234
 };
 
 enum eQonDisplay
 {
-    DISPLAYID_RUSHING_WINDS     = 38497,
+    DISPLAYID_RUSHING_WINDS     = 38497
 };
 
 enum eQonTalks
@@ -364,7 +353,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Attacker)
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             if (!m_Phase)
             {
@@ -812,7 +801,7 @@ class mob_roshak : public CreatureScript
                 return true;
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damages, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damages, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!m_Instance || !TrashDone())
                 {
@@ -866,7 +855,7 @@ class mob_roshak : public CreatureScript
                 m_PowerTimer = 1000;
             }
 
-            uint32 GetData(uint32 id /* = 0 */)
+            uint32 GetData(uint32 /*id*/ /* = 0 */)
             {
                 return m_UnleashedCount;
             }
@@ -1725,7 +1714,7 @@ class mob_iron_qon_invisible_man : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_WINDSTORM_LINGER, 19500);
             }
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 // Make players jump to the room center
                 std::list<Player*> l_PlayerList;
@@ -2304,7 +2293,7 @@ class at_quilen_spear : public AreaTriggerEntityScript
     public:
         at_quilen_spear() : AreaTriggerEntityScript("at_quilen_spear") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
@@ -2344,7 +2333,7 @@ class at_rushing_winds : public AreaTriggerEntityScript
     public:
         at_rushing_winds() : AreaTriggerEntityScript("at_rushing_winds") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
@@ -2376,6 +2365,7 @@ class at_rushing_winds : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_iron_qon()
 {
     new boss_iron_qon();                ///< 68078
@@ -2397,6 +2387,7 @@ void AddSC_boss_iron_qon()
     new spell_frozen();                 ///< 135145
     new spell_dead_zones();             ///< 137232
     new spell_unleashed_flame();        ///< 134628
-    new at_quilen_spear();              ///< 134758 - 136421 - 136451 
+    new at_quilen_spear();              ///< 134758 - 136421 - 136451
     new at_rushing_winds();             ///< 136574
 }
+#endif

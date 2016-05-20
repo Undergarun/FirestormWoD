@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 79828 - Murg                                                       ///
@@ -43,7 +43,7 @@ namespace MS { namespace Garrison
         return new npc_MurgAI(p_Creature);
     }
 
-    void npc_MurgAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_MurgAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         if (Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript())
         {

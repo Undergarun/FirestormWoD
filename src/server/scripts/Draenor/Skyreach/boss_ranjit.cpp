@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "instance_skyreach.hpp"
 
 namespace MS
@@ -134,7 +142,7 @@ namespace MS
                         DoScriptText(int32(Texts::KILL_PLAYER_2), me);
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     _EnterCombat();
 
@@ -208,7 +216,9 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ranjit()
 {
     new MS::InstanceSkyreach::boss_Ranjit();
 }
+#endif

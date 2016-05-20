@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include <ScriptPCH.h>
 #include <ScriptMgr.h>
 
@@ -35,7 +43,7 @@ class CharacterRenderer : public PlayerScript
             l_Stmt->setUInt32(l_Idx++, p_Player->GetFloatValue(PLAYER_FIELD_AVOIDANCE));
             l_Stmt->setString(l_Idx++, l_Damage.str().c_str());
             l_Stmt->setUInt32(l_Idx++, p_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
-            l_Stmt->setFloat(l_Idx++, p_Player->GetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME + WeaponAttackType::BaseAttack) / 1000.f);
+            l_Stmt->setFloat(l_Idx++, p_Player->GetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME + WeaponAttackType::BaseAttack) / 1000.0f);
             l_Stmt->setUInt32(l_Idx++, p_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_NONE));
             l_Stmt->setUInt32(l_Idx++, p_Player->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) * 5.0f);
             l_Stmt->setUInt32(l_Idx++, p_Player->GetArmor());
@@ -48,7 +56,9 @@ class CharacterRenderer : public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_Character_Renderer()
 {
     new CharacterRenderer();
 };
+#endif

@@ -1,9 +1,17 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include"ScriptPCH.h"
 #include"the_vortex_pinnacle.h"
 
 enum Spells
 {
-    SPELL_CALL_OF_WIND            = 88244,    
+    SPELL_CALL_OF_WIND            = 88244,
     SPELL_CALL_OF_WIND_DUMMY_1    = 88276,
     SPELL_CALL_OF_WIND_DUMMY_2    = 88772,
     SPELL_DOWNWIND_OF_ALTAIRUS    = 88286,
@@ -23,23 +31,16 @@ enum Events
     EVENT_CHILLING_BREATH        = 2,
     EVENT_LIGHTNING_BLAST        = 3,
     EVENT_CHECK_FACING            = 4,
-    EVENT_RESET_WIND            = 5,
+    EVENT_RESET_WIND            = 5
 };
 
 enum Adds
 {
     NPC_TWISTER        = 47342,
-    NPC_AIR_CURRENT    = 47305,
+    NPC_AIR_CURRENT    = 47305
 };
 
 const float orientations[4] = {5.70f, 2.54f, 0.84f, 4.44f};
-
-const Position twisterPos[8] =
-{
-    {-1213.09f, 37.58f, 734.17f, 0.0f},
-    {-1208.80f, 54.49f, 734.17f, 0.0f},
-    {-1219.45f, 68.33f, 734.17f, 0.0f},
-};
 
 class boss_altairus : public CreatureScript
 {
@@ -95,7 +96,7 @@ class boss_altairus : public CreatureScript
                 instance->SetBossState(DATA_ALTAIRUS, IN_PROGRESS);
             }    
 
-            void JustDied(Unit* pWho)
+            void JustDied(Unit* /*p_Who*/)
             {
                 _JustDied();
             }
@@ -169,7 +170,7 @@ class boss_altairus : public CreatureScript
                             if (!c)
                                 break;
 
-                            for (Map::PlayerList::const_iterator itr = me->GetMap()->GetPlayers().begin(); itr != me->GetMap()->GetPlayers().end(); ++itr) 
+                            for (Map::PlayerList::const_iterator itr = me->GetMap()->GetPlayers().begin(); itr != me->GetMap()->GetPlayers().end(); ++itr)
                             {
                                 if (CheckOrientation(itr->getSource()->GetOrientation(), c->GetOrientation()))
                                 {
@@ -217,7 +218,7 @@ class npc_air_current : public CreatureScript
                 //DoCast(me, SPELL_CALL_OF_WIND);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
      };
@@ -249,9 +250,11 @@ class npc_air_current : public CreatureScript
      };
 };*/
 
+#ifndef __clang_analyzer__
 void AddSC_boss_altairus()
 {
     new boss_altairus();
     new npc_air_current();
     //new npc_altairus_twister();
 }
+#endif

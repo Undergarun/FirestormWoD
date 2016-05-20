@@ -1,18 +1,10 @@
-/* Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
@@ -39,7 +31,7 @@ enum WGqueuenpctext
     WG_NPCQUEUE_TEXT_A_NOWAR            = 14782,
     WG_NPCQUEUE_TEXT_A_QUEUE            = 14791,
     WG_NPCQUEUE_TEXT_A_WAR              = 14781,
-    WG_NPCQUEUE_TEXTOPTION_JOIN         = -1850507,
+    WG_NPCQUEUE_TEXTOPTION_JOIN         = -1850507
 };
 
 enum Spells
@@ -55,7 +47,7 @@ enum Spells
     SPELL_VEHICLE_TELEPORT                    = 49759,
 
     // Spirit guide
-    SPELL_CHANNEL_SPIRIT_HEAL                 = 22011,
+    SPELL_CHANNEL_SPIRIT_HEAL                 = 22011
 };
 
 enum CreatureIds
@@ -65,7 +57,7 @@ enum CreatureIds
 
     NPC_WINTERGRASP_CONTROL_ARMS                    = 27852,
 
-    NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC   = 23472,
+    NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC   = 23472
 };
 
 enum QuestIds
@@ -96,7 +88,7 @@ enum QuestIds
     QUEST_NO_MERCY_FOR_THE_MERCILESS_ALLIANCE_DEF = 13177,
     QUEST_SHOUTHERN_SABOTAGE_ALLIANCE_DEF         = 13538,
     QUEST_STOP_THE_SIEGE_ALLIANCE_DEF             = 13186,
-    QUEST_A_RARE_HERB_ALLIANCE_DEF                = 13156,
+    QUEST_A_RARE_HERB_ALLIANCE_DEF                = 13156
 };
 
 uint8 const MAX_WINTERGRASP_VEHICLES = 4;
@@ -572,6 +564,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_wintergrasp()
 {
     new npc_wg_queue();
@@ -584,3 +577,4 @@ void AddSC_wintergrasp()
     new achievement_wg_didnt_stand_a_chance();
     new spell_wintergrasp_defender_teleport();
 }
+#endif

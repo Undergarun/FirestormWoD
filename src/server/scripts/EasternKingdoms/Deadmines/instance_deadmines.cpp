@@ -1,14 +1,22 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "deadmines.h"
 
 #define MAX_ENCOUNTER 6
 
-static const DoorData doordata[] = 
+static const DoorData doordata[] =
 {
     {GO_FACTORY_DOOR,   DATA_GLUBTOK,   DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
     {GO_MAST_ROOM_DOOR, DATA_HELIX,     DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
     {GO_FOUNDRY_DOOR,   DATA_FOEREAPER, DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
-    {0, 0, DOOR_TYPE_ROOM, BOUNDARY_NONE},
+    {0, 0, DOOR_TYPE_ROOM, BOUNDARY_NONE}
 };
 
 class instance_deadmines : public InstanceMapScript
@@ -23,7 +31,7 @@ class instance_deadmines : public InstanceMapScript
 
         struct instance_deadmines_InstanceMapScript : public InstanceScript
         {
-            instance_deadmines_InstanceMapScript(Map* pMap) : InstanceScript(pMap) 
+            instance_deadmines_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
@@ -73,8 +81,8 @@ class instance_deadmines : public InstanceMapScript
                 switch(pGo->GetEntry())
                 {
                     case GO_FACTORY_DOOR:
-                    case GO_MAST_ROOM_DOOR:   
-                    case GO_FOUNDRY_DOOR:   
+                    case GO_MAST_ROOM_DOOR:
+                    case GO_FOUNDRY_DOOR:
                         AddDoor(pGo, true);
                         break;
                     case GO_IRONCLAD_DOOR:  IronCladDoorGUID = pGo->GetGUID();  break;
@@ -119,7 +127,7 @@ class instance_deadmines : public InstanceMapScript
                         {
                             ShootCannon();
                             BlastOutDoor();
-                        }    
+                        }
                         break;
                     case DATA_VANESSA_EVENT:
                         uiVanessaEvent = data;
@@ -218,15 +226,9 @@ class instance_deadmines : public InstanceMapScript
             uint64 uiAdmiralGUID;
             uint64 uiCaptainGUID;
 
-            uint64 FactoryDoorGUID;
-            uint64 FoundryDoorGUID;
-            uint64 MastRoomDoorGUID;
             uint64 IronCladDoorGUID;
             uint64 DefiasCannonGUID;
             uint64 DoorLeverGUID;
-            uint64 DefiasPirate1GUID;
-            uint64 DefiasPirate2GUID;
-            uint64 DefiasCompanionGUID;
 
             uint32 State;
             uint32 uiVanessaEvent;
@@ -234,7 +236,9 @@ class instance_deadmines : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_deadmines()
 {
     new instance_deadmines();
 }
+#endif

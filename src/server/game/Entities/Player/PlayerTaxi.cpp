@@ -1,15 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "Player.h"
 #include "ObjectMgr.h"
-#include <limits>
-#include <math.h>
-#include <stdlib.h>
+#include "Common.h"
 
 /// String to unsigned long
 /// @p_Str : String input

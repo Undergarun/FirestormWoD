@@ -1,21 +1,10 @@
-/*
-* Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "GameObjectAI.h"
 #include "ScriptMgr.h"
@@ -220,7 +209,7 @@ class boss_lei_shi : public CreatureScript
                     pInstance->SetBossState(DATA_LEI_SHI, FAIL);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (leiShiFreed)
                     return;
@@ -261,7 +250,7 @@ class boss_lei_shi : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (!pInstance)
                     return;
@@ -661,13 +650,13 @@ class mob_animated_protector : public CreatureScript
 
             InstanceScript* pInstance;
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (Creature* leiShi = me->GetMap()->GetCreature(pInstance->GetData64(NPC_LEI_SHI)))
                     leiShi->AI()->DoAction(ACTION_ANIMATED_PROTECTOR_DIED);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 DoMeleeAttackIfReady();
             }
@@ -1035,7 +1024,7 @@ class at_get_away : public AreaTriggerEntityScript
     public:
         at_get_away() : AreaTriggerEntityScript("at_get_away") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Position l_Pos;
             p_AreaTrigger->GetPosition(&l_Pos);
@@ -1046,13 +1035,13 @@ class at_get_away : public AreaTriggerEntityScript
 
             for (Player* l_Player : l_PlayerList)
             {
-                if (l_Player->IsWithinDist(p_AreaTrigger, 40.f, false))
+                if (l_Player->IsWithinDist(p_AreaTrigger, 40.0f, false))
                 {
                     if (!l_Player->isAlive() && l_Player->HasMovementForce(l_AreatTriggerGuid))
                         l_Player->SendApplyMovementForce(l_AreatTriggerGuid, false, l_Pos);
 
                     if (l_Player->isAlive() && !l_Player->HasMovementForce(l_AreatTriggerGuid))
-                        l_Player->SendApplyMovementForce(l_AreatTriggerGuid, true, l_Pos, -3.f, 1);
+                        l_Player->SendApplyMovementForce(l_AreatTriggerGuid, true, l_Pos, -3.0f, 1);
                 }
                 /// Remove movement force if we're outside of the range
                 else if (l_Player->HasMovementForce(l_AreatTriggerGuid))
@@ -1060,7 +1049,7 @@ class at_get_away : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Position l_Pos;
             p_AreaTrigger->GetPosition(&l_Pos);
@@ -1079,6 +1068,7 @@ class at_get_away : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lei_shi()
 {
     new boss_lei_shi();             ///< 62983
@@ -1092,3 +1082,4 @@ void AddSC_boss_lei_shi()
     new spell_scary_fog_stacks();   ///< 123712
     new at_get_away();              ///< 123461
 }
+#endif

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Scripts for spells with SPELLFAMILY_DEATHKNIGHT and SPELLFAMILY_GENERIC spells used by deathknight players.
@@ -170,7 +161,7 @@ class spell_dk_plague_strike: public SpellScriptLoader
                 chilblainsAura = 50435
             };
 
-            void HandleDamage(SpellEffIndex effIndex)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Target = GetHitUnit();
                 Unit* l_Caster = GetCaster();
@@ -218,7 +209,7 @@ class spell_dk_gorefiends_grasp: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_gorefiends_grasp_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
@@ -347,7 +338,7 @@ class spell_dk_desecrated_ground: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_desecrated_ground_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (GetCaster())
                     if (DynamicObject* dynObj = GetCaster()->GetDynObject(DK_SPELL_DESECRATED_GROUND))
@@ -839,7 +830,6 @@ class spell_dk_blood_tap: public SpellScriptLoader
                     if (l_Player == nullptr)
                         return SPELL_FAILED_DONT_REPORT;
 
-                    bool cooldown = false;
                     uint8 l_Counter = 0;
                     RuneType l_RuneOnCooldown = RuneType::NUM_RUNE_TYPES;
                     l_Player->SetCurrentRuneForBloodTap(l_RuneOnCooldown);
@@ -1397,12 +1387,12 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                 }
             }
 
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
             {
                 m_Absorbed += dmgInfo.GetDamage();
             }
 
-            void Trigger(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
+            void Trigger(AuraEffect* /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
             {
                 Unit* target = GetTarget();
                 /// damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
@@ -2090,7 +2080,7 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 NecroticPlagueEnergize = 155165
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -2219,7 +2209,7 @@ class spell_dk_runic_empowerment : public PlayerScript
             if (AuraEffect* l_RunicEmpowerment = p_Player->GetAuraEffect(eSpells::RunicEmpowerment, EFFECT_0))
             {
                 /// 1.50% chance per Runic Power spent
-                float l_Chance = (l_RunicEmpowerment->GetAmount() / 100.f) * (l_PowerSpent / p_Player->GetPowerCoeff(p_Power));
+                float l_Chance = (l_RunicEmpowerment->GetAmount() / 100.0f) * (l_PowerSpent / p_Player->GetPowerCoeff(p_Power));
 
                 if (roll_chance_f(l_Chance))
                 {
@@ -2265,7 +2255,7 @@ class spell_dk_runic_corruption : public PlayerScript
             if (AuraEffect* l_RunicCorruption = p_Player->GetAuraEffect(eSpells::RunicCorruptionAura, EFFECT_1))
             {
                 /// 1.50% chance per Runic Power spent
-                float l_Chance = (l_RunicCorruption->GetAmount() / 100.f) * (l_PowerSpent / p_Player->GetPowerCoeff(p_Power));
+                float l_Chance = (l_RunicCorruption->GetAmount() / 100.0f) * (l_PowerSpent / p_Player->GetPowerCoeff(p_Power));
 
                 if (roll_chance_f(l_Chance))
                 {
@@ -2394,7 +2384,7 @@ class spell_dk_chilblains_aura : public SpellScriptLoader
                 HowlingBlast = 49184
             };
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
             {
                 PreventDefaultAction();
             }
@@ -2427,7 +2417,7 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
                 RuneTap     = 171049
             };
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2476,7 +2466,7 @@ class spell_dk_dark_succor : public SpellScriptLoader
                 FrostPresence  = 48266
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
             {
                 PreventDefaultAction();
 
@@ -2556,7 +2546,7 @@ class spell_dk_glyph_of_deaths_embrace : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_glyph_of_deaths_embrace_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2667,7 +2657,7 @@ class spell_dk_enhanced_death_coil : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_enhanced_death_coil_AuraScript);
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -2708,7 +2698,7 @@ class spell_dk_enhanced_death_coil : public SpellScriptLoader
                 p_AurEff->SetAmount(l_Stack->GetTotalAmount());
             }
 
-            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -2907,7 +2897,7 @@ public:
     {
         PrepareSpellScript(spell_dk_gargoyle_strike_SpellScript);
 
-        void HandleDamage(SpellEffIndex effIndex)
+        void HandleDamage(SpellEffIndex /*effIndex*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -2952,7 +2942,7 @@ class spell_dk_blood_rites : public SpellScriptLoader
                 BloodRitesEnergize = 163948
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcInfos)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcInfos)
             {
                 PreventDefaultAction();
 
@@ -3145,7 +3135,7 @@ class spell_dk_item_t17_blood_2p_bonus : public SpellScriptLoader
                 VampiricBlood   = 55233
             };
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -3187,7 +3177,7 @@ class spell_dk_blood_shield : public SpellScriptLoader
                 T17Blood4P = 165571
             };
 
-            void AfterAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            void AfterAbsorb(AuraEffect* p_AurEff, DamageInfo& /*p_DmgInfo*/, uint32& p_AbsorbAmount)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -3234,7 +3224,7 @@ class spell_dk_item_t17_frost_4p_driver : public SpellScriptLoader
                 FrozenRuneblade = 170202
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3283,7 +3273,7 @@ class spell_dk_item_t17_frost_4p_driver_periodic : public SpellScriptLoader
                 FrozenRunebladeStacks   = 170202
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (l_Caster == nullptr)
@@ -3387,7 +3377,7 @@ class spell_dk_defile_absorb_effect : public SpellScriptLoader
                 return false;
             }
 
-            void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            void OnAbsorb(AuraEffect* /*p_AurEff*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
                 Unit* l_Victim = p_DmgInfo.GetVictim();
                 Unit* l_Attacker = p_DmgInfo.GetAttacker();
@@ -3399,7 +3389,7 @@ class spell_dk_defile_absorb_effect : public SpellScriptLoader
                     p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_3].BasePoints);
             }
 
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3491,7 +3481,7 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
                 DarkTranformationAura   = 63560
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3549,7 +3539,7 @@ class spell_dk_might_of_the_frozen_wastes : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_might_of_the_frozen_wastes_AuraScript);
 
-            void CalculateEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateEffect(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (!GetCaster())
                     return;
@@ -3614,6 +3604,7 @@ class spell_dk_improved_death_grip : public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_shadow_infusion();
@@ -3684,3 +3675,4 @@ void AddSC_deathknight_spell_scripts()
 
     new PlayerScript_Blood_Tap();
 }
+#endif

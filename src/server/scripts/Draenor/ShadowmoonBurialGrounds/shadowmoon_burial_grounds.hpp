@@ -1,10 +1,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "InstanceScript.h"
@@ -57,7 +57,7 @@ enum eShadowmoonBurialGroundsDatas
     DataNhalishDoorsExit,
     DataBonemawDoorEntrance,
     DataNerzulProp,
-	DataPortalToTheShadowlandReturn
+    DataPortalToTheShadowlandReturn
 };
 
 enum eShadowmoonBurialGroundsBosses
@@ -92,7 +92,7 @@ enum eShadowmoonBurialGroundsCreatures
     CreatureCrypts                  = 75977,
     CreatureDisturbedSoul           = 76400,
     CreatureNerzulVisual            = 79497,
-    CreatureWorldTriggerAltar       = 83816, 
+    CreatureWorldTriggerAltar       = 83816,
     CreatureWorldTriggerSadanaRp    = 838166,
     CreatureWeepingSpirit           = 89003,
     CreatureBonemawMouth            = 81881,
@@ -109,7 +109,7 @@ enum eShadowmoonBurialGroundsGameObjects
     GameObjectNhalishDoorsExit     = 227851,
     GameObjectNhalishDoorEntrance  = 227852,
     GameObjectBonemawDoorEntrance  = 233990,
-	GameObjectPortalToShadowland   = 85541
+    GameObjectPortalToShadowland   = 85541
 };
 
 enum eShadowmoonBurialGroundsSpells
@@ -222,12 +222,12 @@ enum eShadowmoonBurialGroundsActions
 
 enum eShadowmoonBurialGroundsAchivement
 {
-    /// Heroic: 
+    /// Heroic:
     AchievementShadowmoonBurialGroundsHeroic = 9054,
     AchievementIckyIchors                    = 9025,
     AchievementSoulsOfTheLosts               = 9026,
     AchievementWhatsYourSign                 = 9018,
-    /// Normal: 
+    /// Normal:
     AchievementShadowmonBurialGroundsNormal  = 9041
 };
 

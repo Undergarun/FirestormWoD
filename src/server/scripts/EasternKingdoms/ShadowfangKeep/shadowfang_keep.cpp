@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "LFGMgr.h"
 #include "Group.h"
@@ -41,7 +49,9 @@ class npc_apothecary_hummel : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_shadowfang_keep()
 {
     new npc_apothecary_hummel();
 }
+#endif

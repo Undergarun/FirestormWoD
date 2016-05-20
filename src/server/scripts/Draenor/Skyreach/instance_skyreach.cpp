@@ -67,19 +67,19 @@ namespace MS
                 std::map<uint64, uint32> m_ReadyForRaidingIVAchievements;
                 bool m_HasFailedMonomaniaAchievement;
 
-                instance_SkyreachInstanceMapScript(Map* p_Map) 
+                instance_SkyreachInstanceMapScript(Map* p_Map)
                     : InstanceScript(p_Map),
                     m_AraknathGuid(0),
                     m_SkyreachArcanologistGuid(0),
                     m_SolarConstructorsGuid(),
                     m_SelectedSolarConstructorGuid(0),
                     m_InteriorFocusGuid(0),
+                    m_SolarConstructorEnergizerGuid(0),
                     m_RukhranGuid(0),
                     m_SkyreachRavenWhispererGuid(0),
                     m_PileOfAshesGuid(),
                     m_SolarFlaresGuid(),
                     m_CacheOfArakoanTreasuresGuid(0),
-                    m_SolarConstructorEnergizerGuid(0),
                     m_PlayerGuidToBlockId(),
                     m_WindMazeBlockGuids(),
                     m_MagnifyingGlassFocusGuids(),
@@ -87,13 +87,13 @@ namespace MS
                     m_HasFailedMonomaniaAchievement(false)
                 {
                     SetBossNumber(MaxEncounter::Number);
-                    LoadDoorData(k_DoorData); 
+                    LoadDoorData(k_DoorData);
                     LoadScenariosInfos(k_ScenarioData, p_Map->IsChallengeMode() ? ScenarioDatas::ChallengeScenarioId : ScenarioDatas::ScenarioId);
 
                     for (uint32 i = Blocks::FirstStair; i <= Blocks::SecondStair; i++)
                         m_WindMazeBlockGuids.push_back(MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), 6452, HIGHGUID_AREATRIGGER));
 
-                    instance->SetObjectVisibility(1000.f);
+                    instance->SetObjectVisibility(1000.0f);
                 }
 
                 void OnCreatureCreate(Creature* p_Creature)
@@ -260,7 +260,7 @@ namespace MS
                     }
                 }
 
-                void OnCreatureKilled(Creature* p_Creature, Player* p_Player)
+                void OnCreatureKilled(Creature* p_Creature, Player* /*p_Player*/)
                 {
                     if (!instance->IsChallengeMode() || !IsChallengeModeStarted() || m_CreatureKilled >= ScenarioDatas::MaxEnnemiesToKill)
                         return;
@@ -272,7 +272,7 @@ namespace MS
                         return;
 
                     ++m_CreatureKilled;
-                    SendScenarioProgressUpdate(CriteriaProgressData(ScenarioDatas::EnnemiesCriteriaId, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+                    SendScenarioProgressUpdate(CriteriaProgressData(ScenarioDatas::EnnemiesCriteriaId, m_CreatureKilled, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
 
                     if (m_CreatureKilled >= ScenarioDatas::MaxEnnemiesToKill)
                         m_ConditionCompleted = true;
@@ -695,7 +695,9 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_instance_Skyreach()
 {
     new MS::InstanceSkyreach::instance_Skyreach();
 }
+#endif

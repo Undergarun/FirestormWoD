@@ -4,7 +4,7 @@
 //  Copyright 2014 Millenium-studio SARL
 //  All Rights Reserved.
 //
-//////////////////////////////////////////////////////////////////////////////// 
+////////////////////////////////////////////////////////////////////////////////
 
 #include "BattlegroundInvitationsMgr.hpp"
 #include "BattlegroundMgr.hpp"
@@ -396,4 +396,4 @@ namespace MS
             /// Do nothing.
         }
     } ///< namespace Battlegrounds.
-} ///< namespace MS.
+} ///< namespace MS

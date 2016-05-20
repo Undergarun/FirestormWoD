@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Priestess_Delrissa
@@ -37,7 +27,7 @@ static Speech LackeyDeath[]=
     {-1585013},
     {-1585014},
     {-1585015},
-    {-1585016},
+    {-1585016}
 };
 
 static Speech PlayerDeath[]=
@@ -46,7 +36,7 @@ static Speech PlayerDeath[]=
     {-1585018},
     {-1585019},
     {-1585020},
-    {-1585021},
+    {-1585021}
 };
 
 enum eEnums
@@ -73,7 +63,7 @@ float LackeyLocations[4][2]=
     {123.77f, 17.6007f},
     {131.731f, 15.0827f},
     {121.563f, 15.6213f},
-    {129.988f, 17.2355f},
+    {129.988f, 17.2355f}
 };
 
 const uint32 m_auiAddEntries[] =
@@ -1314,6 +1304,7 @@ public:
 };
 */
 
+#ifndef __clang_analyzer__
 void AddSC_boss_priestess_delrissa()
 {
     new boss_priestess_delrissa();
@@ -1327,3 +1318,4 @@ void AddSC_boss_priestess_delrissa()
     new boss_zelfan();
     // new mob_high_explosive_sheep();
 }
+#endif

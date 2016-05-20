@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
@@ -97,7 +88,7 @@ enum BrannCreatures
     CREATURE_SEARING_GAZE_TARGET        = 28265,
     CREATURE_DARK_RUNE_PROTECTOR        = 27983,
     CREATURE_DARK_RUNE_STORMCALLER      = 27984,
-    CREATURE_IRON_GOLEM_CUSTODIAN       = 27985,
+    CREATURE_IRON_GOLEM_CUSTODIAN       = 27985
 };
 
 enum Spells
@@ -115,7 +106,7 @@ enum Spells
     SPELL_SEARING_GAZE_DUMMY            = 51136,
     SPELL_SEARING_GAZE                  = 51125,
     H_SPELL_SEARING_GAZE                = 59866,
-    SPELL_REWARD_ACHIEVEMENT            = 59046,
+    SPELL_REWARD_ACHIEVEMENT            = 59046
 };
 
 enum Quests
@@ -130,7 +121,7 @@ enum Quests
 static Position SpawnLocations[]=
 {
     {946.992f, 397.016f, 208.374f, 0.0f},
-    {960.748f, 382.944f, 208.374f, 0.0f},
+    {960.748f, 382.944f, 208.374f, 0.0f}
 };
 
 class mob_tribuna_controller : public CreatureScript
@@ -522,7 +513,7 @@ public:
             Start();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (brannSparklinNews)
                 brannSparklinNews = false;
@@ -969,6 +960,7 @@ class achievement_brann_spankin_new : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_halls_of_stone()
 {
     new npc_brann_hos();
@@ -977,3 +969,4 @@ void AddSC_halls_of_stone()
     new mob_searing_gaze();
     new achievement_brann_spankin_new();
 }
+#endif

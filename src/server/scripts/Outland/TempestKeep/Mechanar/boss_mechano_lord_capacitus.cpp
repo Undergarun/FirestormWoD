@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 //! TODO - Boss not scripted, just ported required spellscript from core
 
@@ -28,7 +19,7 @@ enum Spells
     SPELL_POSITIVE_CHARGE           = 39090,
     SPELL_NEGATIVE_POLARITY         = 39091,
     SPELL_NEGATIVE_CHARGE_STACK     = 39092,
-    SPELL_NEGATIVE_CHARGE           = 39093,
+    SPELL_NEGATIVE_CHARGE           = 39093
 };
 
 class spell_capacitus_polarity_charge: public SpellScriptLoader
@@ -135,8 +126,10 @@ class spell_capacitus_polarity_shift: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_mechano_lord_capacitus()
 {
     new spell_capacitus_polarity_charge();
     new spell_capacitus_polarity_shift();
 }
+#endif

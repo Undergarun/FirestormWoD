@@ -1,12 +1,8 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
 #
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
+#  MILLENIUM-STUDIO
+#  Copyright 2016 Millenium-studio SARL
+#  All Rights Reserved.
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 if( MSVC )
   add_definitions(/W0)
@@ -17,30 +13,30 @@ endif()
 add_subdirectory(threads)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-  if(SERVERS AND NOT NOJEM)
+  if(WORLDSERVER AND NOT NOJEM)
     add_subdirectory(jemalloc)
     add_subdirectory(valgrind)
   endif()
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
-  if(SERVERS)
+  if(WORLDSERVER)
     add_subdirectory(acelite)
   endif()
   if(TOOLS)
     add_subdirectory(bzip2)
   endif()
-  if(SERVERS OR TOOLS)
+  if(WORLDSERVER OR TOOLS)
     add_subdirectory(zlib)
   endif()
 endif()
 
-if(SERVERS OR TOOLS)
+if(WORLDSERVER OR TOOLS)
   add_subdirectory(g3dlite)
   add_subdirectory(recastnavigation)
 endif()
 
-if(SERVERS)
+if(WORLDSERVER)
   add_subdirectory(gsoap)
 endif()
 

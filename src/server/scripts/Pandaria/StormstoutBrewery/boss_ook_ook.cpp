@@ -1,8 +1,10 @@
-/*
-    Dungeon : Template of the Jade Serpent 85-87
-    Wise mari first boss
-    Jade servers
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -30,7 +32,7 @@ class boss_ook_ook : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {}
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 /*p_Action*/)
             {
             }
 
@@ -43,15 +45,15 @@ class boss_ook_ook : public CreatureScript
                 _JustDied();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
 
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* /*p_Who*/)
             {}
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {}
         };
 };
@@ -59,7 +61,7 @@ class boss_ook_ook : public CreatureScript
 enum eSpells
 {
     SPELL_BAREL_EXPLOSION           = 106769,
-    SPELL_FORCECAST_BARREL_DROP     = 122385,
+    SPELL_FORCECAST_BARREL_DROP     = 122385
 };
 
 class npc_barrel : public CreatureScript
@@ -82,7 +84,7 @@ class npc_barrel : public CreatureScript
                 me->GetMotionMaster()->MovePoint(100, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 if (id != 100)
                     return;
@@ -121,7 +123,7 @@ class npc_barrel : public CreatureScript
                 me->CastSpell(me, SPELL_BAREL_EXPLOSION, true);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (CheckIfAgainstWall() || CheckIfAgainstUnit())
                     DoExplode();
@@ -185,7 +187,7 @@ class spell_ook_ook_barrel: public SpellScriptLoader
                 return false;
             }
 
-            void OnUpdate(uint32 diff)
+            void OnUpdate(uint32 /*p_Diff*/)
             {
                 Unit* caster = GetCaster();
                 if (!caster)
@@ -221,6 +223,7 @@ class spell_ook_ook_barrel: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ook_ook()
 {
     new boss_ook_ook();
@@ -228,3 +231,4 @@ void AddSC_boss_ook_ook()
     new spell_ook_ook_barrel_ride();
     new spell_ook_ook_barrel();
 }
+#endif

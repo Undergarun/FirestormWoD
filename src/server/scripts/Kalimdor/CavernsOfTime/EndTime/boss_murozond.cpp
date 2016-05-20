@@ -13,7 +13,7 @@ enum MurozondScriptTexts
     SAY_GLASS_5 = 6,
     SAY_INTRO_1 = 7,
     SAY_INTRO_2 = 8,
-    SAY_KILL    = 9,
+    SAY_KILL    = 9
 };
 
 enum NozdormuScriptTexts
@@ -23,7 +23,7 @@ enum NozdormuScriptTexts
     SAY_NOZDORMU_OUTRO_2    = 2,
     SAY_NOZDORMU_OUTRO_3    = 3,
     SAY_NOZDORMU_OUTRO_4    = 4,
-    SAY_NOZDORMU_OUTRO_5    = 5,
+    SAY_NOZDORMU_OUTRO_5    = 5
 };
 
 enum Spells
@@ -38,7 +38,7 @@ enum Spells
     SPELL_TEMPORAL_SNAPSHOT             = 101592,
     SPELL_REWIND_TIME                   = 101590,
     SPELL_BLESSING_OF_BRONZE_DRAGONS    = 102364,
-    SPELL_KILL_MUROZOND                 = 110158,
+    SPELL_KILL_MUROZOND                 = 110158
 };
 
 enum Events
@@ -58,12 +58,12 @@ enum Events
     EVENT_NOZDORMU_OUTRO_2  = 13,
     EVENT_NOZDORMU_OUTRO_3  = 14,
     EVENT_NOZDORMU_OUTRO_4  = 15,
-    EVENT_NOZDORMU_OUTRO_5  = 16,
+    EVENT_NOZDORMU_OUTRO_5  = 16
 };
 
 enum Adds
 {
-    NPC_MIRROR  = 54435,
+    NPC_MIRROR  = 54435
 };
 
 enum Other
@@ -71,7 +71,7 @@ enum Other
     POINT_LAND          = 1,
     ACTION_HOURGLASS    = 2,
     TYPE_HOURGLASS      = 3,
-    ACTION_NOZDORMU     = 4,
+    ACTION_NOZDORMU     = 4
 };
 
 const Position landPos = {4169.71f, -433.40f, 120.0f, 2.59f};
@@ -202,9 +202,9 @@ class boss_murozond : public CreatureScript
                 if (instance)
                 {
                     // Achievement
-                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_MUROZOND, 0, 0, me); 
+                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_MUROZOND, 0, 0, me);
                     
-                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_KILL_MUROZOND, me); 
+                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_KILL_MUROZOND, me);
                 
                     if (GameObject* pGo = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_HOURGLASS)))
                         pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
@@ -219,7 +219,7 @@ class boss_murozond : public CreatureScript
                 BossAI::JustReachedHome();
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                     damage = 0;
@@ -364,7 +364,7 @@ class boss_murozond : public CreatureScript
                             pPlayer->CastSpell(pPlayer, SPELL_BLESSING_OF_BRONZE_DRAGONS, true);
                         }
             }
-        };   
+        };
 };
 
 class npc_murozond_mirror_image : public CreatureScript
@@ -379,7 +379,7 @@ class npc_murozond_mirror_image : public CreatureScript
 
         struct npc_murozond_mirror_imageAI : public Scripted_NoMovementAI
         {
-            npc_murozond_mirror_imageAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_murozond_mirror_imageAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_PASSIVE);
@@ -439,7 +439,7 @@ class npc_murozond_mirror_image : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
                 if (!pInstance || pInstance->GetBossState(DATA_MUROZOND) != IN_PROGRESS)
                 {
@@ -532,7 +532,7 @@ class go_murozond_hourglass_of_time : public GameObjectScript
     public:
         go_murozond_hourglass_of_time() : GameObjectScript("go_murozond_hourglass_of_time") { }
 
-        bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+        bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
         {
             InstanceScript* pInstance = pGo->GetInstanceScript();
             if (!pInstance || pInstance->GetBossState(DATA_MUROZOND) != IN_PROGRESS)
@@ -550,6 +550,7 @@ class go_murozond_hourglass_of_time : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_murozond()
 {
     new boss_murozond();
@@ -557,3 +558,4 @@ void AddSC_boss_murozond()
     new npc_murozond_mirror_image();
     new go_murozond_hourglass_of_time();
 }
+#endif

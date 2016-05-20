@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -344,7 +344,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 0.7f);
                 }
 
-                void SetGUID(uint64 p_GUID, int32 p_ID)
+                void SetGUID(uint64 p_GUID, int32 /*p_ID*/)
                 {
                     m_FollowingSLG = p_GUID;
 
@@ -402,9 +402,11 @@ namespace MS { namespace Instances { namespace Bloodmaul
 }
 } } ///< namespace MS::Instances
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gugrokk()
 {
     new MS::Instances::Bloodmaul::boss_gugrokk();
     new MS::Instances::Bloodmaul::npc_gugrokk_magma_eruption();
     new MS::Instances::Bloodmaul::npc_gugrokk_unstable_slag();
 }
+#endif

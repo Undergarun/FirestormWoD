@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include"ScriptPCH.h"
 #include"WorldPacket.h"
 #include"shadowfang_keep.h"
@@ -25,7 +33,7 @@ enum Spells
     SPELL_SHIELD_OF_PERFIDIOUS      = 93693,
     SPELL_SHIELD_OF_PERFIDIOUS_DMG  = 93722,
     SPELL_SHIELD_OF_PERFIDIOUS_H    = 93736, //Heroic
-    SPELL_UNHOLY_POWER              = 93686, 
+    SPELL_UNHOLY_POWER              = 93686,
     SPELL_UNHOLY_POWER_H            = 93735, //Heroic
     SPELL_WORD_OF_SHAME             = 93852, //Heroic
     SPELL_SEPARATION_ANXIETY        = 96272, //Heroic
@@ -41,7 +49,7 @@ enum Spells
     SPELL_SHIELD_WALL               = 91463,
 
     //both
-    SPELL_UNHOLY_EMPOWERMENT        = 93844,
+    SPELL_UNHOLY_EMPOWERMENT        = 93844
 };
 
 enum Events
@@ -70,10 +78,10 @@ enum Adds
 {
     NPC_SPRINGVALE_GUARD    = 50613,
     NPC_SPRINGVALE_OFFICER  = 50615,
-    NOC_DESECRATION_BUNNY   = 50503,
+    NOC_DESECRATION_BUNNY   = 50503
 };
 
-const Position addSpawnPos[2] = 
+const Position addSpawnPos[2] =
 {
     {-250.85f, 2239.18f, 100.89f, 1.55f},
     {-249.71f, 2263.23f, 100.89f, 5.15f}
@@ -111,7 +119,7 @@ class boss_commander_springvale : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_ADDS, 45000);
@@ -122,7 +130,7 @@ class boss_commander_springvale : public CreatureScript
                 DoZoneInCombat();
             }
             
-            void JustDied(Unit* pWho)
+            void JustDied(Unit* /*pWho*/)
             {
                 _JustDied();
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WORD_OF_SHAME);
@@ -217,10 +225,10 @@ class npc_springvale_wailing_guardsman : public CreatureScript
                 events.Reset();
             }
             
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 events.ScheduleEvent(EVENT_MORTAL_STRIKE, 3000);
-                events.ScheduleEvent(EVENT_SCREAMS_OF_THE_PAST, urand(15000, 20000));    
+                events.ScheduleEvent(EVENT_SCREAMS_OF_THE_PAST, urand(15000, 20000));
                 events.ScheduleEvent(EVENT_UNHOLY_EMPOWERMENT, 15000);
             }
 
@@ -283,7 +291,7 @@ class npc_springvale_tormented_officer : public CreatureScript
                 events.Reset();
             }
             
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 events.ScheduleEvent(EVENT_UNHOLY_EMPOWERMENT, 15000);
                 events.ScheduleEvent(EVENT_FORSAKEN_ABILITY, urand(10000, 30000));
@@ -308,7 +316,6 @@ class npc_springvale_tormented_officer : public CreatureScript
                             DoCast(SPELL_SHIELD_WALL);
                             break;
                         case EVENT_FORSAKEN_ABILITY:
-                            //todo: реализовать спелл
                             break;
                         case EVENT_UNHOLY_EMPOWERMENT:
                             if (pInstance)
@@ -345,6 +352,7 @@ class npc_springvale_desecration_bunny : public CreatureScript
          };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_commander_springvale()
 {
     new boss_commander_springvale();
@@ -352,3 +360,4 @@ void AddSC_boss_commander_springvale()
     new npc_springvale_tormented_officer();
     new npc_springvale_desecration_bunny();
 }
+#endif

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
+///  Copyright 2016 Millenium-studio SARL
 ///  All Rights Reserved.
 ///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
@@ -10,33 +10,33 @@
 
 enum eArchmageActions
 {
-    ActionTransport         = 1,
+    ActionTransport = 1,
     ActionChoosePower,
     ActionStopPrevent
 };
 
 enum eArchmageCreatures
 {
-    CreatureSporeImage             = 84386,
-    CreatureSporeImage02           = 84984,
-    CreatureSporeImage03           = 84985,
-    CreatureTriggerPlants          = 213125,
-    CreatureTriggerArcaneBeam      = 342252,
-    CreatureTriggerFrozenAura      = 424255,
-    CreatureTriggerFrozenSnap      = 321432,
+    CreatureSporeImage = 84386,
+    CreatureSporeImage02 = 84984,
+    CreatureSporeImage03 = 84985,
+    CreatureTriggerPlants = 213125,
+    CreatureTriggerArcaneBeam = 342252,
+    CreatureTriggerFrozenAura = 424255,
+    CreatureTriggerFrozenSnap = 321432,
     CreatureTriggerNoxiousEruption = 213151
 };
 
 enum eArchmageTalks
 {
-    TalkSolIntro     = 30,     ///< No...you Cant...its...i Cant Fight It!(45481)
-    TalkSolAggro     = 31,     ///< Yes, Flee! Fire The Vines! They Control Us All!(45479)
-    TalkSolSpell01   = 32,     ///< Yes, Fire! Fire Will Burn Away The Contagion.(45484)
-    TalkSolSpell02   = 33,     ///< Surely The Cold Make Them Wither?(45485)
-    TalkSolSpell03   = 34,     ///< Get Away..get Away!(45486)
-    TalkSolKill01    = 35,     ///< No! They Will Take You Too!(45482)
-    TalkSolKill02    = 36,     ///< You Musnt Give Them Anoter Host!(45483)
-    TalkSolDeath     = 37      ///< Burn My Body. Its  The Only Way To Stop Them.(45480)
+    TalkSolIntro = 30,     ///< No...you Cant...its...i Cant Fight It!(45481)
+    TalkSolAggro = 31,     ///< Yes, Flee! Fire The Vines! They Control Us All!(45479)
+    TalkSolSpell01 = 32,     ///< Yes, Fire! Fire Will Burn Away The Contagion.(45484)
+    TalkSolSpell02 = 33,     ///< Surely The Cold Make Them Wither?(45485)
+    TalkSolSpell03 = 34,     ///< Get Away..get Away!(45486)
+    TalkSolKill01 = 35,     ///< No! They Will Take You Too!(45482)
+    TalkSolKill02 = 36,     ///< You Musnt Give Them Anoter Host!(45483)
+    TalkSolDeath = 37      ///< Burn My Body. Its  The Only Way To Stop Them.(45480)
 };
 
 /// Archmage Sol - 82682
@@ -56,7 +56,7 @@ public:
             m_Initial = true;
             m_First = false;
         }
-         
+
         enum eArchmageSolEvents
         {
             EventArcaneBrust = 1,
@@ -71,35 +71,35 @@ public:
             EventThoughtChrySailis,
             EventParasiticInjection,
             EventTransform,
-            EventTransformRemovePassive     
+            EventTransformRemovePassive
         };
 
         enum eArchmageSolSpells
         {
-            SpellParasiticGrowth                       = 168885,
-            SpellParasiticInjection                    = 166891,
-            SpellThoughtChrySailis                     = 166474,
-            SpellPrimalAffinityArcane                  = 166477,
-            SpellArcaneBrust                           = 166466,
-            SpellPrimalAffinityFire                    = 166475,
-            SpellFireBloomFlower                       = 166562,
-            SpellPrimalAffinityFrost                   = 166476,
-            SpellFrozenRainSpawn                       = 166723,
-            SpellFrozenRainAuraPeriodicDamage          = 166726,
-            SpellFrozenRainAura                        = 166913,
-            SpellFrozenSnapDummy                       = 169847,
-            SpellFrozenSnapEffectTrigger               = 169848,
-            SpellFrozenSnapStun                        = 169850,
-            SpellNoxiusEruption                        = 177145,
-            SpellEntanglement                          = 180836,
-            SpellArcaneChanneling                      = 161837,
-            SpellBubble                                = 170665,
-            SpellFrostbolt                             = 169824,
-            SpellVisualSolArcaneBeam                   = 170146,
-            SpellFireBall                              = 168894,
-            SpellFireBloom                             = 166491,
-            SpellSporesVisual                          = 169828,
-            SpellSporesVisual2                         = 169831
+            SpellParasiticGrowth = 168885,
+            SpellParasiticInjection = 166891,
+            SpellThoughtChrySailis = 166474,
+            SpellPrimalAffinityArcane = 166477,
+            SpellArcaneBrust = 166466,
+            SpellPrimalAffinityFire = 166475,
+            SpellFireBloomFlower = 166562,
+            SpellPrimalAffinityFrost = 166476,
+            SpellFrozenRainSpawn = 166723,
+            SpellFrozenRainAuraPeriodicDamage = 166726,
+            SpellFrozenRainAura = 166913,
+            SpellFrozenSnapDummy = 169847,
+            SpellFrozenSnapEffectTrigger = 169848,
+            SpellFrozenSnapStun = 169850,
+            SpellNoxiusEruption = 177145,
+            SpellEntanglement = 180836,
+            SpellArcaneChanneling = 161837,
+            SpellBubble = 170665,
+            SpellFrostbolt = 169824,
+            SpellVisualSolArcaneBeam = 170146,
+            SpellFireBall = 168894,
+            SpellFireBloom = 166491,
+            SpellSporesVisual = 169828,
+            SpellSporesVisual2 = 169831
         };
 
         InstanceScript* m_Instance;
@@ -112,10 +112,10 @@ public:
         uint32 m_TimerToDisablePreevent;
         uint32 m_TimeBetweenNoxiousExplosion;
 
-        void Reset() override
+        void Reset()
         {
             _Reset();
-            events.Reset();   
+            events.Reset();
             if (!m_First)
             {
                 m_First = true;
@@ -124,10 +124,10 @@ public:
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             }
-            m_Count  = 0;
+            m_Count = 0;
             m_Visual = 1 * TimeConstants::IN_MILLISECONDS;;
             m_TimeBetweenNoxiousExplosion = 12 * TimeConstants::IN_MILLISECONDS;
-            m_TimerToDisablePreevent      = 15 * TimeConstants::IN_MILLISECONDS;      
+            m_TimerToDisablePreevent = 15 * TimeConstants::IN_MILLISECONDS;
             uint32 l_Entries[4] = { eArchmageSolSpells::SpellPrimalAffinityArcane,
                 eArchmageSolSpells::SpellPrimalAffinityFire,
                 eArchmageSolSpells::SpellPrimalAffinityFrost,
@@ -135,10 +135,10 @@ public:
             me->AddAura(eArchmageSolSpells::SpellSporesVisual, me);
             me->AddAura(eArchmageSolSpells::SpellSporesVisual2, me);
             for (uint8 l_I = 0; l_I <= 3; l_I++)
-                me->RemoveAura(l_Entries[l_I]);       
+                me->RemoveAura(l_Entries[l_I]);
         }
 
-        void MoveInLineOfSight(Unit* p_Who) override
+        void MoveInLineOfSight(Unit* p_Who)
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 30.0f) && !m_CanEvent && m_Initial)
             {
@@ -149,86 +149,86 @@ public:
             }
         }
 
-        void JustReachedHome() override
+        void JustReachedHome()
         {
             summons.DespawnAll();
             if (m_Instance != nullptr)
                 m_Instance->SetBossState(eEverbloomData::DataArchmageSol, EncounterState::FAIL);
         }
 
-        void DoAction(int32 const p_Action) override
+        void DoAction(int32 const p_Action)
         {
             switch (p_Action)
             {
-                case eArchmageActions::ActionStopPrevent:
+            case eArchmageActions::ActionStopPrevent:
+            {
+                me->RemoveAllAuras();
+                me->setFaction(HostileFaction);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS,
+                    eUnitFlags::UNIT_FLAG_NON_ATTACKABLE
+                    | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE |
+                    eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC |
+                    eUnitFlags::UNIT_FLAG_UNK_15
+                    | eUnitFlags::UNIT_FLAG_UNK_6 |
+                    eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2,
+                    eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+                DespawnCreaturesInArea(eArchmageCreatures::CreatureTriggerArcaneBeam, me);
+                break;
+            }
+            case eArchmageActions::ActionChoosePower:
+            {
+                m_Count++;
+                events.Reset();
+                uint32 l_Entries[3] = { eArchmageSolSpells::SpellPrimalAffinityArcane,
+                    eArchmageSolSpells::SpellPrimalAffinityFire,
+                    eArchmageSolSpells::SpellPrimalAffinityFrost };
+                for (uint8 l_I = 0; l_I <= 2; l_I++)
+                    me->RemoveAura(l_Entries[l_I]);
+                /// Parasitic Injection
+                if (!me->HasAura(eArchmageSolSpells::SpellParasiticInjection))
+                    me->CastSpell(me, eArchmageSolSpells::SpellParasiticInjection);
+                else
                 {
-                    me->RemoveAllAuras();
-                    me->setFaction(HostileFaction);
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS,
-                        eUnitFlags::UNIT_FLAG_NON_ATTACKABLE
-                        | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE |
-                        eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC |
-                        eUnitFlags::UNIT_FLAG_UNK_15
-                        | eUnitFlags::UNIT_FLAG_UNK_6 |
-                        eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2,
-                        eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                    me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                    DespawnCreaturesInArea(eArchmageCreatures::CreatureTriggerArcaneBeam, me);
-                    break;
+                    if (Aura* l_Aura = me->GetAura(eArchmageSolSpells::SpellParasiticInjection))
+                        l_Aura->SetStackAmount(l_Aura->GetStackAmount() + 1);
                 }
-                case eArchmageActions::ActionChoosePower:
+                /// Heroic Spore Image
+                if (me->GetMap() && me->GetMap()->IsHeroic())
                 {
-                        m_Count++;
-                        events.Reset();                      
-                        uint32 l_Entries[3] = { eArchmageSolSpells::SpellPrimalAffinityArcane,
-                            eArchmageSolSpells::SpellPrimalAffinityFire,
-                            eArchmageSolSpells::SpellPrimalAffinityFrost };
-                        for (uint8 l_I = 0; l_I <= 2; l_I++)
-                             me->RemoveAura(l_Entries[l_I]);     
-                        /// Parasitic Injection
-                        if (!me->HasAura(eArchmageSolSpells::SpellParasiticInjection))
-                            me->CastSpell(me, eArchmageSolSpells::SpellParasiticInjection);
-                        else
-                        {
-                            if (Aura* l_Aura = me->GetAura(eArchmageSolSpells::SpellParasiticInjection))
-                                l_Aura->SetStackAmount(l_Aura->GetStackAmount() + 1);
-                        }
-                        /// Heroic Spore Image
-                        if (me->GetMap() && me->GetMap()->IsHeroic())
-                        {
-                            Position l_Pos;
-                            me->GetRandomNearPosition(l_Pos, 30.0f);
-                            me->SummonCreature(eArchmageCreatures::CreatureSporeImage, l_Pos, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                        }
-                        switch (m_Count)
-                        {
-                            case 2: /// Arcane Magic
-                                Talk(eArchmageTalks::TalkSolSpell03);
-                                me->CastSpell(me, eArchmageSolSpells::SpellPrimalAffinityArcane);
-                                events.ScheduleEvent(eArchmageSolEvents::EventArcaneBrust, 6 * TimeConstants::IN_MILLISECONDS);
-                                me->MonsterTextEmote("|TInterface\\Icons\\Spell_Arcane_ArcaneArmor02.blp:20|tArchmage Sol begins casting Arcane spells!", Language::LANG_UNIVERSAL, me->GetGUID());                        
-                                break;
-                            case 1: /// Frost
-                                Talk(eArchmageTalks::TalkSolSpell01);
-                                me->CastSpell(me, eArchmageSolSpells::SpellPrimalAffinityFrost);
-                                events.ScheduleEvent(eArchmageSolEvents::EventFrozenRain, 5 * TimeConstants::IN_MILLISECONDS);
-                                events.ScheduleEvent(eArchmageSolEvents::EventFrostBall, 6 * TimeConstants::IN_MILLISECONDS);
-                                events.ScheduleEvent(eArchmageSolEvents::EventParasiticGrowth, 29 * TimeConstants::IN_MILLISECONDS);
-                                me->MonsterTextEmote("|TInterface\\Icons\\Spell_Frost_FrostArmor02.blp:20|tArchmage Sol begins casting Frost spells!", Language::LANG_UNIVERSAL, me->GetGUID());
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                   }
+                    Position l_Pos;
+                    me->GetRandomNearPosition(l_Pos, 30.0f);
+                    me->SummonCreature(eArchmageCreatures::CreatureSporeImage, l_Pos, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                }
+                switch (m_Count)
+                {
+                case 2: /// Arcane Magic
+                    Talk(eArchmageTalks::TalkSolSpell03);
+                    me->CastSpell(me, eArchmageSolSpells::SpellPrimalAffinityArcane);
+                    events.ScheduleEvent(eArchmageSolEvents::EventArcaneBrust, 6 * TimeConstants::IN_MILLISECONDS);
+                    me->MonsterTextEmote("|TInterface\\Icons\\Spell_Arcane_ArcaneArmor02.blp:20|tArchmage Sol begins casting Arcane spells!", Language::LANG_UNIVERSAL, me->GetGUID());
+                    break;
+                case 1: /// Frost
+                    Talk(eArchmageTalks::TalkSolSpell01);
+                    me->CastSpell(me, eArchmageSolSpells::SpellPrimalAffinityFrost);
+                    events.ScheduleEvent(eArchmageSolEvents::EventFrozenRain, 5 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eArchmageSolEvents::EventFrostBall, 6 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eArchmageSolEvents::EventParasiticGrowth, 29 * TimeConstants::IN_MILLISECONDS);
+                    me->MonsterTextEmote("|TInterface\\Icons\\Spell_Frost_FrostArmor02.blp:20|tArchmage Sol begins casting Frost spells!", Language::LANG_UNIVERSAL, me->GetGUID());
+                    break;
                 default:
                     break;
+                }
+                break;
+            }
+            default:
+                break;
             }
         }
 
-        void EnterCombat(Unit* /*p_Attacker*/) override
-        {              
+        void EnterCombat(Unit* /*p_Attacker*/)
+        {
             if (m_Instance != nullptr)
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
             _EnterCombat();
@@ -239,7 +239,7 @@ public:
             events.ScheduleEvent(eArchmageSolEvents::EventFireBloom, urand(22 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
         }
 
-        void KilledUnit(Unit* p_Attacker) override
+        void KilledUnit(Unit* p_Attacker)
         {
             if (p_Attacker && p_Attacker->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
@@ -248,11 +248,11 @@ public:
             }
         }
 
-        void JustDied(Unit* /*p_Killer*/) override
+        void JustDied(Unit* /*p_Killer*/)
         {
             _JustDied();
             summons.DespawnAll();
-            Talk(eArchmageTalks::TalkSolDeath);          
+            Talk(eArchmageTalks::TalkSolDeath);
         }
 
         void ArcaneBeam(uint32 const p_Diff)
@@ -267,7 +267,7 @@ public:
                 std::list<Creature*> l_Creatures;
                 me->GetCreatureListWithEntryInGrid(l_Creatures, eArchmageCreatures::CreatureTriggerArcaneBeam, 50.0f);
                 if (!l_Creatures.empty())
-                {            
+                {
                     for (Creature* l_Itr : l_Creatures)
                         me->CastSpell(l_Itr, eArchmageSolSpells::SpellVisualSolArcaneBeam);
                 }
@@ -277,7 +277,7 @@ public:
             else
                 m_Visual -= p_Diff;
         }
-        
+
         void StopEvent(uint32 const p_Diff)
         {
             if (m_TimerToDisablePreevent <= p_Diff)
@@ -289,17 +289,17 @@ public:
                 m_TimerToDisablePreevent -= p_Diff;
         }
 
-        void SpawnNoxiousBomb(uint32 const p_Diff)
+        void SpawnNoxiousBomb(uint32 const /*p_Diff*/)
         {
             for (uint8 l_I = 0; l_I < 8; l_I++)
-            {             
+            {
                 Position l_Pos;
                 me->GetRandomNearPosition(l_Pos, 60.0f);
                 me->SummonCreature(eArchmageCreatures::CreatureTriggerNoxiousEruption, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 10 * TimeConstants::IN_MILLISECONDS);
             }
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const p_Diff)
         {
             events.Update(p_Diff);
 
@@ -327,47 +327,47 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eArchmageSolEvents::EventParasiticGrowth:
-                {
-                    me->CastSpell(me, eArchmageSolSpells::SpellParasiticGrowth);
-                    events.ScheduleEvent(eArchmageSolEvents::EventParasiticGrowth, 29 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                }
-                case eArchmageSolEvents::EventArcaneBrust:
-                {
-                    me->CastSpell(me, eArchmageSolSpells::SpellArcaneBrust);
-                    events.ScheduleEvent(eArchmageSolEvents::EventArcaneBrust, 5 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                }
-                case eArchmageSolEvents::EventFireBall:
-                {
-                    if (Unit* l_Victim = me->getVictim())
-                        me->CastSpell(l_Victim, eArchmageSolSpells::SpellFireBall);
-                    events.ScheduleEvent(eArchmageSolEvents::EventFireBall, 4 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                }
-                case eArchmageSolEvents::EventFireBloom:
-                {
-                    me->CastSpell(me, eArchmageSolSpells::SpellFireBloom);
-                    events.ScheduleEvent(eArchmageSolEvents::EventFireBloom, urand(22 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-                    break;
-                }
-                case eArchmageSolEvents::EventFrostBall:
-                {
-                    if (Unit* l_Victim = me->getVictim())
-                        me->CastSpell(l_Victim, eArchmageSolSpells::SpellFrostbolt);
-                    events.ScheduleEvent(eArchmageSolEvents::EventFrostBall, 4 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                }
-                case eArchmageSolEvents::EventFrozenRain:
-                {
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->SummonCreature(eArchmageCreatures::CreatureTriggerFrozenAura, l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), l_Target->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                    events.ScheduleEvent(eArchmageSolEvents::EventFrozenRain, 8 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                }
-                default:
-                    break;
+            case eArchmageSolEvents::EventParasiticGrowth:
+            {
+                me->CastSpell(me, eArchmageSolSpells::SpellParasiticGrowth);
+                events.ScheduleEvent(eArchmageSolEvents::EventParasiticGrowth, 29 * TimeConstants::IN_MILLISECONDS);
+                break;
+            }
+            case eArchmageSolEvents::EventArcaneBrust:
+            {
+                me->CastSpell(me, eArchmageSolSpells::SpellArcaneBrust);
+                events.ScheduleEvent(eArchmageSolEvents::EventArcaneBrust, 5 * TimeConstants::IN_MILLISECONDS);
+                break;
+            }
+            case eArchmageSolEvents::EventFireBall:
+            {
+                if (Unit* l_Victim = me->getVictim())
+                    me->CastSpell(l_Victim, eArchmageSolSpells::SpellFireBall);
+                events.ScheduleEvent(eArchmageSolEvents::EventFireBall, 4 * TimeConstants::IN_MILLISECONDS);
+                break;
+            }
+            case eArchmageSolEvents::EventFireBloom:
+            {
+                me->CastSpell(me, eArchmageSolSpells::SpellFireBloom);
+                events.ScheduleEvent(eArchmageSolEvents::EventFireBloom, urand(22 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                break;
+            }
+            case eArchmageSolEvents::EventFrostBall:
+            {
+                if (Unit* l_Victim = me->getVictim())
+                    me->CastSpell(l_Victim, eArchmageSolSpells::SpellFrostbolt);
+                events.ScheduleEvent(eArchmageSolEvents::EventFrostBall, 4 * TimeConstants::IN_MILLISECONDS);
+                break;
+            }
+            case eArchmageSolEvents::EventFrozenRain:
+            {
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                    me->SummonCreature(eArchmageCreatures::CreatureTriggerFrozenAura, l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), l_Target->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                events.ScheduleEvent(eArchmageSolEvents::EventFrozenRain, 8 * TimeConstants::IN_MILLISECONDS);
+                break;
+            }
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -397,7 +397,7 @@ public:
         enum eSporeImageSpells
         {
             SpellFrostbolt = 169824,
-            SpellFireBall  = 168894
+            SpellFireBall = 168894
         };
 
         enum eSporeImageEvents
@@ -414,7 +414,7 @@ public:
             me->SetInCombatWithZone();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eSporeImageEvents::EventFireBall, urand(10 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eSporeImageEvents::EventFrostbolt, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
@@ -429,22 +429,22 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eSporeImageEvents::EventFrostbolt:
-                {
-                    if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(l_Target, eSporeImageSpells::SpellFrostbolt);
-                    events.ScheduleEvent(eSporeImageEvents::EventFrostbolt, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
-                    break;
-                }
-                case eSporeImageEvents::EventFireBall:
-                {
-                    if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(l_Target, eSporeImageSpells::SpellFireBall);
-                    events.ScheduleEvent(eSporeImageEvents::EventFireBall, urand(10 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
-                    break;
-                }
-                default:
-                    break;
+            case eSporeImageEvents::EventFrostbolt:
+            {
+                if (Unit* l_Target = me->getVictim())
+                    me->CastSpell(l_Target, eSporeImageSpells::SpellFrostbolt);
+                events.ScheduleEvent(eSporeImageEvents::EventFrostbolt, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+                break;
+            }
+            case eSporeImageEvents::EventFireBall:
+            {
+                if (Unit* l_Target = me->getVictim())
+                    me->CastSpell(l_Target, eSporeImageSpells::SpellFireBall);
+                events.ScheduleEvent(eSporeImageEvents::EventFireBall, urand(10 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+                break;
+            }
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -483,7 +483,7 @@ public:
         void Reset() override
         {
             me->SetInCombatWithZone();
-            me->setFaction(HostileFaction);         
+            me->setFaction(HostileFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             m_TimeBetweenDot = 1 * TimeConstants::IN_MILLISECONDS;
             me->CastSpell(me, eFrozenRainSpells::SpellFrozenRainAura);
@@ -543,7 +543,7 @@ public:
         InstanceScript* m_Instance;
 
         void Reset() override
-        {              
+        {
             me->SetObjectScale(0.5);
             me->SetInCombatWithZone();
             me->setFaction(HostileFaction);
@@ -578,9 +578,9 @@ public:
 
         enum eColdSnapSpells
         {
-            SpellFrozenSnapDummy         = 169847,
+            SpellFrozenSnapDummy = 169847,
             SpellFrozenSnapEffectTrigger = 169848,
-            SpellFrozenSnapStun          = 169850
+            SpellFrozenSnapStun = 169850
         };
 
         InstanceScript* m_Instance;
@@ -593,7 +593,7 @@ public:
             me->SetReactState(ReactStates::REACT_PASSIVE);
             m_FreezeCheck = 1 * TimeConstants::IN_MILLISECONDS;
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);   
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void UpdateAI(const uint32 p_Diff) override
@@ -629,7 +629,7 @@ public:
 
     class the_everbloom_archmage_sol_spell_parasite_change_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_archmage_sol_spell_parasite_change_SpellScript);
+        PrepareSpellScript(the_everbloom_archmage_sol_spell_parasite_change_SpellScript)
 
         void HandleSpecChange()
         {
@@ -658,6 +658,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_archmage_sol()
 {
     new boss_archmage_sol();                                    ///< 82682
@@ -667,3 +668,4 @@ void AddSC_boss_archmage_sol()
     new the_everbloom_archmage_sol_mob_spore_image();           ///< 84386
     new the_everbloom_archmage_sol_spell_parasite_change();     ///< 168885
 }
+#endif

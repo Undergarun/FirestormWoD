@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -13,7 +21,7 @@ class npc_wrathion : public CreatureScript
         {
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* player, Creature* /*p_Creature*/, Quest const* quest)
         {
             if (quest->GetQuestId() == QUEST_A_LEGEND_IN_THE_MAKING)
             {
@@ -43,7 +51,7 @@ class npc_wrathion_mason : public CreatureScript
         {
         }
 
-        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
+        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
         {
             if (quest->GetQuestId() == 31482)
             {
@@ -179,8 +187,10 @@ class npc_wrathion_mason : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_the_veiled_stair()
 {
     new npc_wrathion();
     new npc_wrathion_mason();
 }
+#endif

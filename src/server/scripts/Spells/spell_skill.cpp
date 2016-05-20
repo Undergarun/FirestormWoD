@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2014-2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
@@ -16,7 +16,7 @@ namespace MS { namespace Skill
 {
     namespace SpellIDs
     {
-        enum 
+        enum
         {
             /// Cooking
             SaberfishBroth   = 161001,
@@ -364,9 +364,9 @@ namespace MS { namespace Skill
                         case SpellIDs::ResearchBlackfallowInk:
                             /// http://www.wowhead.com/spell=165466/research-blackfallow-ink#teaches-spell
                             l_RewardSpells = {
-                                 57031,  57154,  57196,  57217,  57228,  57249, 
-                                 57257,  58287,  58296,  58324,  58337,  58339, 
-                                 64260,  64262,  68166, 112430, 112461, 112462, 
+                                 57031,  57154,  57196,  57217,  57228,  57249,
+                                 57257,  58287,  58296,  58324,  58337,  58339,
+                                 64260,  64262,  68166, 112430, 112461, 112462,
                                 122030, 124466, 126800, 148286,  56986,  55691
                             };
                             break;
@@ -376,7 +376,7 @@ namespace MS { namespace Skill
                                  56959,  56979,  56981,  57123,  57133,  57194,
                                  57226,  57227,  57269,  58288,  58301,  58306,
                                  59326,  64258,  64261,  64312, 112266, 112458,
-                                112460, 124461, 126696, 148274, 148285, 182155, 
+                                112460, 124461, 126696, 148274, 148285, 182155,
                                 182158,  57189,  56998,  58375
                             };
                             break;
@@ -1480,6 +1480,7 @@ namespace MS { namespace Skill
 }   ///< namespace Skill
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_spell_skill()
 {
     new MS::Skill::spell_Cooking_DraenorRecipesRewards();
@@ -1507,3 +1508,4 @@ void AddSC_spell_skill()
     new MS::Skill::spell_skill_weapon_crystal_upgrade();
     new MS::Skill::spell_skill_hexweave_essence_upgrade();
 }
+#endif

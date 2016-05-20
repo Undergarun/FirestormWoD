@@ -1,8 +1,10 @@
-/*
-    Dungeon : Template of the Jade Serpent 85-87
-    Wise mari second boss
-    Jade servers
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -26,7 +28,7 @@ enum eBoss
     BOSS_ZAO_SUNSEEKER = 3,
 
     BOSS_STRIFE = 4,
-    BOSS_PERIL = 5,
+    BOSS_PERIL = 5
 };
 
 enum eSpells
@@ -46,7 +48,7 @@ enum eSpells
     SPELL_AGONY                 = 114571,
     SPELL_DISSIPATION           = 113379,
     SPELL_INTENSITY             = 113315,
-    SPELL_ULTIMATE_POWER        = 113309,
+    SPELL_ULTIMATE_POWER        = 113309
 };
 
 enum eEvents
@@ -72,7 +74,7 @@ enum eEvents
     EVENT_STRIFE_1 = 15,
     EVENT_STRIFE_2 = 16,
     EVENT_STRIFE_3 = 17,
-    EVENT_STRIFE_4 = 18,
+    EVENT_STRIFE_4 = 18
 };
 
 enum eTexts
@@ -94,7 +96,7 @@ enum eTexts
     EVENT_TALK_STRIFE_1 = 11,
     EVENT_TALK_STRIFE_2 = 12,
     EVENT_TALK_STRIFE_3 = 13,
-    EVENT_TALK_STRIFE_4 = 14,
+    EVENT_TALK_STRIFE_4 = 14
 };
 
 enum eCreatures
@@ -104,7 +106,7 @@ enum eCreatures
     CREATURE_HAUNTING_SHA_1         = 58865,
     CREATURE_HAUNTING_SHA_2         = 58856,
     CREATURE_SUN                    = 56915,
-    CREATURE_OSONG                  = 56872,
+    CREATURE_OSONG                  = 56872
 };
 
 class boss_lorewalker_stonestep : public CreatureScript
@@ -159,7 +161,7 @@ class boss_lorewalker_stonestep : public CreatureScript
                 _JustDied();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
             }
 
@@ -306,7 +308,7 @@ class mob_sun : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->GetInstanceScript()->SetData(TYPE_NUMBER_SUN_DEFEATED, 1);
             }
@@ -352,7 +354,7 @@ class mob_zao : public CreatureScript
 
             bool isCorrupted;
 
-            void DamageTaken(Unit* attacker, uint32&, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32&, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (attacker->ToCreature()
                     && (attacker->ToCreature()->GetEntry() == CREATURE_HAUNTING_SHA_1
@@ -468,7 +470,7 @@ class mob_haunting_sha : public CreatureScript
                 me->CastSpell(me, SPELL_EXTRACT_SHA, false);
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 1000);
             }
@@ -485,7 +487,7 @@ class mob_haunting_sha : public CreatureScript
                     if (!zao)
                         return;
 
-                    me->getThreatManager().addThreat(zao, 1000000.f);
+                    me->getThreatManager().addThreat(zao, 1000000.0f);
                     me->AI()->AttackStart(zao);
                 }
             }
@@ -554,13 +556,13 @@ class mob_strife : public CreatureScript
             int32 countIntensity;
             bool hasBeenHit;
 
-            void DamageTaken(Unit* unit, uint32&, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Unit*/, uint32&, SpellInfo const*  /*p_SpellInfo*/)
             {
                 timer_dissipation = TIMER_DISSIPATION;
                 hasBeenHit = true;
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 1000);
             }
@@ -651,13 +653,13 @@ class mob_peril : public CreatureScript
             int32 countIntensity;
             bool hasBeenHit;
 
-            void DamageTaken(Unit* unit, uint32&, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Unit*/, uint32&, SpellInfo const*  /*p_SpellInfo*/)
             {
                 timer_dissipation = TIMER_DISSIPATION;
                 hasBeenHit = true;
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 1000);
             }
@@ -740,7 +742,7 @@ class mob_nodding_tiger : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
             }
@@ -784,7 +786,7 @@ class mob_golden_beetle : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
                 events.ScheduleEvent(2, 4000);
@@ -838,7 +840,7 @@ class mob_jiang_xiang : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
                 events.ScheduleEvent(2, 4000);
@@ -887,7 +889,7 @@ class mob_songbird_queen : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
             }
@@ -939,7 +941,7 @@ class mob_talking_fish : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_0 + urand(0, 3));
                 events.ScheduleEvent(1, 2000);
@@ -967,6 +969,7 @@ class mob_talking_fish : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lorewalker_stonestep()
 {
     new boss_lorewalker_stonestep();
@@ -982,3 +985,4 @@ void AddSC_boss_lorewalker_stonestep()
     new mob_songbird_queen();
     new mob_talking_fish();
 }
+#endif

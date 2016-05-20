@@ -1,17 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_SHIPMENT_MANAGER_HPP_GARRISON
-#define GARRISON_SHIPMENT_MANAGER_HPP_GARRISON
+# define GARRISON_SHIPMENT_MANAGER_HPP_GARRISON
 
-#include <ace/Singleton.h>
-#include <map>
+#include "Common.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Shipment manager class
     class ShipmentManager

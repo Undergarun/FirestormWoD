@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*######
 ## npc_stormwind_infantry
@@ -64,14 +53,14 @@ public:
             HasATarget = false;
         }
 
-        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (doneBy->ToCreature())
                 if (me->GetHealth() <= damage || me->GetHealthPct() <= 80.0f)
                     damage = 0;
         }
 
-        void DamageDealt(Unit* target, uint32& damage, DamageEffectType damageType)
+        void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
         {
             if (target->ToCreature())
                 if (target->GetHealth() <= damage || target->GetHealthPct() <= 70.0f)
@@ -117,7 +106,7 @@ public:
         void Reset()
         {}
 
-        void OnSpellClick(Unit* Clicker)
+        void OnSpellClick(Unit* /*Clicker*/)
         {
             me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
@@ -181,14 +170,14 @@ public:
 
         void MoveInLineOfSight(Unit* p_Who)
         {
-            if (!me->IsWithinDistInMap(p_Who, 25.f) && p_Who->isInCombat())
+            if (!me->IsWithinDistInMap(p_Who, 25.0f) && p_Who->isInCombat())
             {
                 me->RemoveAllAurasByCaster(p_Who->GetGUID());
                 me->getHostileRefManager().deleteReference(p_Who);
             }
         }
 
-        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             resetTimer = 5000;
             damage = 0;
@@ -263,7 +252,7 @@ class spell_quest_fear_no_evil: public SpellScriptLoader
 
         class spell_quest_fear_no_evil_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_quest_fear_no_evil_SpellScript);
+            PrepareSpellScript(spell_quest_fear_no_evil_SpellScript)
 
             void OnDummy(SpellEffIndex /*effIndex*/)
             {
@@ -297,7 +286,7 @@ class spell_quest_extincteur: public SpellScriptLoader
 
         class spell_quest_extincteur_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_quest_extincteur_AuraScript);
+            PrepareAuraScript(spell_quest_extincteur_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -339,6 +328,7 @@ class spell_quest_extincteur: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_elwyn_forest()
 {
     new npc_stormwind_infantry();
@@ -347,3 +337,4 @@ void AddSC_elwyn_forest()
     new spell_quest_fear_no_evil();
     new spell_quest_extincteur();
 }
+#endif

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "DatabaseEnv.h"
 #include "Guild.h"
@@ -1528,7 +1518,7 @@ bool Guild::SwitchGuildLeader(uint64 newLeaderGuid)
     return false;
 }
 
-void Guild::HandleSetBankTabInfo(WorldSession* p_Session, uint8 p_TabID, const std::string& p_Name, const std::string& p_Icon) ///< p_Session is unused
+void Guild::HandleSetBankTabInfo(WorldSession* /*p_Session*/, uint8 p_TabID, const std::string& p_Name, const std::string& p_Icon)
 {
     if (BankTab* pTab = GetBankTab(p_TabID))
     {
@@ -1667,7 +1657,7 @@ void Guild::HandleInviteMember(WorldSession* p_Session, const std::string& p_Nam
     {
         SendCommandResult(p_Session, GUILD_INVITE_S, ERR_ALREADY_IN_GUILD_S, p_Name);
         return;
-    }    
+    }
 
     /// Inviting player must have rights to invite
     if (!_HasRankRight(l_Player, GR_RIGHT_INVITE))
@@ -1852,7 +1842,7 @@ void Guild::HandleSetMemberRank(WorldSession* session, uint64 targetGuid, uint64
     }
 }
 
-void Guild::HandleSwapRanks(WorldSession* p_Session, uint32 p_RankID, bool p_Up) ///< p_Session is unused
+void Guild::HandleSwapRanks(WorldSession* /*p_Session*/, uint32 p_RankID, bool p_Up) ///< p_Session is unused
 {
     RankInfo* l_FirstRank = NULL;
     RankInfo* l_SecondRank = NULL;
@@ -2074,7 +2064,7 @@ void Guild::HandleGuildPartyRequest(WorldSession * p_Session)
 
     l_Data << uint32(0);                                                                        ///< Current guild members
     l_Data << uint32(0);                                                                        ///< Needed guild members
-    l_Data << float(0.f);                                                                       ///< Guild XP multiplier
+    l_Data << float(0.0f);                                                                       ///< Guild XP multiplier
 
     p_Session->SendPacket(&l_Data);
 }
@@ -2713,7 +2703,7 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
             player->GetSession()->SendPacket(packet);
 }
 
-void Guild::MassInviteToEvent(WorldSession* p_Session, uint32 p_MinLevel, uint32 p_MaxLevel, uint32 p_MinRank) ///< p_Session is unused
+void Guild::MassInviteToEvent(WorldSession* /*p_Session*/, uint32 /*p_MinLevel*/, uint32 /*p_MaxLevel*/, uint32 /*p_MinRank*/)
 {
     // Finish me. Thank still not done in 2016 !
     /*uint32 count = 0;
@@ -3712,7 +3702,7 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& p_Data)
     p_Data.Initialize(SMSG_GUILD_NEWS);
     p_Data << uint32(_newsLog.size());
 
-    for (GuildNewsLogMap::const_iterator l_It = _newsLog.begin(); l_It != _newsLog.end(); l_It++)
+    for (GuildNewsLogMap::const_iterator l_It = _newsLog.begin(); l_It != _newsLog.end(); ++l_It)
     {
         p_Data << uint32(l_It->first);
         p_Data << uint32(MS::Utilities::WowTime::Encode(l_It->second.Date));

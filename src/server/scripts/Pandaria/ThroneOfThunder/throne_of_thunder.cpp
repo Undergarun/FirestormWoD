@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptedCreature.h"
 #include "throne_of_thunder.h"
@@ -415,7 +404,7 @@ enum eActions
     ACTION_LAUNCH_WEISHENG,
     ACTION_QUILEN_DIES,
     ACTION_MOGU_DIES,
-    ACTION_IRON_QON_TRASH_DONE,
+    ACTION_IRON_QON_TRASH_DONE
 };
 
 enum eEquipIds
@@ -505,7 +494,7 @@ class mob_zandalari_water_binder : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_BIND_WATER, 5000);
                 events.ScheduleEvent(EVENT_DELUGE, 10000);
@@ -571,7 +560,7 @@ class mob_zandalari_blade_initiate : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_WOUNDING_STRIKE, 5000);
             }
@@ -627,7 +616,7 @@ class mob_zandalari_spear_shaper : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_BERSERKING, 5000);
                 events.ScheduleEvent(EVENT_RETRIEVE_SPEAR, 10000);
@@ -696,7 +685,7 @@ class mob_thrown_spear : public CreatureScript
                 me->CastSpell(me, SPELL_THROW_SPEAR_PERIODIC, true);
             }
 
-            void UpdateAI(const uint32 diff) { }
+            void UpdateAI(const uint32 /*p_Diff*/) { }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -734,7 +723,7 @@ class mob_zandalari_storm_caller : public CreatureScript
                     itr->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_WATER_BOLT, 8000);
                 events.ScheduleEvent(EVENT_STORM_WEAPON, 5000);
@@ -777,7 +766,7 @@ class mob_zandalari_storm_caller : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 /*type*/)
             {
                 return focusedLightningTarget;
             }
@@ -889,7 +878,7 @@ class mob_ancient_python : public CreatureScript
                 me->CastSpell(me, SPELL_STEALTH, true);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_ANCIENT_VENOM, 1000);
                 stealthTimer = 0;
@@ -1004,7 +993,7 @@ class mob_tourmented_spirit : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_TORMENT, 500);
             }
@@ -1069,7 +1058,7 @@ class mob_soul_fed_construct : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CRUSH_ARMOR, 2000);
                 events.ScheduleEvent(EVENT_SPIRITFIRE_BEAM, 5000);
@@ -1134,13 +1123,13 @@ class mob_stormbringer_draz_kil : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5000);
                 events.ScheduleEvent(EVENT_STORMCLOUD, 10000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (pInstance)
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STORMCLOUD);
@@ -1208,7 +1197,7 @@ class mob_dark_winds : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 float force = 3.0f;
                 std::list<Unit*> playerList;
@@ -1318,7 +1307,7 @@ class mob_drakkari_frost_warden : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_FROST_BULWARK, 2000);
                 events.ScheduleEvent(EVENT_GLACIAL_FREEZE_TOTEM, 5000);
@@ -1405,7 +1394,7 @@ class mob_gurubashi_berserker : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_BERSERKER_FRENZY, 1000);
                 events.ScheduleEvent(EVENT_BLOODLETTING, 5000);
@@ -1466,7 +1455,7 @@ class mob_amani_shi_flame_chanter : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_ERUPTION, 2000);
                 events.ScheduleEvent(EVENT_CALL_FLAMES, 5000);
@@ -1535,7 +1524,7 @@ class mob_farraki_sand_conjurer : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CHOCKING_SAND, 2000);
                 events.ScheduleEvent(EVENT_SAND_BOLT, 5000);
@@ -1597,7 +1586,7 @@ class mob_sand_elemental : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -1633,7 +1622,7 @@ class mob_zandalari_high_priest : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_LIGHT_OF_THE_LOA, 5000);
             }
@@ -1707,7 +1696,7 @@ class mob_zandalari_prophet : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_MARK_OF_THE_PROPHET, 5000);
                 events.ScheduleEvent(EVENT_VISIONS_OF_DEMISE, 10000);
@@ -1774,7 +1763,7 @@ class mob_zandalari_warlord : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CLEAVE, 5000);
                 events.ScheduleEvent(EVENT_STRENGTH_OF_THE_LOA, 8000);
@@ -1842,7 +1831,7 @@ class mob_zandalari_prelate : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_JUDGEMENT_OF_THE_LOA, 8000);
                 events.ScheduleEvent(EVENT_LIGHT_OF_THE_LOA, 10000);
@@ -1964,7 +1953,7 @@ class mob_vampiric_cave_bat : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -1998,7 +1987,7 @@ class mob_greater_cave_bat : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_SLASHING_TALONS, 8000);
                 events.ScheduleEvent(EVENT_SONIC_SCREECH, 3000);
@@ -2071,7 +2060,7 @@ class mob_mysterious_mushroom : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_CHECK_PLAYER:
-                        if (Unit* target = me->SelectNearestPlayerNotGM(4.f))
+                        if (Unit* target = me->SelectNearestPlayerNotGM(4.0f))
                         {
                             me->CastSpell(me, SPELL_FUNGAL_EXPLOSION_DAMAGE, true);
                             me->DespawnOrUnsummon();
@@ -2112,7 +2101,7 @@ class mob_shale_stalker : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_SHALE_SHARDS, 5000);
             }
@@ -2166,7 +2155,7 @@ class mob_fungal_growth : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_GROW, 1000);
                 events.ScheduleEvent(EVENT_FUNGI_SPORES, 5000);
@@ -2225,7 +2214,7 @@ class mob_mist_lurker : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CHOCKING_MISTS, 4000);
                 events.ScheduleEvent(EVENT_CORRISIVE_BREATH, 8000);
@@ -2287,7 +2276,7 @@ class mob_cavern_burrower : public CreatureScript
                 me->CastSpell(me, SPELL_SUBMERGE, true);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 me->RemoveAura(SPELL_COSMETIC_ALPHA_STATE);
                 me->RemoveAura(SPELL_SUBMERGE);
@@ -2357,7 +2346,7 @@ class mob_eternal_guardian : public CreatureScript
                 me->CastSpell(me, SPELL_ETERNAL_GUARDIAN_SPAWN, true);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_ETERNAL_PRISON, 4000);
                 events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 6000);
@@ -2423,7 +2412,7 @@ class mob_bore_worm : public CreatureScript
                 me->CastSpell(me, SPELL_WORM_SUBMERGE, true);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 me->RemoveAura(SPELL_WORM_SUBMERGE);
                 me->CastSpell(me, SPELL_SHIFTING_DOOM, true);
@@ -2496,12 +2485,12 @@ class mob_bow_fly_swarm : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_LUCIFERASE, 3000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 for (uint8 i = 0; i < 8; ++i)
                 {
@@ -2658,7 +2647,7 @@ class mob_gastropod : public CreatureScript
                         Position l_Pos;
 
                         me->GetPosition(&l_Pos);
-                        me->GetPlayerListInGrid(l_Targets, 0.f);
+                        me->GetPlayerListInGrid(l_Targets, 0.0f);
 
                         for (Player* l_Player : l_Targets)
                         {
@@ -2671,10 +2660,10 @@ class mob_gastropod : public CreatureScript
                             Position l_PlayerPos;
                             l_Player->GetPosition(&l_PlayerPos);
 
-                            if (l_Pos.m_positionX >= l_PlayerPos.m_positionX - 5.f &&
-                                l_Pos.m_positionX <= l_PlayerPos.m_positionX + 5.f &&
-                                l_Pos.m_positionY >= l_PlayerPos.m_positionY - 5.f &&
-                                l_Pos.m_positionY <= l_PlayerPos.m_positionY + 5.f)
+                            if (l_Pos.m_positionX >= l_PlayerPos.m_positionX - 5.0f &&
+                                l_Pos.m_positionX <= l_PlayerPos.m_positionX + 5.0f &&
+                                l_Pos.m_positionY >= l_PlayerPos.m_positionY - 5.0f &&
+                                l_Pos.m_positionY <= l_PlayerPos.m_positionY + 5.0f)
                             {
                                 me->CastSpell(l_Player, SPELL_DEVOURED, true);
                                 break;
@@ -2820,7 +2809,7 @@ class mob_corpse_spider : public CreatureScript
                 me->CastSpell(me, SPELL_CORPSE_SPIDER_SPAWN, true);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_WEB_SPRAY, 5000);
             }
@@ -2880,7 +2869,7 @@ class mob_quivering_blob : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_OOZE_EXPLOSION, 5000);
             }
@@ -2936,7 +2925,7 @@ class mob_ritual_guard : public CreatureScript
                 SetEquipmentSlots(false, RITUAL_GUARD_WEAPON, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_SHADOW_NOVA, 5000);
                 m_Events.ScheduleEvent(EVENT_SHOCKWAVE, 10000);
@@ -3027,7 +3016,7 @@ class mob_untrained_quilen : public CreatureScript
                         l_Qon->AI()->DoAction(ACTION_QUILEN_DIES);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->getVictim())
                     return;
@@ -3035,7 +3024,7 @@ class mob_untrained_quilen : public CreatureScript
                 EnterCombat(p_Attacker);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_LEAPING_RUSH, urand(5000, 10000));
                 m_Events.ScheduleEvent(EVENT_CARNIVOROUS_BITE, urand(7000, 12000));
@@ -3136,13 +3125,13 @@ class mob_iron_qon_disciple : CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!m_InCombat)
                     EnterCombat(p_Attacker);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (m_InCombat)
                     return;
@@ -3269,7 +3258,7 @@ class mob_muckbat : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_MUCK_SPIT, 2000);
             }
@@ -3324,7 +3313,7 @@ class mob_skittering_spiderling : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_FOUL_VENOM, 2000);
             }
@@ -3375,7 +3364,7 @@ class mob_putrid_waste : public CreatureScript
                 me->CastSpell(me, SPELL_PUTRIFY, true);
             }
 
-            void UpdateAI(const uint32 p_Diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -3412,7 +3401,7 @@ class mob_rotting_scavenger : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_FRENZIED_CONSUMPTION, 2000);
                 m_Events.ScheduleEvent(EVENT_INFECTED_BITE, 4000);
@@ -3478,7 +3467,7 @@ class mob_shanze_celestial_shaper : public CreatureScript
 
                 SetEquipmentSlots(false, SHANZE_WEAPON, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
 
-                if (Creature* l_Construct = me->FindNearestCreature(NPC_CELESTIAL_CONSTRUCT, 50.f))
+                if (Creature* l_Construct = me->FindNearestCreature(NPC_CELESTIAL_CONSTRUCT, 50.0f))
                     me->CastSpell(l_Construct, SPELL_SIPHON_ESSENCE, false);
 
                 m_Events.ScheduleEvent(EVENT_LIGHTNING_LASH, 2000);
@@ -3523,7 +3512,7 @@ class mob_shanze_celestial_shaper : public CreatureScript
 
 enum eStarAction
 {
-    ACTION_COSMIC_STARS = 6,
+    ACTION_COSMIC_STARS = 6
 };
 
 // 69365 - Star (from Shan'ze Celestial Shaper's Cosmic Strike
@@ -3603,7 +3592,7 @@ class mob_star : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_Id)
+            void MovementInform(uint32 p_Type, uint32 /*p_Id*/)
             {
                 if (p_Type != EFFECT_MOTION_TYPE || m_IsTwinSummoned)
                     return;
@@ -3634,7 +3623,7 @@ class mob_celestial_construct : public CreatureScript
                 me->AddUnitState(UNIT_STATE_STUNNED);
                 me->CastSpell(me, SPELL_INACTIVE_FIRST, true);
 
-                if (Creature* l_InvisibleMan = me->FindNearestCreature(NPC_INVISIBLE_MAN, 20.f))
+                if (Creature* l_InvisibleMan = me->FindNearestCreature(NPC_INVISIBLE_MAN, 20.0f))
                     l_InvisibleMan->CastSpell(l_InvisibleMan, SPELL_INACTIVE_PLATFORM, true);
             }
 
@@ -3643,16 +3632,16 @@ class mob_celestial_construct : public CreatureScript
                 if (p_Who->GetTypeId() != TYPEID_PLAYER || me->HasAura(SPELL_INACTIVE_SECOND_SMALLER))
                     return;
 
-                if (p_Who->GetDistance(me) > 50.f)
+                if (p_Who->GetDistance(me) > 50.0f)
                     return;
 
-                if (Creature* l_InvisibleMan = me->FindNearestCreature(NPC_INVISIBLE_MAN, 20.f))
+                if (Creature* l_InvisibleMan = me->FindNearestCreature(NPC_INVISIBLE_MAN, 20.0f))
                     l_InvisibleMan->CastSpell(l_InvisibleMan, SPELL_INACTIVE_SECOND_SMALLER, true);
 
                 me->CastSpell(me, SPELL_INACTIVE_SECOND_SMALLER, true);
             }
 
-            void UpdateAI(const uint32 p_Diff) { }
+            void UpdateAI(const uint32 /*p_Diff*/) { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const
@@ -3682,7 +3671,7 @@ class mob_thunder_lord : public CreatureScript
                 SetEquipmentSlots(false, LORD_WEAPON_1, LORD_WEAPON_2, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_CONDUCTIVE_SHIELD, 2000);
                 m_Events.ScheduleEvent(EVENT_LEI_SHENS_GIFT, 4000);
@@ -3743,7 +3732,7 @@ class mob_lightning_guardian : public CreatureScript
                 SetEquipmentSlots(false, LORD_WEAPON_1, LORD_WEAPON_2, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_CONDUCTIVE_SHIELD, 2000);
                 m_Events.ScheduleEvent(EVENT_LIGHTNING_BURST, 4000);
@@ -3838,7 +3827,7 @@ class spell_storm_weapon : public SpellScriptLoader
         {
             PrepareAuraScript(spell_storm_weapon_AuraScript);
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = GetTarget();
@@ -4110,7 +4099,7 @@ class spell_drain_the_weak : public SpellScriptLoader
         {
             PrepareAuraScript(spell_drain_the_weak_AuraScript);
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = GetTarget();
@@ -4324,7 +4313,7 @@ class spell_fixated : public SpellScriptLoader
         {
             PrepareAuraScript(spell_fixated_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster())
                     return;
@@ -4355,7 +4344,7 @@ class spell_devoured : public SpellScriptLoader
         {
             PrepareAuraScript(spell_devoured_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -4386,7 +4375,7 @@ class spell_lightning_storm : public SpellScriptLoader
         {
             PrepareAuraScript(spell_lightning_storm_AuraScript);
 
-            void OnUpdate(uint32 p_Diff)
+            void OnUpdate(uint32 /*p_Diff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -4491,6 +4480,7 @@ class go_ancient_mogu_bell : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_throne_of_thunder()
 {
     new mob_zandalari_water_binder();   ///< 69455
@@ -4552,7 +4542,7 @@ void AddSC_throne_of_thunder()
     new spell_judgement_of_the_loa();   ///< 139223
     new spell_waterspout();             ///< 140814
     new spell_drain_the_weak();         ///< 135103
-    new spell_drain_the_weak_damage();  ///< 135101   
+    new spell_drain_the_weak_damage();  ///< 135101
     new spell_sonic_call();             ///< 140600
     new spell_siphon_life();            ///< 140630
     new spell_luciferase();             ///< 134470
@@ -4562,3 +4552,4 @@ void AddSC_throne_of_thunder()
     new spell_cosmic_strike();          ///< 139772
     new go_ancient_mogu_bell();         ///< 218723
 }
+#endif

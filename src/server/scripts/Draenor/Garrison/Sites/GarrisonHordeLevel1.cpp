@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonHordeLevel1.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -68,7 +69,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// When instance script is updated
     /// @p_Diff : Time since last update
-    void InstanceScript_GarrisonHordeLevel1::Update(uint32 p_Diff)
+    void InstanceScript_GarrisonHordeLevel1::Update(uint32 /*p_Diff*/)
     {
 
     }
@@ -100,7 +101,7 @@ namespace MS { namespace Garrison { namespace Sites
         {
             Creature* l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].begin()));
 
-            if (l_Creature && l_Creature->GetDistance2d(5593.f, 4476.f) > 2)
+            if (l_Creature && l_Creature->GetDistance2d(5593.0f, 4476.0f) > 2)
             {
                 l_Creature->SetWalk(false);
                 l_Creature->LoadPath(Waypoints::MOVE_PATH_SENIOR_PEON_II);
@@ -133,20 +134,20 @@ namespace MS { namespace Garrison { namespace Sites
     /// When the garrison owner started a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Started quest
-    void InstanceScript_GarrisonHordeLevel1::OnQuestStarted(Player* p_Owner, const Quest* p_Quest)
+    void InstanceScript_GarrisonHordeLevel1::OnQuestStarted(Player* /*p_Owner*/, const Quest* /*p_Quest*/)
     {
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Rewarded quest
-    void InstanceScript_GarrisonHordeLevel1::OnQuestReward(Player* p_Owner, const Quest* p_Quest)
+    void InstanceScript_GarrisonHordeLevel1::OnQuestReward(Player* /*p_Owner*/, const Quest* /*p_Quest*/)
     {
 
     }
     /// When the garrison owner abandon a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Abandoned quest
-    void InstanceScript_GarrisonHordeLevel1::OnQuestAbandon(Player* p_Owner, const Quest* p_Quest)
+    void InstanceScript_GarrisonHordeLevel1::OnQuestAbandon(Player* /*p_Owner*/, const Quest* p_Quest)
     {
         if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_WHAT_WE_GOT)
         {
@@ -154,7 +155,7 @@ namespace MS { namespace Garrison { namespace Sites
             {
                 Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].begin()));
 
-                if (l_Creature && l_Creature->GetDistance2d(5593.f, 4476.f) < 2)
+                if (l_Creature && l_Creature->GetDistance2d(5593.0f, 4476.0f) < 2)
                 {
                     l_Creature->SetWalk(false);
                     l_Creature->LoadPath(Waypoints::MOVE_PATH_SENIOR_PEON_II_BACK);
@@ -274,7 +275,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID
     /// @p_Followers : Followers on the mission
-    void InstanceScript_GarrisonHordeLevel1::OnMissionStart(Player* p_Owner, uint32 p_MissionID, std::vector<uint32> p_Followers)
+    void InstanceScript_GarrisonHordeLevel1::OnMissionStart(Player* /*p_Owner*/, uint32 /*p_MissionID*/, std::vector<uint32> /*p_Followers*/)
     {
 
     }
@@ -364,11 +365,11 @@ namespace MS { namespace Garrison { namespace Sites
     /// When a building from the same type with higher level is purchased
     /// @p_Owner      : Garrison owner
     /// @p_BuildingID : Purchased building ID
-    void InstanceScript_GarrisonHordeLevel1::OnUpgradeBuilding(Player* p_Owner, uint32 p_BuildingID)
+    void InstanceScript_GarrisonHordeLevel1::OnUpgradeBuilding(Player* /*p_Owner*/, uint32 /*p_BuildingID*/)
     {
     }
 
-    void InstanceScript_GarrisonHordeLevel1::OnDeleteBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BuildingType, bool p_RemoveForUpgrade)
+    void InstanceScript_GarrisonHordeLevel1::OnDeleteBuilding(Player* p_Owner, uint32 /*p_BuildingID*/, uint32 p_BuildingType, bool p_RemoveForUpgrade)
     {
         if (p_RemoveForUpgrade)
             return;
@@ -395,7 +396,9 @@ namespace MS { namespace Garrison { namespace Sites
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_H1()
 {
     new MS::Garrison::Sites::InstanceMapScript_GarrisonHordeLevel1();
 }
+#endif

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Icecrown
@@ -205,7 +195,7 @@ public:
             me->setFaction(14);
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32& uiDamage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* pDoneBy, uint32& uiDamage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (uiDamage > me->GetHealth() && pDoneBy->IsPlayer())
             {
@@ -255,7 +245,7 @@ enum eGuardianPavilion
     AREA_SUNREAVER_PAVILION                       = 4676,
 
     AREA_SILVER_COVENANT_PAVILION                 = 4677,
-    SPELL_TRESPASSER_A                            = 63986,
+    SPELL_TRESPASSER_A                            = 63986
 };
 
 class npc_guardian_pavilion : public CreatureScript
@@ -300,7 +290,7 @@ enum eVerethTheCunning
 {
     NPC_GEIST_RETURN_BUNNY_KC   = 31049,
     NPC_LITHE_STALKER           = 30894,
-    SPELL_SUBDUED_LITHE_STALKER = 58151,
+    SPELL_SUBDUED_LITHE_STALKER = 58151
 };
 
 class npc_vereth_the_cunning : public CreatureScript
@@ -361,7 +351,7 @@ enum TournamentDummy
     SPELL_COUNTERATTACK       = 62709,
 
     EVENT_DUMMY_RECAST_DEFEND = 1,
-    EVENT_DUMMY_RESET         = 2,
+    EVENT_DUMMY_RESET         = 2
 };
 
 class npc_tournament_training_dummy : public CreatureScript
@@ -405,7 +395,7 @@ class npc_tournament_training_dummy : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 damage = 0;
                 events.RescheduleEvent(EVENT_DUMMY_RESET, 10000);
@@ -518,12 +508,13 @@ class npc_hakmund_of_argus : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_icecrown()
 {
     new npc_hakmund_of_argus();
@@ -534,3 +525,4 @@ void AddSC_icecrown()
     new npc_vereth_the_cunning;
     new npc_tournament_training_dummy;
 }
+#endif

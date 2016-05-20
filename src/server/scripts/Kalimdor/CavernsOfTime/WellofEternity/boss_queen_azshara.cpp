@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "well_of_eternity.h"
 
@@ -14,7 +22,7 @@ enum ScriptedTexts
     SAY_ALL         = 8,
     SAY_ADDS_1      = 9,
     SAY_ADDS_2      = 10,
-    SAY_ADDS_3      = 11,
+    SAY_ADDS_3      = 11
 };
 
 enum Spells
@@ -45,7 +53,7 @@ enum Spells
     SPELL_PUPPET_STRING_DUMMY_2     = 102318,
     SPELL_PUPPET_STRING_DUMMY_3     = 102319,
     SPELL_PUPPET_STRING_SCRIPT_1    = 102333,
-    SPELL_PUPPET_STRING_SCRIPT_2    = 102345,
+    SPELL_PUPPET_STRING_SCRIPT_2    = 102345
 };
 
 enum Adds
@@ -55,11 +63,11 @@ enum Adds
     NPC_ENCHANTED_MAGUS_FIRE    = 54882,
     NPC_ENCHANTED_MAGUS_FROST   = 54883,
     NPC_HAMMER_OF_DIVINITY_1    = 54864,
-    NPC_HAMMER_OF_DIVINITY_2    = 54865,
+    NPC_HAMMER_OF_DIVINITY_2    = 54865
 };
 
 enum Events
-{   
+{
     EVENT_ADDS_1                = 1,
     EVENT_ADDS_2                = 2,
     EVENT_ADDS_3                = 3,
@@ -73,15 +81,15 @@ enum Events
     EVENT_BLASTWAVE             = 11,
     EVENT_BLADES_OF_ICE         = 12,
     EVENT_COLDFLAME             = 13,
-    EVENT_ICE_FLING             = 14,
+    EVENT_ICE_FLING             = 14
 };
 
 enum Actions
 {
-    ACTION_ATTACK   = 1,
+    ACTION_ATTACK   = 1
 };
 
-const Position addsPos[6] = 
+const Position addsPos[6] =
 {
     {3453.030029f, -5282.740234f, 230.04f, 4.45f}, // fire 1
     {3443.540039f, -5280.370117f, 230.04f, 4.66f}, // frost 1
@@ -151,7 +159,7 @@ class boss_queen_azshara : public CreatureScript
                 addsCount = 0;
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 Talk(SAY_AGGRO);
 
@@ -252,7 +260,7 @@ class boss_queen_azshara : public CreatureScript
                             events.ScheduleEvent(EVENT_TOTAL_OBEDIENCE, urand(10000, 20000));
                             break;
                         case EVENT_END:
-                        {    
+                        {
                             instance->DoKilledMonsterKredit(QUEST_THE_VAINGLORIOUS, 54853, 0);
 
                             instance->SetBossState(DATA_AZSHARA, DONE);
@@ -381,7 +389,7 @@ class npc_queen_azshara_enchanted_magus : public CreatureScript
                                 Creature* pStalker2 = me->SummonCreature(NPC_HAMMER_OF_DIVINITY_1, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ() + 30.0f, pTarget->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 20000);
                                 
                                 if (pStalker1 && pStalker2)
-                                    pStalker2->GetMotionMaster()->MovePoint(0, pStalker1->GetPositionX(), pStalker1->GetPositionY(), pStalker1->GetPositionZ()); 
+                                    pStalker2->GetMotionMaster()->MovePoint(0, pStalker1->GetPositionX(), pStalker1->GetPositionY(), pStalker1->GetPositionZ());
                             }
                             events.ScheduleEvent(EVENT_ARCANE_BOMB, urand(18000, 25000));
                             break;
@@ -415,12 +423,12 @@ class npc_queen_azshara_hammer_of_divinity : public CreatureScript
             npc_queen_azshara_hammer_of_divinityAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 bDespawn = false;
-                me->SetSpeed(MOVE_RUN, 0.1f, true); 
+                me->SetSpeed(MOVE_RUN, 0.1f, true);
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (bDespawn)
                     return;
@@ -445,7 +453,7 @@ class spell_queen_azshara_coldflame: public SpellScriptLoader
 
         class spell_queen_azshara_coldflame_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_queen_azshara_coldflame_AuraScript);
+            PrepareAuraScript(spell_queen_azshara_coldflame_AuraScript)
             
             bool Load()
             {
@@ -453,7 +461,7 @@ class spell_queen_azshara_coldflame: public SpellScriptLoader
                 return true;
             }
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetCaster())
                     return;
@@ -493,7 +501,7 @@ class spell_queen_azshara_arcane_bomb: public SpellScriptLoader
 
         class spell_queen_azshara_arcane_bomb_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_queen_azshara_arcane_bomb_SpellScript);
+            PrepareSpellScript(spell_queen_azshara_arcane_bomb_SpellScript)
 
             void ChangeSummonPos(SpellEffIndex /*effIndex*/)
             {
@@ -517,6 +525,7 @@ class spell_queen_azshara_arcane_bomb: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_queen_azshara()
 {
     new boss_queen_azshara();
@@ -525,3 +534,4 @@ void AddSC_boss_queen_azshara()
     new spell_queen_azshara_coldflame();
     //new spell_queen_azshara_arcane_bomb();
 }
+#endif

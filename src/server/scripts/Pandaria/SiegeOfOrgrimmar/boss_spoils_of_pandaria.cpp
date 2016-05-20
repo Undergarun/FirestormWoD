@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -52,7 +41,7 @@ class boss_spoils_of_pandaria : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
                 
@@ -70,7 +59,7 @@ class boss_spoils_of_pandaria : public CreatureScript
                     pInstance->SetBossState(DATA_SPOILS_OF_PANDARIA, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -90,11 +79,11 @@ class boss_spoils_of_pandaria : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -143,7 +132,7 @@ class mob_secured_stockpile_of_spoils : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -176,7 +165,7 @@ class mob_modified_anima_golem : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -209,7 +198,7 @@ class mob_mogu_shadow_ritualist : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -223,7 +212,7 @@ class mob_mogu_shadow_ritualist : public CreatureScript
 };
 
 class mob_zarthik_amber_priest : public CreatureScript
-{ 
+{
     public:
         mob_zarthik_amber_priest() : CreatureScript("mob_zarthik_amber_priest") { }
 
@@ -242,7 +231,7 @@ class mob_zarthik_amber_priest : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -275,7 +264,7 @@ class mob_setthik_wielder : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -308,7 +297,7 @@ class mob_animated_stone_mogu : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -341,7 +330,7 @@ class mob_burial_urn : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -374,7 +363,7 @@ class mob_quilen_gardians : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -382,7 +371,7 @@ class mob_quilen_gardians : public CreatureScript
         };
 
         CreatureAI* GetAI(Creature* creature) const
-        { 
+        {
             return new mob_quilen_gardiansAI(creature);
         }
 };
@@ -407,7 +396,7 @@ class mob_srithik_bombardier : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -432,7 +421,7 @@ class mob_korthik_warcaller : public CreatureScript
                 pInstance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance; 
+            InstanceScript* pInstance;
             EventMap events;
 
             void Reset()
@@ -440,7 +429,7 @@ class mob_korthik_warcaller : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -473,7 +462,7 @@ class mob_ancient_breawmaster_spirit : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -506,7 +495,7 @@ class mob_wise_misteweaver_spirit : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -522,7 +511,7 @@ class mob_wise_misteweaver_spirit : public CreatureScript
 class mob_namelesse_windwallker_spirit : public CreatureScript
 {
     public:
-        mob_namelesse_windwallker_spirit() : CreatureScript("mob_namelesse_windwallker_spirit") { } 
+        mob_namelesse_windwallker_spirit() : CreatureScript("mob_namelesse_windwallker_spirit") { }
 
         struct mob_namelesse_windwallker_spiritAI : public ScriptedAI
         {
@@ -539,10 +528,10 @@ class mob_namelesse_windwallker_spirit : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
-                if (!UpdateVictim()) 
-                    return; 
+                if (!UpdateVictim())
+                    return;
             }
         };
 
@@ -552,6 +541,7 @@ class mob_namelesse_windwallker_spirit : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_spoils_of_pandaria()
 {
     new boss_spoils_of_pandaria();
@@ -569,3 +559,4 @@ void AddSC_spoils_of_pandaria()
     new mob_wise_misteweaver_spirit();
     new mob_namelesse_windwallker_spirit();
 };
+#endif

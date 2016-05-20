@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "ATradingPost.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -13,7 +14,7 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 87112 - Kinja                                                      ///
@@ -52,7 +53,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_TraderJoseph::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_TraderJoseph::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
@@ -67,7 +68,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_TraderJoseph::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_TraderJoseph::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         if (p_Quest->GetQuestId() == Quests::Horde_TricksOfTheTrade)
         {
@@ -179,11 +180,11 @@ namespace MS { namespace Garrison
         }
     }
 
-	//////////////////////////////////////////////////////////////////////////
-	//////////////////////////// PlayerScript ////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////// PlayerScript ////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
-    void playerScript_Garrison_TradingPost::OnReputationChange(Player* p_Player, uint32 p_FactionID, int32& p_Standing, bool p_Incremential)
+    void playerScript_Garrison_TradingPost::OnReputationChange(Player* p_Player, uint32 p_FactionID, int32& /*p_Standing*/, bool /*p_Incremential*/)
     {
         switch (p_FactionID)
         {

@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "ScriptMgr.h"
 #include "Config.h"
@@ -303,9 +311,10 @@ class duel_reset_aura_script: public PlayerScript
         }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_DuelReset()
 {
     //new duel_reset();
     new duel_reset_aura_script();
 }
+#endif

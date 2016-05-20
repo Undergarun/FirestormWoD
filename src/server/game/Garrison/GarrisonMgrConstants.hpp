@@ -1,20 +1,22 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_CONSTANTS_HPP_GARRISON
 #define GARRISON_CONSTANTS_HPP_GARRISON
 
+#include "Common.h"
 #include "SharedDefines.h"
 #include "GarrisonMgrStructures.hpp"
 
 /// @Hatters gonna hate, float doesn't go into the Globals enum, Change standard ?
 #define GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF (1.5f)
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     namespace Globals
     {
@@ -200,7 +202,7 @@ namespace MS { namespace Garrison
             ModWinRate                     = 2,    ///< Proc every time
             ModTravelTime                  = 3,    ///< Proc every time
             ModXpGain                      = 4,    ///< Mod the XP earn (self, party)
-            ModWinRateClass                = 5,    ///< Proc if Find(MissionFollowers[Class], MiscValueA) != NULL 
+            ModWinRateClass                = 5,    ///< Proc if Find(MissionFollowers[Class], MiscValueA) != NULL
             ModWinRateDurationMore         = 6,    ///< Proc if Duration > (3600 * MiscValueB)
             ModWinRateDurationLess         = 7,    ///< Proc if Duration < (3600 * MiscValueB)
             ModGarrCurrencyDrop            = 8,    ///< Implemented.
@@ -258,7 +260,7 @@ namespace MS { namespace Garrison
     {
         GARRISON_SPELL_GARR_ABILITY                 = 161691,
         GARRISON_SPELL_GARR_ABILITY_HORDE_BASE      = 161693,
-        GARRISON_SPELL_GARR_ABILITY_ALLIANCE_BASE   = 161694,
+        GARRISON_SPELL_GARR_ABILITY_ALLIANCE_BASE   = 161694
     };
 
     enum GarrisonAbilities
@@ -435,7 +437,7 @@ namespace MS { namespace Garrison
             BaseA       = 15585,
             BaseH       = 20508,
             BaseBarn    = 13845,
-            AllComplete = 16091,
+            AllComplete = 16091
         };
     }
 
@@ -446,10 +448,10 @@ namespace MS { namespace Garrison
         {
             CanRenameFollower           = 1,    ///< The specified type can be renamed, eg ships - LUA RenameFollower
             CanStartMissionPastSoftCap  = 2,    ///< You can start a mission above follower soft cap - LUA AllowMissionStartAboveSoftCap
-            Unk1                        = 4,    /// Unk, only regular follower has it
-            Unk2                        = 8,    /// Unk, only ships have it
+            Unk1                        = 4,    ///< Unk, only regular follower has it
+            Unk2                        = 8     ///< Unk, only ships have it
         };
-    };
+    }
 
     static const uint32 gGarrisonBuildingMaxWorkOrderPerBuildingLevel[Globals::MaxLevel] =
     {
@@ -573,7 +575,7 @@ namespace MS { namespace Garrison
         {       6,          63,         1847.615f,    134.7257f,    78.10705f,   2.7052600f  },
         {       6,          67,         2031.594f,    174.4410f,    84.36597f,   2.8361600f  },
         {       6,          81,         1914.083f,    354.1875f,    88.96585f,  -1.8763060f  },
-        {       6,          98,         0.f,          0.f,          0.f,         0.f,        },
+        {       6,          98,         0.0f,          0.0f,          0.0f,         0.0f,    },
         /// Horde Level 1
         {     258,          18,         5645.124f,   4508.9600f,   119.27010f,   2.0423500f  },
         {     258,          23,         5575.461f,   4459.3380f,   130.36810f,   0.9599311f  },
@@ -597,7 +599,7 @@ namespace MS { namespace Garrison
         {     259,          63,         5415.374f,   4586.4390f,   136.58310f,   2.3561950f  },
         {     259,          67,         5476.589f,   4622.7070f,   134.44980f,  -1.3962630f  },
         {     259,          81,         5626.042f,   4660.6960f,   142.45800f,  -1.9024090f  },
-        {     259,          98,         0.f,         0.f,          0.f,         0.f,         }
+        {     259,          98,         0.0f,         0.0f,          0.0f,         0.0f,     }
     };
 
     /// Cache game object position for each faction / level
@@ -615,7 +617,7 @@ namespace MS { namespace Garrison
         /// Alliance Level 2
         {     444,          1949.946f,   287.2795f,  88.96585f, 3.255662f  },
         /// Alliance Level 3
-        {       6,             0.f,        0.f,       0.f,      0.f        }
+        {       6,             0.0f,        0.0f,       0.0f,      0.0f    }
     };
 
     /// Cache game object entry for each faction / state

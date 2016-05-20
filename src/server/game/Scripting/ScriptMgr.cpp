@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
@@ -461,7 +461,7 @@ bool ScriptMgr::IsScriptScheduled() const
 //////////////////////////////////////////////////////////////////////////
 /// Called when the area trigger is activated by a player.
 /// @p_Player  : Player who trigger this area trigger
-/// @p_Trigger : Area Trigger 
+/// @p_Trigger : Area Trigger
 bool ScriptMgr::OnAreaTrigger(Player* p_Player, const AreaTriggerEntry* p_Trigger)
 {
     ASSERT(p_Player);
@@ -1620,7 +1620,7 @@ void ScriptMgr::OnColorCodeCalculation(XPColorChar & p_Color, uint8 p_PlayerLeve
 }
 
 /// Called after calculating zero difference.
-/// @p_Diff        : Level difference 
+/// @p_Diff        : Level difference
 /// @p_PlayerLevel : Player level
 void ScriptMgr::OnZeroDifferenceCalculation(uint8 & p_Diff, uint8 p_PlayerLevel)
 {
@@ -2160,7 +2160,7 @@ void ScriptMgr::OnPlayerBlock(Player* p_Player, Unit* p_Attacker)
 
 /// Should return a fully valid Battleground object for the type ID.
 /// @p_TypeID : Battleground Type ID
-Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId p_TypeID)
+Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*p_TypeID*/)
 {
     // TODO: Implement script-side battlegrounds.
     ASSERT(false);

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -40,7 +31,7 @@ enum Spells
     SPELL_CLONE                 = 74511,
     SPELL_REPELLING_WAVE        = 74509,
     SPELL_CLEAR_DEBUFFS         = 34098,
-    SPELL_SPAWN_EFFECT          = 64195,
+    SPELL_SPAWN_EFFECT          = 64195
 };
 
 enum Events
@@ -49,12 +40,12 @@ enum Events
     EVENT_CLEAVE                = 2,
     EVENT_ENERVATING_BRAND      = 3,
     EVENT_INTRO_TALK            = 4,
-    EVENT_OOC_CHANNEL           = 5,
+    EVENT_OOC_CHANNEL           = 5
 };
 
 enum Actions
 {
-    ACTION_CLONE                = 1,
+    ACTION_CLONE                = 1
 };
 
 enum Phases
@@ -146,7 +137,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 summon->CastSpell(summon, SPELL_SPAWN_EFFECT, true);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!Is25ManRaid())
                 {
@@ -249,7 +240,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                 _events.ScheduleEvent(EVENT_ENERVATING_BRAND, urand(10000, 15000));
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 // Setting DATA_BALTHARUS_SHARED_HEALTH to 0 when killed would bug the boss.
                 if (_instance && me->GetHealth() > damage)
@@ -325,7 +316,7 @@ class spell_baltharus_enervating_brand_trigger: public SpellScriptLoader
 
         class spell_baltharus_enervating_brand_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_baltharus_enervating_brand_trigger_SpellScript);
+            PrepareSpellScript(spell_baltharus_enervating_brand_trigger_SpellScript)
 
             void CheckDistance()
             {
@@ -349,9 +340,11 @@ class spell_baltharus_enervating_brand_trigger: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_baltharus_the_warborn()
 {
     new boss_baltharus_the_warborn();
     new npc_baltharus_the_warborn_clone();
     new spell_baltharus_enervating_brand_trigger();
 }
+#endif

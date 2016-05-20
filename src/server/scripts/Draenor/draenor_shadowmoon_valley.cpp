@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
@@ -15,7 +15,7 @@
 #include "NPCHandler.h"
 #include "Vehicle.h"
 #include "PhaseMgr.h"
-#include <random>
+#include "Common.h"
 /*
 /// 79206 - Prophet Velen
 class shadowmoon_prophet_velen_eventide_questgiver : public CreatureScript
@@ -50,7 +50,7 @@ class shadowmoon_prophet_velen_eventide_questgiver : public CreatureScript
 };
 
 
-/// 89319 - Prophet Velen 
+/// 89319 - Prophet Velen
 class shadowmoon_prophet_velen_eventide_escort : public CreatureScript
 {
     public:

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
@@ -629,16 +620,16 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
             float l_SpellPower = p_Caster->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
 
             {
-                if (l_AttackPower == 0.f)
+                if (l_AttackPower == 0.0f)
                     l_AttackPower = p_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-                if (l_AttackPower == 0.f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
+                if (l_AttackPower == 0.0f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
                     l_AttackPower = p_Caster->GetOwner()->GetTotalAttackPowerValue(l_AttType);
             }
 
             {
-                if (l_SpellPower == 0.f)
+                if (l_SpellPower == 0.0f)
                     l_SpellPower = p_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
-                if (l_SpellPower == 0.f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
+                if (l_SpellPower == 0.0f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
                     l_SpellPower = p_Caster->GetOwner()->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
             }
 
@@ -3967,7 +3958,7 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
 
 float SpellInfo::GetCastTimeReduction() const
 {
-    return 1.f;
+    return 1.0f;
 }
 
 bool SpellInfo::CanTriggerBladeFlurry() const
@@ -4268,6 +4259,8 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
         case SpellSpecificType::SpellSpecificFoodAndDrink:
         case SpellSpecificType::SpellSpecificWellFed:
             return true;
+        default:
+            break;
     }
 
     bool callSubterfuge = true;
@@ -4707,7 +4700,7 @@ bool SpellInfo::IsAuraNeedPandemicEffect() const
     switch (Id)
     {
         case 5171:   ///< Slice and Dice
-        case 84617:  ///< Revealing Strike 
+        case 84617:  ///< Revealing Strike
         case 125359: ///< Tiger Power
             return true;
         default:

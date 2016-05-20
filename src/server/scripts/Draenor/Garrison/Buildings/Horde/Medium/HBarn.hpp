@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ namespace MS { namespace Garrison
             /// Called when player asks from a creature gossip to create a shipment.
             /// @p_Player       : Player that created the shipment
             /// @p_Creature     : NPC that got the gossip
-            virtual void OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32 p_BuildingID);
+            virtual void OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32 p_BuildingID) override;
 
             /// Called when a player selects a gossip item in the creature's gossip menu.
             /// @p_Player   : Source player instance

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Urom
@@ -103,7 +94,7 @@ class boss_urom : public CreatureScript
                 std::random_shuffle(group, group + 3);
             }
 
-            void Reset() 
+            void Reset()
             {
                 me->CastSpell(me, SPELL_EVOCATE);
 
@@ -123,14 +114,14 @@ class boss_urom : public CreatureScript
                 timeBombTimer = urand(20000, 25000);
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
 
                 StartAttack();
             }
 
-            void AttackStart(Unit* who) 
+            void AttackStart(Unit* who)
             {
                 if (!who)
                     return;
@@ -187,7 +178,7 @@ class boss_urom : public CreatureScript
                 ++platform;
             }
 
-            void KilledUnit(Unit* who) 
+            void KilledUnit(Unit* who)
             {
                 if (who->IsPlayer())
                     Talk(SAY_PLAYER_KILL);
@@ -272,7 +263,7 @@ class boss_urom : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) 
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -286,7 +277,7 @@ class boss_urom : public CreatureScript
                 me->DeleteThreatList();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) 
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo)
             {
                 switch (spellInfo->Id)
                 {
@@ -333,13 +324,15 @@ class boss_urom : public CreatureScript
             uint32 timeBombTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const 
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_uromAI (creature);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_urom()
 {
     new boss_urom();
 }
+#endif

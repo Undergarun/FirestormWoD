@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include"ScriptPCH.h"
 #include"Spell.h"
 #include"shadowfang_keep.h"
@@ -21,7 +29,7 @@ enum Events
     EVENT_ASPHYXIATE         = 2,
     EVENT_STAY_OF_EXECUTION  = 3,
     EVENT_CALAMITY           = 4,
-    EVENT_WRACKING_PAIN      = 5,
+    EVENT_WRACKING_PAIN      = 5
 };
 
 enum Spells
@@ -38,7 +46,7 @@ enum Spells
     SPELL_DARK_ARCHANGEL_FORM_0 = 93766,
     SPELL_WRACKING_PAIN         = 93720,
     SPELL_CALAMITY              = 93812,
-    SPELL_CALAMITY_DMG          = 93810,
+    SPELL_CALAMITY_DMG          = 93810
 };
 
 class boss_baron_ashbury : public CreatureScript
@@ -80,7 +88,7 @@ class boss_baron_ashbury : public CreatureScript
                 bHeal = false;
             }
 
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 me->MonsterYell(SAY_AGGRO, 0, 0);
                 events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, urand(8000, 9000));
@@ -91,7 +99,7 @@ class boss_baron_ashbury : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/)
             {
             }
 
@@ -100,18 +108,18 @@ class boss_baron_ashbury : public CreatureScript
                 return !bHeal && IsHeroic();
             }
 
-            void HealReceived(Unit* healer, uint32 &heal)
+            void HealReceived(Unit* healer, uint32 & /*heal*/)
             {
                 if (healer->GetGUID() == me->GetGUID())
                     bHeal = true;
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*who*/)
             {
                 me->MonsterYell(urand(0, 1)? SAY_KILL1: SAY_KILL2, 0, 0);
             }
 
-            void JustDied(Unit* pWho)
+            void JustDied(Unit* /*pWho*/)
             {
                 _JustDied();
 
@@ -185,7 +193,7 @@ class achievement_pardon_denied : public AchievementCriteriaScript
     public:
         achievement_pardon_denied() : AchievementCriteriaScript("achievement_pardon_denied") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;
@@ -197,8 +205,10 @@ class achievement_pardon_denied : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_baron_ashbury()
 {
     new boss_baron_ashbury();
     new achievement_pardon_denied();
 }
+#endif

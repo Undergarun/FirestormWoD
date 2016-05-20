@@ -1,15 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef HOTFIXDATABASE_H_INCLUDED
-#define HOTFIXDATABASE_H_INCLUDED
 
-#include "DatabaseWorkerPool.h"
-#include "MySQLConnection.h"
+#ifndef HOTFIXDATABASE_H_INCLUDED
+# define HOTFIXDATABASE_H_INCLUDED
+
+# include "DatabaseWorkerPool.h"
+# include "MySQLConnection.h"
 
 enum HotfixDatabaseStatements
 {
