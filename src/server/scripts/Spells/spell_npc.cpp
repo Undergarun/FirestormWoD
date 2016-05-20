@@ -1027,6 +1027,13 @@ class spell_npc_warl_wild_imp : public CreatureScript
             void Reset()
             {
                 me->SetReactState(REACT_HELPER);
+                if (Guardian* l_OwnerPet = me->GetOwner()->GetGuardianPet())
+                {
+                    if (l_OwnerPet->GetEntry() != 55659)
+                    {
+                        l_OwnerPet->UpdateAllStats();
+                    }
+                }
             }
 
             void DropCharge()
