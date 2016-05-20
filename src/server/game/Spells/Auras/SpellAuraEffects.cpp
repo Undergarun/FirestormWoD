@@ -503,7 +503,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //444 SPELL_AURA_444
     &AuraEffect::HandleNULL,                                      //445 SPELL_AURA_445
     &AuraEffect::HandleNULL,                                      //446 SPELL_AURA_446
-    &AuraEffect::HandleNoImmediateEffect,                         //447 SPELL_AURA_MOD_XP_PCT_FROM_KILLING_UNIT_TYPE
+    &AuraEffect::HandleNoImmediateEffect,                         //447 SPELL_AURA_MOD_XP_FROM_CREATURE_TYPE
     &AuraEffect::HandleNULL,                                      //448 SPELL_AURA_448
     &AuraEffect::HandleNULL,                                      //449 SPELL_AURA_449
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
