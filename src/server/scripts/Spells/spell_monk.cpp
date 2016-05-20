@@ -3675,8 +3675,6 @@ class spell_monk_roll: public SpellScriptLoader
                 if (!l_Caster || l_Caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                l_Caster->CastSpell(l_Caster, SPELL_MONK_ROLL_TRIGGER, true);
-
                 if (l_Caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
                     l_Caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
 
