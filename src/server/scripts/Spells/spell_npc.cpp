@@ -1430,6 +1430,9 @@ class spell_npc_dru_force_of_nature_resto : public CreatureScript
                             if (Player* l_Player = l_Owner->ToPlayer())
                                 l_Target = l_Player->GetSelectedUnit();
                         }
+                        if (l_Target == nullptr)
+                            return;
+
                         if (!me->IsValidAssistTarget(l_Target))
                             l_Target = l_Owner;
                     }
