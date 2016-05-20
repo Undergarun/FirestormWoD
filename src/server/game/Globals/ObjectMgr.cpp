@@ -479,7 +479,7 @@ void ObjectMgr::LoadCreatureTemplates()
         l_CreatureTemplate->UnitFlags3        = fields[index++].GetUInt32();
         l_CreatureTemplate->dynamicflags      = fields[index++].GetUInt32();
         l_CreatureTemplate->WorldEffectID     = fields[index++].GetUInt32();
-        l_CreatureTemplate->family            = uint32(fields[index++].GetUInt32());
+        l_CreatureTemplate->family            = CreatureFamily(uint32(fields[index++].GetUInt32()));
         l_CreatureTemplate->trainer_type      = uint32(fields[index++].GetUInt8());
         l_CreatureTemplate->trainer_spell     = fields[index++].GetUInt32();
         l_CreatureTemplate->trainer_class     = uint32(fields[index++].GetUInt8());
@@ -862,7 +862,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     if (cInfo->family && !sCreatureFamilyStore.LookupEntry(cInfo->family) && cInfo->family != CREATURE_FAMILY_HORSE_CUSTOM)
     {
         sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has invalid creature family (%u) in `family`.", cInfo->Entry, cInfo->family);
-        const_cast<CreatureTemplate*>(cInfo)->family = 0;
+        const_cast<CreatureTemplate*>(cInfo)->family = CREATURE_FAMILY_NONE;
     }
 
     if (cInfo->InhabitType <= 0 || cInfo->InhabitType > INHABIT_ANYWHERE)

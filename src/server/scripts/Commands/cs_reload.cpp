@@ -473,6 +473,7 @@ public:
             cInfo->Modelid3            = fields[l_Index++].GetUInt32();
             cInfo->Modelid4            = fields[l_Index++].GetUInt32();
             cInfo->Name                = fields[l_Index++].GetString();
+            cInfo->FemaleName          = fields[l_Index++].GetString();
             cInfo->SubName             = fields[l_Index++].GetString();
             cInfo->IconName            = fields[l_Index++].GetString();
             cInfo->GossipMenuId        = fields[l_Index++].GetUInt32();
@@ -500,7 +501,7 @@ public:
             cInfo->UnitFlags3          = fields[l_Index++].GetUInt32();
             cInfo->dynamicflags        = fields[l_Index++].GetUInt32();
             cInfo->WorldEffectID       = fields[l_Index++].GetUInt32();
-            cInfo->family              = fields[l_Index++].GetUInt8();
+            cInfo->family              = CreatureFamily(fields[l_Index++].GetUInt8());
             cInfo->trainer_type        = fields[l_Index++].GetUInt8();
             cInfo->trainer_spell       = fields[l_Index++].GetUInt32();
             cInfo->trainer_class       = fields[l_Index++].GetUInt8();

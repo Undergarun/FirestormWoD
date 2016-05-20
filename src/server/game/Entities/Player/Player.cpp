@@ -2141,7 +2141,7 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
 
     uint32 l_CharacterPetDisplayId  = 0;
     uint32 l_CharacterPetLevel      = 0;
-    uint32 l_CharacterPetFamily     = 0;
+    uint32 l_CharacterPetFamily     = CREATURE_FAMILY_NONE;
 
     /// show pet at selection character in character list only for non-ghost character
     if (p_Result && !(l_PlayerFlags & PLAYER_FLAGS_GHOST) && (l_CharacterClass == CLASS_WARLOCK || l_CharacterClass == CLASS_HUNTER || l_CharacterClass == CLASS_DEATH_KNIGHT))
@@ -25019,7 +25019,7 @@ void Player::SendRemoveControlBar()
     uint32 l_PetSpellHistoryCount = 0;
     uint32 l_TimeLimit = 0;
     uint32 l_PetModeAndOrders = 0;
-    uint16 l_CreatureFamily = 0;
+    uint16 l_CreatureFamily = CREATURE_FAMILY_NONE;
     uint16 l_Specialization = 0;
     ObjectGuid l_PetGUID = 0;
 

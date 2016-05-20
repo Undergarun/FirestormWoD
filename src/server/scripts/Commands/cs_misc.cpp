@@ -2734,10 +2734,10 @@ class misc_commandscript: public CommandScript
             }
 
             CreatureTemplate const* creatrueTemplate = sObjectMgr->GetCreatureTemplate(creatureTarget->GetEntry());
-            // Creatures with family 0 crashes the server
-            if (!creatrueTemplate->family)
+            // Creatures with family CREATURE_FAMILY_NONE crashes the server
+            if (creatrueTemplate->family == CREATURE_FAMILY_NONE)
             {
-                handler->PSendSysMessage("This creature cannot be tamed. (family id: 0).");
+                handler->PSendSysMessage("This creature cannot be tamed. family id: 0 (CREATURE_FAMILY_NONE).");
                 handler->SetSentErrorMessage(true);
                 return false;
             }
