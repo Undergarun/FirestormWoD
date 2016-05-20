@@ -29,6 +29,42 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     "Начать испытание?", "Начать испытание?"
 );
 
+# Challenge mode vendors gossips
+UPDATE creature_template SET gossip_menu_id = 88155 WHERE entry = 88155; -- Alliance
+UPDATE creature_template SET gossip_menu_id = 88161 WHERE entry = 88161; -- Horde
+
+DELETE FROM gossip_menu WHERE entry IN (88155, 88161);
+INSERT INTO gossip_menu VALUES
+(88155, 90961),
+(88161, 90961);
+
+DELETE FROM npc_text WHERE ID = 90961;
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUES
+(
+    90961,
+    "Greetings, $r.$B$BI can see from your demeanor that you are no ordinary adventurer.$B$BDraenor is a harsh world and many dangerous enemies lurk in both palaces and crypts. They aim to bring terrible destruction to this land using devastating weapons and magic. Securing these places and their treasures would mean excellent rewards for you and your companions.$B$BHowever, do not tread idly into these places, for other adventurers are nipping at your heels and only a race against time will prove your skills to be unmatched!$B$BAre you up for the new challenge Draenor has to offer?",
+    "Greetings, $r.$B$BI can see from your demeanor that you are no ordinary adventurer.$B$BDraenor is a harsh world and many dangerous enemies lurk in both palaces and crypts. They aim to bring terrible destruction to this land using devastating weapons and magic. Securing these places and their treasures would mean excellent rewards for you and your companions.$B$BHowever, do not tread idly into these places, for other adventurers are nipping at your heels and only a race against time will prove your skills to be unmatched!$B$BAre you up for the new challenge Draenor has to offer?"
+);
+
+DELETE FROM locales_npc_text WHERE entry = 90961;
+--                                   French                      German                      Spanish                     Russian
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    90961,
+    "Salutations, $r.$B$BAu vu de votre allure, je vois que vous n'avez rien d'$gun aventurier:une aventurière; ordinaire.$B$BDraenor est un monde hostile, et des ennemis dangereux se tapissent aussi bien dans les cryptes que dans les palais. Ils ne vivent que pour semer la destruction sur ces terres, grâce à la magie et à des armes dévastatrices. Si vous sécurisiez ces endroits ainsi que les trésors qu'ils renferment, vous et vos compagnons pourriez obtenir de très belles récompenses.$B$BCependant, hâtez-vous : d'autres aventuriers vous talonnent, et seule une course contre la montre prouvera que vous êtes $gle meilleur:la meilleure; !$B$BÊtes-vous $gprêt:prête; à relever ce nouveau défi que vous lance Draenor ?",
+    "Salutations, $r.$B$BAu vu de votre allure, je vois que vous n'avez rien d'$gun aventurier:une aventurière; ordinaire.$B$BDraenor est un monde hostile, et des ennemis dangereux se tapissent aussi bien dans les cryptes que dans les palais. Ils ne vivent que pour semer la destruction sur ces terres, grâce à la magie et à des armes dévastatrices. Si vous sécurisiez ces endroits ainsi que les trésors qu'ils renferment, vous et vos compagnons pourriez obtenir de très belles récompenses.$B$BCependant, hâtez-vous : d'autres aventuriers vous talonnent, et seule une course contre la montre prouvera que vous êtes $gle meilleur:la meilleure; !$B$BÊtes-vous $gprêt:prête; à relever ce nouveau défi que vous lance Draenor ?",
+    "Seid gegrüßt, $R.$B$BAn Eurer Haltung erkenne ich, dass Ihr $gkein gewöhnlicher Abenteurer:keine gewöhnliche Abenteurerin; seid.$B$BDraenor ist eine unwirtliche Welt, und viele gefährliche Feinde lauern in Palästen und auch in Gruften. Sie wollen schreckliche Zerstörung über dieses Land bringen und verwenden verheerende Waffen und Magie. Diese Orte und die Schätze darin zu sichern, kann Euch und Euren Gefährten hervorragende Belohnungen einbringen.$B$BAllerdings solltet Ihr nicht müßig an diesen Orten verweilen, denn andere Abenteurer sind Euch auf den Fersen, und nur ein Wettrennen gegen die Zeit wird beweisen, dass Ihr unübertroffene Fähigkeiten besitzt!$B$BSeid Ihr den neuen Herausforderungen, die Draenor zu bieten hat, gewachsen?",
+    "Seid gegrüßt, $R.$B$BAn Eurer Haltung erkenne ich, dass Ihr $gkein gewöhnlicher Abenteurer:keine gewöhnliche Abenteurerin; seid.$B$BDraenor ist eine unwirtliche Welt, und viele gefährliche Feinde lauern in Palästen und auch in Gruften. Sie wollen schreckliche Zerstörung über dieses Land bringen und verwenden verheerende Waffen und Magie. Diese Orte und die Schätze darin zu sichern, kann Euch und Euren Gefährten hervorragende Belohnungen einbringen.$B$BAllerdings solltet Ihr nicht müßig an diesen Orten verweilen, denn andere Abenteurer sind Euch auf den Fersen, und nur ein Wettrennen gegen die Zeit wird beweisen, dass Ihr unübertroffene Fähigkeiten besitzt!$B$BSeid Ihr den neuen Herausforderungen, die Draenor zu bieten hat, gewachsen?",
+    "Saludos, $r.$B$BPor tu comportamiento, veo que no eres $Gun aventurero ordinario:una aventurera ordinaria;.$B$BDraenor es un mundo duro donde los enemigos acechan en palacios y criptas. Intentan provocar una terrible destrucción con armas y magias devastadoras. Salvaguardar estos lugares y sus tesoros representaría grandes recompensas para ti y tus compañeros.$B$BPero cuídate de estos lugares, ¡pues otros aventureros te siguen de cerca y solo una carrera contra el tiempo demostrará tu valía!$B$B¿Aceptas el nuevo desafío que Draenor te presenta?",
+    "Saludos, $r.$B$BPor tu comportamiento, veo que no eres $Gun aventurero ordinario:una aventurera ordinaria;.$B$BDraenor es un mundo duro donde los enemigos acechan en palacios y criptas. Intentan provocar una terrible destrucción con armas y magias devastadoras. Salvaguardar estos lugares y sus tesoros representaría grandes recompensas para ti y tus compañeros.$B$BPero cuídate de estos lugares, ¡pues otros aventureros te siguen de cerca y solo una carrera contra el tiempo demostrará tu valía!$B$B¿Aceptas el nuevo desafío que Draenor te presenta?",
+    "Приветствую, |3-6($r).$B$BПо тому, как ты держишься, ясно, что ты не $gобычный путешественник:обычная путешественница;.$B$BНа Дреноре слабакам не место, многие опасные враги населяют склепы и дворцы. Они жаждут разрушить эти земли ужасающим оружием и магией. Если ты со своими спутниками решишь обезопасить эти места, то заодно разживешься ценными сокровищами.$B$BТянуть с этим не стоит, другие искатели приключений уже наступают тебе на пятки. Только действуя быстро ты останешься $gнепревзойденным:непревзойденной;!$B$BТы $gготов:готова; к новому вызову, который бросает тебе Дренор?",
+    "Приветствую, |3-6($r).$B$BПо тому, как ты держишься, ясно, что ты не $gобычный путешественник:обычная путешественница;.$B$BНа Дреноре слабакам не место, многие опасные враги населяют склепы и дворцы. Они жаждут разрушить эти земли ужасающим оружием и магией. Если ты со своими спутниками решишь обезопасить эти места, то заодно разживешься ценными сокровищами.$B$BТянуть с этим не стоит, другие искатели приключений уже наступают тебе на пятки. Только действуя быстро ты останешься $gнепревзойденным:непревзойденной;!$B$BТы $gготов:готова; к новому вызову, который бросает тебе Дренор?"
+);
+
+# Enable vendors
+UPDATE creature_template SET npcflag = npcflag | 0x80 WHERE entry IN (88155, 88161);
+UPDATE creature SET npcflag = npcflag | 0x80 WHERE id IN (88155, 88161);
+
 UPDATE quest_template SET RewardItemId1 = 127831 WHERE Id IN (37259, 37260, 37261, 37262, 37263, 37264, 37265, 37266);
 
 REPLACE INTO creature_queststarter (id, quest) VALUES
