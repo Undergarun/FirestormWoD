@@ -3323,7 +3323,8 @@ const uint32 spell_mage_polymorph_cast_visual::spell_mage_polymorph_cast_visual_
     SPELL_MAGE_SHEEP_FORM
 };
 
-// Hardened Shell - 129787
+/// Last Update 6.2.3
+/// Hardened Shell - 129787
 class spell_gen_hardened_shell: public SpellScriptLoader
 {
     public:
@@ -3335,28 +3336,53 @@ class spell_gen_hardened_shell: public SpellScriptLoader
 
             void HandleOnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->IsMounted())
                 {
-                    if (Unit* target = GetTarget())
-                    {
-                        if (target->IsMounted())
-                        {
-                            target->RemoveAurasByType(SPELL_AURA_MOUNTED);
-                            target->Dismount();
-                        }
-                    }
+                    l_Target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+                    l_Target->Dismount();
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_gen_hardened_shell_AuraScript::HandleOnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        class spell_gen_hardened_shell_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_hardened_shell_SpellScript);
+
+            SpellCastResult CheckLevel()
+            {
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr)
+                    return SpellCastResult::SPELL_FAILED_SUCCESS;
+
+                if (l_Target->getLevel() > 94)
+                    return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_hardened_shell_SpellScript::CheckLevel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
             return new spell_gen_hardened_shell_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_hardened_shell_SpellScript();
         }
 };
 
