@@ -958,6 +958,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SEND_SCENARIO_PROGRESS_UPDATE:
         case SMART_ACTION_UPDATE_PLOT_INSTANCE:
         case SMART_ACTION_PLAY_SCENE_OBJECT:
+        case SMART_ACTION_ENTER_LFG_QUEUE:
 
             break;
         default:

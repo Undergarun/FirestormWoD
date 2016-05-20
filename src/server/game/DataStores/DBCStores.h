@@ -67,6 +67,7 @@ typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficulty>> Ma
 MapDifficulty const* GetDefaultMapDifficulty(uint32 p_MapID, Difficulty* p_Difficulty = nullptr);
 MapDifficulty const* GetMapDifficultyData(uint32 p_MapID, Difficulty p_Difficulty);
 MapDifficulty const* GetDownscaledMapDifficultyData(uint32 p_MapID, Difficulty& p_Difficulty);
+void HotfixLfgDungeonsData();
 
 uint32 GetLiquidFlags(uint32 liquidType);
 

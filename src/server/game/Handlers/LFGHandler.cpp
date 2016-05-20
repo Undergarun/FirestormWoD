@@ -61,7 +61,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& p_Packet)
     if (!l_SlotCount)
         return;
 
-    const LFGDungeonEntry * l_Entry = sLFGDungeonStore.LookupEntry(*l_Slots.begin() & 0xFFFFFF);
+    const LFGDungeonEntry* l_Entry = sLFGDungeonStore.LookupEntry(*l_Slots.begin() & 0xFFFFFF);
 
     uint8 l_Type = TYPEID_DUNGEON;
     uint8 l_MaxGroupSize = 5;
@@ -712,7 +712,7 @@ void WorldSession::SendLfgUpdateProposal(uint32 p_ProposalID, const LfgProposal 
             l_DungeonID = (*playerDungeons.begin());
     }
 
-    if (const LFGDungeonEntry * l_DungeonEntry = sLFGDungeonStore.LookupEntry(l_DungeonID))
+    if (const LFGDungeonEntry* l_DungeonEntry = sLFGDungeonStore.LookupEntry(l_DungeonID))
     {
         l_DungeonID = l_DungeonEntry->Entry();
 

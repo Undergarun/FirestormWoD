@@ -800,6 +800,7 @@ struct LFGDungeonEntry
     uint32 Entry() const { return ID + (type << 24); }
     // 1 = LFG_TYPE_DUNGEON
     bool isScenario() const { return type == 1 && tankNeeded == 0 && healerNeeded == 0 && dpsNeeded == 3; }
+    bool isScenarioSingle() const { return type == 1 && tankNeeded == 0 && healerNeeded == 0 && dpsNeeded == 1; }
 };
 
 struct LiquidTypeEntry

@@ -427,6 +427,7 @@ class LFGMgr
         void SetCompatibles(std::string const& concatenatedGuids, bool compatibles);
         LfgAnswer GetCompatibles(std::string const& concatenatedGuids);
         void RemoveFromCompatibles(uint64 guid);
+        LfgProposal* CheckForSingle(LfgGuidList& check);
 
         // Generic
         const LfgDungeonSet& GetDungeonsByRandom(uint32 randomdungeon, bool check = false);

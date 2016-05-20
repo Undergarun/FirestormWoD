@@ -359,6 +359,9 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sgtItemSocketCostPerLevelStore, dbcPath, "gtItemSocketCostPerLevel.dbc");                                   // 19034
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sLFGDungeonStore,             dbcPath, "LfgDungeons.dbc");                                                  // 17399
+
+    HotfixLfgDungeonsData();
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sLiquidTypeStore,             dbcPath, "LiquidType.dbc");                                                   // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sLockStore,                   dbcPath, "Lock.dbc");                                                         // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sPhaseStores,                 dbcPath, "Phase.dbc");                                                        // 17399
@@ -1843,4 +1846,23 @@ void DeterminaAlternateMapPosition(uint32 p_MapID, float p_X, float p_Y, float p
 
     *p_NewPosX = p_X + l_Transformation->RegionOffsetX;
     *p_NewPosY = p_Y + l_Transformation->RegionOffsetY;
+}
+
+void HotfixLfgDungeonsData()
+{
+    for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
+    {
+        if (auto l_Entry = const_cast<LFGDungeonEntry*>(sLFGDungeonStore.LookupEntry(i)))
+        {
+            if (l_Entry->isScenarioSingle())
+            {
+                /// Fix access to some scenarios
+                if (l_Entry->maxlevel == 0)
+                    l_Entry->maxlevel = 100;
+
+                /// fix when single scenarios are included in random
+                l_Entry->grouptype = 0;
+            }
+        }
+    }
 }

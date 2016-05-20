@@ -35,6 +35,7 @@
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedGossip.h"
+#include "LFG.h"
 #include "../../../scripts/Draenor/Garrison/GarrisonNPC.hpp"
 
 class TrinityStringTextBuilder
@@ -2204,6 +2205,23 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 return;
 
             l_Player->PlayScene(e.action.playSceneObject.SceneID, l_Player);
+
+            break;
+        }
+        case SMART_ACTION_ENTER_LFG_QUEUE:
+        {
+            Player* l_Player = unit->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            std::set<uint32> l_DungeonSet;
+            uint8 l_Roles = e.action.enterLfgQueue.RoleMask;
+
+            l_DungeonSet.insert(e.action.enterLfgQueue.DungeonID);
+
+            sLFGMgr->Join(l_Player, l_Roles, l_DungeonSet, "");
+            break;
         }
         default:
             sLog->outDebug(LOG_FILTER_SQL, "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
