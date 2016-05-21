@@ -35,6 +35,16 @@ struct WayPoint
     float z;
 };
 
+enum eSmartAI
+{
+    SMART_EVENT_PARAM_COUNT = 4,
+    SMART_ACTION_PARAM_COUNT = 6,
+    SMART_SUMMON_COUNTER = 0xFFFFFF,
+    SMART_ESCORT_LAST_OOC_POINT = 0xFFFFFF,
+    SMART_RANDOM_POINT = 0xFFFFFE,
+    SMART_ESCORT_TARGETS = 0xFFFFFF
+};
+
 enum SMART_EVENT_PHASE
 {
     SMART_EVENT_PHASE_ALWAYS  = 0,
@@ -1193,15 +1203,6 @@ struct SmartTarget
     };
 };
 
-enum eSmartAI
-{
-    SMART_EVENT_PARAM_COUNT         = 4,
-    SMART_ACTION_PARAM_COUNT        = 6,
-    SMART_SUMMON_COUNTER            = 0xFFFFFF,
-    SMART_ESCORT_LAST_OOC_POINT     = 0xFFFFFF,
-    SMART_RANDOM_POINT              = 0xFFFFFE,
-    SMART_ESCORT_TARGETS            = 0xFFFFFF
-};
 
 enum SmartScriptType
 {

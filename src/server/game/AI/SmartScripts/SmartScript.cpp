@@ -2236,10 +2236,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (IsUnit(obj))
                     {
-                        uint32 sound = Trinity::Containers::SelectRandomContainerElement(sounds);
+                        uint32 sound = JadeCore::Containers::SelectRandomContainerElement(sounds);
                         obj->PlayDirectSound(sound, onlySelf ? obj->ToPlayer() : nullptr);
-                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: %s (%s), sound: %u, onlyself: %s",
-                            obj->GetName().c_str(), obj->GetGUID().ToString().c_str(), sound, onlySelf ? "true" : "false");
+                        sLog->outDebug(LOG_FILTER_SQL, "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: %s (%u), sound: %u, onlyself: %s",
+                            obj->GetName(), obj->GetGUID(), sound, onlySelf ? "true" : "false");
                     }
                 }
 
