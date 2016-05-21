@@ -56,7 +56,7 @@ class ItemScript : public ScriptObjectImpl<true>
         {
             UNUSED(p_Player);
             UNUSED(p_Item);
-            UNUSED(p_SpellCastTargets);
+            //UNUSED(p_SpellCastTargets);
 
             return false;
         }
