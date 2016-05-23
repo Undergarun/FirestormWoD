@@ -1,4 +1,4 @@
-DELETE FROM `conditions` WHERE SourceEntry = 77346;
+DELETE FROM `conditions` WHERE SourceEntry = 140271;
 INSERT INTO `conditions`
             (`SourceTypeOrReferenceId`,
              `SourceGroup`,
@@ -16,15 +16,15 @@ INSERT INTO `conditions`
              `Comment`)
 VALUES ('17',
         '0',
-        '77346',
+        '140271',
         '0',
         '0',
-        '29',
+        '27',
         '0',
-        '41255',
-        '30',
+        '90',
+        '4',
         '0',
         '0',
         '0',
         '',
-        'ISignal Rocket only usable on Sethria slain');
+        'Sacrifice only usable level < 91');

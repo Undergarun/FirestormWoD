@@ -1,4 +1,4 @@
-DELETE FROM `conditions` WHERE SourceEntry = 77346;
+DELETE FROM `conditions` WHERE SourceEntry = 88697;
 INSERT INTO `conditions`
             (`SourceTypeOrReferenceId`,
              `SourceGroup`,
@@ -16,15 +16,15 @@ INSERT INTO `conditions`
              `Comment`)
 VALUES ('17',
         '0',
-        '77346',
+        '88697',
         '0',
         '0',
-        '29',
+        '4',
         '0',
-        '41255',
-        '30',
+        '361',
+        '0',
         '0',
         '0',
         '0',
         '',
-        'ISignal Rocket only usable on Sethria slain');
+        'Slash of Tichondrius only usable on Felwood');

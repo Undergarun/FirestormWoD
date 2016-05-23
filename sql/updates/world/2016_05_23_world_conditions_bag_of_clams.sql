@@ -1,4 +1,4 @@
-DELETE FROM `conditions` WHERE SourceEntry = 77346;
+DELETE FROM `conditions` WHERE SourceEntry = 123803;
 INSERT INTO `conditions`
             (`SourceTypeOrReferenceId`,
              `SourceGroup`,
@@ -16,15 +16,15 @@ INSERT INTO `conditions`
              `Comment`)
 VALUES ('17',
         '0',
-        '77346',
+        '123803',
         '0',
         '0',
         '29',
-        '0',
-        '41255',
+        '1',
+        '63376',
         '30',
         '0',
         '0',
         '0',
         '',
-        'ISignal Rocket only usable on Sethria slain');
+        'Bag of Clams only usable on Coldwhisker Otter');

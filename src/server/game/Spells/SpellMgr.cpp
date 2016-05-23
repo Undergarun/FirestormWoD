@@ -3786,7 +3786,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 140495: ///< Lingering Gaze (Durumu - Throne of Thunder)
-                spellInfo->Effects[EFFECT_0].BasePoints *= 2.9f;
+                spellInfo->Effects[EFFECT_0].BasePoints = int32(spellInfo->Effects[EFFECT_0].BasePoints * 2.9f);
                 break;
             case 136413: ///< Force of Will (Durumu - Throne of Thunder)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CONE_ENEMY_104;
@@ -4237,6 +4237,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 117624:///< Suicide No Blood No Logging (Tectus)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
+            case 162475:///< Tectonic Upheaval (Tectus)
+                spellInfo->InterruptFlags = 0;
+                spellInfo->ChannelInterruptFlags = 0;
+                break;
             case 166185:///< Rending Slash (Highmaul Conscript)
             case 158026:///< Enfeebling Roar - Debuff (Phemos - Twin Ogron)
             case 163134:///< Nullification Barrier - Abosrb (Ko'ragh)
@@ -4479,7 +4483,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 136050: ///< Malformed Blood
-                spellInfo->Effects[1].BasePoints *= 2.85f;
+                spellInfo->Effects[1].BasePoints = int32(spellInfo->Effects[1].BasePoints * 2.85f);
                 break;
             case 136521: ///< QuickSand
             case 136878: ///< QuickSand
@@ -4520,7 +4524,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcChance = 0;
                 break;
             case 137641: ///< Soul Fragment
-                spellInfo->Effects[1].BasePoints = spellInfo->Effects[1].BasePoints * 2.7;
+                spellInfo->Effects[1].BasePoints = int32(spellInfo->Effects[1].BasePoints * 2.7f);
                 break;
             case 174597:///< Ruthlessness (passive aura)
                 spellInfo->Effects[0].Effect = 0;
@@ -5480,7 +5484,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 156297: ///< Acid Torrent
-                spellInfo->AttributesEx |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
+                spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 break;
             case 31224: ///< Cloak of Shadows
                 spellInfo->Effects[0].BasePoints = -200;
@@ -5782,8 +5786,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].Effect = 0;
                 break;
             case 108199: ///< Gorefiend's Grasp
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-                spellInfo->Effects[0].TargetB = 0;
+                spellInfo->Mechanic = Mechanics::MECHANIC_GRIP;
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[2].Effect = 0;
                 break;
             case 49206: ///< Summon Gargoyle
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;

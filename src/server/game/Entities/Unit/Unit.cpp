@@ -13818,10 +13818,13 @@ void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
     if (!isAlive())
         return;
 
-    if (Creature* l_Creature = p_Enemy->ToCreature())
+    if (p_Enemy)
     {
-        if (l_Creature->GetEntry() == 900000 || l_Creature->GetScriptName() == "npc_pvp_training_dummy") ///< Sovaks training dummy
-            p_IsPVP = true;
+        if (Creature* l_Creature = p_Enemy->ToCreature())
+        {
+            if (l_Creature->GetEntry() == 900000 || l_Creature->GetScriptName() == "npc_pvp_training_dummy") ///< Sovaks training dummy
+                p_IsPVP = true;
+        }
     }
 
     if (p_IsPVP)
