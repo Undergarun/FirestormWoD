@@ -1,8 +1,12 @@
+# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
 #
-#  MILLENIUM-STUDIO
-#  Copyright 2016 Millenium-studio SARL
-#  All Rights Reserved.
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
 #
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 file(GLOB_RECURSE sources_CommandLine CommandLine/*.cpp CommandLine/*.h)
 file(GLOB_RECURSE sources_RemoteAccess RemoteAccess/*.cpp RemoteAccess/*.h)
@@ -15,6 +19,13 @@ if (USE_COREPCH)
   set(worldserver_PCH_SRC PrecompiledHeaders/worldPCH.cpp)
 endif()
 
+if ( USE_COREPCH AND MSVC )
+  set(worldserver_SRCS
+    PrecompiledHeaders/worldPCH.cpp
+    PrecompiledHeaders/worldPCH.h
+  )
+endif()
+
 set(worldserver_SRCS
   ${worldserver_SRCS}
   ${sources_CommandLine}
@@ -24,17 +35,33 @@ set(worldserver_SRCS
   ${sources_localdir}
 )
 
+MACRO( auto_group ProjectDirectory ProjectSources )
+	SET( DirectorySources "${ProjectSources}" )
+	FOREACH( Source ${DirectorySources} )
+		if ("${Source}" MATCHES "(/)+")
+			STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
+			STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+			SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
+		else()
+			SOURCE_GROUP( "" FILES ${Source} )
+		endif()
+	ENDFOREACH( Source )
+ENDMACRO( auto_group )
+
+auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${worldserver_SRCS}")
+
+set(worldserver_SRCS
+  ${worldserver_SRCS}
+)
+
 if( WIN32 )
   set(worldserver_SRCS
     ${worldserver_SRCS}
-    ${sources_windows_Debugging}
+    ${sources_Debugging}
+    worldserver.rc
   )
-  if ( MSVC )
-    set(worldserver_SRCS
-      ${worldserver_SRCS}
-      worldserver.rc
-    )
-  endif()
 endif()
 
 include_directories(
@@ -135,6 +162,8 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Warden/Modules
   ${CMAKE_SOURCE_DIR}/src/server/game/Weather
   ${CMAKE_SOURCE_DIR}/src/server/game/World
+  ${CMAKE_SOURCE_DIR}/src/server/authserver/Server
+  ${CMAKE_SOURCE_DIR}/src/server/authserver/Realms
   ${CMAKE_SOURCE_DIR}/src/server/shared/Reporting
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/CommandLine
@@ -149,12 +178,11 @@ include_directories(
   ${MSFRAMEWORK_INCLUDE_DIR}
 )
 
-GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
-
 add_executable(worldserver
   ${worldserver_SRCS}
   ${worldserver_PCH_SRC}
 )
+set_property(TARGET worldserver PROPERTY FOLDER "server")
 
 if( NOT WIN32 )
   set_target_properties(worldserver PROPERTIES
@@ -165,7 +193,7 @@ endif()
 add_dependencies(worldserver revision_data.h)
 
 if( UNIX AND NOT NOJEM AND NOT APPLE )
-  set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
+  set(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
 endif()
 
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
