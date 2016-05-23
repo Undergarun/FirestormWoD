@@ -1825,6 +1825,7 @@ void AddSC_Garrison_NPC()
         /// The forge
         new MS::Garrison::npc_AuriaIrondreamer;
         new MS::Garrison::npc_YuliaSamras;
+        new MS::Garrison::npc_DalanaClarke_Garr;
 
         /// Lunarfall excavation
         new MS::Garrison::npc_TimothyLeens;
