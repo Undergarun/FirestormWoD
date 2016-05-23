@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -80,7 +71,7 @@ enum Spells
     // Frostwarden Handler
     SPELL_FOCUS_FIRE            = 71350,
     SPELL_ORDER_WHELP           = 71357,
-    SPELL_CONCUSSIVE_SHOCK      = 71337,
+    SPELL_CONCUSSIVE_SHOCK      = 71337
 };
 
 enum Events
@@ -118,7 +109,7 @@ enum Events
     EVENT_CONCUSSIVE_SHOCK          = 20,
 
     // event groups
-    EVENT_GROUP_LAND_PHASE          = 1,
+    EVENT_GROUP_LAND_PHASE          = 1
 };
 
 enum FrostwingData
@@ -128,7 +119,7 @@ enum FrostwingData
     DATA_WHELP_MARKER           = 2,
     DATA_LINKED_GAMEOBJECT      = 3,
     DATA_TRAPPED_PLAYER         = 4,
-    DATA_ENABLE_ASPHYXIATION    = 5,
+    DATA_ENABLE_ASPHYXIATION    = 5
 };
 
 enum MovementPoints
@@ -139,7 +130,7 @@ enum MovementPoints
     POINT_TAKEOFF           = 4,
     POINT_LAND              = 5,
     POINT_AIR_PHASE_FAR     = 6,
-    POINT_LAND_GROUND       = 7,
+    POINT_LAND_GROUND       = 7
 };
 
 enum Shadowmourne
@@ -148,7 +139,7 @@ enum Shadowmourne
     ITEM_SHADOW_S_EDGE          = 49888,
 
     SPELL_FROST_INFUSION        = 72292,
-    SPELL_FROST_IMBUED_BLADE    = 72290,
+    SPELL_FROST_IMBUED_BLADE    = 72290
 };
 
 Position const RimefangFlyPos      = {4413.309f, 2456.421f, 233.3795f, 2.890186f};
@@ -230,7 +221,7 @@ class boss_sindragosa : public CreatureScript
                     me->SetDisableGravity(true);
                 }
                 else
-                {   
+                {
                     me->SetCanFly(false);
                     me->SetDisableGravity(false);
                 }
@@ -371,7 +362,7 @@ class boss_sindragosa : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!_isThirdPhase && !HealthAbovePct(35))
                 {
@@ -1650,6 +1641,7 @@ class achievement_all_you_can_eat : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_sindragosa()
 {
     new boss_sindragosa();
@@ -1672,3 +1664,4 @@ void AddSC_boss_sindragosa()
     new at_sindragosa_lair();
     new achievement_all_you_can_eat();
 }
+#endif

@@ -1,20 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -865,9 +855,6 @@ void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& p_RecvData)
     if (!l_Group->IsLeader(GetPlayer()->GetGUID()) && !l_Group->IsAssistant(GetPlayer()->GetGUID()) && !(l_Group->GetPartyFlags() & PARTY_FLAG_EVERYONE_IS_ASSISTANT))
         return;
 
-    ObjectGuid groupGUID = l_Group->GetGUID(); ///< is unused
-    ObjectGuid leaderGUID = GetPlayer()->GetGUID(); ///< is unused
-
     l_Group->SetReadyCheckCount(1);
 
     WorldPacket l_Response(SMSG_READY_CHECK_STARTED);
@@ -917,7 +904,7 @@ void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& p_RecvData)
     }
 }
 
-void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint32 p_Mask, bool p_Ennemy /*= false*/) ///< p_Mask is unused
+void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint32 /*p_Mask*/, bool p_Ennemy /*= false*/)
 {
     assert(p_Player && p_Data);
 

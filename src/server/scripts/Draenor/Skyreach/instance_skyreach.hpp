@@ -1,9 +1,17 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef SKYREACH_INSTANCE_H
 # define SKYREACH_INSTANCE_H
 
 # include "ScriptPCH.h"
 # include "ScriptMgr.h"
-# include "ScriptUtils.h" 
+# include "ScriptUtils.h"
 
 namespace MS
 {
@@ -48,7 +56,7 @@ namespace MS
             ENERGIZE_VISUAL_3 = 154177,
             DespawnAreaTriggers = 115905,
             Wind = 170818,
-            LensFlare = 154034,
+            LensFlare = 154034
         };
 
         enum GameObjectEntries
@@ -63,7 +71,7 @@ namespace MS
             DOOR_RUKHRAN_ENTRANCE = 229038,
             DOOR_RUKHRAN_EXIT = 234316,
             DOOR_HIGH_SAVE_VIRYX_ENTRANCE= 235994,
-            DOOR_CHALLENGE_ENTRANCE = 239409,
+            DOOR_CHALLENGE_ENTRANCE = 239409
         };
 
         enum BossEntries
@@ -71,7 +79,7 @@ namespace MS
             RANJIT = 75964,
             ARAKNATH = 76141,
             RUKHRAN = 76143,
-            HIGH_SAGE_VIRYX = 76266,
+            HIGH_SAGE_VIRYX = 76266
         };
 
         enum MobEntries
@@ -96,7 +104,7 @@ namespace MS
             AraokkoaMagnifyingConstructA = 76285,
             ArakkoaMagnifyingGlassFocus = 76083,
             ReshadOutro = 84782,
-            SkyreachDefenseConstruct = 76292,
+            SkyreachDefenseConstruct = 76292
         };
 
         enum Data
@@ -113,7 +121,7 @@ namespace MS
             SolarFlareDying,
             StartingLensFlare,
             PlayerIsHittedByRanjitSpells,
-            MonomaniaAchievementFail,
+            MonomaniaAchievementFail
         };
 
         enum class Achievements : uint32
@@ -128,7 +136,7 @@ namespace MS
             SkyreachChallenger = 8871,
             SkyreachBronze = 8872,
             SkyreachGold = 8874,
-            SkyreachSilver = 8873,
+            SkyreachSilver = 8873
         };
 
         namespace ScenarioDatas
@@ -152,58 +160,58 @@ namespace MS
         static const Position k_WindMazeVertices[47] =
         {
             // First block.
-            { 960.317f, 1908.073f, 214.26f }, // 0
-            { 966.476f, 1895.317f, 214.22f }, // 1
-            { 987.374f, 1907.791f, 227.44f }, // 2
-            { 983.995f, 1916.117f, 227.41f }, // 3
+            { 960.317f, 1908.073f, 214.26f , 0.0f }, // 0
+            { 966.476f, 1895.317f, 214.22f , 0.0f }, // 1
+            { 987.374f, 1907.791f, 227.44f , 0.0f }, // 2
+            { 983.995f, 1916.117f, 227.41f, 0.0f }, // 3
             // Outter blocks.
-            { 985.987f, 1911.893f, 227.42f }, // 4
-            { 992.518f, 1915.296f, 227.20f }, // 5
-            { 990.793f, 1922.001f, 227.20f }, // 6
-            { 983.325f, 1921.477f, 227.00f }, // 7
-            { 984.141f, 1930.645f, 227.00f }, // 8
-            { 990.884f, 1929.064f, 227.19f }, // 9
-            { 994.265f, 1935.345f, 227.19f }, // 10
-            { 988.326f, 1939.565f, 227.02f }, // 11
-            { 994.889f, 1946.283f, 226.02f }, // 12
-            { 999.162f, 1940.225f, 227.20f }, // 13
-            { 1005.42f, 1943.453f, 227.20f }, // 14
-            { 1003.62f, 1950.048f, 227.02f }, // 15
-            { 1012.96f, 1951.050f, 227.02f }, // 16
-            { 1012.40f, 1943.687f, 227.20f }, // 17
-            { 1019.37f, 1942.288f, 227.20f }, // 18
-            { 1022.14f, 1948.483f, 227.02f }, // 19
-            { 1030.02f, 1943.140f, 227.02f }, // 20
-            { 1024.85f, 1938.118f, 227.20f }, // 21
-            { 1029.00f, 1932.593f, 227.20f }, // 22
-            { 1035.65f, 1935.282f, 227.02f }, // 23
-            { 1037.91f, 1926.141f, 227.05f }, // 24
-            { 1031.32f, 1924.956f, 227.20f }, // 25
+            { 985.987f, 1911.893f, 227.42f, 0.0f  }, // 4
+            { 992.518f, 1915.296f, 227.20f, 0.0f  }, // 5
+            { 990.793f, 1922.001f, 227.20f, 0.0f  }, // 6
+            { 983.325f, 1921.477f, 227.00f, 0.0f  }, // 7
+            { 984.141f, 1930.645f, 227.00f, 0.0f  }, // 8
+            { 990.884f, 1929.064f, 227.19f, 0.0f  }, // 9
+            { 994.265f, 1935.345f, 227.19f, 0.0f  }, // 10
+            { 988.326f, 1939.565f, 227.02f, 0.0f  }, // 11
+            { 994.889f, 1946.283f, 226.02f, 0.0f  }, // 12
+            { 999.162f, 1940.225f, 227.20f, 0.0f  }, // 13
+            { 1005.42f, 1943.453f, 227.20f, 0.0f  }, // 14
+            { 1003.62f, 1950.048f, 227.02f, 0.0f  }, // 15
+            { 1012.96f, 1951.050f, 227.02f, 0.0f  }, // 16
+            { 1012.40f, 1943.687f, 227.20f, 0.0f  }, // 17
+            { 1019.37f, 1942.288f, 227.20f, 0.0f  }, // 18
+            { 1022.14f, 1948.483f, 227.02f, 0.0f  }, // 19
+            { 1030.02f, 1943.140f, 227.02f, 0.0f  }, // 20
+            { 1024.85f, 1938.118f, 227.20f, 0.0f  }, // 21
+            { 1029.00f, 1932.593f, 227.20f, 0.0f  }, // 22
+            { 1035.65f, 1935.282f, 227.02f, 0.0f  }, // 23
+            { 1037.91f, 1926.141f, 227.05f, 0.0f  }, // 24
+            { 1031.32f, 1924.956f, 227.20f, 0.0f  }, // 25
             // Block 12.
-            { 1027.66f, 1902.383f, 227.02f }, // 26
-            { 1017.76f, 1922.387f, 227.20f }, // 27
+            { 1027.66f, 1902.383f, 227.02f, 0.0f  }, // 26
+            { 1017.76f, 1922.387f, 227.20f, 0.0f  }, // 27
             // Inner blocks.
-            { 1016.55f, 1926.015f, 227.20f }, // 28
-            { 1015.02f, 1927.856f, 227.20f }, // 29
-            { 1013.21f, 1929.708f, 227.20f }, // 30
-            { 1011.01f, 1930.131f, 227.20f }, // 31
-            { 1008.61f, 1930.897f, 227.20f }, // 32
-            { 1005.88f, 1930.590f, 227.20f }, // 33
-            { 1003.13f, 1929.200f, 227.20f }, // 34
-            { 1001.03f, 1926.166f, 227.20f }, // 35
-            { 1000.16f, 1922.862f, 227.20f }, // 36
-            { 1001.35f, 1918.540f, 227.20f }, // 37
-            { 1003.97f, 1914.781f, 227.20f }, // 38
-            { 999.218f, 1910.402f, 227.20f }, // 39
-            { 992.179f, 1903.852f, 227.02f }, // 40
-            { 998.109f, 1900.641f, 227.20f }, // 41
-            { 1009.28f, 1898.183f, 227.20f }, // 42
+            { 1016.55f, 1926.015f, 227.20f, 0.0f  }, // 28
+            { 1015.02f, 1927.856f, 227.20f, 0.0f  }, // 29
+            { 1013.21f, 1929.708f, 227.20f, 0.0f  }, // 30
+            { 1011.01f, 1930.131f, 227.20f, 0.0f  }, // 31
+            { 1008.61f, 1930.897f, 227.20f, 0.0f  }, // 32
+            { 1005.88f, 1930.590f, 227.20f, 0.0f  }, // 33
+            { 1003.13f, 1929.200f, 227.20f, 0.0f  }, // 34
+            { 1001.03f, 1926.166f, 227.20f, 0.0f  }, // 35
+            { 1000.16f, 1922.862f, 227.20f, 0.0f  }, // 36
+            { 1001.35f, 1918.540f, 227.20f, 0.0f  }, // 37
+            { 1003.97f, 1914.781f, 227.20f, 0.0f  }, // 38
+            { 999.218f, 1910.402f, 227.20f, 0.0f  }, // 39
+            { 992.179f, 1903.852f, 227.02f, 0.0f  }, // 40
+            { 998.109f, 1900.641f, 227.20f, 0.0f  }, // 41
+            { 1009.28f, 1898.183f, 227.20f, 0.0f  }, // 42
             // Second stair block.
-            { 1002.08f, 1873.109f, 240.71f }, // 43
-            { 991.710f, 1873.664f, 240.71f }, // 44
+            { 1002.08f, 1873.109f, 240.71f, 0.0f  }, // 43
+            { 991.710f, 1873.664f, 240.71f, 0.0f  }, // 44
             // Convex vertices.
-            { 1209.13f, 1924.793f, 229.83f }, // 45
-            { 1000.53f, 1968.087f, 227.00f }, // 46
+            { 1209.13f, 1924.793f, 229.83f, 0.0f  }, // 45
+            { 1000.53f, 1968.087f, 227.00f, 0.0f  }  // 46
         };
 
         enum Blocks
@@ -216,7 +224,7 @@ namespace MS
             InnersEnd = 23,
             Center = 24,
             SecondStair = 25,
-            ConvexHull = 26,
+            ConvexHull = 26
         };
 
         // Clockwise ordered.
@@ -258,7 +266,7 @@ namespace MS
             { 0, 46, 45, 43, 44, 1 } // 27
         };
 
-        static Position CalculateForceVectorFromBlockId(uint32 p_BlockId, float& p_Magnitude)
+        inline Position CalculateForceVectorFromBlockId(uint32 p_BlockId, float& p_Magnitude)
         {
             assert(p_BlockId != Blocks::ConvexHull);
 
@@ -290,7 +298,7 @@ namespace MS
             std::vector<uint32> l_BlockIndices = k_WindMazeIndices[p_BlockId];
             assert(l_BlockIndices.size() == 4);
 
-            l_ForceDir = ((k_WindMazeVertices[l_BlockIndices[3]] - k_WindMazeVertices[l_BlockIndices[0]]) + (k_WindMazeVertices[l_BlockIndices[2]] - k_WindMazeVertices[l_BlockIndices[1]])) / 2.f;
+            l_ForceDir = ((k_WindMazeVertices[l_BlockIndices[3]] - k_WindMazeVertices[l_BlockIndices[0]]) + (k_WindMazeVertices[l_BlockIndices[2]] - k_WindMazeVertices[l_BlockIndices[1]])) / 2.0f;
             l_ForceDir.m_positionZ = 0;
             normalizeXY(l_ForceDir);
             l_ForceDir.m_positionX *= p_Magnitude;
@@ -298,7 +306,7 @@ namespace MS
             return l_ForceDir;
         }
 
-        static bool IsPointInBlock(uint32 p_BlockId, Position const& p_Point)
+        inline bool IsPointInBlock(uint32 p_BlockId, Position const& p_Point)
         {
             /// p_Ref and p_Point should be vectors.
             auto l_IsToTheRightFromRef = [](Position const& p_Ref, Position const& p_Point) -> bool {

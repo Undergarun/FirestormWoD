@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "SharedDefines.h"
@@ -279,6 +270,9 @@ void LFGMgr::Update(uint32 diff)
         }
     }
 
+    uint32 l_DiffTime = getMSTime();
+    bool l_Exit = false;
+
     // Check if a proposal can be formed with the new groups being added
     for (LfgGuidListMap::iterator it = m_newToQueue.begin(); it != m_newToQueue.end(); ++it)
     {
@@ -288,6 +282,13 @@ void LFGMgr::Update(uint32 diff)
         LfgGuidList firstNew;
         while (!newToQueue.empty())
         {
+            /// Currently, LFG update can take more than 10 secs
+            if ((getMSTime() - l_DiffTime) > 100)
+            {
+                l_Exit = true;
+                break;
+            }
+
             uint64 frontguid = newToQueue.front();
             firstNew.push_back(frontguid);
             newToQueue.pop_front();
@@ -415,11 +416,54 @@ void LFGMgr::Update(uint32 diff)
                 temporalList = currentQueue;
             }
 
+            if (LfgProposal* pProposal = CheckForSingle(firstNew)) // Group found!
+            {
+                // Remove groups in the proposal from new and current queues (not from queue map)
+                for (LfgGuidList::const_iterator itQueue = pProposal->queues.begin(); itQueue != pProposal->queues.end(); ++itQueue)
+                {
+                    currentQueue.remove(*itQueue);
+                    newToQueue.remove(*itQueue);
+                }
+                m_Proposals[++m_lfgProposalId] = pProposal;
+
+                uint64 guid = 0;
+                for (LfgProposalPlayerMap::const_iterator itPlayers = pProposal->players.begin(); itPlayers != pProposal->players.end(); ++itPlayers)
+                {
+                    guid = itPlayers->first;
+                    SetState(guid, LFG_STATE_PROPOSAL);
+                    if (Player* player = ObjectAccessor::FindPlayer(itPlayers->first))
+                    {
+                        Group* grp = player->GetGroup();
+                        if (grp)
+                         {
+                            uint64 gguid = grp->GetGUID();
+                            SetState(gguid, LFG_STATE_PROPOSAL);
+                            sLFGMgr->SendUpdateStatus(player, LfgUpdateData(LFG_UPDATETYPE_PROPOSAL_BEGIN, GetSelectedDungeons(guid), GetComment(guid)));
+                        }
+                        else
+                            sLFGMgr->SendUpdateStatus(player, LfgUpdateData(LFG_UPDATETYPE_PROPOSAL_BEGIN, GetSelectedDungeons(guid), GetComment(guid)));
+                        player->GetSession()->SendLfgUpdateProposal(m_lfgProposalId, pProposal);
+                    }
+                }
+
+                if (pProposal->state == LFG_PROPOSAL_SUCCESS)
+                    UpdateProposal(m_lfgProposalId, guid, true);
+            }
+            else
+            {
+                if (std::find(currentQueue.begin(), currentQueue.end(), frontguid) == currentQueue.end()) //already in queue?
+                    ++alreadyInQueue; 
+                temporalList = currentQueue;
+            }
+
             if (alreadyInQueue == 3 && std::find(currentQueue.begin(), currentQueue.end(), frontguid) == currentQueue.end())
                 currentQueue.push_back(frontguid);
 
             firstNew.clear();
         }
+
+        if (l_Exit)
+            break;
     }
 
     // Update all players status queue info
@@ -797,8 +841,11 @@ void LFGMgr::Join(Player* player, uint8 roles, const LfgDungeonSet& selectedDung
         l_Category = entry->category;
     if (l_Category == LFG_CATEGORIE_RAID)
         maxGroupSize = 25;
-    if (l_Category == LFG_CATEGORIE_SCENARIO)
+    else if (l_Category == LFG_CATEGORIE_SCENARIO)
         maxGroupSize = 3;
+
+    if (entry && entry->isScenarioSingle())
+        maxGroupSize = 1;
 
     // Check player or group member restrictions
     if (player->InBattleground() || player->InArena() || player->InBattlegroundQueue())
@@ -869,6 +916,11 @@ void LFGMgr::Join(Player* player, uint8 roles, const LfgDungeonSet& selectedDung
                     if (isDungeon)
                         joinData.result = LFG_JOIN_MIXED_RAID_DUNGEON;
                     isRaid = true;
+                    break;
+                }
+                case LFG_CATEGORIE_SCENARIO:
+                {
+                    isDungeon = true;
                     break;
                 }
                 default:
@@ -1003,9 +1055,6 @@ void LFGMgr::Leave(Player* player, Group* grp /* = NULL*/)
     {
         case LFG_STATE_QUEUED:
             {
-                uint8 tankAdded = 0; ///< unused
-                uint8 healerAdded = 0; ///< unused
-                uint8 dpsAdded = 0; ///< unused
                 LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
 
                 if (grp)
@@ -2546,7 +2595,7 @@ void LFGMgr::RewardDungeonDoneFor(uint32 const p_DungeonID, Player* p_Player)
    @param[in]     randomdungeon Random dungeon id (if value = 0 will return all dungeons)
    @returns Set of dungeons that can be done.
 */
-const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Check) ///< p_Check is unused
+const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool /*p_Check*/)
 {
     LFGDungeonEntry const* l_Dungeon = sLFGDungeonStore.LookupEntry(p_RandDungeon);
     uint32 l_GroupType = l_Dungeon ? l_Dungeon->grouptype : 0;
@@ -2606,7 +2655,7 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
    @param[in]     level Player level
    @returns Reward
 */
-LfgReward const* LFGMgr::GetRandomDungeonReward(uint32 p_DungeonID, uint8 p_Level)
+LfgReward const* LFGMgr::GetRandomDungeonReward(uint32 p_DungeonID, uint8 /*p_Level*/)
 {
     LfgReward const* l_Reward = nullptr;
     LfgRewardMap::const_iterator l_Itr = m_RewardMap.find(p_DungeonID & 0x00FFFFFF);
@@ -2969,6 +3018,48 @@ ItemTemplate const* LFGMgr::GetDefaultAutomaticLootItem(Creature* p_Creature)
     }
 
     return sObjectMgr->GetItemTemplate(l_ItemId);
+}
+
+LfgProposal* LFGMgr::CheckForSingle(LfgGuidList& check)
+{
+    for (uint64 &guid : check)
+    {
+        uint64 playerGuid = guid;
+
+        LfgQueueInfoMap::const_iterator itr = m_QueueInfoMap.find(playerGuid);
+        if (itr == m_QueueInfoMap.end())
+            continue;
+
+        if (itr->second->dungeons.size() != 1)
+            continue;
+
+        uint32 dungeonId  = (*(itr->second->dungeons.begin()));
+        LFGDungeonEntry const* dungeonEntry = sLFGDungeonStore.LookupEntry(dungeonId);
+        if (!dungeonEntry)
+            continue;
+
+        if (!dungeonEntry->isScenarioSingle())
+            continue;
+
+        LfgGuidList groupGuids;
+        groupGuids.push_back(playerGuid);
+
+        LfgProposalPlayer* ppPlayer = new LfgProposalPlayer();
+        
+        ppPlayer->role = ROLE_DAMAGE;
+
+        LfgProposal* pProposal = new LfgProposal(dungeonId);
+        pProposal->cancelTime = time_t(time(NULL)) + LFG_TIME_PROPOSAL;
+        pProposal->state = LFG_PROPOSAL_INITIATING;
+        pProposal->queues = groupGuids;
+        pProposal->groupLowGuid = 0;
+        pProposal->leader = playerGuid;
+        pProposal->players[playerGuid] = ppPlayer;
+
+        return pProposal;
+    }
+
+    return nullptr;
 }
 
 /// Add default augment rune from LFR raid here

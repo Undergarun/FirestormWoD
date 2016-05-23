@@ -1,11 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "BattlepayMgr.h"
 
 namespace BattlePay
 {
@@ -23,7 +24,7 @@ template<int64 t_Gold> class BattlePay_Gold : BattlePayProductScript
     public:
         BattlePay_Gold(std::string p_ScriptName) : BattlePayProductScript(p_ScriptName) {}
 
-        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product) override
+        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& /*p_Product*/)
         {
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
@@ -33,7 +34,7 @@ template<int64 t_Gold> class BattlePay_Gold : BattlePayProductScript
             l_Player->SaveToDB();
         }
 
-        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason) override
+        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& /*p_Product*/, std::string& p_Reason)
         {
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
@@ -52,6 +53,7 @@ template<int64 t_Gold> class BattlePay_Gold : BattlePayProductScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_BattlePay_Golds()
 {
     new BattlePay_Gold<BattlePay::Gold10k>("battlepay_gold_10k");
@@ -59,3 +61,4 @@ void AddSC_BattlePay_Golds()
     new BattlePay_Gold<BattlePay::Gold100k>("battlepay_gold_100k");
     new BattlePay_Gold<BattlePay::Gold300k>("battlepay_gold_300k");
 }
+#endif

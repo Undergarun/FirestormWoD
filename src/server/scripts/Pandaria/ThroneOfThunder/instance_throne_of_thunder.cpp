@@ -1,21 +1,10 @@
-/*
-* Copyright (C) 2008-20XX JadeCore <http://www.pandashan.com>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -52,13 +41,6 @@ Position const g_StatuesPos[4] =
     { 5840.0f, 6316.0f, 158.083f, 5.486100f }, // SW
     { 5943.5f, 6211.0f, 158.083f, 2.355830f }, // NE
     { 5839.0f, 6211.5f, 158.083f, 0.781267f }  // SE
-};
-
-Position const g_EntrancePos[3] =
-{
-    { 6043.42f, 5072.73f, -45.33f, 4.712389f }, // Near Tortos
-    { 6054.05f, 4454.875f, -12.175f, 1.19332f }, // Near Durumu
-    { 6045.56f, 4836.12f, 148.78f, 4.712389f }  // Near Iron Qon
 };
 
 class instance_throne_of_thunder : public InstanceMapScript
@@ -152,7 +134,7 @@ public:
         /// Ra-den - Boss #13 - HM only
         uint64 m_RadenIrisGuid;
 
-        void Initialize()
+        void Initialize() override
         {
             SetBossNumber(DATA_MAX_BOSS_DATA);
             LoadDoorData(doorData);
@@ -226,7 +208,7 @@ public:
             m_RadenIrisGuid = 0;
         }
 
-        void OnCreatureCreate(Creature* p_Creature)
+        void OnCreatureCreate(Creature* p_Creature) override
         {
             switch (p_Creature->GetEntry())
             {
@@ -345,7 +327,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* p_GameObject)
+        void OnGameObjectCreate(GameObject* p_GameObject) override
         {
             switch (p_GameObject->GetEntry())
             {
@@ -540,7 +522,7 @@ public:
             }
         }
 
-        bool SetBossState(uint32 p_ID, EncounterState p_State)
+        bool SetBossState(uint32 p_ID, EncounterState p_State) override
         {
             if (!InstanceScript::SetBossState(p_ID, p_State))
                 return false;
@@ -548,7 +530,7 @@ public:
             return true;
         }
 
-        void SetData(uint32 p_Type, uint32 p_Data)
+        void SetData(uint32 p_Type, uint32 p_Data) override
         {
             switch (p_Type)
             {
@@ -572,7 +554,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 p_Type)
+        uint32 GetData(uint32 p_Type) override
         {
             switch (p_Type)
             {
@@ -585,7 +567,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 p_Type)
+        uint64 GetData64(uint32 p_Type) override
         {
             switch (p_Type)
             {
@@ -753,7 +735,7 @@ public:
             return 0;
         }
 
-        bool CheckRequiredBosses(uint32 p_BossID, Player const* p_Player = NULL) const
+        bool CheckRequiredBosses(uint32 p_BossID, Player const* p_Player = NULL) const override
         {
             if (!InstanceScript::CheckRequiredBosses(p_BossID, p_Player))
                 return false;
@@ -807,7 +789,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_throne_of_thunder()
 {
     new instance_throne_of_thunder();
 }
+#endif

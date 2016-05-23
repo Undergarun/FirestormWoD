@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Felmyst
@@ -82,14 +73,14 @@ enum Spells
     //Other
     SPELL_BERSERK                                 = 45078,
     SPELL_CLOUD_VISUAL                            = 45212,
-    SPELL_CLOUD_SUMMON                            = 45884,
+    SPELL_CLOUD_SUMMON                            = 45884
 };
 
 enum PhaseFelmyst
 {
     PHASE_NONE,
     PHASE_GROUND,
-    PHASE_FLIGHT,
+    PHASE_FLIGHT
 };
 
 enum EventFelmyst
@@ -105,7 +96,7 @@ enum EventFelmyst
 
     EVENT_FLIGHT_SEQUENCE,
     EVENT_SUMMON_DEAD,
-    EVENT_SUMMON_FOG,
+    EVENT_SUMMON_FOG
 };
 
 class boss_felmyst : public CreatureScript
@@ -236,7 +227,7 @@ public:
                 events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
         }
 
-        void DamageTaken(Unit*, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit*, uint32 &damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (phase != PHASE_GROUND && damage >= me->GetHealth())
                 damage = 0;
@@ -576,9 +567,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_felmyst()
 {
     new boss_felmyst();
     new mob_felmyst_vapor();
     new mob_felmyst_trail();
 }
+#endif

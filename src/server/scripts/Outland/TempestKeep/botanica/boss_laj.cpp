@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Laj
@@ -38,7 +28,7 @@ enum eSpells
     SPELL_SUMMON_LASHER_3      = 34686,
     SPELL_SUMMON_FLAYER_4      = 34687,
     SPELL_SUMMON_LASHER_4      = 34688,
-    SPELL_SUMMON_FLAYER_3      = 34690,
+    SPELL_SUMMON_FLAYER_3      = 34690
 };
 enum eOthers
 {
@@ -47,7 +37,7 @@ enum eOthers
     MODEL_ARCANE               = 14213,
     MODEL_FIRE                 = 13110,
     MODEL_FROST                = 14112,
-    MODEL_NATURE               = 14214,
+    MODEL_NATURE               = 14214
 };
 
 // 17980
@@ -219,8 +209,9 @@ class boss_laj : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_laj()
 {
     new boss_laj();
 }
-
+#endif

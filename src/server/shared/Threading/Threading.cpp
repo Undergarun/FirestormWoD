@@ -1,26 +1,16 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Threading.h"
 #include "Errors.h"
 #include <ace/OS_NS_unistd.h>
 #include <ace/Sched_Params.h>
-#include <vector>
+#include "Common.h"
 
 using namespace ACE_Based;
 
@@ -62,7 +52,7 @@ ThreadPriority::ThreadPriority()
         //since we have only 7(seven) values in enum Priority
         //and 3 we know already (Idle, Normal, Realtime) so
         //we need to split each list [Idle...Normal] and [Normal...Realtime]
-        //into ¹ piesces
+        //into 4 piesces
         const size_t _divider = 4;
         size_t _div = (norm_pos - min_pos) / _divider;
         if (_div == 0)
@@ -177,6 +167,7 @@ void Thread::resume()
     ACE_Thread::resume(m_hThreadHandle);
 }
 
+#ifndef __clang_analyzer__
 ACE_THR_FUNC_RETURN Thread::ThreadTask(void * param)
 {
     std::pair<Runnable*, std::string> * l_Params = reinterpret_cast<std::pair<Runnable*, std::string>*>(param);
@@ -192,6 +183,7 @@ ACE_THR_FUNC_RETURN Thread::ThreadTask(void * param)
 
     return (ACE_THR_FUNC_RETURN)0;
 }
+#endif
 
 ACE_thread_t Thread::currentId()
 {
@@ -230,18 +222,18 @@ void Thread::setPriority(Priority type)
     //remove this ASSERT in case you don't want to know is thread priority change was successful or not
     ASSERT (_ok == 0);
 }
-void Thread::setName(char* p_Name)
+void Thread::setName(const char* p_Name)
 {
 #ifdef _MSC_VER
-    typedef struct tagTHREADNAME_INFO
+    struct THREADNAME_INFO
     {
         DWORD dwType; // must be 0x1000
         LPCSTR szName; // pointer to name (in user addr space)
         DWORD dwThreadID; // thread ID (-1=caller thread)
         DWORD dwFlags; // reserved for future use, must be zero
-    } THREADNAME_INFO;
+    };
 
-    auto _SetName = [](char* p_Name)
+    __try
     {
         THREADNAME_INFO l_Info;
         {
@@ -250,16 +242,12 @@ void Thread::setName(char* p_Name)
             l_Info.dwThreadID = GetCurrentThreadId();
             l_Info.dwFlags = 0;
         }
-        __try
-        {
-            RaiseException(0x406D1388, 0, sizeof(l_Info) / sizeof(DWORD), (ULONG_PTR*)&l_Info);
-        }
-        __except (EXCEPTION_CONTINUE_EXECUTION)
-        {
-        }
-    };
 
-    _SetName(p_Name);
+        RaiseException(0x406D1388, 0, sizeof(l_Info) / sizeof(DWORD), (ULONG_PTR*) &l_Info);
+    }
+    __except (EXCEPTION_CONTINUE_EXECUTION)
+    {
+    }
 #elif PLATFORM == PLATFORM_UNIX
     pthread_setname_np(pthread_self(), p_Name);
 #elif PLATFORM == PLATFORM_APPLE

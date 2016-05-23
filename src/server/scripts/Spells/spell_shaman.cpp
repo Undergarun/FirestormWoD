@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Scripts for spells with SPELLFAMILY_SHAMAN and SPELLFAMILY_GENERIC spells used by shaman players.
@@ -203,7 +194,7 @@ class spell_sha_unleashed_fury : public SpellScriptLoader
                     p_Amount += l_SpellInfo->Effects[EFFECT_0].BasePoints;
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -582,7 +573,7 @@ class spell_sha_ascendance_water : public SpellScriptLoader
                 RestorativeMists = 114083
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -965,7 +956,7 @@ class spell_sha_earthgrab: public SpellScriptLoader
                         if (target->HasAura(SPELL_SHA_EARTHGRAB))
                             iter = unitList.erase(iter);
                         else
-                            iter++;
+                            ++iter;
                     }
                 }
             }
@@ -1279,7 +1270,7 @@ class spell_sha_lava_surge: public SpellScriptLoader
                 LavaSurgeVisualRight    = 174928
             };
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -1294,7 +1285,7 @@ class spell_sha_lava_surge: public SpellScriptLoader
                 l_Player->CastSpell(l_Player, eSpells::LavaSurgeVisualRight, true);
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 
@@ -1354,7 +1345,7 @@ class spell_sha_healing_stream: public SpellScriptLoader
                 {
                     p_Targets.sort(JadeCore::HealthPctOrderPred());
 
-                    if (l_Caster->HasAura(eSpells::RushingStreams)) ///< Your Healing Stream Totem now heals two targets 
+                    if (l_Caster->HasAura(eSpells::RushingStreams)) ///< Your Healing Stream Totem now heals two targets
                         p_Targets.resize(2);
                     else
                         p_Targets.resize(1);
@@ -1632,7 +1623,7 @@ class spell_sha_healing_rain : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_healing_rain_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -1642,7 +1633,7 @@ class spell_sha_healing_rain : public SpellScriptLoader
                     l_Caster->CastSpell(*l_Trigger, eSpell::HealingRainHeal, true);
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -1678,7 +1669,7 @@ class spell_sha_healing_rain_heal : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                /// Healing up to 6 allies 
+                /// Healing up to 6 allies
                 if (p_Targets.size() > 6)
                     JadeCore::RandomResizeList(p_Targets, 6);
             }
@@ -1740,7 +1731,7 @@ class spell_sha_bloodlust : public SpellScriptLoader
                 }
             }
 
-            void HandleImmunity(SpellEffIndex p_EffIndex)
+            void HandleImmunity(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Target = GetHitUnit();
 
@@ -1796,7 +1787,7 @@ class spell_sha_heroism: public SpellScriptLoader
                 }
             }
 
-            void HandleImmunity(SpellEffIndex p_EffIndex)
+            void HandleImmunity(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Target = GetHitUnit();
 
@@ -2140,7 +2131,7 @@ class spell_sha_windfury: public SpellScriptLoader
                 FeralSpiritWindFury = 170512
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2307,7 +2298,7 @@ class spell_sha_feral_spirit: public SpellScriptLoader
                 GlyphOfSpiritRaptors    = 147783
             };
 
-            void OnLaunch(SpellEffIndex p_EffIndex)
+            void OnLaunch(SpellEffIndex /*p_EffIndex*/)
             {
                 /// Broken spellproc
                 if (Unit* l_Caster = GetCaster())
@@ -2414,7 +2405,7 @@ class spell_sha_fulmination_proc: public SpellScriptLoader
                 ImprovedLightningShield     = 157774
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2660,7 +2651,7 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_ghost_wolf_AuraScript);
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 SpellInfo const* l_GhostlySpeed = sSpellMgr->GetSpellInfo(SPELL_SHA_GLYPH_OF_GHOSTLY_SPEED);
                 if (! l_GhostlySpeed)
@@ -2892,7 +2883,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_chain_heal_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_TARGET_CHAINHEAL_ALLY);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_chain_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
@@ -3017,7 +3008,7 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
                 l_Caster->AddAura(g_MaelstromVisualSpellIds[aurEff->GetBase()->GetStackAmount() - 1], l_Caster);
             }
             
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3067,7 +3058,7 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
 
 enum CloudburstTotemSpells
 {
-    SPELL_CLOUDBURST    = 157503,
+    SPELL_CLOUDBURST    = 157503
 };
 
 /// Last updated : 6.1.2 19802
@@ -3136,7 +3127,7 @@ class spell_sha_cloudburst: public SpellScriptLoader
                 return true;
             }
 
-            void HandleHeal(SpellEffIndex p_EffIndex)
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 if (l_TargetCount)
                     SetHitHeal(GetHitHeal() / l_TargetCount);
@@ -3253,7 +3244,7 @@ class spell_sha_WoDPvPEnhancement2PBonus : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_WoDPvPEnhancement2PBonus_AuraScript);
 
-            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*p_EventInfo*/)
             {
                 PreventDefaultAction();
             }
@@ -3286,7 +3277,7 @@ class spell_sha_natures_guardian : public SpellScriptLoader
                 NaturesGuardian = 31616
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3304,7 +3295,8 @@ class spell_sha_natures_guardian : public SpellScriptLoader
                     return;
 
                 if ((int32)l_Player->GetHealthPct() > GetSpellInfo()->Effects[EFFECT_1].BasePoints &&
-                    (int32)(100.f * (l_Player->GetHealth() - p_EventInfo.GetDamageInfo()->GetDamage()) / l_Player->GetMaxHealth()) <= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                    (int32)(100.0f * (l_Player->GetHealth() - p_EventInfo.GetDamageInfo()->GetDamage()) / l_Player->GetMaxHealth()) <= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+
                 {
                     l_Player->CastSpell(l_Player, eSpells::NaturesGuardian, true);
                     l_Player->AddSpellCooldown(eSpells::NaturesGuardian, 0, 30 * IN_MILLISECONDS);
@@ -3362,7 +3354,9 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
 
                 Unit* l_Target = GetTarget();
                 ///< Should proc only when the target pass from > 50% health to < 50% health
-                if (l_Target->GetHealthPct() > l_HealthPct && (100.f * (float)(l_Target->GetHealth() - (float)p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) <= l_HealthPct)
+
+                if (l_Target->GetHealthPct() > l_HealthPct && (100.0f * (float)(l_Target->GetHealth() - (float)p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) <= l_HealthPct)
+
                 {
                     if (AuraEffect* l_AuraEffectNbrProc = l_AuraSetBonus->GetEffect(EFFECT_1))
                     {
@@ -3680,6 +3674,7 @@ class PlayerScript_glyph_of_ghostly_speed : public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_stormstrike_windstrike();
@@ -3748,3 +3743,4 @@ void AddSC_shaman_spell_scripts()
     /// PlayerScript
     new PlayerScript_glyph_of_ghostly_speed();
 }
+#endif

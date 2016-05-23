@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
-void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -146,7 +146,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& p_RecvData) ///< p_R
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -196,7 +196,7 @@ void WorldSession::HandleUpgradeGarrisonOpcode(WorldPacket& p_RecvData)
     l_Garrison->Upgrade();
 }
 
-void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -223,6 +223,9 @@ void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket& p_RecvData)
     p_RecvData.readPackGUID(l_NpcGUID);
 
     Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC);
+
+    if (!l_Unit)
+        l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_SHIPYARD_MISSION_NPC);
 
     if (!l_Unit)
     {
@@ -258,7 +261,7 @@ void WorldSession::HandleGarrisonRequestSetMissionNPC(WorldPacket& p_RecvData)
     SendGarrisonSetMissionNpc(l_NpcGUID);
 }
 
-void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -873,7 +876,7 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData)
     }
 }
 
-void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -934,7 +937,7 @@ void WorldSession::HandleGarrisonDecommisionShip(WorldPacket& p_RecvData)
     p_RecvData.readPackGUID(l_Guid);
     p_RecvData >> l_DatabaseID;
 
-    Creature* l_NPC = m_Player->GetNPCIfCanInteractWithFlag2(l_Guid, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC);
+    Creature* l_NPC = m_Player->GetNPCIfCanInteractWithFlag2(l_Guid, UNIT_NPC_FLAG2_SHIPYARD_MISSION_NPC);
 
     if (!l_NPC)
         return;
@@ -962,7 +965,7 @@ void WorldSession::SendGarrisonOpenArchitect(uint64 p_CreatureGUID)
 
     SendPacket(&l_Data);
 }
-void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID) ///< p_CreatureGUID is unused
+void WorldSession::SendGarrisonOpenMissionNpc(uint64 /*p_CreatureGUID*/)
 {
     MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
 
@@ -985,6 +988,6 @@ void WorldSession::SendGarrisonSetMissionNpc(uint64 p_CreatureGUID)
 
     WorldPacket l_Data(SMSG_GARRISON_SET_MISSION_NPC, 22);
     l_Data.appendPackGUID(p_CreatureGUID);
-    l_Data << uint32(l_Creature && l_Creature->HasFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC) ? MS::Garrison::FollowerType::Ship : MS::Garrison::FollowerType::NPC);
+    l_Data << uint32(l_Creature && l_Creature->HasFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_SHIPYARD_MISSION_NPC) ? MS::Garrison::FollowerType::Ship : MS::Garrison::FollowerType::NPC);
     SendPacket(&l_Data);
 }

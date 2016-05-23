@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -288,7 +278,7 @@ ObjectMgr::~ObjectMgr()
         for (DungeonEncounterList::iterator encounterItr = itr->second.begin(); encounterItr != itr->second.end(); ++encounterItr)
             delete *encounterItr;
 
-    for (CharacterTemplates::iterator l_Iter = m_CharacterTemplatesStore.begin(); l_Iter != m_CharacterTemplatesStore.end(); l_Iter++)
+    for (CharacterTemplates::iterator l_Iter = m_CharacterTemplatesStore.begin(); l_Iter != m_CharacterTemplatesStore.end(); ++l_Iter)
         delete l_Iter->second;
 }
 
@@ -407,7 +397,7 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                                 0           1          2           3          4       5
     QueryResult result = WorldDatabase.Query("SELECT entry, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
     //                                           6        7      8           9       10           11            12       13      14     15       16       17         18        19        20
-                                             "modelid4, name, femaleName, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, "
+                                             "modelid4, name, femaleName, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_req, faction, npcflag, npcflag2, speed_walk, speed_run, "
     //                                             21       22   23      24            25           26               27               28          29             30
                                              "speed_fly, scale, rank,  dmgschool, dmg_multiplier, baseattacktime, rangeattacktime, baseVariance, rangeVariance,  unit_class, "
     //                                             31         32           33          34            35              36          37            38          39            40           41
@@ -468,7 +458,7 @@ void ObjectMgr::LoadCreatureTemplates()
         l_CreatureTemplate->minlevel          = fields[index++].GetUInt8();
         l_CreatureTemplate->maxlevel          = fields[index++].GetUInt8();
         l_CreatureTemplate->expansion         = uint32(fields[index++].GetInt16());
-        l_CreatureTemplate->expansionUnknown  = uint32(fields[index++].GetUInt16());
+        l_CreatureTemplate->RequiredExpansion = uint32(fields[index++].GetUInt16());
         l_CreatureTemplate->faction           = uint32(fields[index++].GetUInt16());
         l_CreatureTemplate->NpcFlags1         = fields[index++].GetUInt32();
         l_CreatureTemplate->NpcFlags2         = fields[index++].GetUInt32();
@@ -489,7 +479,7 @@ void ObjectMgr::LoadCreatureTemplates()
         l_CreatureTemplate->UnitFlags3        = fields[index++].GetUInt32();
         l_CreatureTemplate->dynamicflags      = fields[index++].GetUInt32();
         l_CreatureTemplate->WorldEffectID     = fields[index++].GetUInt32();
-        l_CreatureTemplate->family            = uint32(fields[index++].GetUInt32());
+        l_CreatureTemplate->family            = CreatureFamily(uint32(fields[index++].GetUInt32()));
         l_CreatureTemplate->trainer_type      = uint32(fields[index++].GetUInt8());
         l_CreatureTemplate->trainer_spell     = fields[index++].GetUInt32();
         l_CreatureTemplate->trainer_class     = uint32(fields[index++].GetUInt8());
@@ -872,7 +862,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     if (cInfo->family && !sCreatureFamilyStore.LookupEntry(cInfo->family) && cInfo->family != CREATURE_FAMILY_HORSE_CUSTOM)
     {
         sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has invalid creature family (%u) in `family`.", cInfo->Entry, cInfo->family);
-        const_cast<CreatureTemplate*>(cInfo)->family = 0;
+        const_cast<CreatureTemplate*>(cInfo)->family = CREATURE_FAMILY_NONE;
     }
 
     if (cInfo->InhabitType <= 0 || cInfo->InhabitType > INHABIT_ANYWHERE)
@@ -928,10 +918,10 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->expansion = 0;
     }
 
-    if (cInfo->expansionUnknown > MAX_CREATURE_BASE_HP)
+    if (cInfo->RequiredExpansion > MAX_CREATURE_BASE_HP)
     {
-        sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with `exp_unk` %u. Ignored and set to 0.", cInfo->Entry, cInfo->expansionUnknown);
-        const_cast<CreatureTemplate*>(cInfo)->expansionUnknown = 0;
+        sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with `exp_req` %u. Ignored and set to 0.", cInfo->Entry, cInfo->RequiredExpansion);
+        const_cast<CreatureTemplate*>(cInfo)->RequiredExpansion = 0;
     }
 
     if (uint32 badFlags = (cInfo->flags_extra & ~CREATURE_FLAG_EXTRA_DB_ALLOWED))
@@ -1043,7 +1033,7 @@ EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 p_Entry, int8& p_ID)
     {
         EquipmentInfoContainerInternal::const_iterator l_Iter = itr->second.begin();
         std::advance(l_Iter, urand(0, itr->second.size() - 1));
-        p_ID = std::distance(itr->second.begin(), l_Iter) + 1;
+        p_ID = (int8)std::distance(itr->second.begin(), l_Iter) + 1;
         return &l_Iter->second;
     }
     else
@@ -1585,12 +1575,33 @@ void ObjectMgr::LoadCreatures()
     uint32 oldMSTime = getMSTime();
 
     //                                               0              1   2       3      4       5           6           7           8            9            10            11          12
-    QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, zoneId, areaId, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
-    //        13            14         15       16            17         18         19          20            21                22                      23                  24                     25                     26                      27                   28
+    std::string l_Query = "SELECT creature.guid, id, map, zoneId, areaId, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
+        //        13            14         15       16            17         18         19          20            21                22                      23                  24                     25                     26                      27                   28
         "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.npcflag2, creature.unit_flags, creature.unit_flags2,  creature.unit_flags3, creature.dynamicflags, creature.WorldEffectID, creature.isActive "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
-        "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
+        "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid";
+
+
+    if (sWorld->getBoolConfig(CONFIG_ENABLE_ONLY_SPECIFIC_MAP))
+    {
+        std::vector<uint32> l_MapsToLoad = sWorld->GetMapsToLoad();
+        std::string l_TempQueryEnding = l_Query += " WHERE creature.map IN (";
+        uint8 l_Counter = 0;
+
+        for (uint32 l_MapID : l_MapsToLoad)
+        {
+            l_TempQueryEnding += std::to_string(l_MapID);
+            ++l_Counter;
+
+            if (l_Counter < l_MapsToLoad.size())
+                l_TempQueryEnding += ", ";
+            else
+                l_TempQueryEnding += ");";
+        }
+    }
+
+    QueryResult result = WorldDatabase.Query(l_Query.c_str());
 
     if (!result)
     {
@@ -1921,16 +1932,35 @@ void ObjectMgr::LoadGameobjects()
     uint32 count = 0;
 
     //                                                0                1   2    3         4           5           6        7           8
-    QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, zoneId, areaId, position_x, position_y, position_z, orientation, "
-    //      9          10         11          12         13          14             15      16         17           18         19        20          21
+    std::string l_Query = "SELECT gameobject.guid, id, map, zoneId, areaId, position_x, position_y, position_z, orientation, "
+        //      9          10         11          12         13          14             15      16         17           18         19        20          21
         "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, isActive, custom_flags, spawnMask, phaseMask, eventEntry, pool_entry "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
-        "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
+        "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid";
+
+    if (sWorld->getBoolConfig(CONFIG_ENABLE_ONLY_SPECIFIC_MAP))
+    {
+        std::vector<uint32> l_MapsToLoad = sWorld->GetMapsToLoad();
+        std::string l_TempQueryEnding = l_Query += " WHERE gameobject.map IN (";
+        uint8 l_Counter = 0;
+
+        for (uint32 l_MapID : l_MapsToLoad)
+        {
+            l_TempQueryEnding += std::to_string(l_MapID);
+            ++l_Counter;
+
+            if (l_Counter < l_MapsToLoad.size())
+                l_TempQueryEnding += ", ";
+            else
+                l_TempQueryEnding += ");";
+        }
+    }
+
+    QueryResult result = WorldDatabase.Query(l_Query.c_str());
 
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 gameobjects. DB table `gameobject` is empty.");
-
         return;
     }
 
@@ -2676,7 +2706,7 @@ void ObjectMgr::LoadItemTemplates()
 
 void ObjectMgr::LoadItemTemplateCorrections()
 {
-    for (ItemTemplateContainer::const_iterator l_Iter = _itemTemplateStore.begin(); l_Iter != _itemTemplateStore.end(); l_Iter++)
+    for (ItemTemplateContainer::const_iterator l_Iter = _itemTemplateStore.begin(); l_Iter != _itemTemplateStore.end(); ++l_Iter)
     {
         ItemTemplate& l_ItemTemplate = const_cast<ItemTemplate&>(l_Iter->second);
 
@@ -10886,7 +10916,7 @@ void ObjectMgr::LoadItemBonusGroup()
         m_ItemBonusGroupStore.insert(std::make_pair(l_GroupID, l_ItemBonusGroup));
 
         l_Count++;
-    } 
+    }
     while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
@@ -10950,6 +10980,40 @@ void ObjectMgr::LoadSpellInvalid()
     while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Spell Invalid in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadSpellStolen()
+{
+    uint32 l_OldMSTime = getMSTime();
+    m_SpellStolen.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT spell_id FROM spell_stolen");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Spell Stolen. DB table `spell_stolen` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+        uint32 l_SpellID = l_Fields[0].GetUInt32();
+
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
+        if (!spellInfo)
+        {
+            sLog->outError(LOG_FILTER_SQL, "SpellStolen: spell (spell_id:%d) does not exist in `Spell.dbc`.", l_SpellID);
+            continue;
+        }
+
+        m_SpellStolen.push_back(l_SpellID);
+
+        l_Count++;
+    } while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Spell Stolen in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadDisabledEncounters()

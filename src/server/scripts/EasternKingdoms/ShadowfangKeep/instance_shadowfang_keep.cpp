@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "shadowfang_keep.h"
 
@@ -22,7 +30,7 @@ class instance_shadowfang_keep : public InstanceMapScript
 
         struct instance_shadowfang_keep_InstanceMapScript : public InstanceScript
         {
-            instance_shadowfang_keep_InstanceMapScript(Map* pMap) : InstanceScript(pMap) 
+            instance_shadowfang_keep_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
             {
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
@@ -168,8 +176,9 @@ class instance_shadowfang_keep : public InstanceMapScript
 
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_instance_shadowfang_keep()
 {
     new instance_shadowfang_keep();
 }
+#endif

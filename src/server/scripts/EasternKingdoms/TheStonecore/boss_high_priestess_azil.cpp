@@ -1,3 +1,10 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "the_stonecore.h"
@@ -6,7 +13,7 @@ enum ScriptTexts
 {
     SAY_AGGRO    = 3,
     SAY_DEATH    = 2,
-    SAY_SKILL    = 1,
+    SAY_SKILL    = 1
 };
 enum Spells
 {
@@ -19,7 +26,7 @@ enum Spells
     SPELL_GRAVITY_WELL_AURA_1       = 79244,
     SPELL_GRAVITY_WELL_AURA_1_T     = 79251,
     SPELL_GRAVITY_WELL_AURA_MOD     = 92475,
-    SPELL_GRAVITY_WELL_AURA_DMG     = 79249,
+    SPELL_GRAVITY_WELL_AURA_DMG     = 79249
 };
 
 enum Events
@@ -30,16 +37,16 @@ enum Events
     EVENT_GRAVITY_WELL_1    = 4,
     EVENT_SUMMON_ADDS       = 5,
     EVENT_MOVE              = 6,
-    EVENT_MOVE_2            = 7,
+    EVENT_MOVE_2            = 7
 };
 
 enum Adds
 {
     NPC_ADVOUT_FOLLOWER     = 42428,
-    NPC_GRAVITY_WELL        = 42499,
+    NPC_GRAVITY_WELL        = 42499
 };
 
-Position highpriestessazilAddsPos[2] = 
+Position highpriestessazilAddsPos[2] =
 {
     {1263.20f, 966.03f, 205.81f, 0.0f},
     {1278.51f, 1021.72f, 209.08f, 0.0f}
@@ -60,7 +67,7 @@ class boss_high_priestess_azil : public CreatureScript
         struct boss_high_priestess_azilAI : public BossAI
         {
             boss_high_priestess_azilAI(Creature* pCreature) : BossAI(pCreature, DATA_HIGH_PRIESTESS_AZIL), summons(me)
-            { 
+            {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
@@ -115,17 +122,17 @@ class boss_high_priestess_azil : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_SHIELD, 35000);
                 events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 3000);
                 events.ScheduleEvent(EVENT_SUMMON_ADDS, urand(5000, 7000));
-                events.ScheduleEvent(EVENT_GRAVITY_WELL, 10000); 
+                events.ScheduleEvent(EVENT_GRAVITY_WELL, 10000);
                 instance->SetBossState(DATA_HIGH_PRIESTESS_AZIL, IN_PROGRESS);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 summons.DespawnAll();
@@ -189,7 +196,7 @@ class boss_high_priestess_azil : public CreatureScript
                         if (me->getVictim())
                             me->GetMotionMaster()->MoveChase(me->getVictim());
                         events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 3000);
-                        break;    
+                        break;
                     }
                 }
 
@@ -255,7 +262,7 @@ class spell_high_priestess_azil_gravity_well_script: public SpellScriptLoader
 
         class spell_high_priestess_azil_gravity_well_script_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_high_priestess_azil_gravity_well_script_SpellScript);
+            PrepareSpellScript(spell_high_priestess_azil_gravity_well_script_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -278,9 +285,11 @@ class spell_high_priestess_azil_gravity_well_script: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_high_priestess_azil()
 {
     new boss_high_priestess_azil();
     new npc_gravity_well();
     new spell_high_priestess_azil_gravity_well_script();
 }
+#endif

@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "HStables.hpp"
 #include "ScriptMgr.h"
 #include "GarrisonMgr.hpp"
@@ -42,7 +43,7 @@ namespace MS { namespace Garrison
         return new npc_TormakAI(p_Creature);
     }
 
-    bool npc_Tormak::OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
+    bool npc_Tormak::OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* /*p_Quest*/)
     {
         GarrisonNPCAI* l_AI = p_Creature->GetAI() ? dynamic_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
@@ -55,7 +56,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_Tormak::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_Tormak::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         using namespace StablesData::Horde::TormakQuestGiver;
         uint32 l_QuestID = p_Quest->GetQuestId();
@@ -93,7 +94,7 @@ namespace MS { namespace Garrison
 
     bool npc_Tormak::CheckRewardQuest(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestList)
     {
-        for (std::vector<uint32>::const_iterator l_Itr = p_QuestList.begin(); l_Itr != p_QuestList.end(); l_Itr++)
+        for (std::vector<uint32>::const_iterator l_Itr = p_QuestList.begin(); l_Itr != p_QuestList.end(); ++l_Itr)
         {
             if (p_Player->GetQuestStatus(*l_Itr) == QUEST_STATUS_COMPLETE)
             {
@@ -109,7 +110,7 @@ namespace MS { namespace Garrison
         return false;
     }
 
-    uint32 npc_Tormak::ProceedQuestSelection(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestsList, uint32 p_NextListQuestID, uint32 p_FirstQuestID)
+    uint32 npc_Tormak::ProceedQuestSelection(Player* p_Player, Creature* /*p_Creature*/, std::vector<uint32> p_QuestsList, uint32 p_NextListQuestID, uint32 p_FirstQuestID)
     {
         if (p_Player == nullptr)
             return 0;
@@ -203,7 +204,7 @@ namespace MS { namespace Garrison
         me->DespawnCreaturesInArea(m_SummonsEntries, 20.0f);
     }
 
-    void npc_TormakAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_TormakAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         Player* l_Owner = GetOwner();
 
@@ -343,8 +344,8 @@ namespace MS { namespace Garrison
                 l_Owner->PlayerTalkClass->GetQuestMenu().ClearMenu();
 
 
-                if (!l_PalunaNextQuestID || l_Owner->GetQuestStatus(l_PalunaNextQuestID) == QUEST_STATUS_INCOMPLETE &&
-                    (l_Owner->IsQuestRewarded(ClefthoofQuests::QuestCapturingAClefthoof) && l_Owner->IsQuestRewarded(RiverbeastQuests::QuestRequisitionARiverbeast)))
+                if (!l_PalunaNextQuestID || (l_Owner->GetQuestStatus(l_PalunaNextQuestID) == QUEST_STATUS_INCOMPLETE &&
+                                             (l_Owner->IsQuestRewarded(ClefthoofQuests::QuestCapturingAClefthoof) && l_Owner->IsQuestRewarded(RiverbeastQuests::QuestRequisitionARiverbeast))))
                     l_Creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                 else
                     l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -381,13 +382,13 @@ namespace MS { namespace Garrison
         return new npc_SagePalunaAI(p_Creature);
     }
 
-    bool npc_SagePaluna::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_SagePaluna::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         using namespace StablesData::Horde::SagePalunaQuestGiver;
         GarrisonNPCAI* l_AI = p_Creature->GetAI() ? dynamic_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
         if (l_AI == nullptr)
-            return true; 
+            return true;
 
         uint32 l_QuestID = p_Quest->GetQuestId();
 
@@ -408,7 +409,7 @@ namespace MS { namespace Garrison
 
     bool npc_SagePaluna::CheckRewardQuest(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestList)
     {
-        for (std::vector<uint32>::const_iterator l_Itr = p_QuestList.begin(); l_Itr != p_QuestList.end(); l_Itr++)
+        for (std::vector<uint32>::const_iterator l_Itr = p_QuestList.begin(); l_Itr != p_QuestList.end(); ++l_Itr)
         {
             if (p_Player->GetQuestStatus(*l_Itr) == QUEST_STATUS_COMPLETE)
             {

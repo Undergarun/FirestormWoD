@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Scripts for spells with SPELLFAMILY_WARRIOR and SPELLFAMILY_GENERIC spells used by warrior players.
@@ -81,7 +72,7 @@ class spell_warr_ravager : public SpellScriptLoader
                 RavagerDamage = 156287
             };
 
-            void CalculateParryPCT(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateParryPCT(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -93,7 +84,7 @@ class spell_warr_ravager : public SpellScriptLoader
                 }
             }
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -245,7 +236,7 @@ class spell_warr_shield_block_aura : public SpellScriptLoader
                 ShieldMastery   = 169688
             };
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -255,7 +246,7 @@ class spell_warr_shield_block_aura : public SpellScriptLoader
                 }
             }
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpells::ShieldMastery);
@@ -326,7 +317,7 @@ class spell_warr_storm_bolt: public SpellScriptLoader
 
 enum ColossusSpells
 {
-    SPELL_WARRIOR_WEAPONS_MASTER = 76838,
+    SPELL_WARRIOR_WEAPONS_MASTER = 76838
 };
 
 /// Colossus Smash - 167105
@@ -431,7 +422,7 @@ class spell_warr_second_wind: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_second_wind_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& l_ProcInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*l_ProcInfo*/)
             {
                 PreventDefaultAction();
 
@@ -442,7 +433,7 @@ class spell_warr_second_wind: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -470,7 +461,7 @@ class PlayerScript_second_wind : public PlayerScript
 public:
     PlayerScript_second_wind() :PlayerScript("PlayerScript_second_wind") {}
 
-    void OnModifyHealth(Player * p_Player, int32 p_Value)
+    void OnModifyHealth(Player * p_Player, int32 /*p_Value*/)
     {
         if (p_Player->getClass() == CLASS_WARRIOR && p_Player->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
         {
@@ -624,7 +615,7 @@ class spell_warr_raging_blow: public SpellScriptLoader
                 }
             }
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -997,7 +988,7 @@ class spell_warr_shockwave: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_shockwave_SpellScript);
 
-            void HandleDamage(SpellEffIndex effIndex)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* target = GetHitUnit())
@@ -2095,7 +2086,7 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
                 Rend = 772
             };
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& l_ProcInfo)
+            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& l_ProcInfo)
             {
                 PreventDefaultAction();
 
@@ -2374,7 +2365,7 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
                 Whirlwind = 1680
             };
 
-            void HandleOnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcInfo)
+            void HandleOnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcInfo)
             {
                 PreventDefaultAction();
 
@@ -2434,7 +2425,7 @@ class spell_warr_shield_slam : public SpellScriptLoader
                 return (float)p_Level / 100;
             }
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -2693,7 +2684,7 @@ class spell_warr_single_minded_fury : public SpellScriptLoader
                 CrazedBerserker = 23588
             };
 
-            void CalculateFirstEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateFirstEffect(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -2713,7 +2704,7 @@ class spell_warr_single_minded_fury : public SpellScriptLoader
                 }
             }
 
-            void CalculateSecondEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateSecondEffect(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -2763,7 +2754,7 @@ class spell_warr_crazed_berserker : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_crazed_berserker_AuraScript);
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -3005,7 +2996,7 @@ class spell_warr_revenge : public SpellScriptLoader
                 Revenger = 6572
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcInfos)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcInfos)
             {
                 PreventDefaultAction();
 
@@ -3379,8 +3370,63 @@ class spell_warr_taunt : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Commanding Shout - 469,  Battle Shout - 6673
+class spell_warr_shout : public SpellScriptLoader
+{
+    public:
+        spell_warr_shout() : SpellScriptLoader("spell_warr_shout") { }
+
+        class spell_warr_shout_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_shout_AuraScript);
+
+            enum eSpells
+            {
+                CommandingShout = 469,
+                BattleShout     = 6673
+            };
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == eSpells::BattleShout && l_Target->HasAura(eSpells::CommandingShout, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(eSpells::CommandingShout, l_Caster->GetGUID());
+                else if (GetSpellInfo()->Id == eSpells::CommandingShout && l_Target->HasAura(eSpells::BattleShout, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(eSpells::BattleShout, l_Caster->GetGUID());
+            }
+
+            void Register() override
+            {
+                switch (m_scriptSpellId)
+                {
+                    case eSpells::BattleShout:
+                        OnEffectApply += AuraEffectApplyFn(spell_warr_shout_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER_PCT, AURA_EFFECT_HANDLE_REAL);
+                        break;
+                    case eSpells::CommandingShout:
+                        OnEffectApply += AuraEffectApplyFn(spell_warr_shout_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, AURA_EFFECT_HANDLE_REAL);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_shout_AuraScript();
+        }
+};
+
+#ifndef __clang_analyzer__
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_shout();
     new spell_warr_taunt();
     new spell_warr_crazed_berserker();
     new spell_warr_stances();
@@ -3448,3 +3494,4 @@ void AddSC_warrior_spell_scripts()
     /// Playerscripts
     new PlayerScript_second_wind();
 }
+#endif

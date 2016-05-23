@@ -1,14 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "upper_blackrock_spire.hpp"
 
-static const DoorData doordata[] = 
+static const DoorData doordata[] =
 {
     { GOB_OREBENDER_ENTRANCE,   DATA_OREBENDER_GORASHAN,    DOOR_TYPE_ROOM,     BOUNDARY_NONE },
     { GOB_OREBENDER_EXIT,       DATA_OREBENDER_GORASHAN,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
@@ -87,7 +87,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
             uint32 m_RagewingWhelpsKilled;
             uint32 m_RagewingTimeAchiev;
 
-            void OnCreatureCreate(Creature* p_Creature)
+            void OnCreatureCreate(Creature* p_Creature) override
             {
                 switch (p_Creature->GetEntry())
                 {
@@ -123,7 +123,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* p_Gameobject)
+            void OnGameObjectCreate(GameObject* p_Gameobject) override
             {
                 switch (p_Gameobject->GetEntry())
                 {
@@ -176,7 +176,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 p_ID, EncounterState p_State)
+            bool SetBossState(uint32 p_ID, EncounterState p_State) override
             {
                 /// If loading, runes will be disabled
                 if (p_ID == DATA_OREBENDER_GORASHAN && p_State == DONE)
@@ -229,7 +229,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 return true;
             }
 
-            void SetData(uint32 p_Type, uint32 p_Data)
+            void SetData(uint32 p_Type, uint32 /*p_Data*/) override
             {
                 switch (p_Type)
                 {
@@ -244,7 +244,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         ++m_RunesDisabled;
 
                         if (!instance->IsChallengeMode())
-                            SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_RUNES, m_RunesDisabled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+                            SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_RUNES, m_RunesDisabled, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
 
                         Unit* l_Orebender = sObjectAccessor->FindUnit(m_OrebenderGorashanGuid);
                         if (m_RunesDisabled >= 5 && l_Orebender != nullptr)
@@ -266,7 +266,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 p_Type)
+            uint32 GetData(uint32 p_Type) override
             {
                 switch (p_Type)
                 {
@@ -279,7 +279,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 p_Type)
+            uint64 GetData64(uint32 p_Type) override
             {
                 switch (p_Type)
                 {
@@ -306,7 +306,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 }
             }
 
-            void OnCreatureKilled(Creature* p_Creature, Player* p_Player)
+            void OnCreatureKilled(Creature* p_Creature, Player* /*p_Player*/) override
             {
                 if (instance->IsHeroic())
                 {
@@ -348,13 +348,13 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                     return;
 
                 ++m_CreatureKilled;
-                SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_ENNEMIES, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+                SendScenarioProgressUpdate(CriteriaProgressData(SCENARIO_UBRS_ENNEMIES, m_CreatureKilled, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
 
                 if (m_CreatureKilled >= SCENARIO_UBRS_KILLS)
                     m_ConditionCompleted = true;
             }
 
-            void Update(uint32 p_Diff)
+            void Update(uint32 p_Diff) override
             {
                 UpdateOperations(p_Diff);
 
@@ -366,14 +366,14 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                     m_RagewingTimeAchiev += p_Diff;
             }
 
-            void FillInitialWorldStates(ByteBuffer& p_Buffer)
+            void FillInitialWorldStates(ByteBuffer& p_Buffer) override
             {
                 p_Buffer << uint32(eWorldStates::WorldStateEnableChicken) << uint32(0);
                 p_Buffer << uint32(eWorldStates::WorldStateChickenTimer) << uint32(0);
             }
 
             ///< Must be overrided because of optional (runes) step...
-            void OnPlayerEnter(Player* p_Player)
+            void OnPlayerEnter(Player* p_Player) override
             {
                 if (instance->IsChallengeMode())
                 {
@@ -412,8 +412,9 @@ class instance_upper_blackrock_spire : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_upper_blackrock_spire()
 {
     new instance_upper_blackrock_spire();
 }
-
+#endif

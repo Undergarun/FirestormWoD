@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -45,7 +36,7 @@ enum ScriptTexts
     EMOTE_CHOKING_GAS_BOMB          = 10,
     SAY_KILL                        = 11,
     SAY_BERSERK                     = 12,
-    SAY_DEATH                       = 13,
+    SAY_DEATH                       = 13
 };
 
 enum Spells
@@ -107,7 +98,7 @@ enum Spells
     SPELL_ABOMINATION_VEHICLE_POWER_DRAIN = 70385,
     SPELL_MUTATED_TRANSFORMATION          = 70311,
     SPELL_MUTATED_TRANSFORMATION_DAMAGE   = 70405,
-    SPELL_MUTATED_TRANSFORMATION_NAME     = 72401,
+    SPELL_MUTATED_TRANSFORMATION_NAME     = 72401
 };
 
 #define SPELL_GASEOUS_BLOAT_HELPER RAID_MODE<uint32>(70672, 72455, 72832, 72833)
@@ -134,7 +125,7 @@ enum Events
     EVENT_CHOKING_GAS_BOMB      = 12,
     EVENT_UNBOUND_PLAGUE        = 13,
     EVENT_MUTATED_PLAGUE        = 14,
-    EVENT_PHASE_TRANSITION      = 15,
+    EVENT_PHASE_TRANSITION      = 15
 };
 
 enum Phases
@@ -151,7 +142,7 @@ enum Points
 {
     POINT_FESTERGUT = 366260,
     POINT_ROTFACE   = 366270,
-    POINT_TABLE     = 366780,
+    POINT_TABLE     = 366780
 };
 
 Position const festergutWatchPos = {4324.820f, 3166.03f, 389.3831f, 3.316126f}; //emote 432 (release gas)
@@ -165,7 +156,7 @@ enum PutricideData
 {
     DATA_EXPERIMENT_STAGE   = 1,
     DATA_PHASE              = 2,
-    DATA_ABOMINATION        = 3,
+    DATA_ABOMINATION        = 3
 };
 
 #define EXPERIMENT_STATE_OOZE   false
@@ -322,7 +313,7 @@ class boss_professor_putricide : public CreatureScript
                     DoZoneInCombat(summon);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 switch (_phase)
                 {
@@ -810,9 +801,6 @@ class npc_gas_cloud : public CreatureScript
             {
                 me->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 10, me, false);
             }
-
-        private:
-            uint32 _newTargetSelectTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -828,7 +816,7 @@ class spell_putricide_gaseous_bloat: public SpellScriptLoader
 
         class spell_putricide_gaseous_bloat_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_putricide_gaseous_bloat_AuraScript);
+            PrepareAuraScript(spell_putricide_gaseous_bloat_AuraScript)
 
             void HandleExtraEffect(AuraEffect const* /*aurEff*/)
             {
@@ -864,7 +852,7 @@ class DebuffProtectionTargetSelector
             {
                 if (unit->HasAura(_owner->GetEntry() == NPC_VOLATILE_OOZE ? SPELL_GAS_VARIABLE : SPELL_OOZE_VARIABLE))
                     return true;
-            }                        
+            }
             return false;
         }
 
@@ -879,7 +867,7 @@ class spell_putricide_ooze_channel: public SpellScriptLoader
 
         class spell_putricide_ooze_channel_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_ooze_channel_SpellScript);
+            PrepareSpellScript(spell_putricide_ooze_channel_SpellScript)
 
             bool Validate(SpellInfo const* spell)
             {
@@ -968,7 +956,7 @@ class spell_putricide_slime_puddle: public SpellScriptLoader
 
         class spell_putricide_slime_puddle_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_slime_puddle_SpellScript);
+            PrepareSpellScript(spell_putricide_slime_puddle_SpellScript)
 
             void ScaleRange(std::list<WorldObject*>& targets)
             {
@@ -1023,7 +1011,7 @@ class spell_putricide_unstable_experiment: public SpellScriptLoader
 
         class spell_putricide_unstable_experiment_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_unstable_experiment_SpellScript);
+            PrepareSpellScript(spell_putricide_unstable_experiment_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1067,7 +1055,7 @@ class spell_putricide_ooze_eruption_searcher: public SpellScriptLoader
 
         class spell_putricide_ooze_eruption_searcher_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_ooze_eruption_searcher_SpellScript);
+            PrepareSpellScript(spell_putricide_ooze_eruption_searcher_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1098,7 +1086,7 @@ class spell_putricide_choking_gas_bomb: public SpellScriptLoader
 
         class spell_putricide_choking_gas_bomb_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_choking_gas_bomb_SpellScript);
+            PrepareSpellScript(spell_putricide_choking_gas_bomb_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1132,7 +1120,7 @@ class spell_putricide_unbound_plague: public SpellScriptLoader
 
         class spell_putricide_unbound_plague_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_unbound_plague_SpellScript);
+            PrepareSpellScript(spell_putricide_unbound_plague_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -1205,7 +1193,7 @@ class spell_putricide_eat_ooze: public SpellScriptLoader
 
         class spell_putricide_eat_ooze_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_eat_ooze_SpellScript);
+            PrepareSpellScript(spell_putricide_eat_ooze_SpellScript)
 
             void SelectTarget(std::list<WorldObject*>& targets)
             {
@@ -1257,7 +1245,7 @@ class spell_putricide_mutated_plague: public SpellScriptLoader
 
         class spell_putricide_mutated_plague_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_putricide_mutated_plague_AuraScript);
+            PrepareAuraScript(spell_putricide_mutated_plague_AuraScript)
 
             void HandleTriggerSpell(AuraEffect const* aurEff)
             {
@@ -1307,7 +1295,7 @@ class spell_putricide_mutation_init: public SpellScriptLoader
 
         class spell_putricide_mutation_init_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_mutation_init_SpellScript);
+            PrepareSpellScript(spell_putricide_mutation_init_SpellScript)
 
             SpellCastResult CheckRequirementInternal(SpellCustomErrors& extendedError)
             {
@@ -1361,7 +1349,7 @@ class spell_putricide_mutation_init: public SpellScriptLoader
 
         class spell_putricide_mutation_init_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_putricide_mutation_init_AuraScript);
+            PrepareAuraScript(spell_putricide_mutation_init_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1396,7 +1384,7 @@ class spell_putricide_mutated_transformation_dismiss: public SpellScriptLoader
 
         class spell_putricide_mutated_transformation_dismiss_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_putricide_mutated_transformation_dismiss_AuraScript);
+            PrepareAuraScript(spell_putricide_mutated_transformation_dismiss_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1423,7 +1411,7 @@ class spell_putricide_mutated_transformation: public SpellScriptLoader
 
         class spell_putricide_mutated_transformation_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_mutated_transformation_SpellScript);
+            PrepareSpellScript(spell_putricide_mutated_transformation_SpellScript)
 
             void HandleSummon(SpellEffIndex effIndex)
             {
@@ -1485,7 +1473,7 @@ class spell_putricide_mutated_transformation_dmg: public SpellScriptLoader
 
         class spell_putricide_mutated_transformation_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_mutated_transformation_dmg_SpellScript);
+            PrepareSpellScript(spell_putricide_mutated_transformation_dmg_SpellScript)
 
             void FilterTargetsInitial(std::list<WorldObject*>& targets)
             {
@@ -1512,7 +1500,7 @@ class spell_putricide_regurgitated_ooze: public SpellScriptLoader
 
         class spell_putricide_regurgitated_ooze_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_regurgitated_ooze_SpellScript);
+            PrepareSpellScript(spell_putricide_regurgitated_ooze_SpellScript)
 
             // the only purpose of this hook is to fail the achievement
             void ExtraEffect(SpellEffIndex /*effIndex*/)
@@ -1541,7 +1529,7 @@ class spell_putricide_clear_aura_effect_value: public SpellScriptLoader
 
         class spell_putricide_clear_aura_effect_value_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_clear_aura_effect_value_SpellScript);
+            PrepareSpellScript(spell_putricide_clear_aura_effect_value_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1570,7 +1558,7 @@ class spell_stinky_precious_decimate: public SpellScriptLoader
 
         class spell_stinky_precious_decimate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_stinky_precious_decimate_SpellScript);
+            PrepareSpellScript(spell_stinky_precious_decimate_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1619,7 +1607,7 @@ class spell_putricide_choking_gas_damage: public SpellScriptLoader
 
         class spell_putricide_choking_gas_explosion_damage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_choking_gas_explosion_damage_SpellScript);
+            PrepareSpellScript(spell_putricide_choking_gas_explosion_damage_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -1646,7 +1634,7 @@ class spell_putricide_choking_gas_explosion_damage: public SpellScriptLoader
 
         class spell_putricide_choking_gas_explosion_damage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_putricide_choking_gas_explosion_damage_SpellScript);
+            PrepareSpellScript(spell_putricide_choking_gas_explosion_damage_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -1667,6 +1655,7 @@ class spell_putricide_choking_gas_explosion_damage: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_professor_putricide()
 {
     new boss_professor_putricide();
@@ -1692,3 +1681,4 @@ void AddSC_boss_professor_putricide()
     new spell_putricide_choking_gas_damage();
     new spell_putricide_choking_gas_explosion_damage();
 }
+#endif

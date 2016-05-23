@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "AStables.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../../GarrisonScriptData.hpp"
@@ -41,7 +42,7 @@ namespace MS { namespace Garrison
         return new npc_FannyFirebeardAI(p_Creature);
     }
 
-    bool npc_FannyFirebeard::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_FannyFirebeard::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         using namespace StablesData::Alliance::FannyQuestGiver;
         uint32 l_QuestID = p_Quest->GetQuestId();
@@ -79,7 +80,7 @@ namespace MS { namespace Garrison
 
     bool npc_FannyFirebeard::CheckRewardQuest(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestList)
     {
-        for (std::vector<uint32>::const_iterator l_Itr = p_QuestList.begin(); l_Itr != p_QuestList.end(); l_Itr++)
+        for (std::vector<uint32>::const_iterator l_Itr = p_QuestList.begin(); l_Itr != p_QuestList.end(); ++l_Itr)
         {
             if (p_Player->GetQuestStatus(*l_Itr) == QUEST_STATUS_COMPLETE)
             {
@@ -182,7 +183,7 @@ namespace MS { namespace Garrison
         me->DespawnCreaturesInArea(m_SummonsEntries, 20.0f);
     }
 
-    void npc_FannyFirebeardAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_FannyFirebeardAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         Player* l_Owner = GetOwner();
 
@@ -299,7 +300,7 @@ namespace MS { namespace Garrison
 
     }
 
-    bool npc_KeeganFirebeard::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_KeeganFirebeard::OnQuestReward(Player* p_Player, Creature* /*p_Creature*/, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         using namespace StablesData::Alliance::KeeganQuestGiver;
         uint32 l_QuestID = p_Quest->GetQuestId();
@@ -318,7 +319,7 @@ namespace MS { namespace Garrison
 
     bool npc_KeeganFirebeard::CheckRewardQuest(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestList)
     {
-        for (std::vector<uint32>::const_iterator l_Itr = p_QuestList.begin(); l_Itr != p_QuestList.end(); l_Itr++)
+        for (std::vector<uint32>::const_iterator l_Itr = p_QuestList.begin(); l_Itr != p_QuestList.end(); ++l_Itr)
         {
             if (p_Player->GetQuestStatus(*l_Itr) == QUEST_STATUS_COMPLETE)
             {

@@ -1,10 +1,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
@@ -26,60 +26,60 @@ static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
 enum eGrimrailDepotSpells
 {
     /// Assault Cannon: 79548
-    SpellOverHeatedBlast = 167589,
-    SpellReloadingUnknownEffect = 160680, /// spell cast reloading, but no effect 
-    SpellSlagBlastProjectile = 166565,
-    SpellSlagBlastDotStackable = 166570,
-    SpellSlagBlastAreatrigger = 166571,
+    SpellOverHeatedBlast               = 167589,
+    SpellReloadingUnknownEffect        = 160680, ///< Spell cast reloading, but no effect
+    SpellSlagBlastProjectile           = 166565,
+    SpellSlagBlastDotStackable         = 166570,
+    SpellSlagBlastAreatrigger          = 166571,
     /// Grimrail Bombadier - 81407
-    SpellBlackrockBombDummy = 164183,
-    SpellBlackrockBombTriggerMissile = 164187,
-    SpellBlackrockBombDamage = 164188,
-    SpellBlackrockSummon = 168112,
-    SpellDoubleSlash = 164218,
-    SpellHermoragingWounds = 164241,
+    SpellBlackrockBombDummy            = 164183,
+    SpellBlackrockBombTriggerMissile   = 164187,
+    SpellBlackrockBombDamage           = 164188,
+    SpellBlackrockSummon               = 168112,
+    SpellDoubleSlash                   = 164218,
+    SpellHermoragingWounds             = 164241,
     /// Grimrail Laborer - 81235
-    SpellHaymaker = 170099,
+    SpellHaymaker                      = 170099,
     /// Grimrail Overseer - 81212
-    SpellDashDummy = 164168,
-    SpellDashCharge = 164170,
-    SpellDashDamage = 164171,
-    SpellHewingSwipe = 164163,
+    SpellDashDummy                     = 164168,
+    SpellDashCharge                    = 164170,
+    SpellDashDamage                    = 164171,
+    SpellHewingSwipe                   = 164163,
     /// Grimrail Scout - 82590
-    SpellArcaneBlitzAura = 166397,
-    SpellArcaneBlitzTriggerMissileA = 166398,
-    SpellArcaneBlitzTriggerMissileB = 166399,
-    SpellArcaneBlitzDamage = 166404,
-    SpellScoutingAHead = 166350,
+    SpellArcaneBlitzAura               = 166397,
+    SpellArcaneBlitzTriggerMissileA    = 166398,
+    SpellArcaneBlitzTriggerMissileB    = 166399,
+    SpellArcaneBlitzDamage             = 166404,
+    SpellScoutingAHead                 = 166350,
     /// Grimrail Technician - 81236
-    Spell50kVolts = 164192,
-    SpellActivating = 163966,
+    Spell50kVolts                      = 164192,
+    SpellActivating                    = 163966,
     /// Grom'kar Boomer - 79720
     SpellBlackrockMortarTriggerMissile = 161258,
-    SpellBlackrockMortarDamage = 160963,
+    SpellBlackrockMortarDamage         = 160963,
     /// Grom'kar Capitan - 82597
-    SpellRecklessSlash = 166380,
-    /// Grom'kar Cinderseer - 88163	
-    SpellFlametongueDummy = 176031,
-    SpellFlametongueTriggerMissile = 176032,
-    SpellFlametongueAura = 176033,
-    SpellFlametongue = 176039,
-    SpellLavaWreath = 176027,
-    SpellLavaWreathDummy = 176025,
+    SpellRecklessSlash                 = 166380,
+    /// Grom'kar Cinderseer - 88163
+    SpellFlametongueDummy              = 176031,
+    SpellFlametongueTriggerMissile     = 176032,
+    SpellFlametongueAura               = 176033,
+    SpellFlametongue                   = 176039,
+    SpellLavaWreath                    = 176027,
+    SpellLavaWreathDummy               = 176025,
     /// Grom'kar Far Seer - 82579
-    SpellFarSight = 166364,
-    SpellHealingRain = 166387,
-    SpellHealingRainDummy = 166388,
-    SpellStormShieldAura = 166335,
-    SpellStormShieldDamage = 166336,
-    SpellThunderZoneAura = 166340,
-    SpellThunderZoneDummy = 166346,
+    SpellFarSight                      = 166364,
+    SpellHealingRain                   = 166387,
+    SpellHealingRainDummy              = 166388,
+    SpellStormShieldAura               = 166335,
+    SpellStormShieldDamage             = 166336,
+    SpellThunderZoneAura               = 166340,
+    SpellThunderZoneDummy              = 166346,
     /// Grom'kar Grenadier - 79739
-    SpellBlackRockGrenade = 161150,
+    SpellBlackRockGrenade              = 161150,
     /// Grom'kar Gunner - 77483
-    SpellShrapnelBlast = 160943,
+    SpellShrapnelBlast                 = 160943,
     /// Grom'kar Hulk - 80938
-    SpellGettingAngry = 176023
+    SpellGettingAngry                  = 176023
 };
 
 enum GrimrailDepotActions

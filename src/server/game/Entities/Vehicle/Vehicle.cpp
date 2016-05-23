@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "Log.h"
@@ -418,7 +408,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
             break;
         case 11227:
         case 11228:
-            unit->m_movementInfo.t_pos.SetOrientation(M_PI / 2.f);
+            unit->m_movementInfo.t_pos.SetOrientation(M_PI / 2.0f);
             break;
         default:
             break;
@@ -438,7 +428,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         init.MoveTo(unit->m_movementInfo.t_pos.m_positionX, unit->m_movementInfo.t_pos.m_positionY, unit->m_movementInfo.t_pos.m_positionZ);
 
         if (veSeat->m_ID == 11227 || veSeat->m_ID == 11228)
-            init.SetFacing(M_PI / 2.f);
+            init.SetFacing(M_PI / 2.0f);
         else
             init.SetFacing(0.0f);
 

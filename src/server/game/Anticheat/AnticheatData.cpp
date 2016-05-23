@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "AnticheatData.h"
 
 AnticheatData::AnticheatData()
@@ -126,7 +134,7 @@ uint32 AnticheatData::GetReportCountInLastSecs(uint32 p_Secondes)
 {
     time_t l_Now = time(nullptr);
 
-    return std::count_if(m_ReportsHistory.begin(), m_ReportsHistory.end(), [l_Now, p_Secondes](time_t const& p_Timestamp) -> bool
+    return (uint32)std::count_if(m_ReportsHistory.begin(), m_ReportsHistory.end(), [l_Now, p_Secondes](time_t const& p_Timestamp) -> bool
     {
         if ((l_Now - p_Secondes) <= p_Timestamp)
             return true;

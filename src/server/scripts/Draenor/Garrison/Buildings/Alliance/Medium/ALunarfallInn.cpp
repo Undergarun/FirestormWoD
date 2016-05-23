@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 77368 - Madison Clark                                             ////
@@ -42,7 +42,7 @@ namespace MS { namespace Garrison
         return new npc_MadisonClarkAI(p_Creature);
     }
 
-    void npc_MadisonClarkAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_MadisonClarkAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         if (Player* l_Player = GetOwner())
         {

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
+///  Copyright 2016 Millenium-studio SARL
 ///  All Rights Reserved.
 ///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,18 +34,18 @@ public:
             SpellDreadpetalToxin = 164886
         };
 
-        void Reset() override
+        void Reset()
         {
             events.Reset();
             me->setFaction(HostileFaction);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             events.ScheduleEvent(eDreadpetalEvents::EventDreadpetalToxin, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
         }
 
-        void UpdateAI(const uint32 p_Diff) override
+        void UpdateAI(const uint32 p_Diff)
         {
             if (!UpdateVictim())
                 return;
@@ -58,12 +58,12 @@ public:
             switch (events.ExecuteEvent())
             {
             case eDreadpetalEvents::EventDreadpetalToxin:
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
-                        me->CastSpell(l_Target, eDreadpetalSpells::SpellDreadpetalToxin);
-                    events.ScheduleEvent(eDreadpetalEvents::EventDreadpetalToxin, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
-                    break;
-                default:
-                    break;
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                    me->CastSpell(l_Target, eDreadpetalSpells::SpellDreadpetalToxin);
+                events.ScheduleEvent(eDreadpetalEvents::EventDreadpetalToxin, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+                break;
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -100,7 +100,7 @@ public:
         {
             SpellDancingThorns = 164973,
             SpellEnragedGrowth = 165213,
-            SpellSolarChannel  = 170594
+            SpellSolarChannel = 170594
         };
 
         InstanceScript* m_Instance;
@@ -111,7 +111,7 @@ public:
             me->CastSpell(me, eTenderSpells::SpellSolarChannel);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eTenderEvents::EventDancingThorns, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eTenderEvents::EventEnragedGrowth, urand(7 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
@@ -129,18 +129,18 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eTenderEvents::EventDancingThorns:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eTenderSpells::SpellDancingThorns);
-                        events.ScheduleEvent(eTenderEvents::EventDancingThorns, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    case eTenderEvents::EventEnragedGrowth:
-                        if (Creature* l_Petal = me->FindNearestCreature(eEverbloomCreature::CreatureDreadpetalToxin, 20.0f, true))
-                            me->CastSpell(l_Petal, eTenderSpells::SpellEnragedGrowth);
-                        events.ScheduleEvent(eTenderEvents::EventEnragedGrowth, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    default:
-                        break;
+            case eTenderEvents::EventDancingThorns:
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    me->CastSpell(l_Target, eTenderSpells::SpellDancingThorns);
+                events.ScheduleEvent(eTenderEvents::EventDancingThorns, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case eTenderEvents::EventEnragedGrowth:
+                if (Creature* l_Petal = me->FindNearestCreature(eEverbloomCreature::CreatureDreadpetalToxin, 20.0f, true))
+                    me->CastSpell(l_Petal, eTenderSpells::SpellEnragedGrowth);
+                events.ScheduleEvent(eTenderEvents::EventEnragedGrowth, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+                break;
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -176,8 +176,8 @@ public:
 
         enum eMeldedBerserkerSpells
         {
-            SpellEnrage            = 38166,
-            SpellVileBreath        = 172588,
+            SpellEnrage = 38166,
+            SpellVileBreath = 172588,
             SpellBoundingWhirlAura = 172578,
             SpellBoundingWhirlJump = 172577
         };
@@ -189,7 +189,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             me->CastSpell(me, eMeldedBerserkerSpells::SpellEnrage);
             events.ScheduleEvent(eMeldedBerserkerEvents::EventVileBreath, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
@@ -200,11 +200,11 @@ public:
         {
             switch (p_Action)
             {
-                case eEverbloomActions::ActionBoundingWhirlAura:
-                    me->CastSpell(me, eMeldedBerserkerSpells::SpellBoundingWhirlAura);
-                    break;
-                default:
-                    break;
+            case eEverbloomActions::ActionBoundingWhirlAura:
+                me->CastSpell(me, eMeldedBerserkerSpells::SpellBoundingWhirlAura);
+                break;
+            default:
+                break;
             }
         }
 
@@ -213,29 +213,29 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);      
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eMeldedBerserkerEvents::EventVileBreath:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eMeldedBerserkerSpells::SpellVileBreath);
-                        events.ScheduleEvent(eMeldedBerserkerEvents::EventVileBreath, urand(12 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    case eMeldedBerserkerEvents::EventBoundingWhirl:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            me->CastSpell(l_Target, eMeldedBerserkerSpells::SpellBoundingWhirlJump);
-                        events.ScheduleEvent(eMeldedBerserkerEvents::EventBoundingWhirl, 20 * TimeConstants::IN_MILLISECONDS);
-                        events.ScheduleEvent(eMeldedBerserkerEvents::EventBoundingWhirl2, 2 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    case eMeldedBerserkerEvents::EventBoundingWhirl2:
-                        me->CastSpell(me, eMeldedBerserkerSpells::SpellBoundingWhirlAura);
-                        break;
-                    default:
-                        break;
+            case eMeldedBerserkerEvents::EventVileBreath:
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    me->CastSpell(l_Target, eMeldedBerserkerSpells::SpellVileBreath);
+                events.ScheduleEvent(eMeldedBerserkerEvents::EventVileBreath, urand(12 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case eMeldedBerserkerEvents::EventBoundingWhirl:
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    me->CastSpell(l_Target, eMeldedBerserkerSpells::SpellBoundingWhirlJump);
+                events.ScheduleEvent(eMeldedBerserkerEvents::EventBoundingWhirl, 20 * TimeConstants::IN_MILLISECONDS);
+                events.ScheduleEvent(eMeldedBerserkerEvents::EventBoundingWhirl2, 2 * TimeConstants::IN_MILLISECONDS);
+                break;
+            case eMeldedBerserkerEvents::EventBoundingWhirl2:
+                me->CastSpell(me, eMeldedBerserkerSpells::SpellBoundingWhirlAura);
+                break;
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -281,7 +281,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGnarlrootEvents::EventGasp, urand(10 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eGnarlrootEvents::EventBarrageOfLeaves, 15 * TimeConstants::IN_MILLISECONDS);
@@ -299,17 +299,17 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eGnarlrootEvents::EventGasp:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eGnarlrootSpells::SpellGasp);
-                        events.ScheduleEvent(eGnarlrootEvents::EventGasp, urand(10 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                case eGnarlrootEvents::EventBarrageOfLeaves:
-                        me->CastSpell(me, eGnarlrootSpells::SpellLivingLeavesDummy);
-                        events.ScheduleEvent(eGnarlrootEvents::EventBarrageOfLeaves, 30 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    default:
-                        break;
+            case eGnarlrootEvents::EventGasp:
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    me->CastSpell(l_Target, eGnarlrootSpells::SpellGasp);
+                events.ScheduleEvent(eGnarlrootEvents::EventGasp, urand(10 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case eGnarlrootEvents::EventBarrageOfLeaves:
+                me->CastSpell(me, eGnarlrootSpells::SpellLivingLeavesDummy);
+                events.ScheduleEvent(eGnarlrootEvents::EventBarrageOfLeaves, 30 * TimeConstants::IN_MILLISECONDS);
+                break;
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -353,7 +353,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eMandragoraEvents::EventVirulendGasp, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
         }
@@ -363,20 +363,20 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);     
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eMandragoraEvents::EventVirulendGasp:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eMandragoraSpells::SpellVirulendGasp);
-                        events.ScheduleEvent(eMandragoraEvents::EventVirulendGasp, urand(7 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    default:
-                        break;
+            case eMandragoraEvents::EventVirulendGasp:
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    me->CastSpell(l_Target, eMandragoraSpells::SpellVirulendGasp);
+                events.ScheduleEvent(eMandragoraEvents::EventVirulendGasp, urand(7 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                break;
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -411,7 +411,7 @@ public:
 
         enum eEverbloomMenderSpells
         {
-            SpellChokingVines  = 164965,
+            SpellChokingVines = 164965,
             SpellHealingWaters = 164887
         };
 
@@ -422,7 +422,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eEverbloomMenderEvents::EventChokingVines, 18 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eEverbloomMenderEvents::EventHealingWaters, 10 * TimeConstants::IN_MILLISECONDS);
@@ -440,22 +440,22 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eEverbloomMenderEvents::EventChokingVines:
-                    {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eEverbloomMenderSpells::SpellChokingVines);
-                        events.ScheduleEvent(eEverbloomMenderEvents::EventChokingVines, 18 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
-                case eEverbloomMenderEvents::EventHealingWaters:
-                    {
-                        if (Unit* l_FriendlyUnit = DoSelectLowestHpFriendly(85)) // heal
-                            me->CastSpell(l_FriendlyUnit, eEverbloomMenderSpells::SpellHealingWaters);
-                        events.ScheduleEvent(eEverbloomMenderEvents::EventHealingWaters, 10 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
-                    default:
-                        break;
+            case eEverbloomMenderEvents::EventChokingVines:
+            {
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    me->CastSpell(l_Target, eEverbloomMenderSpells::SpellChokingVines);
+                events.ScheduleEvent(eEverbloomMenderEvents::EventChokingVines, 18 * TimeConstants::IN_MILLISECONDS);
+                break;
+            }
+            case eEverbloomMenderEvents::EventHealingWaters:
+            {
+                if (Unit* l_FriendlyUnit = DoSelectLowestHpFriendly(85)) // heal
+                    me->CastSpell(l_FriendlyUnit, eEverbloomMenderSpells::SpellHealingWaters);
+                events.ScheduleEvent(eEverbloomMenderEvents::EventHealingWaters, 10 * TimeConstants::IN_MILLISECONDS);
+                break;
+            }
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -491,7 +491,7 @@ public:
         enum eTwistedAbominationSpells
         {
             SpellAbominationNoxiousErupt = 169445,
-            SpellPoisonousClaws          = 169657
+            SpellPoisonousClaws = 169657
         };
 
         InstanceScript* m_Instance;
@@ -501,7 +501,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eTwistedAbominationEvents::EventNoxiousEruption, 20 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eTwistedAbominationEvents::EventPoisonousClaws, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
@@ -519,21 +519,21 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eTwistedAbominationEvents::EventNoxiousEruption:
-                    {
-                        me->CastSpell(me, eTwistedAbominationSpells::SpellAbominationNoxiousErupt);
-                        events.ScheduleEvent(eTwistedAbominationEvents::EventNoxiousEruption, 20 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
-                case eTwistedAbominationEvents::EventPoisonousClaws:
-                    {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eTwistedAbominationSpells::SpellPoisonousClaws);
-                        events.ScheduleEvent(eTwistedAbominationEvents::EventPoisonousClaws, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    }
-                    default:
-                        break;
+            case eTwistedAbominationEvents::EventNoxiousEruption:
+            {
+                me->CastSpell(me, eTwistedAbominationSpells::SpellAbominationNoxiousErupt);
+                events.ScheduleEvent(eTwistedAbominationEvents::EventNoxiousEruption, 20 * TimeConstants::IN_MILLISECONDS);
+                break;
+            }
+            case eTwistedAbominationEvents::EventPoisonousClaws:
+            {
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    me->CastSpell(l_Target, eTwistedAbominationSpells::SpellPoisonousClaws);
+                events.ScheduleEvent(eTwistedAbominationEvents::EventPoisonousClaws, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                break;
+            }
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -562,15 +562,15 @@ public:
 
         enum eInfestedIcecallerEvents
         {
-            EventFrozenSnap =  1,
+            EventFrozenSnap = 1,
             EventFrostbolt
         };
 
         enum eInfestedIcecallerSpells
         {
             SpellFrostbolt = 169840,
-            SpellIceAura   = 169831,
-            SpellMindRoot  = 169828
+            SpellIceAura = 169831,
+            SpellMindRoot = 169828
         };
 
         InstanceScript* m_Instance;
@@ -582,7 +582,7 @@ public:
             me->AddAura(eInfestedIcecallerSpells::SpellMindRoot, me);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eInfestedIcecallerEvents::EventFrozenSnap, urand(10 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eInfestedIcecallerEvents::EventFrostbolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
@@ -600,22 +600,22 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eInfestedIcecallerEvents::EventFrostbolt:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->CastSpell(l_Target, eInfestedIcecallerSpells::SpellFrostbolt);
-                        events.ScheduleEvent(eInfestedIcecallerEvents::EventFrostbolt, 6 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                case eInfestedIcecallerEvents::EventFrozenSnap:
-                        for (uint8 i = 0; i < 3; i++)
-                        {
-                            Position l_Pos;
-                            me->GetRandomNearPosition(l_Pos, 20.0f);
-                            me->SummonCreature(eEverbloomCreature::CreatureFrozenSnap, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4 * TimeConstants::IN_MILLISECONDS);          
-                        }
-                        events.ScheduleEvent(eInfestedIcecallerEvents::EventFrozenSnap, urand(30 * TimeConstants::IN_MILLISECONDS, 50 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    default:
-                        break;
+            case eInfestedIcecallerEvents::EventFrostbolt:
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                    me->CastSpell(l_Target, eInfestedIcecallerSpells::SpellFrostbolt);
+                events.ScheduleEvent(eInfestedIcecallerEvents::EventFrostbolt, 6 * TimeConstants::IN_MILLISECONDS);
+                break;
+            case eInfestedIcecallerEvents::EventFrozenSnap:
+                for (uint8 i = 0; i < 3; i++)
+                {
+                    Position l_Pos;
+                    me->GetRandomNearPosition(l_Pos, 20.0f);
+                    me->SummonCreature(eEverbloomCreature::CreatureFrozenSnap, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4 * TimeConstants::IN_MILLISECONDS);
+                }
+                events.ScheduleEvent(eInfestedIcecallerEvents::EventFrozenSnap, urand(30 * TimeConstants::IN_MILLISECONDS, 50 * TimeConstants::IN_MILLISECONDS));
+                break;
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -650,7 +650,7 @@ public:
         enum eAddledArcanmoacerSpells
         {
             SpellArcaneBlast = 169825,
-            SpellMindRoot    = 169828
+            SpellMindRoot = 169828
         };
 
         InstanceScript* m_Instance;
@@ -661,7 +661,7 @@ public:
             me->AddAura(eAddledArcanmoacerSpells::SpellMindRoot, me);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eAddledArcanonmacerEvents::EventArcaneBlast, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
         }
@@ -671,19 +671,19 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);   
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case eAddledArcanonmacerEvents::EventArcaneBlast:
-                        if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0, true))
-                            me->CastSpell(l_Random, eAddledArcanmoacerSpells::SpellArcaneBlast);
-                        events.ScheduleEvent(eAddledArcanonmacerEvents::EventArcaneBlast, 6 * TimeConstants::IN_MILLISECONDS);
-                    default:
-                        break;
+            case eAddledArcanonmacerEvents::EventArcaneBlast:
+                if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0, true))
+                    me->CastSpell(l_Random, eAddledArcanmoacerSpells::SpellArcaneBlast);
+                events.ScheduleEvent(eAddledArcanonmacerEvents::EventArcaneBlast, 6 * TimeConstants::IN_MILLISECONDS);
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -719,8 +719,8 @@ public:
         enum ePutridPyromancerSpells
         {
             SpellDragonsBreath = 169843,
-            SpellFireBall      = 169839,
-            SpellMindRoot      = 169828
+            SpellFireBall = 169839,
+            SpellMindRoot = 169828
         };
 
         InstanceScript* m_Instance;
@@ -731,7 +731,7 @@ public:
             me->AddAura(ePutridPyromancerSpells::SpellMindRoot, me);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(ePutridPyromancerEvents::EventDragonsBreath, urand(14 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(ePutridPyromancerEvents::EventFireball, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
@@ -742,25 +742,25 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);           
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-                case ePutridPyromancerEvents::EventDragonsBreath:
-                        if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->CastSpell(l_Random, ePutridPyromancerSpells::SpellDragonsBreath);
-                        events.ScheduleEvent(ePutridPyromancerEvents::EventDragonsBreath, urand(40 * TimeConstants::IN_MILLISECONDS, 50 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    case ePutridPyromancerEvents::EventFireball:
-                        if (Unit* l_Victim = me->getVictim())
-                            me->CastSpell(l_Victim, ePutridPyromancerSpells::SpellFireBall);
-                        events.ScheduleEvent(ePutridPyromancerEvents::EventFireball, 6 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    default:
-                        break;
+            case ePutridPyromancerEvents::EventDragonsBreath:
+                if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                    me->CastSpell(l_Random, ePutridPyromancerSpells::SpellDragonsBreath);
+                events.ScheduleEvent(ePutridPyromancerEvents::EventDragonsBreath, urand(40 * TimeConstants::IN_MILLISECONDS, 50 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case ePutridPyromancerEvents::EventFireball:
+                if (Unit* l_Victim = me->getVictim())
+                    me->CastSpell(l_Victim, ePutridPyromancerSpells::SpellFireBall);
+                events.ScheduleEvent(ePutridPyromancerEvents::EventFireball, 6 * TimeConstants::IN_MILLISECONDS);
+                break;
+            default:
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -773,7 +773,7 @@ public:
     }
 };
 
-/// Bounding Whirl - 172576 
+/// Bounding Whirl - 172576
 class the_everbloom_spell_bounding_whirl_dummy : public SpellScriptLoader
 {
 public:
@@ -782,7 +782,7 @@ public:
 
     class the_everbloom_spell_bounding_whirl_dummy_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_spell_bounding_whirl_dummy_SpellScript);
+        PrepareSpellScript(the_everbloom_spell_bounding_whirl_dummy_SpellScript)
 
         enum eBoundingWhirlSpells
         {
@@ -790,7 +790,7 @@ public:
             SpellBoundingWhirlJump = 172577
         };
 
-        void HandleDummy(SpellEffIndex p_EffIndex)
+        void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {
             if (!GetCaster() && !GetHitUnit())
                 return;
@@ -819,7 +819,7 @@ public:
     }
 };
 
-/// Poisonous Claws - 169657 
+/// Poisonous Claws - 169657
 class the_everbloom_spell_poisonous_claws : public SpellScriptLoader
 {
 public:
@@ -828,7 +828,7 @@ public:
 
     class the_everbloom_spell_poisonous_claws_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_spell_poisonous_claws_SpellScript);
+        PrepareSpellScript(the_everbloom_spell_poisonous_claws_SpellScript)
 
         enum eInfectedWoundsSpells
         {
@@ -855,6 +855,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_the_everbloom()
 {
     new the_everbloom_mob_infested_icecaller();     ///< 84989
@@ -867,5 +868,6 @@ void AddSC_the_everbloom()
     new the_everbloom_mob_everbloom_mender();       ///< 81820
     new the_everbloom_mob_everbloom_tender();       ///< 81985
     new the_everbloom_mob_twisted_abomination();    ///< 84767
-    new the_everbloom_spell_poisonous_claws();      ///< 169657    
+    new the_everbloom_spell_poisonous_claws();      ///< 169657
 }
+#endif

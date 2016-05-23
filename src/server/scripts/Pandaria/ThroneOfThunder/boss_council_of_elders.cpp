@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -386,7 +375,7 @@ class npc_gara_jal_s_soul : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 p_Type)
+            uint32 GetData(uint32 /*p_Type*/)
             {
                 return m_TargetFaction;
             }
@@ -563,7 +552,7 @@ class boss_king_malakk : public CreatureScript
                 events.ScheduleEvent(EVENT_BITING_COLD, 62000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 summons.DespawnAll();
                 if (m_Instance)
@@ -641,7 +630,7 @@ class boss_king_malakk : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*killer*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!firstPossessSwitched)
                 {
@@ -736,7 +725,7 @@ class boss_king_malakk : public CreatureScript
                     value = coefficient;
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(urand(5, 6));
             }
@@ -897,7 +886,7 @@ class boss_kazra_jin : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 summons.DespawnAll();
                 if (m_Instance)
@@ -1003,7 +992,7 @@ class boss_kazra_jin : public CreatureScript
                 return 0;
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (attacker == me)
                     return;
@@ -1110,7 +1099,7 @@ class boss_kazra_jin : public CreatureScript
                     value = coefficient;
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(urand(5, 6));
             }
@@ -1366,7 +1355,7 @@ class boss_sul_the_sandcrawler : public CreatureScript
                 events.ScheduleEvent(EVENT_QUICKSAND, 35000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 summons.DespawnAll();
                 if (m_Instance)
@@ -1450,12 +1439,12 @@ class boss_sul_the_sandcrawler : public CreatureScript
                     Reset();
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(urand(5, 6));
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*killer*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!firstPossessSwitched)
                 {
@@ -1871,7 +1860,7 @@ class boss_high_priestress_mar_li : public CreatureScript
                 events.ScheduleEvent(EVENT_BLESSED_LOA_SPIRIT_SUMMON, 10000);
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*killer*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!firstPossessSwitched)
                 {
@@ -1930,7 +1919,7 @@ class boss_high_priestress_mar_li : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 summons.DespawnAll();
                 if (m_Instance)
@@ -2025,7 +2014,7 @@ class boss_high_priestress_mar_li : public CreatureScript
                     value = coefficient;
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(urand(6,7));
             }
@@ -2170,7 +2159,7 @@ class mob_living_sand : public CreatureScript
                 }
             }
 
-            void IsSummonedBy(Unit* attacker)
+            void IsSummonedBy(Unit* /*p_Attacker*/)
             {
                 std::list<Creature*> livingSangList;
                 GetCreatureListWithEntryInGrid(livingSangList, me, NPC_LIVING_SAND, 4.5f);
@@ -2220,7 +2209,7 @@ class mob_living_sand : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage > me->GetHealth())
                 {
@@ -3057,7 +3046,7 @@ class spell_soul_fragment_switch : public SpellScriptLoader
         {
             PrepareSpellScript(spell_soul_fragment_switch_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -3097,7 +3086,7 @@ class spell_first_twisted_fate : public SpellScriptLoader
         {
             PrepareSpellScript(spell_first_twisted_fate_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 uint64 targetGuid = 0;
 
@@ -3135,7 +3124,7 @@ class spell_second_twisted_fate : public SpellScriptLoader
         {
             PrepareSpellScript(spell_second_twisted_fate_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 uint64 targetGuid = 0;
 
@@ -3219,6 +3208,7 @@ class spell_twisted_fate_damage : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_council_of_elders()
 {
     new npc_gara_jal_s_soul();                  ///< 69182
@@ -3248,3 +3238,4 @@ void AddSC_boss_council_of_elders()
     new spell_second_twisted_fate();            ///< 137964
     new spell_twisted_fate_damage();            ///< 137972
 }
+#endif

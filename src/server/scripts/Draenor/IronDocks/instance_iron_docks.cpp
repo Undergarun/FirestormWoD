@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "iron_docks.hpp"
@@ -179,7 +179,7 @@ class instance_iron_docks : public InstanceMapScript
                 }
             }
 
-            void OnCreatureKilled(Creature* p_Creature, Player* p_Player) override
+            void OnCreatureKilled(Creature* p_Creature, Player* /*p_Player*/) override
             {
                 if (!instance->IsChallengeMode() || !IsChallengeModeStarted() || m_CreatureKilled >= eIronDocksScenario::IronDocksKillCount)
                     return;
@@ -191,7 +191,7 @@ class instance_iron_docks : public InstanceMapScript
                     return;
 
                 ++m_CreatureKilled;
-                SendScenarioProgressUpdate(CriteriaProgressData(eIronDocksScenario::IronDocksEnnemies, m_CreatureKilled, m_InstanceGuid, time(nullptr), m_BeginningTime, 0));
+                SendScenarioProgressUpdate(CriteriaProgressData(eIronDocksScenario::IronDocksEnnemies, m_CreatureKilled, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
 
                 if (m_CreatureKilled >= eIronDocksScenario::IronDocksKillCount)
                     m_ConditionCompleted = true;
@@ -277,7 +277,9 @@ class instance_iron_docks : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_iron_docks()
 {
     new instance_iron_docks();
 }
+#endif

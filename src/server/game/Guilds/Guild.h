@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef GUILD_H
 #define GUILD_H
@@ -166,7 +156,7 @@ enum PetitionSigns
     PETITION_SIGN_CANT_SIGN_OWN         = 11,
     PETITION_SIGN_ALREADY_SIGNED        = 12,
     PETITION_SIGN_ALREADY_SIGNED_OTHER  = 13,
-    PETITION_SIGN_ALREADY_IN_GUILD      = 15,
+    PETITION_SIGN_ALREADY_IN_GUILD      = 15
 };
 
 enum GuildBankRights
@@ -695,7 +685,7 @@ class Guild
                 void CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count);
         };
 
-        typedef UNORDERED_MAP<uint32, Member*> Members;
+        typedef std::unordered_map<uint32, Member*> Members;
         typedef std::vector<RankInfo> Ranks;
         typedef std::vector<BankTab*> BankTabs;
 
@@ -752,7 +742,7 @@ class Guild
         // Send info to client
         void SendEventLog(WorldSession* session) const;
         void SendBankLog(WorldSession* session, uint8 tabId) const;
-        void SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo) const;
+        void SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo);
         void SendBankTabText(WorldSession* session, uint8 tabId) const;
         void SendPermissions(WorldSession* session) const;
         void SendMoneyInfo(WorldSession* session) const;
@@ -828,6 +818,7 @@ class Guild
         }
 
         int32 GetChallengeCount(int32 p_Type) const { return m_ChallengeCount[p_Type]; }
+        void LoadBank();
 
     protected:
         uint32 m_id;
@@ -837,6 +828,7 @@ class Guild
         std::string m_info;
         time_t m_createdDate;
         int32 m_ChallengeCount[ChallengeMax];
+        bool m_BankLoaded;
 
         EmblemInfo m_emblemInfo;
         uint32 m_accountsNumber;

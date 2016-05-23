@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -59,7 +50,7 @@ class instance_oculus : public InstanceMapScript
                 VerdisaGUID         = 0;
             }
 
-            void OnCreatureCreate(Creature* creature) 
+            void OnCreatureCreate(Creature* creature)
             {
                 switch (creature->GetEntry())
                 {
@@ -121,7 +112,7 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) 
+            void OnGameObjectCreate(GameObject* go)
             {
                 switch (go->GetEntry())
                 {
@@ -137,7 +128,7 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void OnUnitDeath(Unit* unit) 
+            void OnUnitDeath(Unit* unit)
             {
                 Creature* creature = unit->ToCreature();
                 if (!creature)
@@ -177,7 +168,7 @@ class instance_oculus : public InstanceMapScript
                         drake->AI()->DoAction(ACTION_CALL_DRAGON_EVENT);
             }
 
-            bool SetBossState(uint32 type, EncounterState state) 
+            bool SetBossState(uint32 type, EncounterState state)
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -225,7 +216,7 @@ class instance_oculus : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 type) 
+            uint64 GetData64(uint32 type)
             {
                 switch (type)
                 {
@@ -272,7 +263,7 @@ class instance_oculus : public InstanceMapScript
                         gwhelp->SetPhaseMask(1, true);
             }
 
-            std::string GetSaveData() 
+            std::string GetSaveData()
             {
                 OUT_SAVE_INST_DATA;
 
@@ -283,7 +274,7 @@ class instance_oculus : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(char const* str) 
+            void Load(char const* str)
             {
                 if (!str)
                 {
@@ -332,13 +323,15 @@ class instance_oculus : public InstanceMapScript
             std::list<uint64> GreaterWhelpList;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const 
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
             return new instance_oculus_InstanceMapScript(map);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_oculus()
 {
     new instance_oculus();
 }
+#endif

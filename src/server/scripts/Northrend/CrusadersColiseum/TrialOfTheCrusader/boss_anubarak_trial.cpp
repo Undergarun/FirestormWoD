@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 // Known bugs:
 // Anubarak - underground phase partially not worked
@@ -25,7 +15,7 @@
 #include "ScriptedCreature.h"
 #include "trial_of_the_crusader.h"
 #include "SpellScript.h"
-#include <limits>
+#include "Common.h"
 
 enum Yells
 {
@@ -117,7 +107,7 @@ const Position SphereSpawn[6] =
     {712.5712f, 160.9948f, 158.4368f, 0},
     {701.4271f, 126.4740f, 158.0205f, 0},
     {747.9202f, 155.0920f, 158.0613f, 0},
-    {769.6285f, 121.1024f, 158.0504f, 0},
+    {769.6285f, 121.1024f, 158.0504f, 0}
 };
 
 enum MovementPoints
@@ -189,7 +179,7 @@ class boss_anubarak_trial : public CreatureScript
                 me->GetCreatureListWithEntryInGrid(FrostSphereList, NPC_FROST_SPHERE, 150.0f);
                 if (!FrostSphereList.empty())
                 {
-                    for (std::list<Creature*>::iterator itr = FrostSphereList.begin(); itr != FrostSphereList.end(); itr++)
+                    for (std::list<Creature*>::iterator itr = FrostSphereList.begin(); itr != FrostSphereList.end(); ++itr)
                         (*itr)->DespawnOrUnsummon();
                 }
 
@@ -247,7 +237,7 @@ class boss_anubarak_trial : public CreatureScript
                 me->GetCreatureListWithEntryInGrid(AddList, NPC_BURROWER, 150.0f);
                 if (!AddList.empty())
                 {
-                    for (std::list<Creature*>::iterator itr = AddList.begin(); itr != AddList.end(); itr++)
+                    for (std::list<Creature*>::iterator itr = AddList.begin(); itr != AddList.end(); ++itr)
                         (*itr)->DespawnOrUnsummon();
                 }
 
@@ -436,8 +426,6 @@ class boss_anubarak_trial : public CreatureScript
                 uint64 _sphereGUID[6];
                 bool _intro;
                 bool _reachedPhase3;
-                uint32 _frostSphereTimer;
-                uint32 _berserkTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -602,7 +590,6 @@ class mob_nerubian_burrower : public CreatureScript
 
             private:
                 uint32 _submergeTimer;
-                Phases _phase;
                 EventMap _events;
                 InstanceScript* _instance;
         };
@@ -632,7 +619,7 @@ class mob_frost_sphere : public CreatureScript
                 me->GetMotionMaster()->MoveRandom(20.0f);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->GetHealth() <= damage)
                 {
@@ -719,7 +706,7 @@ class mob_anubarak_spike : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& uiDamage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& uiDamage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 uiDamage = 0;
             }
@@ -840,7 +827,7 @@ class spell_impale: public SpellScriptLoader
 
         class spell_impale_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_impale_SpellScript);
+            PrepareSpellScript(spell_impale_SpellScript)
 
             void HandleDamageCalc(SpellEffIndex /*effIndex*/)
             {
@@ -863,6 +850,7 @@ class spell_impale: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_anubarak_trial()
 {
     new boss_anubarak_trial();
@@ -873,3 +861,4 @@ void AddSC_boss_anubarak_trial()
 
     new spell_impale();
 }
+#endif

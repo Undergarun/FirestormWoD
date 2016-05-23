@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include <regex>
 
@@ -257,8 +247,18 @@ void Channel::Join(uint64 p, const char *pass)
         if (!m_Players.empty())
             UpdateChannelUseageInDB();
 
+        /// Special case for the world channel, players can't be moderator or owner.
+        if (m_name == "world")
+        {
+            if (player && player->GetSession()->GetSecurity() > AccountTypes::SEC_MODERATOR)
+            {
+                m_Players[p].SetModerator(true);
+                if (!m_ownerGUID && m_ownership)
+                    SetOwner(p, (m_Players.size() > 1 ? true : false));
+            }
+        }
         // If the channel has no owner yet and ownership is allowed, set the new owner.
-        if (!m_ownerGUID && m_ownership)
+        else if (!m_ownerGUID && m_ownership)
         {
             SetOwner(p, (m_Players.size() > 1 ? true : false));
             m_Players[p].SetModerator(true);
@@ -854,19 +854,6 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
 
 void Channel::SendToAll(WorldPacket* data, uint64 p, uint64 p_SenderGUID)
 {
-    uint32 l_SenderLocaleMask = 0;
-
-    if (!l_SenderLocaleMask)
-        l_SenderLocaleMask = 0xFFFFFFFF;
-
-    if ((IsWorld() || IsConstant()) && p_SenderGUID && m_Players.find(p_SenderGUID) != m_Players.end())
-    {
-        if (Player* l_Player = ObjectAccessor::FindPlayer(p_SenderGUID))
-            l_SenderLocaleMask = 1 << (l_Player->GetSession()->GetSessionDbLocaleIndex() + 1);
-        else
-            l_SenderLocaleMask = m_Players[p_SenderGUID].LocaleFilter;
-    }
-
     m_Lock.acquire();
     for (PlayerList::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
     {
@@ -875,7 +862,7 @@ void Channel::SendToAll(WorldPacket* data, uint64 p, uint64 p_SenderGUID)
         {
             if (!p || !player->GetSocial()->HasIgnore(GUID_LOPART(p)))
             {
-                if ((IsWorld() || IsConstant()) && (i->second.LocaleFilter & l_SenderLocaleMask) != 0)
+                if (IsWorld() || IsConstant())
                     player->GetSession()->SendPacket(data);
                 else if (!(IsWorld() || IsConstant()))
                     player->GetSession()->SendPacket(data);

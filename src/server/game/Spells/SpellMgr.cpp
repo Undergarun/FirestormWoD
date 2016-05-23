@@ -1,20 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "SpellMgr.h"
 #include "SpellInfo.h"
@@ -639,7 +629,7 @@ bool SpellMgr::IsSpellForbidden(uint32 spellid)
 {
     std::list<uint32>::iterator Itr;
 
-    for (Itr = mForbiddenSpells.begin(); Itr != mForbiddenSpells.end(); Itr++)
+    for (Itr = mForbiddenSpells.begin(); Itr != mForbiddenSpells.end(); ++Itr)
         if ((*Itr) == spellid)
             return true;
 
@@ -3105,15 +3095,20 @@ void SpellMgr::LoadSpellInfoStore()
         l_VisualsBySpell[l_Entry->SpellId][l_Entry->DifficultyID].push_back(l_Entry);
     }
 
-    for (uint32 l_I = 0; l_I < sSpellStore.GetNumRows(); ++l_I)
+    ParallelFor(0, sSpellStore.GetNumRows(), [this, &l_VisualsBySpell](uint32 l_I) -> void
     {
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(l_I))
         {
+            auto l_Itr = l_VisualsBySpell.find(l_I);
+            SpellVisualMap emptyMap;
+            SpellVisualMap& visualMap = (l_Itr == l_VisualsBySpell.end()) ? emptyMap : l_Itr->second;
+
             std::set<uint32> difficultyInfo = mAvaiableDifficultyBySpell[l_I];
+
             for (std::set<uint32>::iterator itr = difficultyInfo.begin(); itr != difficultyInfo.end(); itr++)
-                mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr), std::move(l_VisualsBySpell[l_I]));
+                mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr), std::move(visualMap));
         }
-    }
+    });
 
     for (uint32 l_I = 0; l_I < sSpellPowerStore.GetNumRows(); l_I++)
     {
@@ -3464,6 +3459,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].MiscValue = 305;
                 spellInfo->Effects[0].MiscValueB = 230;
+                break;
+            case 1949:
+                spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
                 break;
             case 173702: ///< Lasso Break
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
@@ -3940,7 +3939,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
-                /// Iron Docks 
+                /// Iron Docks
             case 163705:  ///< Abrupt Restoration
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = 0;
@@ -5845,7 +5844,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 33110: ///< Prayer of Mending
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
-            case 119611: ///< Renewing Mist 
+            case 119611: ///< Renewing Mist
                 spellInfo->Effects[0].BonusMultiplier = 0.109984f;
                 break;
             case 109186: ///< Surge of light
@@ -6260,6 +6259,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
+            case 45438:
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                break;
             case 170995:///< Cripple
                 spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(2); ///< 250ms - hack fix to imagine Seduction mechanic
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
@@ -6301,7 +6303,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 22568: ///< Ferocious Bite
             case 5221:  ///< Shred
             case 22599: ///< Chromatic Mantle of the Dawn
-            case 86273: ///< Illuminated Healing 
+            case 86273: ///< Illuminated Healing
             case 1752:  ///< Sinister Strike
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
@@ -6480,7 +6482,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 119931:
             case 119932:
             case 119933:
-                spellInfo->Speed = 5.f;
+                spellInfo->Speed = 5.0f;
                 break;
             case 106112: ///< Release Doubt
             {

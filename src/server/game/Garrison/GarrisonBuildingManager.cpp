@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonMgr.hpp"
 #include "GarrisonBuildingManager.hpp"
 #include "Player.h"
@@ -13,7 +14,7 @@
 #include "ObjectAccessor.h"
 #include "Chat.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     BuildingManager::BuildingManager()
@@ -25,7 +26,6 @@ namespace MS { namespace Garrison
         m_AllowedBluePrints.push_back(Buildings::Barracks_Barracks_Level1);
         m_AllowedBluePrints.push_back(Buildings::DwarvenBunker_WarMill_Level1);
         m_AllowedBluePrints.push_back(Buildings::DwarvenBunker_WarMill_Level2);
-        m_AllowedBluePrints.push_back(Buildings::DwarvenBunker_WarMill_Level3);
         m_AllowedBluePrints.push_back(Buildings::EnchanterStudy_EnchanterStudy_Level1);
         m_AllowedBluePrints.push_back(Buildings::EnchanterStudy_EnchanterStudy_Level2);
         m_AllowedBluePrints.push_back(Buildings::EngineeringWorks_EngineeringWorks_Level1);
@@ -56,6 +56,7 @@ namespace MS { namespace Garrison
         m_AllowedBluePrints.push_back(Buildings::TheTannery_TheTannery_Level2);
         m_AllowedBluePrints.push_back(Buildings::TradingPost_TradingPost_Level1);
         m_AllowedBluePrints.push_back(Buildings::TradingPost_TradingPost_Level2);
+        m_AllowedBluePrints.push_back(Buildings::GladiatorsSanctum_GladiatorsSanctum_Level1);
     }
 
     /// Destructor

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Scripts for spells with SPELLFAMILY_GENERIC spells used for quests.
@@ -71,7 +62,7 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
 enum Quest55Data
 {
     NPC_MORBENT             = 1200,
-    NPC_WEAKENED_MORBENT    = 24782,
+    NPC_WEAKENED_MORBENT    = 24782
 };
 
 class spell_q55_sacred_cleansing: public SpellScriptLoader
@@ -202,7 +193,7 @@ class spell_q6124_6129_apply_salve: public SpellScriptLoader
 enum Quest10255Data
 {
     NPC_HELBOAR     = 16880,
-    NPC_DREADTUSK   = 16992,
+    NPC_DREADTUSK   = 16992
 };
 
 class spell_q10255_administer_antidote: public SpellScriptLoader
@@ -487,7 +478,7 @@ enum Quest12459Data
     NPC_WEAK_TURGID                 = 27809,
 
     NPC_DEATHGAZE                   = 27122,
-    NPC_WEAK_DEATHGAZE              = 27807,
+    NPC_WEAK_DEATHGAZE              = 27807
 };
 
 class spell_q12459_seeds_of_natures_wrath: public SpellScriptLoader
@@ -623,7 +614,7 @@ enum Quest12851Data
     SPELL_FROSTGIANT_CREDIT = 58184,
     SPELL_FROSTWORG_CREDIT  = 58183,
     SPELL_IMMOLATION        = 54690,
-    SPELL_ABLAZE            = 54683,
+    SPELL_ABLAZE            = 54683
 };
 
 class spell_q12851_going_bearback: public SpellScriptLoader
@@ -681,7 +672,7 @@ class spell_q12851_going_bearback: public SpellScriptLoader
 enum Quest12937Data
 {
     SPELL_TRIGGER_AID_OF_THE_EARTHEN    = 55809,
-    NPC_FALLEN_EARTHEN_DEFENDER         = 30035,
+    NPC_FALLEN_EARTHEN_DEFENDER         = 30035
 };
 
 class spell_q12937_relief_for_the_fallen: public SpellScriptLoader
@@ -775,7 +766,7 @@ class spell_q10041_q10040_who_are_they: public SpellScriptLoader
 
 enum symboloflife
 {
-    SPELL_PERMANENT_FEIGN_DEATH = 29266,
+    SPELL_PERMANENT_FEIGN_DEATH = 29266
 };
 
 // 8593 Symbol of life dummy
@@ -819,7 +810,7 @@ class spell_symbol_of_life_dummy: public SpellScriptLoader
 // 52090 Ahunae's Knife
 enum Quest12659Data
 {
-    NPC_SCALPS_KC_BUNNY = 28622,
+    NPC_SCALPS_KC_BUNNY = 28622
 };
 
 class spell_q12659_ahunaes_knife: public SpellScriptLoader
@@ -861,7 +852,7 @@ class spell_q12659_ahunaes_knife: public SpellScriptLoader
 enum StoppingTheSpread
 {
     NPC_VILLAGER_KILL_CREDIT                     = 18240,
-    SPELL_FLAMES                                 = 39199,
+    SPELL_FLAMES                                 = 39199
 };
 
 class spell_q9874_liquid_fire: public SpellScriptLoader
@@ -904,7 +895,7 @@ class spell_q9874_liquid_fire: public SpellScriptLoader
 
 enum SalvagingLifesStength
 {
-    NPC_SHARD_KILL_CREDIT                        = 29303,
+    NPC_SHARD_KILL_CREDIT                        = 29303
 };
 
 class spell_q12805_lifeblood_dummy: public SpellScriptLoader
@@ -952,7 +943,7 @@ class spell_q12805_lifeblood_dummy: public SpellScriptLoader
  */
 enum BattleStandard
 {
-    NPC_KING_OF_THE_MOUNTAINT_KC                    = 31766,
+    NPC_KING_OF_THE_MOUNTAINT_KC                    = 31766
 };
 
 class spell_q13280_13283_plant_battle_standard: public SpellScriptLoader
@@ -1031,7 +1022,7 @@ enum RedSnapperVeryTasty
 {
     SPELL_CAST_NET          = 29866,
     ITEM_RED_SNAPPER        = 23614,
-    SPELL_NEW_SUMMON_TEST   = 49214,
+    SPELL_NEW_SUMMON_TEST   = 49214
 };
 
 class spell_q9452_cast_net: public SpellScriptLoader
@@ -1111,7 +1102,7 @@ enum LeaveNothingToChance
     NPC_LOWER_MINE_SHAFT            = 27437,
 
     SPELL_UPPER_MINE_SHAFT_CREDIT   = 48744,
-    SPELL_LOWER_MINE_SHAFT_CREDIT   = 48745,
+    SPELL_LOWER_MINE_SHAFT_CREDIT   = 48745
 };
 
 class spell_q12277_wintergarde_mine_explosion: public SpellScriptLoader
@@ -1164,7 +1155,7 @@ class spell_q12277_wintergarde_mine_explosion: public SpellScriptLoader
 
 enum FocusOnTheBeach
 {
-    SPELL_BUNNY_CREDIT_BEAM = 47390,
+    SPELL_BUNNY_CREDIT_BEAM = 47390
 };
 
 class spell_q12066_bunny_kill_credit: public SpellScriptLoader
@@ -1202,7 +1193,7 @@ enum ACleansingSong
 
     AREA_BITTERTIDELAKE             = 4385,
     AREA_RIVERSHEART                = 4290,
-    AREA_WINTERGRASPRIVER           = 4388,
+    AREA_WINTERGRASPRIVER           = 4388
 };
 
 class spell_q12735_song_of_cleansing: public SpellScriptLoader
@@ -1280,7 +1271,7 @@ class spell_q12372_cast_from_gossip_trigger: public SpellScriptLoader
 // 49370 - Wyrmrest Defender: Destabilize Azure Dragonshrine Effect
 enum Quest12372Data
 {
-    NPC_WYRMREST_TEMPLE_CREDIT = 27698,
+    NPC_WYRMREST_TEMPLE_CREDIT = 27698
 };
 
 class spell_q12372_destabilize_azure_dragonshrine_dummy: public SpellScriptLoader
@@ -1649,7 +1640,7 @@ class spell_q12512_resuscitate: public SpellScriptLoader
         {
             PrepareSpellScript(spell_q12512_resuscitate_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (GetCaster() && GetHitUnit())
                 {
@@ -1728,7 +1719,7 @@ class spell_q28334_darla_box_megaflares: public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 diff)
+            void OnUpdate(uint32 /*diff*/)
             {
                 if (!removed)
                 {
@@ -1768,7 +1759,7 @@ class spell_q31112_ping_bunny: public SpellScriptLoader
         {
             PrepareSpellScript(spell_q31112_ping_bunny_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->GetMotionMaster()->MoveJump(2390.78f, -226.66f, 303.89f, 40.0f, 40.0f);
@@ -2409,7 +2400,7 @@ class spell_q30136_silken_rope: public SpellScriptLoader
 enum Quest31049
 {
     NPC_DARKWOODS_FAERIE    = 62522,
-    NPC_FAE_SPIRIT          = 62753,
+    NPC_FAE_SPIRIT          = 62753
 };
 
 class spell_q31049_fae_spirit : public SpellScriptLoader
@@ -2456,6 +2447,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_quest_spell_scripts()
 {
     new spell_q31049_fae_spirit();
@@ -2518,3 +2510,4 @@ void AddSC_quest_spell_scripts()
     new spell_q30151_throw_ball();
     new spell_q30136_silken_rope();
 }
+#endif

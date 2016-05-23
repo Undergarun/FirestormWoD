@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __UNIT_H
 #define __UNIT_H
@@ -38,7 +28,6 @@
 #include "WorldSession.h"
 #include "../SharedPtrs/SharedPtrs.h"
 #include "Timer.h"
-#include <list>
 #include "../DynamicObject/DynamicObject.h"
 #include "../AreaTrigger/AreaTrigger.h"
 
@@ -161,7 +150,7 @@ class CustomSpellValues : public std::vector<CustomSpellValueMod>
 {
     public:
         CustomSpellValues() :
-        m_CustomCritChance(-1.f)
+        m_CustomCritChance(-1.0f)
         {
         }
 
@@ -1205,7 +1194,7 @@ struct GlobalCooldown
     uint32 cast_time;
 };
 
-typedef UNORDERED_MAP<uint32 /*category*/, GlobalCooldown> GlobalCooldownList;
+typedef std::unordered_map<uint32 /*category*/, GlobalCooldown> GlobalCooldownList;
 
 class GlobalCooldownMgr                                     // Shared by Player and CharmInfo
 {
@@ -1653,9 +1642,9 @@ class Unit : public WorldObject
         bool HealthBelowPctDamaged(int32 pct, uint32 damage) const { return int64(GetHealth()) - int64(damage) < int64(CountPctFromMaxHealth(pct)); }
         bool HealthAbovePct(int32 pct) const { return GetHealth() > CountPctFromMaxHealth(pct); }
         bool HealthAbovePctHealed(int32 pct, uint32 heal) const { return uint64(GetHealth()) + uint64(heal) > CountPctFromMaxHealth(pct); }
-        float GetHealthPct() const { return GetMaxHealth() ? 100.f * GetHealth() / GetMaxHealth() : 0.0f; }
+        float GetHealthPct() const { return GetMaxHealth() ? 100.0f * GetHealth() / GetMaxHealth() : 0.0f; }
         uint32 CountPctFromMaxHealth(int32 pct) const { return CalculatePct(GetMaxHealth(), pct); }
-        uint32 CountPctFromMaxHealth(float p_Percent) const { return CalculatePct((float)GetMaxHealth(), p_Percent); }
+        uint32 CountPctFromMaxHealth(float p_Percent) const { return uint32(CalculatePct((float)GetMaxHealth(), p_Percent)); }
         uint32 CountPctFromCurHealth(int32 pct) const { return CalculatePct(GetHealth(), pct); }
         uint32 CountPctFromMaxMana(int32 pct) const { return CalculatePct(GetMaxPower(POWER_MANA), pct); }
         uint32 CountPctFromCurMana(int32 pct) const { return CalculatePct(GetPower(POWER_MANA), pct); }
@@ -1671,7 +1660,7 @@ class Unit : public WorldObject
         Powers getPowerType() const { return Powers(GetUInt32Value(UNIT_FIELD_DISPLAY_POWER)); }
         void setPowerType(Powers power);
         int32 GetPower(Powers power) const;
-        float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
+        float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.0f * GetPower(power) / GetMaxPower(power) : 0.0f; }
         int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -10000 : 0; }
         int32 GetMaxPower(Powers power) const;
         int32 GetPowerCoeff(Powers p_powerType) const;
@@ -2994,8 +2983,8 @@ namespace JadeCore
             AreaTriggerDurationPctOrderPred(bool ascending = true) : m_ascending(ascending) {}
             bool operator() (const AreaTrigger* a, const AreaTrigger* b) const
             {
-                int32 rA = a->GetDuration() ? float(a->GetDuration()) : 0;
-                int32 rB = b->GetDuration() ? float(b->GetDuration()) : 0;
+                int32 rA = a->GetDuration() ? a->GetDuration() : 0;
+                int32 rB = b->GetDuration() ? b->GetDuration() : 0;
                 return m_ascending ? rA < rB : rA > rB;
             }
         private:

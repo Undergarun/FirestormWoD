@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Nethermancer_Sepethrea
@@ -35,7 +25,7 @@ enum eSays
     SAY_DRAGONS_BREATH_2           = -1554016,
     SAY_SLAY1                      = -1554017,
     SAY_SLAY2                      = -1554018,
-    SAY_DEATH                      = -1554019,
+    SAY_DEATH                      = -1554019
 };
 
 enum eSpells
@@ -49,7 +39,7 @@ enum eSpells
     H_SPELL_SUMMON_RAGIN_FLAMES    = 39084,
     SPELL_INFERNO                  = 35268,
     H_SPELL_INFERNO                = 39346,
-    SPELL_FIRE_TAIL                = 35278,
+    SPELL_FIRE_TAIL                = 35278
 };
 
 class boss_nethermancer_sepethrea : public CreatureScript
@@ -261,9 +251,11 @@ class mob_ragin_flames : public CreatureScript
                 return new mob_ragin_flamesAI(creature);
             }
 };
+
+#ifndef __clang_analyzer__
 void AddSC_boss_nethermancer_sepethrea()
 {
     new boss_nethermancer_sepethrea();
     new mob_ragin_flames();
 }
-
+#endif

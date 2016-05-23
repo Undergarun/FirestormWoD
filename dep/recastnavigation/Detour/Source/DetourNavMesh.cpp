@@ -17,8 +17,8 @@
 //
 
 #include <float.h>
+#ifndef __clang_analyzer__
 #include <string.h>
-#include <stdio.h>
 #include "DetourNavMesh.h"
 #include "DetourNode.h"
 #include "DetourCommon.h"
@@ -1508,4 +1508,4 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	
 	return DT_SUCCESS;
 }
-
+#endif

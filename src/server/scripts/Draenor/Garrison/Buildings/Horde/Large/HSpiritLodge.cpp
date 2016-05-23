@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "HSpiritLodge.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../../GarrisonScriptData.hpp"
@@ -18,15 +19,15 @@ namespace MS { namespace Garrison
 
     namespace npc_VarshaData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
     }
@@ -56,7 +57,7 @@ namespace MS { namespace Garrison
         return new npc_VarshaAI(p_Creature);
     }
 
-    void npc_VarshaAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_VarshaAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         using namespace MS::Garrison::GarrisonPortals;
 

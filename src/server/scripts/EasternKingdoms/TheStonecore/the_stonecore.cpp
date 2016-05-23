@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "the_stonecore.h"
 
@@ -9,15 +17,15 @@ enum Spells
 
     // Imp
     SPELL_FELL_FIREBALL      = 80344,
-    H_SPELL_FELL_FIREBALL    = 92638, 
+    H_SPELL_FELL_FIREBALL    = 92638,
 
     // Millhouse Manastorm
     SPELL_BLUR               = 81216,
     SPELL_MILL_FEAR          = 81442,
-    SPELL_FROSTBOLT_VOLLEY   = 81440,           
+    SPELL_FROSTBOLT_VOLLEY   = 81440,
     H_SPELL_FROSTBOLT_VOLLEY = 92642,
     SPELL_IMPENDING_DOOM     = 86830,
-    SPELL_SHADOW_BOLT        = 81439,           
+    SPELL_SHADOW_BOLT        = 81439,
     H_SPELL_SHADOW_BOLT      = 92641,
     SPELL_SHADOWFURY         = 81441,
     H_SPELL_SHADOWFURY       = 92644,
@@ -32,32 +40,32 @@ enum Spells
     SPELL_SHOCKWAVE          = 80195,
     H_SPELL_SHOCKWAVE        = 92640,
 
-    // Stonecore Earthshaper 
+    // Stonecore Earthshaper
     SPELL_DUST_STORM         = 81463,
     SPELL_FORCE_OF_EARTH     = 81459,
-    SPELL_GROUND_SHOCK       = 81530,       
+    SPELL_GROUND_SHOCK       = 81530,
     H_SPELL_GROUND_SHOCK     = 92628,
     SPELL_LAVA_BURST         = 81576,
-    H_SPELL_LAVA_BURST       = 92626, 
+    H_SPELL_LAVA_BURST       = 92626,
 
-    // Stonecore Flayer 
+    // Stonecore Flayer
     SPELL_FLAY               = 79922,
 
-    // Stonecore Magmalord (
+    // Stonecore Magmalord
     SPELL_IGNITE             = 80151,
     H_SPELL_IGNITE           = 92636,
     SPELL_MAGMA_ERUPTION     = 80038,
 
-    // Stonecore Rift Conjurer 
+    // Stonecore Rift Conjurer
     SPELL_DEMON_PORTAL       = 80308,
-    SPELL_SHADOWBOLT         = 80279,             
+    SPELL_SHADOWBOLT         = 80279,
     H_SPELL_SHADOWBOLT       = 92637,
 
     //Stonecore Sentry
-    
-    // Stonecore Warbringer 
+
+    // Stonecore Warbringer
     SPELL_CLEAVE             = 15496,
-    SPELL_RAGE               = 80158,
+    SPELL_RAGE               = 80158
 };
 
 enum eEvents
@@ -87,7 +95,7 @@ enum eEvents
     EVENT_DEMON_PORTAL,
     EVENT_SHADOWBOLT,
     EVENT_CLEAVE,
-    EVENT_RAGE,
+    EVENT_RAGE
 };
 
 class mob_crystalspawn_giant : public CreatureScript
@@ -207,15 +215,15 @@ enum ScriptTexts
     SAY_EVENT_2    = 1,
     SAY_EVENT_3 = 2,
     SAY_DOOM    = 3,
-    SAY_DEATH    = 4,
+    SAY_DEATH    = 4
 };
 
-const Position millhousemanastormscPos[3] = 
+/*const Position millhousemanastormscPos[3] =
 {
     {987.67f, 882.45f, 303.37f, 2.07f},
     {1075.72f, 862.74f, 291.48f, 2.86f},
     {1151.45f, 885.74f, 284.96f, 3.36f}
-};
+};*/
 
 class mob_millhouse_manastorm : public CreatureScript
 {
@@ -261,7 +269,7 @@ public:
             }
         }*/
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             Talk(SAY_DEATH);
         }
@@ -367,9 +375,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_the_stonecore()
 {
     new mob_crystalspawn_giant();
     new mob_impp();
     new mob_millhouse_manastorm();
 }
+#endif

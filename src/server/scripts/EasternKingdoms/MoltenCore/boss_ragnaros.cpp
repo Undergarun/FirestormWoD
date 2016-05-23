@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Ragnaros
@@ -39,7 +29,7 @@ enum Texts
     SAY_ARRIVAL1_RAG    = -1409009,
     SAY_ARRIVAL2_MAJ    = -1409010,
     SAY_ARRIVAL3_RAG    = -1409011,
-    SAY_ARRIVAL5_RAG    = -1409012,
+    SAY_ARRIVAL5_RAG    = -1409012
 };
 
 enum Spells
@@ -53,7 +43,7 @@ enum Spells
     SPELL_RAGEMERGE             = 20568,
     SPELL_MELT_WEAPON           = 21388,
     SPELL_ELEMENTAL_FIRE        = 20564,
-    SPELL_ERRUPTION             = 17731,
+    SPELL_ERRUPTION             = 17731
 };
 
 enum Events
@@ -70,7 +60,7 @@ enum Events
     EVENT_INTRO_2           = 9,
     EVENT_INTRO_3           = 10,
     EVENT_INTRO_4           = 11,
-    EVENT_INTRO_5           = 12,
+    EVENT_INTRO_5           = 12
 };
 
 class boss_ragnaros : public CreatureScript
@@ -346,8 +336,10 @@ class mob_son_of_flame : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ragnaros()
 {
     new boss_ragnaros();
     new mob_son_of_flame();
 }
+#endif

@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "InstanceScript.h"
@@ -11,7 +11,7 @@
 
 class instance_grimrail_depot : public InstanceMapScript
 {
-public:                                                      
+public:
 
     instance_grimrail_depot() : InstanceMapScript("instance_grimrail_depot", 1208) { }
 
@@ -89,7 +89,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_grimrail_depot()
 {
     new instance_grimrail_depot();
 }
+#endif

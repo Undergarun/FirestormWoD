@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "boss_kromog.hpp"
@@ -121,7 +121,7 @@ class boss_kromog : public CreatureScript
             std::set<uint64> m_RipplingSmashTriggers;
             std::set<uint64> m_GraspingEarthTriggers;
 
-            float m_FrenzyHealthPct;
+            int32 m_FrenzyHealthPct;
 
             uint32 m_AbilityTalkTime;
 
@@ -150,7 +150,7 @@ class boss_kromog : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 me->DespawnCreaturesInArea({ eCreatures::StoneWallRight, eCreatures::StoneWallLeft });
-                me->DespawnAreaTriggersInArea({ eSpells::ReverberationsAreaTrigger });
+                me->DespawnAreaTriggersInArea( eSpells::ReverberationsAreaTrigger );
 
                 m_Events.Reset();
 
@@ -195,7 +195,7 @@ class boss_kromog : public CreatureScript
                     }
                 }
 
-                m_FrenzyHealthPct   = 30.0f;
+                m_FrenzyHealthPct   = 30;
                 m_AbilityTalkTime   = 0;
                 m_CrushingEarthBoom = false;
             }
@@ -208,7 +208,7 @@ class boss_kromog : public CreatureScript
                 Talk(eTalks::TalkSlay);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 _EnterCombat();
 
@@ -244,14 +244,14 @@ class boss_kromog : public CreatureScript
                 Reset();
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAllAreasTrigger();
 
                 summons.DespawnAll();
 
                 me->DespawnCreaturesInArea({ eCreatures::StoneWallRight, eCreatures::StoneWallLeft });
-                me->DespawnAreaTriggersInArea({ eSpells::ReverberationsAreaTrigger });
+                me->DespawnAreaTriggersInArea( eSpells::ReverberationsAreaTrigger );
 
                 Talk(eTalks::TalkDeath);
 
@@ -313,11 +313,11 @@ class boss_kromog : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HealthBelowPctDamaged(m_FrenzyHealthPct, p_Damage) && !me->HasAura(eSpells::Frenzy))
                 {
-                    m_FrenzyHealthPct = 0.0f;
+                    m_FrenzyHealthPct = 0;
 
                     me->CastSpell(me, eSpells::Frenzy, true);
 
@@ -367,10 +367,10 @@ class boss_kromog : public CreatureScript
                     }
                     case eEvents::EventStoneBreath:
                     {
-                        if (m_AbilityTalkTime <= time(nullptr))
+                        if (m_AbilityTalkTime <= uint32(time(nullptr)))
                         {
                             Talk(eTalks::TalkAbility);
-                            m_AbilityTalkTime = time(nullptr) + eTimers::TimerAbilityTalk;
+                            m_AbilityTalkTime = uint32(time(nullptr)) + eTimers::TimerAbilityTalk;
                         }
 
                         me->CastSpell(me, eSpells::StoneBreathChannel, false);
@@ -381,15 +381,15 @@ class boss_kromog : public CreatureScript
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, eSpells::WarpedArmor, true);
-                        m_Events.ScheduleEvent(eEvents::EventWarpedArmor, m_FrenzyHealthPct == 0.0f ? TimerWarpedArmorFrenzied : eTimers::TimerWarpedArmor);
+                        m_Events.ScheduleEvent(eEvents::EventWarpedArmor, m_FrenzyHealthPct == 0 ? TimerWarpedArmorFrenzied : eTimers::TimerWarpedArmor);
                         break;
                     }
                     case eEvents::EventSlam:
                     {
-                        if (m_AbilityTalkTime <= time(nullptr))
+                        if (m_AbilityTalkTime <= uint32(time(nullptr)))
                         {
                             Talk(eTalks::TalkAbility);
-                            m_AbilityTalkTime = time(nullptr) + eTimers::TimerAbilityTalk;
+                            m_AbilityTalkTime = uint32(time(nullptr)) + eTimers::TimerAbilityTalk;
                         }
 
                         me->CastSpell(me, eSpells::Slam, false);
@@ -407,7 +407,7 @@ class boss_kromog : public CreatureScript
                         /// Reverberations and Shattered Earth will immediately follow Slam and Rippling Smash.
                         m_Events.ScheduleEvent(eEvents::EventReverberation, 1);
                         m_Events.ScheduleEvent(eEvents::EventShatteredEarth, 1);
-                        m_Events.ScheduleEvent(eEvents::EventRipplingSmash, m_FrenzyHealthPct == 0.0f ? eTimers::TimerRipplingSmashFrenzied : eTimers::TimerRipplingSmashAgain);
+                        m_Events.ScheduleEvent(eEvents::EventRipplingSmash, m_FrenzyHealthPct == 0 ? eTimers::TimerRipplingSmashFrenzied : eTimers::TimerRipplingSmashAgain);
                         break;
                     }
                     case eEvents::EventGraspingEarth:
@@ -455,10 +455,10 @@ class boss_kromog : public CreatureScript
                     }
                     case eEvents::EventCrushingEarth:
                     {
-                        if (m_AbilityTalkTime <= time(nullptr))
+                        if (m_AbilityTalkTime <= uint32(time(nullptr)))
                         {
                             Talk(eTalks::TalkAbility);
-                            m_AbilityTalkTime = time(nullptr) + eTimers::TimerAbilityTalk;
+                            m_AbilityTalkTime = uint32(time(nullptr)) + eTimers::TimerAbilityTalk;
                         }
 
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
@@ -669,7 +669,7 @@ class npc_foundry_grasping_earth : public CreatureScript
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK_DEST, true);
             }
 
-            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* /*p_Attacker*/, SpellInfo const* p_SpellInfo) override
             {
                 switch (p_SpellInfo->Id)
                 {
@@ -866,7 +866,7 @@ class npc_foundry_rune_of_crushing_earth : public CreatureScript
                 }
             }
 
-            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            void PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply) override
             {
                 if (p_Apply)
                 {
@@ -1025,9 +1025,9 @@ class spell_foundry_slam : public SpellScriptLoader
 
         class spell_foundry_slam_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_slam_SpellScript);
+            PrepareSpellScript(spell_foundry_slam_SpellScript)
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Boss = GetCaster())
                 {
@@ -1044,7 +1044,7 @@ class spell_foundry_slam : public SpellScriptLoader
                         if (l_Player->IsMeleeDamageDealer())
                             AddPct(l_ReducedDamage, 50.0f);
 
-                        float l_Damage      = GetSpell()->GetDamage();
+                        float l_Damage      = (float)GetSpell()->GetDamage();
                         float l_Distance    = std::min(l_Player->IsMeleeDamageDealer() ? 40.0f : 60.0f, l_Player->GetDistance(*l_Boss));
                         float l_NewDamages  = std::max(1.0f, l_Damage - (l_Damage * l_Distance * l_ReducedDamage / 100.0f));
 
@@ -1078,9 +1078,9 @@ class spell_foundry_fists_of_stone : public SpellScriptLoader
 
         class spell_foundry_fists_of_stone_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_fists_of_stone_AuraScript);
+            PrepareAuraScript(spell_foundry_fists_of_stone_AuraScript)
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -1120,7 +1120,7 @@ class spell_foundry_rune_of_grasping_earth : public SpellScriptLoader
 
         class spell_foundry_rune_of_grasping_earth_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_rune_of_grasping_earth_SpellScript);
+            PrepareSpellScript(spell_foundry_rune_of_grasping_earth_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -1169,7 +1169,7 @@ class spell_foundry_rune_of_crushing_earth : public SpellScriptLoader
 
         class spell_foundry_rune_of_crushing_earth_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_rune_of_crushing_earth_SpellScript);
+            PrepareSpellScript(spell_foundry_rune_of_crushing_earth_SpellScript)
 
             enum eSpell
             {
@@ -1227,7 +1227,7 @@ class spell_foundry_rune_of_grasping_earth_dot : public SpellScriptLoader
 
         class spell_foundry_rune_of_grasping_earth_dot_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_rune_of_grasping_earth_dot_AuraScript);
+            PrepareAuraScript(spell_foundry_rune_of_grasping_earth_dot_AuraScript)
 
             void OnTick(AuraEffect const* p_AurEff)
             {
@@ -1265,7 +1265,7 @@ class areatrigger_foundry_rippling_smash : public AreaTriggerEntityScript
 
         std::set<uint64> m_AffectedTargets;
 
-        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
+        void OnSetCreatePosition(AreaTrigger* /*p_AreaTrigger*/, Unit* p_Caster, Position& /*p_SourcePosition*/, Position& p_DestinationPosition, std::list<Position>& /*p_PathToLinearDestination*/) override
         {
             float l_Orientation = p_Caster->GetOrientation();
 
@@ -1273,7 +1273,7 @@ class areatrigger_foundry_rippling_smash : public AreaTriggerEntityScript
             p_DestinationPosition.m_positionY = p_Caster->GetPositionY() + 60.0f * sin(l_Orientation);
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1332,7 +1332,7 @@ class areatrigger_foundry_reverberations : public AreaTriggerEntityScript
             ReverberationsDamage = 157247
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1364,6 +1364,7 @@ class areatrigger_foundry_reverberations : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kromog()
 {
     /// Boss
@@ -1387,3 +1388,4 @@ void AddSC_boss_kromog()
     new areatrigger_foundry_rippling_smash();
     new areatrigger_foundry_reverberations();
 }
+#endif

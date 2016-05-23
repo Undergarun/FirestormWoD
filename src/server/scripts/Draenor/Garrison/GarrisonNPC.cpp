@@ -1,11 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2014-2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common.h"
 #include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -57,13 +58,11 @@
 #include "Buildings/Horde/HFrostwallMines.hpp"
 #include "Buildings/Horde/HHerbGarden.hpp"
 
-#include <random>
-
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature* p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Owner(nullptr)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_Owner(nullptr), m_SequenceSize(0)
     {
 
     }
@@ -293,14 +292,14 @@ namespace MS { namespace Garrison
 
     /// When the building ID is set
     /// @p_BuildingID : Set building ID
-    void GarrisonNPCAI::OnSetBuildingID(uint32 p_BuildingID)
+    void GarrisonNPCAI::OnSetBuildingID(uint32 /*p_BuildingID*/)
     {
 
     }
 
     /// When the PlotInstance ID is set
     /// @p_BuildingID : Set plot instance ID
-    void GarrisonNPCAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void GarrisonNPCAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
 
     }
@@ -496,7 +495,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_GarrisonFord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_GarrisonFord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         if (p_Player->getLevel() >= 88 && !p_Player->GetGarrison())
         {
@@ -587,7 +586,7 @@ namespace MS { namespace Garrison
                 me->m_spells[2] = me->m_spells[0];
 
             for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
-                me->m_threatModifier[i] *= 10000.f;
+                me->m_threatModifier[i] *= 10000.0f;
         }
     }
 
@@ -609,7 +608,7 @@ namespace MS { namespace Garrison
     }
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_CallToArms::npc_CallToArmsAI::UpdateAI(const uint32 p_Diff)
+    void npc_CallToArms::npc_CallToArmsAI::UpdateAI(const uint32 /*p_Diff*/)
     {
         if (!UpdateVictim())
             return;
@@ -619,7 +618,7 @@ namespace MS { namespace Garrison
 
         if (m_Ranged)
         {
-            if (me->IsWithinMeleeRange(me->getVictim(), 1.f))
+            if (me->IsWithinMeleeRange(me->getVictim(), 1.0f))
             {
                 me->CastSpell(me, Spells::Disengage, TRIGGERED_FULL_MASK);
                 me->resetAttackTimer();
@@ -725,7 +724,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_garrison_atheeru_palestar::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_garrison_atheeru_palestar::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1 && p_Creature->AI() && p_Player->HasEnoughMoney((int64)10000))
         {
@@ -735,7 +734,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    void npc_garrison_atheeru_palestarAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_garrison_atheeru_palestarAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         DoAction(1);
     }
@@ -779,7 +778,7 @@ namespace MS { namespace Garrison
             p_Clicker->CastSpell(me, 166052, true);
     }
 
-    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply)
+    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply)
     {
         if (!p_Apply)
         {
@@ -1079,7 +1078,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    bool npc_FleetCommandTable::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_FleetCommandTable::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         if (!p_Player->GetGarrison())
             return true;
@@ -1099,14 +1098,14 @@ namespace MS { namespace Garrison
     {
     }
 
-    bool npc_AncientTradingMechanism_Garr::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_AncientTradingMechanism_Garr::OnQuestReward(Player* p_Player, Creature* /*p_Creature*/, const Quest* /*p_Quest*/, uint32 /*p_Option*/)
     {
         if (p_Player->GetGarrison() == nullptr)
             return true;
 
         std::vector<uint64> l_CreatureGuids = p_Player->GetGarrison()->GetBuildingCreaturesByBuildingType(BuildingType::TradingPost);
 
-        for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+        for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
         {
             if (Creature* l_Creature = sObjectAccessor->GetCreature(*p_Player, *l_Itr))
             {
@@ -1336,7 +1335,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_follower_generic_script::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_follower_generic_script::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         Manager* l_GarrisonMgr = p_Player->GetGarrison();
         CreatureAI* l_AI = p_Creature->AI();
@@ -1669,7 +1668,7 @@ namespace MS { namespace Garrison
         p_Summoner->CastSpell(me, eSpells::SpellAuraRideVehicle, true);
     }
 
-    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply)
+    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply)
     {
         if (p_Apply)
             p_Passenger->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
@@ -1677,7 +1676,7 @@ namespace MS { namespace Garrison
             p_Passenger->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
     }
 
-    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::JustDied(Unit* p_Killer)
+    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::JustDied(Unit* /*p_Killer*/)
     {
         if (Player* l_Player = HashMapHolder<Player>::Find(m_SummonerGUID))
             l_Player->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
@@ -1693,7 +1692,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    void npc_robot_rooster::npc_robot_roosterAI::EnterCombat(Unit* p_Attacker)
+    void npc_robot_rooster::npc_robot_roosterAI::EnterCombat(Unit* /*p_Attacker*/)
     {
         m_Events.ScheduleEvent(eDatas::EventBerserk, 5000);
         m_Events.ScheduleEvent(eDatas::EventNitroBoosts, 20000);
@@ -1757,7 +1756,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_GarrisonWalter::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_GarrisonWalter::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         if (!p_Player->GetSession())
             return false;
@@ -1790,6 +1789,7 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_NPC()
 {
     /// Generic
@@ -1984,3 +1984,4 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_FleetCommandTable;
     }
 }
+#endif

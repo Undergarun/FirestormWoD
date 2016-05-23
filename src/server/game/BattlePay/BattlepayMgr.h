@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,6 +11,8 @@
 
 #include "Common.h"
 #include "WorldSession.h"
+#include "Define.h"
+#include "ObjectMgr.h"
 
 namespace Battlepay
 {
@@ -98,7 +100,7 @@ namespace Battlepay
     {
         enum
         {
-            SavePurchase,
+            SavePurchase
         };
     }
 
@@ -201,7 +203,7 @@ namespace Battlepay
                 m_PurchaseIDCount = 0;
             }
 
-            ~Manager() {};
+            ~Manager() {}
 
             /*
             * Load all battlepay data from database
@@ -265,7 +267,7 @@ namespace Battlepay
             }
 
             DisplayInfo const* GetDisplayInfo(uint32 p_Id) const
-            { 
+            {
                 if (m_DisplayInfos.find(p_Id) == m_DisplayInfos.end())
                     return nullptr;
 

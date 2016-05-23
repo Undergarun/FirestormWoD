@@ -1,20 +1,11 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef __BATTLEGROUNDRV_H
 #define __BATTLEGROUNDRV_H
 
@@ -50,7 +41,7 @@ enum BattlegroundRVObjectTypes
     BG_RV_OBJECT_FENCE_1,
     BG_RV_OBJECT_FENCE_2,
 
-    BG_RV_OBJECT_MAX,
+    BG_RV_OBJECT_MAX
 };
 
 enum BattlegroundRVObjects
@@ -80,7 +71,7 @@ enum BattlegroundRVObjects
     BG_RV_OBJECT_TYPE_PILAR_1                    = 194583, // axe
     BG_RV_OBJECT_TYPE_PILAR_2                    = 194584, // arena
     BG_RV_OBJECT_TYPE_PILAR_3                    = 194585, // lightning
-    BG_RV_OBJECT_TYPE_PILAR_4                    = 194587, // ivory
+    BG_RV_OBJECT_TYPE_PILAR_4                    = 194587  // ivory
 };
 
 enum BattlegroundRVData
@@ -91,18 +82,18 @@ enum BattlegroundRVData
 
     BG_RV_PILLAR_SWITCH_TIMER                    = 25000,
     BG_RV_FIRE_TO_PILLAR_TIMER                   = 20000,
-    BG_RV_CLOSE_FIRE_TIMER                       =  5000,
+    BG_RV_CLOSE_FIRE_TIMER                       = 5000,
     BG_RV_FIRST_TIMER                            = 20133,
-    BG_RV_WORLD_STATE_A                          = 0xe10,
-    BG_RV_WORLD_STATE_H                          = 0xe11,
-    BG_RV_WORLD_STATE                            = 0xe1a,
+    BG_RV_WORLD_STATE_A                          = 0xE10,
+    BG_RV_WORLD_STATE_H                          = 0xE11,
+    BG_RV_WORLD_STATE                            = 0xE1A
 };
 
 class BattlegroundRVScore : public BattlegroundScore
 {
     public:
-        BattlegroundRVScore() {};
-        virtual ~BattlegroundRVScore() {};
+        BattlegroundRVScore() {}
+        virtual ~BattlegroundRVScore() {}
 };
 
 class BattlegroundRV : public Battleground

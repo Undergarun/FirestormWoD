@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cppcheck - HTML report - [project name]</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+
+    </style>
+    <script language="javascript">
+      function getStyle(el,styleProp) {
+        if (el.currentStyle)
+          var y = el.currentStyle[styleProp];
+        else if (window.getComputedStyle)
+          var y = document.defaultView.getComputedStyle(el,null).getPropertyValue(styleProp);
+        return y;
+      }
+      function toggle() {
+        var el = this.expandable_content;
+        var mark = this.expandable_marker;
+        if (el.style.display == "block") {
+          el.style.display = "none";
+          mark.innerHTML = "[+]";
+        } else {
+          el.style.display = "block";
+          mark.innerHTML = "[-]";
+        }
+      }
+      function init_expandables() {
+        var elts = document.getElementsByClassName("expandable");
+        for (var i = 0; i < elts.length; i++) {
+          var el = elts[i];
+          var clickable = el.getElementsByTagName("span")[0];
+          var marker = clickable.getElementsByClassName("marker")[0];
+          var content = el.getElementsByClassName("content")[0];
+          var width = clickable.clientWidth - parseInt(getStyle(content, "padding-left")) - parseInt(getStyle(content, "padding-right"));
+          content.style.width = width + "px";
+          clickable.expandable_content = content;
+          clickable.expandable_marker = marker;
+          clickable.onclick = toggle;
+        }
+      }
+      function set_class_display(c, st) {
+        var elements = document.querySelectorAll('.' + c),
+            len = elements.length;
+        for (i = 0; i < len; i++) {
+            elements[i].style.display = st;
+        }
+      }
+      function toggle_class_visibility(id) {
+        var box = document.getElementById(id);
+        set_class_display(id, box.checked ? '' : 'none');
+      }
+    </script>
+  </head>
+  <body onload="init_expandables()">
+      <div id="header">
+        <h1>Cppcheck report - [project name]: Statistics </h1>
+      </div>
+      <div id="menu_index">
+       <p id="filename"><a href="index.html">Back to summary</a> </p>
+
+      </div>
+      <div id="content_index">
+<p>Top 10 files for error severity, total findings: 3</br>
+&#160;&#160;&#160;2&#160;<a href="243.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/Commands/cs_debug.cpp</a></br>
+&#160;&#160;&#160;1&#160;<a href="67.html">  /Users/MilleniumStudio/Git/wod/src/server/game/DataStores/DBCStores.cpp</a></br>
+</p>
+<p>Top 10 files for warning severity, total findings: 2021</br>
+&#160;&#160;&#160;268&#160;<a href="15.html">  /Users/MilleniumStudio/Git/wod/src/server/game/AI/ScriptedAI/ScriptedCreature.h</a></br>
+&#160;&#160;&#160;261&#160;<a href="173.html">  /Users/MilleniumStudio/Git/wod/src/server/game/Movement/Spline/MoveSplineFlag.h</a></br>
+&#160;&#160;&#160;58&#160;&#160;<a href="427.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/EasternKingdoms/Gilneas/gilneas.cpp</a></br>
+&#160;&#160;&#160;18&#160;&#160;<a href="975.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/Pandaria/HeartOfFear/boss_zorlok.cpp</a></br>
+&#160;&#160;&#160;18&#160;&#160;<a href="832.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/Northrend/Ulduar/Ulduar/boss_mimiron.cpp</a></br>
+&#160;&#160;&#160;18&#160;&#160;<a href="73.html">  /Users/MilleniumStudio/Git/wod/src/server/game/Entities/Creature/Creature.h</a></br>
+&#160;&#160;&#160;16&#160;&#160;<a href="518.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/EasternKingdoms/SunwellPlateau/boss_kiljaeden.cpp</a></br>
+&#160;&#160;&#160;15&#160;&#160;<a href="84.html">  /Users/MilleniumStudio/Git/wod/src/server/game/Entities/Player/Player.h</a></br>
+&#160;&#160;&#160;13&#160;&#160;<a href="1027.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/Pandaria/ThroneOfThunder/boss_council_of_elders.cpp</a></br>
+&#160;&#160;&#160;12&#160;&#160;<a href="989.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/Pandaria/MogushanVault/mogu_shan_vault.cpp</a></br>
+</p>
+<p>Top 10 files for portability severity, total findings: 14</br>
+&#160;&#160;&#160;3&#160;<a href="1136.html">  /Users/MilleniumStudio/Git/wod/src/tools/vmap4_extractor/dbcfile.h</a></br>
+&#160;&#160;&#160;3&#160;<a href="72.html">  /Users/MilleniumStudio/Git/wod/src/server/game/Entities/AreaTrigger/AreaTrigger.h</a></br>
+&#160;&#160;&#160;2&#160;<a href="1121.html">  /Users/MilleniumStudio/Git/wod/src/tools/map_extractor/dbcfile.h</a></br>
+&#160;&#160;&#160;2&#160;<a href="101.html">  /Users/MilleniumStudio/Git/wod/src/server/game/Globals/ObjectMgr.h</a></br>
+&#160;&#160;&#160;1&#160;<a href="1137.html">  /Users/MilleniumStudio/Git/wod/src/tools/vmap4_extractor/model.cpp</a></br>
+&#160;&#160;&#160;1&#160;<a href="1094.html">  /Users/MilleniumStudio/Git/wod/src/server/shared/DataStores/DBCFileLoader.cpp</a></br>
+&#160;&#160;&#160;1&#160;<a href="1093.html">  /Users/MilleniumStudio/Git/wod/src/server/shared/DataStores/DB2FileLoader.cpp</a></br>
+&#160;&#160;&#160;1&#160;<a href="100.html">  /Users/MilleniumStudio/Git/wod/src/server/game/Garrison/GarrisonMgr.cpp</a></br>
+</p>
+<p>Top 10 files for performance severity, total findings: 55</br>
+&#160;&#160;&#160;18&#160;<a href="290.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/Draenor/Garrison/Buildings/ProfessionBuilding.hpp</a></br>
+&#160;&#160;&#160;7&#160;&#160;<a href="94.html">  /Users/MilleniumStudio/Git/wod/src/server/game/Garrison/GarrisonBuilding.hpp</a></br>
+&#160;&#160;&#160;4&#160;&#160;<a href="180.html">  /Users/MilleniumStudio/Git/wod/src/server/game/PetBattle/PetBattle.cpp</a></br>
+&#160;&#160;&#160;4&#160;&#160;<a href="103.html">  /Users/MilleniumStudio/Git/wod/src/server/game/Globals/ObjectMgr.cpp</a></br>
+&#160;&#160;&#160;3&#160;&#160;<a href="84.html">  /Users/MilleniumStudio/Git/wod/src/server/game/Entities/Player/Player.h</a></br>
+&#160;&#160;&#160;2&#160;&#160;<a href="1112.html">  /Users/MilleniumStudio/Git/wod/src/server/shared/Logging/Reporter.hpp</a></br>
+&#160;&#160;&#160;2&#160;&#160;<a href="369.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/Draenor/tanaan_jungle.cpp</a></br>
+&#160;&#160;&#160;2&#160;&#160;<a href="236.html">  /Users/MilleniumStudio/Git/wod/src/server/game/World/World.h</a></br>
+&#160;&#160;&#160;2&#160;&#160;<a href="28.html">  /Users/MilleniumStudio/Git/wod/src/server/game/BattlePay/BattlepayMgr.h</a></br>
+&#160;&#160;&#160;1&#160;&#160;<a href="234.html">  /Users/MilleniumStudio/Git/wod/src/server/game/Warden/WardenWin.cpp</a></br>
+</p>
+<p>Top 10 files for style severity, total findings: 6115</br>
+&#160;&#160;&#160;1216&#160;<a href="20.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/Draenor/Garrison/GarrisonNPC.hpp</a></br>
+&#160;&#160;&#160;201&#160;&#160;<a href="15.html">  /Users/MilleniumStudio/Git/wod/src/server/game/AI/ScriptedAI/ScriptedCreature.h</a></br>
+&#160;&#160;&#160;68&#160;&#160;&#160;<a href="93.html">  /Users/MilleniumStudio/Git/wod/src/server/game/Entities/Unit/Unit.cpp</a></br>
+&#160;&#160;&#160;61&#160;&#160;&#160;<a href="876.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/OutdoorPvP/Ashran/AshranNPCHorde.cpp</a></br>
+&#160;&#160;&#160;58&#160;&#160;&#160;<a href="875.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/OutdoorPvP/Ashran/AshranNPCAlliance.cpp</a></br>
+&#160;&#160;&#160;51&#160;&#160;&#160;<a href="1040.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/Pandaria/ThroneOfThunder/throne_of_thunder.cpp</a></br>
+&#160;&#160;&#160;45&#160;&#160;&#160;<a href="1085.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/World/npcs_special.cpp</a></br>
+&#160;&#160;&#160;41&#160;&#160;&#160;<a href="346.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/Draenor/Highmaul/highmaul.cpp</a></br>
+&#160;&#160;&#160;38&#160;&#160;&#160;<a href="83.html">  /Users/MilleniumStudio/Git/wod/src/server/game/Entities/Player/Player.cpp</a></br>
+&#160;&#160;&#160;37&#160;&#160;&#160;<a href="1054.html">  /Users/MilleniumStudio/Git/wod/src/server/scripts/Pandaria/dread_wastes.cpp</a></br>
+</p>

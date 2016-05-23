@@ -1,5 +1,13 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef DEF_SHADOWFANG_KEEP_H
-#define DEF_SHADOWFANG_KEEP_H
+# define DEF_SHADOWFANG_KEEP_H
 
 uint32 const EncounterCount = 5;
 
@@ -13,7 +21,7 @@ enum eData
     DATA_EVENT_NPC      = 5,
     DATA_GUARDS         = 6,
     DATA_GUARDS2        = 7,
-    DATA_TEAM           = 8,
+    DATA_TEAM           = 8
 };
 
 enum NPCs
@@ -37,8 +45,8 @@ enum NPCs
     NPC_APOTHECARY_BAXTER   = 36565,
 
     GO_COURTYARD_DOOR       = 18895,
-    GO_SORCERER_DOOR        = 18972,  
-    GO_ARUGAL_DOOR          = 18971,
+    GO_SORCERER_DOOR        = 18972,
+    GO_ARUGAL_DOOR          = 18971
 };
 
 #endif

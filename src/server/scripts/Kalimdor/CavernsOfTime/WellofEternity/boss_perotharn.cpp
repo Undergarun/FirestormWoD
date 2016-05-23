@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "well_of_eternity.h"
 
@@ -15,7 +23,7 @@ enum ScriptTexts
     SAY_INTRO   = 9,
     SAY_KILL    = 10,
     SAY_SPELL_1 = 11,
-    SAY_SPELL_2 = 12,
+    SAY_SPELL_2 = 12
 };
 
 enum Spells
@@ -50,7 +58,7 @@ enum Spells
     SPELL_ABSORB_FEL_ENERGY         = 105543,
     SPELL_RETURN_TO_THE_SHADOWS     = 105635,
     SPELL_CONSUME_ESSENCE           = 104738,
-    SPELL_REGENERATION              = 105547,
+    SPELL_REGENERATION              = 105547
 };
 
 enum Adds
@@ -61,7 +69,7 @@ enum Adds
     NPC_HUNTING_STALKERS        = 56189,
     NPC_EYE_OF_PEROTHARN_1      = 55868,
     NPC_EYE_OF_PEROTHARN_2      = 55879,
-    NPC_EASY_PREY_STALKER       = 56308,
+    NPC_EASY_PREY_STALKER       = 56308
 };
 
 enum Events
@@ -84,13 +92,13 @@ enum Events
 
 enum Actions
 {
-    ACTION_START        = 1, 
-    ACTION_EASY_PREY    = 2,
+    ACTION_START        = 1,
+    ACTION_EASY_PREY    = 2
 };
 
 enum Points
 {
-    POINT_EYE       = 1,
+    POINT_EYE       = 1
 };
 
 const Position centerPos = {3335.07f, -4891.54f, 181.16f, 0.0f};
@@ -173,7 +181,7 @@ class boss_perotharn : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 Talk(SAY_AGGRO);
 
@@ -202,7 +210,7 @@ class boss_perotharn : public CreatureScript
 
                 instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58239, 0);
                 instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58240, 0);
-                instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58241, 0);                               
+                instance->DoKilledMonsterKredit(QUEST_IN_UNENDING_NUMBERS, 58241, 0);
             }
             
             void KilledUnit(Unit* who)
@@ -211,7 +219,7 @@ class boss_perotharn : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(uint64 guid, int32 /*type*/)
             {
                 targetGUID = guid;
             }
@@ -257,7 +265,7 @@ class boss_perotharn : public CreatureScript
                             break;
                         case EVENT_CORRUPTING_TOUCH:
                             DoCastVictim(SPELL_CORRUPTING_TOUCH_DMG);
-                            events.ScheduleEvent(EVENT_CORRUPTING_TOUCH, urand(13000, 17000)); 
+                            events.ScheduleEvent(EVENT_CORRUPTING_TOUCH, urand(13000, 17000));
                             break;
                         case EVENT_FEL_FLAMES:
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -320,7 +328,7 @@ class boss_perotharn : public CreatureScript
                             break;
                         case EVENT_END_HUNT:
                             events.CancelEvent(EVENT_EASY_PREY);
-                            phase = 4; 
+                            phase = 4;
                             summons.DespawnEntry(NPC_EYE_OF_PEROTHARN_1);
                             summons.DespawnEntry(NPC_HUNTING_SUMMON_CIRCLE);
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -372,7 +380,7 @@ class npc_perotharn_eye_of_perotharn : public CreatureScript
             }
 
             void EnterCombat(Unit* /*who*/)
-            { 
+            {
                 events.ScheduleEvent(EVENT_NEXT_MOVE, urand(500, 2000));
             }
 
@@ -397,14 +405,14 @@ class npc_perotharn_eye_of_perotharn : public CreatureScript
                         {
                             pTarget->CastSpell(pTarget, SPELL_EASY_PREY, true);
                             pPerotharn->AI()->SetGUID(pTarget->GetGUID());
-                            pPerotharn->AI()->DoAction(ACTION_EASY_PREY);                        
+                            pPerotharn->AI()->DoAction(ACTION_EASY_PREY);
                         }
                     }
                 }
 
                 events.Update(diff);
 
-                if (uint32 eventId = events.ExecuteEvent()) 
+                if (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
@@ -440,7 +448,7 @@ class spell_perotharn_drain_essence: public SpellScriptLoader
 
         class spell_perotharn_drain_essence_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_perotharn_drain_essence_AuraScript);
+            PrepareAuraScript(spell_perotharn_drain_essence_AuraScript)
 
             void OnApply(AuraEffect const*, AuraEffectHandleModes /*mode*/)
             {
@@ -450,7 +458,7 @@ class spell_perotharn_drain_essence: public SpellScriptLoader
 
             void OnRemove(AuraEffect const*, AuraEffectHandleModes /*mode*/)
             {
-                if (GetUnitOwner()) 
+                if (GetUnitOwner())
                     GetUnitOwner()->SetControlled(false, UNIT_STATE_STUNNED);
             }
 
@@ -474,7 +482,7 @@ class spell_perotharn_drain_essence_dmg: public SpellScriptLoader
 
         class spell_perotharn_drain_essence_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_perotharn_drain_essence_dmg_SpellScript);
+            PrepareSpellScript(spell_perotharn_drain_essence_dmg_SpellScript)
 
             void RecalculateDamage()
             {
@@ -500,7 +508,7 @@ class spell_perotharn_punishing_flames_dmg: public SpellScriptLoader
 
         class spell_perotharn_punishing_flames_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_perotharn_punishing_flames_dmg_SpellScript);
+            PrepareSpellScript(spell_perotharn_punishing_flames_dmg_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -545,7 +553,7 @@ class achievement_lazy_eye : public AchievementCriteriaScript
     public:
         achievement_lazy_eye() : AchievementCriteriaScript("achievement_lazy_eye") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;
@@ -557,6 +565,7 @@ class achievement_lazy_eye : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_perotharn()
 {
     new boss_perotharn();
@@ -566,3 +575,4 @@ void AddSC_boss_perotharn()
     new spell_perotharn_punishing_flames_dmg();
     new achievement_lazy_eye();
 }
+#endif

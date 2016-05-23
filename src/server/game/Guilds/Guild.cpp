@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "DatabaseEnv.h"
 #include "Guild.h"
@@ -1034,7 +1024,7 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
 ///////////////////////////////////////////////////////////////////////////////
 // Guild
 Guild::Guild() : m_id(0), m_leaderGuid(0), m_createdDate(0), m_accountsNumber(0), m_bankMoney(0), m_eventLog(NULL),
-    m_achievementMgr(this), _newsLog(this)
+    m_achievementMgr(this), _newsLog(this), m_BankLoaded(false)
 {
     for (uint8 l_Type = 0; l_Type < ChallengeMax; l_Type++)
         m_ChallengeCount[l_Type] = 0;
@@ -1528,7 +1518,7 @@ bool Guild::SwitchGuildLeader(uint64 newLeaderGuid)
     return false;
 }
 
-void Guild::HandleSetBankTabInfo(WorldSession* p_Session, uint8 p_TabID, const std::string& p_Name, const std::string& p_Icon) ///< p_Session is unused
+void Guild::HandleSetBankTabInfo(WorldSession* /*p_Session*/, uint8 p_TabID, const std::string& p_Name, const std::string& p_Icon)
 {
     if (BankTab* pTab = GetBankTab(p_TabID))
     {
@@ -1667,7 +1657,7 @@ void Guild::HandleInviteMember(WorldSession* p_Session, const std::string& p_Nam
     {
         SendCommandResult(p_Session, GUILD_INVITE_S, ERR_ALREADY_IN_GUILD_S, p_Name);
         return;
-    }    
+    }
 
     /// Inviting player must have rights to invite
     if (!_HasRankRight(l_Player, GR_RIGHT_INVITE))
@@ -1852,7 +1842,7 @@ void Guild::HandleSetMemberRank(WorldSession* session, uint64 targetGuid, uint64
     }
 }
 
-void Guild::HandleSwapRanks(WorldSession* p_Session, uint32 p_RankID, bool p_Up) ///< p_Session is unused
+void Guild::HandleSwapRanks(WorldSession* /*p_Session*/, uint32 p_RankID, bool p_Up) ///< p_Session is unused
 {
     RankInfo* l_FirstRank = NULL;
     RankInfo* l_SecondRank = NULL;
@@ -2074,7 +2064,7 @@ void Guild::HandleGuildPartyRequest(WorldSession * p_Session)
 
     l_Data << uint32(0);                                                                        ///< Current guild members
     l_Data << uint32(0);                                                                        ///< Needed guild members
-    l_Data << float(0.f);                                                                       ///< Guild XP multiplier
+    l_Data << float(0.0f);                                                                       ///< Guild XP multiplier
 
     p_Session->SendPacket(&l_Data);
 }
@@ -2104,8 +2094,111 @@ void Guild::SendBankLog(WorldSession * p_Session, uint8 p_TabID) const
     }
 }
 
-void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithContent, bool p_WithTabInfo) const
+void Guild::LoadBank()
 {
+    if (m_BankLoaded)
+        return;
+
+    /// 1. Load all bank event logs
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading guild bank event logs...");
+    {
+        uint32 oldMSTime = getMSTime();
+                             //          0        1      2        3          4           5            6               7          8
+        QueryResult result = CharacterDatabase.Query("SELECT guildid, TabId, LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
+
+        if (!result)
+        {
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild bank event logs. DB table `guild_bank_eventlog` is empty.");
+        }
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+                uint32 guildId = fields[0].GetUInt32();
+
+                if (Guild* guild = sGuildMgr->GetGuildById(guildId))
+                    guild->LoadBankEventLogFromDB(fields);
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild bank event logs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+
+    // 2. Load all guild bank tabs
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading guild bank tabs...");
+    {
+        uint32 oldMSTime = getMSTime();
+                                         //         0        1      2        3        4
+        QueryResult result = CharacterDatabase.Query("SELECT guildid, TabId, TabName, TabIcon, TabText FROM guild_bank_tab ORDER BY guildid ASC, TabId ASC");
+
+        if (!result)
+        {
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild bank tabs. DB table `guild_bank_tab` is empty.");
+        }
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+                uint32 guildId = fields[0].GetUInt32();
+
+                if (Guild* guild = sGuildMgr->GetGuildById(guildId))
+                    guild->LoadBankTabFromDB(fields);
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild bank tabs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+
+    // 9. Fill all guild bank tabs
+    sLog->outInfo(LOG_FILTER_GUILD, "Filling bank tabs with items...");
+    {
+        uint32 oldMSTime = getMSTime();
+                                       //          0            1                2      3         4        5      6                  7                 8           9      10
+        QueryResult result = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, bonuses, upgradeId, "
+                                                     //   11       12           13      14          15                   16      17       18        19    20
+                                                     "durability, playedTime, text, custom_flags, enchantIllusionId, guildid, TabId, SlotId, item_guid, itemEntry FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid");
+
+        if (!result)
+        {
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild bank tab items. DB table `guild_bank_item` or `item_instance` is empty.");
+        }
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+                uint32 guildId = fields[16].GetUInt32();
+
+                if (Guild* guild = sGuildMgr->GetGuildById(guildId))
+                    guild->LoadBankItemFromDB(fields);
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild bank tab items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+
+    m_BankLoaded = true;
+}
+
+void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithContent, bool p_WithTabInfo)
+{
+    if (!m_BankLoaded)
+        LoadBank();
+
     /// Don't send packet for non purchased tab
     BankTab const* l_CurrTab = GetBankTab(p_TabID);
     if (!l_CurrTab && p_TabID > 0)
@@ -2610,7 +2703,7 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
             player->GetSession()->SendPacket(packet);
 }
 
-void Guild::MassInviteToEvent(WorldSession* p_Session, uint32 p_MinLevel, uint32 p_MaxLevel, uint32 p_MinRank) ///< p_Session is unused
+void Guild::MassInviteToEvent(WorldSession* /*p_Session*/, uint32 /*p_MinLevel*/, uint32 /*p_MaxLevel*/, uint32 /*p_MinRank*/)
 {
     // Finish me. Thank still not done in 2016 !
     /*uint32 count = 0;
@@ -3609,7 +3702,7 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& p_Data)
     p_Data.Initialize(SMSG_GUILD_NEWS);
     p_Data << uint32(_newsLog.size());
 
-    for (GuildNewsLogMap::const_iterator l_It = _newsLog.begin(); l_It != _newsLog.end(); l_It++)
+    for (GuildNewsLogMap::const_iterator l_It = _newsLog.begin(); l_It != _newsLog.end(); ++l_It)
     {
         p_Data << uint32(l_It->first);
         p_Data << uint32(MS::Utilities::WowTime::Encode(l_It->second.Date));

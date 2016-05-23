@@ -1,20 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "Language.h"
@@ -430,7 +420,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
         if (DeclinedName const* l_DeclinedNames = l_It->second->GetDeclinedNames())
         {
             for (uint8 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
-                l_Buffer.WriteString(l_DeclinedNames->name[l_I]);                                       ///< DeclinedName[l_I] 
+                l_Buffer.WriteString(l_DeclinedNames->name[l_I]);                                       ///< DeclinedName[l_I]
         }
 
         l_Buffer.appendPackGUID(l_It->second ? l_It->second->GetSession()->GetWoWAccountGUID() : 0);    ///< WoW account GUID
@@ -1192,7 +1182,7 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
 {
 }
 
-void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet) ///< p_Packet is unused
+void WorldSession::HandleCompleteMovieOpcode(WorldPacket & /*p_Packet*/)
 {
     if (!m_Player || m_Player->CurrentPlayedMovie == 0)
         return;
@@ -1614,7 +1604,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleComplainOpcode(WorldPacket& recvData) ///< recvData is unused
+void WorldSession::HandleComplainOpcode(WorldPacket& /*recvData*/)
 {
     // recvData is not empty, but all data are unused in core
     // NOTE: all chat messages from this spammer automatically ignored by spam reporter until logout in case chat spam.
@@ -1989,10 +1979,7 @@ void WorldSession::HandleUndeleteCharacter(WorldPacket& /*p_RecvData*/)
 ///< @todo refactor me with new data stillnot done 22/02/16
 void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const std::set<uint32> & p_TerrainSwaps, const std::set<uint32> & p_InactiveTerrainSwap)
 {
-    ObjectGuid guid = m_Player->GetGUID(); ///< guid is unused
     uint32 unkValue = 0;
-
-    uint32 inactiveSwapsCount = 0; ///< inactiveSwapsCount is unused
 
     WorldPacket l_ShiftPacket(SMSG_SET_PHASE_SHIFT, 500);
     l_ShiftPacket.appendPackGUID(m_Player->GetGUID());      ///< CLientGUID
@@ -2214,7 +2201,7 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
     m_Player->SendMovieStart(116);
 }
 
-void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket) ///< recvPacket is unused
+void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& /*recvPacket*/)
 {
     Unit::AuraEffectList const& list = GetPlayer()->GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
 
@@ -2338,7 +2325,7 @@ void WorldSession::HandleMountSetFavoriteOpcode(WorldPacket & p_Packet)
     m_Player->MountSetFavorite(l_MountSpellID, l_IsFavorite);
 }
 
-void WorldSession::HandleRequestTwitterStatus(WorldPacket& p_RecvData) ///< p_RecvData is unused 
+void WorldSession::HandleRequestTwitterStatus(WorldPacket& /*p_RecvData*/)
 {
     SendTwitterStatus(true);
 }

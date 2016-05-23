@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 Name: debug_commandscript
@@ -22,6 +13,7 @@ Comment: All debug related commands
 Category: commandscripts
 EndScriptData */
 
+#include "Common.h"
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "BattlegroundMgr.hpp"
@@ -38,12 +30,11 @@ EndScriptData */
 #include "World.h"
 
 #include <fstream>
-#include <vector>
 #include "BattlegroundPacketFactory.hpp"
 
 struct UnitStates
 {
-	UnitState   Flag;
+    UnitState   Flag;
     char const* Text;
 };
 
@@ -194,6 +185,7 @@ class debug_commandscript: public CommandScript
                 { "critical",                    SEC_ADMINISTRATOR,  false, &HandleDebugCriticalCommand,             "", NULL },
                 { "haste",                       SEC_ADMINISTRATOR,  false, &HandleDebugHasteCommand,                "", NULL },
                 { "mastery",                     SEC_ADMINISTRATOR,  false, &HandleDebugMasteryCommand,              "", NULL },
+                { "multistrike",                 SEC_ADMINISTRATOR,  false, &HandleDebugMultistrikeCommand,          "", NULL },
                 { "setaura",                     SEC_ADMINISTRATOR,  false, &HandleDebugAuraCommand,                 "", NULL },
                 { "cleardr",                     SEC_ADMINISTRATOR,  false, &HandleDebugCancelDiminishingReturn,     "", NULL },
                 { "scenario",                    SEC_ADMINISTRATOR,  false, &HandleDebugScenarioCommand,             "", NULL },
@@ -294,6 +286,29 @@ class debug_commandscript: public CommandScript
             {
                 rapidCast->SetDuration(HOUR * IN_MILLISECONDS);
                 rapidCast->GetEffect(EFFECT_0)->ChangeAmount(pct);
+            }
+
+            return true;
+        }
+
+        static bool HandleDebugMultistrikeCommand(ChatHandler* handler, char const* args)
+        {
+            Unit* unit = handler->getSelectedUnit();
+            if (!unit)
+            {
+                handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int pct = atoi(args);
+            if (pct == 0)
+                pct = 100;
+
+            if (Aura* perfectAim = unit->AddAura(167732, unit))
+            {
+                perfectAim->SetDuration(HOUR * IN_MILLISECONDS);
+                perfectAim->GetEffect(EFFECT_0)->ChangeAmount(pct);
             }
 
             return true;
@@ -906,7 +921,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleJoinRatedBg(ChatHandler* handler, char const* args)
+        static bool HandleJoinRatedBg(ChatHandler* handler, char const* /*args*/)
         {
             // ignore if we already in BG or BG queue
             if (handler->GetSession()->GetPlayer()->InBattleground())
@@ -2613,7 +2628,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugMoveflagsCommand(ChatHandler* handler, char const* args)
+        static bool HandleDebugMoveflagsCommand(ChatHandler* handler, char const* /*args*/)
         {
             handler->PSendSysMessage("Method depreciated, need update");
             ///Unit* target = handler->getSelectedUnit();
@@ -2658,7 +2673,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugPhaseCommand(ChatHandler* handler, char const* args)
+        static bool HandleDebugPhaseCommand(ChatHandler* handler, char const* /*args*/)
         {
             Unit* unit = handler->getSelectedUnit();
             Player* player = handler->GetSession()->GetPlayer();
@@ -2721,15 +2736,10 @@ class debug_commandscript: public CommandScript
             if (!cx || !cy || !cz)
                 return false;
 
-            float x         = (float)atof(cx);
-            float y         = (float)atof(cy);
-            float z         = (float)atof(cz);
-
-           // target->ToUnit()->GetMotionMaster()->MoveBackward(0, x, y,z);
             return true;
         }
 
-        static bool HandleDebugLoadZ(ChatHandler* handler, char const* args)
+        static bool HandleDebugLoadZ(ChatHandler* handler, char const* /*args*/)
         {
             for (auto gameobject: sObjectMgr->_gameObjectDataStore)
             {
@@ -2766,7 +2776,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugLfgCommand(ChatHandler* p_Handler, char const * p_Args)
+        static bool HandleDebugLfgCommand(ChatHandler* p_Handler, char const * /*p_Args*/)
         {
             if (sLFGMgr->IsInDebug())
             {
@@ -2808,7 +2818,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugBattlegroundStart(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugBattlegroundStart(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
             if (l_Battleground == nullptr)
@@ -2821,18 +2831,20 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* p_Args)
+        /// This can be reported by static analyse, yes l_Pig is free and make it crash that the point !
+        static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             p_Handler->PSendSysMessage("You've crash the server by adding pigs in farm that doesn't exists!");
 
             Player* l_Pig = new Player(p_Handler->GetSession());
             delete l_Pig;
+#ifndef __clang_analyzer__
             l_Pig->isAFK();
-
+#endif
             return true;
         }
 
-        static bool HandleDebugBgAward(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugBgAward(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
 
@@ -3328,7 +3340,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugDumpRewardlessMissions(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugDumpRewardlessMissions(ChatHandler* /*p_Handler*/, char const* p_Args)
         {
             if (!p_Args)
                 return false;
@@ -3376,7 +3388,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleSpellDebugDumpRewardlessMissions(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleSpellDebugDumpRewardlessMissions(ChatHandler* /*p_Handler*/, char const* p_Args)
         {
             if (!p_Args)
                 return false;
@@ -3464,7 +3476,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugPacketProfiler(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugPacketProfiler(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             gPacketProfilerMutex.lock();
             p_Handler->PSendSysMessage("----------------");
@@ -3558,7 +3570,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugMirrorCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugMirrorCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player*   l_Player = p_Handler->GetSession()->GetPlayer();
             Creature* l_Target = p_Handler->getSelectedCreature();
@@ -3665,7 +3677,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugPvELogsCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugPvELogsCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_Player = p_Handler->GetSession()->GetPlayer();
 
@@ -3700,7 +3712,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugQuestLogsCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugQuestLogsCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_Player = p_Handler->GetSession()->GetPlayer();
 
@@ -3775,7 +3787,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugGetUnitStatesCommand(ChatHandler* p_Handler, const char* p_Args)
+        static bool HandleDebugGetUnitStatesCommand(ChatHandler* p_Handler, const char* /*p_Args*/)
         {
             Unit* l_Unit = p_Handler->getSelectedUnit();
             if (!l_Unit)
@@ -3863,7 +3875,9 @@ class debug_commandscript: public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_debug_commandscript()
 {
     new debug_commandscript();
 }
+#endif

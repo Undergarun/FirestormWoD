@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "ObjectMgr.h"
@@ -30,7 +20,6 @@
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
-#include <vector>
 
 // BMAuctionEntry
 bool BMAuctionEntry::LoadFromDB(Field* fields)
@@ -332,7 +321,7 @@ std::string BMAuctionEntry::BuildAuctionMailBody(uint32 lowGuid)
     return strm.str();
 }
 
-void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* p_Auction, uint64 p_NewPrice, Player* p_NewBidder, SQLTransaction& p_Transaction) ///< p_NewPrice & p_NewBidder is unused
+void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* p_Auction, uint64 /*p_NewPrice*/, Player* /*p_NewBidder*/, SQLTransaction& p_Transaction)
 {
     Player* l_Bidder = sObjectAccessor->FindPlayer(MAKE_NEW_GUID(p_Auction->bidder, 0, HIGHGUID_PLAYER));
     ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(p_Auction->bm_template->itemEntry);

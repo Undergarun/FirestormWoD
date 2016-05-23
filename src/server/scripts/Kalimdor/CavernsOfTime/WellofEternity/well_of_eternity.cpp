@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "well_of_eternity.h"
 
@@ -9,7 +17,7 @@ enum ScriptedTextNozdormu
     SAY_NOZDORMU_INTRO_1    = 1,
     SAY_NOZDORMU_INTRO_2    = 2,
     SAY_NOZDORMU_INTRO_3    = 3,
-    SAY_NOZDORMU_INTRO_4    = 4,
+    SAY_NOZDORMU_INTRO_4    = 4
 };
 
 enum ScriptedTextIllidan1
@@ -21,7 +29,7 @@ enum ScriptedTextIllidan1
     SAY_ILLIDAN_1_OUTRO_2   = 4,
     SAY_ILLIDAN_1_SPELL     = 5,
     SAY_ILLIDAN_1_MOVE      = 13,
-    SAY_ILLIDAN_1_INTRO     = 24,
+    SAY_ILLIDAN_1_INTRO     = 24
 };
 
 enum ScriptedTextIllidan2
@@ -39,13 +47,13 @@ enum ScriptedTextIllidan2
     SAY_ILLIDAN_2_BUFF_1        = 16,
     SAY_ILLIDAN_2_BUFF_2        = 17,
     SAY_ILLIDAN_2_BUFF_3        = 18,
-    SAY_ILLIDAN_2_SPELL         = 19,
+    SAY_ILLIDAN_2_SPELL         = 19
 };
 
 enum ScriptedTextMalfurion
 {
     SAY_MALFURION_INTRO_1   = 4,
-    SAY_MALFURION_INTRO_2   = 5,
+    SAY_MALFURION_INTRO_2   = 5
 };
 
 enum ScriptedTextTyrande
@@ -60,7 +68,7 @@ enum ScriptedTextTyrande
     SAY_TYRANDE_NO_1        = 11,
     SAY_TYRANDE_NO_2        = 12,
     SAY_TYRANDE_MALFURION   = 13,
-    SAY_TYRANDE_MANY_DEMONS = 14,
+    SAY_TYRANDE_MANY_DEMONS = 14
 };
 
 enum Spells
@@ -115,7 +123,7 @@ enum Spells
     SPELL_ABYSSAL_FLAMES        = 103992,
 
     // Doomguard Debilitator
-    SPELL_DEBILITATING_FLAY         = 104678,
+    SPELL_DEBILITATING_FLAY         = 104678
 };
 
 enum Events
@@ -185,14 +193,14 @@ enum Events
     EVENT_HAND_OF_ELUNE             = 49,
 
     // Abyssal Doombringer
-    EVENT_ABYSSAL_FLAMES            = 49,
+    EVENT_ABYSSAL_FLAMES            = 49
 };
 
 enum Adds
 {
     NPC_NOZDORMU                    = 55624,
     NPC_LEGION_DEMON                = 55503,
-    
+
     // legion demon 54500
     // guardian demon 54927
     // stalker after illidan's shadowcloak (visual) 55154 with 102951 aura
@@ -240,7 +248,7 @@ enum Points
     POINT_ILLIDAN_2_10  = 16,
     POINT_TYRANDE_1     = 17,
     POINT_TYRANDE_2     = 18,
-    POINT_TYRANDE_3     = 19,
+    POINT_TYRANDE_3     = 19
 };
 
 enum Actions
@@ -255,27 +263,27 @@ enum Actions
     ACTION_DEBILITATING_OFF     = 8,
     ACTION_MANNOROTH_SARGERAS   = 9,
     ACTION_MANNOROTH_INFERNO    = 10,
-    ACTION_MANNOROTH_END        = 11,
+    ACTION_MANNOROTH_END        = 11
 };
 
 /*
 {3294.199951f, -4981.970215f, 181.160004f, 0.8f} // illidan near 1 portal
 {3444.979980f, -4886.339844f, 181.160004f, 4.0f} // illidan near 2 portal
-{3471.120117f, -4839.830078f, 194.214996f, 2.0f} // illidan near 3 portal 
+{3471.120117f, -4839.830078f, 194.214996f, 2.0f} // illidan near 3 portal
 
 */
 
-const Position illidan1Pos[6] = 
+const Position illidan1Pos[6] =
 {
     {3191.901123f, -4890.239258f, 194.357269f, 0.0f},
     {3217.059814f, -4902.321777f, 194.179321f, 0.0f},
     {3242.290527f, -4901.905273f, 180.980728f, 0.0f},
     {3286.567139f, -4898.600098f, 181.077377f, 0.0f},
     {3327.890137f, -4892.302246f, 181.077682f, 0.0f},
-    {3362.441162f, -4934.355957f, 181.077682f, 0.0f},
+    {3362.441162f, -4934.355957f, 181.077682f, 0.0f}
 };
 
-const Position illidan2Pos[10] = 
+const Position illidan2Pos[10] =
 {
     {3159.834961f, -5572.989746f, 18.292067f, 0.0f},
     {3168.384766f, -5581.995605f, 18.055605f, 0.0f},
@@ -338,7 +346,7 @@ class npc_well_of_eternity_nozdormu : public CreatureScript
                 bTalk = true;
 
                 events.ScheduleEvent(EVENT_NOZDORMU_TALK_1, 5000);
-                
+
                 pInstance->SetData(DATA_EVENT_NOZDORMU, IN_PROGRESS);
             }
 
@@ -422,7 +430,7 @@ class npc_well_of_eternity_legion_demon : public CreatureScript
                         me->DespawnOrUnsummon(500);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_STRIKE_FEAR, urand(5000, 7000));
                 //DoCast(who, SPELL_CRUSHING_LEAP);
@@ -434,7 +442,7 @@ class npc_well_of_eternity_legion_demon : public CreatureScript
                     DoCast(who, SPELL_ARCHIVED_DEMON_2, true);
             }
 
-            void MovementInform(uint32 type, uint32 data)
+            void MovementInform(uint32 /*type*/, uint32 data)
             {
                 if (data == EVENT_JUMP)
                 {
@@ -541,7 +549,7 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
                         me->DespawnOrUnsummon(500);
             }
 
-            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (who->GetGUID() == me->GetGUID())
                     if (damage >= me->GetHealth())
@@ -689,7 +697,7 @@ class npc_well_of_eternity_eternal_champion : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_QUEENS_BLADE, urand(2000, 6000));
                 events.ScheduleEvent(EVENT_SHIMMERING_STRIKE, urand(9000, 12000));
@@ -749,7 +757,7 @@ class npc_well_of_eternity_eye_of_legion : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_FEL_FLAMES, urand(2000, 10000));
             }
@@ -807,7 +815,7 @@ class npc_well_of_eternity_enchanted_highmistress : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 if (me->GetEntry() == NPC_ENCHANTED_HIGHMISTRESS_1)
                 {
@@ -889,7 +897,7 @@ class npc_well_of_eternity_royal_handmaiden : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_SWEET_LULLABY, urand(7000, 12000));
             }
@@ -1044,7 +1052,7 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
 
             void EnterEvadeMode() {}
 
-            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (who->GetGUID() == me->GetGUID())
                     if (damage >= me->GetHealth())
@@ -1067,7 +1075,7 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
 
                 if (pInstance)
                     TrashEvaded(me);
-                
+
                 bTalk = true;
 
                 Talk(SAY_ILLIDAN_2_INTRO_1);
@@ -1129,7 +1137,7 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
                 if (action == ACTION_DOOMGUARD_DIED)
                 {
                     doomguards++;
-                    
+
                     if (doomguards >= MAX_DOOMGUARDS && !bMove)
                     {
                         bMove = true;
@@ -1190,7 +1198,7 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
                             events.ScheduleEvent(EVENT_ILLIDAN_INTRO_2_3, 9000);
                             break;
                         case EVENT_ILLIDAN_INTRO_2_3:
-                            Talk(SAY_ILLIDAN_2_INTRO_3); 
+                            Talk(SAY_ILLIDAN_2_INTRO_3);
                             events.ScheduleEvent(EVENT_TYRANDE_INTRO_2, 5000);
                             break;
                         case EVENT_TYRANDE_INTRO_2:
@@ -1206,7 +1214,7 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
                             Talk(SAY_ILLIDAN_2_DEMONS);
                             me->GetMotionMaster()->MovePoint(POINT_ILLIDAN_2_1, illidan2Pos[curPoint]);
                             break;
-                        case EVENT_ILLIDAN_MOVE_2_2: 
+                        case EVENT_ILLIDAN_MOVE_2_2:
                             if (Creature* pTyrande = me->FindNearestCreature(NPC_TYRANDE, 100.0f))
                                 pTyrande->AI()->DoAction(ACTION_TYRANDE_MOVE_1);
                             me->GetMotionMaster()->MovePoint(POINT_ILLIDAN_2_2, illidan2Pos[curPoint]);
@@ -1540,7 +1548,7 @@ class npc_well_of_eternity_abyssal_doombringer : public CreatureScript
                     {
                         DoCastAOE(SPELL_ABYSSAL_FLAMES);
                         events.ScheduleEvent(EVENT_ABYSSAL_FLAMES, 3000);
-                    }  
+                    }
                 }
 
                 DoMeleeAttackIfReady();
@@ -1590,6 +1598,7 @@ class npc_well_of_eternity_portal_to_twisting_nether : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_well_of_eternity()
 {
     new npc_well_of_eternity_nozdormu();
@@ -1607,3 +1616,4 @@ void AddSC_well_of_eternity()
     new npc_well_of_eternity_dragon_soul();
     new npc_well_of_eternity_portal_to_twisting_nether();
 }
+#endif

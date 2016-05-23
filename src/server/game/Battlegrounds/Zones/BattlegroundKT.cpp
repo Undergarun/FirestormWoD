@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Object.h"
 #include "Player.h"
@@ -86,7 +77,7 @@ void BattlegroundKT::PostUpdateImpl(uint32 diff)
                         if (Player* player = ObjectAccessor::FindPlayer(guid))
                         {
                             AccumulateScore(player->GetBGTeam() == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE, m_playersZone[guid]);
-                            UpdatePlayerScore(player, SCORE_ORB_SCORE, BG_KT_TickPoints[m_playersZone[guid]]);
+                            UpdatePlayerScore(player, nullptr, SCORE_ORB_SCORE, BG_KT_TickPoints[m_playersZone[guid]]);
                         }
                     }
                 }
@@ -166,7 +157,7 @@ void BattlegroundKT::EventPlayerClickedOnOrb(Player* source, GameObject* target_
     source->CastSpell(source, BG_KT_ORBS_SPELLS[index], true);
     source->CastSpell(source, source->GetBGTeam() == ALLIANCE ? BG_KT_ALLIANCE_INSIGNIA: BG_KT_HORDE_INSIGNIA, true);
 
-    UpdatePlayerScore(source, SCORE_ORB_HANDLES, 1);
+    UpdatePlayerScore(source, nullptr, SCORE_ORB_HANDLES, 1);
 
     m_OrbKeepers[index] = source->GetGUID();
     UpdateWorldState(s_OrbsWorldStates[index], 0);
@@ -215,7 +206,7 @@ void BattlegroundKT::EventPlayerDroppedOrb(Player* source)
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
-void BattlegroundKT::RemovePlayer(Player* plr, uint64 guid, uint32 /*team*/)
+void BattlegroundKT::RemovePlayer(Player* plr, uint64 /*guid*/, uint32 /*team*/)
 {
     if (plr == nullptr)
         return;
@@ -344,22 +335,22 @@ void BattlegroundKT::HandleKillPlayer(Player *player, Player *killer)
     Battleground::HandleKillPlayer(player, killer);
 }
 
-void BattlegroundKT::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+void BattlegroundKT::UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType)
 {
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetObjectGuid());
+    BattlegroundScoreMap::iterator itr = PlayerScores.find(p_Source->GetObjectGuid());
     if (itr == PlayerScores.end())                         // player not found
         return;
 
-    switch(type)
+    switch (p_Type)
     {
         case SCORE_ORB_HANDLES:                           // orb handles
-            ((BattleGroundKTScore*)itr->second)->OrbHandles += value;
+            ((BattleGroundKTScore*)itr->second)->OrbHandles += p_Value;
             break;
         case SCORE_ORB_SCORE:
-            ((BattleGroundKTScore*)itr->second)->Score += value;
+            ((BattleGroundKTScore*)itr->second)->Score += p_Value;
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, NULL, type, value, doAddHonor);
+            Battleground::UpdatePlayerScore(p_Source, p_Victim, p_Type, p_Value, p_DoAddHonor, p_RewardType);
             break;
     }
 }

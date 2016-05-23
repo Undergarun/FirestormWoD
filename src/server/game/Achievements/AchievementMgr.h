@@ -1,33 +1,18 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __TRINITY_ACHIEVEMENTMGR_H
 #define __TRINITY_ACHIEVEMENTMGR_H
 
-#include <map>
-#include <string>
-
 #include "Common.h"
-#include <ace/Singleton.h>
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
-#include <LockedMap.h>
 #include "MapUpdater.h"
 
 typedef std::vector<CriteriaEntry const*>            AchievementCriteriaEntryList;
@@ -35,7 +20,7 @@ typedef std::vector<AchievementEntry const*>         AchievementEntryList;
 typedef std::vector<CriteriaTreeEntry const*>        AchievementCriteriaTreeList;
 typedef std::vector<ModifierTreeEntry const*>        ModifierTreeEntryList;
 
-typedef UNORDERED_MAP<uint32, AchievementEntryList>  AchievementListByReferencedId;
+typedef std::unordered_map<uint32, AchievementEntryList>  AchievementListByReferencedId;
 typedef std::vector<AchievementCriteriaTreeList>     AchievementCriteriaTreeByCriteriaId;
 typedef std::vector<AchievementEntry const*>         AchievementEntryByCriteriaTree;
 typedef std::vector<ModifierTreeEntryList>           ModifierTreeEntryByTreeId;
@@ -71,7 +56,7 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE  = 17, // min_score      max_score     player's team win bg and opposition team have team score in range
     ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT          = 18, // 0              0             maker instance script call for check current criteria requirements fit
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM      = 19, // item_level     item_quality  for equipped item in slot to check item level and quality
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE = 21, // class_id       race_id
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE = 21  // class_id       race_id
 };
 
 enum AchievementFaction
@@ -674,7 +659,7 @@ struct AchievementCriteriaUpdateTask
 };
 
 using LockedAchievementCriteriaTaskQueue   = ACE_Based::LockedQueue<AchievementCriteriaUpdateTask, ACE_Thread_Mutex>;
-using LockedPlayersAchievementCriteriaTask = ACE_Based::LockedMap<uint32, LockedAchievementCriteriaTaskQueue>;
+using LockedPlayersAchievementCriteriaTask = ACE_Based::LockedMap<uint64, LockedAchievementCriteriaTaskQueue>;
 
 using AchievementCriteriaTaskQueue   = std::queue<AchievementCriteriaUpdateTask>;
 using PlayersAchievementCriteriaTask = std::map<uint32, AchievementCriteriaTaskQueue>;

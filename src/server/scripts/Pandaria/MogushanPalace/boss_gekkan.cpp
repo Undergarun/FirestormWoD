@@ -51,7 +51,7 @@ class boss_gekkan : public CreatureScript
             }
             std::list<uint64> entourage;
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 //Get the four adds.
                 if (me->GetInstanceScript())
@@ -64,7 +64,7 @@ class boss_gekkan : public CreatureScript
                     me->GetInstanceScript()->SetData(DATA_GEKKAN_ADDS, 1);
             }
 
-            void JustDied(Unit* who)
+            void JustDied(Unit* /*p_Who*/)
             {
                 for (auto guid : entourage)
                 {
@@ -77,7 +77,7 @@ class boss_gekkan : public CreatureScript
                 Talk(TALK_DEATH);
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*p_Unit*/)
             {
                 Talk(TALK_KILLING);
             }
@@ -168,7 +168,7 @@ class mob_glintrok_skulker : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
 
@@ -221,7 +221,7 @@ class mob_glintrok_ironhide : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
 
@@ -275,7 +275,7 @@ class mob_glintrok_oracle : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
                 events.ScheduleEvent(2, 4000);
@@ -334,7 +334,7 @@ class mob_glintrok_hexxer : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
                 events.ScheduleEvent(2, 4000);
@@ -370,6 +370,7 @@ class mob_glintrok_hexxer : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gekkan()
 {
     new boss_gekkan();
@@ -378,3 +379,4 @@ void AddSC_boss_gekkan()
     new mob_glintrok_oracle();
     new mob_glintrok_ironhide();
 }
+#endif

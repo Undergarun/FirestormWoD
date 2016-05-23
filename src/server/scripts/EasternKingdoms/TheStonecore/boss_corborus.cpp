@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "the_stonecore.h"
 
@@ -14,8 +22,8 @@ enum Spells
     SPELL_THRASHING_CHARGE_SUM    = 81816,
     SPELL_THRASHING_CHARGE_H    = 92651,
     SPELL_THRASHING_CHARGE_DUM    = 81801,
-    SPELL_ROCK_BORE                = 80028,                
-    SPELL_ROCK_BORE_H            = 92630,
+    SPELL_ROCK_BORE                = 80028,
+    SPELL_ROCK_BORE_H            = 92630
 };
 
 enum Events
@@ -28,14 +36,14 @@ enum Events
     EVENT_THRASHING_CHARGE        = 6,
     EVENT_ROCK_BORER            = 7,
     EVENT_ROCK_BORE                = 8,
-    EVENT_CRYSTAL_SHARD_MOVE    = 9,
+    EVENT_CRYSTAL_SHARD_MOVE    = 9
 };
 
 enum Adds
 {
     NPC_ROCK_BORER            = 43917,
     NPC_CRYSTAL_SHARD        = 49267,
-    NPC_THRASHING_CHARGE    = 43743,
+    NPC_THRASHING_CHARGE    = 43743
 };
 
 class boss_corborus : public CreatureScript
@@ -51,7 +59,7 @@ class boss_corborus : public CreatureScript
         struct boss_corborusAI : public BossAI
         {
             boss_corborusAI(Creature* pCreature) : BossAI(pCreature, DATA_CORBORUS), summons(me)
-            { 
+            {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
@@ -85,12 +93,12 @@ class boss_corborus : public CreatureScript
 
                 stage = 0;
                 me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);    
+                me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 events.Reset();
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_DUMPENING_WAVE, 5000);
                 events.ScheduleEvent(EVENT_CRYSTAL_BARRAGE, 7000);
@@ -126,7 +134,7 @@ class boss_corborus : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 summons.DespawnAll();
@@ -163,7 +171,7 @@ class boss_corborus : public CreatureScript
                             {
                                 pTarget->GetPosition(&barragePos);
                                 events.ScheduleEvent(EVENT_CRYSTAL_BARRAGE_H, 4000);
-                            }    
+                            }
                         }
                         events.ScheduleEvent(EVENT_CRYSTAL_BARRAGE, 15000);
                         break;
@@ -175,7 +183,7 @@ class boss_corborus : public CreatureScript
                                 barragePos.GetPositionY(),
                                 barragePos.GetPositionZ(),
                                 SPELL_CRYSTAL_BARRAGE_SUM, true);
-                        }  
+                        }
                         break;
                     case EVENT_SUBMERGE:
                         me->RemoveAllAuras();
@@ -293,7 +301,7 @@ class npc_crystal_shard : public CreatureScript
                 me->SetSpeed(MOVE_RUN, 0.5f);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -307,9 +315,11 @@ class npc_crystal_shard : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_corborus()
 {
     new boss_corborus();
     new npc_rock_borer();
     new npc_crystal_shard();
 }
+#endif

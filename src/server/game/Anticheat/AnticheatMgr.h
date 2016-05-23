@@ -1,7 +1,14 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef SC_ACMGR_H
 #define SC_ACMGR_H
 
-#include <ace/Singleton.h>
 #include "Common.h"
 #include "SharedDefines.h"
 #include "ScriptPCH.h"
@@ -19,7 +26,7 @@ enum ReportTypes
     WALK_WATER_HACK_REPORT,
     JUMP_HACK_REPORT,
     TELEPORT_PLANE_HACK_REPORT,
-    CLIMB_HACK_REPORT,
+    CLIMB_HACK_REPORT
 
     // MAX_REPORT_TYPES
 };

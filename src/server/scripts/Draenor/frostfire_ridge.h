@@ -1,5 +1,3 @@
-#ifndef JADE_FOREST_H
-#define JADE_FOREST_H
 
 namespace FrostfireRidgeSpells
 {
@@ -18,7 +16,7 @@ namespace FrostfireRidgeEvents
         EventRampage          = 2,
     };
 }
-
+/*
 namespace FrostfireRidgeQuests
 {
     enum
@@ -38,6 +36,5 @@ namespace FrostfireRidgeCreatures
     enum
     {
     };
-}
+}*/
 
-#endif

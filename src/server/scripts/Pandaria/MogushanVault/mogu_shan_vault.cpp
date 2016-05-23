@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptedCreature.h"
 #include "mogu_shan_vault.h"
@@ -108,7 +97,7 @@ enum eTrashsActions
     ACTION_CURSED_MOGU_ATTACK_PLAYER = 1
 };
 
-void StartNextFight(uint32 p_PreviousAdd, uint32 p_NextAdd, uint32 p_PreviousBoss, uint32 p_NextBoss, uint32 p_Action, uint32 p_NextAction, Creature* me)
+void StartNextFight(uint32 p_PreviousAdd, uint32 p_NextAdd, uint32 p_PreviousBoss, uint32 p_NextBoss, uint32 p_Action, uint32 /*p_NextAction*/, Creature* me)
 {
     std::list<Creature*> l_CreatureList;
     me->GetCreatureListWithEntryInGrid(l_CreatureList, p_PreviousAdd, 200.0f);
@@ -194,7 +183,7 @@ class mob_cursed_mogu_sculpture : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_CURSED_MOGU_SPIRIT_BOLT, 15000);
@@ -244,7 +233,7 @@ class mob_cursed_mogu_sculpture : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (!GetClosestCreatureWithEntry(me, me->GetEntry(), 20.0f, true) && me->GetEntry() == NPC_CURSED_MOGU_SCULPTURE_2)
                 {
@@ -422,7 +411,7 @@ class mob_enormous_stone_quilen : public CreatureScript
                 nextMovementTimer = 500;
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 me->SetWalk(false);
             }
@@ -506,7 +495,7 @@ class mob_stone_quilen : public CreatureScript
 
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -580,14 +569,14 @@ class mob_zandalari_skullcharger : public CreatureScript
                     events.ScheduleEvent(EVENT_ZANDALARI_TROLL_RUSH, urand(5000, 6000));
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 150.0f, true))
                     if (lorewalkerCho->AI())
                         lorewalkerCho->AI()->DoAction(ACTION_SAY_ZANDALARI_BEGIN);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 Creature* skullcharger = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_SKULLCHARGER, 80.0f, true);
                 Creature* infiltrator  = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_INFILTRATOR,  80.0f, true);
@@ -656,7 +645,7 @@ class spell_mogu_petrification : public SpellScriptLoader
 
             uint32 stack;
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1459,7 +1448,7 @@ class mob_sorcerer_mogu : public CreatureScript
                 events.Reset();
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 StartNextFight(NPC_SORCERER_MOGU, NPC_MOUNTED_MOGU, MOB_ZIAN, MOB_QIANG, ACTION_END_FIRST_COMBAT, ACTION_START_SECOND_COMBAT, me);
             }
@@ -1643,7 +1632,7 @@ class mob_mounted_mogu : public CreatureScript
                 events.Reset();
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 StartNextFight(NPC_MOUNTED_MOGU, NPC_MOGU_ARCHER, MOB_QIANG, MOB_SUBETAI, ACTION_END_SECOND_COMBAT, ACTION_START_THIRD_COMBAT, me);
             }
@@ -1833,7 +1822,7 @@ class mob_mogu_archer : public CreatureScript
                 events.Reset();
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 StartNextFight(NPC_MOGU_ARCHER, NPC_KINGSGUARD, MOB_SUBETAI, MOB_MENG, ACTION_END_THIRD_COMBAT, ACTION_START_FOURTH_COMBAT, me);
             }
@@ -2051,7 +2040,7 @@ class mob_kingsguard : public CreatureScript
                 events.ScheduleEvent(EVENT_KINGS_GUARD_REFLECTIVE_SHIELDS, urand(15000, 20000));
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 std::list<Creature*> l_CreatureList;
                 me->GetCreatureListWithEntryInGrid(l_CreatureList, me->GetEntry(), 200.0f);
@@ -2153,7 +2142,7 @@ class mob_mogu_secret_keeper : public CreatureScript
                 events.ScheduleEvent(EVENT_SECRET_STONE_BLOCK, urand(15000, 20000));
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 60.0f, true))
                 {
@@ -2164,7 +2153,7 @@ class mob_mogu_secret_keeper : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 60.0f, true))
                     cho->AI()->DoAction(ACTION_KEEPER_ENTER_COMBAT);
@@ -2237,7 +2226,7 @@ class mob_mogu_warden : public CreatureScript
                 }
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 // In front of Elegon, we must check all the other trash before making Cho moves
                 if (isElegonGuardian)
@@ -2326,7 +2315,7 @@ class mob_mogu_engine_keeper : public CreatureScript
                 events.ScheduleEvent(EVENT_KEEPER_RECONSTRUCTING, urand(15000, 20000));
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 Creature* warden1  = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN,        300.0f, true);
                 Creature* warden2  = GetClosestCreatureWithEntry(me, NPC_MOGUSHAN_WARDEN_2,      300.0f, true);
@@ -2377,6 +2366,7 @@ class mob_mogu_engine_keeper : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_mogu_shan_vault()
 {
     new mob_cursed_mogu_sculpture();    // 61334 / 61989 - Cursed Mogu Sculpture
@@ -2398,3 +2388,4 @@ void AddSC_mogu_shan_vault()
     new mob_mogu_warden();              // 64061/64947 - Mogu'shan Warden + 64063 - Mogu'shan Arcanist
     new mob_mogu_engine_keeper();       // 64068 - Mogu'shan Engine Keeper
 }
+#endif

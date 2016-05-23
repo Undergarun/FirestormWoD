@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _BIH_H
 #define _BIH_H
@@ -24,12 +14,7 @@
 #include "G3D/AABox.h"
 
 #include "Define.h"
-
-#include <stdexcept>
-#include <vector>
-#include <algorithm>
-#include <limits>
-#include <cmath>
+#include "Common.h"
 
 #define MAX_STACK_SIZE 64
 
@@ -120,14 +105,14 @@ class BIH
         template<typename RayCallback>
         void intersectRay(const G3D::Ray &r, RayCallback& intersectCallback, float &maxDist, bool stopAtFirst=false) const
         {
-            float intervalMin = -1.f;
-            float intervalMax = -1.f;
+            float intervalMin = -1.0f;
+            float intervalMax = -1.0f;
             G3D::Vector3 org = r.origin();
             G3D::Vector3 dir = r.direction();
             G3D::Vector3 invDir;
             for (int i=0; i<3; ++i)
             {
-                invDir[i] = 1.f / dir[i];
+                invDir[i] = 1.0f / dir[i];
                 if (G3D::fuzzyNe(dir[i], 0.0f))
                 {
                     float t1 = (bounds.low()[i]  - org[i]) * invDir[i];
@@ -136,7 +121,7 @@ class BIH
                         std::swap(t1, t2);
                     if (t1 > intervalMin)
                         intervalMin = t1;
-                    if (t2 < intervalMax || intervalMax < 0.f)
+                    if (t2 < intervalMax || intervalMax < 0.0f)
                         intervalMax = t2;
                     // intervalMax can only become smaller for other axis,
                     //  and intervalMin only larger respectively, so stop early
@@ -147,7 +132,7 @@ class BIH
 
             if (intervalMin > intervalMax)
                 return;
-            intervalMin = std::max(intervalMin, 0.f);
+            intervalMin = std::max(intervalMin, 0.0f);
             intervalMax = std::min(intervalMax, maxDist);
 
             uint32 offsetFront[3];

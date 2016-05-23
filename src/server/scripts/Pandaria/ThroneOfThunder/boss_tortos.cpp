@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -161,7 +150,7 @@ class boss_tortos : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 _EnterCombat();
 
@@ -204,7 +193,7 @@ class boss_tortos : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -225,7 +214,7 @@ class boss_tortos : public CreatureScript
                         sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
                 }
 
-                me->SummonGameObject(GOB_TORTOS_DEATH_COLLISION, 6038.69f, 4923.87f, -61.1953f, 1.513821f, 0, 0, 0, 1.f, 0);
+                me->SummonGameObject(GOB_TORTOS_DEATH_COLLISION, 6038.69f, 4923.87f, -61.1953f, 1.513821f, 0, 0, 0, 1.0f, 0);
             }
 
             void DoAction(const int32 action)
@@ -397,7 +386,7 @@ class mob_vampiric_cave_bat_summon : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -434,19 +423,19 @@ class mob_whirl_turtle : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
 
-                me->SetSpeed(MOVE_WALK, 2.f);
-                me->SetSpeed(MOVE_RUN, 2.f);
+                me->SetSpeed(MOVE_WALK, 2.0f);
+                me->SetSpeed(MOVE_RUN, 2.0f);
 
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CHECK_NEAR_PLAYERS, 1500);
                 events.ScheduleEvent(EVENT_SWITCH_TARGET, 3000);
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 switch (id)
                 {
@@ -460,8 +449,8 @@ class mob_whirl_turtle : public CreatureScript
                         if (plrList.empty())
                             break;
 
-                        me->SetSpeed(MOVE_WALK, 1.f);
-                        me->SetSpeed(MOVE_RUN, 1.f);
+                        me->SetSpeed(MOVE_WALK, 1.0f);
+                        me->SetSpeed(MOVE_RUN, 1.0f);
                         JadeCore::RandomResizeList(plrList, 1);
                         me->GetMotionMaster()->MoveChase(plrList.front());
                         me->CombatStart(plrList.front());
@@ -472,7 +461,7 @@ class mob_whirl_turtle : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (shellBlocked)
                     return;
@@ -571,7 +560,7 @@ class spell_quake_stomp: public SpellScriptLoader
         {
             PrepareSpellScript(spell_quake_stomp_SpellScript);
 
-            void HandleDamage(SpellEffIndex effIndex)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -777,8 +766,8 @@ class spell_kick_shell: public SpellScriptLoader
                     {
                         target->RemoveAura(SPELL_KICK_SHELL_ROOT);
                         target->ClearUnitState(UNIT_STATE_CASTING | UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
-                        target->SetSpeed(MOVE_WALK, 5.f);
-                        target->SetSpeed(MOVE_RUN, 5.f);
+                        target->SetSpeed(MOVE_WALK, 5.0f);
+                        target->SetSpeed(MOVE_RUN, 5.0f);
                         target->AddAura(SPELL_SHELL_CONCUSSION, target);
                         float orientation = caster->GetOrientation();
                         float x = target->GetPositionX() + ((150.0f) * cos(orientation));
@@ -848,7 +837,7 @@ class spell_crystal_shell_damage_absorption: public SpellScriptLoader
                     amount = target->CountPctFromMaxHealth(15);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     target->RemoveAura(SPELL_CRYSTAL_SHELL_HEAL);
@@ -867,7 +856,7 @@ class spell_crystal_shell_damage_absorption: public SpellScriptLoader
         }
 };
 
-// Crystal Shell (heal absorb) - 137648 
+// Crystal Shell (heal absorb) - 137648
 class spell_crystal_shell_heal_absorption: public SpellScriptLoader
 {
     public:
@@ -882,7 +871,7 @@ class spell_crystal_shell_heal_absorption: public SpellScriptLoader
                 amount = -1;
             }
 
-            void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffect* /*p_AurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -911,6 +900,7 @@ class spell_crystal_shell_heal_absorption: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_tortos()
 {
     new boss_tortos();
@@ -929,3 +919,4 @@ void AddSC_boss_tortos()
     new spell_crystal_shell_damage_absorption();
     new spell_crystal_shell_heal_absorption();
 }
+#endif

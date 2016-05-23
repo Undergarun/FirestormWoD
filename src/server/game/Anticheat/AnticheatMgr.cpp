@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "AnticheatMgr.h"
 #include "AnticheatScripts.h"
 #include "MapManager.h"
@@ -13,7 +21,7 @@ AnticheatMgr::~AnticheatMgr()
     m_Players.clear();
 }
 
-void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo const& movementInfo, uint32 opcode)
+void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo const& /*movementInfo*/, uint32 opcode)
 {
     if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & JUMP_HACK_DETECTION) == 0)
         return;
@@ -27,7 +35,7 @@ void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo const& movemen
     }
 }
 
-void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo const& movementInfo)
+void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo const& /*movementInfo*/)
 {
     if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & WALK_WATER_HACK_DETECTION) == 0)
         return;
@@ -50,7 +58,7 @@ void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo const& 
 
 }
 
-void AnticheatMgr::FlyHackDetection(Player* player, MovementInfo const& movementInfo)
+void AnticheatMgr::FlyHackDetection(Player* player, MovementInfo const& /*movementInfo*/)
 {
     if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & FLY_HACK_DETECTION) == 0)
         return;
@@ -209,12 +217,14 @@ void AnticheatMgr::SpeedHackDetection(Player* player, MovementInfo const& moveme
     }
 }
 
+#ifndef __clang_analyzer__
 void AnticheatMgr::StartScripts()
 {
     new AnticheatScripts();
 }
+#endif
 
-void AnticheatMgr::HandlePlayerLogin(Player* player)
+void AnticheatMgr::HandlePlayerLogin(Player* /*player*/)
 {
     /*
     // we must delete this to prevent errors in case of crash

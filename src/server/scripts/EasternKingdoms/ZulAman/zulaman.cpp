@@ -49,18 +49,18 @@ enum Events
     EVENT_KICK              = 6,
 
     // Amani Eagle
-    SPELL_TALON1             = 7,
+    SPELL_TALON1             = 7
 };
 
 enum Points
 {
     POINT_TURN  = 1,
-    POINT_DOWN  = 2,
+    POINT_DOWN  = 2
 };
 
 enum Actions
 {
-    ACTION_START_EVENT  = 1,
+    ACTION_START_EVENT  = 1
 };
 
 const Position posTurnPoint = {232.83f, 1367.78f, 48.58f, 1.79f};
@@ -71,7 +71,7 @@ const Position posUpPoint   = {280.12f, 1380.63f, 49.35f, 3.46f};
 class npc_zulaman_forest_frog : public CreatureScript
 {
     public:
-        
+
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return new npc_zulaman_forest_frogAI(pCreature);
@@ -117,12 +117,12 @@ class npc_zulaman_forest_frog : public CreatureScript
                     if (cEntry == NPC_EULINDA && pInstance->GetData(DATA_VENDOR_2))
                         cEntry = NPC_ARINOTH;
 
-                    if (cEntry) 
+                    if (cEntry)
                         me->UpdateEntry(cEntry);
 
                     if (spellId)
                         DoCastAOE(spellId, true);
-                    
+
                     // There must be only one vendor per instance
                     if (cEntry == NPC_HARALD)
                         pInstance->SetData(DATA_VENDOR_1, DONE);
@@ -165,8 +165,8 @@ class go_strange_gong : public GameObjectScript
 {
     public:
         go_strange_gong() : GameObjectScript("go_strange_gong") {}
-        
-        bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+
+        bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
         {
             if (InstanceScript* pInstance = pGo->GetInstanceScript())
             {
@@ -180,7 +180,7 @@ class npc_amanishi_tempest : public CreatureScript
 {
     public:
         npc_amanishi_tempest() : CreatureScript("npc_amanishi_tempest") { }
-        
+
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return new npc_amanishi_tempestAI(pCreature);
@@ -200,7 +200,7 @@ class npc_amanishi_tempest : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_THUNDERCLAP, urand(5000, 10000));
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(6000, 12000));
@@ -237,6 +237,7 @@ class npc_amanishi_tempest : public CreatureScript
      };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_zulaman()
 {
     new npc_zulaman_forest_frog();
@@ -246,3 +247,4 @@ void AddSC_zulaman()
     //new npc_amani_eagle();
     //new npc_amanishi_warrior();
 }
+#endif

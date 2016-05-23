@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "DBCStructure.h"
 #include "ObjectMgr.h"
@@ -406,7 +396,7 @@ AchievementMgr<T>::~AchievementMgr()
 }
 
 template<class T>
-void AchievementMgr<T>::SendPacket(WorldPacket* data) const
+void AchievementMgr<T>::SendPacket(WorldPacket* /*data*/) const
 {
 }
 
@@ -458,7 +448,7 @@ void AchievementMgr<Guild>::RemoveCriteriaProgress(CriteriaEntry const* p_Entry)
 }
 
 template<class T>
-void AchievementMgr<T>::ResetAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1, uint64 p_MiscValue2, bool p_EvenIfCriteriaComplete)
+void AchievementMgr<T>::ResetAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 /*p_MiscValue1*/, uint64 /*p_MiscValue2*/, bool /*p_EvenIfCriteriaComplete*/)
 {
     // Disable for game masters with GM-mode enabled
     if (GetOwner()->isGameMaster())
@@ -487,7 +477,7 @@ void AchievementMgr<T>::DeleteFromDB(uint32 /*lowguid*/, uint32 /*accountId*/)
 }
 
 template<>
-void AchievementMgr<Player>::DeleteFromDB(uint32 p_LowGUID, uint32 p_AccountID)
+void AchievementMgr<Player>::DeleteFromDB(uint32 p_LowGUID, uint32 /*p_AccountID*/)
 {
     SQLTransaction l_Trans = CharacterDatabase.BeginTransaction();
 
@@ -499,7 +489,7 @@ void AchievementMgr<Player>::DeleteFromDB(uint32 p_LowGUID, uint32 p_AccountID)
 }
 
 template<>
-void AchievementMgr<Guild>::DeleteFromDB(uint32 p_LowGUID, uint32 p_AccountID)
+void AchievementMgr<Guild>::DeleteFromDB(uint32 p_LowGUID, uint32 /*p_AccountID*/)
 {
     SQLTransaction l_Trans = CharacterDatabase.BeginTransaction();
 
@@ -832,12 +822,12 @@ void AchievementMgr<Guild>::SaveToDB(SQLTransaction& trans)
 }
 
 template<class T>
-void AchievementMgr<T>::LoadFromDB(Player* p_Player, Guild* p_Guild, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult, PreparedQueryResult criteriaAccountResult)
+void AchievementMgr<T>::LoadFromDB(Player* /*p_Player*/, Guild* /*p_Guild*/, PreparedQueryResult /*achievementResult*/, PreparedQueryResult /*criteriaResult*/, PreparedQueryResult /*achievementAccountResult*/, PreparedQueryResult /*criteriaAccountResult*/)
 {
 }
 
 template<>
-void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult, PreparedQueryResult criteriaAccountResult)
+void AchievementMgr<Player>::LoadFromDB(Player* /*p_Player*/, Guild* /*p_Guild*/, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult, PreparedQueryResult criteriaAccountResult)
 {
     if (achievementAccountResult)
     {
@@ -1000,7 +990,7 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
 }
 
 template<>
-void AchievementMgr<Guild>::LoadFromDB(Player* /*p_Player*/, Guild* p_Guild, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult, PreparedQueryResult criteriaAccountResult)
+void AchievementMgr<Guild>::LoadFromDB(Player* /*p_Player*/, Guild* /*p_Guild*/, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult /*achievementAccountResult*/, PreparedQueryResult /*criteriaAccountResult*/)
 {
     if (achievementResult)
     {
@@ -1304,7 +1294,7 @@ void AchievementMgr<T>::CheckAllAchievementCriteria(Player* p_ReferencePlayer)
         AchievementCriteriaUpdateTask l_Task;
         l_Task.PlayerGUID = p_ReferencePlayer->GetGUID();
         l_Task.UnitGUID   = 0;
-        l_Task.Task = [l_AchievementCriteriaType](uint64 const& p_PlayerGuid, uint64 const& p_UnitGUID) -> void
+        l_Task.Task = [l_AchievementCriteriaType](uint64 const& p_PlayerGuid, uint64 const& /*p_UnitGUID*/) -> void
         {
             /// Task will be executed async
             /// We need to ensure the player still exist
@@ -1318,18 +1308,6 @@ void AchievementMgr<T>::CheckAllAchievementCriteria(Player* p_ReferencePlayer)
         sAchievementMgr->AddCriteriaUpdateTask(l_Task);
     }
 }
-
-static const uint32 achievIdByArenaSlot[MAX_ARENA_SLOT] = {1057, 1107, 1108};
-static const uint32 achievIdForDungeon[][4] =
-{
-    // ach_cr_id, is_dungeon, is_raid, is_heroic_dungeon
-    { 321,       true,      true,   true  },
-    { 916,       false,     true,   false },
-    { 917,       false,     true,   false },
-    { 918,       true,      false,  false },
-    { 2219,      false,     false,  true  },
-    { 0,         false,     false,  false }
-};
 
 // Helper function to avoid having to specialize template for a 800 line long function
 template <typename T> static bool IsGuild() { return false; }
@@ -1689,14 +1667,16 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:
                 break;                                   // Not implemented yet :(
+            default:
+                break;
         }
-
+        
         SetCompletedAchievementsIfNeeded(l_AchievementCriteria, p_ReferencePlayer, p_LoginCheck);
     }
 }
 
 template<class T>
-bool AchievementMgr<T>::CanCompleteCriteria(CriteriaEntry const* achievementCriteria, AchievementEntry const* achievement)
+bool AchievementMgr<T>::CanCompleteCriteria(CriteriaEntry const* /*achievementCriteria*/, AchievementEntry const* /*achievement*/)
 {
     return true;
 }
@@ -1710,7 +1690,7 @@ template<>
 uint32 GetInstanceId(Player* player) { return player->GetInstanceId(); }
 
 template<>
-bool AchievementMgr<Player>::CanCompleteCriteria(CriteriaEntry const* achievementCriteria, AchievementEntry const* achievement)
+bool AchievementMgr<Player>::CanCompleteCriteria(CriteriaEntry const* /*achievementCriteria*/, AchievementEntry const* achievement)
 {
     if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
     {
@@ -1731,7 +1711,7 @@ template<class T>
 bool AchievementMgr<T>::IsCompletedCriteria(CriteriaEntry const* p_AchievementCriteria)
 {
     AchievementCriteriaTreeList const& l_CriteriaTreeList = sAchievementMgr->GetAchievementCriteriaTreeList(p_AchievementCriteria);
-    for (AchievementCriteriaTreeList::const_iterator l_Iter = l_CriteriaTreeList.begin(); l_Iter != l_CriteriaTreeList.end(); l_Iter++)
+    for (AchievementCriteriaTreeList::const_iterator l_Iter = l_CriteriaTreeList.begin(); l_Iter != l_CriteriaTreeList.end(); ++l_Iter)
     {
         CriteriaTreeEntry const* l_CriteriaTree = *l_Iter;
         AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievementEntryByCriteriaTree(l_CriteriaTree);
@@ -1756,7 +1736,7 @@ bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p
     AchievementCriteriaTreeList const* l_TreeList = sAchievementMgr->GetSubCriteriaTreeById(p_Achievement->CriteriaTree);
     if (l_TreeList)
     {
-        for (AchievementCriteriaTreeList::const_iterator l_Iter = l_TreeList->begin(); l_Iter != l_TreeList->end(); l_Iter++)
+        for (AchievementCriteriaTreeList::const_iterator l_Iter = l_TreeList->begin(); l_Iter != l_TreeList->end(); ++l_Iter)
         {
             if ((*l_Iter)->CriteriaID == p_Criteria->ID)
             {
@@ -1941,7 +1921,7 @@ bool AchievementMgr<T>::IsCompletedAchievement(AchievementEntry const* p_Entry)
 
     AchievementCriteriaEntryList l_CriteriaList;
     AchievementCriteriaTreeList const* l_List = sAchievementMgr->GetSubCriteriaTreeById(p_Entry->CriteriaTree);
-    for (AchievementCriteriaTreeList::const_iterator l_Iter = l_List->begin(); l_Iter != l_List->end(); l_Iter++)
+    for (AchievementCriteriaTreeList::const_iterator l_Iter = l_List->begin(); l_Iter != l_List->end(); ++l_Iter)
     {
         CriteriaTreeEntry const* l_CriteriaTree = *l_Iter;
         if (CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(l_CriteriaTree->CriteriaID))
@@ -2090,7 +2070,7 @@ void AchievementMgr<T>::SetCriteriaProgress(CriteriaEntry const* p_Entry, uint64
     bool l_NeedAccountUpdate = false;
 
     AchievementCriteriaTreeList l_CriteriaList = sAchievementMgr->GetAchievementCriteriaTreeList(p_Entry);
-    for (AchievementCriteriaTreeList::const_iterator l_Iter = l_CriteriaList.begin(); l_Iter != l_CriteriaList.end(); l_Iter++)
+    for (AchievementCriteriaTreeList::const_iterator l_Iter = l_CriteriaList.begin(); l_Iter != l_CriteriaList.end(); ++l_Iter)
     {
         AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievementEntryByCriteriaTree(*l_Iter);
         if (!l_Achievement)
@@ -2271,7 +2251,7 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
         return;
     }
 
-    m_CompletedAchievementsLock.acquire();        
+    m_CompletedAchievementsLock.acquire();
     CompletedAchievementData& l_Data = m_completedAchievements[p_Achievement->ID];
     l_Data.completedByThisCharacter = true;
     l_Data.date = time(NULL);
@@ -2393,7 +2373,6 @@ void AchievementMgr<T>::RewardAchievement(AchievementEntry const* p_Achievement)
 template<>
 void AchievementMgr<Guild>::RewardAchievement(AchievementEntry const* p_Achievement)
 {
-
 }
 
 struct VisibleAchievementPred
@@ -2471,7 +2450,7 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
 }
 
 template<class T>
-void AchievementMgr<T>::SendAchievementInfo(Player* p_Receiver, uint32 p_AchievementID /*= 0*/)
+void AchievementMgr<T>::SendAchievementInfo(Player* /*p_Receiver*/, uint32 /*p_AchievementID*/ /*= 0*/)
 {
 }
 
@@ -2587,7 +2566,7 @@ bool AchievementMgr<Player>::HasAchieved(uint32 achievementId) const
     {
         m_CompletedAchievementsLock.release();
         return false;
-    } 
+    }
     m_CompletedAchievementsLock.release();
 
     return (*itr).second.completedByThisCharacter;
@@ -2689,28 +2668,8 @@ bool AchievementMgr<T>::CanUpdateCriteria(CriteriaEntry const* p_Criteria, Achie
 }
 
 template<class T>
-bool AchievementMgr<T>::ConditionsSatisfied(CriteriaEntry const* p_Criteria, Player* p_ReferencePlayer) const
+bool AchievementMgr<T>::ConditionsSatisfied(CriteriaEntry const* /*p_Criteria*/, Player* /*p_ReferencePlayer*/) const
 {
-    /*for (uint32 i = 0; i < MAX_CRITERIA_REQUIREMENTS; ++i)
-    {
-        if (!p_Criteria->additionalRequirements[i].additionalRequirement_type)
-            continue;
-
-        switch (p_Criteria->additionalRequirements[i].additionalRequirement_type)
-        {
-            case ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP:
-                if (p_ReferencePlayer->GetMapId() != p_Criteria->additionalRequirements[i].additionalRequirement_value)
-                    return false;
-                break;
-            case ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP:
-                if (p_ReferencePlayer->GetGroup())
-                    return false;
-                break;
-            default:
-                break;
-        }
-    }*/
-
     return true;
 }
 
@@ -2817,71 +2776,12 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
         {
             if (!p_MiscValue1)
                 return false;
-            /*if (!referencePlayer)
-                return false;
-            // skip wrong arena achievements, if not achievIdByArenaSlot then normal total death counter
-            bool notfit = false;
-            for (int j = 0; j < MAX_ARENA_SLOT; ++j)
-            {
-                if (achievIdByArenaSlot[j] == achievementCriteria->achievement)
-                {
-                    Battleground* bg = referencePlayer->GetBattleground();
-                    if (!bg || !bg->isArena() || Arena::GetSlotByType(bg->GetArenaType()) != j)
-                        notfit = true;
-                    break;
-                }
-            }
-            if (notfit)
-                return false;*/
             break;
         }
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
         {
             if (!p_MiscValue1)
                 return false;
-
-            /*if (!referencePlayer)
-                return false;
-
-            Map const* map = referencePlayer->IsInWorld() ? referencePlayer->GetMap() : sMapMgr->FindMap(referencePlayer->GetMapId(), referencePlayer->GetInstanceId());
-            if (!map || !map->IsDungeon())
-                return false;
-
-            // search case
-            bool found = false;
-            for (int j = 0; achievIdForDungeon[j][0]; ++j)
-            {
-                if (achievIdForDungeon[j][0] == achievementCriteria->achievement)
-                {
-                    if (map->IsRaid())
-                    {
-                        // if raid accepted (ignore difficulty)
-                        if (!achievIdForDungeon[j][2])
-                            break;                      // for
-                    }
-                    else if (referencePlayer->GetDungeonDifficulty() == REGULAR_DIFFICULTY)
-                    {
-                        // dungeon in normal mode accepted
-                        if (!achievIdForDungeon[j][1])
-                            break;                      // for
-                    }
-                    else
-                    {
-                        // dungeon in heroic mode accepted
-                        if (!achievIdForDungeon[j][3])
-                            break;                      // for
-                    }
-
-                    found = true;
-                    break;                              // for
-                }
-            }
-            if (!found)
-                return false;
-
-            //FIXME: work only for instances where max == min for players
-            if (((InstanceMap*)map)->GetMaxPlayers() != achievementCriteria->death_in_dungeon.manLimit)
-                return false;*/
 
             break;
         }
@@ -3110,7 +3010,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
     if (l_List.empty())
         return true;
 
-    for (ModifierTreeEntryList::const_iterator l_Iter = l_List.begin(); l_Iter != l_List.end(); l_Iter++)
+    for (ModifierTreeEntryList::const_iterator l_Iter = l_List.begin(); l_Iter != l_List.end(); ++l_Iter)
     {
         ModifierTreeEntry const* l_ModifierTree = (*l_Iter);
         uint32 l_ReqType = l_ModifierTree->Type;
@@ -3208,7 +3108,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                 Battleground* l_UnitBattleground = p_Unit->ToPlayer()->GetBattleground();
                 if (!l_PlrBattleground || !l_PlrBattleground->isArena() || !l_UnitBattleground || !l_UnitBattleground->isArena())
                     return false;
-                if (!l_PlrBattleground->GetArenaType() != l_ReqValue || !l_UnitBattleground->GetArenaType() != l_ReqValue)
+                if ((!l_PlrBattleground->GetArenaType()) != l_ReqValue || !l_UnitBattleground->GetArenaType() != l_ReqValue)
                     return false;
                 break;
             }
@@ -3731,6 +3631,8 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(uint32 p_Type)
             return "GUILD_CHALLENGE";
         case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
             return "COLLECT_TOYS";
+        default:
+            break;
     }
     return "MISSING_TYPE";
 }

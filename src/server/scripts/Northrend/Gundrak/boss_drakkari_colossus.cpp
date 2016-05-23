@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Comment: The event with the Living Mojos is not implemented, just is done that when one of the mojos around the boss take damage will make the boss enter in combat!
@@ -34,19 +25,19 @@ enum Spells
     SPELL_SURGE                                   = 54801,
     SPELL_FREEZE_ANIM                             = 16245,
     SPELL_MOJO_PUDDLE                             = 55627,
-    SPELL_MOJO_WAVE                               = 55626,
+    SPELL_MOJO_WAVE                               = 55626
 };
 
 enum ColossusEvents
 {
-    EVENT_MIGHTY_BLOW   = 1,
+    EVENT_MIGHTY_BLOW   = 1
 };
 
 enum ColossusActions
 {
     ACTION_SUMMON_ELEMENTAL     = 1,
     ACTION_FREEZE_COLOSSUS      = 2,
-    ACTION_UNFREEZE_COLOSSUS    = 3,
+    ACTION_UNFREEZE_COLOSSUS    = 3
 };
 
 enum ColossusPhases
@@ -172,7 +163,7 @@ class boss_drakkari_colossus : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
                     damage = 0;
@@ -326,7 +317,7 @@ class boss_drakkari_elemental : public CreatureScript
                 }
            }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (HealthBelowPct(50) && instance)
                 {
@@ -492,9 +483,11 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_drakkari_colossus()
 {
     new boss_drakkari_colossus();
     new boss_drakkari_elemental();
     new npc_living_mojo();
 }
+#endif

@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef SCRIPT_UTILS_H
 # define SCRIPT_UTILS_H
 # include "ScriptPCH.h"
@@ -7,7 +15,7 @@ namespace MS
 {
     namespace ScriptUtils
     {
-        static GameObject* SelectNearestGameObjectWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
+        inline GameObject* SelectNearestGameObjectWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
         {
             std::list<GameObject*> l_TargetList;
 
@@ -21,7 +29,7 @@ namespace MS
             return nullptr;
         }
 
-        static Creature* SelectNearestCreatureWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
+        inline Creature* SelectNearestCreatureWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = p_Range;
@@ -41,7 +49,7 @@ namespace MS
             return nullptr;
         }
 
-        static Unit* SelectRandomCreatureWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
+        inline Unit* SelectRandomCreatureWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = p_Range;
@@ -70,7 +78,7 @@ namespace MS
             return *l_RandUnit;
         }
 
-        static std::list<Unit*> SelectNearestCreatureListWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
+        inline std::list<Unit*> SelectNearestCreatureListWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = p_Range;
@@ -90,7 +98,7 @@ namespace MS
             return l_Results;
         }
 
-        static Unit* SelectRandomEnnemy(Unit* p_Me, float p_Range = 0.0f, bool p_CheckLoS = true)
+        inline Unit* SelectRandomEnnemy(Unit* p_Me, float p_Range = 0.0f, bool p_CheckLoS = true)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = p_Range;
@@ -112,7 +120,7 @@ namespace MS
             return *l_Itr;
         }
 
-        static Unit* SelectNearestFriendExcluededMe(Unit* p_Me, float p_Range = 0.0f, bool p_CheckLoS = true)
+        inline Unit* SelectNearestFriendExcluededMe(Unit* p_Me, float p_Range = 0.0f, bool p_CheckLoS = true)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = p_Range;
@@ -133,7 +141,7 @@ namespace MS
             return nullptr;
         }
 
-        static Player* SelectNearestPlayer(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
+        inline Player* SelectNearestPlayer(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
         {
             Map* map = p_me->GetMap();
             if (!map->IsDungeon())
@@ -157,7 +165,7 @@ namespace MS
             return nullptr;
         }
 
-        static void ApplyOnEveryPlayer(Unit* p_Me, std::function<void(Unit*, Player*)> p_Function)
+        inline void ApplyOnEveryPlayer(Unit* p_Me, std::function<void(Unit*, Player*)> p_Function)
         {
             Map* map = p_Me->GetMap();
             if (!map->IsDungeon())
@@ -172,7 +180,7 @@ namespace MS
                 p_Function(p_Me, i->getSource());
         }
 
-        static Player* SelectRandomPlayerExcludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
+        inline Player* SelectRandomPlayerExcludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
         {
             Map* map = p_me->GetMap();
             if (!map->IsDungeon())
@@ -200,7 +208,7 @@ namespace MS
         }
 
 
-        static Player* SelectFarEnoughPlayerIncludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
+        inline Player* SelectFarEnoughPlayerIncludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
         {
             Map* map = p_me->GetMap();
             if (!map->IsDungeon())
@@ -222,7 +230,7 @@ namespace MS
             return nullptr;
         }
 
-        static Player* SelectRandomPlayerIncludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
+        inline Player* SelectRandomPlayerIncludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
         {
             Map* map = p_me->GetMap();
             if (!map->IsDungeon())
