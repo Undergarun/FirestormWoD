@@ -5484,7 +5484,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 156297: ///< Acid Torrent
-                spellInfo->AttributesEx |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
+                spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 break;
             case 31224: ///< Cloak of Shadows
                 spellInfo->Effects[0].BasePoints = -200;
