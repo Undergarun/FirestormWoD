@@ -159,7 +159,9 @@ class mob_master_shang_xi : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (me->GetPositionX() != 1462.0f && me->GetPositionY() != 3465.590088f && me->GetPositionZ() != 181.597f)
+                Position const l_Pos = { 1462.0f, 3465.590f, 181.597f };
+
+                if (me->IsNearPosition(&l_Pos, 0.5f))
                     me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_STAND_STATE_SIT_MEDIUM_CHAIR);
 
                 if (checkPlayersTime <= diff)
