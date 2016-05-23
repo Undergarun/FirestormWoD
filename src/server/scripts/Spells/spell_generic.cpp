@@ -5868,9 +5868,75 @@ class spell_gen_mass_resurrection : public SpellScriptLoader
         }
 };
 
+/// Sacrifice - 140271
+class spell_gen_sacrifice : public SpellScriptLoader
+{
+    public:
+        spell_gen_sacrifice() : SpellScriptLoader("spell_gen_sacrifice") { }
+
+        class spell_gen_sacrifice_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_sacrifice_SpellScript);
+
+            SpellCastResult HandleCheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->getLevel() >= 91)
+                    return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_sacrifice_SpellScript::HandleCheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_sacrifice_SpellScript();
+        }
+};
+
+/// Siegesmith Bombs - 48345
+class spell_gen_siegsmith_bombs : public SpellScriptLoader
+{
+    public:
+        spell_gen_siegsmith_bombs() : SpellScriptLoader("spell_gen_siegsmith_bombs") { }
+
+        class spell_gen_siegsmith_bombs_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_siegsmith_bombs_SpellScript);
+
+            SpellCastResult HandleCheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->GetMapId() != 571)
+                    return SpellCastResult::SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_siegsmith_bombs_SpellScript::HandleCheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_siegsmith_bombs_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_siegsmith_bombs();
+    new spell_gen_sacrifice();
     new spell_gen_pvp_trinket();
     new spell_gen_ironbeards_hat();
     new spell_gen_coin_of_many_faces();
