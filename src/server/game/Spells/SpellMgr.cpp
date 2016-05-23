@@ -4237,6 +4237,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 117624:///< Suicide No Blood No Logging (Tectus)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
+            case 162475:///< Tectonic Upheaval (Tectus)
+                spellInfo->InterruptFlags = 0;
+                spellInfo->ChannelInterruptFlags = 0;
+                break;
             case 166185:///< Rending Slash (Highmaul Conscript)
             case 158026:///< Enfeebling Roar - Debuff (Phemos - Twin Ogron)
             case 163134:///< Nullification Barrier - Abosrb (Ko'ragh)
