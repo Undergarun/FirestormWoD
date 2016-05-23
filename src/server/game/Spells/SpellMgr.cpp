@@ -3786,7 +3786,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 140495: ///< Lingering Gaze (Durumu - Throne of Thunder)
-                spellInfo->Effects[EFFECT_0].BasePoints *= 2.9f;
+                spellInfo->Effects[EFFECT_0].BasePoints = int32(spellInfo->Effects[EFFECT_0].BasePoints * 2.9f);
                 break;
             case 136413: ///< Force of Will (Durumu - Throne of Thunder)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CONE_ENEMY_104;
@@ -4479,7 +4479,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 136050: ///< Malformed Blood
-                spellInfo->Effects[1].BasePoints *= 2.85f;
+                spellInfo->Effects[1].BasePoints = int32(spellInfo->Effects[1].BasePoints * 2.85f);
                 break;
             case 136521: ///< QuickSand
             case 136878: ///< QuickSand
@@ -4520,7 +4520,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcChance = 0;
                 break;
             case 137641: ///< Soul Fragment
-                spellInfo->Effects[1].BasePoints = spellInfo->Effects[1].BasePoints * 2.7;
+                spellInfo->Effects[1].BasePoints = int32(spellInfo->Effects[1].BasePoints * 2.7f);
                 break;
             case 174597:///< Ruthlessness (passive aura)
                 spellInfo->Effects[0].Effect = 0;
