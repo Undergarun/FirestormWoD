@@ -368,18 +368,6 @@ class mob_tushui_trainee : public CreatureScript
         };
 };
 
-enum eJaominEvents
-{
-    EVENT_JAOMIN_JUMP   = 1,
-    EVENT_HIT_CIRCLE    = 2,
-    EVENT_FALCON        = 3,
-    EVENT_FALCON_ATTACK = 4,
-    EVENT_RESET         = 5,
-    EVENT_CHECK_AREA    = 6,
-    EVENT_JAOMIN_BUMP   = 7,
-    EVENT_STUNNED       = 8
-};
-
 class boss_jaomin_ro : public CreatureScript
 {
 public:
@@ -396,21 +384,35 @@ public:
         {
         }
 
+        enum eJaominEvents
+        {
+            EVENT_JAOMIN_JUMP   = 1,
+            EVENT_HIT_CIRCLE    = 2,
+            EVENT_FALCON        = 3,
+            EVENT_FALCON_ATTACK = 4,
+            EVENT_RESET         = 5,
+            EVENT_CHECK_AREA    = 6,
+            EVENT_JAOMIN_BUMP   = 7,
+            EVENT_STUNNED       = 8
+        };
+
         EventMap m_Events;
         bool m_HasSaidIntro;
         uint32 spellJumpTimer;
         bool m_HasScheduledFalcon;
-        uint64 m_PlayerGuid;
+        bool m_CombatEngaged;
 
-        void EnterCombat(Unit* /*p_Attacker*/)
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
+            m_CombatEngaged = true;
+
             m_Events.ScheduleEvent(EVENT_JAOMIN_JUMP, 1000);
             m_Events.ScheduleEvent(EVENT_JAOMIN_BUMP, 3200);
             m_Events.ScheduleEvent(EVENT_HIT_CIRCLE, 12000);
             m_Events.ScheduleEvent(EVENT_CHECK_AREA, 12500);
         }
         
-        void Reset()
+        void Reset() override
         {
             m_Events.Reset();
             me->setFaction(7);
@@ -419,13 +421,13 @@ public:
             me->SetDisplayId(39755);
             m_HasSaidIntro = false;
             m_HasScheduledFalcon = false;
+            m_CombatEngaged = false;
             me->HandleEmoteCommand(EMOTE_STATE_SIT);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
-            m_PlayerGuid = 0;
         }
 
-        void JustSummoned(Creature* p_Summoned)
+        void JustSummoned(Creature* p_Summoned) override
         {
             if (p_Summoned->GetEntry() == 57750) // Script of the falcon attack
             {
@@ -434,12 +436,13 @@ public:
             }
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/)
+        void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
         {
+            if (me->GetReactState() != REACT_AGGRESSIVE)
+                me->SetReactState(REACT_AGGRESSIVE);
+
             if (Player* l_Player = p_Attacker->ToPlayer())
             {
-                m_PlayerGuid = l_Player->GetGUID();
-
                 if (me->HealthBelowPctDamaged(30, p_Damage))
                 {
                     if (!m_HasScheduledFalcon)
@@ -453,8 +456,7 @@ public:
                     m_Events.CancelEvent(EVENT_JAOMIN_BUMP);
                     m_Events.CancelEvent(EVENT_HIT_CIRCLE);
                 }
-
-                if (me->HealthBelowPctDamaged(5, p_Damage))
+                else if (me->HealthBelowPctDamaged(5, p_Damage))
                 {
                     p_Damage = 0;
                     Talk(urand(1, 6));
@@ -470,7 +472,7 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 
-                    m_Events.ScheduleEvent(EVENT_RESET, 5000);
+                    m_Events.ScheduleEvent(EVENT_RESET, 3000);
                 }
 
                 if (p_Damage > me->GetHealth())
@@ -478,7 +480,14 @@ public:
             }
         }
 
-        void DoAction(const int32 p_Action)
+        void EnterEvadeMode() override
+        {
+            _EnterEvadeMode();
+            m_CombatEngaged = false;
+            m_Events.ScheduleEvent(EVENT_RESET, 3000);
+        }
+
+        void DoAction(const int32 p_Action) override
         {
             if (p_Action == ACTION_TALK)
             {
@@ -490,32 +499,25 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 diff) override
         {
             m_Events.Update(diff);
 
-            if (!UpdateVictim())
+            if (!UpdateVictim() && !m_CombatEngaged)
             {
-                if (me->getFaction() == 35)
-                {
-                    std::list<Player*> l_PlayerList;
-                    GetPlayerListInGrid(l_PlayerList, me, 15.0f);
+                Player* l_Player = me->FindNearestPlayer(15.0f);
 
-                    for (Player* l_Player : l_PlayerList)
-                    {
-                        if (l_Player->GetQuestStatus(29409) == QUEST_STATUS_INCOMPLETE)
-                        {
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->HandleEmoteCommand(EMOTE_STATE_STAND);
-                            Reset();
-                            me->SetOrientation(1.98f);
-                            me->SetFacingTo(1.98f);
-                            me->setFaction(7);
-                            me->SetReactState(REACT_DEFENSIVE);
-                            DoAction(ACTION_TALK);
-                        }
-                    }
+                if (l_Player != nullptr && l_Player->GetQuestStatus(29409) == QUEST_STATUS_INCOMPLETE)
+                {
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->HandleEmoteCommand(EMOTE_STATE_STAND);
+                    me->SetOrientation(1.98f);
+                    me->SetFacingTo(1.98f);
+                    me->setFaction(7);
+                    me->SetReactState(REACT_DEFENSIVE);
+                    DoAction(ACTION_TALK);
                 }
+
                 return;
             }
 
