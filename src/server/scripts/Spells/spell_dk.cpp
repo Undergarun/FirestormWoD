@@ -228,6 +228,9 @@ class spell_dk_gorefiends_grasp: public SpellScriptLoader
                             if (!_player->IsValidAttackTarget(itr))
                                 continue;
 
+                            if (itr->IsImmunedToSpell(GetSpellInfo()))
+                                continue;
+
                             if (!itr->IsWithinLOSInMap(_player))
                                 continue;
 

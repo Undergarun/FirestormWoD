@@ -5782,8 +5782,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].Effect = 0;
                 break;
             case 108199: ///< Gorefiend's Grasp
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-                spellInfo->Effects[0].TargetB = 0;
+                spellInfo->Mechanic = Mechanics::MECHANIC_GRIP;
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[2].Effect = 0;
                 break;
             case 49206: ///< Summon Gargoyle
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
