@@ -1,11 +1,14 @@
+# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
 #
-#  MILLENIUM-STUDIO
-#  Copyright 2016 Millenium-studio SARL
-#  All Rights Reserved.
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
 #
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-# Enable precompiled headers
-
+# Enable precompiled headers when using the GCC compiler.
 if (USE_SCRIPTPCH)
   set(scripts_STAT_PCH_HDR PrecompiledHeaders/ScriptPCH.h)
   set(scripts_STAT_PCH_SRC PrecompiledHeaders/ScriptPCH.cpp)
@@ -16,6 +19,8 @@ message(STATUS "SCRIPT PREPARATIONS")
 include(Spells/CMakeLists.txt)
 include(World/CMakeLists.txt)
 include(Commands/CMakeLists.txt)
+
+# include(Examples/CMakeLists.txt)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
@@ -31,7 +36,6 @@ if(SCRIPTS)
   include(Kalimdor/CMakeLists.txt)
   include(Outland/CMakeLists.txt)
   include(Northrend/CMakeLists.txt)
-  include(Cataclysm/CMakeLists.txt)
   include(Pandaria/CMakeLists.txt)
   include(PetBattle/CMakeLists.txt)
   include(Draenor/CMakeLists.txt)
@@ -40,6 +44,27 @@ if(SCRIPTS)
   include(Firestorm/CMakeLists.txt)
   include(Toys/CMakeLists.txt)
 endif()
+
+MACRO( auto_group ProjectDirectory ProjectSources )
+    SET( DirectorySources "${ProjectSources}" )
+    FOREACH( Source ${DirectorySources} )
+        if ("${Source}" MATCHES "(/)+")
+            STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
+            STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+            STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+            STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+            SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
+        else()
+            SOURCE_GROUP( "" FILES ${Source} )
+        endif()
+    ENDFOREACH( Source )
+ENDMACRO( auto_group )
+
+auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${scripts_STAT_SRCS}")
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+)
 
 message(STATUS "SCRIPT PREPARATION COMPLETE")
 message("")
@@ -158,12 +183,13 @@ include_directories(
   ${MSFRAMEWORK_INCLUDE_DIR}
 )
 
-GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
-
 add_library(scripts STATIC
   ${scripts_STAT_SRCS}
   ${scripts_STAT_PCH_SRC}
 )
+
+add_definitions("-DGAME_SERVER_PROJECTS")
+set_property(TARGET scripts PROPERTY FOLDER "server")
 
 add_dependencies(scripts revision_data.h)
 
