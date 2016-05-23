@@ -5890,6 +5890,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 134758: ///< Burning Cinders
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
+            case 159642 : ///< Glyph of Ghostly Speed
+                spellInfo->Attributes &= ~SPELL_ATTR0_OUTDOORS_ONLY;
+                break;
             case 173545: /// Chi Wave (healing bolt)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 break;
