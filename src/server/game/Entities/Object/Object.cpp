@@ -42,7 +42,6 @@
 #include "BattlefieldMgr.h"
 #include "MoveSpline.h"
 #include "SceneObject.h"
-#include "DatabaseWorkerPool.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
 {
@@ -3055,7 +3054,7 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
             auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);
 
-            CharacterDatabase.AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, pet, currentPet, l_PlayerGUID](SQLQueryHolder* p_QueryHolder) -> void
+            sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, pet, currentPet, l_PlayerGUID](SQLQueryHolder* p_QueryHolder) -> void
             {
                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
                 if (!l_Player || !p_QueryHolder)
