@@ -727,12 +727,20 @@ class npc_fun_gold_vendor : public CreatureScript
             return true;
         }
         
-        bool GossipSelect_npc_boost_level_58(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+        struct npc_fun_gold_vendorAI : public ScriptedAI
         {
-            if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
-                pPlayer->ModifyMoney(500000000);
+            npc_fun_gold_vendorAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
             
-            return true;
+            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            {
+                p_Player->ModifyMoney(50000 * MoneyConstants::GOLD);
+                p_Player->PlayerTalkClass->SendCloseGossip();
+            }
+        }
+        
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_fun_gold_vendorAI(p_Creature);
         }
 };
 
@@ -741,4 +749,5 @@ void AddSC_npc_custom()
 ///    new npc_world_boss_gossip();
     new npc_pve_tests_manager();
     new npc_season_2_premade_master();
+    new npc_fun_gold_vendor();
 }
