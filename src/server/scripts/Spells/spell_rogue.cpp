@@ -139,7 +139,8 @@ class spell_rog_anticipation : public SpellScriptLoader
         }
 };
 
-/// Called by Deadly Poison - 2818, Crippling Poison - 3409, Wound Poison - 8680 and Leeching Poison - 112961
+/// Last Update 6.2.3
+/// Called by Deadly Poison - 2818, Crippling Poison - 3409, Wound Poison - 8680, Instant Poison - 157607 and Leeching Poison - 112961
 /// Venom Rush - 152152
 class spell_rog_venom_rush : public SpellScriptLoader
 {
@@ -150,7 +151,8 @@ class spell_rog_venom_rush : public SpellScriptLoader
         {
             WoundPoison     = 8680,
             VenomRushAura   = 152152,
-            VenomRushProc   = 156719
+            VenomRushProc   = 156719,
+            InstantPoison   = 157607
         };
 
         class spell_rog_venom_rush_AuraScript : public AuraScript
@@ -161,6 +163,14 @@ class spell_rog_venom_rush : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
+                    Player* l_Player = l_Caster->ToPlayer();
+
+                    if (l_Player == nullptr)
+                        return;
+
+                    if (GetSpellInfo()->Id == 3409 && l_Player->GetSpecializationId() == SPEC_ROGUE_COMBAT)
+                        return;
+
                     if (!l_Caster->HasAura(eSpells::VenomRushAura))
                     {
                         if (l_Caster->HasAura(eSpells::VenomRushProc))
@@ -198,7 +208,7 @@ class spell_rog_venom_rush : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 switch (m_scriptSpellId)
                 {
@@ -218,62 +228,18 @@ class spell_rog_venom_rush : public SpellScriptLoader
                         OnEffectApply += AuraEffectApplyFn(spell_rog_venom_rush_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                         OnEffectRemove += AuraEffectRemoveFn(spell_rog_venom_rush_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                         break;
+                    case eSpells::InstantPoison:
+                        OnEffectApply += AuraEffectApplyFn(spell_rog_venom_rush_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                        OnEffectRemove += AuraEffectRemoveFn(spell_rog_venom_rush_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                     default:
                         break;
                 }
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_rog_venom_rush_AuraScript();
-        }
-};
-
-/// Last Update 6.2.3
-/// Instant Poison - 157607
-class spell_rog_instant_poison : public SpellScriptLoader
-{
-    public:
-        spell_rog_instant_poison() : SpellScriptLoader("spell_rog_instant_poison") { }
-
-        class spell_rog_instant_poison_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_instant_poison_SpellScript);
-
-            enum eSpells
-            {
-                VenomRushAura = 152152,
-                VenomRushProc = 156719
-            };
-
-            void HandleOnHit(SpellEffIndex)
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (!l_Caster->HasAura(eSpells::VenomRushAura))
-                {
-                    if (l_Caster->HasAura(eSpells::VenomRushProc))
-                        l_Caster->RemoveAura(eSpells::VenomRushProc);
-                }
-
-                if (Unit* l_Target = GetHitUnit())
-                {
-                    bool l_MustCast = !l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()) && l_Caster->HasAura(eSpells::VenomRushAura);
-                    if (l_MustCast)
-                        l_Caster->CastSpell(l_Caster, eSpells::VenomRushProc, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_rog_instant_poison_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_instant_poison_SpellScript();
         }
 };
 
@@ -2104,7 +2070,7 @@ class spell_rog_vanish : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_vanish_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_DUMMY);
                 OnEffectApply += AuraEffectApplyFn(spell_rog_vanish_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
@@ -2112,7 +2078,7 @@ class spell_rog_vanish : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_rog_vanish_AuraScript();
         }
@@ -3407,7 +3373,6 @@ public:
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_kick();
-    new spell_rog_instant_poison();
     new spell_rog_distract();
     new spell_rog_main_gauche();
     new spell_rog_gyph_of_detection();
