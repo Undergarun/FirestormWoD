@@ -5230,7 +5230,7 @@ namespace MS { namespace Garrison
         GetGarrisonTavernDatas().clear();
     }
 
-    void Manager::ResetGarrisonTavernDatas()
+    void Manager::ResetGarrisonTavernData()
     {
         if (roll_chance_i(50))
         {

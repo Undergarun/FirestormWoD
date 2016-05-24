@@ -267,7 +267,7 @@ namespace MS { namespace Garrison
             void AddGarrisonTavernData(uint32 p_Data);
             void SetGarrisonTavernData(uint32 p_Data);
             void CleanGarrisonTavernData();
-            void ResetGarrisonTavernDatas();
+            void ResetGarrisonTavernData();
             void ResetGarrisonWorkshopData(Player* p_Player);
             void ResetGarrisonTradingPostData(Player* p_Player);
 
