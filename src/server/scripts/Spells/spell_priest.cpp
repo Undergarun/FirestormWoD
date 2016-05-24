@@ -3848,6 +3848,10 @@ class spell_pri_saving_grace : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_saving_grace_SpellScript);
 
+            void HandleLaunch(SpellEffIndex /*effIndex*/)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+            }
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -3864,6 +3868,7 @@ class spell_pri_saving_grace : public SpellScriptLoader
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_pri_saving_grace_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectLaunch += SpellEffectFn(spell_pri_saving_grace_SpellScript::HandleLaunch, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
