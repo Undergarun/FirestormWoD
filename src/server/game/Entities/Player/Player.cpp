@@ -27911,7 +27911,7 @@ void Player::ResetDailyGarrisonDatas()
     {
         if (l_Garrison->HasBuildingType(BuildingType::Inn))
         {
-            l_Garrison->ResetGarrisonTavernDatas();
+            l_Garrison->ResetGarrisonTavernData();
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Inn);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
