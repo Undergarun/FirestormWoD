@@ -713,6 +713,35 @@ class npc_season_2_premade_master : public CreatureScript
         {
             return new npc_season_2_premade_masterAI(p_Creature);
         }
+}; 
+
+class npc_fun_gold_vendor : public CreatureScript
+{
+    public:
+        npc_pve_tests_manager() : CreatureScript("npc_fun_gold_vendor") { }
+    
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Give me 50 000 golds! ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
+            return true;
+        }
+        
+        struct npc_fun_gold_vendorAI : public ScriptedAI
+        {
+            npc_fun_gold_vendorAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            
+            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            {
+                p_Player->ModifyMoney(50000 * MoneyConstants::GOLD);
+                p_Player->PlayerTalkClass->SendCloseGossip();
+            }
+        }
+        
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_fun_gold_vendorAI(p_Creature);
+        }
 };
 
 void AddSC_npc_custom()
@@ -720,4 +749,5 @@ void AddSC_npc_custom()
 ///    new npc_world_boss_gossip();
     new npc_pve_tests_manager();
     new npc_season_2_premade_master();
+    new npc_fun_gold_vendor();
 }

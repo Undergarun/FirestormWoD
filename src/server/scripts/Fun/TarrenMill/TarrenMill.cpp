@@ -462,12 +462,16 @@ void OutdoorPvPTarrenMillFun::HandlePlayerEnterMap(Player* p_Player, uint32 p_Ma
         l_Event->OnPlayerEnter(p_Player);
 
     UpdateRankAura(p_Player);
+
+    p_Player->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, true);
 }
 
 void OutdoorPvPTarrenMillFun::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 {
     for (TarrenMillEvent* l_Event : m_Events)
         l_Event->OnPlayerExit(p_Player);
+
+    p_Player->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, false);
 
     RankInfo l_RankInfo = GetRankAuraAndMissingKills(p_Player);
     p_Player->RemoveAurasDueToSpell(l_RankInfo.first);
