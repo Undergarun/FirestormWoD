@@ -5301,7 +5301,7 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Chi Explosion - 157676
 class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
 {
@@ -5312,6 +5312,11 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_explosion_brewmaster_SpellScript);
 
+            enum eSpells
+            {
+                MainTargetVisual = 157679
+            };
+
             void HandleHitTarget(SpellEffIndex p_EffIndex)
             {
                 uint8 l_Chi = std::min(GetCaster()->GetPower(POWER_CHI) + 1, 4);
@@ -5321,6 +5326,7 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                 else if (l_Chi < 4 && p_EffIndex == EFFECT_1)
                     return;
 
+                Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
                 Unit* l_ExplTarget = GetExplTargetUnit();
 
@@ -5332,6 +5338,8 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                     l_Damage /= 3;
 
                 SetHitDamage(l_Damage);
+                if (l_Chi > 3)
+                    l_Caster->CastSpell(l_ExplTarget, eSpells::MainTargetVisual, true);
             }
 
             void HandleAfterCast()
@@ -5371,7 +5379,7 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_chi_explosion_brewmaster_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_brewmaster_SpellScript::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
@@ -5380,7 +5388,7 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_chi_explosion_brewmaster_SpellScript();
         }
