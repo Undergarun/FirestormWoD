@@ -3692,11 +3692,11 @@ Creature* Player::GetNPCIfCanInteractWith(uint64 p_Guid, uint32 p_NpcFlagMask)
         return nullptr;
 
     /// Deathstate checks
-    if (!isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPEFLAGS_GHOST))
+    if (!isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPE_FLAG_GHOST_VISIBLE))
         return nullptr;
 
     /// Alive or spirit healer
-    if (!l_Creature->isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPEFLAGS_DEAD_INTERACT))
+    if (!l_Creature->isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPE_FLAG_CAN_INTERACT_WHILE_DEAD))
         return nullptr;
 
     /// Appropriate npc type
@@ -3759,11 +3759,11 @@ Creature* Player::GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask)
         return NULL;
 
     // Deathstate checks
-    if (!isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_GHOST))
+    if (!isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE))
         return NULL;
 
     // alive or spirit healer
-    if (!creature->isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_DEAD_INTERACT))
+    if (!creature->isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_INTERACT_WHILE_DEAD))
         return NULL;
 
     // appropriate npc type
