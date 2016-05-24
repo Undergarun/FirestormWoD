@@ -216,6 +216,7 @@ class spell_rog_anticipation_special_procs : public SpellScriptLoader
 
 
 /// Called by Deadly Poison - 2818, Crippling Poison - 3409, Wound Poison - 8680 and Leeching Poison - 112961
+/// Called by Deadly Poison - 2818, Crippling Poison - 3409, Wound Poison - 8680, Instant Poison - 157607 and Leeching Poison - 112961
 /// Venom Rush - 152152
 class spell_rog_venom_rush : public SpellScriptLoader
 {
@@ -226,7 +227,8 @@ class spell_rog_venom_rush : public SpellScriptLoader
         {
             WoundPoison     = 8680,
             VenomRushAura   = 152152,
-            VenomRushProc   = 156719
+            VenomRushProc   = 156719,
+            InstantPoison   = 157607
         };
 
         class spell_rog_venom_rush_AuraScript : public AuraScript
@@ -237,6 +239,14 @@ class spell_rog_venom_rush : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
+                    Player* l_Player = l_Caster->ToPlayer();
+
+                    if (l_Player == nullptr)
+                        return;
+
+                    if (GetSpellInfo()->Id == 3409 && l_Player->GetSpecializationId() == SPEC_ROGUE_COMBAT)
+                        return;
+
                     if (!l_Caster->HasAura(eSpells::VenomRushAura))
                     {
                         if (l_Caster->HasAura(eSpells::VenomRushProc))
@@ -274,7 +284,7 @@ class spell_rog_venom_rush : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 switch (m_scriptSpellId)
                 {
@@ -294,62 +304,18 @@ class spell_rog_venom_rush : public SpellScriptLoader
                         OnEffectApply += AuraEffectApplyFn(spell_rog_venom_rush_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                         OnEffectRemove += AuraEffectRemoveFn(spell_rog_venom_rush_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                         break;
+                    case eSpells::InstantPoison:
+                        OnEffectApply += AuraEffectApplyFn(spell_rog_venom_rush_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                        OnEffectRemove += AuraEffectRemoveFn(spell_rog_venom_rush_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                     default:
                         break;
                 }
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_rog_venom_rush_AuraScript();
-        }
-};
-
-/// Last Update 6.2.3
-/// Instant Poison - 157607
-class spell_rog_instant_poison : public SpellScriptLoader
-{
-    public:
-        spell_rog_instant_poison() : SpellScriptLoader("spell_rog_instant_poison") { }
-
-        class spell_rog_instant_poison_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_instant_poison_SpellScript);
-
-            enum eSpells
-            {
-                VenomRushAura = 152152,
-                VenomRushProc = 156719
-            };
-
-            void HandleOnHit(SpellEffIndex)
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (!l_Caster->HasAura(eSpells::VenomRushAura))
-                {
-                    if (l_Caster->HasAura(eSpells::VenomRushProc))
-                        l_Caster->RemoveAura(eSpells::VenomRushProc);
-                }
-
-                if (Unit* l_Target = GetHitUnit())
-                {
-                    bool l_MustCast = !l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()) && l_Caster->HasAura(eSpells::VenomRushAura);
-                    if (l_MustCast)
-                        l_Caster->CastSpell(l_Caster, eSpells::VenomRushProc, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_rog_instant_poison_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_instant_poison_SpellScript();
         }
 };
 
@@ -2107,91 +2073,91 @@ class spell_rog_stealth: public SpellScriptLoader
 /// Called by Vanish triggered spell - 131361
 class spell_rog_vanish : public SpellScriptLoader
 {
-public:
-    spell_rog_vanish() : SpellScriptLoader("spell_rog_vanish") { }
+    public:
+        spell_rog_vanish() : SpellScriptLoader("spell_rog_vanish") { }
 
-    enum eSpells
-    {
-        WodPvpCombat4pBonus = 182303,
-        WodPvpCombat4pBonusTrigger = 182304,
-        WodPvpAssassination4pBonus = 170883,
-        WodPvpAssassination4pBonusTrigger = 170882,
-        Stealth = 1784,
-        StealthShapeshift = 158188,
-        Subterfuge = 108208,
-        StealthSubterfuge = 115191,
-        StealthSubterfugeEffect = 115192,
-        GlyphOfDisappearance = 159638,
-        GlyphOfVanish = 89758
-    };
-
-    class spell_rog_vanish_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_rog_vanish_AuraScript);
-
-        void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
+        enum eSpells
         {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (l_Caster->HasAura(eSpells::StealthSubterfugeEffect))
-                    p_Amount = 1;
-            }
-        }
+            WodPvpCombat4pBonus = 182303,
+            WodPvpCombat4pBonusTrigger = 182304,
+            WodPvpAssassination4pBonus = 170883,
+            WodPvpAssassination4pBonusTrigger = 170882,
+            Stealth = 1784,
+            StealthShapeshift = 158188,
+            Subterfuge = 108208,
+            StealthSubterfuge = 115191,
+            StealthSubterfugeEffect = 115192,
+            GlyphOfDisappearance = 159638,
+            GlyphOfVanish = 89758
+        };
 
-        void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+        class spell_rog_vanish_AuraScript : public AuraScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareAuraScript(spell_rog_vanish_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
-                l_Player->RemoveMovementImpairingAuras();
-                l_Player->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
-
-                l_Player->CastSpell(l_Player, eSpells::StealthShapeshift, true);
-
-                /// Glyph of Vanish
-                if (AuraEffect* l_AurGlyphOfVanish = l_Player->GetAuraEffect(eSpells::GlyphOfVanish, EFFECT_0))
-                    p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() + l_AurGlyphOfVanish->GetAmount());
-
-                /// Item - Rogue WoD PvP Assassination 4P Bonus and Item - Rogue WoD PvP Combat 4P Bonus
-                if (l_Player->getLevel() == 100)
+                if (Unit* l_Caster = GetCaster())
                 {
-                    /// Assasination
-                    if (l_Player->HasAura(eSpells::WodPvpAssassination4pBonus))
-                        l_Player->CastSpell(l_Player, eSpells::WodPvpAssassination4pBonusTrigger, true);
-                    /// Combat
-                    else if (l_Player->HasAura(eSpells::WodPvpCombat4pBonus))
-                        l_Player->CastSpell(l_Player, eSpells::WodPvpCombat4pBonusTrigger, true);
+                    if (l_Caster->HasAura(eSpells::StealthSubterfugeEffect))
+                        p_Amount = 1;
                 }
             }
-        }
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
-                /// Stealth should be applied just after Vanish buff remove
-                int32 l_CurrentStealthId = l_Player->HasAura(eSpells::Subterfuge) ? eSpells::StealthSubterfuge : eSpells::Stealth;
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->RemoveMovementImpairingAuras();
+                    l_Player->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
-                l_Player->RemoveSpellCooldown(l_CurrentStealthId, true);
+                    l_Player->CastSpell(l_Player, eSpells::StealthShapeshift, true);
 
-                if (!l_Player->HasAura(eSpells::GlyphOfDisappearance))
-                    l_Player->CastSpell(l_Player, l_CurrentStealthId, true);
-                else
-                    l_Player->RemoveAura(eSpells::StealthShapeshift);
+                    /// Glyph of Vanish
+                    if (AuraEffect* l_AurGlyphOfVanish = l_Player->GetAuraEffect(eSpells::GlyphOfVanish, EFFECT_0))
+                        p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() + l_AurGlyphOfVanish->GetAmount());
+
+                    /// Item - Rogue WoD PvP Assassination 4P Bonus and Item - Rogue WoD PvP Combat 4P Bonus
+                    if (l_Player->getLevel() == 100)
+                    {
+                        /// Assasination
+                        if (l_Player->HasAura(eSpells::WodPvpAssassination4pBonus))
+                            l_Player->CastSpell(l_Player, eSpells::WodPvpAssassination4pBonusTrigger, true);
+                        /// Combat
+                        else if (l_Player->HasAura(eSpells::WodPvpCombat4pBonus))
+                            l_Player->CastSpell(l_Player, eSpells::WodPvpCombat4pBonusTrigger, true);
+                    }
+                }
             }
-        }
 
-        void Register()
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    /// Stealth should be applied just after Vanish buff remove
+                    int32 l_CurrentStealthId = l_Player->HasAura(eSpells::Subterfuge) ? eSpells::StealthSubterfuge : eSpells::Stealth;
+
+                    l_Player->RemoveSpellCooldown(l_CurrentStealthId, true);
+
+                    if (!l_Player->HasAura(eSpells::GlyphOfDisappearance))
+                        l_Player->CastSpell(l_Player, l_CurrentStealthId, true);
+                    else
+                        l_Player->RemoveAura(eSpells::StealthShapeshift);
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_vanish_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_DUMMY);
+                OnEffectApply += AuraEffectApplyFn(spell_rog_vanish_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_vanish_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_vanish_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_DUMMY);
-            OnEffectApply += AuraEffectApplyFn(spell_rog_vanish_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_rog_vanish_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
+            return new spell_rog_vanish_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_rog_vanish_AuraScript();
-    }
 };
 
 /// Burst of Speed - 108212
