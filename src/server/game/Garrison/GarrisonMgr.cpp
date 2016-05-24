@@ -3934,8 +3934,8 @@ namespace MS { namespace Garrison
                                     l_Creature->AI()->SetData(CreatureAIDataIDs::Builder, 1);
                                 else
                                 {
-                                    l_Creature->AI()->SetData(CreatureAIDataIDs::BuildingID,    -l_Contents[l_I].PlotTypeOrBuilding);
                                     l_Creature->AI()->SetGUID(m_Owner->GetGUID(), CreatureAIDataIDs::OwnerGuid); ///< Value first, data index next
+                                    l_Creature->AI()->SetData(CreatureAIDataIDs::BuildingID,    -l_Contents[l_I].PlotTypeOrBuilding);
                                     l_Creature->AI()->SetData(CreatureAIDataIDs::PlotInstanceID, p_PlotInstanceID | (GetGarrisonSiteLevelEntry()->SiteLevelID << 16));
                                 }
                             }
@@ -5228,6 +5228,87 @@ namespace MS { namespace Garrison
     void Manager::CleanGarrisonTavernData()
     {
         GetGarrisonTavernDatas().clear();
+    }
+
+    void Manager::ResetGarrisonTavernDatas()
+    {
+        if (roll_chance_i(50))
+        {
+            uint32 l_Entry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
+
+            CleanGarrisonTavernData();
+            AddGarrisonTavernData(l_Entry);
+        }
+        else
+        {
+            uint32 l_FirstEntry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
+            uint32 l_SecondEntry = 0;
+
+            do
+                l_SecondEntry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
+            while (l_SecondEntry == l_FirstEntry);
+
+            CleanGarrisonTavernData();
+            AddGarrisonTavernData(l_FirstEntry);
+            AddGarrisonTavernData(l_SecondEntry);
+        }
+    }
+
+    void Manager::ResetGarrisonWorkshopData(Player* p_Player)
+    {
+        if (p_Player->GetTeamId() == TEAM_ALLIANCE)
+        {
+            if (!p_Player->IsQuestRewarded(Quests::Alliance_UnconventionalInventions))
+                return;
+        }
+        else if (p_Player->GetTeamId() == TEAM_HORDE)
+        {
+            if (!p_Player->IsQuestRewarded(Quests::Horde_UnconventionalInventions))
+                return;
+        }
+
+        uint32 l_Worldstate = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention);
+        uint32 l_Entry = 0;
+
+        switch (GetBuildingLevel(GetBuildingWithType(BuildingType::Workshop)))
+        {
+            case 1:
+                do
+                    l_Entry = WorkshopGearworks::g_FirstLevelInventions[urand(0, WorkshopGearworks::g_FirstLevelInventions.size() - 1)];
+                while (l_Worldstate != l_Entry);
+                break;
+            case 2:
+                do
+                    l_Entry = WorkshopGearworks::g_SecondLevelInventions[urand(0, WorkshopGearworks::g_SecondLevelInventions.size() - 1)];
+                while (l_Worldstate != l_Entry);
+                break;
+            case 3:
+                do
+                    l_Entry = WorkshopGearworks::g_ThirdLevelInvention;
+                while (l_Worldstate != l_Entry);
+                break;
+            default:
+                break;
+        }
+
+        ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(WorkshopGearworks::g_GobItemRelations[l_Entry]);
+
+        if (l_ItemProto == nullptr)
+            return;
+
+        p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, l_Entry);
+        p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges, l_ItemProto->Spells[0].SpellCharges);
+    }
+
+    void Manager::ResetGarrisonTradingPostData(Player* p_Player)
+    {
+        std::vector<uint32> l_HordeTradersEntries = { 86778, 86777, 86779, 86776, 86683 };
+        std::vector<uint32> l_AllianceTradersEntries = { 87203, 87202, 87200, 87201, 87204 };
+        std::vector<uint32> l_TradingPostShipments = { 138, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 196 };
+        uint32 l_Entry = p_Player->GetTeamId() == TEAM_ALLIANCE ? l_AllianceTradersEntries[urand(0, l_AllianceTradersEntries.size() - 1)] : l_HordeTradersEntries[urand(0, l_HordeTradersEntries.size() - 1)];
+
+        p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
+        p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_Entry);
     }
 }   ///< namespace Garrison
 }   ///< namespace MS

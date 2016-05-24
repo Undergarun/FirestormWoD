@@ -380,6 +380,11 @@ namespace MS { namespace Garrison
         }
     }
 
+    bool NeedsTradingPostReset(std::vector<uint32> p_Entries, uint64 p_WorldState)
+    {
+        return !p_WorldState || std::find(p_Entries.begin(), p_Entries.end(), p_WorldState) != p_Entries.end() || p_WorldState >= 196;
+    }
+
     void playerScript_Garrison_Portals_Phases::OnLogin(Player* p_Player)
     {
         /// Little Fix for Trading Post :
@@ -394,25 +399,26 @@ namespace MS { namespace Garrison
                     p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
                 }
 
-                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader) || p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader) <= 196)
+                std::vector<uint32> l_AllianceTradersEntries = { 87203, 87202, 87200, 87201, 87204 };
+                std::vector<uint32> l_HordeTradersEntries    = { 86778, 86777, 86779, 86776, 86683 };
+                uint64 l_WorldState = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader);
+
+                switch (p_Player->GetTeamId())
                 {
-                    switch (p_Player->GetTeamId())
+                    case TEAM_ALLIANCE:
                     {
-                        case TEAM_ALLIANCE:
-                        {
-                            std::vector<uint32> l_TradersEntries = { 87203, 87202, 87200, 87201, 87204 };
-                            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_TradersEntries[urand(0, l_TradersEntries.size() - 1)]);
-                            break;
-                        }
-                        case TEAM_HORDE:
-                        {
-                            std::vector<uint32> l_TradersEntries = { 86778, 86777, 86779, 86776, 86683 };
-                            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_TradersEntries[urand(0, l_TradersEntries.size() - 1)]);
-                            break;
-                        }
-                        default:
-                            break;
+                        if (NeedsTradingPostReset(l_HordeTradersEntries, l_WorldState))
+                            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_AllianceTradersEntries[urand(0, l_AllianceTradersEntries.size() - 1)]);
+                        break;
                     }
+                    case TEAM_HORDE:
+                    {
+                        if (NeedsTradingPostReset(l_AllianceTradersEntries, l_WorldState))
+                            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_HordeTradersEntries[urand(0, l_HordeTradersEntries.size() - 1)]);
+                        break;
+                    }
+                    default:
+                        break;
                 }
 
                 /// Fix old wrong reputations handling

@@ -27906,10 +27906,12 @@ void Player::ResetDailyQuestStatus()
 void Player::ResetDailyGarrisonDatas()
 {
     using namespace MS::Garrison;
+
     if (Manager* l_Garrison = GetGarrison())
     {
         if (l_Garrison->HasBuildingType(BuildingType::Inn))
         {
+            l_Garrison->ResetGarrisonTavernDatas();
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Inn);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
@@ -27933,6 +27935,7 @@ void Player::ResetDailyGarrisonDatas()
 
         if (l_Garrison->HasBuildingType(BuildingType::Workshop))
         {
+            l_Garrison->ResetGarrisonWorkshopData(this);
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Workshop);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
@@ -27947,10 +27950,8 @@ void Player::ResetDailyGarrisonDatas()
 
         if (l_Garrison->HasBuildingType(BuildingType::Type::TradingPost))
         {
+            l_Garrison->ResetGarrisonTradingPostData(this);
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Type::TradingPost);
-            std::vector<uint32> l_TradingPostShipments = { 138, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 196 };
-
-            SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
             {
@@ -27962,6 +27963,8 @@ void Player::ResetDailyGarrisonDatas()
             }
         }
     }
+
+    SaveToDB();
 }
 
 void Player::ResetWeeklyGarrisonDatas()

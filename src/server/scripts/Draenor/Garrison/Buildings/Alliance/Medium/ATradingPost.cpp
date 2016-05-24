@@ -170,12 +170,7 @@ namespace MS { namespace Garrison
             if (l_GarrisonMgr == nullptr)
                 return;
 
-            std::vector<uint32> l_TradersEntries = { 87203, 87202, 87200, 87201, 87204 };
-            uint32 l_Entry = l_TradersEntries[urand(0, l_TradersEntries.size() - 1)];
-
-            GetOwner()->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_Entry);
-            GetOwner()->SaveToDB();
-
+            OnSetPlotInstanceID(GetPlotInstanceID());
             l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
         }
     }
