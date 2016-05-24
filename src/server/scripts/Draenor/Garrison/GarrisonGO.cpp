@@ -30,7 +30,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
     /// @p_GameObject : Target GameObject instance
-    bool go_garrison_cache::OnGossipHello(Player * p_Player, GameObject * p_GameObject)
+    bool go_garrison_cache::OnGossipHello(Player* p_Player, GameObject* p_GameObject)
     {
         if (p_Player->GetGarrison())
         {
@@ -45,7 +45,7 @@ namespace MS { namespace Garrison
             {
                 p_Player->QuestObjectiveSatisfy(41325, 2, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_GameObject->GetGUID());
 
-                Creature * l_Creature = p_Player->FindNearestCreature(NPCs::NPC_LADY_SENA, 15);
+                Creature* l_Creature = p_Player->FindNearestCreature(NPCs::NPC_LADY_SENA, 15);
 
                 if (l_Creature)
                     l_Creature->AI()->Talk(0);
@@ -73,7 +73,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
     /// @p_GameObject : Target GameObject instance
-    bool go_garrison_outhouse::OnGossipHello(Player * p_Player, GameObject * /*p_GameObject*/)
+    bool go_garrison_outhouse::OnGossipHello(Player* p_Player, GameObject* /*p_GameObject*/)
     {
         p_Player->CastSpell(p_Player, MS::Garrison::Spells::SPELL_RELIEVED);
 
@@ -100,7 +100,7 @@ namespace MS { namespace Garrison
 
     /// Called when a GameObjectAI object is needed for the GameObject.
     /// @p_GameObject : GameObject instance
-    GameObjectAI* go_garrison_shipment_container::GetAI(GameObject * p_GameObject) const
+    GameObjectAI* go_garrison_shipment_container::GetAI(GameObject* p_GameObject) const
     {
         return new go_garrison_shipment_containerAI(p_GameObject);
     }
@@ -109,7 +109,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    go_garrison_shipment_container::go_garrison_shipment_containerAI::go_garrison_shipment_containerAI(GameObject * p_GameObject)
+    go_garrison_shipment_container::go_garrison_shipment_containerAI::go_garrison_shipment_containerAI(GameObject* p_GameObject)
         : GameObjectAI(p_GameObject)
     {
 
@@ -120,7 +120,7 @@ namespace MS { namespace Garrison
 
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
-    bool go_garrison_shipment_container::go_garrison_shipment_containerAI::GossipHello(Player * p_Player)
+    bool go_garrison_shipment_container::go_garrison_shipment_containerAI::GossipHello(Player* p_Player)
     {
         if (!p_Player || !p_Player->GetGarrison())
             return false;
