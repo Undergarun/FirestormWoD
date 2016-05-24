@@ -5015,6 +5015,11 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_explosion_mistweaver_SpellScript);
 
+            enum eSpells
+            {
+                MainTargetVisual = 157679
+            };
+
             void HandleOnPrepare()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -5055,6 +5060,7 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
 
                 if (l_Chi == 4)
                 {
+                    l_Caster->CastSpell(l_Caster, eSpells::MainTargetVisual, true);
                     for (int l_I = 0; l_I < sizeof(g_MonkHealingSphereSpells) / sizeof(int); l_I++)
                         l_Caster->CastSpell(l_Target, g_MonkHealingSphereSpells[l_I], true);
                 }
@@ -5062,14 +5068,14 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
                 l_Caster->SetPower(POWER_CHI, 0);
             }
 
-            void Register()
+            void Register() override
             {
                 OnPrepare += SpellOnPrepareFn(spell_monk_chi_explosion_mistweaver_SpellScript::HandleOnPrepare);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_chi_explosion_mistweaver_SpellScript();
         }

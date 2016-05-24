@@ -3842,6 +3842,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 spellInfo->ProcChance = 0;
                 break;
+            case 157675:
+            case 182078:
+                spellInfo->CastTimeEntry = 0;
+                break;
                 /// Shadowmoon Burial Grounds
             case 153068: ///< Void Devestation
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;

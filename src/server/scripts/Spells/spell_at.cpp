@@ -1021,6 +1021,35 @@ class spell_at_monk_healing_sphere : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update 6.2.3
+/// Chi explosion spheres - 157682, 157683, 157684, 157685, 157686, 157687, 157688, 157689
+class spell_at_monk_sphere_chi_explosion : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_monk_sphere_chi_explosion() : AreaTriggerEntityScript("at_monk_sphere_chi_explosion") { }
+
+        enum eSpells
+        {
+            ExplodeSphere = 135920
+        };
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+
+            if (l_AreaTriggerCaster == nullptr)
+                return;
+
+            if ((uint32)p_AreaTrigger->GetDuration() < p_Time)
+                l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::ExplodeSphere, true);
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_monk_sphere_chi_explosion();
+        }
+};
+
 /// Chi Sphere - 121286
 class spell_at_monk_chi_sphere_afterlife : public AreaTriggerEntityScript
 {
@@ -1551,6 +1580,7 @@ void AddSC_areatrigger_spell_scripts()
     /// Monk Area Trigger
     new spell_at_monk_healing_sphere();
     new spell_at_monk_afterlife_healing_sphere();
+    new spell_at_monk_sphere_chi_explosion();
     new spell_at_monk_chi_sphere_afterlife();
     new spell_at_monk_gift_of_the_ox();
     new spell_at_monk_chi_burst();
