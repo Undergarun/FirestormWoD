@@ -15,7 +15,7 @@ public:
     {
         Position l_Position;
 
-        if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
+        if (p_Player->GetTeam() == ALLIANCE)
         {
             l_Position.m_positionX = 3684.13f;
             l_Position.m_positionY = -3839.93f;
