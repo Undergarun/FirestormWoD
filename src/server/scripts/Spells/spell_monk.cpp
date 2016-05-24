@@ -5209,7 +5209,7 @@ class spell_monk_chi_explosion_mistweaver_crane: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Chi Explosion - 152174
 class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
 {
@@ -5220,8 +5220,14 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_explosion_windwalker_SpellScript);
 
+            enum eSpells
+            {
+                MainTargetVisual = 157679
+            };
+
             void HandleHitTarget(SpellEffIndex p_EffIndex)
             {
+                Unit* l_Caster = GetCaster();
                 uint8 l_Chi = std::min(GetCaster()->GetPower(POWER_CHI) + 1, 4);
 
                 if (l_Chi > 3 && p_EffIndex == EFFECT_0)
@@ -5241,6 +5247,8 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
 
                 SetHitDamage(l_Damage);
 
+                if (l_Chi > 3)
+                    l_Caster->CastSpell(l_ExplTarget, eSpells::MainTargetVisual, true);
                 if (l_Chi >= 2)
                 {
                     SpellInfo const* l_DotSpellInfo = sSpellMgr->GetSpellInfo(SPELL_CHI_EXPLOSION_DOT);
@@ -5278,7 +5286,7 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_chi_explosion_windwalker_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_windwalker_SpellScript::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
@@ -5287,7 +5295,7 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_chi_explosion_windwalker_SpellScript();
         }
