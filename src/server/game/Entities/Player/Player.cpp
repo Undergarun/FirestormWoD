@@ -31079,6 +31079,12 @@ void Player::ActivateSpec(uint8 spec)
             _LoadActions(result);
     }
 
+    /// Boundless Conviction isn't refreshed automatically on respec
+    if (getClass() == CLASS_PALADIN && HasAura(115675))
+    {
+        UpdateMaxPower(POWER_HOLY_POWER);
+    }
+
     SendActionButtons(1);
 }
 
