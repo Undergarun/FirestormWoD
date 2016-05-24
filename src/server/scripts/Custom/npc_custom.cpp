@@ -718,7 +718,7 @@ class npc_season_2_premade_master : public CreatureScript
 class npc_fun_gold_vendor : public CreatureScript
 {
     public:
-        npc_pve_tests_manager() : CreatureScript("npc_fun_gold_vendor") { }
+        npc_fun_gold_vendor() : CreatureScript("npc_fun_gold_vendor") { }
     
         bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
         {
