@@ -722,8 +722,8 @@ class npc_fun_gold_vendor : public CreatureScript
     
         bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Give me 50 000 golds! ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Give me 50 000 golds! ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
             return true;
         }
         
@@ -736,8 +736,8 @@ class npc_fun_gold_vendor : public CreatureScript
                 p_Player->ModifyMoney(50000 * MoneyConstants::GOLD);
                 p_Player->PlayerTalkClass->SendCloseGossip();
             }
-        }
-        
+        };
+
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_fun_gold_vendorAI(p_Creature);
