@@ -1021,9 +1021,9 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
             CastSpell(this, 147157, true);
     }
 
-    if (l_PetType == HUNTER_PET && HasAura(20782))
+    if (l_PetType == HUNTER_PET)
     {
-        if (l_Owner && l_Owner->HasAura(152244))
+        if (l_Owner && l_Owner->HasAura(152244) && HasAura(20782))
         {
             RemoveAura(20782);
             CastSpell(this, 156843, true); ///<  Adaptation
