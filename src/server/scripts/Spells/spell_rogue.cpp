@@ -98,12 +98,15 @@ class spell_rog_anticipation : public SpellScriptLoader
                 if (l_SpellInfo == nullptr)
                     return;
 
+                if (p_EventInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE)
+                    return;
+
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (!l_SpellInfo->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
-                        return;
+                    int32 l_OldCombo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
-                    if (l_Caster->GetPower(Powers::POWER_COMBO_POINT) < 5)
+                    if (!l_SpellInfo->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) &&
+                        !(l_SpellInfo->Id == eSpells::MutilateMainHand || l_SpellInfo->Id == eSpells::MutilateOffHand))
                         return;
 
                     int32 l_NewCombo = 0;
@@ -119,8 +122,13 @@ class spell_rog_anticipation : public SpellScriptLoader
                     if (l_SpellInfo->Id == eSpells::SinisterStrike)
                         l_NewCombo += 1;
 
-                   if (l_SpellInfo->Id == eSpells::MutilateMainHand || l_SpellInfo->Id == eSpells::MutilateOffHand)
-                        l_NewCombo += 1;
+                    if (l_SpellInfo->Id == eSpells::MutilateMainHand)
+                        l_NewCombo += 2;
+
+                    if  (l_OldCombo + l_NewCombo <= 5)
+                        return;
+
+                    l_NewCombo = l_NewCombo + l_OldCombo - 5;
 
                     for (uint8 l_I = 0; l_I < l_NewCombo; ++l_I)
                         l_Caster->CastSpell(l_Caster, eSpells::AnticipationProc, true);
@@ -138,6 +146,74 @@ class spell_rog_anticipation : public SpellScriptLoader
             return new spell_rog_anticipation_AuraScript();
         }
 };
+
+/// Last Update 6.2.3
+/// Called by Rogue WoD PvP 2P Bonus - Kick - 165996
+/// Called by Rogue WoD PvO Assassination 4P Bonus - Cold Blood - 170882
+class spell_rog_anticipation_special_procs : public SpellScriptLoader
+{
+    public :
+        spell_rog_anticipation_special_procs() : SpellScriptLoader("spell_rog_anticipation_special_procs") { }
+
+        enum eSpells
+        {
+            AnticipationProc = 115189,
+            Anticipation = 114015
+        };
+
+        class spell_rog_anticipation_special_procs_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_anticipation_special_procs_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (!l_Player->HasAura(Anticipation))
+                    return;
+
+                SpellInfo const* l_SpellInfo = GetSpellInfo();
+                if (!l_SpellInfo)
+                    return;
+
+                int32 l_OldCombo = l_Player->GetPower(Powers::POWER_COMBO_POINT);
+
+                uint32 l_NewCombo = 0;
+                for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
+                {
+                    if (l_SpellInfo->Effects[i].IsEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
+                    {
+                        l_NewCombo += l_SpellInfo->Effects[i].BasePoints;
+                        break;
+                    }
+                }
+
+                if (l_OldCombo + l_NewCombo <= 5)
+                    return;
+
+                l_NewCombo = l_NewCombo + l_OldCombo - 5;
+
+                for (uint8 l_I = 0; l_I < l_NewCombo; ++l_I)
+                    l_Player->CastSpell(l_Player, eSpells::AnticipationProc, true);
+
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_rog_anticipation_special_procs_SpellScript::HandleAfterCast);
+            }
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_rog_anticipation_special_procs_SpellScript();
+            }
+        };
+};
+
+
+
 
 /// Called by Deadly Poison - 2818, Crippling Poison - 3409, Wound Poison - 8680 and Leeching Poison - 112961
 /// Venom Rush - 152152
@@ -3406,6 +3482,7 @@ public:
 #ifndef __clang_analyzer__
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_anticipation_special_procs();
     new spell_rog_kick();
     new spell_rog_instant_poison();
     new spell_rog_distract();
