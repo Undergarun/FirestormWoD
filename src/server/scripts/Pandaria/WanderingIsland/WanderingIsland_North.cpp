@@ -627,6 +627,12 @@ public:
             ResetMobs();
             me->HandleEmoteCommand(EMOTE_STATE_READY2H);
         }
+
+        void Reset() override
+        {
+            me->SetRespawnDelay(10);
+            events.ScheduleEvent(EVENT_RESET, 1000);
+        }
         
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* /*p_SpellInfo*/)
         {
@@ -681,6 +687,15 @@ public:
                 }
             }
         }
+
+        void MovementInform(uint32 p_Type, uint32 p_Id) override
+        {
+            if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                return;
+
+            if (p_Id == 1)
+                me->DespawnOrUnsummon();
+        }
         
         void UpdateAI(const uint32 diff)
         {
@@ -688,14 +703,18 @@ public:
             GetPlayerListInGrid(PlayerList, me, 20.0f);
             std::list<Creature*> amberleafScampList;
             GetCreatureListWithEntryInGrid(amberleafScampList, me, 54130, 15.0f);
-            for (auto player: PlayerList)
+            for (auto player : PlayerList)
+            {
                 if (player->GetQuestStatus(29419) == QUEST_STATUS_INCOMPLETE)
                 {
                     player->KilledMonsterCredit(54855, 0);
-                    for (auto amberleafScamp: amberleafScampList)
+
+                    for (auto amberleafScamp : amberleafScampList)
                         amberleafScamp->GetMotionMaster()->MovePoint(0, 1403.440430f, 3566.382568f, 88.840317f);
+
                     Talk(0);
                 }
+            }
 
             events.Update(diff);
 
@@ -714,8 +733,9 @@ public:
                             GetPlayerListInGrid(PlayerList, me, 20.0f);
                             for (auto player: PlayerList)
                                 player->KilledMonsterCredit(54855, 0);
-                        
-                            events.ScheduleEvent(EVENT_RESET, 30000);
+
+                            me->SetWalk(false);
+                            me->GetMotionMaster()->MovePoint(1, 1406.08f, 3560.41f, 88.2305f);
                         }
                         else
                             events.ScheduleEvent(EVENT_CHECK_MOBS, 1000);
@@ -723,9 +743,10 @@ public:
                         break;
                     }
                     case EVENT_RESET:
-                    {
                         ResetMobs();
-                    }
+                        break;
+                    default:
+                        break;
                 }
             }
         }
