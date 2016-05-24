@@ -768,7 +768,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     // start with every map explored
     if (sWorld->getBoolConfig(CONFIG_START_ALL_EXPLORED))
     {
-        for (uint16 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; i++)
+        for (uint32 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; i++)
             SetFlag(PLAYER_FIELD_EXPLORED_ZONES +i, 0xFFFFFFFF);
     }
 
