@@ -380,7 +380,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    bool NeedsTradingPostReset(std::vector<uint32> p_Entries, uint64 p_WorldState)
+    bool playerScript_Garrison_Portals_Phases::NeedsTradingPostReset(std::vector<uint32> p_Entries, uint64 p_WorldState)
     {
         return !p_WorldState || std::find(p_Entries.begin(), p_Entries.end(), p_WorldState) != p_Entries.end() || p_WorldState <= 196;
     }
