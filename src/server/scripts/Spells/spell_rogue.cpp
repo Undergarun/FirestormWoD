@@ -3450,7 +3450,6 @@ void AddSC_rogue_spell_scripts()
 {
     new spell_rog_anticipation_special_procs();
     new spell_rog_kick();
-    new spell_rog_instant_poison();
     new spell_rog_distract();
     new spell_rog_main_gauche();
     new spell_rog_gyph_of_detection();
