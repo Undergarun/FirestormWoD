@@ -352,7 +352,6 @@ class boss_nitrogg_thundertower : public CreatureScript
             }
             else
             {
-                printf("m_phase = 3");
                 events.ScheduleEvent(eNitroggThundertowerEvents::EventOpenAssaultFlaps, 10 * TimeConstants::IN_MILLISECONDS);
             }
             if (m_PushbackDiff <= p_Diff)

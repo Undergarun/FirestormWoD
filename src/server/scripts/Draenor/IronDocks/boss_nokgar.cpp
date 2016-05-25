@@ -625,8 +625,6 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                                 me->GetMotionMaster()->MoveJump(*l_Target, 8.0, 4.0f, eMovementInformed::MovementInformDreadfangFranticMauling);                                                                
                             }
 
-                            printf("Savage mauling");
-
                             events.ScheduleEvent(eDreadfangEvents::EventSavageMauling, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
                             break;
                         }
