@@ -140,6 +140,12 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_ThunderlordPackPens;
             uint64 m_BeastsEnclosureDoor;
 
+            /// After Beastlord Darmac fight
+            std::set<uint64> m_GromkarMenAtArms;
+            std::set<uint64> m_IronRaiders;
+            std::set<uint64> m_IronCracksShot;
+            std::set<uint64> m_GromkarFiremenders;
+
             /// Blackhand's Crucible
             uint64 m_SpikeGateGuid;
             uint64 m_CrucibleEntrance;
@@ -158,56 +164,151 @@ class instance_blackrock_foundry : public InstanceMapScript
                 switch (p_Creature->GetEntry())
                 {
                     case eFoundryCreatures::BossGruul:
+                    {
                         m_GruulGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossOregorger:
+                    {
                         m_OregorgerGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::HeartOfTheMountain:
+                    {
                         m_HeartOfTheMountain = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::ForemanFeldspar:
+                    {
                         m_ForemanFeldspar = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BlackhandCosmetic:
+                    {
                         m_CosmeticBlackhand = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossHansgar:
+                    {
                         m_HansgarGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossFranzok:
+                    {
                         m_FranzokGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossFlamebenderKagraz:
+                    {
                         m_FlamebenderKagrazGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::AknorSteelbringer:
+                    {
                         m_AknorSteelbringerGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::LavaStalker:
+                    {
                         m_LavaStalkerGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::MoltenTorrentStalker:
+                    {
                         m_MoltenTorrentStalkerGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossKromog:
+                    {
                         m_KromogGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossBeastlordDarmac:
+                    {
                         m_BeastlordDarmacGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossCruelfang:
+                    {
                         m_CruelfangGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossDreadwing:
+                    {
                         m_DreadwingGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossIroncrusher:
+                    {
                         m_IroncrusherGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::ThunderlordPackPens:
+                    {
                         m_ThunderlordPackPens = p_Creature->GetGUID();
                         break;
+                    }
+                    case eFoundryCreatures::GromkarManAtArms:
+                    {
+                        Position l_Pos = { 409.889f, 3318.73f, 303.685f, 3.12171f };
+
+                        if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                            m_GromkarMenAtArms.insert(p_Creature->GetGUID());
+
+                        p_Creature->DespawnOrUnsummon();
+                        break;
+                    }
+                    case eFoundryCreatures::IronRaider:
+                    {
+                        Position l_Pos = { 415.89f, 3316.49f, 303.685f, 3.38996f };
+
+                        if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                            m_IronRaiders.insert(p_Creature->GetGUID());
+                        else
+                        {
+                            l_Pos = { 425.729f, 3316.56f, 303.658f, 3.03271f };
+
+                            if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                                m_IronRaiders.insert(p_Creature->GetGUID());
+                        }
+
+                        p_Creature->DespawnOrUnsummon();
+                        break;
+                    }
+                    case eFoundryCreatures::IronCrackShot:
+                    {
+                        Position l_Pos = { 415.781f, 3316.689941f, 303.685f, 3.3621f };
+
+                        if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                            m_IronCracksShot.insert(p_Creature->GetGUID());
+                        else
+                        {
+                            l_Pos = { 417.047f, 3318.0f, 303.685f, 3.18233f };
+
+                            if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                                m_IronCracksShot.insert(p_Creature->GetGUID());
+                        }
+
+                        p_Creature->DespawnOrUnsummon();
+                        break;
+                    }
+                    case eFoundryCreatures::GromkarFiremender:
+                    {
+                        Position l_Pos = { 415.056f, 3321.31006f, 303.685f, 3.54152f };
+
+                        if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                            m_GromkarFiremenders.insert(p_Creature->GetGUID());
+                        else
+                        {
+                            l_Pos = { 425.788f, 3316.83f, 303.66f, 2.9753f };
+
+                            if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                                m_GromkarFiremenders.insert(p_Creature->GetGUID());
+                        }
+
+                        p_Creature->DespawnOrUnsummon();
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -509,6 +610,100 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                                 if (CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(l_Criterias[m_DarmacBeastMountedFirst - 1]))
                                     SetCriteriaProgressOnPlayers(l_Criteria, 1, ProgressType::PROGRESS_ACCUMULATE);
+
+                                if (m_GromkarMenAtArms.size() < eFoundryDatas::DataGromkarManAtArms ||
+                                    m_IronRaiders.size() < eFoundryDatas::DataIronRaider ||
+                                    m_IronCracksShot.size() < eFoundryDatas::DataIronCrackShot ||
+                                    m_GromkarFiremenders.size() < eFoundryDatas::DataGromkarFiremender)
+                                    break;
+
+                                for (uint8 l_I = 0; l_I < eFoundryDatas::DataGromkarManAtArms; ++l_I)
+                                {
+                                    uint64 l_Guid = (*m_GromkarMenAtArms.begin());
+
+                                    if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                    {
+                                        l_Creature->Respawn(true);
+
+                                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                                        {
+                                            if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                            {
+                                                l_Creature->SetHomePosition(g_GromkarManAtArmsMovePos);
+                                                l_Creature->GetMotionMaster()->Clear();
+                                                l_Creature->GetMotionMaster()->MoveTargetedHome();
+                                            }
+                                        });
+                                    }
+
+                                    m_GromkarMenAtArms.erase(l_Guid);
+                                }
+
+                                for (uint8 l_I = 0; l_I < eFoundryDatas::DataIronRaider; ++l_I)
+                                {
+                                    uint64 l_Guid = (*m_IronRaiders.begin());
+
+                                    if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                    {
+                                        l_Creature->Respawn(true);
+
+                                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_I]() -> void
+                                        {
+                                            if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                            {
+                                                l_Creature->SetHomePosition(g_IronRaiderMovePos[l_I]);
+                                                l_Creature->GetMotionMaster()->Clear();
+                                                l_Creature->GetMotionMaster()->MoveTargetedHome();
+                                            }
+                                        });
+                                    }
+
+                                    m_IronRaiders.erase(l_Guid);
+                                }
+
+                                for (uint8 l_I = 0; l_I < eFoundryDatas::DataIronCrackShot; ++l_I)
+                                {
+                                    uint64 l_Guid = (*m_IronCracksShot.begin());
+
+                                    if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                    {
+                                        l_Creature->Respawn(true);
+
+                                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_I]() -> void
+                                        {
+                                            if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                            {
+                                                l_Creature->SetHomePosition(g_IronCrackShotMovePos[l_I]);
+                                                l_Creature->GetMotionMaster()->Clear();
+                                                l_Creature->GetMotionMaster()->MoveTargetedHome();
+                                            }
+                                        });
+                                    }
+
+                                    m_IronCracksShot.erase(l_Guid);
+                                }
+
+                                for (uint8 l_I = 0; l_I < eFoundryDatas::DataGromkarFiremender; ++l_I)
+                                {
+                                    uint64 l_Guid = (*m_GromkarFiremenders.begin());
+
+                                    if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                    {
+                                        l_Creature->Respawn(true);
+
+                                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_I]() -> void
+                                        {
+                                            if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                            {
+                                                l_Creature->SetHomePosition(g_GromkarFiremenderMovePos[l_I]);
+                                                l_Creature->GetMotionMaster()->Clear();
+                                                l_Creature->GetMotionMaster()->MoveTargetedHome();
+                                            }
+                                        });
+                                    }
+
+                                    m_GromkarFiremenders.erase(l_Guid);
+                                }
 
                                 break;
                             }
