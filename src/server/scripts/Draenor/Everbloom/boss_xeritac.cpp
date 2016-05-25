@@ -1088,7 +1088,6 @@ public:
 
 void AddSC_boss_xeritac()
 {
-    new treffle();
     new boss_xeritac();                                 ///< 84550
     new the_everbloom_xeritac_mob_venom_sprayer();      ///< 86547
     new the_everbloom_xeritac_mob_crazed_pale_one();    ///< 84554

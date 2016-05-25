@@ -1113,7 +1113,7 @@ class auchindoun_teronogor_mob_abyssal : public CreatureScript
                     if (!l_Player->HasAura(eTeronogorAbyssalSpells::SpellFixate)) /// Fixated aura
                         me->AddAura(eTeronogorAbyssalSpells::SpellFixate, l_Player);
 
-                    if (!me->isMoving())
+                    if (!me->IsMoving())
                         me->GetMotionMaster()->MoveFollow(l_Player, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
                 }
             }
