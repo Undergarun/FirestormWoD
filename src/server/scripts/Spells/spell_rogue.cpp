@@ -122,6 +122,8 @@ class spell_rog_anticipation : public SpellScriptLoader
                     if (l_SpellInfo->Id == eSpells::SinisterStrike)
                         l_NewCombo += 1;
 
+                    /// MutilateMainHand & MutilateOffHand both hit before Mutilate add the 2 CP
+                    /// For this script to work, it is needed to consider that these 2 CP are given in one time.
                     if (l_SpellInfo->Id == eSpells::MutilateMainHand)
                         l_NewCombo += 2;
 
@@ -150,6 +152,7 @@ class spell_rog_anticipation : public SpellScriptLoader
 /// Last Update 6.2.3
 /// Called by Rogue WoD PvP 2P Bonus - Kick - 165996
 /// Called by Rogue WoD PvO Assassination 4P Bonus - Cold Blood - 170882
+/// Anticipation doesn't automatically proc on these spells
 class spell_rog_anticipation_special_procs : public SpellScriptLoader
 {
     public :
@@ -158,29 +161,51 @@ class spell_rog_anticipation_special_procs : public SpellScriptLoader
         enum eSpells
         {
             AnticipationProc = 115189,
-            Anticipation = 114015
+            Anticipation = 114015,
+            ColdBlood = 170882,
+            Kick = 165996
         };
 
         class spell_rog_anticipation_special_procs_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_rog_anticipation_special_procs_SpellScript);
 
+            /// Store the amount of combo points of the player before he casts kick or vanish into useless baseValue of Anticipation - 114015
+            void HandleOnPrepare()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (!l_Player->HasAura(eSpells::Anticipation))
+                    return;
+
+                AuraEffect* l_AuraEffect = l_Player->GetAuraEffect(Anticipation, EFFECT_0);
+                if (l_AuraEffect != nullptr)
+                    l_AuraEffect->SetAmount(l_Player->GetPower(POWER_COMBO_POINT));
+             }
+
+            /// Works like original script of anticipation, except l_OldCombo is retrieved from the baseValue of Anticipation
             void HandleAfterCast()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
                 if (!l_Player)
                     return;
 
-                if (!l_Player->HasAura(Anticipation))
+                if (!l_Player->HasAura(eSpells::Anticipation))
                     return;
 
                 SpellInfo const* l_SpellInfo = GetSpellInfo();
                 if (!l_SpellInfo)
                     return;
 
-                int32 l_OldCombo = l_Player->GetPower(Powers::POWER_COMBO_POINT);
+                AuraEffect* l_AnticipationAuraEffect = l_Player->GetAuraEffect(eSpells::Anticipation, EFFECT_0);
+                if (!l_AnticipationAuraEffect)
+                    return;
 
-                uint32 l_NewCombo = 0;
+                int32 l_OldCombo = l_AnticipationAuraEffect->GetAmount();
+
+                int32 l_NewCombo = 0;
                 for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
                 {
                     if (l_SpellInfo->Effects[i].IsEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
@@ -202,18 +227,16 @@ class spell_rog_anticipation_special_procs : public SpellScriptLoader
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_rog_anticipation_special_procs_SpellScript::HandleAfterCast);
-            }
-
-            SpellScript* GetSpellScript() const
-            {
-                return new spell_rog_anticipation_special_procs_SpellScript();
+                OnPrepare += SpellOnPrepareFn(spell_rog_anticipation_special_procs_SpellScript::HandleOnPrepare);
+                AfterCast += SpellCastFn(spell_rog_anticipation_special_procs_SpellScript::HandleAfterCast);                
             }
         };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_anticipation_special_procs_SpellScript();
+        }
 };
-
-
-
 
 /// Called by Deadly Poison - 2818, Crippling Poison - 3409, Wound Poison - 8680 and Leeching Poison - 112961
 /// Called by Deadly Poison - 2818, Crippling Poison - 3409, Wound Poison - 8680, Instant Poison - 157607 and Leeching Poison - 112961
