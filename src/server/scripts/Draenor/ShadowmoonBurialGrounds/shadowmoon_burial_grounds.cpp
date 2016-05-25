@@ -1,7 +1,8 @@
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////
 ////  MILLENIUM-STUDIO
-////  Copyright 2016 Millenium-studio SARL
+////  Copyright 2015 Millenium-studio SARL
 ////  All Rights Reserved.
 ////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -9,18 +10,20 @@
 #include "ScriptedCreature.h"
 #include "shadowmoon_burial_grounds.hpp"
 
-Position const g_PositionDisturbedSpirits[2] =
+Position const g_PositionDisturbedSpirits[2] = 
 {
     {1699.829f, -243.255f, 250.065f, 1.164130f},
     {1699.862f, -242.144f, 250.318f, 0.891596f}
 };
+
+Position const g_PositionNerzulFightLocation = {1712.679f, -797.858f, 73.736f, 4.6856f};
 
 /// Restless Wanderer - 980004
 /// Restless Wanderer - 980005
 /// Restless Wanderer - 980006
 class shadowmoon_burial_grounds_creature_talker : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_talker() : CreatureScript("shadowmoon_burial_grounds_creature_talker") { }
 
@@ -83,7 +86,7 @@ public:
 /// Restless Wanderer - 75729
 class shadowmoon_burial_grounds_creature_spirits : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_spirits() : CreatureScript("shadowmoon_burial_grounds_creature_spirits") { }
 
@@ -134,7 +137,7 @@ public:
                     Position l_Position;
                     me->GetRandomNearPosition(l_Position, 4.0f);
                     l_Position.m_positionZ = me->GetPositionZ();
-                    me->GetMotionMaster()->MovePoint(0, l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetPositionZ());
+                    me->GetMotionMaster()->MovePoint(0, l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetPositionZ());           
                     break;
                 default:
                     break;
@@ -166,7 +169,7 @@ public:
 /// Restless Wanderer - 75729
 class shadowmoon_burial_grounds_creature_restless_wanderer : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_restless_wanderer() : CreatureScript("shadowmoon_burial_grounds_creature_restless_wanderer") { }
 
@@ -204,7 +207,7 @@ public:
 /// Monstrous Corpse Spider - 76104
 class shadowmoon_burial_grounds_creature_monstrous_corpse_spider : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_monstrous_corpse_spider() : CreatureScript("shadowmoon_burial_grounds_creature_monstrous_corpse_spider") { }
 
@@ -236,7 +239,7 @@ public:
             me->setFaction(HostileFaction);
         }
 
-        void EnterCombat(Unit* /*p_Attacker*/) override
+        void EnterCombat(Unit* p_Attacker) override
         {
             events.ScheduleEvent(eMonstrousCorpseSpiderEvents::EventDeathVenom, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eMonstrousCorpseSpiderEvents::EventNecroticBurst, 25 * TimeConstants::IN_MILLISECONDS);
@@ -247,7 +250,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+            events.Update(p_Diff);       
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -283,7 +286,7 @@ public:
 /// Exhume Spirits - 75979
 class shadowmoon_burial_grounds_creature_exhume_spirits : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_exhume_spirits() : CreatureScript("shadowmoon_burial_grounds_creature_exhume_spirits") { }
 
@@ -299,9 +302,9 @@ public:
         void Reset() override
         {
             DoZoneInCombat();
-            me->setFaction(HostileFaction);
+            me->setFaction(HostileFaction);     
             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-            me->AddAura(eShadowmoonBurialGroundsSpells::SpellVortexVisual, me);
+            me->AddAura(eShadowmoonBurialGroundsSpells::SpellVortexVisual, me); 
         }
     };
 
@@ -314,7 +317,7 @@ public:
 /// Plague bat - 75459
 class shadowmoon_burial_grounds_creature_plague_bat : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_plague_bat() : CreatureScript("shadowmoon_burial_grounds_creature_plague_bat") { }
 
@@ -344,7 +347,7 @@ public:
             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
         }
 
-        void EnterCombat(Unit* /*p_Attacker*/) override
+        void EnterCombat(Unit* p_Attacker) override
         {
             events.ScheduleEvent(ePlagueBatEvents::EventPlagueSpit, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
         }
@@ -354,7 +357,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+            events.Update(p_Diff);   
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -383,7 +386,8 @@ public:
 /// Shadowmoon Bone-Mender - 75713
 class shadowmoon_burial_grounds_creature_bone_mender : public CreatureScript
 {
-public:
+	public:
+
     shadowmoon_burial_grounds_creature_bone_mender() : CreatureScript("shadowmoon_burial_grounds_creature_bone_mender") { }
 
     struct shadowmoon_burial_grounds_creature_bone_menderAI : public ScriptedAI
@@ -416,7 +420,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*p_Attacker*/) override
+        void EnterCombat(Unit* p_Attacker) override
         {
             events.ScheduleEvent(eShadowmoonBoneMenderEvents::EventRattlingBones, 16 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eShadowmoonBoneMenderEvents::EventFratlity, 10 * TimeConstants::IN_MILLISECONDS);
@@ -472,7 +476,7 @@ public:
 /// Shadowmoon Exhumer - 77700
 class shadowmoon_burial_grounds_creature_exhumer : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_exhumer() : CreatureScript("shadowmoon_burial_grounds_creature_exhumer") { }
 
@@ -502,7 +506,7 @@ public:
             me->setFaction(HostileFaction);
         }
 
-        void EnterCombat(Unit* /*p_Attacker*/) override
+        void EnterCombat(Unit* p_Attacker) override
         {
             me->CastSpell(me, eExhumerSpells::SpellExhumeTheCryptsScriptEffect);
             events.ScheduleEvent(eExhumerEvents::EventVoidBolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
@@ -542,7 +546,7 @@ public:
 /// Disturbed Soul - 76400
 class shadowmoon_burial_grounds_creature_disturbed_soul : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_disturbed_soul() : CreatureScript("shadowmoon_burial_grounds_creature_disturbed_soul") { }
 
@@ -599,7 +603,7 @@ public:
 /// Shadowmoon Enslaver - 76446
 class shadowmoon_burial_grounds_creature_enslaver : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_enslaver() : CreatureScript("shadowmoon_burial_grounds_creature_enslaver") { }
 
@@ -646,7 +650,7 @@ public:
             me->setFaction(HostileFaction);
         }
 
-        void EnterCombat(Unit* /*p_Attacker*/) override
+        void EnterCombat(Unit* p_Attacker) override
         {
             if (!m_Intro)
             {
@@ -698,7 +702,7 @@ public:
 /// Shadowmoon Loyalist - 75506
 class shadowmoon_burial_grounds_creature_loyalist : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_loyalist() : CreatureScript("shadowmoon_burial_grounds_creature_loyalist") { }
 
@@ -770,12 +774,12 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*p_Attacker*/) override
+        void EnterCombat(Unit* p_Attacker) override
         {
             ActivateDefiledSpirits();
             events.ScheduleEvent(eLoyalistEvents::EventShadowBolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
             if (roll_chance_i(50))
-                me->MonsterYell("Death is only the beginning!", LANG_UNIVERSAL, me->GetGUID());
+                me->MonsterYell("Death is only the beginning!", LANG_UNIVERSAL, me->GetGUID());         
         }
 
         void JustSummoned(Creature* p_Summon) override
@@ -827,7 +831,7 @@ public:
 /// Defiled Spirit - 75451
 class shadowmoon_burial_grounds_creature_defiled_spirit_trash : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_defiled_spirit_trash() : CreatureScript("shadowmoon_burial_grounds_creature_defiled_spirit_trash") { }
 
@@ -837,7 +841,7 @@ public:
         {
             m_Instance = me->GetInstanceScript();
             m_First = false;
-            m_Intro = false;
+            m_Intro = false;     
         }
 
         InstanceScript* m_Instance;
@@ -865,7 +869,7 @@ public:
 /// Subjugated Soul - 76444
 class shadowmoon_burial_grounds_creature_subjugated_soul : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_subjugated_soul() : CreatureScript("shadowmoon_burial_grounds_creature_subjugated_soul") { }
 
@@ -886,7 +890,7 @@ public:
             me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellVioletLook);
         }
 
-        void EnterCombat(Unit* /*p_Attacker*/) override
+        void EnterCombat(Unit* p_Attacker) override
         {
             me->RemoveAura(eShadowmoonBurialGroundsSpells::SpellStrangulate);
         }
@@ -901,7 +905,7 @@ public:
 /// Defiled Burial Site - 75977
 class shadowmoon_burial_grounds_creature_site : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_site() : CreatureScript("shadowmoon_burial_grounds_creature_site") { }
 
@@ -925,9 +929,9 @@ public:
         {
             events.Reset();
             m_HasActivated = false;
-            me->SetDisplayId(59486);
-            me->setFaction(FriendlyFaction);
-            me->SetReactState(ReactStates::REACT_PASSIVE);
+            me->SetDisplayId(59486);         
+            me->setFaction(FriendlyFaction);        
+            me->SetReactState(ReactStates::REACT_PASSIVE);          
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
         }
@@ -962,7 +966,7 @@ public:
 /// Reanimated Ritual Boens - 75715
 class shadowmoon_burial_grounds_creature_ritual_of_bones_mob : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_creature_ritual_of_bones_mob() : CreatureScript("shadowmoon_burial_grounds_creature_ritual_of_bones_mob") { }
 
@@ -992,7 +996,7 @@ public:
             me->AddAura(eRitualOfBonesSpells::SpellShadowRitualBonesAuraCosmetic, me);
         }
 
-        void EnterCombat(Unit* /*p_Attacker*/) override
+        void EnterCombat(Unit* p_Attacker) override
         {
             events.ScheduleEvent(eRitualOfBonesEvents::EventVoidCleave, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
         }
@@ -1028,10 +1032,10 @@ public:
     }
 };
 
-/// Exhume the Crypts - 153268
+/// Exhume the Crypts - 153268 
 class shadowmoon_burial_grounds_spell_exhume_the_crypts : public SpellScriptLoader
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_spell_exhume_the_crypts() : SpellScriptLoader("shadowmoon_burial_grounds_spell_exhume_the_crypts")
     {
@@ -1063,12 +1067,12 @@ public:
     {
         return new shadowmoon_burial_grounds_spell_exhume_the_crypts_SpellScript();
     }
-};
+}; 
 
-/// Necrotic Burst - 156718
+/// Necrotic Burst - 156718  
 class shadowmoon_burial_grounds_spell_necrotic_burst : public SpellScriptLoader
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_spell_necrotic_burst() : SpellScriptLoader("shadowmoon_burial_grounds_spell_exhume_the_crypts")
     {
@@ -1098,14 +1102,13 @@ public:
     }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_shadowmoon_burial_grounds()
 {
     new shadowmoon_burial_grounds_creature_talker;                          ///< 980004, 980005, 980006
     new shadowmoon_burial_grounds_creature_subjugated_soul();               ///< 76444
     new shadowmoon_burial_grounds_creature_plague_bat();                    ///< 75459
     new shadowmoon_burial_grounds_creature_site();                          ///< 75977
-    new shadowmoon_burial_grounds_creature_spirits();
+    new shadowmoon_burial_grounds_creature_spirits();               
     new shadowmoon_burial_grounds_creature_enslaver();                      ///< 76446
     new shadowmoon_burial_grounds_creature_exhumer();                       ///< 77700
     new shadowmoon_burial_grounds_creature_loyalist();                      ///< 75506
@@ -1113,9 +1116,8 @@ void AddSC_shadowmoon_burial_grounds()
     new shadowmoon_burial_grounds_creature_exhume_spirits();                ///< 75979
     new shadowmoon_burial_grounds_creature_restless_wanderer();             ///< 75729
     new shadowmoon_burial_grounds_creature_ritual_of_bones_mob();           ///< 75715
-    new shadowmoon_burial_grounds_creature_defiled_spirit_trash();          ///< 75451
+    new shadowmoon_burial_grounds_creature_defiled_spirit_trash();          ///< 75451  
     new shadowmoon_burial_grounds_creature_monstrous_corpse_spider();       ///< 76104
     new shadowmoon_burial_grounds_spell_exhume_the_crypts();                ///< 153268
-    new shadowmoon_burial_grounds_spell_necrotic_burst();                   ///< 156718
+    new shadowmoon_burial_grounds_spell_necrotic_burst();                   ///< 156718 
 }
-#endif
