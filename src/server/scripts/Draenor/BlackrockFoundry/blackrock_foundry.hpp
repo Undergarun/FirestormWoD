@@ -86,6 +86,10 @@ enum eFoundryCreatures
     BossDreadwing           = 76874,
     BossIroncrusher         = 76945,
     ThunderlordPackPens     = 77631,
+    GromkarManAtArms        = 78832,
+    IronRaider              = 81197,
+    IronCrackShot           = 81315,
+    GromkarFiremender       = 87841,
     /// Operator Thogar
     BossOperatorThogar      = 76906,
     /// Iron Maidens
@@ -190,6 +194,7 @@ enum eFoundryDatas
     AknorDied,
     GraspingEarthTime,
     DarmacBeastMountedFirst,
+    DataAfterFightAddCount,
 
     /// Counters
     /// Gruul
@@ -208,7 +213,12 @@ enum eFoundryDatas
     /// Beastlord Darmac
     DataDreadwingFirst      = 1,
     DataIronCrusherFirst    = 2,
-    DataCruelfangFirst      = 3
+    DataCruelfangFirst      = 3,
+    /// After Beastlord Darmac fight counters
+    DataGromkarManAtArms    = 1,
+    DataIronRaider          = 2,
+    DataIronCrackShot       = 2,
+    DataGromkarFiremender   = 2
 };
 
 enum eFoundrySpells
@@ -255,6 +265,26 @@ enum eFoundryDungeons
     BlackForge          = 846,
     IronAssembly        = 848,
     BlackhandsCrucible  = 823
+};
+
+Position const g_GromkarManAtArmsMovePos = { 379.8316f, 3322.484f, 303.9331f, 0.0f };
+
+Position const g_IronRaiderMovePos[eFoundryDatas::DataIronRaider] =
+{
+    { 385.01f, 3310.060f, 303.6845f, M_PI },
+    { 384.85f, 3316.058f, 303.6845f, M_PI }
+};
+
+Position const g_IronCrackShotMovePos[eFoundryDatas::DataIronCrackShot] =
+{
+    { 395.39f, 3313.339f, 303.6845f, M_PI },
+    { 395.47f, 3310.340f, 303.6845f, M_PI }
+};
+
+Position const g_GromkarFiremenderMovePos[eFoundryDatas::DataGromkarFiremender] =
+{
+    { 384.93f, 3313.059f, 303.6845f, M_PI },
+    { 395.32f, 3316.338f, 303.6845f, M_PI }
 };
 
 #endif
