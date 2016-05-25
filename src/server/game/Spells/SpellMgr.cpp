@@ -4435,9 +4435,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 77762: ///< Lava Surge
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); ///< 10s
                 break;
-            case 138106: ///< Cloack and Dagger
-                spellInfo->Stances = 0;
-                break;
             case 8188:   ///< Magma Totem Passive
             case 5672:   ///< Healing Streams
             case 114941: ///< Healing Tide
