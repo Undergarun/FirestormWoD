@@ -4610,6 +4610,12 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetPower(POWER_SHADOW_ORB, 0);
     SetPower(POWER_ECLIPSE, 0);
 
+    /// All players have 15% of expertise, even if it's hidden stat
+    /// https://twitter.com/holinka/status/520348936872030209
+    SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, 15.0f);
+    SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, 15.0f);
+    SetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE, 15.0f);
+
     // update level to hunter/summon pet
     if (Pet* pet = GetPet())
         pet->SynchronizeLevelWithOwner();
