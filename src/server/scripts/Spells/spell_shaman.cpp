@@ -3644,7 +3644,6 @@ class spell_sha_stormstrike_windstrike : public SpellScriptLoader
 
 /// Last Update 6.2.3
 /// Glyph of ghostly speed
-/// Doesn't work...
 class PlayerScript_glyph_of_ghostly_speed : public PlayerScript
 {
     public:
@@ -3670,6 +3669,7 @@ class PlayerScript_glyph_of_ghostly_speed : public PlayerScript
 
                 int32 l_Amount = p_IsOutdoor ? l_GhostlySpeed->Effects[SpellEffIndex::EFFECT_0].BasePoints : 0;
                 l_AuraEffect->SetAmount(l_Amount);
+                p_Player->UpdateSpeed(MOVE_RUN, false);
             }
         }
 };

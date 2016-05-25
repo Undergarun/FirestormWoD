@@ -2599,7 +2599,7 @@ class spell_item_sky_golem : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    if (l_Target->IsPlayer() && !l_Target->GetMap()->IsBattlegroundOrArena())
                         l_Target->ToPlayer()->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, true);
                 }
             }
@@ -2608,7 +2608,7 @@ class spell_item_sky_golem : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    if (l_Target->IsPlayer())
                         l_Target->ToPlayer()->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, false);
                 }
             }

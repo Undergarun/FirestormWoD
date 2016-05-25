@@ -1,4 +1,4 @@
-DELETE FROM `conditions` WHERE SourceEntry = 77346;
+DELETE FROM `conditions` WHERE SourceEntry = 85252;
 INSERT INTO `conditions`
             (`SourceTypeOrReferenceId`,
              `SourceGroup`,
@@ -16,15 +16,15 @@ INSERT INTO `conditions`
              `Comment`)
 VALUES ('17',
         '0',
-        '77346',
+        '85252',
         '0',
-        '0',
+        '2',
         '29',
         '0',
-        '41255',
-        '30',
+        '45695',
+        '5',
         '0',
         '0',
         '0',
         '',
-        'ISignal Rocket only usable on Sethria slain');
+        'Light-Touched Blades only usable on Slain Scourge Trooper');

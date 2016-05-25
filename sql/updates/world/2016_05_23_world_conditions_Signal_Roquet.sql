@@ -27,4 +27,4 @@ VALUES ('17',
         '0',
         '0',
         '',
-        'ISignal Rocket only usable on Sethria slain');
+        'Signal Rocket only usable on Sethria slain');

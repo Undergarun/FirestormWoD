@@ -2066,7 +2066,12 @@ class spell_pal_holy_shock: public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         if (l_Caster->IsFriendlyTo(l_Target))
-                            l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, true);
+                        {
+                            if (l_Caster->IsValidAssistTarget(l_Target))
+                                l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, true);
+                            else
+                                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, true);
+                        }
                         else
                             l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, true);
 
@@ -2099,7 +2104,7 @@ class spell_pal_holy_shock: public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void Register()
+            void Register() override
             {
                 // add dummy effect spell handler to Holy Shock
                 OnCheckCast += SpellCheckCastFn(spell_pal_holy_shock_SpellScript::CheckCast);
@@ -2107,7 +2112,7 @@ class spell_pal_holy_shock: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_pal_holy_shock_SpellScript();
         }

@@ -5015,6 +5015,11 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_explosion_mistweaver_SpellScript);
 
+            enum eSpells
+            {
+                MainTargetVisual = 157679
+            };
+
             void HandleOnPrepare()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -5055,6 +5060,7 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
 
                 if (l_Chi == 4)
                 {
+                    l_Caster->CastSpell(l_Caster, eSpells::MainTargetVisual, true);
                     for (int l_I = 0; l_I < sizeof(g_MonkHealingSphereSpells) / sizeof(int); l_I++)
                         l_Caster->CastSpell(l_Target, g_MonkHealingSphereSpells[l_I], true);
                 }
@@ -5062,14 +5068,14 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
                 l_Caster->SetPower(POWER_CHI, 0);
             }
 
-            void Register()
+            void Register() override
             {
                 OnPrepare += SpellOnPrepareFn(spell_monk_chi_explosion_mistweaver_SpellScript::HandleOnPrepare);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_chi_explosion_mistweaver_SpellScript();
         }
@@ -5209,7 +5215,7 @@ class spell_monk_chi_explosion_mistweaver_crane: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Chi Explosion - 152174
 class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
 {
@@ -5220,8 +5226,14 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_explosion_windwalker_SpellScript);
 
+            enum eSpells
+            {
+                MainTargetVisual = 157679
+            };
+
             void HandleHitTarget(SpellEffIndex p_EffIndex)
             {
+                Unit* l_Caster = GetCaster();
                 uint8 l_Chi = std::min(GetCaster()->GetPower(POWER_CHI) + 1, 4);
 
                 if (l_Chi > 3 && p_EffIndex == EFFECT_0)
@@ -5241,6 +5253,8 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
 
                 SetHitDamage(l_Damage);
 
+                if (l_Chi > 3)
+                    l_Caster->CastSpell(l_ExplTarget, eSpells::MainTargetVisual, true);
                 if (l_Chi >= 2)
                 {
                     SpellInfo const* l_DotSpellInfo = sSpellMgr->GetSpellInfo(SPELL_CHI_EXPLOSION_DOT);
@@ -5278,7 +5292,7 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_chi_explosion_windwalker_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_windwalker_SpellScript::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
@@ -5287,13 +5301,13 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_chi_explosion_windwalker_SpellScript();
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Chi Explosion - 157676
 class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
 {
@@ -5304,6 +5318,11 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_explosion_brewmaster_SpellScript);
 
+            enum eSpells
+            {
+                MainTargetVisual = 157679
+            };
+
             void HandleHitTarget(SpellEffIndex p_EffIndex)
             {
                 uint8 l_Chi = std::min(GetCaster()->GetPower(POWER_CHI) + 1, 4);
@@ -5313,6 +5332,7 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                 else if (l_Chi < 4 && p_EffIndex == EFFECT_1)
                     return;
 
+                Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
                 Unit* l_ExplTarget = GetExplTargetUnit();
 
@@ -5324,6 +5344,8 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                     l_Damage /= 3;
 
                 SetHitDamage(l_Damage);
+                if (l_Chi > 3)
+                    l_Caster->CastSpell(l_ExplTarget, eSpells::MainTargetVisual, true);
             }
 
             void HandleAfterCast()
@@ -5363,7 +5385,7 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_chi_explosion_brewmaster_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_brewmaster_SpellScript::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
@@ -5372,7 +5394,7 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_chi_explosion_brewmaster_SpellScript();
         }

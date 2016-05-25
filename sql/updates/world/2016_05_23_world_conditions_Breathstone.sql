@@ -1,4 +1,4 @@
-DELETE FROM `conditions` WHERE SourceEntry = 77346;
+DELETE FROM `conditions` WHERE SourceEntry = 56169;
 INSERT INTO `conditions`
             (`SourceTypeOrReferenceId`,
              `SourceGroup`,
@@ -16,15 +16,29 @@ INSERT INTO `conditions`
              `Comment`)
 VALUES ('17',
         '0',
-        '77346',
+        '77671',
         '0',
-        '0',
+        '1',
         '29',
-        '0',
-        '41255',
-        '30',
+        '1',
+        '41955',
+        '40',
         '0',
         '0',
         '0',
         '',
-        'ISignal Rocket only usable on Sethria slain');
+        'Breathstone only usable on Imprisoned Warrior'),
+	('17',
+        '0',
+        '77671',
+        '0',
+        '2',
+        '29',
+        '1',
+        '41548',
+        '40',
+        '0',
+        '0',
+        '0',
+        '',
+        'Breathstone only usable on Imprisoned Soldier');

@@ -267,6 +267,9 @@ namespace MS { namespace Garrison
             void AddGarrisonTavernData(uint32 p_Data);
             void SetGarrisonTavernData(uint32 p_Data);
             void CleanGarrisonTavernData();
+            void ResetGarrisonTavernData();
+            void ResetGarrisonWorkshopData(Player* p_Player);
+            void ResetGarrisonTradingPostData(Player* p_Player);
 
             /// Get known specializations
             std::vector<int32> GetKnownSpecializations() const;

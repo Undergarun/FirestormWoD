@@ -679,9 +679,15 @@ class spell_mage_arcane_missile: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_arcane_missile_AuraScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            enum eSpell
             {
-                if (!GetCaster())
+                ArcaneInstability = 166872
+            };
+
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
                     return;
 
                 GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_ARCANE_CHARGE, true);
@@ -689,6 +695,9 @@ class spell_mage_arcane_missile: public SpellScriptLoader
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (Aura* arcaneMissiles = _player->GetAura(SPELL_MAGE_ARCANE_MISSILES))
                         arcaneMissiles->DropCharge();
+                
+                if (l_Caster->HasAura(eSpell::ArcaneInstability))
+                    l_Caster->RemoveAura(eSpell::ArcaneInstability);
             }
 
 
@@ -708,10 +717,7 @@ class spell_mage_arcane_missile: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_arcane_missile_SpellScript);
 
-            enum eSpell
-            {
-                ArcaneInstability = 166872
-            };
+
 
             void HandleOnCast()
             {
@@ -722,9 +728,6 @@ class spell_mage_arcane_missile: public SpellScriptLoader
                     if (l_Caster->HasSpell(SPELL_MAGE_OVERPOWERED) && l_SpellInfo != nullptr)
                         if (Aura* l_Aura = l_Caster->GetAura(SPELL_MAGE_ARCANE_POWER, l_Caster->GetGUID()))
                             l_Aura->SetDuration(l_Aura->GetDuration() + l_SpellInfo->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
-
-                    if (l_Caster->HasAura(eSpell::ArcaneInstability))
-                        l_Caster->RemoveAura(eSpell::ArcaneInstability);
                 }
             }
 

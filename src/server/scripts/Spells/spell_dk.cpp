@@ -128,7 +128,7 @@ class spell_dk_death_barrier: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    amount += caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.514f;
+                    amount += int32(caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.514f);
                     amount = int32(caster->SpellDamageBonusDone(GetUnitOwner(), sSpellMgr->GetSpellInfo(DK_SPELL_DEATH_COIL_DAMAGE), amount, aurEff->GetEffIndex(), SPELL_DIRECT_DAMAGE));
                 }
             }
@@ -226,6 +226,9 @@ class spell_dk_gorefiends_grasp: public SpellScriptLoader
                                 continue;
 
                             if (!_player->IsValidAttackTarget(itr))
+                                continue;
+
+                            if (itr->IsImmunedToSpell(GetSpellInfo()))
                                 continue;
 
                             if (!itr->IsWithinLOSInMap(_player))
@@ -1398,8 +1401,8 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                 /// damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
                 /// 1% of lost HP restore DK 2 runic power
                 uint32 l_MaxHealth = target->GetMaxHealth();
-                float l_AbsorbAmount = absorbAmount;
-                float l_Percent = (l_AbsorbAmount / l_MaxHealth) * 200.0f;
+                uint32 l_AbsorbAmount = absorbAmount;
+                float l_Percent = (float)l_AbsorbAmount / (float)l_MaxHealth * 200.0f;
                 int32 bp = (int32)(l_Percent * 10);
                 target->EnergizeBySpell(target, DK_SPELL_RUNIC_POWER_ENERGIZE, bp, POWER_RUNIC_POWER);
             }
@@ -1469,12 +1472,12 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     float l_AbsorbedPct = 100.0f - (m_Absorbed / (m_AmountAbsorb / 100));  ///< Absorbed damage in pct
                     int32 l_Amount = l_Aura->GetEffect(EFFECT_0)->GetAmount();  ///< Maximum absorbed damage is 50%
 
-                    l_RemainingPct = CalculatePct(l_Amount, l_AbsorbedPct);
+                    l_RemainingPct = (float)CalculatePct(l_Amount, l_AbsorbedPct);
 
                     if (l_RemainingPct > l_Aura->GetEffect(EFFECT_0)->GetAmount())
-                        l_RemainingPct = l_Aura->GetEffect(EFFECT_0)->GetAmount();
+                        l_RemainingPct = (float)l_Aura->GetEffect(EFFECT_0)->GetAmount();
 
-                    int32 l_ReduceTime = ((l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct) - p_AurEff->GetBase()->GetDuration();
+                    int32 l_ReduceTime = int32((l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct) - p_AurEff->GetBase()->GetDuration();
 
                     if (!l_ReduceTime)
                         return;
@@ -2612,13 +2615,13 @@ class spell_dk_death_coil : public SpellScriptLoader
                         l_Caster->CastSpell(l_Target, eSpells::DeathBarrier, true); ///< Death Barrier
                     else
                     {
-                        int32 l_Healing = (l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.80f) * 5.0f;
+                        int32 l_Healing = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.80f * 5.0f);
                         l_Caster->CastCustomSpell(l_Target, eSpells::DeathCoilAlly, &l_Healing, NULL, NULL, true);
                     }
                 }
                 else
                 {
-                    int32 l_Damage = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.80f;
+                    int32 l_Damage = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.80f);
                     l_Caster->CastCustomSpell(l_Target, eSpells::DeathCoilEnemy, &l_Damage, NULL, NULL, true);
                 }
             }
@@ -2689,8 +2692,8 @@ class spell_dk_enhanced_death_coil : public SpellScriptLoader
                 if (p_AurEff->GetAmount() > l_Stack->GetTotalAmount())
                 {
                     float l_Percent = l_Caster->GetHealthPct();
-                    l_Caster->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, p_AurEff->GetAmount(), false);
-                    l_Caster->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, l_Stack->GetTotalAmount(), true);
+                    l_Caster->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, (float)p_AurEff->GetAmount(), false);
+                    l_Caster->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, (float)l_Stack->GetTotalAmount(), true);
                     if (l_Caster->isAlive())
                         l_Caster->SetHealth(l_Caster->CountPctFromMaxHealth(int32(l_Percent)));
                 }

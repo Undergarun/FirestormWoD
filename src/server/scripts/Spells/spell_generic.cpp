@@ -4634,9 +4634,22 @@ class spell_gen_shadowmeld : public SpellScriptLoader
                 l_Player->getHostileRefManager().deleteReferences();
             }
 
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (InstanceScript* l_InstanceScript = l_Caster->GetInstanceScript())
+                    {
+                        if (l_InstanceScript->IsEncounterInProgress())
+                            l_Caster->SetInCombatState(false);
+                    }
+                }
+            }
+
             void Register()
             {
                 AfterEffectApply += AuraEffectRemoveFn(spell_gen_shadowmeld_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_TOTAL_THREAT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_shadowmeld_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_TOTAL_THREAT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
