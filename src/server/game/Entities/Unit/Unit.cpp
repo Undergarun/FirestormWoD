@@ -3017,6 +3017,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     {
         uint32 l_DodgeChance = GetDodgeChance(victim) * 100;
 
+        if (IsPlayer() && victim->IsPlayer())
+            l_DodgeChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
+
         tmp += l_DodgeChance;
         if (roll < l_DodgeChance)
             return SPELL_MISS_DODGE;
@@ -3025,6 +3028,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     if (canParry)
     {
         uint32 l_ParryChance = GetParryChance(victim) * 100;
+
+        if (IsPlayer() && victim->IsPlayer())
+            l_ParryChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
 
         tmp += l_ParryChance;
         if (roll < l_ParryChance)
