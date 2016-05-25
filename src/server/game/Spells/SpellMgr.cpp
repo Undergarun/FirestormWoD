@@ -3733,6 +3733,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ChannelInterruptFlags = 0;
                 spellInfo->InterruptFlags = 0;
                 break;
+            case 156294: ///< Throw Grenade (Iron Raider)
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_DEST_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 160177: ///< Cautorizing Bolt (Grom'kar Firemender)
+                spellInfo->MaxAffectedTargets = 1;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
             /// Skills
@@ -7378,6 +7385,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156824: ///< Inferno Pyre - DoT (Dreadwing)
             case 156823: ///< Superheated Scrap - DoT (Beastlord Darmac)
             case 155657: ///< Flame Infusion - DoT (Pack Beast)
+            case 163754: ///< Iron Bellow (Grom'kar Man-at-Arms)
+            case 163752: ///< Reckless Slash (Grom'kar Man-at-Arms)
+            case 156655: ///< Throw Grenade (Iron Raider)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:

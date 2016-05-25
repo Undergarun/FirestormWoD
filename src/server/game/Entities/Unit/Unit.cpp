@@ -1453,6 +1453,18 @@ void Unit::CastSpell(Position const p_Pos, uint32 p_SpellID, bool p_Triggered, I
     CastSpell(l_Targets, l_SpellInfo, nullptr, p_Triggered ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE, p_CastItem, p_AurEff, p_OriginalCaster);
 }
 
+void Unit::CastSpell(SpellDestination const* p_Dest, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, AuraEffect const* p_AurEff /*= nullptr*/, uint64 p_OriginalCaster /*= 0*/)
+{
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
+    if (!l_SpellInfo)
+        return;
+
+    SpellCastTargets l_Targets;
+    l_Targets.SetDst(p_Dest->_position.m_positionX, p_Dest->_position.m_positionY, p_Dest->_position.m_positionZ, p_Dest->_position.m_orientation);
+
+    CastSpell(l_Targets, l_SpellInfo, nullptr, p_Triggered ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE, p_CastItem, p_AurEff, p_OriginalCaster);
+}
+
 void Unit::CastSpell(WorldLocation const* p_Loc, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, AuraEffect const* p_AurEff /*= nullptr*/, uint64 p_OriginalCaster /*= 0*/)
 {
     CastSpell(p_Loc->m_positionX, p_Loc->m_positionY, p_Loc->m_positionZ, p_SpellID, p_Triggered, p_CastItem, p_AurEff, p_OriginalCaster);

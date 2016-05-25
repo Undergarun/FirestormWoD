@@ -6,11 +6,4 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-# include "boss_operator_thogar.hpp"
-
-#ifndef __clang_analyzer__
-void AddSC_boss_operator_thogar()
-{
-
-}
-#endif
+# include "blackrock_foundry.hpp"

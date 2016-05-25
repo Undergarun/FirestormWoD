@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2016 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2016 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "blackrock_foundry.hpp"
@@ -3234,6 +3234,338 @@ class npc_foundry_markog_abadir : public CreatureScript
         }
 };
 
+/// Grom'kar Man-at-Arms - 78832
+class npc_foundry_gromkar_man_at_arms : public CreatureScript
+{
+    public:
+        npc_foundry_gromkar_man_at_arms() : CreatureScript("npc_foundry_gromkar_man_at_arms") { }
+
+        enum eSpells
+        {
+            SpellIronBellow             = 163753,
+            SpellIronBellowDmg          = 163754,
+
+            SpellRecklessSlashCharge    = 163750,
+            SpellRecklessSlashDmg       = 163751
+        };
+
+        enum eEvents
+        {
+            EventIronBellow = 1,
+            EventRecklessSlash
+        };
+
+        struct npc_foundry_gromkar_man_at_armsAI : public ScriptedAI
+        {
+            npc_foundry_gromkar_man_at_armsAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+
+                m_IntroLeft = p_Creature->IsNearPosition(&g_GromkarManAtArmsIntroLeftPos, 0.5f) ? true : false;
+                m_IntroRight = p_Creature->IsNearPosition(&g_GromkarManAtArmsIntroRightPos, 0.5f) ? true : false;
+            }
+
+            EventMap m_Events;
+
+            InstanceScript* m_Instance;
+
+            bool m_IntroLeft;
+            bool m_IntroRight;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                /// Wears a shield
+                me->SetCanDualWield(false);
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventIronBellow, 1);
+                m_Events.ScheduleEvent(eEvents::EventRecklessSlash, 3 * TimeConstants::IN_MILLISECONDS);
+
+                if (m_IntroLeft)
+                {
+
+                }
+                else if (m_IntroRight)
+                {
+
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::SpellIronBellow:
+                    {
+                        me->CastSpell(p_Target, eSpells::SpellIronBellowDmg, true);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_ID == eSpells::SpellRecklessSlashCharge)
+                    me->CastSpell(me, eSpells::SpellRecklessSlashDmg, true);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventIronBellow:
+                    {
+                        me->CastSpell(me, eSpells::SpellIronBellow, false);
+                        m_Events.ScheduleEvent(eEvents::EventIronBellow, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventRecklessSlash:
+                    {
+                        if (Player* l_Target = SelectMeleeTarget(true))
+                            me->CastSpell(*l_Target, eSpells::SpellRecklessSlashCharge, true);
+                        m_Events.ScheduleEvent(eEvents::EventRecklessSlash, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_gromkar_man_at_armsAI(p_Creature);
+        }
+};
+
+/// Iron Raider - 81197
+class npc_foundry_iron_raider : public CreatureScript
+{
+    public:
+        npc_foundry_iron_raider() : CreatureScript("npc_foundry_iron_raider") { }
+
+        enum eSpell
+        {
+            SpellThrowGrenade = 156294
+        };
+
+        enum eEvent
+        {
+            EventThrowGrenade = 1
+        };
+
+        struct npc_foundry_iron_raiderAI : public ScriptedAI
+        {
+            npc_foundry_iron_raiderAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/) override
+            {
+                m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventThrowGrenade:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(*l_Target, eSpell::SpellThrowGrenade, false);
+                        m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(5 * TimeConstants::IN_MILLISECONDS, 7 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_raiderAI(p_Creature);
+        }
+};
+
+/// Iron Crack-Shot - 81315
+class npc_foundry_iron_crack_shot : public CreatureScript
+{
+    public:
+        npc_foundry_iron_crack_shot() : CreatureScript("npc_foundry_iron_crack_shot") { }
+
+        enum eSpells
+        {
+            SpellShootRifle     = 156270,
+
+            SpellThrowGrenade   = 156294
+        };
+
+        enum eEvent
+        {
+            EventThrowGrenade = 1
+        };
+
+        struct npc_foundry_iron_crack_shotAI : public ScriptedAI
+        {
+            npc_foundry_iron_crack_shotAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/) override
+            {
+                m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventThrowGrenade:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(*l_Target, eSpells::SpellThrowGrenade, false);
+                        m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(5 * TimeConstants::IN_MILLISECONDS, 7 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoSpellAttackIfReady(eSpells::SpellShootRifle);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_crack_shotAI(p_Creature);
+        }
+};
+
+/// Grom'kar Firemender - 87841
+class npc_foundry_gromkar_firemender : public CreatureScript
+{
+    public:
+        npc_foundry_gromkar_firemender() : CreatureScript("npc_foundry_gromkar_firemender") { }
+
+        enum eSpells
+        {
+            SpellCauterizingBoltSearcher    = 160177,
+            SpellCauterizingBoltAoE         = 160140
+        };
+
+        enum eEvent
+        {
+            EventCauterizingBolt = 1
+        };
+
+        struct npc_foundry_gromkar_firemenderAI : public ScriptedAI
+        {
+            npc_foundry_gromkar_firemenderAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                /// Wears a shield
+                me->SetCanDualWield(false);
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/) override
+            {
+                m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::SpellCauterizingBoltSearcher)
+                    me->CastSpell(*p_Target, eSpells::SpellCauterizingBoltAoE, false);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventCauterizingBolt:
+                    {
+                        me->CastSpell(me, eSpells::SpellCauterizingBoltSearcher, true);
+                        m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_gromkar_firemenderAI(p_Creature);
+        }
+};
+
 /// Grievous Mortal Wounds - 175624
 class spell_foundry_grievous_mortal_wounds : public SpellScriptLoader
 {
@@ -3819,6 +4151,55 @@ class spell_foundry_electrical_storm : public SpellScriptLoader
         }
 };
 
+/// Cauterizing Bolt - 160140
+class spell_foundry_cauterizing_bolt : public SpellScriptLoader
+{
+    public:
+        spell_foundry_cauterizing_bolt() : SpellScriptLoader("spell_foundry_cauterizing_bolt") { }
+
+        class spell_foundry_cauterizing_bolt_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_cauterizing_bolt_AuraScript)
+
+            enum eSpell
+            {
+                CauterizingBoltHeal = 156323
+            };
+
+            enum eVisual
+            {
+                VisualKitID = 42432
+            };
+
+            void OnTick(AuraEffect const* /*p_AurEff*/)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    int32 l_Damage = l_Target->GetMap()->IsLFR() ? 5 : 20;
+
+                    /// Heal is 50% more powerful than damage
+                    AddPct(l_Damage, 50);
+
+                    /// 10 Tics, 10% per tic
+                    l_Damage /= 10;
+
+                    l_Target->SendPlaySpellVisualKit(eVisual::VisualKitID, 0);
+                    l_Target->CastCustomSpell(l_Target, eSpell::CauterizingBoltHeal, &l_Damage, nullptr, nullptr, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_cauterizing_bolt_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_cauterizing_bolt_AuraScript();
+        }
+};
+
 /// Acidback Puddle - 159121
 class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
 {
@@ -4311,6 +4692,10 @@ void AddSC_blackrock_foundry()
     new npc_foundry_ornery_ironhoof();
     new npc_foundry_iron_marksman();
     new npc_foundry_markog_abadir();
+    new npc_foundry_gromkar_man_at_arms();
+    new npc_foundry_iron_raider();
+    new npc_foundry_iron_crack_shot();
+    new npc_foundry_gromkar_firemender();
 
     /// Spells
     new spell_foundry_grievous_mortal_wounds();
@@ -4325,6 +4710,7 @@ void AddSC_blackrock_foundry()
     new spell_foundry_crushing_slam();
     new spell_foundry_ember_in_the_wind_damage();
     new spell_foundry_electrical_storm();
+    new spell_foundry_cauterizing_bolt();
 
     /// GameObjects
 

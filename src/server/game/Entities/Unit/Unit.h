@@ -375,6 +375,7 @@ class Totem;
 class Transport;
 class Vehicle;
 class TransportBase;
+class SpellDestination;
 
 typedef std::list<Unit*> UnitList;
 typedef std::list< std::pair<Aura*, uint8> > DispelChargesList;
@@ -1893,6 +1894,7 @@ class Unit : public WorldObject
         void CastSpell(Unit* victim, SpellInfo const* spellInfo, bool triggered, Item* castItem= NULL, AuraEffect const* triggeredByAura = nullptr, uint64 originalCaster = 0);
         void CastSpell(Unit* victim, SpellInfo const* spellInfo, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem= NULL, AuraEffect const* triggeredByAura = nullptr, uint64 originalCaster = 0, float periodicDamageModifier = 0.0f);
         void CastSpell(Position const p_Pos, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem = nullptr, AuraEffect const* p_AurEff = nullptr, uint64 p_OriginalCaster = 0);
+        void CastSpell(SpellDestination const* p_Dest, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem = nullptr, AuraEffect const* p_AurEff = nullptr, uint64 p_OriginalCaster = 0);
         void CastSpell(WorldLocation const* p_Loc, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem = nullptr, AuraEffect const* p_AurEff = nullptr, uint64 p_OriginalCaster = 0);
         void CastSpell(uint32 p_LocEntry, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem = nullptr, AuraEffect const* p_AurEff = nullptr, uint64 p_OriginalCaster = 0);
         void CastSpell(G3D::Vector3 p_Pos, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem = nullptr, AuraEffect const* p_AurEff = nullptr, uint64 p_OriginalCaster = 0);
