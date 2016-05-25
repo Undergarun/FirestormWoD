@@ -2127,6 +2127,19 @@ class spell_dru_faerie_fire: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_faerie_fire_SpellScript);
 
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetShapeshiftForm() == FORM_BEAR)
+                    return;
+
+                PreventHitDamage();
+            }
+
             void HandleOnHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
@@ -2149,6 +2162,7 @@ class spell_dru_faerie_fire: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_faerie_fire_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnHit += SpellHitFn(spell_dru_faerie_fire_SpellScript::HandleOnHit);
             }
         };
