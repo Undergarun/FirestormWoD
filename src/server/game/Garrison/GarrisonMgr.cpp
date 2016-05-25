@@ -2598,6 +2598,34 @@ namespace MS { namespace Garrison
         return m_Followers;
     }
 
+    /// Get followers dbc list with abilities
+    std::list<GarrFollowerEntry const*> Manager::GetFollowersWithAbility(uint32 p_AbilityID)
+    {
+        std::vector<uint32> l_FollowerIDs;
+        std::list<GarrFollowerEntry const*> l_CorrespondingFollowers;
+
+        for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
+        {
+            GarrFollowerXAbilityEntry const* l_AbilityEntry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
+
+            if (l_AbilityEntry != nullptr && l_AbilityEntry->AbilityID == p_AbilityID && l_AbilityEntry->FactionIndex != m_Owner->GetTeamId())
+                l_FollowerIDs.push_back(l_AbilityEntry->FollowerID);
+        }
+
+        l_FollowerIDs.erase(std::remove_if(l_FollowerIDs.begin(), l_FollowerIDs.end(), [&l_CorrespondingFollowers](uint32 p_FollowerID) -> bool
+        {
+            GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_FollowerID);
+
+            if (l_Entry == nullptr || l_Entry->Quality >= ItemQualities::ITEM_QUALITY_EPIC)
+                return true;
+
+            l_CorrespondingFollowers.push_back(l_Entry);
+            return false;
+        }), l_FollowerIDs.end());
+
+        return l_CorrespondingFollowers;
+    }
+
     /// Get follower
     GarrisonFollower* Manager::GetFollower(uint32 p_FollowerID)
     {

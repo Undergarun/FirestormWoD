@@ -50,6 +50,41 @@ namespace MS { namespace Garrison
             CreatureAI* GetAI(Creature* p_Creature) const;
     };
 
+    class npc_akanja_garr : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_akanja_garr();
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_Creature   : Target GameObject instance
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
+
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            virtual CreatureAI* GetAI(Creature* p_Creature) const override;
+
+            /// Creature AI
+            struct npc_akanja_garrAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_akanja_garrAI(Creature* p_Creature);
+
+                /// When the PlotInstance ID is set
+                /// @p_BuildingID : Set plot instance ID
+                virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
+            };
+
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 

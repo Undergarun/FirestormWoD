@@ -161,6 +161,8 @@ namespace MS { namespace Garrison
             void ChangeFollowerActivationState(uint64 p_FollowerDBID, bool p_Active);
             /// Get followers
             std::vector<GarrisonFollower> GetFollowers() const;
+            /// Get followers with specific ability
+            std::list<GarrFollowerEntry const*> GetFollowersWithAbility(uint32 p_AbilityID);
             /// Get follower
             GarrisonFollower* GetFollower(uint32 p_FollowerID);
             /// Get follower with Database ID

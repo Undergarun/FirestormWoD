@@ -426,6 +426,113 @@ namespace MS { namespace Garrison
         }
     }
 
+    /// Show Follower recruitment UI
+    void GarrisonNPCAI::SendFollowerRecruitmentUI(Player* p_Player)
+    {
+        if (p_Player->IsInGarrison())
+        {
+            WorldPacket l_Data(SMSG_GARRISON_OPEN_RECRUITMENT_NPC);
+            l_Data.appendPackGUID(me->GetGUID());
+
+            uint32 l_Counter = 0;
+
+            l_Data << uint32(0);                    ///< 
+            l_Data << uint32(162);
+            l_Data << uint32(2310);                 ///<
+
+            for (uint8 l_Itr = 0; l_Itr < 3; ++l_Itr)
+            {
+                l_Data << uint64(0);                    ///< Follower DB GUID
+
+                l_Data << uint32(0);                    ///< 
+                l_Data << uint32(0);                    ///< 
+                l_Data << uint32(0);                    ///< 
+                l_Data << uint32(0);                    ///< 
+                l_Data << uint32(0);                    ///< 
+                l_Data << uint32(0);                    ///< 
+                l_Data << uint32(0);                    ///< 
+                l_Data << uint32(0);                    ///< 
+                l_Data << uint32(l_Counter);            ///<
+                l_Data << uint32(0);                    ///< 
+
+                if (l_Counter)
+                {
+                    for (uint32 l_Itr = 0; l_Itr < l_Counter; ++l_Itr)
+                        l_Data << uint32(0);
+                }
+
+                l_Data.WriteBits(0, 7);
+                l_Data.FlushBits();
+            }
+
+            l_Data.WriteBit(1);                   ///< 
+            l_Data.WriteBit(1);                   ///< 
+
+            p_Player->SendDirectMessage(&l_Data);
+        }
+    }
+
+    /// Show Follower recruitment UI
+    void GarrisonNPCAI::SendRecruitmentFollowersGenerated(Player* p_Player, uint32 p_AbilityID, uint32 p_ErrorMessage)
+    {
+        if (p_Player->IsInGarrison())
+        {
+            Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
+
+            if (l_GarrisonMgr == nullptr)
+                return;
+
+            WorldPacket l_Data(SMSG_GARRISON_RECRUITMENT_FOLLOWERS_GENERATED);
+            
+            l_Data << uint32(p_ErrorMessage);          ///< l_Error ?
+            l_Data << uint32(0);                       ///< Time left until next reset
+
+            std::list<GarrFollowerEntry const*> l_FollowersList = l_GarrisonMgr->GetFollowersWithAbility(p_AbilityID);
+
+            JadeCore::RandomResizeList(l_FollowersList, 3); ///< List size must never exceed 3
+
+            for (GarrFollowerEntry const* l_Follower : l_FollowersList)
+            {
+                l_Data << uint64(0);   ///< Follower DB GUID
+
+                GarrFollowerEntry const* l_FollowerDbcEntry = l_Follower->GetEntry();
+
+                if (l_FollowerDbcEntry == nullptr)
+                {
+                    for (uint8 l_Itr = 0; l_Itr < 10; ++l_Itr)
+                        l_Data << uint32(0);
+
+                    l_Data.WriteBits(0, 7);
+                    l_Data.FlushBits();
+
+                    continue;
+                }
+
+                l_Data << uint32(l_Follower->FollowerID);        ///< Follower ID
+                l_Data << uint32(l_FollowerDbcEntry->Quality);   ///< quality ?
+                l_Data << uint32(l_Follower->Level);             ///< level ?
+                l_Data << uint32(l_Follower->ItemLevelWeapon);                        ///< ItemLevelWeapon
+                l_Data << uint32(l_Follower->ItemLevelArmor);                        ///< ItemLevelArmor
+                l_Data << uint32(l_Follower->GetRequiredLevelUpXP);                        ///< XP ?
+                l_Data << uint32(0);                        ///< CurrentBuildingID ?
+                l_Data << uint32(0);                        ///< CurrentMissionID ?
+                l_Data << uint32(/*l_Counter*/);                ///< abilities count ?
+                l_Data << uint32(0);                        ///< flags ?
+
+                /*if (l_Counter)
+                {
+                    for (uint32 l_Itr = 0; l_Itr < l_Counter; ++l_Itr)
+                        l_Data << uint32(0);
+                }*/
+
+                l_Data.WriteBits(0, 7);
+                l_Data.FlushBits();
+            }
+
+            p_Player->SendDirectMessage(&l_Data);
+        }
+    }
+
     /// Show trade skill crafter UI
     void GarrisonNPCAI::SendTradeSkillUI(Player* p_Player)
     {
@@ -1898,6 +2005,7 @@ void AddSC_Garrison_NPC()
 
     /// Horde
     {
+        new MS::Garrison::npc_akanja_garr;
         new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");
         new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon");
         new MS::Garrison::npc_Skaggit;

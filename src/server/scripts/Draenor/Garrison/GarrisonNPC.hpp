@@ -48,8 +48,12 @@ namespace MS { namespace Garrison
 
             /// Show shipment crafter UI
             void SendShipmentCrafterUI(Player* p_Player, uint32 p_ShipmentID = 0);
+            /// Show Follower recruitment UI
+            void SendFollowerRecruitmentUI(Player* p_Player);
             /// Show trade skill crafter UI
             void SendTradeSkillUI(Player* p_Player);
+            /// Show selected followers to recruit
+            void SendRecruitmentFollowersGenerated(Player* p_Player, uint32 p_AbilityID, uint32 p_ErrorMessage);
 
             /// Get building ID
             uint32 GetBuildingID();

@@ -543,6 +543,54 @@ void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket& p_RecvData)
     l_Garrison->DoMissionBonusRoll(l_NpcGUID, l_MissionID);
 }
 
+void WorldSession::HandleGarrisonGenerateRecruitsOpcode(WorldPacket& p_RecvData)
+{
+    if (m_Player == nullptr)
+        return;
+
+    MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
+
+    if (l_Garrison == nullptr)
+        return;
+
+    uint64 l_GUID      = 0;
+    uint32 l_TraitID   = 0;
+    uint32 l_AbilityID = 0;
+
+    p_RecvData.readPackGUID(l_GUID);
+
+    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_GUID, 0);
+
+    if (l_Unit == nullptr)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionBonusRollOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        return;
+    }
+
+    p_RecvData >> l_TraitID;
+    p_RecvData >> l_AbilityID;
+}
+
+void WorldSession::HandleGarrisonSetRecruitmentPreferencesOpcode(WorldPacket& p_RecvData)
+{
+    if (m_Player == nullptr)
+        return;
+
+    MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
+
+    if (l_Garrison == nullptr)
+        return;
+    
+    uint64 l_GUID      = 0;
+    uint32 l_TraitID   = 0;
+    uint32 l_AbilityID = 0;
+
+    p_RecvData.readPackGUID(l_GUID); ///< Unused ?
+
+    p_RecvData >> l_TraitID;
+    p_RecvData >> l_AbilityID;
+}
+
 void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
