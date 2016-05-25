@@ -1039,14 +1039,6 @@ void AddSC_boss_forgemaster_gogduh();
 void AddSC_boss_roltall();
 void AddSC_boss_gugrokk();
 
-/// Iron Docks
-void AddSC_iron_docks();
-void AddSC_instance_iron_docks();
-void AddSC_boss_nokgar();
-void AddSC_boss_skulloc();
-void AddSC_boss_grimrail();
-void AddSC_boss_oshir();
-
 /// Highmaul
 void AddSC_instance_highmaul();
 void AddSC_highmaul();
@@ -1072,15 +1064,31 @@ void AddSC_boss_operator_thogar();
 void AddSC_boss_iron_maidens();
 void AddSC_boss_blackhand();
 
-/// Auchindon
-void AddSC_instance_auchindon();
-void AddSC_auchindoun();
-void AddSC_kaathar();
-void AddSC_nyami();
-void AddSC_azzakel();
-void AddSC_teronogoer();
+/* Iron Docks Dungeon */
+void AddSC_iron_docks();
+void AddSC_instance_iron_docks();
+void AddSC_boss_nokgar();
+void AddSC_boss_skulloc();
+void AddSC_boss_grimrail();
+void AddSC_boss_oshir();
 
-/// Everbloom
+/* Shadowmoon Burial Grounds Dungeon */
+void AddSC_boss_nhalish();
+void AddSC_boss_sadana();
+void AddSC_boss_bonemaw();
+void AddSC_boss_nerzul();
+void AddSC_shadowmoon_burial_grounds();
+void AddSC_instance_shadowmoon_burial_grounds();
+
+/* Auchindoun Dungeon */
+void AddSC_instance_auchindoun();
+void AddSC_auchindoun();
+void AddSC_boss_kaathar();
+void AddSC_boss_nyami();
+void AddSC_boss_azzakel();
+void AddSC_boss_teronogor();
+
+/* Everbloom Dungeon */
 void AddSC_the_everbloom();
 void AddSC_instance_everbloom();
 void AddSC_boss_ancient_protectors();
@@ -1088,14 +1096,6 @@ void AddSC_boss_witherbark();
 void AddSC_boss_xeritac();
 void AddSC_boss_archmage_sol();
 void AddSC_boss_yalnu();
-
-/// Shadowmoon Burial Grounds
-void AddSC_shadowmoon_burial_grounds();
-void AddSC_instance_shadowmoon_burial_grounds();
-void AddSC_boss_sadana();
-void AddSC_boss_nhalish();
-void AddSC_boss_nerzul();
-void AddSC_boss_bonemaw();
 
 /// Battlegrounds
 void AddSC_BattlegroundAVcripts();
@@ -2014,14 +2014,6 @@ void AddDraenorScripts()
     AddSC_boss_roltall();
     AddSC_boss_gugrokk();
 
-    /// Iron Docks
-    AddSC_iron_docks();
-    AddSC_instance_iron_docks();
-    AddSC_boss_nokgar();
-    AddSC_boss_skulloc();
-    AddSC_boss_grimrail();
-    AddSC_boss_oshir();
-
     /// Highmaul
     AddSC_instance_highmaul();
     AddSC_highmaul();
@@ -2047,15 +2039,15 @@ void AddDraenorScripts()
     AddSC_boss_iron_maidens();
     AddSC_boss_blackhand();
 
-    /// Auchindoun
-    AddSC_instance_auchindon();
+    /// Instance Auchindoun
+    AddSC_instance_auchindoun();
     AddSC_auchindoun();
-    AddSC_kaathar();
-    AddSC_nyami();
-    AddSC_azzakel();
-    AddSC_teronogoer();
+    AddSC_boss_kaathar();
+    AddSC_boss_nyami();
+    AddSC_boss_azzakel();
+    AddSC_boss_teronogor();
 
-    /// Everbloom
+    /// Instance Everbloom
     AddSC_the_everbloom();
     AddSC_instance_everbloom();
     AddSC_boss_ancient_protectors();
@@ -2064,13 +2056,21 @@ void AddDraenorScripts()
     AddSC_boss_archmage_sol();
     AddSC_boss_yalnu();
 
-    /// Shadowmoon Burial Grounds
+    /// Instance Iron Docks
+    AddSC_iron_docks();
+    AddSC_instance_iron_docks();
+    AddSC_boss_nokgar();
+    AddSC_boss_skulloc();
+    AddSC_boss_grimrail();
+    AddSC_boss_oshir();
+
+    /// Instance Shadowmoon Burial Grounds
+    AddSC_boss_nhalish();
+    AddSC_boss_sadana();
+    AddSC_boss_bonemaw();
+    AddSC_boss_nerzul();
     AddSC_shadowmoon_burial_grounds();
     AddSC_instance_shadowmoon_burial_grounds();
-    AddSC_boss_sadana();
-    AddSC_boss_nhalish();
-    AddSC_boss_nerzul();
-    AddSC_boss_bonemaw();
 
     /// Battlegrounds strongbox
     AddSC_item_strongboxes();
