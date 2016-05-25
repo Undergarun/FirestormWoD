@@ -287,4 +287,7 @@ Position const g_GromkarFiremenderMovePos[eFoundryDatas::DataGromkarFiremender] 
     { 395.32f, 3316.338f, 303.6845f, M_PI }
 };
 
+Position const g_GromkarManAtArmsIntroRightPos  = { 502.17f, 3275.37f, 305.984f, 0.538223f };
+Position const g_GromkarManAtArmsIntroLeftPos   = { 501.031f, 3348.45f, 306.277f, 5.37476f };
+
 #endif
