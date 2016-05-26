@@ -2922,16 +2922,16 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
         attType = WeaponAttackType::RangedAttack;
 
-    uint32 roll = urand(0, 10000);
+    int32 roll = urand(0, 10000);
 
     // Roll miss
-    uint32 tmp = uint32(MeleeSpellMissChance(victim, spell, attType)) * 100;
+    int32 tmp = int32(MeleeSpellMissChance(victim, spell, attType)) * 100;
     if (roll < tmp)
         return SPELL_MISS_MISS;
 
     // Roll resist
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    uint32 l_Resist = (victim->GetMechanicResistChance(spell) * 100);
+    int32 l_Resist = (victim->GetMechanicResistChance(spell) * 100);
     tmp += l_Resist;
     if (roll < l_Resist)
         return SPELL_MISS_RESIST;
@@ -2954,7 +2954,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
-            uint32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
+            int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
             tmp+=deflect_chance;
             if (roll < deflect_chance)
                 return SPELL_MISS_DEFLECT;
@@ -3015,7 +3015,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canDodge)
     {
-        uint32 l_DodgeChance = GetDodgeChance(victim) * 100;
+        int32 l_DodgeChance = GetDodgeChance(victim) * 100;
 
         if (IsPlayer() && victim->IsPlayer())
             l_DodgeChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
@@ -3027,7 +3027,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canParry)
     {
-        uint32 l_ParryChance = GetParryChance(victim) * 100;
+        int32 l_ParryChance = GetParryChance(victim) * 100;
 
         if (IsPlayer() && victim->IsPlayer())
             l_ParryChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
@@ -3039,7 +3039,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canBlock)
     {
-        uint32 l_BlockChance = GetBlockChance(victim) * 100;
+        int32 l_BlockChance = GetBlockChance(victim) * 100;
 
         tmp += l_BlockChance;
         if (roll < l_BlockChance)
