@@ -108,7 +108,7 @@ struct AreaTableEntry
     // DeathKnightStart map, maybe AreaFlags ?
     bool IsSanctuary() const
     {
-        if (ContinentID == 609 || ID == 4522)
+        if (ContinentID == 609 || ID == 4522 || ID = 41 || ID = 2401)
             return true;
         return (Flags & AREA_FLAG_SANCTUARY);
     }
