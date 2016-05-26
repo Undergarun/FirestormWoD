@@ -153,6 +153,10 @@ set(scripts_STAT_SRCS
   Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
   Kalimdor/southern_barrens.cpp
   Kalimdor/uldum.cpp
+  Kalimdor/RagefireChasm/instance_ragefire_chasm.cpp
+  Kalimdor/RagefireChasm/ragefire_chasm.cpp
+  Kalimdor/RagefireChasm/ragefire_chasm.h
+  Kalimdor/RagefireChasm/boss_lava_guard_gordoth.cpp
 )
 
 message("  -> Prepared: Kalimdor")

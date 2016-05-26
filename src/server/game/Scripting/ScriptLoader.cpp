@@ -353,6 +353,12 @@ void AddSC_boss_ragewing_the_untamed();
 void AddSC_boss_warlord_zaela();
 
 /// Kalimdor
+
+/// Ragefire
+void AddSC_instance_ragefire_chasm();
+void AddSC_ragefire_chasm();
+void AddSC_boss_lava_guard_gordoth();
+
 /// Blackfathom Depths
 void AddSC_blackfathom_deeps();
 void AddSC_boss_gelihast();
@@ -1468,6 +1474,9 @@ void AddEasternKingdomsScripts()
 void AddKalimdorScripts()
 {
 #ifdef SCRIPTS
+    AddSC_instance_ragefire_chasm();
+    AddSC_ragefire_chasm();
+    AddSC_boss_lava_guard_gordoth();
     AddSC_blackfathom_deeps();
     AddSC_boss_gelihast();
     AddSC_boss_kelris();
