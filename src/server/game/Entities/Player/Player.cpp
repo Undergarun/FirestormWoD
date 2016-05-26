@@ -22433,7 +22433,7 @@ void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
             Field* fields = p_Result->Fetch();
 
             uint32 l_NpcEntry = fields[1].GetUInt32();
-            l_GarrisonMgr->SetGarrisonTavernData(l_NpcEntry);
+            l_GarrisonMgr->SetGarrisonDailyTavernData(l_NpcEntry);
         }
         while (p_Result->NextRow());
     }
@@ -22446,8 +22446,8 @@ void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
             {
                 uint32 l_Entry = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
 
-                l_GarrisonMgr->CleanGarrisonTavernData();
-                l_GarrisonMgr->AddGarrisonTavernData(l_Entry);
+                l_GarrisonMgr->CleanGarrisonDailyTavernData();
+                l_GarrisonMgr->AddGarrisonDailyTavernData(l_Entry);
             }
             else
             {
@@ -22458,9 +22458,9 @@ void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
                     l_SecondEntry = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
                 while (l_SecondEntry == l_FirstEntry);
 
-                l_GarrisonMgr->CleanGarrisonTavernData();
-                l_GarrisonMgr->AddGarrisonTavernData(l_FirstEntry);
-                l_GarrisonMgr->AddGarrisonTavernData(l_SecondEntry);
+                l_GarrisonMgr->CleanGarrisonDailyTavernData();
+                l_GarrisonMgr->AddGarrisonDailyTavernData(l_FirstEntry);
+                l_GarrisonMgr->AddGarrisonDailyTavernData(l_SecondEntry);
             }
         }
     }
@@ -27911,7 +27911,9 @@ void Player::ResetDailyGarrisonDatas()
     {
         if (l_Garrison->HasBuildingType(BuildingType::Inn))
         {
-            l_Garrison->ResetGarrisonTavernData();
+            /// Weekly Tavern Reset is done in ResetWeeklyGarrisonDatas
+
+            l_Garrison->ResetGarrisonDailyTavernData();
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Inn);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
@@ -27973,12 +27975,19 @@ void Player::ResetWeeklyGarrisonDatas()
 
     if (Manager* l_Garrison = GetGarrison())
     {
-        GarrisonBuilding l_Building = l_Garrison->GetBuildingWithType(BuildingType::Armory);
-
-        if (l_Building.DatabaseID)
+        ///< Armory token handling
+        if (l_Garrison->GetBuildingWithType(BuildingType::Armory).DatabaseID)
         {
             if (GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain) == 1)
                 SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain, 0);
+        }
+
+        ///< Tavern weekly follower offer handling
+        if (l_Garrison->GetBuildingLevel(l_Garrison->GetBuildingWithType(BuildingType::Inn)) >= 2)
+        {
+            SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTavernWeeklyFollower1, 0);
+            SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTavernWeeklyFollower2, 0);
+            SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTavernWeeklyFollower3, 0);
         }
     }
 }

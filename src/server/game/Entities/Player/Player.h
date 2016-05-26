@@ -189,7 +189,10 @@ enum CharacterWorldStates
     CharWorldStateGarrisonWorkshopGearworksInventionCharges     = 4,
     CharWorldStateGarrisonTradingPostDailyRandomTrader          = 5,
     CharWorldStateGarrisonTradingPostDailyRandomShipment        = 6,
-    CharWorldStateGarrisonArmoryWeeklyCurrencyGain              = 7
+    CharWorldStateGarrisonArmoryWeeklyCurrencyGain              = 7,
+    CharWorldStateGarrisonTavernWeeklyFollower1                 = 8,
+    CharWorldStateGarrisonTavernWeeklyFollower2                 = 9,
+    CharWorldStateGarrisonTavernWeeklyFollower3                 = 10
 };
 
 // Spell modifier (used for modify other spells)

@@ -431,49 +431,48 @@ namespace MS { namespace Garrison
     {
         if (p_Player->IsInGarrison())
         {
+            Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
+
+            if (l_GarrisonMgr == nullptr)
+                return;
+
             WorldPacket l_Data(SMSG_GARRISON_OPEN_RECRUITMENT_NPC);
             l_Data.appendPackGUID(me->GetGUID());
 
-            uint32 l_Counter = 0;
+            l_Data << uint32(0);                    ///< Unk1
+            l_Data << uint32(162);                  ///< Unk2
+            l_Data << uint32(2310);                 ///< Unk3
 
-            l_Data << uint32(0);                    ///< 
-            l_Data << uint32(162);
-            l_Data << uint32(2310);                 ///<
+            std::vector<uint32> l_FollowerIDs = l_GarrisonMgr->GetWeeklyFollowerRecruits(p_Player);
 
-            for (uint8 l_Itr = 0; l_Itr < 3; ++l_Itr)
+            if (l_FollowerIDs.empty())
             {
-                l_Data << uint64(0);                    ///< Follower DB GUID
-
-                l_Data << uint32(0);                    ///< 
-                l_Data << uint32(0);                    ///< 
-                l_Data << uint32(0);                    ///< 
-                l_Data << uint32(0);                    ///< 
-                l_Data << uint32(0);                    ///< 
-                l_Data << uint32(0);                    ///< 
-                l_Data << uint32(0);                    ///< 
-                l_Data << uint32(0);                    ///< 
-                l_Data << uint32(l_Counter);            ///<
-                l_Data << uint32(0);                    ///< 
-
-                if (l_Counter)
+                for (uint8 l_Itr = 0; l_Itr < 3; ++l_Itr)
                 {
-                    for (uint32 l_Itr = 0; l_Itr < l_Counter; ++l_Itr)
-                        l_Data << uint32(0);
+                    GarrisonFollower l_Follower;
+                    l_Follower.Write(l_Data);
                 }
+            }
+            else
+            {
+                for (uint32 l_FollowerID : l_FollowerIDs)
+                {
+                    GarrisonFollower l_Follower;
 
-                l_Data.WriteBits(0, 7);
-                l_Data.FlushBits();
+                    l_Follower = l_GarrisonMgr->GenerateNewFollowerEntity(l_FollowerID);
+                    l_Follower.Write(l_Data);
+                }
             }
 
-            l_Data.WriteBit(1);                   ///< 
-            l_Data.WriteBit(1);                   ///< 
+            l_Data.WriteBit(1);                   ///< unk bit 1
+            l_Data.WriteBit(1);                   ///< unk bit 2
 
             p_Player->SendDirectMessage(&l_Data);
         }
     }
 
-    /// Show Follower recruitment UI
-    void GarrisonNPCAI::SendRecruitmentFollowersGenerated(Player* p_Player, uint32 p_AbilityID, uint32 p_ErrorMessage)
+    /// Show Follower recruits UI
+    void GarrisonNPCAI::SendRecruitmentFollowersGenerated(Player* p_Player, uint32 p_AbilityID, uint32 p_ErrorMessage, bool p_IsTrait)
     {
         if (p_Player->IsInGarrison())
         {
@@ -484,49 +483,33 @@ namespace MS { namespace Garrison
 
             WorldPacket l_Data(SMSG_GARRISON_RECRUITMENT_FOLLOWERS_GENERATED);
             
-            l_Data << uint32(p_ErrorMessage);          ///< l_Error ?
-            l_Data << uint32(0);                       ///< Time left until next reset
+            l_Data << uint32(p_ErrorMessage);                           ///< l_Error ?
+            l_Data << uint32(sWorld->GetNextWeeklyQuestsResetTime());   ///< Time left until next reset
 
-            std::list<GarrFollowerEntry const*> l_FollowersList = l_GarrisonMgr->GetFollowersWithAbility(p_AbilityID);
+            std::vector<uint32> l_FollowerIDs = l_GarrisonMgr->GetWeeklyFollowerRecruits(p_Player);
 
-            JadeCore::RandomResizeList(l_FollowersList, 3); ///< List size must never exceed 3
-
-            for (GarrFollowerEntry const* l_Follower : l_FollowersList)
+            if (l_FollowerIDs.empty())
             {
-                l_Data << uint64(0);   ///< Follower DB GUID
+                std::list<GarrisonFollower> l_FollowersList = l_GarrisonMgr->GetFollowersWithAbility(p_AbilityID, p_IsTrait);
+                JadeCore::RandomResizeList(l_FollowersList, 3); ///< Should not happen, List size must never exceed 3
 
-                GarrFollowerEntry const* l_FollowerDbcEntry = l_Follower->GetEntry();
+                uint8 l_Counter = CharacterWorldStates::CharWorldStateGarrisonTavernWeeklyFollower1;
 
-                if (l_FollowerDbcEntry == nullptr)
+                for (GarrisonFollower l_Follower : l_FollowersList)
                 {
-                    for (uint8 l_Itr = 0; l_Itr < 10; ++l_Itr)
-                        l_Data << uint32(0);
+                    l_Follower.Write(l_Data);
 
-                    l_Data.WriteBits(0, 7);
-                    l_Data.FlushBits();
-
-                    continue;
+                    p_Player->SetCharacterWorldState(l_Counter, uint64(l_Follower.FollowerID));
+                    ++l_Counter;
                 }
-
-                l_Data << uint32(l_Follower->FollowerID);        ///< Follower ID
-                l_Data << uint32(l_FollowerDbcEntry->Quality);   ///< quality ?
-                l_Data << uint32(l_Follower->Level);             ///< level ?
-                l_Data << uint32(l_Follower->ItemLevelWeapon);                        ///< ItemLevelWeapon
-                l_Data << uint32(l_Follower->ItemLevelArmor);                        ///< ItemLevelArmor
-                l_Data << uint32(l_Follower->GetRequiredLevelUpXP);                        ///< XP ?
-                l_Data << uint32(0);                        ///< CurrentBuildingID ?
-                l_Data << uint32(0);                        ///< CurrentMissionID ?
-                l_Data << uint32(/*l_Counter*/);                ///< abilities count ?
-                l_Data << uint32(0);                        ///< flags ?
-
-                /*if (l_Counter)
+            }
+            else
+            {
+                for (uint32 l_FollowerID : l_FollowerIDs)
                 {
-                    for (uint32 l_Itr = 0; l_Itr < l_Counter; ++l_Itr)
-                        l_Data << uint32(0);
-                }*/
-
-                l_Data.WriteBits(0, 7);
-                l_Data.FlushBits();
+                    GarrisonFollower l_Follower = l_GarrisonMgr->GenerateNewFollowerEntity(l_FollowerID);
+                    l_Follower.Write(l_Data);
+                }
             }
 
             p_Player->SendDirectMessage(&l_Data);

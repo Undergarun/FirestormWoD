@@ -17,6 +17,7 @@
 #include "Chat.h"
 #include "ScriptMgr.h"
 #include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
+#include "../../scripts/Draenor/Garrison/GarrisonNPC.hpp"
 
 void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& /*p_RecvData*/)
 {
@@ -558,17 +559,19 @@ void WorldSession::HandleGarrisonGenerateRecruitsOpcode(WorldPacket& p_RecvData)
     uint32 l_AbilityID = 0;
 
     p_RecvData.readPackGUID(l_GUID);
+    p_RecvData >> l_AbilityID;
+    p_RecvData >> l_TraitID;
 
     Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_GUID, 0);
 
     if (l_Unit == nullptr)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionBonusRollOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionBonusRollOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_GUID)));
         return;
     }
 
-    p_RecvData >> l_TraitID;
-    p_RecvData >> l_AbilityID;
+    if (l_Unit->AI())
+        static_cast<MS::Garrison::GarrisonNPCAI*>(l_Unit->AI())->SendRecruitmentFollowersGenerated(m_Player, l_AbilityID, 0, l_TraitID ? true : false);
 }
 
 void WorldSession::HandleGarrisonSetRecruitmentPreferencesOpcode(WorldPacket& p_RecvData)
@@ -586,9 +589,8 @@ void WorldSession::HandleGarrisonSetRecruitmentPreferencesOpcode(WorldPacket& p_
     uint32 l_AbilityID = 0;
 
     p_RecvData.readPackGUID(l_GUID); ///< Unused ?
-
-    p_RecvData >> l_TraitID;
     p_RecvData >> l_AbilityID;
+    p_RecvData >> l_TraitID;
 }
 
 void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket& p_RecvData)

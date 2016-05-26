@@ -162,7 +162,7 @@ namespace MS { namespace Garrison
             /// Get followers
             std::vector<GarrisonFollower> GetFollowers() const;
             /// Get followers with specific ability
-            std::list<GarrFollowerEntry const*> GetFollowersWithAbility(uint32 p_AbilityID);
+            std::list<GarrisonFollower> GetFollowersWithAbility(uint32 p_AbilityID, bool p_IsTrait);
             /// Get follower
             GarrisonFollower* GetFollower(uint32 p_FollowerID);
             /// Get follower with Database ID
@@ -264,14 +264,15 @@ namespace MS { namespace Garrison
             /// Checks training mounts auras
             bool IsTrainingMount();
 
-        /// Tavern System
         public:
-            void AddGarrisonTavernData(uint32 p_Data);
-            void SetGarrisonTavernData(uint32 p_Data);
-            void CleanGarrisonTavernData();
-            void ResetGarrisonTavernData();
+            /// Garrison Reset Systems
+            void AddGarrisonDailyTavernData(uint32 p_Data);
+            void SetGarrisonDailyTavernData(uint32 p_Data);
+            void CleanGarrisonDailyTavernData();
+            void ResetGarrisonDailyTavernData();
             void ResetGarrisonWorkshopData(Player* p_Player);
             void ResetGarrisonTradingPostData(Player* p_Player);
+            std::vector<uint32> GetWeeklyFollowerRecruits(Player* p_Player);
 
             /// Get known specializations
             std::vector<int32> GetKnownSpecializations() const;
@@ -318,7 +319,7 @@ namespace MS { namespace Garrison
             /// Levelup follower
             bool LevelUpFollower(uint32 p_DatabaseID);
 
-            /// Returns all the  abilities with the same type
+            /// Returns amount of all the  abilities with the same type
             uint32 CountFollowerAbilitiesByType(uint32 p_FollowerID, uint32 p_Type) const;
 
             /// Returns error message of the attempt
@@ -326,6 +327,8 @@ namespace MS { namespace Garrison
 
             /// Learns the specific trait
             void LearnFollowerTrait(uint32 p_FollowerID, uint32 p_Slot, SpellInfo const* p_SpellInfo, uint32 p_EffIndex);
+
+            GarrisonFollower GenerateNewFollowerEntity(uint32 p_FollowerID);
 
             /// Returns the cap of the specified follower type
             uint32 GetFollowerSoftCap(uint32 p_FollowerType) const;

@@ -2599,31 +2599,79 @@ namespace MS { namespace Garrison
     }
 
     /// Get followers dbc list with abilities
-    std::list<GarrFollowerEntry const*> Manager::GetFollowersWithAbility(uint32 p_AbilityID)
+    std::list<GarrisonFollower> Manager::GetFollowersWithAbility(uint32 p_AbilityID, bool p_IsTrait)
     {
+        std::list<GarrisonFollower> l_FinalFollowers;
         std::vector<uint32> l_FollowerIDs;
-        std::list<GarrFollowerEntry const*> l_CorrespondingFollowers;
+        std::vector<uint32> l_PotentialFollowers;
 
         for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
         {
-            GarrFollowerXAbilityEntry const* l_AbilityEntry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
+            GarrFollowerEntry const* l_FollowerEntry = sGarrFollowerStore.LookupEntry(l_I);
 
-            if (l_AbilityEntry != nullptr && l_AbilityEntry->AbilityID == p_AbilityID && l_AbilityEntry->FactionIndex != m_Owner->GetTeamId())
-                l_FollowerIDs.push_back(l_AbilityEntry->FollowerID);
+            if (l_FollowerEntry != nullptr)
+                l_FollowerIDs.push_back(l_FollowerEntry->ID);
         }
 
-        l_FollowerIDs.erase(std::remove_if(l_FollowerIDs.begin(), l_FollowerIDs.end(), [&l_CorrespondingFollowers](uint32 p_FollowerID) -> bool
+        l_FollowerIDs.erase(std::remove_if(l_FollowerIDs.begin(), l_FollowerIDs.end(), [this, p_AbilityID, &l_PotentialFollowers](uint32 p_FollowerID) -> bool
         {
-            GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_FollowerID);
+            std::vector<GarrisonFollower> l_PossessedFollowers = GetFollowers();
 
-            if (l_Entry == nullptr || l_Entry->Quality >= ItemQualities::ITEM_QUALITY_EPIC)
+            if (std::find(l_PossessedFollowers.begin(), l_PossessedFollowers.end(), p_FollowerID) != l_PossessedFollowers.end())
                 return true;
 
-            l_CorrespondingFollowers.push_back(l_Entry);
-            return false;
+            GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_FollowerID);
+
+            if (l_Entry == nullptr || l_Entry->Quality >= ItemQualities::ITEM_QUALITY_EPIC || l_Entry->Level > 90 || l_Entry->HordeSourceText != "")
+                return true;
+
+            l_PotentialFollowers.push_back(p_FollowerID);
+
+            for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
+            {
+                GarrFollowerXAbilityEntry const* l_AbilityEntry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
+
+                /// TEAMID server side is inverted with DBCs 0/1 values, so real condition for l_AbilityEntry->FactionIndex != m_Owner->GetTeamId() is ==
+                if (l_AbilityEntry != nullptr && l_AbilityEntry->FollowerID == p_FollowerID && l_AbilityEntry->AbilityID == p_AbilityID && l_AbilityEntry->FactionIndex != m_Owner->GetTeamId())
+                    return false;
+            }
+
+            return true;
         }), l_FollowerIDs.end());
 
-        return l_CorrespondingFollowers;
+        for (uint32 l_FollowerID : l_FollowerIDs)
+        {
+            l_FinalFollowers.push_back(GenerateNewFollowerEntity(l_FollowerID));
+            l_PotentialFollowers.erase(std::remove(l_PotentialFollowers.begin(), l_PotentialFollowers.end(), l_FollowerID), l_PotentialFollowers.end());
+        }
+
+        while (l_FinalFollowers.size() < 3)
+        {
+            GarrisonFollower l_Follower = GenerateNewFollowerEntity(l_PotentialFollowers[urand(0, l_FinalFollowers.size() - 1)]);
+
+            for (auto l_Itr = l_Follower.Abilities.begin(); l_Itr != l_Follower.Abilities.end(); ++l_Itr)
+            {
+                using namespace MS::Garrison::GarrisonAbilities;
+
+                if (p_IsTrait && std::find(g_FollowerTraits.begin(), g_FollowerTraits.end(), *l_Itr) != g_FollowerTraits.end())
+                {
+                    l_Itr = l_Follower.Abilities.erase(l_Itr);
+                    break;
+                }
+
+                if (!p_IsTrait && std::find(g_FollowerAbilities.begin(), g_FollowerAbilities.end(), *l_Itr) != g_FollowerAbilities.end())
+                {
+                    l_Itr = l_Follower.Abilities.erase(l_Itr);
+                    break;
+                }
+            }
+
+            l_Follower.Abilities.push_back(p_AbilityID);
+
+            l_FinalFollowers.push_back(l_Follower);
+        }
+
+        return l_FinalFollowers;
     }
 
     /// Get follower
@@ -5065,6 +5113,34 @@ namespace MS { namespace Garrison
         l_Iter->SendFollowerUpdate(m_Owner);
     }
 
+    GarrisonFollower Manager::GenerateNewFollowerEntity(uint32 p_FollowerID)
+    {
+        GarrisonFollower l_Follower;
+
+        if (GetFollower(p_FollowerID) != nullptr)
+            return *GetFollower(p_FollowerID);
+
+        GarrFollowerEntry const* l_FollowerEntry = sGarrFollowerStore.LookupEntry(p_FollowerID);
+
+        if (l_FollowerEntry == nullptr)
+            return l_Follower;
+
+        l_Follower.DatabaseID        = 0;
+        l_Follower.FollowerID        = l_FollowerEntry->ID;
+        l_Follower.Level             = l_FollowerEntry->Level;
+        l_Follower.XP                = 0;
+        l_Follower.Quality           = l_FollowerEntry->Quality;
+        l_Follower.ItemLevelArmor    = l_FollowerEntry->ItemLevelArmor;
+        l_Follower.ItemLevelWeapon   = l_FollowerEntry->ItemLevelWeapon;
+        l_Follower.CurrentBuildingID = 0;
+        l_Follower.CurrentMissionID  = 0;
+        l_Follower.Flags             = 0;
+
+        GenerateFollowerAbilities(l_Follower, true, true, true, true);
+
+        return l_Follower;
+    }
+
     uint32 Manager::GetFollowerSoftCap(uint32 p_FollowerType) const
     {
         GarrFollowerTypeEntry const* l_TypeEntry = sGarrFollowerTypeStore.LookupEntry(p_FollowerType);
@@ -5242,30 +5318,30 @@ namespace MS { namespace Garrison
             || m_Owner->HasAura(StablesData::TrainingMountsAuras::SnarlerTrainingMountAura);
     }
 
-    void Manager::AddGarrisonTavernData(uint32 p_Data)
+    void Manager::AddGarrisonDailyTavernData(uint32 p_Data)
     {
-        SetGarrisonTavernData(p_Data);
+        SetGarrisonDailyTavernData(p_Data);
         m_Owner->SaveToDB(false);
     }
 
-    void Manager::SetGarrisonTavernData(uint32 p_Data)
+    void Manager::SetGarrisonDailyTavernData(uint32 p_Data)
     {
         GetGarrisonTavernDatas().push_back(p_Data);
     }
 
-    void Manager::CleanGarrisonTavernData()
+    void Manager::CleanGarrisonDailyTavernData()
     {
         GetGarrisonTavernDatas().clear();
     }
 
-    void Manager::ResetGarrisonTavernData()
+    void Manager::ResetGarrisonDailyTavernData()
     {
         if (roll_chance_i(50))
         {
             uint32 l_Entry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
 
-            CleanGarrisonTavernData();
-            AddGarrisonTavernData(l_Entry);
+            CleanGarrisonDailyTavernData();
+            AddGarrisonDailyTavernData(l_Entry);
         }
         else
         {
@@ -5276,9 +5352,9 @@ namespace MS { namespace Garrison
                 l_SecondEntry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
             while (l_SecondEntry == l_FirstEntry);
 
-            CleanGarrisonTavernData();
-            AddGarrisonTavernData(l_FirstEntry);
-            AddGarrisonTavernData(l_SecondEntry);
+            CleanGarrisonDailyTavernData();
+            AddGarrisonDailyTavernData(l_FirstEntry);
+            AddGarrisonDailyTavernData(l_SecondEntry);
         }
     }
 
@@ -5337,6 +5413,20 @@ namespace MS { namespace Garrison
 
         p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
         p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_Entry);
+    }
+
+    std::vector<uint32> Manager::GetWeeklyFollowerRecruits(Player* p_Player)
+    {
+        std::vector<uint32> l_FollowerIDs;
+
+        if (p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTavernWeeklyFollower1))
+        {
+            l_FollowerIDs.push_back(uint32(p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTavernWeeklyFollower1)));
+            l_FollowerIDs.push_back(uint32(p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTavernWeeklyFollower2)));
+            l_FollowerIDs.push_back(uint32(p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTavernWeeklyFollower3)));
+        }
+
+        return l_FollowerIDs;
     }
 }   ///< namespace Garrison
 }   ///< namespace MS

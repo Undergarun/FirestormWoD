@@ -53,7 +53,7 @@ namespace MS { namespace Garrison
             /// Show trade skill crafter UI
             void SendTradeSkillUI(Player* p_Player);
             /// Show selected followers to recruit
-            void SendRecruitmentFollowersGenerated(Player* p_Player, uint32 p_AbilityID, uint32 p_ErrorMessage);
+            void SendRecruitmentFollowersGenerated(Player* p_Player, uint32 p_AbilityID, uint32 p_ErrorMessage, bool p_IsTrait);
 
             /// Get building ID
             uint32 GetBuildingID();

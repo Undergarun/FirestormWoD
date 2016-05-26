@@ -3483,7 +3483,7 @@ void World::ResetDailyGarrisonDatas()
         if (l_Player)
         {
             if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
-                l_GarrisonMgr->CleanGarrisonTavernData();
+                l_GarrisonMgr->CleanGarrisonDailyTavernData();
 
             l_Player->ResetDailyGarrisonDatas();
         }
