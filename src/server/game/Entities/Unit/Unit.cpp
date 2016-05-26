@@ -21420,8 +21420,6 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     Vehicle* vehicle = m_vehicle;
     m_vehicle = NULL;
 
-    SetControlled(false, UNIT_STATE_ROOT);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
-
     Position l_ExitPos;
 
     /// Exit position not specified
@@ -21455,6 +21453,8 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     init.SetFacing(GetOrientation());
     init.SetTransportExit();
     init.Launch();
+
+    SetControlled(false, UNIT_STATE_ROOT);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
 
     //GetMotionMaster()->MoveFall();            // Enable this once passenger positions are calculater properly (see above)
 
