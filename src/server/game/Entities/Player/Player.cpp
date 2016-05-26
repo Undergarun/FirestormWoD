@@ -10539,6 +10539,9 @@ void Player::DuelComplete(DuelCompleteType p_DuelType)
     }
 
     sScriptMgr->OnPlayerDuelEnd(m_Duel->opponent, this, p_DuelType);
+    RemoveAllSpellCooldown();
+    if (m_Duel->opponent != nullptr)
+        m_Duel->opponent->RemoveAllSpellCooldown();
 
     switch (p_DuelType)
     {
@@ -24768,6 +24771,9 @@ void Player::UpdateDuelFlag(time_t currTime)
         return;
 
     sScriptMgr->OnPlayerDuelStart(this, m_Duel->opponent);
+    RemoveAllSpellCooldown();
+    if (m_Duel->opponent != nullptr)
+        m_Duel->opponent->RemoveAllSpellCooldown();
 
     SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 1);
     m_Duel->opponent->SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 2);
