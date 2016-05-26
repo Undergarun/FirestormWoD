@@ -3934,7 +3934,7 @@ class spell_gen_selfie_camera : public SpellScriptLoader
                 l_Caster->GetCreatureListWithEntryInGrid(l_ListPhotoBomber, eData::PhotoBomberNPC, 100.0f);
 
                 /// Remove other players Master PhotoBomber
-                for (std::list<Creature*>::iterator l_Itr = l_ListPhotoBomber.begin(); l_Itr != l_ListPhotoBomber.end(); ++l_Itr)
+                for (std::list<Creature*>::iterator l_Itr = l_ListPhotoBomber.begin(); l_Itr != l_ListPhotoBomber.end(); l_Itr++)
                 {
                     Unit* l_Owner = (*l_Itr)->GetOwner();
 

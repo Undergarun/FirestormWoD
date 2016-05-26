@@ -1408,7 +1408,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
                                 while (l_Types[++l_TypesI]);
 
                                 if (l_Found)
-                                    ++l_Iterator;
+                                    l_Iterator++;
                                 else
                                     l_Iterator = l_UnitTargets.erase(l_Iterator);
                             }
@@ -5204,7 +5204,7 @@ void Spell::SendSpellGo()
     }
 
     // Remaining Power
-    for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); ++l_Itr)
+    for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
     {
         Powers l_Power = Powers((*l_Itr));
         l_Data << int32(m_caster->GetPower(l_Power));
@@ -5259,7 +5259,7 @@ void Spell::SendSpellGo()
         uint32 l_PowerDataSize = l_UsablePowers.size();
 
         l_Data << uint32(l_PowerDataSize);
-        for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); ++l_Itr)
+        for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
         {
             Powers l_Power = Powers((*l_Itr));
             l_Data << int32(l_Power);                           ///< Power type

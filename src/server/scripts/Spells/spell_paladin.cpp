@@ -1072,7 +1072,7 @@ class spell_pal_divine_shield: public SpellScriptLoader
                     if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_DIVINE_SHIELD))
                     {
                         Unit::AuraApplicationMap l_AppliedAuras = l_Caster->GetAppliedAuras();
-                        for (Unit::AuraApplicationMap::iterator itr = l_AppliedAuras.begin(); itr != l_AppliedAuras.end(); ++itr)
+                        for (Unit::AuraApplicationMap::iterator itr = l_AppliedAuras.begin(); itr != l_AppliedAuras.end(); itr++)
                         {
                             AuraApplication const* l_AurApp = itr->second;
                             Aura const* aura = l_AurApp->GetBase();

@@ -629,7 +629,7 @@ bool SpellMgr::IsSpellForbidden(uint32 spellid)
 {
     std::list<uint32>::iterator Itr;
 
-    for (Itr = mForbiddenSpells.begin(); Itr != mForbiddenSpells.end(); ++Itr)
+    for (Itr = mForbiddenSpells.begin(); Itr != mForbiddenSpells.end(); Itr++)
         if ((*Itr) == spellid)
             return true;
 

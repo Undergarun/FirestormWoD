@@ -23784,7 +23784,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
 
 void Player::_SaveQuestObjectiveStatus(SQLTransaction& trans)
 {
-    for (QuestObjectiveStatusMap::const_iterator citr = m_questObjectiveStatus.begin(); citr != m_questObjectiveStatus.end(); ++citr)
+    for (QuestObjectiveStatusMap::const_iterator citr = m_questObjectiveStatus.begin(); citr != m_questObjectiveStatus.end(); citr++)
     {
         uint32 questId = sObjectMgr->GetQuestObjectiveQuestId(citr->first);
         if (!questId)
@@ -27383,7 +27383,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     ApplyWargameItemModifications();
 
     AuraEffectList const& l_ModSpeedAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPEED_ALWAYS);
-    for (AuraEffectList::const_iterator iter = l_ModSpeedAuras.begin(); iter != l_ModSpeedAuras.end(); ++iter)
+    for (AuraEffectList::const_iterator iter = l_ModSpeedAuras.begin(); iter != l_ModSpeedAuras.end(); iter++)
         (*iter)->RecalculateAmount((*iter)->GetCaster(), true);
 
     if (GetMap()->IsRaid())
@@ -27442,7 +27442,7 @@ void Player::SendInitialPacketsAfterAddToMap()
         m_Garrison->OnPlayerEnter();
 
     std::map<uint32, bool> l_MountSpells;
-    for (PlayerSpellMap::iterator l_It = m_spells.begin(); l_It != m_spells.end(); ++l_It)
+    for (PlayerSpellMap::iterator l_It = m_spells.begin(); l_It != m_spells.end(); l_It++)
     {
         if (!l_It->second)
             continue;
@@ -27920,7 +27920,7 @@ void Player::ResetDailyGarrisonDatas()
             l_Garrison->ResetGarrisonTavernData();
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Inn);
 
-            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
                 if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
                 {
@@ -27944,7 +27944,7 @@ void Player::ResetDailyGarrisonDatas()
             l_Garrison->ResetGarrisonWorkshopData(this);
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Workshop);
 
-            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
                 if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
                 {
@@ -27959,7 +27959,7 @@ void Player::ResetDailyGarrisonDatas()
             l_Garrison->ResetGarrisonTradingPostData(this);
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Type::TradingPost);
 
-            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
                 if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
                 {

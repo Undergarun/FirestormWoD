@@ -3702,7 +3702,7 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& p_Data)
     p_Data.Initialize(SMSG_GUILD_NEWS);
     p_Data << uint32(_newsLog.size());
 
-    for (GuildNewsLogMap::const_iterator l_It = _newsLog.begin(); l_It != _newsLog.end(); ++l_It)
+    for (GuildNewsLogMap::const_iterator l_It = _newsLog.begin(); l_It != _newsLog.end(); l_It++)
     {
         p_Data << uint32(l_It->first);
         p_Data << uint32(MS::Utilities::WowTime::Encode(l_It->second.Date));

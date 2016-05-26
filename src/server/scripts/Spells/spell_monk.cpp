@@ -1621,7 +1621,7 @@ class spell_monk_eminence_heal : public SpellScriptLoader
                     l_Caster->IsHostileTo((*l_Itr)->ToUnit()) || (*l_Itr)->ToUnit()->isStatue() || (*l_Itr)->ToUnit()->isTotem())
                     l_Itr = p_Targets.erase(l_Itr);
                else
-                   ++l_Itr;
+                   l_Itr++;
             }
 
             if (p_Targets.size() > 1)

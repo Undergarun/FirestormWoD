@@ -343,7 +343,7 @@ Unit::~Unit()
 
     _DeleteRemovedAuras();
 
-    for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); ++itr)
+    for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); itr++)
         delete (*itr);
 
     m_dmgDone.clear();
@@ -3425,7 +3425,7 @@ void Unit::_UpdateSpells(uint32 time)
                 (*itr)->SetOwnerGUID(0);
                 (*itr)->SetRespawnTime(0);
                 (*itr)->Delete();
-                m_gameObj.erase(++itr);
+                m_gameObj.erase(itr++);
             }
             else
                 ++itr;
@@ -22217,7 +22217,7 @@ uint32 Unit::GetDamageDoneInPastSecsBySpell(uint32 p_Secs, uint32 p_SpellId)
 {
     uint32 damage = 0;
 
-    for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); ++itr)
+    for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); itr++)
     {
         if (((*itr)->s_spellId && (getMSTime() - (*itr)->s_timestamp) <= (p_Secs * IN_MILLISECONDS)) && p_SpellId == (*itr)->s_spellId)
             damage += (*itr)->s_damage;
