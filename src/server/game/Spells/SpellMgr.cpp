@@ -4854,6 +4854,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 5857:   ///< Hellfire damage spell
                 spellInfo->AttributesEx3 = 0;
                 spellInfo->AttributesEx4 = 0;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 break;
            case 77219: ///< Mastery: Master Demonologist
                 spellInfo->Effects[1].SpellClassMask[0] |= 0x1040;
