@@ -159,6 +159,14 @@ enum eFoundryGameObjects
     TheBeastGate                = 231841,
     BeastsEnclosureDoor         = 232021,
     TerminusDoor                = 237307,
+    MassiveDoorTrack4Right      = 231843,
+    MassiveDoorTrack3Right      = 231844,
+    MassiveDoorTrack2Right      = 231845,
+    MassiveDoorTrack1Right      = 231846,
+    MassiveDoorTrack4Left       = 231847,
+    MassiveDoorTrack3Left       = 231848,
+    MassiveDoorTrack2Left       = 231849,
+    MassiveDoorTrack1Left       = 231850,
     /// Blackhand's Crucible - Part 4
     SpikeGate                   = 232556,
     CrucibleDoor                = 233006
