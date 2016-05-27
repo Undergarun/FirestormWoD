@@ -228,6 +228,7 @@ enum Opcodes
         SMSG_CHAR_RENAME                            = 0x0264, ///< 6.2.3 20726
         SMSG_CHAR_CUSTOMIZE_RESULT                  = 0x1B6B, ///< 6.2.3 20726
         SMSG_CHAR_CUSTOMIZE                         = 0x1263, ///< 6.2.3 20726
+        SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT  = 0x070E, ///< 6.2.3 20726
 
         /// Account data
         SMSG_ACCOUNT_DATA_TIMES                     = 0x1773, ///< 6.2.3 20726
@@ -1054,6 +1055,8 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_ENUM_CHARACTERS                        = 0x1163, ///< 6.2.3 20726
     CMSG_CREATE_CHARACTER                       = 0x143B, ///< 6.2.3 20726
+    CMSG_GENERATE_RANDOM_CHARACTER_NAME         = 0x0580, ///< 6.2.3 20726
+
     CMSG_CHAR_DELETE                            = 0x0428, ///< 6.2.3 20726
     CMSG_REORDER_CHARACTERS                     = 0x10B3, ///< 6.2.3 20726
     CMSG_PLAYER_LOGIN                           = 0x10F3, ///< 6.2.3 20726
@@ -1794,7 +1797,6 @@ enum Opcodes
     CMSG_QUERY_BATTLEFIELD_STATE                        = 0x0000,
     CMSG_QUERY_TIME                                     = 0x0000,
     CMSG_QUEST_NPC_QUERY                                = 0x0000,
-    CMSG_RANDOMIZE_CHAR_NAME                            = 0x0000,
     CMSG_REALM_SPLIT                                    = 0x0000,
     CMSG_REDIRECTION_AUTH_PROOF                         = 0x0000,
     CMSG_REQUEST_BATTLEPET_JOURNAL                      = 0x0000,
@@ -1939,7 +1941,6 @@ enum Opcodes
     SMSG_PLAY_TIME_WARNING                              = 0x0000,
     SMSG_PROPOSE_LEVEL_GRANT                            = 0x0000,
     SMSG_SUMMON_RAID_MEMBER_VALIDATE_FAILED             = 0x0000,
-    SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT          = 0x0000,
     SMSG_REALM_SPLIT                                    = 0x0000,
     SMSG_REFER_A_FRIEND_EXPIRED                         = 0x0000,
     SMSG_REFER_A_FRIEND_FAILURE                         = 0x0000,

@@ -163,7 +163,7 @@ bool LexicsCutter::ReadInnormativeWords(std::string& FileName)
             if (itr != AnalogMap.end())
             {
                 // analogs present, iterate
-                for (LC_AnalogVector::iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+                for (LC_AnalogVector::iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); itr2++)
                 {
                     vl.insert(*itr2);
                 }
@@ -188,7 +188,7 @@ void LexicsCutter::MapInnormativeWords()
     for (unsigned int i = 0; i < WordList.size(); i++)
     {
         // parse all analogs in the first word letter
-        for (LC_LetterSet::iterator itr = (*WordList[i].begin()).begin(); itr != (*WordList[i].begin()).end(); ++itr)
+        for (LC_LetterSet::iterator itr = (*WordList[i].begin()).begin(); itr != (*WordList[i].begin()).end(); itr++)
         {
             // map the word to its first letter variants
             WordMap.insert(std::pair< std::string, unsigned int >(*itr, i));
@@ -207,7 +207,7 @@ bool LexicsCutter::CompareWord(std::string& str, unsigned int pos, LC_WordVector
     // okay, here we go, comparing word
     // first letter is already okay, we do begin from second and go on
     LC_WordVector::iterator i = word.begin();
-    ++i;
+    i++;
     while (i != word.end())
     {
         // get letter from word, return false if the string is shorter
@@ -232,7 +232,7 @@ bool LexicsCutter::CompareWord(std::string& str, unsigned int pos, LC_WordVector
                     return true;
 
             // next word letter
-            ++i;
+            i++;
         }
         // set previous string letter to compare if needed (this check can really conserve time)
         if (IgnoreLetterRepeat)
@@ -265,7 +265,7 @@ bool LexicsCutter::CheckLexics(std::string& Phrase)
     {
         // got character, now try to find wordmap for it
         ii = WordMap.equal_range(lchar);
-        for (i = ii.first; i != ii.second; ++i)
+        for (i = ii.first; i != ii.second; i++)
         {
             // compare word at initial position
             if (CompareWord(str, pos_prev, WordList[i->second]))

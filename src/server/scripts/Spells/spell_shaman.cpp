@@ -956,7 +956,7 @@ class spell_sha_earthgrab: public SpellScriptLoader
                         if (target->HasAura(SPELL_SHA_EARTHGRAB))
                             iter = unitList.erase(iter);
                         else
-                            ++iter;
+                            iter++;
                     }
                 }
             }

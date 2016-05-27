@@ -629,7 +629,7 @@ bool SpellMgr::IsSpellForbidden(uint32 spellid)
 {
     std::list<uint32>::iterator Itr;
 
-    for (Itr = mForbiddenSpells.begin(); Itr != mForbiddenSpells.end(); ++Itr)
+    for (Itr = mForbiddenSpells.begin(); Itr != mForbiddenSpells.end(); Itr++)
         if ((*Itr) == spellid)
             return true;
 
@@ -3842,6 +3842,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 spellInfo->ProcChance = 0;
                 break;
+            case 157607: ///< Instant Poison
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(29); ///< 12s
+                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 157675: ///< Chi Explosion
+            case 182078: ///< Chi Explosion
+                spellInfo->CastTimeEntry = 0;
+                break;
                 /// Shadowmoon Burial Grounds
             case 153068: ///< Void Devestation
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
@@ -4425,9 +4434,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 77762: ///< Lava Surge
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); ///< 10s
-                break;
-            case 138106: ///< Cloack and Dagger
-                spellInfo->Stances = 0;
                 break;
             case 8188:   ///< Magma Totem Passive
             case 5672:   ///< Healing Streams

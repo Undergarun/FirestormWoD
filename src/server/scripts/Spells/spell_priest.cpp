@@ -3848,6 +3848,10 @@ class spell_pri_saving_grace : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_saving_grace_SpellScript);
 
+            enum eSpells {
+                SavingGraceDebuff = 155274
+            };
+
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -3861,9 +3865,25 @@ class spell_pri_saving_grace : public SpellScriptLoader
                     SetHitHeal(GetHitHeal() - CalculatePct(GetHitHeal(), 25));
             }
 
+            void HandleTriggerSpell(SpellEffIndex p_EffIndex)
+            {
+                PreventHitEffect(p_EffIndex);
+            }
+
+            void HandleAfterHit()
+            {
+                Player* p_Player = GetCaster()->ToPlayer();
+                if (!p_Player)
+                    return;
+
+                p_Player->CastSpell(p_Player, eSpells::SavingGraceDebuff, true);
+            }
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_pri_saving_grace_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectLaunch += SpellEffectFn(spell_pri_saving_grace_SpellScript::HandleTriggerSpell, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+                AfterHit += SpellHitFn(spell_pri_saving_grace_SpellScript::HandleAfterHit);
             }
         };
 

@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///  MILLENIUM-STUDIO
-///  Copyright 2016 Millenium-studio SARL
+///  Copyright 2015 Millenium-studio SARL
 ///  All Rights Reserved.
 ///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ enum eEverbloomCreature
     CreatureGnarlroot               = 81984,
     CreatureVerdantMandragora       = 81983,
     CreatureEverbloomMender         = 81820,
-    CreatureTwistedAbomination      = 84767,
+    CreatureTwistedAbomination      = 84767,   
     CreatureInfestedIcecaller       = 84989,
     CreatureAddledArcanomancer      = 84990,
     CreaturePutridPyromancer        = 84957,
@@ -135,16 +135,16 @@ enum eEverbloomSpells
     SpellBoundingWhirlDummy      = 172576,
     SpellGasp                    = 169714,
     SpellVirulendGasp            = 165093,
-    SpellChokingVines            = 164965,
-    SpellHealingWaters           = 164887,
+    SpellChokingVines            = 164965, 
+    SpellHealingWaters           = 164887, 
     SpellSporeBreath             = 170411,
     SpellSporeBreathInfect       = 169854,
     SpellToxicBloodAura          = 169218,
-    SpellToxicity                = 169219,
+    SpellToxicity                = 169219, 
     SpellVenomSprayDummy         = 173052,
     SpellVenomSprayDamage        = 172727,
-    SpellTendonRip               = 169876,
-    SpellLasherVenom             = 173563,
+    SpellTendonRip               = 169876, 
+    SpellLasherVenom             = 173563, 
     SpellBlinkMageUponSummon     = 142193,
 
     SpellLumberingSwipe          = 169929,
@@ -169,7 +169,7 @@ enum eEverbloomActions
     ActionCountPre1StBossKill = 10,
     ActionCounting,
     ActionYalnuEvent,
-    ActionBoundingWhirlAura
+    ActionBoundingWhirlAura 
 };
 
 enum eEverbloomAchievements
@@ -178,4 +178,21 @@ enum eEverbloomAchievements
     AchivementTheEverbloomHeroic  = 9053,
     AchivementWeedWhacker         = 9223,
     AchivementWaterManagement     = 9017
+};
+
+/*
+enum eEverbloomScenarios
+{
+    ScenarioEverbloomChallengerId = ,
+    ScenarioEverbloomWitherbark = ,
+    ScenarioEverbloomAncientProtectors = ,
+    ScenarioEverbloomXeritac = ,
+    ScenarioEverbloomArchmageSol = ,
+    ScenarioEverbloomYalnu = ,
+};
+*/
+
+enum eEverbloomScenes
+{
+
 };

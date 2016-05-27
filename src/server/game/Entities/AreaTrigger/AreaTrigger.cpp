@@ -84,7 +84,7 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     AreaTriggerTemplateList const* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(p_SpellInfo->Id);
     if (l_Templates != nullptr)
     {
-        for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); ++l_Itr)
+        for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
         {
             AreaTriggerTemplate const& l_AreaTriggerTemplate = *l_Itr;
             if (l_AreaTriggerTemplate.m_EffIndex == p_EffIndex)
@@ -180,7 +180,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
     AreaTriggerTemplateList const* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForEntry(p_Entry);
     if (l_Templates != nullptr)
     {
-        for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); ++l_Itr)
+        for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
             m_Templates.push_back(*l_Itr);
     }
     else

@@ -278,7 +278,7 @@ ObjectMgr::~ObjectMgr()
         for (DungeonEncounterList::iterator encounterItr = itr->second.begin(); encounterItr != itr->second.end(); ++encounterItr)
             delete *encounterItr;
 
-    for (CharacterTemplates::iterator l_Iter = m_CharacterTemplatesStore.begin(); l_Iter != m_CharacterTemplatesStore.end(); ++l_Iter)
+    for (CharacterTemplates::iterator l_Iter = m_CharacterTemplatesStore.begin(); l_Iter != m_CharacterTemplatesStore.end(); l_Iter++)
         delete l_Iter->second;
 }
 
@@ -2706,7 +2706,7 @@ void ObjectMgr::LoadItemTemplates()
 
 void ObjectMgr::LoadItemTemplateCorrections()
 {
-    for (ItemTemplateContainer::const_iterator l_Iter = _itemTemplateStore.begin(); l_Iter != _itemTemplateStore.end(); ++l_Iter)
+    for (ItemTemplateContainer::const_iterator l_Iter = _itemTemplateStore.begin(); l_Iter != _itemTemplateStore.end(); l_Iter++)
     {
         ItemTemplate& l_ItemTemplate = const_cast<ItemTemplate&>(l_Iter->second);
 
