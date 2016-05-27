@@ -3213,7 +3213,7 @@ class spell_hun_tame_beast: public SpellScriptLoader
                         l_ResultId = PET_TAME_ERROR_CREATURE_ALREADY_OWNED;
                     else if (l_Target->getLevel() > l_Player->getLevel())
                         l_ResultId = PET_TAME_ERROR_TOO_HIGH_LEVEL;
-                    else if ((l_Target->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_EXOTIC) && !l_Player->CanTameExoticPets())
+                    else if ((l_Target->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_EXOTIC_PET) && !l_Player->CanTameExoticPets())
                         l_ResultId = PET_TAME_ERROR_CANT_CONTROL_EXOTIC;
                     else if (!l_Target->GetCreatureTemplate()->isTameable(l_Player->CanTameExoticPets()))
                         l_ResultId = PET_TAME_ERROR_NOT_TAMEABLE;

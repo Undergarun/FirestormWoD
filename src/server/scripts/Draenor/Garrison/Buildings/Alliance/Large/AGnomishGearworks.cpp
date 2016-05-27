@@ -146,28 +146,8 @@ namespace MS {
             {
                 MS::Garrison::Manager* l_GarrisonMgr = l_Owner->GetGarrison();
 
-                if (l_GarrisonMgr == nullptr || !l_Owner->IsQuestRewarded(Quests::Alliance_UnconventionalInventions))
+                if (l_GarrisonMgr == nullptr)
                     return;
-
-                uint32 l_Entry = 0;
-
-                switch (l_GarrisonMgr->GetBuilding(GetPlotInstanceID()).BuildingID)
-                {
-                    case Buildings::GnomishGearworks_GoblinWorkshop_Level1:
-                        l_Entry = WorkshopGearworks::g_FirstLevelInventions[urand(0, WorkshopGearworks::g_FirstLevelInventions.size() - 1)];
-                        break;
-                    case Buildings::GnomishGearworks_GoblinWorkshop_Level2:
-                        l_Entry = WorkshopGearworks::g_SecondLevelInventions[urand(0, WorkshopGearworks::g_FirstLevelInventions.size() - 1)];
-                        break;
-                    case Buildings::GnomishGearworks_GoblinWorkshop_Level3:
-                        l_Entry = WorkshopGearworks::g_ThirdLevelInvention;
-                        break;
-                    default:
-                        break;
-                }
-
-                l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, l_Entry);
-                l_Owner->SaveToDB();
 
                 OnSetPlotInstanceID(GetPlotInstanceID());
                 l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());

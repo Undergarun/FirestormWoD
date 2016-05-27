@@ -68,7 +68,7 @@ void WildBattlePetZonePools::Populate()
 
         std::vector<Creature*> l_AvailableForReplacement;
 
-        for (std::list<uint64>::iterator l_It = l_Template->ToBeReplaced.begin(); l_It != l_Template->ToBeReplaced.end(); ++l_It)
+        for (std::list<uint64>::iterator l_It = l_Template->ToBeReplaced.begin(); l_It != l_Template->ToBeReplaced.end(); l_It++)
         {
             if (l_Template->ReplacedRelation.find((*l_It)) == l_Template->ReplacedRelation.end())
             {
@@ -96,7 +96,7 @@ void WildBattlePetZonePools::Depopulate()
 
         std::map<uint64, uint64> l_Creatures = l_Template->ReplacedRelation;
 
-        for (std::map<uint64, uint64>::iterator l_It = l_Creatures.begin(); l_It != l_Creatures.end(); ++l_It)
+        for (std::map<uint64, uint64>::iterator l_It = l_Creatures.begin(); l_It != l_Creatures.end(); l_It++)
         {
             Unit * l_Unit = sObjectAccessor->FindUnit((*l_It).first);
 
@@ -356,8 +356,8 @@ void WildBattlePetMgr::Load()
 
 void WildBattlePetMgr::PopulateAll()
 {
-    for (std::map<uint32, std::map<uint32, WildBattlePetZonePools> >::iterator l_It = m_PoolsByMap.begin(); l_It != m_PoolsByMap.end(); ++l_It)
-        for (std::map<uint32, WildBattlePetZonePools>::iterator l_It2 = l_It->second.begin(); l_It2 != l_It->second.end(); ++l_It2)
+    for (std::map<uint32, std::map<uint32, WildBattlePetZonePools> >::iterator l_It = m_PoolsByMap.begin(); l_It != m_PoolsByMap.end(); l_It++)
+        for (std::map<uint32, WildBattlePetZonePools>::iterator l_It2 = l_It->second.begin(); l_It2 != l_It->second.end(); l_It2++)
             (*l_It2).second.Populate();
 }
 void WildBattlePetMgr::PopulateMap(uint32 p_MapID)
@@ -365,7 +365,7 @@ void WildBattlePetMgr::PopulateMap(uint32 p_MapID)
     if (m_PoolsByMap.find(p_MapID) == m_PoolsByMap.end())
         return;
 
-    for (std::map<uint32, WildBattlePetZonePools>::iterator l_It = m_PoolsByMap[p_MapID].begin(); l_It != m_PoolsByMap[p_MapID].end(); ++l_It)
+    for (std::map<uint32, WildBattlePetZonePools>::iterator l_It = m_PoolsByMap[p_MapID].begin(); l_It != m_PoolsByMap[p_MapID].end(); l_It++)
         (*l_It).second.Populate();
 }
 void WildBattlePetMgr::DepopulateMap(uint32 p_MapID)
@@ -373,7 +373,7 @@ void WildBattlePetMgr::DepopulateMap(uint32 p_MapID)
     if (m_PoolsByMap.find(p_MapID) == m_PoolsByMap.end())
         return;
 
-    for (std::map<uint32, WildBattlePetZonePools>::iterator l_It = m_PoolsByMap[p_MapID].begin(); l_It != m_PoolsByMap[p_MapID].end(); ++l_It)
+    for (std::map<uint32, WildBattlePetZonePools>::iterator l_It = m_PoolsByMap[p_MapID].begin(); l_It != m_PoolsByMap[p_MapID].end(); l_It++)
         (*l_It).second.Depopulate();
 }
 

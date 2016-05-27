@@ -346,7 +346,7 @@ bool PetBattleAbilityEffect::Damage(uint32 l_Target, int32 l_Damage, bool p_Cant
 
     if (!IsTriggered)
     {
-        for (PetBattleAuraList::iterator l_It = PetBattleInstance->PetAuras.begin(); l_It != PetBattleInstance->PetAuras.end(); ++l_It)
+        for (PetBattleAuraList::iterator l_It = PetBattleInstance->PetAuras.begin(); l_It != PetBattleInstance->PetAuras.end(); l_It++)
         {
             if ((*l_It)->Expired)
                 continue;
@@ -393,7 +393,7 @@ bool PetBattleAbilityEffect::Heal(uint32 p_Target, int32 p_Heal)
 
     if (!IsTriggered)
     {
-        for (PetBattleAuraList::iterator l_It = PetBattleInstance->PetAuras.begin(); l_It != PetBattleInstance->PetAuras.end(); ++l_It)
+        for (PetBattleAuraList::iterator l_It = PetBattleInstance->PetAuras.begin(); l_It != PetBattleInstance->PetAuras.end(); l_It++)
         {
             if ((*l_It)->Expired)
                 continue;
@@ -1118,7 +1118,7 @@ bool PetBattleAbilityEffect::HandleWeatherAura()
 
     if (!(Flags & FailFlags) && PetBattleInstance->WeatherAbilityId)
     {
-        for (PetBattleAuraList::iterator l_It = PetBattleInstance->PetAuras.begin(); l_It != PetBattleInstance->PetAuras.end(); ++l_It)
+        for (PetBattleAuraList::iterator l_It = PetBattleInstance->PetAuras.begin(); l_It != PetBattleInstance->PetAuras.end(); l_It++)
         {
             if (!(*l_It)->Expired && (*l_It)->AbilityID == PetBattleInstance->WeatherAbilityId)
             {

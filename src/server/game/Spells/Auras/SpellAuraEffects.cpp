@@ -2416,7 +2416,7 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
 
 void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(mode & AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK))
         return;
 
     Unit* target = aurApp->GetTarget();
@@ -2427,6 +2427,9 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
     if (target->IsPlayer())
         sScriptMgr->OnPlayerChangeShapeshift(target->ToPlayer(), form);
+    
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
 
     switch (form)
     {
@@ -4968,22 +4971,6 @@ void AuraEffect::HandleAuraModResistenceOfStatPercent(AuraApplication const* aur
 
 void AuraEffect::HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
-        return;
-
-    Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    int32 expertise = (apply) ? GetAmount() : (-GetAmount());
-
-    if (expertise < 0)
-        expertise = 0;
-
-    target->ToPlayer()->SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, expertise);
-    target->ToPlayer()->SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, expertise);
-    target->ToPlayer()->SetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE, expertise);
 }
 
 /********************************/

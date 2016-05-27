@@ -3529,7 +3529,7 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
                     return;
                 }
 
-                for (SceneMap::iterator l_Itr = m_SceneMap.begin(); l_Itr != m_SceneMap.end(); ++l_Itr)
+                for (SceneMap::iterator l_Itr = m_SceneMap.begin(); l_Itr != m_SceneMap.end(); l_Itr++)
                 {
                     if (l_Itr->first != p_Guid)
                     {
@@ -3551,7 +3551,7 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
 
                 bool l_RestartLoop = false;
 
-                for (SceneMap::iterator l_Itr = m_SceneMap.begin(); l_Itr != m_SceneMap.end(); ++l_Itr)
+                for (SceneMap::iterator l_Itr = m_SceneMap.begin(); l_Itr != m_SceneMap.end(); l_Itr++)
                 {
                     if (l_Itr->second.m_Done)
                         continue;

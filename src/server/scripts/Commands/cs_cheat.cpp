@@ -301,7 +301,7 @@ class cheat_commandscript: public CommandScript
                     ChatHandler(chr).PSendSysMessage(LANG_YOURS_EXPLORE_SET_NOTHING, handler->GetNameLink().c_str());
             }
 
-            for (uint16 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
+            for (uint32 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
             {
                 if (flag != 0)
                     handler->GetSession()->GetPlayer()->SetFlag(PLAYER_FIELD_EXPLORED_ZONES+i, 0xFFFFFFFF);

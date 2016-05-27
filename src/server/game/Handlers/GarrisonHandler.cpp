@@ -846,6 +846,12 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData)
                 l_HasReagents = false;
         }
 
+        if (l_Spell->CurrencyID)
+        {
+            if (!m_Player->HasCurrency(l_Spell->CurrencyID, l_Spell->CurrencyCount))
+                l_HasReagents = false;
+        }
+
         if (!l_HasReagents)
         {
             l_OnError("Doesn't have reagents");
@@ -862,6 +868,9 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData)
 
             m_Player->DestroyItemCount(l_ItemEntry, l_ItemCount, true);
         }
+
+        if (l_Spell->CurrencyID)
+            m_Player->ModifyCurrency(l_Spell->CurrencyID, -int32(l_Spell->CurrencyCount), false);
 
         m_Player->CastSpell(m_Player, l_Spell, TRIGGERED_FULL_MASK);
 

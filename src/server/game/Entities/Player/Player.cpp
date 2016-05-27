@@ -768,7 +768,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     // start with every map explored
     if (sWorld->getBoolConfig(CONFIG_START_ALL_EXPLORED))
     {
-        for (uint16 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; i++)
+        for (uint32 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; i++)
             SetFlag(PLAYER_FIELD_EXPLORED_ZONES +i, 0xFFFFFFFF);
     }
 
@@ -3692,11 +3692,11 @@ Creature* Player::GetNPCIfCanInteractWith(uint64 p_Guid, uint32 p_NpcFlagMask)
         return nullptr;
 
     /// Deathstate checks
-    if (!isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPEFLAGS_GHOST))
+    if (!isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPE_FLAG_GHOST_VISIBLE))
         return nullptr;
 
     /// Alive or spirit healer
-    if (!l_Creature->isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPEFLAGS_DEAD_INTERACT))
+    if (!l_Creature->isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPE_FLAG_CAN_INTERACT_WHILE_DEAD))
         return nullptr;
 
     /// Appropriate npc type
@@ -3759,11 +3759,11 @@ Creature* Player::GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask)
         return NULL;
 
     // Deathstate checks
-    if (!isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_GHOST))
+    if (!isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE))
         return NULL;
 
     // alive or spirit healer
-    if (!creature->isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_DEAD_INTERACT))
+    if (!creature->isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_INTERACT_WHILE_DEAD))
         return NULL;
 
     // appropriate npc type
@@ -4609,6 +4609,12 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetPower(POWER_BURNING_EMBERS, 10);
     SetPower(POWER_SHADOW_ORB, 0);
     SetPower(POWER_ECLIPSE, 0);
+
+    /// All players have 15% of expertise, even if it's hidden stat
+    /// https://twitter.com/holinka/status/520348936872030209
+    SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, 15.0f);
+    SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, 15.0f);
+    SetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE, 15.0f);
 
     // update level to hunter/summon pet
     if (Pet* pet = GetPet())
@@ -23778,7 +23784,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
 
 void Player::_SaveQuestObjectiveStatus(SQLTransaction& trans)
 {
-    for (QuestObjectiveStatusMap::const_iterator citr = m_questObjectiveStatus.begin(); citr != m_questObjectiveStatus.end(); ++citr)
+    for (QuestObjectiveStatusMap::const_iterator citr = m_questObjectiveStatus.begin(); citr != m_questObjectiveStatus.end(); citr++)
     {
         uint32 questId = sObjectMgr->GetQuestObjectiveQuestId(citr->first);
         if (!questId)
@@ -27377,7 +27383,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     ApplyWargameItemModifications();
 
     AuraEffectList const& l_ModSpeedAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPEED_ALWAYS);
-    for (AuraEffectList::const_iterator iter = l_ModSpeedAuras.begin(); iter != l_ModSpeedAuras.end(); ++iter)
+    for (AuraEffectList::const_iterator iter = l_ModSpeedAuras.begin(); iter != l_ModSpeedAuras.end(); iter++)
         (*iter)->RecalculateAmount((*iter)->GetCaster(), true);
 
     if (GetMap()->IsRaid())
@@ -27436,7 +27442,7 @@ void Player::SendInitialPacketsAfterAddToMap()
         m_Garrison->OnPlayerEnter();
 
     std::map<uint32, bool> l_MountSpells;
-    for (PlayerSpellMap::iterator l_It = m_spells.begin(); l_It != m_spells.end(); ++l_It)
+    for (PlayerSpellMap::iterator l_It = m_spells.begin(); l_It != m_spells.end(); l_It++)
     {
         if (!l_It->second)
             continue;
@@ -27906,13 +27912,15 @@ void Player::ResetDailyQuestStatus()
 void Player::ResetDailyGarrisonDatas()
 {
     using namespace MS::Garrison;
+
     if (Manager* l_Garrison = GetGarrison())
     {
         if (l_Garrison->HasBuildingType(BuildingType::Inn))
         {
+            l_Garrison->ResetGarrisonTavernData();
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Inn);
 
-            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
                 if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
                 {
@@ -27933,9 +27941,10 @@ void Player::ResetDailyGarrisonDatas()
 
         if (l_Garrison->HasBuildingType(BuildingType::Workshop))
         {
+            l_Garrison->ResetGarrisonWorkshopData(this);
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Workshop);
 
-            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
                 if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
                 {
@@ -27947,12 +27956,10 @@ void Player::ResetDailyGarrisonDatas()
 
         if (l_Garrison->HasBuildingType(BuildingType::Type::TradingPost))
         {
+            l_Garrison->ResetGarrisonTradingPostData(this);
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Type::TradingPost);
-            std::vector<uint32> l_TradingPostShipments = { 138, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 196 };
 
-            SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
-
-            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
                 if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
                 {
@@ -27962,6 +27969,8 @@ void Player::ResetDailyGarrisonDatas()
             }
         }
     }
+
+    SaveToDB();
 }
 
 void Player::ResetWeeklyGarrisonDatas()
@@ -28487,7 +28496,7 @@ bool Player::isHonorOrXPTarget(Unit* victim)
     if (victim->GetTypeId() == TYPEID_UNIT)
     {
         if (victim->ToCreature()->isTotem() ||
-            victim->ToCreature()->isPet() ||
+            victim->ToCreature()->isStatue() ||
             victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL)
                 return false;
     }
@@ -30364,7 +30373,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
 
         auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);
 
-        CharacterDatabase.AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
+        sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
         {
             Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
             if (!l_Player || !p_QueryHolder || l_Player != l_NewPet->GetOwner())
@@ -31077,6 +31086,12 @@ void Player::ActivateSpec(uint8 spec)
         stmt->setUInt8(1, GetActiveSpec());
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
             _LoadActions(result);
+    }
+
+    /// Boundless Conviction isn't refreshed automatically on respec
+    if (getClass() == CLASS_PALADIN && HasAura(115675))
+    {
+        UpdateMaxPower(POWER_HOLY_POWER);
     }
 
     SendActionButtons(1);

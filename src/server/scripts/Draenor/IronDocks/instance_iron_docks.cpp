@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2016 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "iron_docks.hpp"
@@ -42,7 +42,8 @@ class instance_iron_docks : public InstanceMapScript
             /// Iron stars
             bool m_SecondEvent;
             bool m_ThirdEvent;
-
+            /// Scenario handling
+            uint32 m_CreatureKilled;
             /// Encounter Gates
             uint64 m_EncounterGateOshirGuid;
 
@@ -71,7 +72,7 @@ class instance_iron_docks : public InstanceMapScript
                 m_KoramarGuid       = 0;
                 m_SecondEvent       = false;
                 m_ThirdEvent        = false;
-
+                m_CreatureKilled    = 0;
                 /// Encounter Gates
                 m_EncounterGateOshirGuid = 0;
             }
@@ -131,9 +132,6 @@ class instance_iron_docks : public InstanceMapScript
                     case eIronDocksGameObject::GameObjectChallengeModeDoor:
                         AddChallengeModeDoor(p_GameObject);
                         break;
-                    case CHALLENGE_MOD_ORB:
-                        m_ChallengeOrbGuid = p_GameObject->GetGUID();
-                        break;
                     case eIronDocksGameObject::GameObjectEncounterGateOshir:
                         m_EncounterGateOshirGuid = p_GameObject->GetGUID();
                         break;
@@ -179,7 +177,7 @@ class instance_iron_docks : public InstanceMapScript
                 }
             }
 
-            void OnCreatureKilled(Creature* p_Creature, Player* /*p_Player*/) override
+            void OnCreatureKilled(Creature* p_Creature, Player* p_Player) override
             {
                 if (!instance->IsChallengeMode() || !IsChallengeModeStarted() || m_CreatureKilled >= eIronDocksScenario::IronDocksKillCount)
                     return;
@@ -191,7 +189,7 @@ class instance_iron_docks : public InstanceMapScript
                     return;
 
                 ++m_CreatureKilled;
-                SendScenarioProgressUpdate(CriteriaProgressData(eIronDocksScenario::IronDocksEnnemies, m_CreatureKilled, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
+                SendScenarioProgressUpdate(CriteriaProgressData(eIronDocksScenario::IronDocksEnnemies, m_CreatureKilled, m_InstanceGuid, time(nullptr), m_BeginningTime, 0));
 
                 if (m_CreatureKilled >= eIronDocksScenario::IronDocksKillCount)
                     m_ConditionCompleted = true;
@@ -204,32 +202,45 @@ class instance_iron_docks : public InstanceMapScript
                     /// Bosses
                     case eIronDocksDatas::DataNokgar:
                         return m_NokgarGuid;
+                        break;
                     case eIronDocksDatas::DataOshir:
                         return m_OshirGuid;
+                        break;
                     case eIronDocksDatas::DataSkulloc:
                         return m_SkullocGuid;
+                        break;
                     case eIronDocksDatas::DataGrimrailDuguru:
                         return m_DuguruGuid;
+                        break;
                     case eIronDocksDatas::DataGrimrailMakogg:
                         return m_MakoggGuid;
+                        break;
                     case eIronDocksDatas::DataGrimrailNoxx:
                         return m_NoxxGuid;
+                        break;
                     case eIronDocksDatas::DataMountWolf:
                         return m_WolfGuid;
+                        break;
                     case eIronDocksDatas::DataTurret:
                         return m_TurretGuid;
+                        break;
                     // Mini Bosses
                     case eIronDocksDatas::DataDaruna:
                         return m_DarunaGuid;
+                        break;
                     case eIronDocksDatas::DataGwarnok:
                         return m_GwarnokGuid;
+                        break;
                     case eIronDocksDatas::DataOlugar:
                         return m_OlugarGuid;
+                        break;
                     /// RP
                     case eIronDocksDatas::DataZuggosh:
                         return m_ZoggoshGuid;
+                        break;
                     case eIronDocksDatas::DataKoramar:
                         return m_KoramarGuid;
+                        break;
                     /// Encounter Gates
                     case eIronDocksDatas::DataEncounterGateOshir:
                         return m_EncounterGateOshirGuid;
@@ -277,9 +288,7 @@ class instance_iron_docks : public InstanceMapScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_instance_iron_docks()
 {
     new instance_iron_docks();
 }
-#endif

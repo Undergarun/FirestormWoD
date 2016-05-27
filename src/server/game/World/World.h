@@ -652,6 +652,19 @@ enum RecordDiffType
     RECORD_DIFF_MAX
 };
 
+struct QueryHolderCallback
+{
+    QueryHolderCallback(QueryResultHolderFuture p_QueryResultHolderFuture, std::function<void(SQLQueryHolder*)> p_Callback)
+    {
+        m_QueryResultHolderFuture = p_QueryResultHolderFuture;
+        m_Callback = p_Callback;
+    }
+
+    QueryResultHolderFuture m_QueryResultHolderFuture;
+    std::function<void(SQLQueryHolder*)>   m_Callback;
+};
+
+
 struct MotdText
 {
     std::string Text;
@@ -937,6 +950,30 @@ class World
 
         bool ModerateMessage(std::string l_Text);
 
+        //////////////////////////////////////////////////////////////////////////
+        /// New callback system
+        //////////////////////////////////////////////////////////////////////////
+        void AddTransactionCallback(std::shared_ptr<MS::Utilities::Callback> p_Callback)
+        {
+            m_TransactionCallbackLock.lock();
+            m_TransactionCallbacksBuffer->push_front(p_Callback);
+            m_TransactionCallbackLock.unlock();
+        }
+
+        void AddPrepareStatementCallback(std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture> p_Callback)
+        {
+            m_PreparedStatementCallbackLock.lock();
+            m_PreparedStatementCallbacksBuffer->push_front(p_Callback);
+            m_PreparedStatementCallbackLock.unlock();
+        }
+
+        void AddQueryHolderCallback(QueryHolderCallback p_QueryHolderCallback)
+        {
+            m_QueryHolderCallbackLock.lock();
+            m_QueryHolderCallbacksBuffer->push_front(p_QueryHolderCallback);
+            m_QueryHolderCallbackLock.unlock();
+        }
+
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -1064,6 +1101,31 @@ class World
         PreparedQueryResultFuture m_transfersExpLoadCallback;
         uint32 m_recordDiff[RECORD_DIFF_MAX];
         LexicsCutter *m_lexicsCutter;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New query holder callback system
+        //////////////////////////////////////////////////////////////////////////
+        using QueryHolderCallbacks = std::forward_list<QueryHolderCallback>;
+        std::unique_ptr<QueryHolderCallbacks> m_QueryHolderCallbacks;
+        std::unique_ptr<QueryHolderCallbacks> m_QueryHolderCallbacksBuffer;
+        std::mutex m_QueryHolderCallbackLock;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New transaction query callback system
+        //////////////////////////////////////////////////////////////////////////
+        using TransactionCallbacks = std::forward_list<std::shared_ptr<MS::Utilities::Callback>>;
+        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacks;
+        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacksBuffer;
+        std::mutex m_TransactionCallbackLock;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New prepare statement query callback system
+        //////////////////////////////////////////////////////////////////////////
+        using PrepareStatementCallback = std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture>;
+        using PreparedStatementCallbacks = std::forward_list<PrepareStatementCallback>;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacks;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
+        std::mutex m_PreparedStatementCallbackLock;
 };
 
 extern uint32 g_RealmID;

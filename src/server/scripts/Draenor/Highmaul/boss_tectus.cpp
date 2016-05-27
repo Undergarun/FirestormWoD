@@ -482,18 +482,25 @@ class boss_tectus : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::FractureSearcher:
+                    {
                         me->CastSpell(p_Target, eSpells::FractureMissile, true);
                         break;
+                    }
                     case eSpells::Petrification:
+                    {
                         Talk(eTalks::TectonicUpheavalCompleted);
                         if (me->GetEntry() == eHighmaulCreatures::Tectus)
                             me->CastSpell(me, eSpells::TheLivingMountain, true);
                         else if (me->GetEntry() == eCreatures::ShardOfTectus)
                             me->CastSpell(me, eSpells::ShardOfTheMountain, true);
                         break;
+                    }
                     case eSpells::SpellTectonicUpheaval:
+                    {
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                         m_TectonicScheduled = false;
                         break;
+                    }
                     case eSpells::SpawnTectusShards:
                     {
                         p_Target->PlayOneShotAnimKit(eAnimKits::AnimRise2);
@@ -756,6 +763,9 @@ class boss_tectus : public CreatureScript
                         Talk(eTalks::TectonicUpheaval);
                         me->RemoveAura(eSpells::TheLivingMountain);
                         me->RemoveAura(eSpells::ShardOfTheMountain);
+
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+
                         me->CastSpell(me, eSpells::SpellTectonicUpheaval, false);
                         break;
                     }

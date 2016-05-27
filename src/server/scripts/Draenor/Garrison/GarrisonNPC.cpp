@@ -1105,7 +1105,7 @@ namespace MS { namespace Garrison
 
         std::vector<uint64> l_CreatureGuids = p_Player->GetGarrison()->GetBuildingCreaturesByBuildingType(BuildingType::TradingPost);
 
-        for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); ++l_Itr)
+        for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
         {
             if (Creature* l_Creature = sObjectAccessor->GetCreature(*p_Player, *l_Itr))
             {
@@ -1825,6 +1825,7 @@ void AddSC_Garrison_NPC()
         /// The forge
         new MS::Garrison::npc_AuriaIrondreamer;
         new MS::Garrison::npc_YuliaSamras;
+        new MS::Garrison::npc_DalanaClarke_Garr;
 
         /// Lunarfall excavation
         new MS::Garrison::npc_TimothyLeens;

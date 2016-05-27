@@ -94,39 +94,15 @@ namespace MS { namespace Garrison
 
     void npc_MurgAI::OnDailyDataReset()
     {
-        if (Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript())
+        if (Player* l_Player = GetOwner())
         {
-            if (Player* l_Player = l_GarrisonSite->GetOwner())
-            {
-                MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+            MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
 
-                if (l_GarrisonMgr == nullptr)
-                    return;
+            if (l_GarrisonMgr == nullptr)
+                return;
 
-                if (roll_chance_i(50))
-                {
-                    uint32 l_Entry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
-
-                    l_GarrisonMgr->CleanGarrisonTavernData();
-                    l_GarrisonMgr->AddGarrisonTavernData(l_Entry);
-                }
-                else
-                {
-                    uint32 l_FirstEntry  = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
-                    uint32 l_SecondEntry = 0;
-
-                    do
-                        l_SecondEntry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
-                    while (l_SecondEntry == l_FirstEntry);
-
-                    l_GarrisonMgr->CleanGarrisonTavernData();
-                    l_GarrisonMgr->AddGarrisonTavernData(l_FirstEntry);
-                    l_GarrisonMgr->AddGarrisonTavernData(l_SecondEntry);
-                }
-
-                OnSetPlotInstanceID(GetPlotInstanceID());
-                l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
-            }
+            OnSetPlotInstanceID(GetPlotInstanceID());
+            l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
         }
     }
 

@@ -366,7 +366,7 @@ class npc_thorim_controller : public CreatureScript
                                     for (uint8 i = 0; i < 6; i++)
                                         me->GetCreatureListWithEntryInGrid(spawnList, preAddLocations[i].entry, 100.0f);
                                     if (!spawnList.empty())
-                                        for (std::list<Creature*>::iterator itr = spawnList.begin(); itr != spawnList.end(); ++itr)
+                                        for (std::list<Creature*>::iterator itr = spawnList.begin(); itr != spawnList.end(); itr++)
                                             (*itr)->DespawnOrUnsummon();
 
                                     if (!_summons.empty())
@@ -379,7 +379,7 @@ class npc_thorim_controller : public CreatureScript
                                     me->GetCreatureListWithEntryInGrid(addList, NPC_IRON_HONOR_GUARD, 200.0f);
 
                                     if (!addList.empty())
-                                        for (std::list<Creature*>::iterator itr = addList.begin(); itr != addList.end(); ++itr)
+                                        for (std::list<Creature*>::iterator itr = addList.begin(); itr != addList.end(); itr++)
                                             (*itr)->RemoveAurasDueToSpell(SPELL_BERSERK_PHASE_1);
 
                                     if (Creature* colossus = me->FindNearestCreature(NPC_RUNIC_COLOSSUS, 200.0f))

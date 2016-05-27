@@ -343,7 +343,7 @@ Unit::~Unit()
 
     _DeleteRemovedAuras();
 
-    for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); ++itr)
+    for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); itr++)
         delete (*itr);
 
     m_dmgDone.clear();
@@ -2646,15 +2646,13 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
     if (!(victim->IsPlayer() && !victim->HasInArc(M_PI, this) && !victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)))
     {
         // Reduce dodge chance by attacker expertise rating
-        if (IsPlayer())
+        if (IsPlayer() && victim->IsPlayer())
             dodge_chance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
         else
         {
             if (isPet() && GetOwner())
                 if (GetOwner()->ToPlayer())
                     dodge_chance -= int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100);
-
-            dodge_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
         }
 
         // Modify dodge chance by attacker SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
@@ -2672,15 +2670,13 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
     {
         float l_ExpertisePercentage = 0.0f;
         // Reduce parry chance by attacker expertise rating
-        if (IsPlayer())
+        if (IsPlayer() && victim->IsPlayer())
             l_ExpertisePercentage = int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
         else
         {
             if (isPet() && GetOwner())
                 if (GetOwner()->ToPlayer())
                     l_ExpertisePercentage -= int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
-
-            parry_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
         }
 
         if (victim->getLevel() >= getLevel())
@@ -2926,16 +2922,16 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
         attType = WeaponAttackType::RangedAttack;
 
-    uint32 roll = urand(0, 10000);
+    int32 roll = urand(0, 10000);
 
     // Roll miss
-    uint32 tmp = uint32(MeleeSpellMissChance(victim, spell, attType)) * 100;
+    int32 tmp = int32(MeleeSpellMissChance(victim, spell, attType)) * 100;
     if (roll < tmp)
         return SPELL_MISS_MISS;
 
     // Roll resist
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    uint32 l_Resist = (victim->GetMechanicResistChance(spell) * 100);
+    int32 l_Resist = (victim->GetMechanicResistChance(spell) * 100);
     tmp += l_Resist;
     if (roll < l_Resist)
         return SPELL_MISS_RESIST;
@@ -2958,7 +2954,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
-            uint32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
+            int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
             tmp+=deflect_chance;
             if (roll < deflect_chance)
                 return SPELL_MISS_DEFLECT;
@@ -3019,7 +3015,10 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canDodge)
     {
-        uint32 l_DodgeChance = GetDodgeChance(victim) * 100;
+        int32 l_DodgeChance = GetDodgeChance(victim) * 100;
+
+        if (IsPlayer() && victim->IsPlayer())
+            l_DodgeChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
 
         tmp += l_DodgeChance;
         if (roll < l_DodgeChance)
@@ -3028,7 +3027,10 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canParry)
     {
-        uint32 l_ParryChance = GetParryChance(victim) * 100;
+        int32 l_ParryChance = GetParryChance(victim) * 100;
+
+        if (IsPlayer() && victim->IsPlayer())
+            l_ParryChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
 
         tmp += l_ParryChance;
         if (roll < l_ParryChance)
@@ -3037,7 +3039,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canBlock)
     {
-        uint32 l_BlockChance = GetBlockChance(victim) * 100;
+        int32 l_BlockChance = GetBlockChance(victim) * 100;
 
         tmp += l_BlockChance;
         if (roll < l_BlockChance)
@@ -3423,7 +3425,7 @@ void Unit::_UpdateSpells(uint32 time)
                 (*itr)->SetOwnerGUID(0);
                 (*itr)->SetRespawnTime(0);
                 (*itr)->Delete();
-                m_gameObj.erase(++itr);
+                m_gameObj.erase(itr++);
             }
             else
                 ++itr;
@@ -13818,10 +13820,13 @@ void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
     if (!isAlive())
         return;
 
-    if (Creature* l_Creature = p_Enemy->ToCreature())
+    if (p_Enemy)
     {
-        if (l_Creature->GetEntry() == 900000 || l_Creature->GetScriptName() == "npc_pvp_training_dummy") ///< Sovaks training dummy
-            p_IsPVP = true;
+        if (Creature* l_Creature = p_Enemy->ToCreature())
+        {
+            if (l_Creature->GetEntry() == 900000 || l_Creature->GetScriptName() == "npc_pvp_training_dummy") ///< Sovaks training dummy
+                p_IsPVP = true;
+        }
     }
 
     if (p_IsPVP)
@@ -13905,7 +13910,7 @@ void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
             UpdateSpeed(MOVE_FLIGHT, true);
         }
 
-        if (!(l_Creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_MOUNTED_COMBAT))
+        if (!(l_Creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_MOUNTED_COMBAT_ALLOWED))
             Dismount();
     }
     else if (Player* l_Player = ToPlayer())
@@ -14075,7 +14080,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     }
 
     Creature const* creatureAttacker = ToCreature();
-    if (creatureAttacker && creatureAttacker->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_TREAT_AS_RAID_UNIT)
+    if (creatureAttacker && creatureAttacker->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT)
         return false;
 
     Player const* playerAffectingAttacker = HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) ? GetAffectingPlayer() : NULL;
@@ -14172,7 +14177,7 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell, bo
     // can't assist non-friendly targets
     if (GetReactionTo(target) < REP_NEUTRAL
         && target->GetReactionTo(this) < REP_NEUTRAL
-        && (!ToCreature() || !(ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_TREAT_AS_RAID_UNIT)))
+        && (!ToCreature() || !(ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT)))
         return false;
 
     // PvP case
@@ -14206,7 +14211,7 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell, bo
         && !((target->GetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 1) & UNIT_BYTE2_FLAG_PVP)))
     {
         if (Creature const* creatureTarget = target->ToCreature())
-            return creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_TREAT_AS_RAID_UNIT || creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_CAN_ASSIST;
+            return creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT || creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_ASSIST;
     }
     return true;
 }
@@ -19525,8 +19530,8 @@ bool Unit::IsInPartyWith(Unit const* unit) const
 
     if (u1->IsPlayer() && u2->IsPlayer())
         return u1->ToPlayer()->IsInSameGroupWith(u2->ToPlayer());
-    else if ((u2->IsPlayer() && u1->GetTypeId() == TYPEID_UNIT && u1->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_TREAT_AS_RAID_UNIT) ||
-        (u1->IsPlayer() && u2->GetTypeId() == TYPEID_UNIT && u2->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_TREAT_AS_RAID_UNIT))
+    else if ((u2->IsPlayer() && u1->GetTypeId() == TYPEID_UNIT && u1->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) ||
+        (u1->IsPlayer() && u2->GetTypeId() == TYPEID_UNIT && u2->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT))
         return true;
     else
         return false;
@@ -19547,8 +19552,8 @@ bool Unit::IsInRaidWith(Unit const* unit) const
 
     if (u1->IsPlayer() && u2->IsPlayer())
         return u1->ToPlayer()->IsInSameRaidWith(u2->ToPlayer());
-    else if ((u2->IsPlayer() && u1->GetTypeId() == TYPEID_UNIT && u1->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_TREAT_AS_RAID_UNIT) ||
-            (u1->IsPlayer() && u2->GetTypeId() == TYPEID_UNIT && u2->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_TREAT_AS_RAID_UNIT))
+    else if ((u2->IsPlayer() && u1->GetTypeId() == TYPEID_UNIT && u1->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) ||
+            (u1->IsPlayer() && u2->GetTypeId() == TYPEID_UNIT && u2->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT))
         return true;
     else
         return false;
@@ -21290,8 +21295,6 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     Vehicle* vehicle = m_vehicle;
     m_vehicle = NULL;
 
-    SetControlled(false, UNIT_STATE_ROOT);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
-
     Position l_ExitPos;
 
     /// Exit position not specified
@@ -21325,6 +21328,8 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     init.SetFacing(GetOrientation());
     init.SetTransportExit();
     init.Launch();
+
+    SetControlled(false, UNIT_STATE_ROOT);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
 
     //GetMotionMaster()->MoveFall();            // Enable this once passenger positions are calculater properly (see above)
 
@@ -22212,7 +22217,7 @@ uint32 Unit::GetDamageDoneInPastSecsBySpell(uint32 p_Secs, uint32 p_SpellId)
 {
     uint32 damage = 0;
 
-    for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); ++itr)
+    for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); itr++)
     {
         if (((*itr)->s_spellId && (getMSTime() - (*itr)->s_timestamp) <= (p_Secs * IN_MILLISECONDS)) && p_SpellId == (*itr)->s_spellId)
             damage += (*itr)->s_damage;

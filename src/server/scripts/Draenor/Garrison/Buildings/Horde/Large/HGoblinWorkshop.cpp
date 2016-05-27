@@ -148,41 +148,8 @@ namespace MS { namespace Garrison
         {
             MS::Garrison::Manager* l_GarrisonMgr = l_Owner->GetGarrison();
 
-            if (l_GarrisonMgr == nullptr || !l_Owner->IsQuestRewarded(Quests::Horde_UnconventionalInventions))
+            if (l_GarrisonMgr == nullptr)
                 return;
-
-            uint32 l_Worldstate = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention);
-            uint32 l_Entry = 0;
-
-            switch (l_GarrisonMgr->GetBuilding(GetPlotInstanceID()).BuildingID)
-            {
-                case Buildings::GnomishGearworks_GoblinWorkshop_Level1:
-                    do
-                        l_Entry = WorkshopGearworks::g_FirstLevelInventions[urand(0, WorkshopGearworks::g_FirstLevelInventions.size() - 1)];
-                    while (l_Worldstate != l_Entry);
-                    break;
-                case Buildings::GnomishGearworks_GoblinWorkshop_Level2:
-                    do
-                        l_Entry = WorkshopGearworks::g_SecondLevelInventions[urand(0, WorkshopGearworks::g_FirstLevelInventions.size() - 1)];
-                    while (l_Worldstate != l_Entry);
-                    break;
-                case Buildings::GnomishGearworks_GoblinWorkshop_Level3:
-                    do
-                        l_Entry = WorkshopGearworks::g_ThirdLevelInvention;
-                    while (l_Worldstate != l_Entry);
-                    break;
-                default:
-                    break;
-            }
-
-            ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(WorkshopGearworks::g_GobItemRelations[l_Entry]);
-
-            if (l_ItemProto == nullptr)
-                return;
-
-            l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, l_Entry);
-            l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges, l_ItemProto->Spells[0].SpellCharges);
-            l_Owner->SaveToDB();
 
             OnSetPlotInstanceID(GetPlotInstanceID());
             l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());

@@ -80,7 +80,7 @@ namespace MS { namespace Garrison
 
     bool npc_FannyFirebeard::CheckRewardQuest(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestList)
     {
-        for (std::vector<uint32>::const_iterator l_Itr = p_QuestList.begin(); l_Itr != p_QuestList.end(); ++l_Itr)
+        for (std::vector<uint32>::const_iterator l_Itr = p_QuestList.begin(); l_Itr != p_QuestList.end(); l_Itr++)
         {
             if (p_Player->GetQuestStatus(*l_Itr) == QUEST_STATUS_COMPLETE)
             {
@@ -319,7 +319,7 @@ namespace MS { namespace Garrison
 
     bool npc_KeeganFirebeard::CheckRewardQuest(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestList)
     {
-        for (std::vector<uint32>::const_iterator l_Itr = p_QuestList.begin(); l_Itr != p_QuestList.end(); ++l_Itr)
+        for (std::vector<uint32>::const_iterator l_Itr = p_QuestList.begin(); l_Itr != p_QuestList.end(); l_Itr++)
         {
             if (p_Player->GetQuestStatus(*l_Itr) == QUEST_STATUS_COMPLETE)
             {

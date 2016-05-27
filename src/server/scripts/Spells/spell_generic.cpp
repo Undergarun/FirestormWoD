@@ -309,7 +309,7 @@ class spell_gen_pet_summoned: public SpellScriptLoader
 
                             auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);
 
-                            CharacterDatabase.AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
+                            sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
                             {
                                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
                                 if (!l_Player || !p_QueryHolder)
@@ -3934,7 +3934,7 @@ class spell_gen_selfie_camera : public SpellScriptLoader
                 l_Caster->GetCreatureListWithEntryInGrid(l_ListPhotoBomber, eData::PhotoBomberNPC, 100.0f);
 
                 /// Remove other players Master PhotoBomber
-                for (std::list<Creature*>::iterator l_Itr = l_ListPhotoBomber.begin(); l_Itr != l_ListPhotoBomber.end(); ++l_Itr)
+                for (std::list<Creature*>::iterator l_Itr = l_ListPhotoBomber.begin(); l_Itr != l_ListPhotoBomber.end(); l_Itr++)
                 {
                     Unit* l_Owner = (*l_Itr)->GetOwner();
 
@@ -4634,9 +4634,22 @@ class spell_gen_shadowmeld : public SpellScriptLoader
                 l_Player->getHostileRefManager().deleteReferences();
             }
 
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (InstanceScript* l_InstanceScript = l_Caster->GetInstanceScript())
+                    {
+                        if (l_InstanceScript->IsEncounterInProgress())
+                            l_Caster->SetInCombatState(false);
+                    }
+                }
+            }
+
             void Register()
             {
                 AfterEffectApply += AuraEffectRemoveFn(spell_gen_shadowmeld_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_TOTAL_THREAT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_shadowmeld_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_TOTAL_THREAT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

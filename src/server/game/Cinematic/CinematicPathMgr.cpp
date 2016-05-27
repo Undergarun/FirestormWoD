@@ -186,7 +186,7 @@ CinematicSequenceMgr::CinematicSequenceMgr()
 /// Destructor
 CinematicSequenceMgr::~CinematicSequenceMgr()
 {
-    for (std::map<uint32, CinematicSequence*>::iterator l_It = m_Sequences.begin() ; l_It != m_Sequences.end() ; ++l_It)
+    for (std::map<uint32, CinematicSequence*>::iterator l_It = m_Sequences.begin() ; l_It != m_Sequences.end() ; l_It++)
         delete l_It->second;
 }
 

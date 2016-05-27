@@ -1408,7 +1408,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
                                 while (l_Types[++l_TypesI]);
 
                                 if (l_Found)
-                                    ++l_Iterator;
+                                    l_Iterator++;
                                 else
                                     l_Iterator = l_UnitTargets.erase(l_Iterator);
                             }
@@ -3156,8 +3156,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     if ((m_spellInfo->Id == 105771 || m_spellInfo->Id == 7922) && unit->HasAura(19263))
         return SPELL_MISS_MISS;
 
-    /// Hack fix for Cloak of Shadows (just Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
-    if (!m_spellInfo->IsPositive() &&(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803 && m_spellInfo->Id != 157695)
+    /// Hack fix for Cloak of Shadows (just chaos damage, Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
+    if (!m_spellInfo->IsPositive() &&(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && !(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_ALL) &&unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803 && m_spellInfo->Id != 157695)
         return SPELL_MISS_MISS;
 
     // disable effects to which unit is immune
@@ -5204,7 +5204,7 @@ void Spell::SendSpellGo()
     }
 
     // Remaining Power
-    for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); ++l_Itr)
+    for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
     {
         Powers l_Power = Powers((*l_Itr));
         l_Data << int32(m_caster->GetPower(l_Power));
@@ -5259,7 +5259,7 @@ void Spell::SendSpellGo()
         uint32 l_PowerDataSize = l_UsablePowers.size();
 
         l_Data << uint32(l_PowerDataSize);
-        for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); ++l_Itr)
+        for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
         {
             Powers l_Power = Powers((*l_Itr));
             l_Data << int32(l_Power);                           ///< Power type
@@ -7168,7 +7168,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     /// Fix a bug when spells can be casted in fear
     if (m_caster->HasAuraType(SPELL_AURA_MOD_FEAR) || m_caster->HasAuraType(SPELL_AURA_MOD_FEAR_2))
     {
-        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear() && m_spellInfo->Id != 1022) ///< Specific case of Hand of Protection
+        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear() && m_spellInfo->Id != 1022 && m_spellInfo->Id != 5857) ///< Specific case of Hand of Protection & Hellfire damage (Immolation aura tick)
             return SPELL_FAILED_FLEEING;
     }
 

@@ -62,6 +62,8 @@ namespace MS { namespace Garrison
             void UpdateGarrisonPhaseMask(Player* p_Player);
 
             void UpdateDraenorPhaseMask(Player* p_Player);
+            
+            bool NeedsTradingPostReset(std::vector<uint32> p_Entries, uint64 p_WorldState);
 
             void OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId) override;
 

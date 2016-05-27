@@ -1155,7 +1155,7 @@ struct BfWGGameObjectBuilding
     uint32 m_WorldState;
 
     // eWGGameObjectState
-    uint32 m_State;
+    uint64 m_State;
 
     // Name id for warning text
     uint32 m_NameId;
