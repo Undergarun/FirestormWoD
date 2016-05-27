@@ -552,6 +552,7 @@ struct AchievementReward
 {
     uint32 titleId[2];
     uint32 itemId;
+    uint32 SpellID;
     uint32 sender;
     std::string subject;
     std::string text;
@@ -601,6 +602,7 @@ class AchievementMgr
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit const* unit = NULL, Player* referencePlayer = NULL, bool p_LoginCheck = false);
         bool IsCompletedAchievement(AchievementEntry const* entry);
         void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer, bool p_LoginCheck = false);
+        void RewardAchievement(AchievementEntry const* p_Achievement);
         void CheckAllAchievementCriteria(Player* referencePlayer);
         void SendAllAchievementData(Player* receiver);
         void SendAchievementInfo(Player* receiver, uint32 achievementId = 0);

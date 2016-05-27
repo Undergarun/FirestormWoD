@@ -760,6 +760,56 @@ class item_script_chauffeured_chopper : public ItemScript
         }
 };
 
+/// Challenger's Strongbox - 127831
+class item_script_challengers_strongbox : public ItemScript
+{
+    public:
+        item_script_challengers_strongbox() : ItemScript("item_script_challengers_strongbox") { }
+
+        bool OnOpen(Player* p_Player, Item* p_Item) override
+        {
+            ItemTemplate const* l_Proto = p_Item->GetTemplate();
+            LootTemplate const* l_LootTemplate = LootTemplates_Item.GetLootFor(l_Proto->ItemId);
+            if (!l_LootTemplate)
+                return false;
+
+            uint32 l_ItemID = 0;
+            std::list<ItemTemplate const*> l_LootTable;
+            std::vector<uint32> l_Items;
+            l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+            uint32 l_SpecID = p_Player->GetLootSpecId() ? p_Player->GetLootSpecId() : p_Player->GetSpecializationId(p_Player->GetActiveSpec());
+
+            for (ItemTemplate const* l_Template : l_LootTable)
+            {
+                if ((l_Template->AllowableClass && !(l_Template->AllowableClass & p_Player->getClassMask())) ||
+                    (l_Template->AllowableRace && !(l_Template->AllowableRace & p_Player->getRaceMask())))
+                    continue;
+
+                if (l_Template->HasSpec((SpecIndex)l_SpecID, p_Player->getLevel()))
+                    l_Items.push_back(l_Template->ItemId);
+            }
+
+            if (l_Items.empty())
+                return false;
+
+            l_ItemID = l_Items[urand(0, l_Items.size() - 1)];
+
+            if (!l_ItemID)
+                return false;
+
+            if (!p_Player->GetBagsFreeSlots())
+                return false;
+
+            if (Item* l_Item = p_Player->AddItem(l_ItemID, 1))
+            {
+                p_Player->SendDisplayToast(l_ItemID, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false, l_Item->GetAllItemBonuses());
+                p_Player->DestroyItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
+            }
+
+            return true;
+        }
+};
+
 /// Regular check about passengers (allows checks for crossfaction mount)
 class PlayerScript_VehicleCheck : public PlayerScript
 {
@@ -836,6 +886,7 @@ void AddSC_item_scripts()
     new item_eye_of_the_black_prince();
     new item_script_clinking_present();
     new item_script_chauffeured_chopper();
+    new item_script_challengers_strongbox();
 
     new PlayerScript_VehicleCheck();
     new PlayerScript_ProtoDrakeLootHackfix();

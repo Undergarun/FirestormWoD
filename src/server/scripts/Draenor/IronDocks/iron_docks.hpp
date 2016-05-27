@@ -89,8 +89,9 @@ static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
 
 enum eIronDocksDatas
 {
-    DataMountWolf = 1,
-    DataNokgar,
+    DataMountWolf = 99,
+    /// Boss states
+    DataNokgar = 0,
     DataGrimrail,
     DataOshir,
     DataSkulloc,
@@ -177,17 +178,20 @@ enum eIronDocksScenario
 {
     /// Normal/Heroic Mode
     /// ScenarioID
-    IronDocksScenarioID     = 685,
+    IronDocksScenarioID         = 685,
     /// Bosses
-    IronDocksNokgar         = 25108,
-    IronDocksGrimrail       = 25109,
-    IronDocksOshir          = 25110,
-    IronDocksSkulloc        = 25111,
+    IronDocksNokgar             = 25108,
+    IronDocksGrimrail           = 25109,
+    IronDocksOshir              = 25110,
+    IronDocksSkulloc            = 25111,
     /// Challenge Mode
     /// ScenarioID
-    IronDocksChallengeID    = 426,
-    IronDocksKillCount      = 44,
-    IronDocksEnnemies       = 26362
+    IronDocksChallengeID        = 426,
+    IronDocksKillCount          = 44,
+    IronDocksEnnemies           = 26362,
+
+    DailyChallengeQuestID       = 37262,
+    DailyChallengeKillCredit    = 79116
 };
 
 enum eIronDocksGameObject

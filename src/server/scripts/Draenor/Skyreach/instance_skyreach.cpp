@@ -250,7 +250,7 @@ namespace MS
                             AddDoor(p_Gameobject, true);
                             break;
                         case GameObjectEntries::DOOR_CHALLENGE_ENTRANCE:
-                            m_ChallengeDoorGuid = p_Gameobject->GetGUID();
+                            AddChallengeModeDoor(p_Gameobject);
                             break;
                         case CHALLENGE_MOD_ORB:
                             m_ChallengeOrbGuid = p_Gameobject->GetGUID();
@@ -285,86 +285,112 @@ namespace MS
 
                     switch (p_ID)
                     {
-                    case Data::Ranjit:
-                        // Achievement handling.
-                        if (p_State == EncounterState::DONE && instance->IsHeroic())
+                        case Data::Ranjit:
                         {
-                            AchievementEntry const* l_AE = sAchievementStore.LookupEntry(uint32(Achievements::ReadyForRaidingIV));
-                            if (!l_AE)
-                                break;
-
-                            for (auto l_Guid : m_ReadyForRaidingIVAchievements)
+                            // Achievement handling.
+                            if (p_State == EncounterState::DONE && instance->IsHeroic())
                             {
-                                if (Player* l_Plr = sObjectAccessor->FindPlayer(l_Guid.first))
+                                AchievementEntry const* l_AE = sAchievementStore.LookupEntry(uint32(Achievements::ReadyForRaidingIV));
+                                if (!l_AE)
+                                    break;
+
+                                for (auto l_Guid : m_ReadyForRaidingIVAchievements)
                                 {
-                                    if (l_Guid.second == 0)
-                                        l_Plr->CompletedAchievement(l_AE);
+                                    if (Player* l_Plr = sObjectAccessor->FindPlayer(l_Guid.first))
+                                    {
+                                        if (l_Guid.second == 0)
+                                            l_Plr->CompletedAchievement(l_AE);
+                                    }
                                 }
                             }
+
+                            break;
                         }
-                        break;
-                    case Data::Araknath:
-                        switch (p_State)
+                        case Data::Araknath:
                         {
-                        case EncounterState::FAIL:
-                            if (Creature* l_SkyreachArcanologist = sObjectAccessor->FindCreature(m_SkyreachArcanologistGuid))
-                                l_SkyreachArcanologist->Respawn();
-                            break;
-                        case EncounterState::DONE:
-                            if (instance->IsHeroic())
-                                DoCompleteAchievement(uint32(Achievements::MagnifyEnhance));
-
-                            for (uint64 l_Guid : m_SolarConstructorsGuid)
+                            switch (p_State)
                             {
-                                if (Creature* l_Constructor = sObjectAccessor->FindCreature(l_Guid))
+                                case EncounterState::FAIL:
                                 {
-                                    l_Constructor->CombatStop();
-                                    l_Constructor->SetReactState(ReactStates::REACT_PASSIVE);
-                                    l_Constructor->getThreatManager().clearReferences();
-                                    l_Constructor->getThreatManager().resetAllAggro();
+                                    if (Creature* l_SkyreachArcanologist = sObjectAccessor->FindCreature(m_SkyreachArcanologistGuid))
+                                        l_SkyreachArcanologist->Respawn();
+                                    break;
                                 }
+                                case EncounterState::DONE:
+                                {
+                                    if (instance->IsHeroic())
+                                        DoCompleteAchievement(uint32(Achievements::MagnifyEnhance));
+
+                                    for (uint64 l_Guid : m_SolarConstructorsGuid)
+                                    {
+                                        if (Creature* l_Constructor = sObjectAccessor->FindCreature(l_Guid))
+                                        {
+                                            l_Constructor->CombatStop();
+                                            l_Constructor->SetReactState(ReactStates::REACT_PASSIVE);
+                                            l_Constructor->getThreatManager().clearReferences();
+                                            l_Constructor->getThreatManager().resetAllAggro();
+                                        }
+                                    }
+
+                                    break;
+                                }
+                                default:
+                                    break;
                             }
 
                             break;
+                        }
+                        case Data::Rukhran:
+                        {
+                            switch (p_State)
+                            {
+                                case EncounterState::FAIL:
+                                {
+                                    if (Creature* l_Rukhran = sObjectAccessor->FindCreature(m_RukhranGuid))
+                                    {
+                                        l_Rukhran->GetMotionMaster()->Clear(true);
+                                        SetBossState(Data::Rukhran, EncounterState::SPECIAL);
+                                        l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
+                                    }
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+
+                            break;
+                        }
+                        case Data::HighSageViryx:
+                        {
+                            switch (p_State)
+                            {
+                                case EncounterState::DONE:
+                                {
+                                    if (Creature* l_Reshad = sObjectAccessor->FindCreature(m_ReshadOutroGuid))
+                                    {
+                                        l_Reshad->SetVisible(true);
+                                        l_Reshad->GetMotionMaster()->MovePoint(0, 1128.81f, 1814.251f, 262.171f);
+                                    }
+
+                                    if (instance->IsHeroic())
+                                        DoCompleteAchievement(uint32(Achievements::HeroicSkyreach));
+                                    else
+                                        DoCompleteAchievement(uint32(Achievements::Skyreach));
+
+                                    if (instance->IsHeroic() && !m_HasFailedMonomaniaAchievement)
+                                        DoCompleteAchievement(uint32(Achievements::Monomania));
+
+                                    DoKilledMonsterKredit(ScenarioDatas::ScenarioDatas::DailyChallengeQuestID, ScenarioDatas::ScenarioDatas::DailyChallengeKillCredit);
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+
+                            break;
+                        }
                         default:
                             break;
-                        }
-                        break;
-                    case Data::Rukhran:
-                        switch (p_State)
-                        {
-                        case EncounterState::FAIL:
-                            if (Creature* l_Rukhran = sObjectAccessor->FindCreature(m_RukhranGuid))
-                            {
-                                l_Rukhran->GetMotionMaster()->Clear(true);
-                                SetBossState(Data::Rukhran, EncounterState::SPECIAL);
-                                l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
-                            }
-                            break;
-                            default:
-                                break;
-                        }
-                        break;
-                    case Data::HighSageViryx:
-                        switch (p_State)
-                        {
-                        case EncounterState::DONE:
-                            if (Creature* l_Reshad = sObjectAccessor->FindCreature(m_ReshadOutroGuid))
-                            {
-                                l_Reshad->SetVisible(true);
-                                l_Reshad->GetMotionMaster()->MovePoint(0, 1128.81f, 1814.251f, 262.171f);
-                            }
-                            if (instance->IsHeroic())
-                                DoCompleteAchievement(uint32(Achievements::HeroicSkyreach));
-                            else
-                                DoCompleteAchievement(uint32(Achievements::Skyreach));
-
-                            if (instance->IsHeroic() && !m_HasFailedMonomaniaAchievement)
-                                DoCompleteAchievement(uint32(Achievements::Monomania));
-                            break;
-                            default:
-                                break;
-                        }
                     }
                     
                     return true;

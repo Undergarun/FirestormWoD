@@ -130,7 +130,7 @@ class instance_iron_docks : public InstanceMapScript
                 switch (p_GameObject->GetEntry())
                 {
                     case eIronDocksGameObject::GameObjectChallengeModeDoor:
-                        m_ChallengeDoorGuid = p_GameObject->GetGUID();
+                        AddChallengeModeDoor(p_GameObject);
                         break;
                     case eIronDocksGameObject::GameObjectEncounterGateOshir:
                         m_EncounterGateOshirGuid = p_GameObject->GetGUID();
@@ -256,6 +256,19 @@ class instance_iron_docks : public InstanceMapScript
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
+
+                switch (type)
+                {
+                    case eIronDocksDatas::DataSkulloc:
+                    {
+                        if (state == EncounterState::DONE)
+                            DoKilledMonsterKredit(eIronDocksScenario::DailyChallengeQuestID, eIronDocksScenario::DailyChallengeKillCredit);
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
 
                 return true;
             }
