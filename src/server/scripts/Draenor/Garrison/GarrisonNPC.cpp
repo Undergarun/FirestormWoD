@@ -443,9 +443,9 @@ namespace MS { namespace Garrison
             l_Data << uint32(162);                  ///< Unk2
             l_Data << uint32(2310);                 ///< Unk3
 
-            std::vector<uint32> l_FollowerIDs = l_GarrisonMgr->GetWeeklyFollowerRecruits(p_Player);
+            std::vector<GarrisonFollower> l_Followers = l_GarrisonMgr->GetWeeklyFollowerRecruits(p_Player);
 
-            if (l_FollowerIDs.empty())
+            if (l_Followers.empty())
             {
                 for (uint8 l_Itr = 0; l_Itr < 3; ++l_Itr)
                 {
@@ -455,13 +455,8 @@ namespace MS { namespace Garrison
             }
             else
             {
-                for (uint32 l_FollowerID : l_FollowerIDs)
-                {
-                    GarrisonFollower l_Follower;
-
-                    l_Follower = l_GarrisonMgr->GenerateNewFollowerEntity(l_FollowerID);
+                for (GarrisonFollower l_Follower : l_Followers)
                     l_Follower.Write(l_Data);
-                }
             }
 
             l_Data.WriteBit(1);                   ///< unk bit 1
@@ -486,30 +481,23 @@ namespace MS { namespace Garrison
             l_Data << uint32(p_ErrorMessage);                           ///< l_Error ?
             l_Data << uint32(sWorld->GetNextWeeklyQuestsResetTime());   ///< Time left until next reset
 
-            std::vector<uint32> l_FollowerIDs = l_GarrisonMgr->GetWeeklyFollowerRecruits(p_Player);
+            std::vector<GarrisonFollower> l_Followers = l_GarrisonMgr->GetWeeklyFollowerRecruits(p_Player);
 
-            if (l_FollowerIDs.empty())
+            if (l_Followers.empty())
             {
                 std::list<GarrisonFollower> l_FollowersList = l_GarrisonMgr->GetFollowersWithAbility(p_AbilityID, p_IsTrait);
                 JadeCore::RandomResizeList(l_FollowersList, 3); ///< Should not happen, List size must never exceed 3
 
-                uint8 l_Counter = CharacterWorldStates::CharWorldStateGarrisonTavernWeeklyFollower1;
-
                 for (GarrisonFollower l_Follower : l_FollowersList)
                 {
                     l_Follower.Write(l_Data);
-
-                    p_Player->SetCharacterWorldState(l_Counter, uint64(l_Follower.FollowerID));
-                    ++l_Counter;
+                    l_GarrisonMgr->SetGarrisonWeeklyTavernData({ l_Follower.FollowerID, l_Follower.Abilities });
                 }
             }
             else
             {
-                for (uint32 l_FollowerID : l_FollowerIDs)
-                {
-                    GarrisonFollower l_Follower = l_GarrisonMgr->GenerateNewFollowerEntity(l_FollowerID);
+                for (GarrisonFollower l_Follower : l_Followers)
                     l_Follower.Write(l_Data);
-                }
             }
 
             p_Player->SendDirectMessage(&l_Data);

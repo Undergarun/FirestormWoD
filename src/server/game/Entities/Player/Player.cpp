@@ -21389,7 +21389,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     else
         delete l_Garrison;
 
-    _LoadGarrisonTavernDatas(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_MISSIONS_TAVERNDATA));
+    _LoadGarrisonDailyTavernDatas(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_MISSIONS_TAVERNDATA));
+    _LoadCharacterGarrisonWeeklyTavernDatas(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_WEEKLY_TAVERNDATA));
 
     l_Times.push_back(getMSTime() - l_StartTime);
     RewardCompletedAchievementsIfNeeded();
@@ -22425,7 +22426,7 @@ void Player::_LoadSpells(PreparedQueryResult result)
     }
 }
 
-void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
+void Player::_LoadGarrisonDailyTavernDatas(PreparedQueryResult p_Result)
 {
     MS::Garrison::Manager* l_GarrisonMgr = GetGarrison();
 
@@ -22469,6 +22470,34 @@ void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
                 l_GarrisonMgr->AddGarrisonDailyTavernData(l_SecondEntry);
             }
         }
+    }
+}
+
+void Player::_LoadCharacterGarrisonWeeklyTavernDatas(PreparedQueryResult p_Result)
+{
+    MS::Garrison::Manager* l_GarrisonMgr = GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    if (p_Result)
+    {
+        do
+        {
+            Field* l_Fields = p_Result->Fetch();
+            std::vector<uint32> l_AbilitiesVector;
+            std::string l_Abilities = l_Fields[2].GetString();
+
+            Tokenizer l_Tokens(l_Abilities, ',');
+
+            for (Tokenizer::const_iterator l_Iter = l_Tokens.begin(); l_Iter != l_Tokens.end(); ++l_Iter)
+                l_AbilitiesVector.push_back(uint32(atol(*l_Iter)));
+
+            MS::Garrison::WeeklyTavernData l_TavernData = { l_Fields[1].GetUInt32(), l_AbilitiesVector };
+
+            l_GarrisonMgr->SetGarrisonWeeklyTavernData(l_TavernData);
+        }
+        while (p_Result->NextRow());
     }
 }
 
@@ -23320,7 +23349,8 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveCurrency(trans);
     m_archaeologyMgr.SaveArchaeology(trans);
     _SaveCharacterWorldStates(trans);
-    _SaveCharacterGarrisonTavernDatas(trans);
+    _SaveCharacterGarrisonDailyTavernDatas(trans);
+    _SaveCharacterGarrisonWeeklyTavernDatas(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -24106,7 +24136,7 @@ void Player::_SaveStats(SQLTransaction& trans)
     trans->Append(stmt);
 }
 
-void Player::_SaveCharacterGarrisonTavernDatas(SQLTransaction& p_Transaction)
+void Player::_SaveCharacterGarrisonDailyTavernDatas(SQLTransaction& p_Transaction)
 {
     MS::Garrison::Manager* l_GarrisonMgr = GetGarrison();
 
@@ -24117,11 +24147,43 @@ void Player::_SaveCharacterGarrisonTavernDatas(SQLTransaction& p_Transaction)
     l_Stmt->setUInt32(0, GetGUIDLow());
     p_Transaction->Append(l_Stmt);
 
-    for (uint32 l_TavernData : l_GarrisonMgr->GetGarrisonTavernDatas())
+    for (uint32 l_TavernData : l_GarrisonMgr->GetGarrisonDailyTavernDatas())
     {
         l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR);
         l_Stmt->setUInt32(0, GetGUIDLow());
         l_Stmt->setUInt32(1, l_TavernData);
+        p_Transaction->Append(l_Stmt);
+    }
+}
+
+void Player::_SaveCharacterGarrisonWeeklyTavernDatas(SQLTransaction& p_Transaction)
+{
+    MS::Garrison::Manager* l_GarrisonMgr = GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_WEEKLY_TAVERN_DATA_CHAR);
+    l_Stmt->setUInt32(0, GetGUIDLow());
+    p_Transaction->Append(l_Stmt);
+
+    for (MS::Garrison::WeeklyTavernData l_TavernData : l_GarrisonMgr->GetGarrisonWeeklyTavernDatas())
+    {
+        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GARRISON_WEEKLY_TAVERN_DATA_CHAR);
+        l_Stmt->setUInt32(0, GetGUIDLow());
+        l_Stmt->setUInt32(1, l_TavernData.FollowerID);
+
+        std::ostringstream l_Abilities;
+
+        for (uint32 l_Ability : l_TavernData.Abilities)
+        {
+            if (!l_TavernData.Abilities.back())
+                l_Abilities << l_Ability << ","; ///< TAVERN CHECK TODO HELP DATA LALALALALALO
+            else
+                l_Abilities << l_Ability;
+        }
+
+        l_Stmt->setString(2, l_Abilities.str());
         p_Transaction->Append(l_Stmt);
     }
 }
@@ -27917,7 +27979,7 @@ void Player::ResetDailyGarrisonDatas()
     {
         if (l_Garrison->HasBuildingType(BuildingType::Inn))
         {
-            /// Weekly Tavern Reset is done in ResetWeeklyGarrisonDatas
+            /// Weekly Tavern Reset is done in World::ResetWeeklyGarrisonDatas
 
             l_Garrison->ResetGarrisonDailyTavernData();
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Inn);
@@ -27986,14 +28048,6 @@ void Player::ResetWeeklyGarrisonDatas()
         {
             if (GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain) == 1)
                 SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain, 0);
-        }
-
-        ///< Tavern weekly follower offer handling
-        if (l_Garrison->GetBuildingLevel(l_Garrison->GetBuildingWithType(BuildingType::Inn)) >= 2)
-        {
-            SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTavernWeeklyFollower1, 0);
-            SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTavernWeeklyFollower2, 0);
-            SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTavernWeeklyFollower3, 0);
         }
     }
 }

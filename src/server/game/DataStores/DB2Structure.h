@@ -533,6 +533,36 @@ struct GarrPlotBuildingEntry
     uint32 BuildingID;                                              ///< 2
 };
 
+/*
+const char GarrFollowerEntryfmt[] = "
+n ID
+i Type
+i Creature0
+i Creature1
+i HordeUiAnimRaceInfoID
+i AllianceUiAnimRaceInfoID
+i Quality
+i HordeGarrClassSecID
+i AllianceGarrClassSecID
+i HordeGarrFollItemSetID
+i AllianceGarrFollItemSetID
+i Level
+i ItemLevelWeapon
+i ItemLevelArmor
+i Unk
+i Flags
+s HordeSourceText
+s AllinaceSourceText
+
+i HordePortraitIconID
+i AlliancePortraitIconID
+
+i HordeListPortraitTextureKitID
+i AllianceListPortraitTextureKitID
+x
+x";*/
+
+
 struct GarrFollowerEntry
 {
     uint32 ID;                                                      ///< 0
@@ -550,8 +580,8 @@ struct GarrFollowerEntry
     int32  ItemLevelArmor;                                          ///< 13
     uint32 Unk;                                                     ///< 14
     uint32 Flags;                                                   ///< 15
-    char * HordeSourceText;                                         ///< 16     Descr1 : zoneH (where you find this follower)
-    char * AllinaceSourceText;                                      ///< 17     Descr2 : zoneA (where you find this follower)
+    LocalizedString const* HordeSourceText;                         ///< 16     Descr1 : zoneH (where you find this follower)
+    LocalizedString const* AllinaceSourceText;                      ///< 17     Descr2 : zoneA (where you find this follower)
     int32  HordePortraitIconID;                                     ///< 18
     int32  AlliancePortraitIconID;                                  ///< 19
     uint32 HordeListPortraitTextureKitID;                           ///< 20

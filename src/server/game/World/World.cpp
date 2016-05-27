@@ -3497,7 +3497,12 @@ void World::ResetWeeklyGarrisonDatas()
         Player* l_Player = l_Itr->second->GetPlayer();
 
         if (l_Player != nullptr)
+        {
+            if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
+                l_GarrisonMgr->CleanGarrisonWeeklyTavernData();
+
             l_Player->ResetWeeklyGarrisonDatas();
+        }
     }
 }
 

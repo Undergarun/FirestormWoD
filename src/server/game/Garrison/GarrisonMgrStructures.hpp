@@ -43,6 +43,12 @@ namespace MS { namespace Garrison
         bool Rewarded;
     };
 
+    struct WeeklyTavernData
+    {
+        uint32 FollowerID;
+        std::vector<uint32> Abilities;
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 

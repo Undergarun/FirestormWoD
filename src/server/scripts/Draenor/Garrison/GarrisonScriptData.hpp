@@ -989,7 +989,8 @@ namespace MS { namespace Garrison
     namespace GarrisonAbilities
     {
         std::vector<uint32> const g_FollowerAbilities =
-        { 253,
+        {
+            253,
             54,
             67,
             63,

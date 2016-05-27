@@ -263,7 +263,7 @@ namespace MS { namespace Garrison
         GARRISON_SPELL_GARR_ABILITY_ALLIANCE_BASE   = 161694
     };
 
-    enum GarrisonAbilities
+    enum GarrisonAbilitiesEnum
     {
         AbilityHerbalism = 53
     };

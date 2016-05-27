@@ -190,9 +190,6 @@ enum CharacterWorldStates
     CharWorldStateGarrisonTradingPostDailyRandomTrader          = 5,
     CharWorldStateGarrisonTradingPostDailyRandomShipment        = 6,
     CharWorldStateGarrisonArmoryWeeklyCurrencyGain              = 7,
-    CharWorldStateGarrisonTavernWeeklyFollower1                 = 8,
-    CharWorldStateGarrisonTavernWeeklyFollower2                 = 9,
-    CharWorldStateGarrisonTavernWeeklyFollower3                 = 10
 };
 
 // Spell modifier (used for modify other spells)
@@ -1030,6 +1027,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_WORLD_STATES                 = 60,
     PLAYER_LOGIN_QUERY_STORE_PROFESSION             = 61,
     PLAYER_LOGIN_QUERY_GARRISON_MISSIONS_TAVERNDATA = 62,
+    PLAYER_LOGIN_QUERY_GARRISON_WEEKLY_TAVERNDATA   = 63,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -3659,7 +3657,8 @@ class Player : public Unit, public GridObject<Player>
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadBossLooted(PreparedQueryResult p_Result);
         void _LoadWorldStates(PreparedQueryResult p_Result);
-        void _LoadGarrisonTavernDatas(PreparedQueryResult p_Result);
+        void _LoadGarrisonDailyTavernDatas(PreparedQueryResult p_Result);
+        void _LoadCharacterGarrisonWeeklyTavernDatas(PreparedQueryResult p_Result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -3687,7 +3686,8 @@ class Player : public Unit, public GridObject<Player>
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);
         void _SaveCharacterWorldStates(SQLTransaction& p_Transaction);
-        void _SaveCharacterGarrisonTavernDatas(SQLTransaction& p_Transaction);
+        void _SaveCharacterGarrisonDailyTavernDatas(SQLTransaction& p_Transaction);
+        void _SaveCharacterGarrisonWeeklyTavernDatas(SQLTransaction& p_Transaction);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/

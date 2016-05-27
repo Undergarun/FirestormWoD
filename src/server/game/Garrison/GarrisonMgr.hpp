@@ -110,7 +110,9 @@ namespace MS { namespace Garrison
             /// Get plot instance ID by activation game object
             uint32 GetPlotInstanceIDByActivationGameObject(uint64 p_Guid) const;
             /// Return Daily Tavern Datas
-            std::vector<uint32>& GetGarrisonTavernDatas() { return m_GarrisonDailyTavernData; };
+            std::vector<uint32>& GetGarrisonDailyTavernDatas() { return m_GarrisonDailyTavernData; };
+            /// Return Weekly Tavern Datas
+            std::vector<WeeklyTavernData>& GetGarrisonWeeklyTavernDatas() { return m_GarrisonWeeklyTavernData; };
 
         /// Mission section
         public:
@@ -270,9 +272,13 @@ namespace MS { namespace Garrison
             void SetGarrisonDailyTavernData(uint32 p_Data);
             void CleanGarrisonDailyTavernData();
             void ResetGarrisonDailyTavernData();
+            void AddGarrisonWeeklyTavernData(WeeklyTavernData p_Data);
+            void SetGarrisonWeeklyTavernData(WeeklyTavernData p_Data);
+            void CleanGarrisonWeeklyTavernData();
+            void ResetGarrisonWeeklyTavernData();
             void ResetGarrisonWorkshopData(Player* p_Player);
             void ResetGarrisonTradingPostData(Player* p_Player);
-            std::vector<uint32> GetWeeklyFollowerRecruits(Player* p_Player);
+            std::vector<GarrisonFollower> GetWeeklyFollowerRecruits(Player* p_Player);
 
             /// Get known specializations
             std::vector<int32> GetKnownSpecializations() const;
@@ -415,6 +421,7 @@ namespace MS { namespace Garrison
             std::vector<int32>                              m_KnownBlueprints;
             std::vector<int32>                              m_KnownSpecializations;
             std::vector<uint32>                             m_GarrisonDailyTavernData;
+            std::vector<WeeklyTavernData>                   m_GarrisonWeeklyTavernData;
 
             std::map<uint32, uint64>                m_PlotsGob;
             std::map<uint32, uint64>                m_PlotsActivateGob;

@@ -216,7 +216,7 @@ namespace MS { namespace Garrison
         {
             if (p_Player->GetGarrison())
             {
-                if (!p_Player->GetGarrison()->HasFollowerAbility(MS::Garrison::GarrisonAbilities::AbilityHerbalism))
+                if (!p_Player->GetGarrison()->HasFollowerAbility(MS::Garrison::GarrisonAbilitiesEnum::AbilityHerbalism))
                     p_Player->GetSession()->SendListInventory(p_Creature->GetGUID());
                 else
                 {

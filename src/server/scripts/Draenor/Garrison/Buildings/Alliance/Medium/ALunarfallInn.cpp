@@ -60,7 +60,7 @@ namespace MS { namespace Garrison
                     l_Creature->DespawnOrUnsummon();
             }
 
-            std::vector<uint32>& l_Entries = l_GarrisonMgr->GetGarrisonTavernDatas();
+            std::vector<uint32>& l_Entries = l_GarrisonMgr->GetGarrisonDailyTavernDatas();
 
             if (l_Entries.size() == 1)
                 SummonRelativeCreature(l_Entries[0],

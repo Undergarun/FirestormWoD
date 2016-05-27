@@ -688,7 +688,12 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR, "INSERT INTO character_garrison_daily_tavern_data (CharacterGuid, NpcEntry) VALUES (?,?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_SEL_GARRISON_DAILY_TAVERN_DATA_CHAR, "SELECT CharacterGuid, NpcEntry FROM character_garrison_daily_tavern_data WHERE CharacterGuid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA_CHAR, "DELETE FROM character_garrison_daily_tavern_data WHERE CharacterGuid = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA, "DELETE FROM character_garrison_daily_tavern_data", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA,      "DELETE FROM character_garrison_daily_tavern_data", CONNECTION_ASYNC);
+
+    PREPARE_STATEMENT(CHAR_ADD_GARRISON_WEEKLY_TAVERN_DATA_CHAR, "REPLACE INTO character_garrison_weekly_tavern_data (CharacterGuid, FollowerID, Abilities) VALUES (?,?,?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_WEEKLY_TAVERN_DATA_CHAR, "SELECT CharacterGuid, FollowerID, Abilities FROM character_garrison_weekly_tavern_data WHERE CharacterGuid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_WEEKLY_TAVERN_DATA_CHAR, "DELETE FROM character_garrison_weekly_tavern_data WHERE CharacterGuid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_WEEKLY_TAVERN_DATA,      "DELETE FROM character_garrison_weekly_tavern_data", CONNECTION_ASYNC);
 
     /// Battle pets
     PREPARE_STATEMENT(CHAR_UPD_LAST_BATTLEPET, "UPDATE characters SET lastbattlepet = ? WHERE guid = ?", CONNECTION_ASYNC);
