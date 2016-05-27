@@ -7,7 +7,7 @@
 #
 # Host: gameserver.ashran.com (MySQL 5.5.42-37.1)
 # Database: main_noire_characters
-# Generation Time: 2016-05-03 14:13:46 +0000
+# Generation Time: 2016-05-27 08:08:55 +0000
 # ************************************************************
 
 
@@ -1238,6 +1238,7 @@ CREATE TABLE `character_stats_wod` (
   `dodgePct` float unsigned NOT NULL DEFAULT '0',
   `parryPct` float unsigned NOT NULL DEFAULT '0',
   `blockPct` float unsigned NOT NULL DEFAULT '0',
+  `ilvl` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -2721,6 +2722,7 @@ CREATE TABLE `webshop_delivery_gold` (
   `guid` int(11) unsigned NOT NULL DEFAULT '0',
   `gold` int(11) unsigned NOT NULL DEFAULT '0',
   `delivery` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `purchase_id` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`transaction`),
   KEY `guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2739,6 +2741,7 @@ CREATE TABLE `webshop_delivery_item` (
   `count` int(11) unsigned NOT NULL,
   `delivery` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `ItemBonus` varchar(255) NOT NULL DEFAULT '0',
+  `purchase_id` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`transaction`),
   KEY `guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2755,6 +2758,7 @@ CREATE TABLE `webshop_delivery_level` (
   `guid` int(11) unsigned NOT NULL DEFAULT '0',
   `level` int(11) unsigned NOT NULL DEFAULT '0',
   `delivery` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `purchase_id` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`transaction`),
   KEY `guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2773,6 +2777,7 @@ CREATE TABLE `webshop_delivery_premade` (
   `faction` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `account` int(11) unsigned NOT NULL DEFAULT '0',
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `purchase_id` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`transaction`),
   UNIQUE KEY `transaction` (`transaction`),
   KEY `account` (`account`)
@@ -2791,8 +2796,26 @@ CREATE TABLE `webshop_delivery_profession` (
   `skill` int(11) unsigned NOT NULL DEFAULT '0',
   `recipe` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `delivery` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `purchase_id` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`transaction`),
   KEY `transaction` (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table webshop_delivery_title
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `webshop_delivery_title`;
+
+CREATE TABLE `webshop_delivery_title` (
+  `transaction` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `guid` int(11) unsigned NOT NULL DEFAULT '0',
+  `level` int(11) unsigned NOT NULL DEFAULT '0',
+  `delivery` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `purchase_id` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`transaction`),
+  KEY `guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
