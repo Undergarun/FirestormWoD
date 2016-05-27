@@ -140,7 +140,7 @@ namespace MS
                                     AddDoor(p_GameObject, true);
                                     break;
                                 case GameObjects::ChallengeDoor:
-                                    m_ChallengeDoorGuid = p_GameObject->GetGUID();
+                                    AddChallengeModeDoor(p_GameObject);
                                     break;
                                 case CHALLENGE_MOD_ORB:
                                     m_ChallengeOrbGuid = p_GameObject->GetGUID();
@@ -288,10 +288,22 @@ namespace MS
                                 }
                                 case BossIds::BossGugrokk:
                                 {
-                                    if (p_State == EncounterState::NOT_STARTED)
-                                        m_UnstableSlagKilled = 0;
-                                    else if (p_State == EncounterState::DONE && m_UnstableSlagKilled == 0 && instance->IsHeroic())
-                                        DoCompleteAchievement(eAchievements::IsDraenorOnFire);
+                                    switch (p_State)
+                                    {
+                                        case EncounterState::NOT_STARTED:
+                                            m_UnstableSlagKilled = 0;
+                                            break;
+                                        case EncounterState::DONE:
+                                        {
+                                            if (m_UnstableSlagKilled == 0 && instance->IsHeroic())
+                                                DoCompleteAchievement(eAchievements::IsDraenorOnFire);
+
+                                            DoKilledMonsterKredit(eScenarioDatas::DailyChallengeQuestID, eScenarioDatas::DailyChallengeKillCredit);
+                                            break;
+                                        }
+                                        default:
+                                            break;
+                                    }
 
                                     if (p_State != EncounterState::DONE)
                                         break;

@@ -10,6 +10,15 @@
 #include "InstanceScript.h"
 #include "auchindoun.hpp"
 
+static BossScenarios const g_BossScenarios[] =
+{
+    { eAuchindounDatas::DataBossKathaar,    eAuchindounChallengeDatas::KaatharCriteriaID },
+    { eAuchindounDatas::DataBossNyami,      eAuchindounChallengeDatas::NyamiCriteriaID },
+    { eAuchindounDatas::DataBossAzzakael,   eAuchindounChallengeDatas::AzaakelCriteriaID },
+    { eAuchindounDatas::DataBossTeronogor,  eAuchindounChallengeDatas::TerongorCriteriaID },
+    { 0,                                    0 }
+};
+
 /// Event teleports player to Kaathar hall.
 class EventTeleportPlayer : public BasicEvent
 {
@@ -37,13 +46,13 @@ class instance_auchindoun : public InstanceMapScript
 {
 public:
 
-	instance_auchindoun()
+    instance_auchindoun()
         : InstanceMapScript("instance_auchindoun", 1182)
-	{
-	}
+    {
+    }
 
-	struct instance_auchindoun_InstanceMapScript : public InstanceScript
-	{
+    struct instance_auchindoun_InstanceMapScript : public InstanceScript
+    {
         instance_auchindoun_InstanceMapScript(Map* p_Map) : InstanceScript(p_Map)
         {
             m_KaatharDied = false;
@@ -51,7 +60,7 @@ public:
         }
 
         InstanceScript* m_Instance = this;
-		uint32 m_auiEncounter[4];
+        uint32 m_auiEncounter[4];
         /// Creatures
         uint64 m_NyamiGuid;
         uint64 m_Tuulani02Guid;
@@ -87,8 +96,8 @@ public:
         bool m_KaatharDied;
         bool m_TuulaniSummoned;
 
-		void Initialize() override
-		{           
+        void Initialize() override
+        {           
             /// Creatures
             m_NyamiGuid                       = 0;
             m_Tuulani02Guid                   = 0;
@@ -118,16 +127,24 @@ public:
             m_SoulTransport03Guid             = 0;
             /// Triggers
             m_TriggerBubbleMiddleNyamiGuid    = 0;
-		}
+
+            instance->SetObjectVisibility(150.0f);
+
+            SetBossNumber(eAuchindounDatas::DataMaxBosses);
+
+            LoadScenariosInfos(g_BossScenarios, instance->IsChallengeMode() ? eAuchindounChallengeDatas::ChallengeScenarioID : eAuchindounChallengeDatas::NormalScenarioID);
+        }
 
         void OnPlayerEnter(Player* p_Player) override
         {
+            InstanceScript::OnPlayerEnter(p_Player);
+
             if (m_KaatharDied)
                 p_Player->m_Events.AddEvent(new EventTeleportPlayer(p_Player, 101), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
         }
 
         void OnGameObjectCreate(GameObject* p_Go) override
-		{
+        {
             if (p_Go)
             {
                 switch (p_Go->GetEntry())
@@ -177,14 +194,21 @@ public:
                             }
                         }
                         break;
+                    case CHALLENGE_MOD_ORB:
+                        m_ChallengeOrbGuid = p_Go->GetGUID();
+                        break;
+                    case eAuchindounChallengeDatas::ChallengeModeDoor:
+                    case eAuchindounChallengeDatas::ChallengeModeDoorSecond:
+                        AddChallengeModeDoor(p_Go);
+                        break;
                     default:
                         break;
                 }
             }
-		}
+        }
 
         void OnCreatureCreate(Creature* p_Creature) override
-		{
+        {
             if (p_Creature)
             { 
                 switch (p_Creature->GetEntry())
@@ -249,8 +273,8 @@ public:
                     default:
                         break;
                 }
-			}
-		}
+            }
+        }
 
         void OnUnitDeath(Unit* p_Unit) override
         {
@@ -325,6 +349,8 @@ public:
                     }
                  case eAuchindounBosses::BossTeronogor:
                     {
+                        DoKilledMonsterKredit(eAuchindounChallengeDatas::DailyChallengeQuestID, eAuchindounChallengeDatas::DailyChallengeKillCredit);
+
                         if (p_Creature->GetMap() && p_Creature->GetMap()->IsHeroic())
                             DoCompleteAchievement(eAuchindounAchievements::AchievementAuchindounHeroic);
                         else
@@ -435,17 +461,17 @@ public:
             }
 
             return 0;
-		}
-	};
+        }
+    };
 
     InstanceScript* GetInstanceScript(InstanceMap* p_Map) const override
-	{
+    {
         return new instance_auchindoun_InstanceMapScript(p_Map);
-	}
+    }
 };
 
 void AddSC_instance_auchindoun()
 {
-	new instance_auchindoun;
+    new instance_auchindoun;
 }
 

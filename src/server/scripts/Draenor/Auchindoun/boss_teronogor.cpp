@@ -356,8 +356,7 @@ class boss_teronogor : public CreatureScript
                 m_SoulTransport03 = false;
                 m_SoulTransport04 = false;
                 m_SoulTransport05 = false;
-                me->SetPhaseMask(4, true);
-                me->GetMap()->SetObjectVisibility(1000.0f);        
+                me->SetPhaseMask(4, true);   
             }
         }
 
