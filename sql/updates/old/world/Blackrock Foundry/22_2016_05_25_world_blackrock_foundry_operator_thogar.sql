@@ -5,7 +5,7 @@ UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_gromkar_firemender" WHERE entry = 87841;
 
 # Trains
-UPDATE creature_template SET InhabitType = 4, ScriptName = "npc_foundry_train" WHERE entry = 76907;
+UPDATE creature_template SET InhabitType = 4, ScriptName = "npc_foundry_train_controller" WHERE entry = 76907;
 
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE(81197, 1, 107703, 107703, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE(87841, 1, 108772, 107801, 0);
@@ -18,7 +18,7 @@ DELETE FROM areatrigger_template WHERE spell_id IN (156553);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, morph_curve_id, data0, data1, data2, data3, data4, data5, data6, data7, ScriptName) VALUES
 (156553, 0, 6756, 1, 1, 2180, 702, 17.5, 14.25, 5, 17.5, 14.25, 5, 0, 0, "");
 
-SET @REF_THOGAR = 76865;
+SET @REF_THOGAR = 76906;
 
 DELETE FROM creature_text WHERE entry IN (@REF_THOGAR);
 INSERT INTO creature_text VALUES

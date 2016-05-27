@@ -83,6 +83,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_ThunderlordPackPens       = 0;
                 m_BeastsEnclosureDoor       = 0;
 
+                m_OperatorThogarGuid        = 0;
+
                 m_SpikeGateGuid             = 0;
                 m_CrucibleEntrance          = 0;
             }
@@ -145,6 +147,10 @@ class instance_blackrock_foundry : public InstanceMapScript
             std::set<uint64> m_IronRaiders;
             std::set<uint64> m_IronCracksShot;
             std::set<uint64> m_GromkarFiremenders;
+
+            /// Foundry Terminus
+            uint64 m_OperatorThogarGuid;
+            std::map<uint32, uint64> m_TrackDoorsGuids;
 
             /// Blackhand's Crucible
             uint64 m_SpikeGateGuid;
@@ -272,6 +278,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 m_IronRaiders.insert(p_Creature->GetGUID());
                         }
 
+                        if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
+                            break;
+
                         p_Creature->DespawnOrUnsummon();
                         break;
                     }
@@ -288,6 +297,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                             if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
                                 m_IronCracksShot.insert(p_Creature->GetGUID());
                         }
+
+                        if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
+                            break;
 
                         p_Creature->DespawnOrUnsummon();
                         break;
@@ -306,7 +318,15 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 m_GromkarFiremenders.insert(p_Creature->GetGUID());
                         }
 
+                        if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
+                            break;
+
                         p_Creature->DespawnOrUnsummon();
+                        break;
+                    }
+                    case eFoundryCreatures::BossOperatorThogar:
+                    {
+                        m_OperatorThogarGuid = p_Creature->GetGUID();
                         break;
                     }
                     default:
@@ -378,6 +398,16 @@ class instance_blackrock_foundry : public InstanceMapScript
                         break;
                     case eFoundryGameObjects::BeastsEnclosureDoor:
                         m_BeastsEnclosureDoor = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::MassiveDoorTrack4Right:
+                    case eFoundryGameObjects::MassiveDoorTrack3Right:
+                    case eFoundryGameObjects::MassiveDoorTrack2Right:
+                    case eFoundryGameObjects::MassiveDoorTrack1Right:
+                    case eFoundryGameObjects::MassiveDoorTrack1Left:
+                    case eFoundryGameObjects::MassiveDoorTrack2Left:
+                    case eFoundryGameObjects::MassiveDoorTrack3Left:
+                    case eFoundryGameObjects::MassiveDoorTrack4Left:
+                        m_TrackDoorsGuids[p_GameObject->GetEntry()] = p_GameObject->GetGUID();
                         break;
                     default:
                         break;
@@ -713,6 +743,21 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                         break;
                     }
+                    case eFoundryDatas::DataOperatorThogar:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::DONE:
+                            {
+                                instance->SetObjectVisibility(150.0f);
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -877,6 +922,17 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_ThunderlordPackPens;
                     case eFoundryGameObjects::BeastsEnclosureDoor:
                         return m_BeastsEnclosureDoor;
+                    case eFoundryGameObjects::MassiveDoorTrack4Right:
+                    case eFoundryGameObjects::MassiveDoorTrack3Right:
+                    case eFoundryGameObjects::MassiveDoorTrack2Right:
+                    case eFoundryGameObjects::MassiveDoorTrack1Right:
+                    case eFoundryGameObjects::MassiveDoorTrack1Left:
+                    case eFoundryGameObjects::MassiveDoorTrack2Left:
+                    case eFoundryGameObjects::MassiveDoorTrack3Left:
+                    case eFoundryGameObjects::MassiveDoorTrack4Left:
+                        return m_TrackDoorsGuids[p_Type];
+                    case eFoundryCreatures::BossOperatorThogar:
+                        return m_OperatorThogarGuid;
                     default:
                         break;
                 }

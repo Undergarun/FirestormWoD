@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-# include "blackrock_foundry.hpp"
+# include "boss_operator_thogar.hpp"
 
 /// Iron Flame Binder - 87515
 class npc_foundry_iron_flame_binder : public CreatureScript
@@ -3261,16 +3261,19 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
             {
                 m_Instance = p_Creature->GetInstanceScript();
 
-                m_IntroLeft = p_Creature->IsNearPosition(&g_GromkarManAtArmsIntroLeftPos, 0.5f) ? true : false;
-                m_IntroRight = p_Creature->IsNearPosition(&g_GromkarManAtArmsIntroRightPos, 0.5f) ? true : false;
+                if (p_Creature->IsNearPosition(&g_GromkarManAtArmsIntroLeftPos, 0.5f))
+                    m_IsThogarIntro = true;
+                else if (p_Creature->IsNearPosition(&g_GromkarManAtArmsIntroRightPos, 0.5f))
+                    m_IsThogarIntro = true;
+                else
+                    m_IsThogarIntro = false;
             }
 
             EventMap m_Events;
 
             InstanceScript* m_Instance;
 
-            bool m_IntroLeft;
-            bool m_IntroRight;
+            bool m_IsThogarIntro;
 
             void Reset() override
             {
@@ -3285,13 +3288,12 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventIronBellow, 1);
                 m_Events.ScheduleEvent(eEvents::EventRecklessSlash, 3 * TimeConstants::IN_MILLISECONDS);
 
-                if (m_IntroLeft)
+                if (m_IsThogarIntro)
                 {
+                    /// Must be done for train spawning
+                    me->GetMap()->SetObjectVisibility(500.0f);
 
-                }
-                else if (m_IntroRight)
-                {
-
+                    SummonIntroTrain(me, eThogarMiscDatas::FourthTrack);
                 }
             }
 
