@@ -584,13 +584,59 @@ void WorldSession::HandleGarrisonSetRecruitmentPreferencesOpcode(WorldPacket& p_
     if (l_Garrison == nullptr)
         return;
     
-    uint64 l_GUID      = 0;
+
+    uint64 l_GUID      = 0; ///< Unused ?
     uint32 l_TraitID   = 0;
     uint32 l_AbilityID = 0;
 
-    p_RecvData.readPackGUID(l_GUID); ///< Unused ?
+    p_RecvData.readPackGUID(l_GUID);
+
     p_RecvData >> l_AbilityID;
     p_RecvData >> l_TraitID;
+}
+
+void WorldSession::HandleGarrisonRecruitFollower(WorldPacket& p_RecvData)
+{
+    if (m_Player == nullptr)
+        return;
+
+    MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
+
+    if (l_Garrison == nullptr)
+        return;
+
+    uint64 l_GUID       = 0;
+
+    p_RecvData.readPackGUID(l_GUID);
+    uint32 l_FollowerID = 0;
+    p_RecvData >> l_FollowerID;
+
+    Creature* l_Unit = m_Player->GetNPCIfCanInteractWith(l_GUID, 0);
+
+    if (l_Unit == nullptr)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionBonusRollOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_GUID)));
+        return;
+    }
+
+    WorldPacket l_RecruitmentResult(SMSG_GARRISON_RECRUIT_FOLLOWER_RESULT, 64);
+
+    l_RecruitmentResult << uint32(MS::Garrison::PurchaseBuildingResults::Ok);
+
+    std::vector<MS::Garrison::GarrisonFollower> l_WeeklyFollowers = l_Garrison->GetWeeklyFollowerRecruits(m_Player);
+
+    for (MS::Garrison::GarrisonFollower l_Follower : l_WeeklyFollowers)
+    {
+        if (l_Follower.FollowerID == l_FollowerID)
+        {
+            l_Follower.Write(l_RecruitmentResult);
+            l_Garrison->AddFollower(l_Follower);
+            break;
+        }
+    }
+
+    m_Player->SendDirectMessage(&l_RecruitmentResult);
+    m_Player->PlayerTalkClass->SendCloseGossip();
 }
 
 void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket& p_RecvData)

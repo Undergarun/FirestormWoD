@@ -60,7 +60,8 @@ namespace MS { namespace Garrison
             GarrisonCreation              = 18,
             ShellyQuestGossip1            = 19,
             ShellyQuestGossip2            = 20,
-            GazloweQuestGossip1           = 21
+            GazloweQuestGossip1           = 21,
+            FollowerRecruitment           = 22
         };
 
     }
@@ -129,6 +130,7 @@ namespace MS { namespace Garrison
             Alliance_BiggerIsBetter                     = 36592,
             Alliance_AshranAppearance                   = 36624,
             Alliance_QianaMoonshadow                    = 34646,
+            Alliance_TheHeadHunterHarverst              = 37119,
 
             /// Small profession building quests
             Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
@@ -170,6 +172,7 @@ namespace MS { namespace Garrison
             Horde_BiggerIsBetter                        = 36567,
             Horde_MissionProbable                       = 34775,
             Horde_AshranAppearance                      = 36706,
+            Horde_TheHeadHunterHarverst                 = 37046,
             /// Small profession building quests
             Horde_YourFirstBlacksmithingWorkOrder       = 37569,
             Horde_YourFirstTailoringWorkOrder           = 37575,

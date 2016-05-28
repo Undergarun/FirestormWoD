@@ -17,11 +17,31 @@ namespace MS { namespace Garrison
 {
     static const std::vector<SequencePosition> g_QuestGiverHordePositions
     {
+        /// LEVEL 1
+
         /// In case 1 NPC spawned
         { 5.0805f, 1.8244f, 0.7690f, 4.8670f },
         /// In case 2 NPCs spawned
         { 2.4753f,  4.4374f, 0.7670f, 2.8446f },
-        { 5.6733f, -5.6060f, 0.8357f, 5.3108f }
+        { 5.6733f, -5.6060f, 0.8357f, 5.3108f },
+
+
+        /// LEVEL 2
+
+        /// In case 1 NPC spawned
+        { -10.9676f, -0.2555f, 0.7614f, 5.8506f },
+        /// In case 2 NPCs spawned
+        { -9.1868f, -6.6976f, 0.7639f, 0.5099f },
+        { -9.8265f, 4.4834f, 0.7637f, 5.8553f },
+
+
+        /// LEVEL 3
+
+        /// In case 1 NPC spawned
+        { 0.f, 0.f, 0.f, 0.f },
+        /// In case 2 NPCs spawned
+        { 0.f, 0.f, 0.f, 0.f },
+        { 0.f, 0.f, 0.f, 0.f }
     };
 
     //////////////////////////////////////////////////////////////////////////

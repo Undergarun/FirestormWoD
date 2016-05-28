@@ -65,28 +65,33 @@ namespace MS { namespace Garrison
 
                 std::vector<uint32>& l_Entries = l_GarrisonMgr->GetGarrisonDailyTavernDatas();
 
-                if (l_Entries.size() == 1)
-                    SummonRelativeCreature(l_Entries[0],
-                    g_QuestGiverHordePositions[0].X,
-                    g_QuestGiverHordePositions[0].Y,
-                    g_QuestGiverHordePositions[0].Z,
-                    g_QuestGiverHordePositions[0].O,
-                    TEMPSUMMON_MANUAL_DESPAWN);
-                else if (l_Entries.size() > 1)
-                {
-                    SummonRelativeCreature(l_Entries[0],
-                        g_QuestGiverHordePositions[1].X,
-                        g_QuestGiverHordePositions[1].Y,
-                        g_QuestGiverHordePositions[1].Z,
-                        g_QuestGiverHordePositions[1].O,
-                        TEMPSUMMON_MANUAL_DESPAWN);
+                if (l_Entries.empty())
+                    return;
 
-                    SummonRelativeCreature(l_Entries[1],
-                        g_QuestGiverHordePositions[2].X,
-                        g_QuestGiverHordePositions[2].Y,
-                        g_QuestGiverHordePositions[2].Z,
-                        g_QuestGiverHordePositions[2].O,
-                        TEMPSUMMON_MANUAL_DESPAWN);
+                switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(MS::Garrison::BuildingType::Inn)))
+                {
+                    case 1:
+                    {
+                        if (l_Entries.size() > 1)
+                        {
+                            SummonRelativeCreature(l_Entries[0], g_QuestGiverHordePositions[1], TEMPSUMMON_MANUAL_DESPAWN);
+                            SummonRelativeCreature(l_Entries[1], g_QuestGiverHordePositions[2], TEMPSUMMON_MANUAL_DESPAWN);
+                        }
+                        else
+                            SummonRelativeCreature(l_Entries[0], g_QuestGiverHordePositions[0], TEMPSUMMON_MANUAL_DESPAWN);
+
+                        break;
+                    }
+                    case 2:
+                    {
+                        break;
+                    }
+                    case 3:
+                    {
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
         }
@@ -124,20 +129,18 @@ namespace MS { namespace Garrison
     /// @p_Creature   : Target GameObject instance
     bool npc_akanja_garr::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
-        if (p_Player->HasQuest(Quests::Horde_YourFirstInscriptionWorkOrder) && !p_Player->IsQuestRewarded(Quests::Horde_YourFirstInscriptionWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_YourFirstInscriptionWorkOrder, 4);
+        Manager* l_GarrisonMgr = p_Player->GetGarrison();
 
-        if (p_Player->HasQuest(Quests::Horde_YourFirstInscriptionWorkOrder) || p_Player->IsQuestRewarded(Quests::Horde_YourFirstInscriptionWorkOrder))
-            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultWorkOrder, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
-
-        if (l_AI == nullptr)
+        if (l_GarrisonMgr == nullptr)
             return true;
 
-        l_AI->SendFollowerRecruitmentUI(p_Player);
+        if (p_Player->HasQuest(Quests::Horde_TheHeadHunterHarverst) && !p_Player->IsQuestRewarded(Quests::Horde_TheHeadHunterHarverst))
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_TheHeadHunterHarverst, 4);
 
-        //p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+        if ((p_Player->HasQuest(Quests::Horde_TheHeadHunterHarverst) || p_Player->IsQuestRewarded(Quests::Horde_TheHeadHunterHarverst)) && l_GarrisonMgr->GetGarrisonWeeklyTavernDatas().empty())
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::FollowerRecruitment, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
         return true;
     }
@@ -147,8 +150,18 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_akanja_garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
+    bool npc_akanja_garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
+        if (p_Action == GOSSIP_ACTION_INFO_DEF)
+        {
+            GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+
+            if (l_AI == nullptr)
+                return true;
+
+            l_AI->SendFollowerRecruitmentUI(p_Player);
+        }
+
         return true;
     }
 

@@ -171,11 +171,6 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            p_Handler->PSendSysMessage(LANG_YOU_CHANGE_ASPEED, "5.0", targetNameLink.c_str());
-
-            if (p_Handler->needReportToTarget(l_Target))
-                (ChatHandler(l_Target)).PSendSysMessage(LANG_YOURS_ASPEED_CHANGED, p_Handler->GetNameLink().c_str(), 5.0f);
-
             /// Set higher speed
             l_Target->SetSpeed(MOVE_WALK, 5.0f, true);
             l_Target->SetSpeed(MOVE_RUN, 5.0f, true);
@@ -184,7 +179,6 @@ class garrison_commandscript: public CommandScript
 
             /// Set fly
             l_Target->SetCanFly(true);
-            p_Handler->PSendSysMessage(LANG_COMMAND_FLYMODE_STATUS, p_Handler->GetNameLink(l_Target).c_str(), "ON");
 
             /// Set Garrison resources + money at high values
             l_Target->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_GARRISON_RESSOURCES, 10000, true, true);

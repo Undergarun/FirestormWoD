@@ -1155,6 +1155,7 @@ class WorldSession
         void HandleGarrisonMissionBonusRollOpcode(WorldPacket& p_RecvData);
         void HandleGarrisonGenerateRecruitsOpcode(WorldPacket& p_RecvData);
         void HandleGarrisonSetRecruitmentPreferencesOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonRecruitFollower(WorldPacket& p_RecvData);
         void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket& p_RecvData);
         void HandleGarrisonAssignFollowerToBuilding(WorldPacket& p_RecvData);
         void HandleGarrisonRemoveFollowerFromBuilding(WorldPacket& p_RecvData);

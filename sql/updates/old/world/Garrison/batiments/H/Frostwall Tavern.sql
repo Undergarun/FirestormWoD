@@ -117,7 +117,14 @@
 	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-34','0','87300','-1.03095','-0.3539','1.27022','0.174304');
 
 	UPDATE creature_template SET scriptname = "npc_Murg_Garr" WHERE entry = 79828;
+	DELETE FROM gossip_menu_option WHERE menu_id = 1 AND id = 22;
+	insert into `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) values('1','22','0','I would like to recruit followers.','0','0','0','0','0','0',NULL);
+	UPDATE creature_template SET npcflag = 3, scriptname = 'npc_akanja_garr' WHERE entry = 87305;
 
 -- LEVEL 2
 
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -35 AND faction_index = 0;
+
 -- LEVEL 3
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -36 AND faction_index = 0;

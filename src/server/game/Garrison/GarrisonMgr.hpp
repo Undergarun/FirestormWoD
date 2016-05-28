@@ -157,6 +157,8 @@ namespace MS { namespace Garrison
         public:
             /// Add follower
             bool AddFollower(uint32 p_FollowerID);
+            /// Add follower with initialized entity
+            bool AddFollower(GarrisonFollower p_Follower);
             /// Assign a follower to a building
             void AssignFollowerToBuilding(uint64 p_FollowerDBID, uint32 p_PlotInstanceID);
             /// Change follower activation state

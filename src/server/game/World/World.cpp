@@ -3502,6 +3502,7 @@ void World::ResetWeeklyGarrisonDatas()
                 l_GarrisonMgr->CleanGarrisonWeeklyTavernData();
 
             l_Player->ResetWeeklyGarrisonDatas();
+            l_Player->SaveToDB();
         }
     }
 }

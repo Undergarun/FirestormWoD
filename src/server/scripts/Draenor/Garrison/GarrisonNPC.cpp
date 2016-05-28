@@ -1957,6 +1957,7 @@ void AddSC_Garrison_NPC()
 
         /// Lunarfall Inn
         new MS::Garrison::npc_MadisonClark;
+        new MS::Garrison::npc_lysa_serion_garr;
 
         /// Mage Tower
         new MS::Garrison::npc_ApprenticeVarNath;
@@ -1976,7 +1977,6 @@ void AddSC_Garrison_NPC()
 
     /// Horde
     {
-        new MS::Garrison::npc_akanja_garr;
         new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");
         new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon");
         new MS::Garrison::npc_Skaggit;
@@ -2043,6 +2043,7 @@ void AddSC_Garrison_NPC()
 
         /// Frostwall Tavern
         new MS::Garrison::npc_Murg;
+        new MS::Garrison::npc_akanja_garr;
 
         /// Spirit Lodge
         new MS::Garrison::npc_Varsha;

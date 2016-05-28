@@ -1067,6 +1067,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_MISSION_BONUS_ROLL,                         STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonMissionBonusRollOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_GENERATE_RECRUITS,                          STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonGenerateRecruitsOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_SET_RECRUITMENT_PREFERENCES,                STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonSetRecruitmentPreferencesOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_RECRUIT_FOLLOWER,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonRecruitFollower);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REQUEST_UPGRADEABLE,                        STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleRequestGarrisonUpgradeableOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_UPGRADE_GARRISON,                                    STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleUpgradeGarrisonOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO,         STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleRequestLandingPageShipmentInfoOpcode);

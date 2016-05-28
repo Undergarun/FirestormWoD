@@ -22486,14 +22486,15 @@ void Player::_LoadCharacterGarrisonWeeklyTavernDatas(PreparedQueryResult p_Resul
         {
             Field* l_Fields = p_Result->Fetch();
             std::vector<uint32> l_AbilitiesVector;
+            uint32 l_FollowerID = l_Fields[1].GetUInt32();
             std::string l_Abilities = l_Fields[2].GetString();
 
-            Tokenizer l_Tokens(l_Abilities, ',');
+            Tokenizer l_Tokens(l_Abilities, ' ');
 
             for (Tokenizer::const_iterator l_Iter = l_Tokens.begin(); l_Iter != l_Tokens.end(); ++l_Iter)
                 l_AbilitiesVector.push_back(uint32(atol(*l_Iter)));
 
-            MS::Garrison::WeeklyTavernData l_TavernData = { l_Fields[1].GetUInt32(), l_AbilitiesVector };
+            MS::Garrison::WeeklyTavernData l_TavernData = { l_FollowerID, l_AbilitiesVector };
 
             l_GarrisonMgr->SetGarrisonWeeklyTavernData(l_TavernData);
         }
@@ -24177,8 +24178,8 @@ void Player::_SaveCharacterGarrisonWeeklyTavernDatas(SQLTransaction& p_Transacti
 
         for (uint32 l_Ability : l_TavernData.Abilities)
         {
-            if (!l_TavernData.Abilities.back())
-                l_Abilities << l_Ability << ","; ///< TAVERN CHECK TODO HELP DATA LALALALALALO
+            if (l_Ability != l_TavernData.Abilities.back())
+                l_Abilities << l_Ability << ' ';
             else
                 l_Abilities << l_Ability;
         }

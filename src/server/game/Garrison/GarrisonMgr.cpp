@@ -2487,6 +2487,56 @@ namespace MS { namespace Garrison
         return true;
     }
 
+    bool Manager::AddFollower(GarrisonFollower p_Follower)
+    {
+        GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_Follower.FollowerID);
+
+        if (!l_Entry)
+            return false;
+
+        std::ostringstream l_Abilities;
+
+        for (uint32 l_Itr = 0; l_Itr < p_Follower.Abilities.size(); ++l_Itr)
+            l_Abilities << p_Follower.Abilities[l_Itr] << ' ';
+
+        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_FOLLOWER);
+
+        uint32 l_Index = 0;
+        l_Stmt->setUInt32(l_Index++, p_Follower.DatabaseID);
+        l_Stmt->setUInt32(l_Index++, m_ID);
+        l_Stmt->setUInt32(l_Index++, p_Follower.FollowerID);
+        l_Stmt->setUInt32(l_Index++, p_Follower.Level);
+        l_Stmt->setUInt32(l_Index++, p_Follower.XP);
+        l_Stmt->setUInt32(l_Index++, p_Follower.Quality);
+        l_Stmt->setUInt32(l_Index++, p_Follower.ItemLevelArmor);
+        l_Stmt->setUInt32(l_Index++, p_Follower.ItemLevelWeapon);
+        l_Stmt->setUInt32(l_Index++, p_Follower.CurrentMissionID);
+        l_Stmt->setUInt32(l_Index++, p_Follower.CurrentBuildingID);
+        l_Stmt->setString(l_Index++, l_Abilities.str());
+        l_Stmt->setUInt32(l_Index++, p_Follower.Flags);
+        l_Stmt->setString(l_Index++, p_Follower.ShipName);
+
+        CharacterDatabase.AsyncQuery(l_Stmt);
+
+        m_Followers.push_back(p_Follower);
+
+        WorldPacket l_AddFollowerResult(SMSG_GARRISON_ADD_FOLLOWER_RESULT, 64);
+        l_AddFollowerResult << uint32(PurchaseBuildingResults::Ok);
+        p_Follower.Write(l_AddFollowerResult);
+
+        m_Owner->SendDirectMessage(&l_AddFollowerResult);
+
+        if (p_Follower.Quality == ItemQualities::ITEM_QUALITY_RARE)
+        {
+            if (!m_Owner->GetAchievementMgr().HasAchieved(9130))
+                m_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(9130), nullptr);
+
+            m_Owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_FOLLOWER_IN_OWN_GARRISON);
+        }
+
+        return true;
+    }
+
     /// Assign a follower to a building
     void Manager::AssignFollowerToBuilding(uint64 p_FollowerDBID, uint32 p_PlotInstanceID)
     {
