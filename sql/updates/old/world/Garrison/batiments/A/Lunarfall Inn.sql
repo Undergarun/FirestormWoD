@@ -392,4 +392,9 @@ UPDATE creature_template SET scriptname = "npc_MadisonClark_Garr" WHERE entry = 
 	UPDATE creature_template SET npcflag = 3, scriptname = 'npc_lysa_serion_garr' WHERE entry = 84947;
 -- LEVEL 2
 
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -35 AND faction_index = 1;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-35','1','85510','-0.538097','6.96231','0.635078','1.44424');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-35','1','77368','-12.6942','-1.69218','1.20133','6.26658');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-35','1','84947','-8.93744','-7.15514','1.18672','1.76625');
+
 -- LEVEL 3
