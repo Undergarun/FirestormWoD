@@ -7739,6 +7739,12 @@ void Player::RepopAtGraveyard(bool p_ForceGraveyard /*= false*/)
                 m_Events.AddEvent(new DelayedResurrection(GetGUID()), 1 * TimeConstants::IN_MILLISECONDS);
         }
     }
+    /// PvP Duel Zone
+    else if (GetAreaId() == 2401)
+    {
+         ResurrectPlayer(1);
+         RegenerateAll();
+    }
     else
     {
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
