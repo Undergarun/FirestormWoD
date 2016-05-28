@@ -4302,8 +4302,8 @@ void Spell::_handle_finish_phase()
         {
             m_caster->ClearComboPoints();
 
-            /// Anticipation
-            if (m_caster->HasAura(115189) && (m_spellInfo->Id == 2098 || m_spellInfo->Id == 32645 || m_spellInfo->Id == 152150))
+            /// Anticipation for                  Kidney Shot -- 408     &&     Rupture -- 1943    &&   Eviscerate -- 2098     &&     Envenom -- 32645 && Death from Above-- 152150
+            if (m_caster->HasAura(115189) && (m_spellInfo->Id == 408 || m_spellInfo->Id == 1943 || m_spellInfo->Id == 2098 || m_spellInfo->Id == 32645 || m_spellInfo->Id == 152150))
             {
                 int32 basepoints0 = m_caster->GetAura(115189)->GetStackAmount();
                 m_caster->CastCustomSpell(m_caster->getVictim(), 115190, &basepoints0, NULL, NULL, true);

@@ -84,6 +84,7 @@ class spell_rog_anticipation : public SpellScriptLoader
             enum eSpells
             {
                 AnticipationProc        = 115189,
+                Anticipation            = 114015,
                 SinisterStrike          = 1752,
                 SinisterStrikeEnabler   = 79327,
                 MutilateMainHand        = 5374,
@@ -120,14 +121,22 @@ class spell_rog_anticipation : public SpellScriptLoader
                     }
 
                     if (l_SpellInfo->Id == eSpells::SinisterStrike)
+                    {
+                        AuraEffect* l_AnticipationAuraEffect = l_Caster->GetAuraEffect(eSpells::Anticipation, EFFECT_0);
+                        if (l_AnticipationAuraEffect)
+                        {
+                            l_OldCombo = l_AnticipationAuraEffect->GetAmount();
+                        }
+
                         l_NewCombo += 1;
+                    }
 
                     /// MutilateMainHand & MutilateOffHand both hit before Mutilate add the 2 CP
                     /// For this script to work, it is needed to consider that these 2 CP are given in one time.
                     if (l_SpellInfo->Id == eSpells::MutilateMainHand)
                         l_NewCombo += 2;
 
-                    if  (l_OldCombo + l_NewCombo <= 5)
+                    if (l_OldCombo + l_NewCombo <= 5)
                         return;
 
                     l_NewCombo = l_NewCombo + l_OldCombo - 5;
@@ -152,6 +161,7 @@ class spell_rog_anticipation : public SpellScriptLoader
 /// Last Update 6.2.3
 /// Called by Rogue WoD PvP 2P Bonus - Kick - 165996
 /// Called by Rogue WoD PvO Assassination 4P Bonus - Cold Blood - 170882
+/// Called by Sinister strike - 1752
 /// Anticipation doesn't automatically proc on these spells
 class spell_rog_anticipation_special_procs : public SpellScriptLoader
 {
@@ -163,7 +173,8 @@ class spell_rog_anticipation_special_procs : public SpellScriptLoader
             AnticipationProc = 115189,
             Anticipation = 114015,
             ColdBlood = 170882,
-            Kick = 165996
+            Kick = 165996,
+            SinisterStrike = 1752
         };
 
         class spell_rog_anticipation_special_procs_SpellScript : public SpellScript
@@ -228,7 +239,8 @@ class spell_rog_anticipation_special_procs : public SpellScriptLoader
             void Register() override
             {
                 OnPrepare += SpellOnPrepareFn(spell_rog_anticipation_special_procs_SpellScript::HandleOnPrepare);
-                AfterCast += SpellCastFn(spell_rog_anticipation_special_procs_SpellScript::HandleAfterCast);                
+                if (m_scriptSpellId != eSpells::SinisterStrike)
+                    AfterCast += SpellCastFn(spell_rog_anticipation_special_procs_SpellScript::HandleAfterCast);
             }
         };
 
