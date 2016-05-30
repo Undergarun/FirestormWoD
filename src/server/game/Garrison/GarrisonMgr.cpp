@@ -4399,6 +4399,15 @@ namespace MS { namespace Garrison
                     if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
                         continue;
 
+                    /// If player has Tavern lvl 3, he'll have 50% chance to get a treasure hunter type mission
+                    if (l_Entry->MissionType == MissionType::Treasure)
+                    {
+                        if (!GetBuildingLevel(GetBuildingWithType(BuildingType::Inn)) == 3)
+                            continue;
+                        else if (urand(0, 1))
+                            continue;
+                    }
+
                     /// Faction speific mission (No generic way to handle it)
                     switch (GetGarrisonFactionIndex())
                     {
@@ -4550,6 +4559,15 @@ namespace MS { namespace Garrison
 
                     if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
                         continue;
+
+                    /// If player has Tavern lvl 3, he'll have 50% chance to get a treasure hunter type mission
+                    if (l_Entry->MissionType == MissionType::Treasure)
+                    {
+                        if (!GetBuildingLevel(GetBuildingWithType(BuildingType::Inn)) == 3)
+                            continue;
+                        else if (urand(0, 1))
+                            continue;
+                    }
 
                     uint32 l_RewardCount = 0;
                     for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
