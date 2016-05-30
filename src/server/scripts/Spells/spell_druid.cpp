@@ -910,7 +910,7 @@ public:
             if (!l_Target)
                 return;
 
-            Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+            Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION, l_Caster->GetGUID());
 
             if (l_RejuvenationAura && m_RejuvenationAura > 0)
                 l_RejuvenationAura->SetDuration(m_RejuvenationAura);
