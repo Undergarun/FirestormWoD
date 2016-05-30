@@ -3261,9 +3261,9 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
             {
                 m_Instance = p_Creature->GetInstanceScript();
 
-                if (p_Creature->IsNearPosition(&g_GromkarManAtArmsIntroLeftPos, 0.5f))
+                if (p_Creature->IsNearPosition(&g_GromkarManAtArmsIntroLeftPos, 5.0f))
                     m_IsThogarIntro = true;
-                else if (p_Creature->IsNearPosition(&g_GromkarManAtArmsIntroRightPos, 0.5f))
+                else if (p_Creature->IsNearPosition(&g_GromkarManAtArmsIntroRightPos, 5.0f))
                     m_IsThogarIntro = true;
                 else
                     m_IsThogarIntro = false;
@@ -3288,12 +3288,49 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventIronBellow, 1);
                 m_Events.ScheduleEvent(eEvents::EventRecklessSlash, 3 * TimeConstants::IN_MILLISECONDS);
 
-                if (m_IsThogarIntro)
+                if (m_IsThogarIntro && m_Instance != nullptr)
                 {
-                    /// Must be done for train spawning
-                    me->GetMap()->SetObjectVisibility(500.0f);
+                    if (m_Instance->GetBossState(eFoundryDatas::DataOperatorThogar) != EncounterState::SPECIAL)
+                    {
+                        m_Instance->SetBossState(eFoundryDatas::DataOperatorThogar, EncounterState::SPECIAL);
 
-                    SummonIntroTrain(me, eThogarMiscDatas::FourthTrack);
+                        /// Must be done for train spawning
+                        me->GetMap()->SetObjectVisibility(500.0f);
+
+                        SummonIntroTrain(me, eThogarMiscDatas::FourthTrack);
+                    }
+                    else if (Creature* l_Wheels = me->FindNearestCreature(eThogarCreatures::TrainWheels, 100.0f))
+                    {
+                        if (l_Wheels->IsAIEnabled)
+                        {
+                            l_Wheels->AI()->SetGUID(me->GetGUID());
+                            l_Wheels->AI()->DoAction(eThogarActions::IntroEnd);
+                        }
+                    }
+                }
+            }
+
+            void JustSummoned(Creature* p_Summon) override
+            {
+                CreatureAI::JustSummoned(p_Summon);
+
+                if (m_Instance == nullptr)
+                    return;
+
+                switch (p_Summon->GetEntry())
+                {
+                    case eFoundryCreatures::IronRaider:
+                    {
+                        if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                        {
+                            if (l_Thogar->IsAIEnabled)
+                                l_Thogar->AI()->SetGUID(p_Summon->GetGUID(), 0);
+                        }
+
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
 
@@ -3389,6 +3426,18 @@ class npc_foundry_iron_raider : public CreatureScript
             void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
+            }
+
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
+                {
+                    if (Creature* l_Thogar = Creature::GetCreature(*me, l_InstanceScript->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                    {
+                        if (l_Thogar->IsAIEnabled)
+                            l_Thogar->AI()->SetGUID(me->GetGUID(), 1);
+                    }
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
