@@ -1316,7 +1316,7 @@ class spell_mage_combustion: public SpellScriptLoader
                         continue;
 
                     if ((*i)->GetId() != 12654)
-                        return;
+                        continue;
 
                     int32 l_Amount = l_Player->SpellDamageBonusDone(l_Target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
                     l_Amount = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Amount, DOT);

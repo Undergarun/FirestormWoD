@@ -521,7 +521,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //472 SPELL_AURA_472
     &AuraEffect::HandleNoImmediateEffect,                         //473 SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT
     &AuraEffect::HandleNULL,                                      //474 SPELL_AURA_474
-    &AuraEffect::HandleNULL,                                      //475 SPELL_AURA_475
+    &AuraEffect::HandleAllowUsingGameobjectsWhileMounted,         //475 SPELL_AURA_ALLOW_USING_GAMEOBJECTS_WHILE_MOUNTED
     &AuraEffect::HandleNoImmediateEffect,                         //476 SPELL_AURA_MOD_CURRENCY_GAIN_PCT
     &AuraEffect::HandleNULL,                                      //477 SPELL_AURA_477
     &AuraEffect::HandleNULL,                                      //478 SPELL_AURA_478
@@ -8509,6 +8509,20 @@ void AuraEffect::HandleModStatBonusPercent(AuraApplication const* p_AurApp, uint
                 l_Target->ApplyStatPercentBuffMod(Stats(l_I), float(m_amount), p_Apply);
         }
     }
+}
+
+void AuraEffect::HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+    
+    if (p_AurApp->GetTarget()->GetTypeId() != TYPEID_PLAYER)
+        return;
+    
+    if (p_Apply)
+        p_AurApp->GetTarget()->SetFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED);
+    else if (!p_AurApp->GetTarget()->HasAuraType(SPELL_AURA_ALLOW_USING_GAMEOBJECTS_WHILE_MOUNTED))
+        p_AurApp->GetTarget()->RemoveFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED);
 }
 
 void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const

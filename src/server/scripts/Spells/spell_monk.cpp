@@ -3646,6 +3646,11 @@ class spell_monk_roll: public SpellScriptLoader
 
             void HandleBeforeCast()
             {
+                
+            }
+
+            void HandleAfterCast()
+            {
                 Unit* l_Caster = GetCaster();
 
                 l_Caster->CastSpell(l_Caster, SPELL_MONK_ROLL_TRIGGER);
@@ -3653,16 +3658,13 @@ class spell_monk_roll: public SpellScriptLoader
                 if (!aur)
                     return;
 
-                AuraApplication* app =  aur->GetApplicationOfTarget(GetCaster()->GetGUID());
+                AuraApplication* app = aur->GetApplicationOfTarget(GetCaster()->GetGUID());
                 if (!app)
                     return;
 
                 app->ClientUpdate();
-            }
 
-            void HandleAfterCast()
-            {
-                Unit* l_Caster = GetCaster();
+
                 if (!l_Caster || l_Caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
