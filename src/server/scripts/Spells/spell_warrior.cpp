@@ -356,6 +356,7 @@ class spell_warr_colossus_smash: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Dragon Roar - 118000
 class spell_warr_dragon_roar: public SpellScriptLoader
 {
@@ -366,6 +367,17 @@ class spell_warr_dragon_roar: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_dragon_roar_SpellScript);
 
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                    SetHitDamage(GetHitDamage() * 1.25f);
+            }
+
             void HandleAfterHit()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -373,13 +385,14 @@ class spell_warr_dragon_roar: public SpellScriptLoader
                         l_Caster->CastSpell(l_Target, WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK, true);
             }
 
-            void Register()
+            void Register() override
             {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_dragon_roar_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 AfterHit += SpellHitFn(spell_warr_dragon_roar_SpellScript::HandleAfterHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_warr_dragon_roar_SpellScript();
         }
