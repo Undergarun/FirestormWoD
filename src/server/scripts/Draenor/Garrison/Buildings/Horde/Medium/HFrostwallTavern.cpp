@@ -84,10 +84,26 @@ namespace MS { namespace Garrison
                     }
                     case 2:
                     {
+                        if (l_Entries.size() > 1)
+                        {
+                            SummonRelativeCreature(l_Entries[0], g_QuestGiverHordePositions[4], TEMPSUMMON_MANUAL_DESPAWN);
+                            SummonRelativeCreature(l_Entries[1], g_QuestGiverHordePositions[5], TEMPSUMMON_MANUAL_DESPAWN);
+                        }
+                        else
+                            SummonRelativeCreature(l_Entries[0], g_QuestGiverHordePositions[3], TEMPSUMMON_MANUAL_DESPAWN);
+
                         break;
                     }
                     case 3:
                     {
+                        if (l_Entries.size() > 1)
+                        {
+                            SummonRelativeCreature(l_Entries[0], g_QuestGiverHordePositions[7], TEMPSUMMON_MANUAL_DESPAWN);
+                            SummonRelativeCreature(l_Entries[1], g_QuestGiverHordePositions[8], TEMPSUMMON_MANUAL_DESPAWN);
+                        }
+                        else
+                            SummonRelativeCreature(l_Entries[0], g_QuestGiverHordePositions[6], TEMPSUMMON_MANUAL_DESPAWN);
+
                         break;
                     }
                     default:
@@ -137,8 +153,9 @@ namespace MS { namespace Garrison
         if (p_Player->HasQuest(Quests::Horde_TheHeadHunterHarverst) && !p_Player->IsQuestRewarded(Quests::Horde_TheHeadHunterHarverst))
             p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_TheHeadHunterHarverst, 4);
 
-        if ((p_Player->HasQuest(Quests::Horde_TheHeadHunterHarverst) || p_Player->IsQuestRewarded(Quests::Horde_TheHeadHunterHarverst)) && l_GarrisonMgr->GetGarrisonWeeklyTavernDatas().empty())
-            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::FollowerRecruitment, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        if ((p_Player->HasQuest(Quests::Horde_TheHeadHunterHarverst) || p_Player->GetQuestStatus(Quests::Horde_TheHeadHunterHarverst) == QUEST_STATUS_NONE ||
+            p_Player->IsQuestRewarded(Quests::Alliance_TheHeadHunterHarverst)) && l_GarrisonMgr->GetGarrisonWeeklyTavernDatas().empty())
 
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 

@@ -992,6 +992,8 @@ class spell_rog_cloak_and_dagger: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_cloak_and_dagger_SpellScript);
 
+            bool m_CloakAndDagger = false;
+
             enum eSpells
             {
                 CloakAndDagger      = 138106,
@@ -1012,6 +1014,11 @@ class spell_rog_cloak_and_dagger: public SpellScriptLoader
 
                 if (l_Caster->HasUnitState(UNIT_STATE_ROOT) && l_Target->GetDistance(l_Caster) > l_BasicRadius)
                     return SPELL_FAILED_ROOTED;
+                
+                if (l_Caster->HasAura(eSpells::CloakAndDagger))
+                {
+                    m_CloakAndDagger = true;
+                }
 
                 return SPELL_CAST_OK;
             }
@@ -1024,7 +1031,7 @@ class spell_rog_cloak_and_dagger: public SpellScriptLoader
                 if (l_Target == nullptr || l_Player == nullptr)
                     return;
 
-                if (l_Player->HasTalent(eSpells::CloakAndDagger, l_Player->GetActiveSpec()) && !l_Player->HasUnitState(UNIT_STATE_ROOT))
+                if (!l_Player->HasUnitState(UNIT_STATE_ROOT) && m_CloakAndDagger)
                     l_Player->CastSpell(l_Target, eSpells::TeleportBack, true);
 
                 if (l_Player->HasAura(eSpells::FindWeekness))
