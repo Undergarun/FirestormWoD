@@ -2204,7 +2204,7 @@ class spell_warr_blood_bath : public SpellScriptLoader
                     int32 l_Amplitude = l_PreviousBloodBath->GetAmplitude();
 
                     if (l_Amplitude)
-                        l_PreviousTotalDamage = l_PeriodicDamage * (l_Duration / l_Amplitude);
+                        l_PreviousTotalDamage = l_PeriodicDamage * ((l_Duration / l_Amplitude) + 1);
 
                     l_PreviousTotalDamage /= (l_SpellInfoDamage->GetMaxDuration() / l_SpellInfoDamage->Effects[EFFECT_0].Amplitude);
                 }
