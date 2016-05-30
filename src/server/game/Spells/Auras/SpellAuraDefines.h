@@ -523,7 +523,7 @@ enum AuraType
     SPELL_AURA_472                                          = 472,  // 6.0.X 174627 Fixate
     SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT          = 473,  // 6.0.X Prevents durability loss from dealing/taking damage
     SPELL_AURA_474                                          = 474,  // 6.0.X Upgrade (170733) used on bonus loot item in quest
-    SPELL_AURA_475                                          = 475,  // 6.0.X used for garr ability check comments http://fr.wowhead.com/spell=169606#english-comments
+    SPELL_AURA_ALLOW_USING_GAMEOBJECTS_WHILE_MOUNTED        = 475,  // 6.0.X
     SPELL_AURA_MOD_CURRENCY_GAIN_PCT                        = 476,  // 6.0.X
     SPELL_AURA_477                                          = 477,  // 6.0.X Draenor Scaling (used in beta test) Scale player level
     SPELL_AURA_478                                          = 478,  // 6.0.X Gladiator stance (new warrior stance in WoD)
