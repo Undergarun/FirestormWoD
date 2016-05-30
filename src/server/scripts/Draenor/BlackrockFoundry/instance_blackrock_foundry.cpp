@@ -83,6 +83,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_ThunderlordPackPens       = 0;
                 m_BeastsEnclosureDoor       = 0;
 
+                m_IronGateDoorGuid          = 0;
                 m_OperatorThogarGuid        = 0;
 
                 m_SpikeGateGuid             = 0;
@@ -149,6 +150,7 @@ class instance_blackrock_foundry : public InstanceMapScript
             std::set<uint64> m_GromkarFiremenders;
 
             /// Foundry Terminus
+            uint64 m_IronGateDoorGuid;
             uint64 m_OperatorThogarGuid;
             std::map<uint32, uint64> m_TrackDoorsGuids;
 
@@ -256,10 +258,22 @@ class instance_blackrock_foundry : public InstanceMapScript
                     }
                     case eFoundryCreatures::GromkarManAtArms:
                     {
-                        Position l_Pos = { 409.889f, 3318.73f, 303.685f, 3.12171f };
+                        Position const l_DarmacOuttro = { 409.889f, 3318.73f, 303.685f, 3.12171f };
 
-                        if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                        if (p_Creature->IsNearPosition(&l_DarmacOuttro, 1.0f))
                             m_GromkarMenAtArms.insert(p_Creature->GetGUID());
+                        else
+                        {
+                            Position l_ThogarIntro = { 502.17f, 3275.37f, 305.984f, 0.538223f };
+
+                            if (p_Creature->IsNearPosition(&l_ThogarIntro, 1.0f))
+                                break;
+
+                            l_ThogarIntro = { 501.031f, 3348.45f, 306.277f, 5.37476f };
+
+                            if (p_Creature->IsNearPosition(&l_ThogarIntro, 1.0f))
+                                break;
+                        }
 
                         p_Creature->DespawnOrUnsummon();
                         break;
@@ -408,6 +422,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::MassiveDoorTrack3Left:
                     case eFoundryGameObjects::MassiveDoorTrack4Left:
                         m_TrackDoorsGuids[p_GameObject->GetEntry()] = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::IronGate:
+                        m_IronGateDoorGuid = p_GameObject->GetGUID();
                         break;
                     default:
                         break;
@@ -933,6 +950,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_TrackDoorsGuids[p_Type];
                     case eFoundryCreatures::BossOperatorThogar:
                         return m_OperatorThogarGuid;
+                    case eFoundryGameObjects::IronGate:
+                        return m_IronGateDoorGuid;
                     default:
                         break;
                 }

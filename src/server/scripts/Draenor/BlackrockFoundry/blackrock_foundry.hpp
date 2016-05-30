@@ -159,6 +159,7 @@ enum eFoundryGameObjects
     TheBeastGate                = 231841,
     BeastsEnclosureDoor         = 232021,
     TerminusDoor                = 237307,
+    IronGate                    = 231842,
     MassiveDoorTrack4Right      = 231843,
     MassiveDoorTrack3Right      = 231844,
     MassiveDoorTrack2Right      = 231845,
