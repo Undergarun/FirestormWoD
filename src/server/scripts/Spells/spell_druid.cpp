@@ -3630,7 +3630,7 @@ class spell_dru_glyph_of_the_stag: public SpellScriptLoader
                 else if (l_Player->getLevel() >= 60 && !l_Player->HasSpell(SPELL_DRUID_FLIGHT_FORM))
                     l_Player->learnSpell(SPELL_DRUID_FLIGHT_FORM, false);
 
-                if (!l_Player->HasAura(eSpells::GlyphOfTheStagMountedAura))
+                if (!l_Player->HasAura(eSpells::GlyphOfTheStagMountedAura) && l_Player->GetShapeshiftForm() == FORM_STAG)
                     l_Player->CastSpell(l_Player, eSpells::GlyphOfTheStagMountedAura, true);
             }
 
