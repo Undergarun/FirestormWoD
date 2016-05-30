@@ -17,6 +17,7 @@
 #include "GarrisonWorkOrder.hpp"
 #include "GarrisonShipmentManager.hpp"
 #include "GarrisonBuildingManager.hpp"
+#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
 #include "Interfaces/Interface_GarrisonSite.hpp"
 
@@ -267,6 +268,8 @@ namespace MS { namespace Garrison
             bool CheckGarrisonStablesQuestsConditions(uint32 p_QuestID, Player* p_Player);
             /// Checks training mounts auras
             bool IsTrainingMount();
+            /// Add auras/flags depending on the building level
+            void HandleStablesAuraBonuses(bool p_Remove = false);
 
         public:
             /// Garrison Reset Systems

@@ -7015,6 +7015,9 @@
     <field type="int" name="ExpansionID" />
     <field type="int" name="RaidOffset" />
     <field type="int" name="MaxPlayers" />
+    <field type="int" name="newField1" />
+    <field type="int" name="newField2" />
+    <field type="int" name="newField3" />
   </Map>
   <TaxiNodes build="0">
     <index>

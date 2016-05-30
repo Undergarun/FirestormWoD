@@ -378,6 +378,18 @@ namespace MS { namespace Garrison
             default:
                 break;
         }
+
+        /// Stables bonuses handling
+        if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
+        {
+            if (p_Player->GetMap() && p_Player->GetMap()->GetParent())
+            {
+                if (p_Player->GetMap()->GetParent()->GetId() == 1116)
+                    l_GarrisonMgr->HandleStablesAuraBonuses();
+                else
+                    l_GarrisonMgr->HandleStablesAuraBonuses(true);
+            }
+        }
     }
 
     bool playerScript_Garrison_Portals_Phases::NeedsTradingPostReset(std::vector<uint32> p_Entries, uint64 p_WorldState)

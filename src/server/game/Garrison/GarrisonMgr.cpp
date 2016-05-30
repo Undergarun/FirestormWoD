@@ -5397,6 +5397,49 @@ namespace MS { namespace Garrison
             || m_Owner->HasAura(StablesData::TrainingMountsAuras::SnarlerTrainingMountAura);
     }
 
+    void Manager::HandleStablesAuraBonuses(bool p_Remove /*= false*/)
+    {
+        if (m_Owner->GetMapId() != 1116) ///< MapID Draenor
+            return;
+
+        using namespace StablesData;
+
+        if (!p_Remove)
+        {
+            switch (GetBuildingLevel(GetBuildingWithType(BuildingType::Stable)))
+            {
+                case 1:
+                    m_Owner->AddAura(BonusAuras::StablesAuraLevel1, m_Owner);
+                    break;
+                case 2:
+                    m_Owner->AddAura(BonusAuras::StablesAuraLevel2, m_Owner);
+                    m_Owner->SetFlag(UNIT_FIELD_FLAGS_3, UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                    break;
+                case 3:
+                    m_Owner->AddAura(BonusAuras::StablesAuraLevel3, m_Owner);
+                    m_Owner->SetFlag(UNIT_FIELD_FLAGS_3, UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                    break;
+            }
+        }
+        else
+        {
+            switch (GetBuildingLevel(GetBuildingWithType(BuildingType::Stable)))
+            {
+                case 1:
+                    m_Owner->RemoveAura(BonusAuras::StablesAuraLevel1);
+                    break;
+                case 2:
+                    m_Owner->RemoveAura(BonusAuras::StablesAuraLevel2);
+                    m_Owner->RemoveFlag(UNIT_FIELD_FLAGS_3, UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                    break;
+                case 3:
+                    m_Owner->RemoveAura(BonusAuras::StablesAuraLevel3);
+                    m_Owner->RemoveFlag(UNIT_FIELD_FLAGS_3, UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                    break;
+            }
+        }
+    }
+
     //////////////////////////////////////////////////////////////////////
     //////////////////////// DAILY TAVERN DATA ///////////////////////////
     //////////////////////////////////////////////////////////////////////

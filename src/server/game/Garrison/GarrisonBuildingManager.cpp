@@ -48,6 +48,8 @@ namespace MS { namespace Garrison
         m_AllowedBluePrints.push_back(Buildings::ScribesQuarters_ScribesQuarters_Level1);
         m_AllowedBluePrints.push_back(Buildings::ScribesQuarters_ScribesQuarters_Level2);
         m_AllowedBluePrints.push_back(Buildings::Stables_Stables_Level1);
+        m_AllowedBluePrints.push_back(Buildings::Stables_Stables_Level2);
+        m_AllowedBluePrints.push_back(Buildings::Stables_Stables_Level3);
         m_AllowedBluePrints.push_back(Buildings::Storehouse_Storehouse_Level1);
         m_AllowedBluePrints.push_back(Buildings::Storehouse_Storehouse_Level2);
         m_AllowedBluePrints.push_back(Buildings::TailoringEmporium_TailoringEmporium_Level1);

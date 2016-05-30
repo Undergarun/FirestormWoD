@@ -415,6 +415,13 @@ namespace MS { namespace Garrison
         static const uint32 g_LassoAllianceAura = 173686;
         static const uint32 g_LassoHordeAura    = 174070;
 
+        enum BonusAuras
+        {
+            StablesAuraLevel1 = 169605,
+            StablesAuraLevel2 = 169606,
+            StablesAuraLevel3 = 169607
+        };
+
         enum TrainingMountsAuras
         {
             RockstuckTrainingMountAura     = 174221, ///< Boar Quests
@@ -450,11 +457,26 @@ namespace MS { namespace Garrison
         {
             static const std::vector<SequencePosition> g_AllianceCreaturesPos =
             {
-                { 12.5372f,  5.8878f, 0.6798f, 1.5558f },
-                {  6.3883f,  6.2564f, 0.6798f, 1.5715f },
-                {  5.5064f, -6.1384f, 0.6720f, 4.6228f },
-                { 16.4277f, -6.5664f, 0.6734f, 1.8818f },
-                { -6.6953f,  2.0611f, 0.6462f, 0.3447f } ///< This one is for second QuestGiver, else is for mounts
+                /// Level 1
+                { 12.5372f,  5.8878f, 0.6798f, 1.5558f }, ///< First Mount from spellbook
+                {  6.3883f,  6.2564f, 0.6798f, 1.5715f }, ///< Second Mount from spellbook
+                {  5.5064f, -6.1384f, 0.6720f, 4.6228f }, ///< First Mount in training
+                { 16.4277f, -6.5664f, 0.6734f, 1.8818f }, ///< Second Mount in training
+                { -6.6953f,  2.0611f, 0.6462f, 0.3447f }, ///< Second QuestGiver
+                
+                /// Level 2
+                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount from spellbook
+                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount from spellbook
+                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount in training
+                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount in training
+                { 0.f, 0.f, 0.f, 0.f }, ///< Second QuestGiver
+
+                /// Level 3
+                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount from spellbook
+                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount from spellbook
+                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount in training
+                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount in training
+                { 0.f, 0.f, 0.f, 0.f } ///< Second QuestGiver
             };
 
             namespace FannyQuestGiver
@@ -650,11 +672,26 @@ namespace MS { namespace Garrison
         {
             static const std::vector<SequencePosition> g_HordeCreaturesPos =
             {
-                { 10.8978f,  6.2676f, 0.4298f, 2.1677f },
-                {  6.9427f,  4.4816f, 0.4298f, 1.8300f },
-                {  7.3520f, -6.3004f, 0.4294f, 4.4899f },
-                { 15.7939f, -5.6128f, 0.4465f, 1.7449f },
-                { -3.5501f, -0.0913f, 0.4295f, 0.0799f } ///< This one is for second QuestGiver, else is for mounts
+                /// Level 1
+                { 10.8978f,  6.2676f, 0.4298f, 2.1677f }, ///< First Mount from spellbook
+                {  6.9427f,  4.4816f, 0.4298f, 1.8300f }, ///< Second Mount from spellbook
+                {  7.3520f, -6.3004f, 0.4294f, 4.4899f }, ///< First Mount in training
+                { 15.7939f, -5.6128f, 0.4465f, 1.7449f }, ///< Second Mount in training
+                { -3.5501f, -0.0913f, 0.4295f, 0.0799f }, ///< Second QuestGiver
+                
+                /// Level 2
+                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount from spellbook
+                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount from spellbook
+                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount in training
+                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount in training
+                { 0.f, 0.f, 0.f, 0.f }, ///< Second QuestGiver
+
+                /// Level 3
+                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount from spellbook
+                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount from spellbook
+                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount in training
+                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount in training
+                { 0.f, 0.f, 0.f, 0.f } ///< Second QuestGiver
             };
 
             namespace SagePalunaQuestGiver
