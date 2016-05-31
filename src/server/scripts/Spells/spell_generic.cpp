@@ -4889,8 +4889,11 @@ class spell_gen_power_handler : public PlayerScript
     public:
         spell_gen_power_handler() : PlayerScript("spell_gen_power_handler") {}
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/, bool p_After)
         {
+            if (p_After)
+                return;
+
             if (p_Player->isInCombat())
                 return;
 

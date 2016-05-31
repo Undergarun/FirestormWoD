@@ -13040,7 +13040,11 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo)
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
         for (SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
             if (itr->type & schoolMask && !spellInfo->CanPierceImmuneAura(sSpellMgr->GetSpellInfo(itr->spellId)))
+            {
+                if (spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_ALL && itr->type != SPELL_SCHOOL_MASK_ALL)
+                    continue;
                 return true;
+            }
     }
 
     // If m_immuneToDamage type contain magic, IMMUNE damage.
@@ -13109,7 +13113,11 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo)
             if ((itr->type & spellInfo->GetSchoolMask())
                 && !(immuneSpellInfo && immuneSpellInfo->IsPositive() && spellInfo->IsPositive())
                 && !spellInfo->CanPierceImmuneAura(immuneSpellInfo))
+            {
+                if (spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_ALL && itr->type != SPELL_SCHOOL_MASK_ALL)
+                    continue;
                 return true;
+            }
         }
     }
 
@@ -15952,9 +15960,14 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
     /// Hook playerScript OnModifyPower
     if (IsPlayer())
-        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, m_powers[l_PowerIndex], p_PowerValue, p_Regen);
+        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, m_powers[l_PowerIndex], p_PowerValue, p_Regen, false);
+    
+    uint32 l_OldPower = m_powers[l_PowerIndex];
 
     m_powers[l_PowerIndex] = p_PowerValue;
+
+    if (IsPlayer())
+        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, l_OldPower, p_PowerValue, p_Regen, true);
 
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 

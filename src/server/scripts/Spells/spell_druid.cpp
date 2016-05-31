@@ -2420,8 +2420,11 @@ class spell_dru_eclipse : public PlayerScript
             //ChatHandler(p_Player).PSendSysMessage("Eclipse : %f balance time : %u", l_EclipseAmount, m_BalanceTime % Eclipse::g_BalanceCycleTime);
         }
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_OldValue*/, int32& p_NewValue, bool /*p_Regen*/)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_OldValue*/, int32& p_NewValue, bool /*p_Regen*/, bool p_After)
         {
+            if (p_After)
+                return;
+
             if (!CanUseEclipse(p_Player) || p_Power != Powers::POWER_ECLIPSE)
                 return;
 
@@ -5417,8 +5420,11 @@ class PlayerScript_soul_of_the_forest : public PlayerScript
             SoulOfTheForestTrigger = 114113
         };
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen, bool p_After)
         {
+            if (p_After)
+                return;
+
             if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_DRUID || !p_Player->HasAura(eSpells::SoulOfTheForestAura))
                 return;
 
