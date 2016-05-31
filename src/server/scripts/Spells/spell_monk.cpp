@@ -3129,18 +3129,27 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 if (p_Caster == nullptr)
                     return nullptr;
 
-                Unit* l_JadeStatue = nullptr;
+                std::list<Creature*> l_TempList;
+                std::list<Creature*> l_StatueList;
+                Creature* l_Statue = nullptr;
 
-                for (Unit::ControlList::const_iterator itr = p_Caster->m_Controlled.begin(); itr != p_Caster->m_Controlled.end(); ++itr)
+                p_Caster->GetCreatureListWithEntryInGrid(l_TempList, NPC_SNAKE_JADE_STATUE, 100.0f);
+                p_Caster->GetCreatureListWithEntryInGrid(l_StatueList, NPC_SNAKE_JADE_STATUE, 100.0f);
+
+                /// Remove other players jade statue
+                for (std::list<Creature*>::iterator i = l_TempList.begin(); i != l_TempList.end(); ++i)
                 {
-                    if ((*itr)->GetEntry() == NPC_SNAKE_JADE_STATUE)
-                    {
-                        if ((*itr)->GetDistance(p_Caster) <= 500.0f)
-                            l_JadeStatue = (*itr);
-                    }
+                    Unit* l_Owner = (*i)->GetOwner();
+                    if (l_Owner && l_Owner->GetGUID() == p_Caster->GetGUID() && (*i)->isSummon())
+                        continue;
+
+                    l_StatueList.remove((*i));
                 }
 
-                return l_JadeStatue;
+                if (l_StatueList.empty())
+                    return nullptr;
+
+                return l_StatueList.front();
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3253,7 +3262,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 p_Amount = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) * p_AurEff->GetSpellEffectInfo()->BonusMultiplier;
             }
 
-            void Register()
+            void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_soothing_mist_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
                 AfterEffectApply += AuraEffectApplyFn(spell_monk_soothing_mist_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
@@ -3262,7 +3271,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_monk_soothing_mist_AuraScript();
         }
