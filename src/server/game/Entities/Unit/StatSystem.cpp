@@ -1074,7 +1074,7 @@ void Player::UpdateManaRegen()
     }
 
     /// Warlocks and Mages have 5% of maximum mana in base mana regen - blizzlike
-    if (getClass() == CLASS_WARLOCK || getClass() == CLASS_MAGE)
+    if (getClass() == CLASS_WARLOCK)
         l_PercentOfMana = 5;
 
     /// 2% of base mana each 5 seconds.

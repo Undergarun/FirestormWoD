@@ -5626,9 +5626,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 83968: ///< Mass Resurrect
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
                 break;
-            case 121039: ///< Mana Attunement (400%)
-                spellInfo->Effects[0].BasePoints = 50;
-                break;
             case 116833: ///< Cosmetic Spirit Totem (MSV - #3 Gara'Jal)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
@@ -6369,9 +6366,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52437:  ///< Sudden Death
             case 157174: ///< Elemental Fusion
                 spellInfo->ProcCharges = 1;
-                break;
-            case 117957: ///< Nether Attunement
-                spellInfo->Effects[EFFECT_0].BasePoints = 300;
                 break;
             case 111546: ///< Chaotic Energy
                 spellInfo->Effects[1].Effect = 0;
