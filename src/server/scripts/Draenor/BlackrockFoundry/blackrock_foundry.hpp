@@ -164,8 +164,8 @@ enum eFoundryGameObjects
     MassiveDoorTrack3Right      = 231844,
     MassiveDoorTrack2Right      = 231845,
     MassiveDoorTrack1Right      = 231846,
-    MassiveDoorTrack4Left       = 231847,
-    MassiveDoorTrack3Left       = 231848,
+    MassiveDoorTrack4Left       = 231848,
+    MassiveDoorTrack3Left       = 231847,
     MassiveDoorTrack2Left       = 231849,
     MassiveDoorTrack1Left       = 231850,
     /// Blackhand's Crucible - Part 4
@@ -204,6 +204,7 @@ enum eFoundryDatas
     GraspingEarthTime,
     DarmacBeastMountedFirst,
     DataAfterFightAddCount,
+    DataThogarIntroStarted,
 
     /// Counters
     /// Gruul

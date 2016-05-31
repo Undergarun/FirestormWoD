@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2016 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2016 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "blackrock_foundry.hpp"
@@ -83,6 +83,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_ThunderlordPackPens       = 0;
                 m_BeastsEnclosureDoor       = 0;
 
+                m_ThogarIntroStarted        = false;
                 m_IronGateDoorGuid          = 0;
                 m_OperatorThogarGuid        = 0;
 
@@ -150,6 +151,7 @@ class instance_blackrock_foundry : public InstanceMapScript
             std::set<uint64> m_GromkarFiremenders;
 
             /// Foundry Terminus
+            bool m_ThogarIntroStarted;
             uint64 m_IronGateDoorGuid;
             uint64 m_OperatorThogarGuid;
             std::map<uint32, uint64> m_TrackDoorsGuids;
@@ -417,10 +419,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::MassiveDoorTrack3Right:
                     case eFoundryGameObjects::MassiveDoorTrack2Right:
                     case eFoundryGameObjects::MassiveDoorTrack1Right:
-                    case eFoundryGameObjects::MassiveDoorTrack1Left:
-                    case eFoundryGameObjects::MassiveDoorTrack2Left:
-                    case eFoundryGameObjects::MassiveDoorTrack3Left:
                     case eFoundryGameObjects::MassiveDoorTrack4Left:
+                    case eFoundryGameObjects::MassiveDoorTrack3Left:
+                    case eFoundryGameObjects::MassiveDoorTrack2Left:
+                    case eFoundryGameObjects::MassiveDoorTrack1Left:
                         m_TrackDoorsGuids[p_GameObject->GetEntry()] = p_GameObject->GetGUID();
                         break;
                     case eFoundryGameObjects::IronGate:
@@ -877,6 +879,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                         SendUpdateWorldState(eFoundryWorldState::WorldStateDarmacAchievement, p_Data);
                         break;
                     }
+                    case eFoundryDatas::DataThogarIntroStarted:
+                    {
+                        m_ThogarIntroStarted = true;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -888,6 +895,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                 {
                     case eFoundryDatas::IronTaskmasterAggro:
                         return (uint32)m_IronTaskmasterAggro;
+                    case eFoundryDatas::DataThogarIntroStarted:
+                        return (uint32)m_ThogarIntroStarted;
                     default:
                         break;
                 }
