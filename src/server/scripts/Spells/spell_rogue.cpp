@@ -2634,11 +2634,15 @@ class PlayerScript_ruthlessness : public PlayerScript
             T17Combat4P         = 165478,
             Deceit              = 166878,
             ShadowStrikesAura   = 166881,
-            ShadowStrikesProc   = 170107
+            ShadowStrikesProc   = 170107,
+            ComboPointDelayed   = 139569
         };
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen, bool p_After)
         {
+            if (!p_After)
+                return;
+
             if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_ROGUE || !p_Player->HasAura(eSpells::Ruthlessness))
                 return;
 
@@ -2649,13 +2653,22 @@ class PlayerScript_ruthlessness : public PlayerScript
             {
                 if (p_Player->HasAura(eSpells::Ruthlessness))
                 {
-                    int32 l_Duration = sSpellMgr->GetSpellInfo(eSpells::Ruthlessness)->Effects[EFFECT_2].BasePoints;
+                    SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::Ruthlessness);
+                    if (!l_SpellInfo)
+                        return;
+
+                    int32 l_Duration = l_SpellInfo->Effects[EFFECT_2].BasePoints;
                     if (p_Player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
                         p_Player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, -(l_Duration * l_DiffVal));
                     if (p_Player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
                         p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, -(l_Duration * l_DiffVal));
                     if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
                         p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, -(l_Duration * l_DiffVal));
+
+                    if (roll_chance_i(l_SpellInfo->Effects[0].PointsPerComboPoint * p_OldValue))
+                    {
+                        p_Player->CastSpell(p_Player, eSpells::ComboPointDelayed, true);
+                    }
                 }
 
                 if (p_Player->HasAura(eSpells::T17Combat4P))

@@ -127,8 +127,11 @@ class PlayerScript_TigereEyeBrew_ManaTea: public PlayerScript
             ManaTea         = 123766
         };
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/, bool p_After)
         {
+            if (p_After)
+                return;
+
             // Get the power earn (if > 0 ) or consum (if < 0)
             int32 l_DiffValue = p_NewValue - p_OldValue;
 
@@ -4574,8 +4577,11 @@ class spell_monk_vital_mists_power : public PlayerScript
     public:
         spell_monk_vital_mists_power() : PlayerScript("spell_monk_vital_mists_power") {}
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen, bool p_After)
         {
+            if (p_After)
+                return;
+
             if (p_Player->getClass() != CLASS_MONK || p_Power != POWER_CHI || !p_Player->HasAura(SPELL_MONK_MUSCLE_MEMORY) || p_Regen)
                 return;
 

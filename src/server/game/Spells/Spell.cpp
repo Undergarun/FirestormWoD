@@ -5775,7 +5775,7 @@ void Spell::TakeRunePower(bool didHit)
             if (runeCost[i] < 0)
                 runeCost[i] = 0;
         }
-        sScriptMgr->OnModifyPower(player, POWER_RUNES, 0, runeCost[i], false);
+        sScriptMgr->OnModifyPower(player, POWER_RUNES, 0, runeCost[i], false, false);
     }
 
     bool l_ConvertUsedRunes = false;

@@ -15958,9 +15958,14 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
     /// Hook playerScript OnModifyPower
     if (IsPlayer())
-        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, m_powers[l_PowerIndex], p_PowerValue, p_Regen);
+        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, m_powers[l_PowerIndex], p_PowerValue, p_Regen, false);
+    
+    uint32 l_OldPower = m_powers[l_PowerIndex];
 
     m_powers[l_PowerIndex] = p_PowerValue;
+
+    if (IsPlayer())
+        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, l_OldPower, p_PowerValue, p_Regen, true);
 
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 
