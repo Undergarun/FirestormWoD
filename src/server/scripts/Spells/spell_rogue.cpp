@@ -1746,7 +1746,7 @@ class spell_rog_crimson_tempest: public SpellScriptLoader
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_CRIMSON_TEMPEST_DOT);
                     int32 l_DamageDot = 0;
 
-                    l_Damage += int32(3 + ((l_Ap * 0.0602f) * l_ComboPoint * 1.5f));
+                    l_Damage += int32(3 + ((l_Ap * 0.09f) * l_ComboPoint));
 
                     if (l_SpellInfo != nullptr)
                         l_DamageDot += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_0].BasePoints) / 6;
