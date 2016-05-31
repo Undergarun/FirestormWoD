@@ -3885,9 +3885,65 @@ public:
     }
 };
 
+/// Last Update 6.2.3
+/// Called by Hand of sacrifice - 6940
+class spell_pal_hand_of_sacrifice : public SpellScriptLoader
+{
+    public:
+        spell_pal_hand_of_sacrifice() : SpellScriptLoader("spell_pal_hand_of_sacrifice") { }
+
+        class spell_pal_hand_of_sacrifice_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_hand_of_sacrifice_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfHandOfSacrifice = 146957,
+                HandOfSacrifice = 6940
+            };
+
+            void HandleAfterHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Player->HasAura(eSpells::GlyphOfHandOfSacrifice))
+                {
+                    AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0);
+                    if (!l_AuraEffect)
+                        return;
+
+                    l_AuraEffect->SetAmount(0);
+                }
+                else
+                {
+                    AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2);
+                    if (!l_AuraEffect)
+                        return;
+
+                    l_AuraEffect->SetAmount(0);
+                }
+            }
+
+            void Register() override
+            {
+                AfterHit += SpellHitFn(spell_pal_hand_of_sacrifice_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_hand_of_sacrifice_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_hand_of_sacrifice();
     new spell_pal_glyph_of_pillar_of_light();
     new spell_pal_empowered_seals();
     new spell_pal_glyph_of_the_consecration();
