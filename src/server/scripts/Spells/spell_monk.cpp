@@ -5439,7 +5439,7 @@ class spell_monk_WoDPvPBrewmaster2PBonus : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Detonate Chi - 115460
 class spell_monk_detonate_chi : public SpellScriptLoader
 {
@@ -5473,20 +5473,18 @@ class spell_monk_detonate_chi : public SpellScriptLoader
                     {
                         Unit* l_Caster = itr->GetCaster();
 
-                        if (l_Caster != nullptr)
-                            l_Caster->CastSpell(itr->GetPositionX(), itr->GetPositionY(), itr->GetPositionZ(), eSpells::HealingSphereDetonate, true);
                         itr->SetDuration(0);
                     }
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnCast += SpellCastFn(spell_monk_detonate_chi_SpellScript::HandleCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_detonate_chi_SpellScript();
         }
