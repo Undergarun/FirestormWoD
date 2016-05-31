@@ -2078,6 +2078,13 @@ void ScriptMgr::OnPlayerEnterInCombat(Player* p_Player)
     FOREACH_SCRIPT(PlayerScript)->OnEnterInCombat(p_Player);
 }
 
+/// Called when a player enter in combat
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerMount(Player* p_Player, uint32 p_CreatureID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMount(p_Player, p_CreatureID);
+}
+
 /// Called when a player leave combat status
 /// @p_Player : Player instance
 void ScriptMgr::OnPlayerLeaveCombat(Player* p_Player)

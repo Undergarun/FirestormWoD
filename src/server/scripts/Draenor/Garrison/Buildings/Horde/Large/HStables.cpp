@@ -211,6 +211,34 @@ namespace MS { namespace Garrison
         if (l_Owner == nullptr)
             return;
 
+        MS::Garrison::Manager* l_GarrisonMgr = l_Owner->GetGarrison();
+
+        if (l_GarrisonMgr == nullptr)
+            return;
+
+        switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(BuildingType::Stable)))
+        {
+        case 1:
+            ProcessSummonPlotCreatures(-1);
+            break;
+        case 2:
+            ProcessSummonPlotCreatures(4);
+            break;
+        case 3:
+            ProcessSummonPlotCreatures(9);
+            break;
+        default:
+            break;
+        }
+    }
+
+    void npc_TormakAI::ProcessSummonPlotCreatures(int l_Index)
+    {
+        Player* l_Owner = GetOwner();
+
+        if (l_Owner == nullptr)
+            return;
+
         me->DespawnCreaturesInArea(m_SummonsEntries, 20.0f);
 
         PlayerSpellMap &l_SpellMap = l_Owner->GetSpellMap();
@@ -235,7 +263,7 @@ namespace MS { namespace Garrison
 
         using namespace StablesData::Horde;
 
-        if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[0].X, g_HordeCreaturesPos[0].Y, g_HordeCreaturesPos[0].Z, g_HordeCreaturesPos[0].O, TEMPSUMMON_MANUAL_DESPAWN))
+        if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
         {
             m_SummonsEntries.push_back(l_Creature->GetEntry());
             l_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -249,7 +277,7 @@ namespace MS { namespace Garrison
 
         if (l_MountEntry)
         {
-            if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[1].X, g_HordeCreaturesPos[1].Y, g_HordeCreaturesPos[1].Z, g_HordeCreaturesPos[1].O, TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
             {
                 m_SummonsEntries.push_back(l_Creature->GetEntry());
                 l_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -283,7 +311,7 @@ namespace MS { namespace Garrison
             else
                 me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
-            if (Creature* l_FirstCreature = SummonRelativeCreature(305, g_HordeCreaturesPos[2].X, g_HordeCreaturesPos[2].Y, g_HordeCreaturesPos[2].Z, g_HordeCreaturesPos[2].O, TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature* l_FirstCreature = SummonRelativeCreature(305, g_HordeCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
             {
                 m_SummonsEntries.push_back(l_FirstCreature->GetEntry());
 
@@ -300,7 +328,7 @@ namespace MS { namespace Garrison
 
         if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest))
         {
-            if (Creature* l_SecondCreature = SummonRelativeCreature(305, g_HordeCreaturesPos[3].X, g_HordeCreaturesPos[3].Y, g_HordeCreaturesPos[3].Z, g_HordeCreaturesPos[3].O, TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature* l_SecondCreature = SummonRelativeCreature(305, g_HordeCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
             {
                 m_SummonsEntries.push_back(l_SecondCreature->GetEntry());
 
@@ -317,12 +345,7 @@ namespace MS { namespace Garrison
 
         if (GetClosestCreatureWithEntry(me, g_SagePalunaQuestgiverEntry, 200.0f) == nullptr && l_Owner->IsQuestRewarded(StablesData::Horde::TormakQuestGiver::ClefthoofQuests::QuestCapturingAClefthoof))
         {
-            if (Creature* l_Creature = SummonRelativeCreature(g_SagePalunaQuestgiverEntry,
-                g_HordeCreaturesPos[4].X,
-                g_HordeCreaturesPos[4].Y,
-                g_HordeCreaturesPos[4].Z,
-                g_HordeCreaturesPos[4].O,
-                TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature* l_Creature = SummonRelativeCreature(g_SagePalunaQuestgiverEntry, g_HordeCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
             {
                 m_SummonsEntries.push_back(l_Creature->GetEntry());
 

@@ -1743,15 +1743,48 @@ namespace MS { namespace Garrison
 
     void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::IsSummonedBy(Unit* p_Summoner)
     {
+        m_SummonerGUID = p_Summoner->GetGUID();
         p_Summoner->CastSpell(me, eSpells::SpellAuraRideVehicle, true);
     }
 
     void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply)
     {
-        if (p_Apply)
-            p_Passenger->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
-        else
-            p_Passenger->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
+        if (Player* l_Player = HashMapHolder<Player>::Find(m_SummonerGUID))
+        {
+            if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
+            {
+                if (p_Apply)
+                {
+                    switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(BuildingType::Stable)))
+                    {
+                        case 2:
+                        {
+                            if (l_Player->HasItemCount(eItems::ItemBlackClawOfSethe))
+                                l_Player->AddAura(eSpells::SpellAuraBlackClawOfSethe, l_Player);
+
+                            l_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                            break;
+                        }
+                        case 3:
+                        {
+                            if (l_Player->HasItemCount(eItems::ItemGarnToothNecklace))
+                                l_Player->AddAura(eSpells::SpellAuraGarnToothNecklace, l_Player);
+
+                            l_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    l_Player->RemoveAura(eSpells::SpellAuraGarnToothNecklace);
+                    l_Player->RemoveAura(eSpells::SpellAuraBlackClawOfSethe);
+                    l_Player->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_3, UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                }
+            }
+        }
     }
 
     void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::JustDied(Unit* /*p_Killer*/)

@@ -591,6 +591,18 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Player);
         }
 
+        virtual void OnMount(Player* p_Player, uint32 p_CreatureID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_CreatureID);
+        }
+
+        virtual void OnDismount(Player* p_Player, uint32 p_CreatureID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_CreatureID);
+        }
+
         /// Called when a player leave combat status
         /// @p_Player : Player instance
         virtual void OnLeaveCombat(Player* p_Player)

@@ -204,6 +204,9 @@
 		(87242, 37102),
 		(87242, 37103),
 		(87242, 37104);
+		
+		237169, 3, 7922, "Griffe noire de Sethe"
+		237170, 3, 18860, "Collier en dents de garn"
 
 		REPLACE INTO creature_questender VALUES
 		(87242, 36950),
@@ -237,7 +240,24 @@
 		(87242, 37102),
 		(87242, 37103),
 		(87242, 37104);
+		
+		REPLACE INTO gameobject_loot_template VALUES
+		(56642, 118469, 100, 1, 0, 1, 1, ''), -- Black Claw of Sethe
+		(56643, 118470, 100, 1, 0, 1, 1, ''); -- Garn-Tooth Necklace
+
+		UPDATE gameobject_template SET NAME = "Black Claw of Sethe" WHERE entry = 237169;
+		UPDATE gameobject_template SET NAME = "Garn-Tooth Necklace" WHERE entry = 237170;
 
 -- LEVEL 2
 
+		DELETE FROM garrison_plot_content WHERE plot_type_or_building = -66 AND faction_index = 0; -- horde
+		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-66','0','-237169','12.5275','-7.15362','0.363678','2.81372');
+		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-66','0','86979','1.26598','-6.91367','0.741592','0.689225');
+
+
 -- LEVEL 3
+
+		DELETE FROM garrison_plot_content WHERE plot_type_or_building = -67 AND faction_index = 0; -- horde
+		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-67','0','-237169','22.5984','-7.442','1.0994','3.09447');
+		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-67','0','-237170','22.5541','-8.3928','2.19916','3.09447');
+		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-67','0','86979','7.36096','-5.45125','1.16763','0.99847');

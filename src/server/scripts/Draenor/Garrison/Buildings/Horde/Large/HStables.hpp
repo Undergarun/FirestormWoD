@@ -58,6 +58,8 @@ namespace MS { namespace Garrison
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
 
             virtual void OnPlotInstanceUnload() override;
+
+            void ProcessSummonPlotCreatures(int l_Index);
     };
 
     //////////////////////////////////////////////////////////////////////////

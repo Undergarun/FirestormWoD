@@ -829,6 +829,11 @@ class ScriptMgr
         /// @p_Player : Player instance
         void OnPlayerEnterInCombat(Player* p_Player);
 
+        /// Called when a player enters a mount
+        /// @p_Player     : Player instance
+        /// @p_CreatureID : Mount entry
+        void OnPlayerMount(Player* p_Player, uint32 p_CreatureID);
+
         /// Called when a player leave combat status
         /// @p_Player : Player instance
         void OnPlayerLeaveCombat(Player* p_Player);

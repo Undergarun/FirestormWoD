@@ -190,6 +190,34 @@ namespace MS { namespace Garrison
         if (l_Owner == nullptr)
             return;
 
+        MS::Garrison::Manager* l_GarrisonMgr = l_Owner->GetGarrison();
+
+        if (l_GarrisonMgr == nullptr)
+            return;
+
+        switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(BuildingType::Stable)))
+        {
+            case 1:
+                ProcessSummonPlotCreatures(-1);
+                break;
+            case 2:
+                ProcessSummonPlotCreatures(4);
+                break;
+            case 3:
+                ProcessSummonPlotCreatures(9);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void npc_FannyFirebeardAI::ProcessSummonPlotCreatures(int l_Index)
+    {
+        Player* l_Owner = GetOwner();
+
+        if (l_Owner == nullptr)
+            return;
+
         me->DespawnCreaturesInArea(m_SummonsEntries, 20.0f);
 
         PlayerSpellMap &l_SpellMap = l_Owner->GetSpellMap();
@@ -214,7 +242,7 @@ namespace MS { namespace Garrison
 
         using namespace StablesData::Alliance;
 
-        if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_AllianceCreaturesPos[0].X, g_AllianceCreaturesPos[0].Y, g_AllianceCreaturesPos[0].Z, g_AllianceCreaturesPos[0].O, TEMPSUMMON_MANUAL_DESPAWN))
+        if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_AllianceCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
             m_SummonsEntries.push_back(l_Creature->GetEntry());
 
         l_MountEntries.erase(std::remove(l_MountEntries.begin(), l_MountEntries.end(), l_MountEntry), l_MountEntries.end());
@@ -225,19 +253,19 @@ namespace MS { namespace Garrison
 
         if (l_MountEntry)
         {
-            if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_AllianceCreaturesPos[1].X, g_AllianceCreaturesPos[1].Y, g_AllianceCreaturesPos[1].Z, g_AllianceCreaturesPos[1].O, TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_AllianceCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
                 m_SummonsEntries.push_back(l_Creature->GetEntry());
         }
 
         using namespace StablesData::Alliance::FannyQuestGiver;
         using namespace StablesData::Alliance::KeeganQuestGiver;
-        
+
         if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
         {
             if (!l_QuestID)
                 return;
 
-            if (Creature* l_FirstCreature = SummonRelativeCreature(305, g_AllianceCreaturesPos[2].X, g_AllianceCreaturesPos[2].Y, g_AllianceCreaturesPos[2].Z, g_AllianceCreaturesPos[2].O, TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature* l_FirstCreature = SummonRelativeCreature(305, g_AllianceCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
             {
                 m_SummonsEntries.push_back(l_FirstCreature->GetEntry());
 
@@ -257,7 +285,7 @@ namespace MS { namespace Garrison
             if (!l_QuestID)
                 return;
 
-            if (Creature* l_SecondCreature = SummonRelativeCreature(305, g_AllianceCreaturesPos[3].X, g_AllianceCreaturesPos[3].Y, g_AllianceCreaturesPos[3].Z, g_AllianceCreaturesPos[3].O, TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature* l_SecondCreature = SummonRelativeCreature(305, g_AllianceCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
             {
                 m_SummonsEntries.push_back(l_SecondCreature->GetEntry());
 
@@ -274,12 +302,7 @@ namespace MS { namespace Garrison
 
         if (GetClosestCreatureWithEntry(me, g_KeeganQuestgiverEntry, 200.0f) == nullptr && l_Owner->IsQuestRewarded(StablesData::Alliance::FannyQuestGiver::ClefthoofQuests::QuestCapturingAClefthoof))
         {
-            if (Creature* l_Creature = SummonRelativeCreature(g_KeeganQuestgiverEntry,
-                g_AllianceCreaturesPos[4].X,
-                g_AllianceCreaturesPos[4].Y,
-                g_AllianceCreaturesPos[4].Z,
-                g_AllianceCreaturesPos[4].O,
-                TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature* l_Creature = SummonRelativeCreature(uint32(g_KeeganQuestgiverEntry), g_AllianceCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
                 m_SummonsEntries.push_back(l_Creature->GetEntry());
         }
     }
