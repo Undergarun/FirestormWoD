@@ -354,7 +354,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket& p_RecvData)
     if (!l_Result && !l_Garrison->KnownBlueprint(l_BuildingID))
         l_Result = MS::Garrison::PurchaseBuildingResults::RequireBluePrint;
 
-    if (!l_Result && l_Garrison->GetBuilding(l_BuildingID).BuildingID != 0)
+    if (!l_Result && l_Garrison->GetBuildingWithBuildingID(l_BuildingID).BuildingID != 0)
         l_Result = MS::Garrison::PurchaseBuildingResults::BuildingExists;
 
     if (!l_Result && !l_Garrison->IsBuildingPlotInstanceValid(l_BuildingID, l_PlotInstanceID))

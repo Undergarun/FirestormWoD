@@ -143,8 +143,11 @@ class PlayerScript_Shadow_Orb: public PlayerScript
             T17Shadow2P = 165628
         };
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen, bool p_After)
         {
+            if (p_After)
+                return;
+
             if (p_Regen)
                 return;
 
@@ -3648,8 +3651,11 @@ class PlayerScript_insanity: public PlayerScript
     public:
         PlayerScript_insanity() :PlayerScript("PlayerScript_insanity") {}
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen, bool p_After)
         {
+            if (p_After)
+                return;
+
             if (p_Regen)
                 return;
 

@@ -3153,7 +3153,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         return SPELL_MISS_MISS;
 
     /// Hack fix for Cloak of Shadows (just chaos damage, Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
-    if (!m_spellInfo->IsPositive() &&(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && !(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_ALL) &&unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803 && m_spellInfo->Id != 157695)
+    if (!m_spellInfo->IsPositive() &&(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && m_spellInfo->GetSchoolMask() != SPELL_SCHOOL_MASK_ALL &&unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803 && m_spellInfo->Id != 157695)
         return SPELL_MISS_MISS;
 
     // disable effects to which unit is immune
@@ -4298,8 +4298,8 @@ void Spell::_handle_finish_phase()
         {
             m_caster->ClearComboPoints();
 
-            /// Anticipation for                  Kidney Shot -- 408     &&     Rupture -- 1943    &&   Eviscerate -- 2098     &&     Envenom -- 32645 && Death from Above-- 152150
-            if (m_caster->HasAura(115189) && (m_spellInfo->Id == 408 || m_spellInfo->Id == 1943 || m_spellInfo->Id == 2098 || m_spellInfo->Id == 32645 || m_spellInfo->Id == 152150))
+            /// Anticipation for                  Kidney Shot -- 408     &&     Rupture -- 1943    &&   Eviscerate -- 2098     &&     Envenom -- 32645 && Crimson Tempest -- 121411 && Death from Above-- 152150
+            if (m_caster->HasAura(115189) && (m_spellInfo->IsOffensiveFinishingMove()))
             {
                 int32 basepoints0 = m_caster->GetAura(115189)->GetStackAmount();
                 m_caster->CastCustomSpell(m_caster->getVictim(), 115190, &basepoints0, NULL, NULL, true);
@@ -5775,7 +5775,7 @@ void Spell::TakeRunePower(bool didHit)
             if (runeCost[i] < 0)
                 runeCost[i] = 0;
         }
-        sScriptMgr->OnModifyPower(player, POWER_RUNES, 0, runeCost[i], false);
+        sScriptMgr->OnModifyPower(player, POWER_RUNES, 0, runeCost[i], false, false);
     }
 
     bool l_ConvertUsedRunes = false;

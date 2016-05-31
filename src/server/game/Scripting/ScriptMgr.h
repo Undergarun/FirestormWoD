@@ -621,7 +621,8 @@ class ScriptMgr
         /// @p_OldValue  : Old value
         /// @p_NewValue  : New value
         /// @p_Regen  : If it's a regen modification
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen);
+        /// @p_After : If it's after modification
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen, bool p_After);
 
         /// Called when the player switch from indoors to outdoors or from outdoors to indoors
         /// @p_Player : Player instance
@@ -828,6 +829,11 @@ class ScriptMgr
         /// Called when a player enter in combat
         /// @p_Player : Player instance
         void OnPlayerEnterInCombat(Player* p_Player);
+
+        /// Called when a player enters a mount
+        /// @p_Player     : Player instance
+        /// @p_CreatureID : Mount entry
+        void OnPlayerMount(Player* p_Player, uint32 p_CreatureID);
 
         /// Called when a player leave combat status
         /// @p_Player : Player instance

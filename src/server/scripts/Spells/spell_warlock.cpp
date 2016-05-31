@@ -2736,8 +2736,11 @@ class spell_warl_burning_embers_regen : public PlayerScript
         }
 
         /// Override
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_OldValue*/, int32& p_NewValue, bool /*p_Regen*/)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_OldValue*/, int32& p_NewValue, bool /*p_Regen*/, bool p_After)
         {
+            if (p_After)
+                return;
+
             if (!CanUseBuringEmbers(p_Player, p_Power))
                 return;
 
@@ -4142,8 +4145,11 @@ class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
             }
         }
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen) override
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen, bool p_After) override
         {
+            if (p_After)
+                return;
+
             if (p_Regen || p_OldValue > p_NewValue || p_Power != Powers::POWER_BURNING_EMBERS)
                 return;
 
@@ -4283,8 +4289,11 @@ public:
     }
 
     /// Override
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_OldValue*/, int32& p_NewValue, bool /*p_Regen*/)
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_OldValue*/, int32& p_NewValue, bool /*p_Regen*/, bool p_After)
     {
+        if (p_After)
+            return;
+
         ///< Works only in Afflication spec and if warlock doesn't have Glyph of Subtlety
         if (p_Power == POWER_SOUL_SHARDS && p_Player->GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
         {

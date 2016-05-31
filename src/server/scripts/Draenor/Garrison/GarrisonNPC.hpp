@@ -19,13 +19,6 @@
 
 namespace MS { namespace Garrison
 {
-    /// Sequence position structure
-    struct SequencePosition
-    {
-        /// Position
-        float X, Y, Z, O;
-    };
-
     class GarrisonNPCAI : public AI::CosmeticAI
     {
         public:
@@ -934,7 +927,15 @@ namespace MS { namespace Garrison
 
                 enum eSpells
                 {
-                    SpellAuraRideVehicle = 178807
+                    SpellAuraRideVehicle       = 178807,
+                    SpellAuraBlackClawOfSethe  = 174822,
+                    SpellAuraGarnToothNecklace = 174823
+                };
+
+                enum eItems
+                {
+                    ItemGarnToothNecklace = 118470,
+                    ItemBlackClawOfSethe  = 118469
                 };
 
                 uint64 m_SummonerGUID;

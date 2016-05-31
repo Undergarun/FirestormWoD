@@ -117,6 +117,7 @@ namespace MS { namespace Garrison
             case WorkshopGearworks::InventionItemIDs::ItemSentryTurretDispenser:
                 p_Item->SetSpellCharges(0, p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges));
                 break;
+            /// Scribe Quarters
             case 119126:
             {
                 uint64 l_PlayerGuid  = p_Player->GetGUID();
@@ -140,11 +141,7 @@ namespace MS { namespace Garrison
                 p_Player->AddCriticalOperation([l_PlayerGuid]() -> bool
                 {
                     if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
-                    {
-                        uint32 l_DestroyCount = 2;
-
-                        l_Player->DestroyItemCount(119126, l_DestroyCount, true, false);
-                    }
+                        l_Player->DestroyItemCount(119126, 1, true, false);
 
                     return true;
                 });
@@ -167,6 +164,64 @@ namespace MS { namespace Garrison
 
                 break;
             }
+            //////////////////
+            /// Stables
+            case 118469: ///< Black Claw of Sethe
+            {
+                uint64 l_PlayerGuid = p_Player->GetGUID();
+
+                if (p_Player->HasItemCount(118469, 2))
+                {
+                    p_Player->AddCriticalOperation([l_PlayerGuid]() -> bool
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                            l_Player->DestroyItemCount(118469, 1, true, false);
+
+                        return true;
+                    });
+                }
+
+                if (p_Player->HasItemCount(118470))
+                {
+                    p_Player->AddCriticalOperation([l_PlayerGuid]() -> bool
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                            l_Player->DestroyItemCount(118470, 1, true, false);
+
+                        return true;
+                    });
+                }
+
+                break;
+            }
+            case 118470: ///< Garn-Tooth Necklace
+            {
+                uint64 l_PlayerGuid = p_Player->GetGUID();
+
+                if (p_Player->HasItemCount(118470, 2))
+                {
+                    p_Player->AddCriticalOperation([l_PlayerGuid]() -> bool
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                            l_Player->DestroyItemCount(118470, 1, true, false);
+
+                        return true;
+                    });
+                }
+
+                if (p_Player->HasItemCount(118469))
+                {
+                    p_Player->AddCriticalOperation([l_PlayerGuid]() -> bool
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                            l_Player->DestroyItemCount(118469, 1, true, false);
+
+                        return true;
+                    });
+                }
+                break;
+            }
+            /////////////////
             default:
                 break;
         }

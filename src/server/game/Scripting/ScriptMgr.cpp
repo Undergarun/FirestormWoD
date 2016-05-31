@@ -1737,9 +1737,10 @@ void ScriptMgr::OnPlayerKilledByCreature(Creature* p_Killer, Player* p_Killed)
 /// @p_OldValue  : Old value
 /// @p_NewValue  : New value
 /// @p_Regen  : If it's a regen modification
-void ScriptMgr::OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+/// @p_After : If it's after modification
+void ScriptMgr::OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen, bool p_After)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_OldValue, p_NewValue, p_Regen);
+    FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_OldValue, p_NewValue, p_Regen, p_After);
 }
 
 /// Called when the player switch from indoors to outdoors or from outdoors to indoors
@@ -2076,6 +2077,13 @@ void ScriptMgr::OnPlayerItemLooted(Player* p_Player, Item* p_Item)
 void ScriptMgr::OnPlayerEnterInCombat(Player* p_Player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnEnterInCombat(p_Player);
+}
+
+/// Called when a player enter in combat
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerMount(Player* p_Player, uint32 p_CreatureID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMount(p_Player, p_CreatureID);
 }
 
 /// Called when a player leave combat status

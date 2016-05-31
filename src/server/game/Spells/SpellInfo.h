@@ -630,6 +630,10 @@ public:
     bool IsCustomChecked() const;
     bool IsBattleResurrection() const;
 
+    // helpers for Rogue finishing moves
+    bool IsFinishingMove() const;
+    bool IsOffensiveFinishingMove() const;
+
     // loading helpers
     uint32 _GetExplicitTargetMask() const;
     bool _IsPositiveEffect(uint8 effIndex, bool deep) const;

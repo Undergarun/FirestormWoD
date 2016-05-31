@@ -13,10 +13,16 @@
 #include "ScriptedGossip.h"
 #include "GameObjectAI.h"
 #include "Spell.h"
-#include "GarrisonNPC.hpp"
 
 namespace MS { namespace Garrison
 {
+    /// Sequence position structure
+    struct SequencePosition
+    {
+        /// Position
+        float X, Y, Z, O;
+    };
+
     /// Garrison map ids
     enum MapIDs
     {
@@ -385,13 +391,6 @@ namespace MS { namespace Garrison
 
     namespace StablesData
     {
-        /// Sequence position structure
-        struct SequencePosition
-        {
-            /// Position
-            float X, Y, Z, O;
-        };
-
         std::vector<G3D::Vector3> const g_CreaturesJumps =
         {
             /// meadowstomper - 86852
@@ -465,18 +464,18 @@ namespace MS { namespace Garrison
                 { -6.6953f,  2.0611f, 0.6462f, 0.3447f }, ///< Second QuestGiver
                 
                 /// Level 2
-                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount from spellbook
-                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount from spellbook
-                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount in training
-                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount in training
-                { 0.f, 0.f, 0.f, 0.f }, ///< Second QuestGiver
+                { 10.5691f, 5.2344f, 0.0905f, 1.6148f  }, ///< First Mount from spellbook
+                { 0.4318f, 4.6344f, 0.0849f, 1.5637f   }, ///< Second Mount from spellbook
+                { 4.6486f, -7.1033f, 0.0872f, 1.5284f  }, ///< First Mount in training
+                { 10.8380f, -7.3660f, 0.0931f, 1.5284f }, ///< Second Mount in training
+                { -5.4332f, 3.1585f, 0.0106f, 6.0719f  }, ///< Second QuestGiver
 
                 /// Level 3
-                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount from spellbook
-                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount from spellbook
-                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount in training
-                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount in training
-                { 0.f, 0.f, 0.f, 0.f } ///< Second QuestGiver
+                { 16.2822f, 16.3610f, 0.1327f, 4.8467f  }, ///< First Mount from spellbook
+                { 7.3848f, 17.7451f, 0.2598f, 4.7446f   }, ///< Second Mount from spellbook
+                { 11.6410f, -18.5553f, 0.2767f, 1.6973f }, ///< First Mount in training
+                { -2.0329f, -19.1035f, 0.2359f, 1.6109f }, ///< Second Mount in training
+                { -12.7107f, -8.0214f, 0.4587f, 6.2565f }, ///< Second QuestGiver
             };
 
             namespace FannyQuestGiver
@@ -680,18 +679,18 @@ namespace MS { namespace Garrison
                 { -3.5501f, -0.0913f, 0.4295f, 0.0799f }, ///< Second QuestGiver
                 
                 /// Level 2
-                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount from spellbook
-                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount from spellbook
-                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount in training
-                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount in training
-                { 0.f, 0.f, 0.f, 0.f }, ///< Second QuestGiver
+                { 8.4927f, 9.8405f, 0.2139f, 1.4275f   }, ///< First Mount from spellbook
+                { 1.2528f, 10.8851f, 0.2077f, 1.4275f  }, ///< Second Mount from spellbook
+                { 1.1784f, -12.7750f, 0.2393f, 1.5155f }, ///< First Mount in training
+                { 7.7486f, -11.7724f, 0.2714f, 1.5194f }, ///< Second Mount in training
+                { -3.0227f, 2.5846f, 0.1670f, 0.1944f  }, ///< Second QuestGiver
 
                 /// Level 3
-                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount from spellbook
-                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount from spellbook
-                { 0.f, 0.f, 0.f, 0.f }, ///< First Mount in training
-                { 0.f, 0.f, 0.f, 0.f }, ///< Second Mount in training
-                { 0.f, 0.f, 0.f, 0.f } ///< Second QuestGiver
+                { 7.8584f, 14.2116f, 0.6680f, 1.6189f   }, ///< First Mount from spellbook
+                { 14.2914f, 15.2063f, 0.6681f, 1.6032f  }, ///< Second Mount from spellbook
+                { 17.2089f, -15.8898f, 0.6771f, 1.7407f }, ///< First Mount in training
+                { 9.4654f, -19.1903f, 0.6674f, 1.7407f  }, ///< Second Mount in training
+                { -1.9750f, 2.5123f, 0.6682f, 5.6323f   }  ///< Second QuestGiver
             };
 
             namespace SagePalunaQuestGiver

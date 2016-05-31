@@ -3394,6 +3394,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 1949: ///< Hellfire
+                spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             /// Engineering Works
             ///////////////////////////////////////////////////////////////////////////////////
@@ -3448,22 +3452,18 @@ void SpellMgr::LoadSpellCustomAttr()
             ///////////////////////////////////////////////////////////////////////////////////
             /// Stables
             ///////////////////////////////////////////////////////////////////////////////////
-            case 174216:    ///< Summon Snarler-In-Training
+            /*case 174216:    ///< Summon Snarler-In-Training
             case 174218:    ///< Summon Icehoof-In-Training - Potentially fixed, but causes player stuck
             case 174219:    ///< Summon Meadowstomper-In-Training
             case 174220:    ///< Summon Riverwallow-In-Training
             case 174221:    ///< Summon Rocktusk-In-Training
             case 174222:    ///< Summon Snarler-In-Training
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].Effect        = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOUNTED;
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                spellInfo->Effects[0].MiscValue = 305;
-                spellInfo->Effects[0].MiscValueB = 230;
-                break;
-            case 1949:
-                spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
-                spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
-                break;
+                spellInfo->Effects[0].TargetA       = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].MiscValue     = 305;
+                spellInfo->Effects[0].MiscValueB    = 230;
+                break;*/
             case 173702: ///< Lasso Break
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                 break;

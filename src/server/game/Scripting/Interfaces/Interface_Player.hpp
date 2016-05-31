@@ -191,13 +191,15 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_OldValue  : Old value
         /// @p_NewValue  : New value
         /// @p_Regen  : If it's a regen modification
-        virtual void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        /// @p_After : If it's after modification
+        virtual void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen, bool p_After)
         {
             UNUSED(p_Player);
             UNUSED(p_Power);
             UNUSED(p_OldValue);
             UNUSED(p_NewValue);
             UNUSED(p_Regen);
+            UNUSED(p_After);
         }
 
         /// Called when the player switch from indoors to outdoors or from outdoors to indoors
@@ -589,6 +591,18 @@ class PlayerScript : public ScriptObjectImpl<false>
         virtual void OnEnterInCombat(Player* p_Player)
         {
             UNUSED(p_Player);
+        }
+
+        virtual void OnMount(Player* p_Player, uint32 p_CreatureID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_CreatureID);
+        }
+
+        virtual void OnDismount(Player* p_Player, uint32 p_CreatureID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_CreatureID);
         }
 
         /// Called when a player leave combat status
