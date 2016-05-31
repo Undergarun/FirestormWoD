@@ -13040,7 +13040,11 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo)
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
         for (SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
             if (itr->type & schoolMask && !spellInfo->CanPierceImmuneAura(sSpellMgr->GetSpellInfo(itr->spellId)))
+            {
+                if (spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_ALL && itr->type != SPELL_SCHOOL_MASK_ALL)
+                    continue;
                 return true;
+            }
     }
 
     // If m_immuneToDamage type contain magic, IMMUNE damage.
@@ -13109,7 +13113,11 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo)
             if ((itr->type & spellInfo->GetSchoolMask())
                 && !(immuneSpellInfo && immuneSpellInfo->IsPositive() && spellInfo->IsPositive())
                 && !spellInfo->CanPierceImmuneAura(immuneSpellInfo))
+            {
+                if (spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_ALL && itr->type != SPELL_SCHOOL_MASK_ALL)
+                    continue;
                 return true;
+            }
         }
     }
 

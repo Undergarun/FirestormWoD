@@ -3153,7 +3153,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         return SPELL_MISS_MISS;
 
     /// Hack fix for Cloak of Shadows (just chaos damage, Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
-    if (!m_spellInfo->IsPositive() &&(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && !(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_ALL) &&unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803 && m_spellInfo->Id != 157695)
+    if (!m_spellInfo->IsPositive() &&(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && m_spellInfo->GetSchoolMask() != SPELL_SCHOOL_MASK_ALL &&unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803 && m_spellInfo->Id != 157695)
         return SPELL_MISS_MISS;
 
     // disable effects to which unit is immune
