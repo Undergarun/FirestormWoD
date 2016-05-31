@@ -1,7 +1,7 @@
 SET NAMES utf8;
 
 # Thogar trashes
-UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_gromkar_man_at_arms" WHERE entry = 78832;
+UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_gromkar_man_at_arms" WHERE entry IN (78832, 77687);
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_raider" WHERE entry = 81197;
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_crack_shot" WHERE entry = 81315;
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_gromkar_firemender" WHERE entry = 87841;
@@ -14,7 +14,10 @@ REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEnt
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE(81315, 1, 0, 0, 108426);
 
 DELETE FROM spell_script_names WHERE ScriptName = "spell_foundry_cauterizing_bolt" AND spell_id = 160140;
-INSERT INTO spell_script_names VALUE (160140, "spell_foundry_cauterizing_bolt");
+DELETE FROM spell_script_names WHERE ScriptName = "spell_foundry_delayed_siege_bomb_periodic" AND spell_id = 159481;
+INSERT INTO spell_script_names VALUES
+(160140, "spell_foundry_cauterizing_bolt"),
+(159481, "spell_foundry_delayed_siege_bomb_periodic");
 
 DELETE FROM areatrigger_template WHERE spell_id IN (156553);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, morph_curve_id, data0, data1, data2, data3, data4, data5, data6, data7, ScriptName) VALUES
@@ -23,6 +26,7 @@ INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, 
 SET @REF_THOGAR = 76906;
 
 UPDATE creature_template SET dmg_multiplier = 10, ScriptName = "boss_operator_thogar", mechanic_immune_mask = 617299839 WHERE entry = @REF_THOGAR;
+UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_gunnery_sergeant" WHERE entry = 81318;
 
 DELETE FROM creature_text WHERE entry IN (@REF_THOGAR);
 INSERT INTO creature_text VALUES

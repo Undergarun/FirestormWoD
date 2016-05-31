@@ -3740,6 +3740,16 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160177: ///< Cautorizing Bolt (Grom'kar Firemender)
                 spellInfo->MaxAffectedTargets = 1;
                 break;
+            case 159480: ///< Delayed Siege Bomb - Searcher (Iron Gunnery Sergeant)
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                break;
+            case 159482: ///< Delayed Siege Bomb - Missile (Iron Gunnery Sergeant)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_ENEMY;
+                break;
+            case 158084: ///< Delayed Siege Bomb - Damage (Iron Gunnery Sergeant)
+            case 160050: ///< Delayed Siege Bomb - Damage (Operator Thogar)
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
             /// Skills
@@ -7388,6 +7398,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 163754: ///< Iron Bellow (Grom'kar Man-at-Arms)
             case 163752: ///< Reckless Slash (Grom'kar Man-at-Arms)
             case 156655: ///< Throw Grenade (Iron Raider)
+            case 158084: ///< Delayed Siege Bomb - Damage (Iron Gunnery Sergeant)
+            case 160050: ///< Delayed Siege Bomb - Damage (Operator Thogar)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:

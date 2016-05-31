@@ -3235,6 +3235,7 @@ class npc_foundry_markog_abadir : public CreatureScript
 };
 
 /// Grom'kar Man-at-Arms - 78832
+/// Grom'kar Man-at-Arms - 77687
 class npc_foundry_gromkar_man_at_arms : public CreatureScript
 {
     public:
@@ -3290,9 +3291,9 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
 
                 if (m_IsThogarIntro && m_Instance != nullptr)
                 {
-                    if (m_Instance->GetBossState(eFoundryDatas::DataOperatorThogar) != EncounterState::SPECIAL)
+                    if (!m_Instance->GetData(eFoundryDatas::DataThogarIntroStarted))
                     {
-                        m_Instance->SetBossState(eFoundryDatas::DataOperatorThogar, EncounterState::SPECIAL);
+                        m_Instance->SetData(eFoundryDatas::DataThogarIntroStarted, 0);
 
                         /// Must be done for train spawning
                         me->GetMap()->SetObjectVisibility(500.0f);

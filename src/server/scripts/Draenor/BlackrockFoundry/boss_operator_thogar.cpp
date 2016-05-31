@@ -30,10 +30,11 @@ class boss_operator_thogar : public CreatureScript
             IntroRemove
         };
 
-        enum eIntroStates
+        enum eIntroStates : uint8
         {
             IronRaiders,
-            GunnerySergeants
+            GunnerySergeants,
+            IntroEnd
         };
 
         struct boss_operator_thogarAI : public BossAI
@@ -102,20 +103,42 @@ class boss_operator_thogar : public CreatureScript
                         m_IntroTrashes.erase(p_Guid);
 
                         /// Intro finished!
-                        if (m_IntroTrashes.empty() && m_Instance != nullptr)
+                        if (!m_IntroTrashes.empty() || m_Instance == nullptr)
+                            break;
+
+                        switch (m_IntroState)
                         {
-                            m_IntroDone = true;
-
-                            if (Creature* l_Wheels = me->FindNearestCreature(eThogarCreatures::TrainWheels, 100.0f))
+                            case eIntroStates::IronRaiders:
                             {
-                                if (l_Wheels->IsAIEnabled)
-                                    l_Wheels->AI()->DoAction(eThogarActions::TrainMoveEnd);
+                                m_IntroState = eIntroStates::GunnerySergeants;
+
+                                if (Creature* l_Wheels = me->FindNearestCreature(eThogarCreatures::TrainWheels, 100.0f))
+                                {
+                                    if (l_Wheels->IsAIEnabled)
+                                        l_Wheels->AI()->DoAction(eThogarActions::TrainMoveEnd);
+                                }
+
+                                AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                                {
+                                    SummonIntroSiegeTrain(me, eThogarMiscDatas::FourthTrack);
+                                });
+
+                                break;
                             }
-
-                            AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            case eIntroStates::GunnerySergeants:
                             {
-                                SummonIntroSiegeTrain(me, eThogarMiscDatas::FourthTrack);
-                            });
+                                m_IntroState = eIntroStates::IntroEnd;
+
+                                if (Creature* l_Wheels = me->FindNearestCreature(eThogarCreatures::TrainWheels, 100.0f))
+                                {
+                                    if (l_Wheels->IsAIEnabled)
+                                        l_Wheels->AI()->DoAction(eThogarActions::TrainMoveEndPart2);
+                                }
+
+                                break;
+                            }
+                            default:
+                                break;
                         }
 
                         break;
@@ -123,6 +146,17 @@ class boss_operator_thogar : public CreatureScript
                     default:
                         break;
                 }
+            }
+
+            void JustSummoned(Creature* p_Summon) override
+            {
+                if (m_IntroState == eIntroStates::GunnerySergeants && !m_IntroDone)
+                {
+                    if (p_Summon->GetEntry() == eThogarCreatures::IronGunnerySergeant)
+                        m_IntroTrashes.insert(p_Summon->GetGUID());
+                }
+                else
+                    CreatureAI::JustSummoned(p_Summon);
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -201,7 +235,9 @@ class npc_foundry_train_controller : public CreatureScript
         enum eMoves
         {
             MovementIntro = 5,
-            MovementOuttro
+            MovementOuttro,
+            SecondMovementIntro,
+            SecondMovementOuttro
         };
 
         struct npc_foundry_train_controllerAI : public ScriptedAI
@@ -210,12 +246,15 @@ class npc_foundry_train_controller : public CreatureScript
             {
                 m_Instance  = p_Creature->GetInstanceScript();
                 m_Vehicle   = p_Creature->GetVehicleKit();
+                m_TrackID   = eThogarMiscDatas::FirstTrack;
             }
 
             InstanceScript* m_Instance;
             Vehicle* m_Vehicle;
 
             uint64 m_SummonerGUID;
+
+            uint8 m_TrackID;
 
             void Reset() override
             {
@@ -247,12 +286,12 @@ class npc_foundry_train_controller : public CreatureScript
                             }
                         }
 
-                        me->GetMotionMaster()->MovePoint(eMoves::MovementIntro, p_Action == eThogarActions::IntroBegin ? g_TrainTrackIntroEndPos : g_TrainTrackIntroSiegeEndPos, false);
+                        me->GetMotionMaster()->MovePoint(p_Action == eThogarActions::IntroBegin ? eMoves::MovementIntro : eMoves::SecondMovementIntro, p_Action == eThogarActions::IntroBegin ? g_TrainTrackIntroEndPos : g_TrainTrackIntroSiegeEndPos, false);
 
-                        if (GameObject* l_RightDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[eThogarMiscDatas::FourthTrack].RightDoor)))
+                        if (GameObject* l_RightDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].RightDoor)))
                             l_RightDoor->SetGoState(GOState::GO_STATE_ACTIVE);
 
-                        if (GameObject* l_LeftDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[eThogarMiscDatas::FourthTrack].LeftDoor)))
+                        if (GameObject* l_LeftDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].LeftDoor)))
                             l_LeftDoor->SetGoState(GOState::GO_STATE_ACTIVE);
 
                         break;
@@ -274,7 +313,7 @@ class npc_foundry_train_controller : public CreatureScript
                             {
                                 /// Troop Transport visual
                                 if (l_I == 1 || l_I == 3)
-                                    l_Passenger->RemoveAura(eThogarSpells::TroopTransportClosed);
+                                    l_Passenger->CastSpell(l_Passenger, eThogarSpells::TroopTransportClosed, true);
 
                                 uint64 l_Guid = l_Passenger->GetGUID();
                                 AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
@@ -297,17 +336,59 @@ class npc_foundry_train_controller : public CreatureScript
 
                         break;
                     }
+                    /// Intro: Part2 - Move to end of the track
+                    case eThogarActions::TrainMoveEndPart2:
+                    {
+                        for (int8 l_I = 0; l_I < 4; ++l_I)
+                        {
+                            if (Unit* l_Passenger = m_Vehicle->GetPassenger(l_I))
+                            {
+                                uint64 l_Guid = l_Passenger->GetGUID();
+                                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                                {
+                                    if (Unit* l_Passenger = Unit::GetUnit(*me, l_Guid))
+                                    {
+                                        l_Passenger->RemoveAura(eThogarSpells::StoppedFrontAura);
+
+                                        l_Passenger->CastSpell(l_Passenger, eThogarSpells::MovingTrain, true);
+                                        l_Passenger->CastSpell(l_Passenger, eThogarSpells::MovingFrontAura, true);
+                                    }
+                                });
+                            }
+                        }
+
+                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->GetMotionMaster()->MovePoint(eMoves::MovementOuttro, g_TrainTrackEndPos[eThogarMiscDatas::FourthTrack]);
+                        });
+
+                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (GameObject* l_RightDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].RightDoor)))
+                                l_RightDoor->SetGoState(GOState::GO_STATE_READY);
+
+                            if (GameObject* l_LeftDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].LeftDoor)))
+                                l_LeftDoor->SetGoState(GOState::GO_STATE_READY);
+                        });
+
+                        break;
+                    }
                     default:
                         break;
                 }
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            void SetGUID(uint64 p_Guid, int32 /*p_ID*/) override
             {
                 m_SummonerGUID = p_Guid;
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void SetData(uint32 /*p_ID*/, uint32 p_Value) override
+            {
+                m_TrackID = p_Value;
+            }
+
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
             {
                 if (m_Vehicle == nullptr && m_Instance == nullptr)
                     return;
@@ -316,6 +397,12 @@ class npc_foundry_train_controller : public CreatureScript
                 {
                     case eMoves::MovementIntro:
                     {
+                        if (GameObject* l_RightDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].RightDoor)))
+                            l_RightDoor->SetGoState(GOState::GO_STATE_READY);
+
+                        if (GameObject* l_LeftDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].LeftDoor)))
+                            l_LeftDoor->SetGoState(GOState::GO_STATE_READY);
+
                         for (int8 l_I = 0; l_I < 4; ++l_I)
                         {
                             if (Unit* l_Passenger = m_Vehicle->GetPassenger(l_I))
@@ -376,6 +463,133 @@ class npc_foundry_train_controller : public CreatureScript
 
                         break;
                     }
+                    case eMoves::SecondMovementIntro:
+                    {
+                        if (GameObject* l_RightDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].RightDoor)))
+                            l_RightDoor->SetGoState(GOState::GO_STATE_READY);
+
+                        /// Update visuals
+                        for (int8 l_I = 0; l_I < 4; ++l_I)
+                        {
+                            if (Unit* l_Passenger = m_Vehicle->GetPassenger(l_I))
+                            {
+                                l_Passenger->RemoveAura(eThogarSpells::MovingFrontAura);
+                                l_Passenger->RemoveAura(eThogarSpells::MovingTrain);
+
+                                if (AreaTrigger* l_AreaTrigger = l_Passenger->GetAreaTrigger(eThogarSpells::MovingTrain))
+                                    l_AreaTrigger->SetDuration(1);
+
+                                l_Passenger->CastSpell(l_Passenger, eThogarSpells::StoppedFrontAura, true);
+                            }
+                        }
+
+                        for (int8 l_I = 1; l_I < 3; ++l_I)
+                        {
+                            Unit* l_Passenger = m_Vehicle->GetPassenger(l_I);
+                            if (l_Passenger == nullptr)
+                                continue;
+
+                            if (Vehicle* l_Train = l_Passenger->GetVehicleKit())
+                            {
+                                l_Passenger = l_Train->GetPassenger(0);
+                                if (l_Passenger == nullptr)
+                                    continue;
+
+                                if (Vehicle* l_SiegeEngine = l_Passenger->GetVehicleKit())
+                                {
+                                    l_Passenger = l_SiegeEngine->GetPassenger(0);
+                                    if (l_Passenger == nullptr)
+                                        continue;
+
+                                    if (Creature* l_Sergeant = l_Passenger->ToCreature())
+                                    {
+                                        l_Sergeant->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                                        l_Sergeant->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
+                                        if (Player* l_Target = l_Sergeant->SelectNearestPlayerNotGM(60.0f))
+                                        {
+                                            if (l_Sergeant->IsAIEnabled)
+                                                l_Sergeant->AI()->AttackStart(l_Target);
+                                        }
+                                    }
+                                }
+
+                                l_Passenger = l_Train->GetPassenger(1);
+                                if (l_Passenger == nullptr)
+                                    continue;
+
+                                l_Passenger->ExitVehicle();
+
+                                uint64 l_Guid = l_Passenger->GetGUID();
+                                AddTimedDelayedOperation(100, [this, l_Guid]() -> void
+                                {
+                                    if (Creature* l_ManAtArms = Creature::GetCreature(*me, l_Guid))
+                                    {
+                                        l_ManAtArms->GetMotionMaster()->MoveJump(g_ManAtArmsExitPos, 30.0f, 20.0f);
+
+                                        l_ManAtArms->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                                        l_ManAtArms->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                                    }
+                                });
+
+                                AddTimedDelayedOperation(500, [this, l_Guid]() -> void
+                                {
+                                    if (Creature* l_ManAtArms = Creature::GetCreature(*me, l_Guid))
+                                    {
+                                        if (Player* l_Target = l_ManAtArms->SelectNearestPlayerNotGM(30.0f))
+                                        {
+                                            if (l_ManAtArms->IsAIEnabled)
+                                                l_ManAtArms->AI()->AttackStart(l_Target);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+
+                        break;
+                    }
+                    case eMoves::SecondMovementOuttro:
+                    {
+                        /// Remove Engine
+                        if (Unit* l_Engine = m_Vehicle->GetPassenger(0))
+                        {
+                            l_Engine->RemoveAllAreasTrigger();
+                            l_Engine->ToCreature()->DespawnOrUnsummon();
+                        }
+
+                        /// Remove siege engine trains
+                        for (int8 l_I = 1; l_I < 3; ++l_I)
+                        {
+                            if (Unit* l_Train = m_Vehicle->GetPassenger(l_I))
+                            {
+                                if (Vehicle* l_Vehicle = l_Train->GetVehicleKit())
+                                {
+                                    if (Unit* l_SiegeEngine = l_Vehicle->GetPassenger(0))
+                                    {
+                                        if (Vehicle* l_VehicleSec = l_SiegeEngine->GetVehicleKit())
+                                        {
+                                            if (Unit* l_Sergeant = l_VehicleSec->GetPassenger(0))
+                                                l_Sergeant->ToCreature()->DespawnOrUnsummon();
+                                        }
+
+                                        l_SiegeEngine->ToCreature()->DespawnOrUnsummon();
+                                    }
+                                }
+
+                                l_Train->RemoveAllAreasTrigger();
+                                l_Train->ToCreature()->DespawnOrUnsummon();
+                            }
+                        }
+
+                        /// Remove Supplies transport
+                        if (Unit* l_Supplies = m_Vehicle->GetPassenger(3))
+                        {
+                            l_Supplies->RemoveAllAreasTrigger();
+                            l_Supplies->ToCreature()->DespawnOrUnsummon();
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -383,7 +597,8 @@ class npc_foundry_train_controller : public CreatureScript
 
             void RemovePassengers(Creature* p_Source)
             {
-                bool l_IsLeft = p_Source->IsNearPosition(&g_GromkarManAtArmsIntroLeftPos, 5.0f);
+                Position const l_SourcePos = p_Source->GetHomePosition();
+                bool l_IsLeft = l_SourcePos.IsNearPosition(&g_GromkarManAtArmsIntroLeftPos, 5.0f);
 
                 if (Unit* l_TroopTransport = m_Vehicle->GetPassenger(l_IsLeft ? 1 : 3))
                 {
@@ -401,13 +616,26 @@ class npc_foundry_train_controller : public CreatureScript
                                 l_Passenger->SetReactState(ReactStates::REACT_AGGRESSIVE);
                                 l_Passenger->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
 
-                                l_Passenger->_ExitVehicle(l_IsLeft ? &g_IronRaiderLeftExitPos[l_I] : &g_IronRaiderRightExitPos[l_I]);
+                                l_Passenger->ExitVehicle();
 
-                                if (Unit* l_Victim = l_Passenger->SelectNearestPlayerNotGM(30.0f))
+                                uint64 l_Guid = l_Passenger->GetGUID();
+                                AddTimedDelayedOperation(100, [this, l_Guid, l_IsLeft, l_I]() -> void
                                 {
-                                    if (l_Passenger->IsAIEnabled)
-                                        l_Passenger->AI()->AttackStart(l_Victim);
-                                }
+                                    if (Creature* l_Passenger = Creature::GetCreature(*me, l_Guid))
+                                        l_Passenger->GetMotionMaster()->MoveJump(l_IsLeft ? g_IronRaiderLeftExitPos[l_I] : g_IronRaiderRightExitPos[l_I], 30.0f, 10.0f);
+                                });
+
+                                AddTimedDelayedOperation(500, [this, l_Guid]() -> void
+                                {
+                                    if (Creature* l_Passenger = Creature::GetCreature(*me, l_Guid))
+                                    {
+                                        if (Unit* l_Victim = l_Passenger->SelectNearestPlayerNotGM(30.0f))
+                                        {
+                                            if (l_Passenger->IsAIEnabled)
+                                                l_Passenger->AI()->AttackStart(l_Victim);
+                                        }
+                                    }
+                                });
                             }
                         }
                     }
@@ -426,6 +654,182 @@ class npc_foundry_train_controller : public CreatureScript
         }
 };
 
+/// Iron Gunnery Sergeant - 81318
+class npc_foundry_iron_gunnery_sergeant : public CreatureScript
+{
+    public:
+        npc_foundry_iron_gunnery_sergeant() : CreatureScript("npc_foundry_iron_gunnery_sergeant") { }
+
+        enum eSpells
+        {
+            DelayedSiegeBombSearcher    = 159480,
+            DelayedSiegeBombChannel     = 159481,
+            DelayedSiegeBombAoE         = 158084,
+            DelayedSiegeBombVisual      = 156489,
+            DelayedSiegeBombMissile     = 162286
+        };
+
+        enum eEvent
+        {
+            EventDelayedSiegeBomb = 1
+        };
+
+        enum eVisual
+        {
+            SiegeEngineVisual = 42258
+        };
+
+        struct npc_foundry_iron_gunnery_sergeantAI : public ScriptedAI
+        {
+            npc_foundry_iron_gunnery_sergeantAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+
+            EventMap m_Events;
+
+            bool CanTargetOutOfLOS() override
+            {
+                return true;
+            }
+
+            bool CanBeTargetedOutOfLOS() override
+            {
+                return true;
+            }
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/) override
+            {
+                m_Events.ScheduleEvent(eEvent::EventDelayedSiegeBomb, 1 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                if (m_Instance != nullptr)
+                {
+                    if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                    {
+                        if (l_Thogar->IsAIEnabled)
+                            l_Thogar->AI()->SetGUID(me->GetGUID(), 1);
+                    }
+                }
+            }
+
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
+            {
+                if (p_Damage >= me->GetHealth())
+                {
+                    if (Vehicle* l_SiegeEngine = me->GetVehicle())
+                    {
+                        if (l_SiegeEngine->GetBase()->GetTypeId() == TypeID::TYPEID_UNIT)
+                            l_SiegeEngine->GetBase()->ToCreature()->DespawnOrUnsummon();
+                    }
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::DelayedSiegeBombSearcher)
+                {
+                    if (Unit* l_SiegeEngine = me->GetVehicleBase())
+                    {
+                        l_SiegeEngine->SetFacingTo(me->GetAngle(p_Target));
+                        l_SiegeEngine->CastSpell(p_Target, eSpells::DelayedSiegeBombVisual, false);
+                        l_SiegeEngine->SendPlaySpellVisualKit(eVisual::SiegeEngineVisual, 0);
+                    }
+
+                    me->CastSpell(p_Target, eSpells::DelayedSiegeBombChannel, false);
+                }
+            }
+
+            void SpellHitDest(SpellDestination const* p_Dest, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Dest == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::DelayedSiegeBombAoE)
+                {
+                    if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                        l_Thogar->CastSpell(p_Dest, eSpells::DelayedSiegeBombMissile, true);
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventDelayedSiegeBomb:
+                    {
+                        me->CastSpell(me, eSpells::DelayedSiegeBombSearcher, true);
+                        m_Events.ScheduleEvent(eEvent::EventDelayedSiegeBomb, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_gunnery_sergeantAI(p_Creature);
+        }
+};
+
+/// Delayed Siege Bomb (periodic) - 159481
+class spell_foundry_delayed_siege_bomb_periodic : public SpellScriptLoader
+{
+    public:
+        spell_foundry_delayed_siege_bomb_periodic() : SpellScriptLoader("spell_foundry_delayed_siege_bomb_periodic") { }
+
+        class spell_foundry_delayed_siege_bomb_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_delayed_siege_bomb_periodic_AuraScript)
+
+            enum eSpell
+            {
+                DelayedSiegeBombMissile = 159482
+            };
+
+            void OnTick(AuraEffect const* /*p_AurEff*/)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (Unit* l_Caster = GetCaster())
+                        l_Caster->CastSpell(l_Target, eSpell::DelayedSiegeBombMissile, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_delayed_siege_bomb_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_delayed_siege_bomb_periodic_AuraScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_boss_operator_thogar()
 {
@@ -434,5 +838,9 @@ void AddSC_boss_operator_thogar()
 
     /// Creatures
     new npc_foundry_train_controller();
+    new npc_foundry_iron_gunnery_sergeant();
+
+    /// Spells
+    new spell_foundry_delayed_siege_bomb_periodic();
 }
 #endif

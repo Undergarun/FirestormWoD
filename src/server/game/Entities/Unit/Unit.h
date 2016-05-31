@@ -354,6 +354,7 @@ enum InventorySlot
 
 struct FactionTemplateEntry;
 struct SpellValue;
+struct SpellDestination;
 
 class AuraApplication;
 class Aura;
@@ -375,7 +376,6 @@ class Totem;
 class Transport;
 class Vehicle;
 class TransportBase;
-class SpellDestination;
 
 typedef std::list<Unit*> UnitList;
 typedef std::list< std::pair<Aura*, uint8> > DispelChargesList;
