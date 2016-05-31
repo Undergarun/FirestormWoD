@@ -1709,6 +1709,7 @@ class spell_rog_shroud_of_concealment: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Crimson Tempest - 121411
 class spell_rog_crimson_tempest: public SpellScriptLoader
 {
@@ -1719,35 +1720,52 @@ class spell_rog_crimson_tempest: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_crimson_tempest_SpellScript);
 
+            enum eSpells
+            {
+                EnhancedCrimsonTempest  = 157561,
+                CrimsonPoison           = 157562
+            };
+
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Player->GetGUID() == l_Target->GetGUID())
+                    return;
+
+                uint8 l_ComboPoint = l_Player->GetPower(Powers::POWER_COMBO_POINT);
+                int32 l_Damage = 0;
+
+                if (l_ComboPoint)
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Player->GetGUID() == l_Target->GetGUID())
-                            return;
+                    float l_Ap = l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_CRIMSON_TEMPEST_DOT);
+                    int32 l_DamageDot = 0;
 
-                        uint8 l_ComboPoint = l_Player->GetPower(Powers::POWER_COMBO_POINT);
-                        int32 l_Damage = 0;
+                    l_Damage += int32(3 + ((l_Ap * 0.0602f) * l_ComboPoint * 1.5f));
 
-                        if (l_ComboPoint)
-                        {
-                            float l_Ap = l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-                            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_CRIMSON_TEMPEST_DOT);
-                            int32 l_DamageDot = 0;
+                    if (l_SpellInfo != nullptr)
+                        l_DamageDot += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_0].BasePoints) / 6;
 
-                            l_Damage += int32(3 + ((l_Ap * 0.0602f) * l_ComboPoint * 1.5f));
-
-                            if (l_SpellInfo != nullptr)
-                                l_DamageDot += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_0].BasePoints) / 6;
-
-                            l_Player->CastCustomSpell(l_Target, ROGUE_SPELL_CRIMSON_TEMPEST_DOT, &l_DamageDot, NULL, NULL, true);
-                        }
-
-                        SetHitDamage(l_Damage);
-                    }
+                    l_Player->CastCustomSpell(l_Target, ROGUE_SPELL_CRIMSON_TEMPEST_DOT, &l_DamageDot, NULL, NULL, true);
                 }
+
+                if (l_Player->HasAura(eSpells::EnhancedCrimsonTempest))
+                {
+                    l_Player->CastSpell(l_Player, eSpells::CrimsonPoison, true);
+                    Aura* l_Aura = l_Player->GetAura(eSpells::CrimsonPoison);
+                    
+                    if (l_Aura == nullptr)
+                        return;
+
+                    l_Aura->SetDuration(l_Aura->GetMaxDuration() * l_ComboPoint);
+                }
+
+                SetHitDamage(l_Damage);
             }
 
             void Register()
