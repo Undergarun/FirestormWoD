@@ -4135,6 +4135,37 @@ bool SpellInfo::IsBattleResurrection() const
     return AttributesEx8 & SpellAttr8::SPELL_ATTR8_BATTLE_RESURRECTION;
 }
 
+bool SpellInfo::IsFinishingMove() const
+{
+    switch (Id)
+    {
+        case 5171: ///< slice  and dice
+        case 73651: ///< recuperate
+            return true;
+        default:
+            break;
+    }
+
+    return IsOffensiveFinishingMove();
+}
+
+bool SpellInfo::IsOffensiveFinishingMove() const
+{
+    switch (Id)
+    {
+        case 408: ///< kidney shot
+        case 1943: ///< rupture
+        case 2098: ///< eviscerate
+        case 26679: ///< deadly throw
+        case 32645: ///< envenom
+        case 121411: ///< crimson tempest
+        case 152150: ///< death from above
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool SpellInfo::IsCanBeStolen() const
 {
     /// Special rules, some aren't using mana but can be stolen
