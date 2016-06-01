@@ -3932,6 +3932,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = 0;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
+            case 107079: ///< Quaking Palm
+                spellInfo->SpellFamilyName = SPELLFAMILY_GENERIC;
+                break;
             case 164685: ///< Dark Eclipse
                 spellInfo->Effects[0].Amplitude = 600;
                 break;
