@@ -226,6 +226,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Typhoon -- 61391
             if (spellproto->SpellFamilyFlags[1] & 0x1000000)
                 return DIMINISHING_AOE_KNOCKBACK;
+            // Ursol's Vortex -- 118283
+            if (spellproto->Id == 118283)
+                return DIMINISHING_AOE_KNOCKBACK;
 
             // Entangling Roots -- 339 
             if (spellproto->SpellFamilyFlags[0] & 0x200)
