@@ -46,7 +46,7 @@ bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
     return false;
 }
 
-DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
+DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, Unit* p_Caster)
 {
     if (spellproto->IsPositive())
         return DIMINISHING_NONE;
@@ -78,6 +78,17 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Remorseless Winter -- 115001
             if (spellproto->SpellIconID == 5744 && spellproto->SpellVisual[0] == 23514)
                 return DIMINISHING_STUN;
+            // War Stomp (Tauren Racial) -- 20549
+            if (spellproto->Id == 20549)
+                return DIMINISHING_STUN;
+
+            // Quaking Palm (Pandaren Racial) -- 107079
+            if (spellproto->Id == 107079)
+                return DIMINISHING_INCAPACITATE;
+
+            // Arcane Torrent (Blood Elf Racial) -- 25046 & 28730 & 50613 & 69179 & 80483 & 129596 & 155145
+            if (spellproto->IsArcaneTorrent())
+                return DIMINISHING_SILENCE;
 
             // Gorefiend's Grasp -- 108199
             if (spellproto->SpellIconID == 5743 && spellproto->SpellVisual[0] == 28937)
@@ -138,9 +149,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_WARLOCK:
         {
-            /// Chaos Wave -- 124915, slow effect
-            if (spellproto->SpellFamilyFlags[0] & 0x201000)
-                return DIMINISHING_NONE;
             // Mortal Coil -- 6789
             if (spellproto->SpellFamilyFlags[0] & 0x80000)
                 return DIMINISHING_INCAPACITATE;
@@ -162,8 +170,16 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[1] & 0x1000)
                 return DIMINISHING_STUN;
             // Summon Infernal -- 22703
-            if (spellproto->SpellFamilyFlags[0] & 0x1000)
+            if (spellproto->Id == 22703)
                 return DIMINISHING_STUN;
+
+            // Debilitate (Terrorguard pet) -- 170996
+            if (spellproto->Id == 170996)
+                return DIMINISHING_ROOT;
+
+            /// Chaos Wave -- 124915, slow effect
+            if (spellproto->SpellFamilyFlags[0] & 0x201000 == 0x201000)
+                return DIMINISHING_NONE;
             break;
         }
         case SPELLFAMILY_WARLOCK_PET:
@@ -178,7 +194,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[0] & 0x2000000)
                 return DIMINISHING_DISORIENT;
 
-            // Axe Toss (Felguard pet) -- 89766
+            // Axe Toss (Felguard pet and Wrathguard pet) -- 89766
             if (spellproto->SpellFamilyFlags[1] & 0x4)
                 return DIMINISHING_STUN;
             break;
@@ -211,20 +227,26 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[1] & 0x1000000)
                 return DIMINISHING_AOE_KNOCKBACK;
 
-            // Entangling Roots -- 339
+            // Entangling Roots -- 339 
             if (spellproto->SpellFamilyFlags[0] & 0x200)
                 return DIMINISHING_ROOT;
             // Mass Entanglement -- 102359, no flags on the root, 13535
             if (spellproto->SpellIconID == 5782 && spellproto->SpellVisual[0] == 38269)
                 return DIMINISHING_ROOT;
+            // Balance Force of Nature Treant Entangling roots -- 113770
+            if (spellproto->Id == 113770)
+                return DIMINISHING_ROOT;
+            // Nature's Grasp
+            if (spellproto->Id == 170855)
+                return DIMINISHING_ROOT;
+
+            // Solar Beam -- 78675
+            if (spellproto->Id == 78675)
+                return DIMINISHING_SILENCE;
 
             // Faerie Fire -- 770, Faerie Swarm -- 102355, 20 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[0] & 0x400 || spellproto->SpellFamilyFlags[0] & 0x100)
                 return DIMINISHING_LIMITONLY;
-
-            // Nature's Grasp
-            if (spellproto->Id == 170855)
-                return DIMINISHING_ROOT;
             break;
         }
         case SPELLFAMILY_ROGUE:
@@ -254,8 +276,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_HUNTER:
         {
-            // Glyph of Explosive Trap -- 149575 maybe? @todo
-            // return DIMINISHING_AOE_KNOCKBACK;
+            // Glyph of Explosive Trap -- 119403
+            if (spellproto->Id == 13812 && p_Caster->HasAura(119403))
+                return DIMINISHING_AOE_KNOCKBACK;
 
             /// Entrapment
             if (spellproto->Id == 64803)
@@ -288,6 +311,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
 
             // Turn Evil -- 10326
             if (spellproto->SpellFamilyFlags[1] & 0x800000)
+                return DIMINISHING_DISORIENT;
+            // Blinding Light -- 115750
+            if (spellproto->Id == 115750)
                 return DIMINISHING_DISORIENT;
 
             // Avenger's Shield -- 31935
@@ -366,10 +392,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Psychic Horror -- 64044
             if (spellproto->SpellFamilyFlags[2] & 0x2000)
                 return DIMINISHING_INCAPACITATE;
-
             /// Shackle Undead -- 9484
             if (spellproto->Id == 9484)
-                return DIMINISHING_DISORIENT;
+                return DIMINISHING_INCAPACITATE;
+
             /// Sin and Punishment -- 87204
             if (spellproto->Id == 87204)
                 return DIMINISHING_DISORIENT;
