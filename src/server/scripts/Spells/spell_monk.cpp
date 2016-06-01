@@ -4097,7 +4097,22 @@ class spell_monk_fists_of_fury_stun: public SpellScriptLoader
 
             void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
             {
+                Unit* l_Caster = GetCaster();
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id, GetCaster()->GetGUID()));
+
+                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+                      
+                    if (l_Caster->GetFistsOfFuryStunTargets(p_Object->GetGUID()))
+                        return true;
+
+                    return false;
+                });
+
+                for (WorldObject* l_Object : p_Targets)
+                    l_Caster->AddFistsOfFuryStunTargets(l_Object->GetGUID());
             }
 
             void Register()
@@ -4140,7 +4155,7 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterCast += SpellCastFn(spell_monk_fists_of_fury_SpellScript::HandleAfterCast);
             }
@@ -4149,6 +4164,31 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_monk_fists_of_fury_SpellScript();
+        }
+
+        class spell_monk_fists_of_fury_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_fists_of_fury_AuraScript);
+
+            void HandleRemove(AuraEffect const*, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->CleanFistsOfFuryStunTargets();
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectApplyFn(spell_monk_fists_of_fury_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_monk_fists_of_fury_AuraScript();
         }
 };
 

@@ -2651,10 +2651,15 @@ class Unit : public WorldObject
         // Movement info
         Movement::MoveSpline * movespline;
 
-        /// Helpre for Glaive of Toss
+        /// Helper for Glaive of Toss
         uint64 GetGlaiveOfTossTargetGUID() { return m_GlaiveOfTossTargetGUID;  }
         void SetGlaiveTossTarget(uint64 guid) { m_GlaiveOfTossTargetGUID = guid; }
         void removeGlaiveTossTarget() { m_GlaiveOfTossTargetGUID = 0; }
+
+        /// Helper for Fists of Fury
+        bool GetFistsOfFuryStunTargets(uint64 p_Guid) { return m_FistsOfFuryStunTargetsGUID.count(p_Guid); }
+        void AddFistsOfFuryStunTargets(uint64 p_Guid) { m_FistsOfFuryStunTargetsGUID.insert(p_Guid); }
+        void CleanFistsOfFuryStunTargets() { m_FistsOfFuryStunTargetsGUID.clear(); }
 
         // helper for dark simulacrum spell
         Unit* GetSimulacrumTarget();
@@ -2887,6 +2892,7 @@ class Unit : public WorldObject
 
         uint64 simulacrumTargetGUID;
         uint64 m_GlaiveOfTossTargetGUID;
+        std::set<uint64> m_FistsOfFuryStunTargetsGUID;
         uint64 iciclesTargetGUID;
         uint32 m_AmountOfComets;
         float m_CometCoordinateX;
