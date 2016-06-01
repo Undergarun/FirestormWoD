@@ -3243,6 +3243,10 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         {
             unit->IncrDiminishing(m_diminishGroup);
 
+            /// Frostjaw triggers both Root and Silence DR
+            if (m_spellInfo->Id == 102051)
+                unit->IncrDiminishing(DIMINISHING_SILENCE);
+
             /// Hack Fix Wod - Hunter WoD PvP Beast Mastery 4P Bonus
             /// Pet and owner are sharing same diminishing return
             if (unit->isPet() && unit->GetOwner() && unit->GetOwner()->HasAura(171478))
