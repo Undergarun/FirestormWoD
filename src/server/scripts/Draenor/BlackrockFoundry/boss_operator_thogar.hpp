@@ -72,7 +72,8 @@ enum eThogarCreatures
     GrimrailLoader      = 89055,
     OgronHauler         = 89062,
     GromkarGrenadier    = 89064,
-    ManAtArmsIntro      = 77687
+    ManAtArmsIntro      = 77687,
+    GromkarGunner       = 89068
 };
 
 enum eThogarGameObjects
@@ -94,7 +95,8 @@ enum eThogarSpells
     StoppedBackAura         = 167634,
     TroopTransportOpen      = 164319,
     TroopTransportClosed    = 164320,
-    MovingTrain             = 156553
+    MovingTrain             = 156553,
+    WoodTransportAura       = 178261
 };
 
 enum eThogarTalks
@@ -125,7 +127,10 @@ enum eThogarActions
     TrainMoveEnd,
     /// Intro: Part2 - Iron Gunnery Sergeants
     IntroBeginPart2,
-    TrainMoveEndPart2
+    TrainMoveEndPart2,
+    /// Intro: Part3 - Wood transport, before intro text
+    IntroBeginPart3,
+    TrainMoveEndPart3
 };
 
 struct TrackDoors
@@ -163,6 +168,7 @@ Position const g_TrainTrackEndPos[eThogarMiscDatas::MaxTrainTracks] =
 
 Position const g_TrainTrackIntroEndPos = { 517.475f, 3330.412f, 299.4833f, 1.570796f };
 Position const g_TrainTrackIntroSiegeEndPos = { 517.475f, 3313.283f, 299.4833f, 1.570796f };
+Position const g_TrainTrackIntroWoodEndPos = { 589.925f, 3296.323f, 299.4833f, 1.570796f };
 
 Position const g_IronRaiderLeftExitPos[eThogarMiscDatas::MaxIronRaiders] =
 {
@@ -190,6 +196,8 @@ Position const g_IronRaiderRightExitPos[eThogarMiscDatas::MaxIronRaiders] =
 
 Position const g_ManAtArmsExitPos = { 482.475f, 3312.533f, 302.3777f, 1.570796f };
 
+Position const g_ThogarJumpPos = { 596.063f, 3312.91f, 299.145f, M_PI };
+
 eThogarTalks const g_TrackTalks[eThogarMiscDatas::MaxTrainTracks] =
 {
     eThogarTalks::TalkTrack1,
@@ -197,6 +205,17 @@ eThogarTalks const g_TrackTalks[eThogarMiscDatas::MaxTrainTracks] =
     eThogarTalks::TalkTrack3,
     eThogarTalks::TalkTrack4
 };
+
+static void ApplyPassengerFlags(Creature* p_Passenger, bool p_IsTrain = true)
+{
+    p_Passenger->SetReactState(ReactStates::REACT_PASSIVE);
+    p_Passenger->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
+    p_Passenger->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+
+    if (p_IsTrain)
+        p_Passenger->CastSpell(p_Passenger, eThogarSpells::StoppedFrontAura, true);
+}
 
 static void SummonTrain(Creature* p_Summoner, uint8 p_TrackID, uint8 p_TrainType)
 {
@@ -291,36 +310,24 @@ static void SummonIntroTrain(Creature* p_Summoner, uint8 p_TrackID)
 
     if (Creature* l_Wheels = p_Summoner->SummonCreature(eThogarCreatures::TrainWheels, l_Pos))
     {
-        l_Wheels->SetReactState(ReactStates::REACT_PASSIVE);
-        l_Wheels->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+        ApplyPassengerFlags(l_Wheels, false);
 
         if (Creature* l_Engine = p_Summoner->SummonCreature(eThogarCreatures::TrainEngine, l_Pos))
         {
-            l_Engine->SetReactState(ReactStates::REACT_PASSIVE);
-            l_Engine->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-            l_Engine->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-            l_Engine->CastSpell(l_Engine, eThogarSpells::StoppedFrontAura, true);
+            ApplyPassengerFlags(l_Engine);
             l_Engine->EnterVehicle(l_Wheels, 0);
         }
 
         if (Creature* l_Train = p_Summoner->SummonCreature(eThogarCreatures::TroopTransport1, l_Pos))
         {
-            l_Train->SetReactState(ReactStates::REACT_PASSIVE);
-            l_Train->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-            l_Train->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-            l_Train->CastSpell(l_Train, eThogarSpells::StoppedFrontAura, true);
+            ApplyPassengerFlags(l_Train);
             l_Train->EnterVehicle(l_Wheels, 1);
 
             for (int8 l_I = 0; l_I < (int8)eThogarMiscDatas::MaxIronRaiders; ++l_I)
             {
                 if (Creature* l_Raider = p_Summoner->SummonCreature(eFoundryCreatures::IronRaider, l_Pos))
                 {
-                    l_Raider->SetReactState(ReactStates::REACT_PASSIVE);
-                    l_Raider->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-                    l_Raider->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+                    ApplyPassengerFlags(l_Raider, false);
                     l_Raider->EnterVehicle(l_Train, l_I);
                 }
             }
@@ -328,12 +335,7 @@ static void SummonIntroTrain(Creature* p_Summoner, uint8 p_TrackID)
 
         if (Creature* l_Train = p_Summoner->SummonCreature(eThogarCreatures::SlagTank, l_Pos))
         {
-            l_Train->SetReactState(ReactStates::REACT_PASSIVE);
-            l_Train->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-            l_Train->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-
-            l_Train->CastSpell(l_Train, eThogarSpells::StoppedFrontAura, true);
+            ApplyPassengerFlags(l_Train);
             l_Train->CastSpell(l_Train, eThogarSpells::SlagTankAura, true);
 
             l_Train->EnterVehicle(l_Wheels, 2);
@@ -342,50 +344,34 @@ static void SummonIntroTrain(Creature* p_Summoner, uint8 p_TrackID)
             {
                 if (Creature* l_Loader = p_Summoner->SummonCreature(eThogarCreatures::GrimrailLoader, l_Pos))
                 {
-                    l_Loader->SetReactState(ReactStates::REACT_PASSIVE);
-                    l_Loader->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-                    l_Loader->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+                    ApplyPassengerFlags(l_Loader, false);
                     l_Loader->EnterVehicle(l_Train, l_I * 2);
                 }
             }
 
             if (Creature* l_Hauler = p_Summoner->SummonCreature(eThogarCreatures::OgronHauler, l_Pos))
             {
-                l_Hauler->SetReactState(ReactStates::REACT_PASSIVE);
-                l_Hauler->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-                l_Hauler->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+                ApplyPassengerFlags(l_Hauler, false);
                 l_Hauler->EnterVehicle(l_Train, 1);
             }
 
             if (Creature* l_Grenadier = p_Summoner->SummonCreature(eThogarCreatures::GromkarGrenadier, l_Pos))
             {
-                l_Grenadier->SetReactState(ReactStates::REACT_PASSIVE);
-                l_Grenadier->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-                l_Grenadier->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+                ApplyPassengerFlags(l_Grenadier, false);
                 l_Grenadier->EnterVehicle(l_Train, 3);
             }
         }
 
         if (Creature* l_Train = p_Summoner->SummonCreature(eThogarCreatures::TroopTransport1, l_Pos))
         {
-            l_Train->SetReactState(ReactStates::REACT_PASSIVE);
-            l_Train->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-            l_Train->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-            l_Train->CastSpell(l_Train, eThogarSpells::StoppedFrontAura, true);
+            ApplyPassengerFlags(l_Train);
             l_Train->EnterVehicle(l_Wheels, 3);
 
             for (int8 l_I = 0; l_I < (int8)eThogarMiscDatas::MaxIronRaiders; ++l_I)
             {
                 if (Creature* l_Raider = p_Summoner->SummonCreature(eFoundryCreatures::IronRaider, l_Pos))
                 {
-                    l_Raider->SetReactState(ReactStates::REACT_PASSIVE);
-                    l_Raider->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-                    l_Raider->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+                    ApplyPassengerFlags(l_Raider, false);
                     l_Raider->EnterVehicle(l_Train, l_I);
                 }
             }
@@ -420,91 +406,49 @@ static void SummonIntroSiegeTrain(Creature* p_Summoner, uint8 p_TrackID)
 
     if (Creature* l_Wheels = p_Summoner->SummonCreature(eThogarCreatures::TrainWheels, l_Pos))
     {
-        l_Wheels->SetReactState(ReactStates::REACT_PASSIVE);
-        l_Wheels->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+        ApplyPassengerFlags(l_Wheels, false);
 
         if (Creature* l_Engine = p_Summoner->SummonCreature(eThogarCreatures::TrainEngine, l_Pos))
         {
-            l_Engine->SetReactState(ReactStates::REACT_PASSIVE);
-            l_Engine->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-            l_Engine->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-            l_Engine->CastSpell(l_Engine, eThogarSpells::StoppedFrontAura, true);
+            ApplyPassengerFlags(l_Engine);
             l_Engine->EnterVehicle(l_Wheels, 0);
         }
 
-        if (Creature* l_Train = p_Summoner->SummonCreature(eThogarCreatures::Train2, l_Pos))
+        std::vector<uint32> l_Entries = { eThogarCreatures::Train2, eThogarCreatures::Train1 };
+
+        for (int8 l_I = 1; l_I < 3; ++l_I)
         {
-            l_Train->SetReactState(ReactStates::REACT_PASSIVE);
-            l_Train->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-            l_Train->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-            l_Train->CastSpell(l_Train, eThogarSpells::StoppedFrontAura, true);
-            l_Train->EnterVehicle(l_Wheels, 1);
-
-            if (Creature* l_SiegeEngine = p_Summoner->SummonCreature(eThogarCreatures::SiegeEngine1, l_Pos))
+            if (Creature* l_Train = p_Summoner->SummonCreature(l_Entries[l_I - 1], l_Pos))
             {
-                l_SiegeEngine->SetReactState(ReactStates::REACT_PASSIVE);
-                l_SiegeEngine->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                ApplyPassengerFlags(l_Train);
+                l_Train->EnterVehicle(l_Wheels, l_I);
 
-                l_SiegeEngine->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-                l_SiegeEngine->EnterVehicle(l_Train, 0);
-
-                if (Creature* l_Sergeant = p_Summoner->SummonCreature(eThogarCreatures::IronGunnerySergeant, l_Pos))
+                if (Creature* l_SiegeEngine = p_Summoner->SummonCreature(eThogarCreatures::SiegeEngine1, l_Pos))
                 {
-                    l_Sergeant->SetReactState(ReactStates::REACT_PASSIVE);
-                    l_Sergeant->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                    ApplyPassengerFlags(l_SiegeEngine, false);
+                    l_SiegeEngine->EnterVehicle(l_Train, 0);
 
-                    l_Sergeant->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-                    l_Sergeant->EnterVehicle(l_SiegeEngine, 0);
+                    if (Creature* l_Sergeant = p_Summoner->SummonCreature(eThogarCreatures::IronGunnerySergeant, l_Pos))
+                    {
+                        ApplyPassengerFlags(l_Sergeant, false);
+                        l_Sergeant->EnterVehicle(l_SiegeEngine, 0);
+                    }
                 }
-            }
-        }
 
-        if (Creature* l_Train = p_Summoner->SummonCreature(eThogarCreatures::Train1, l_Pos))
-        {
-            l_Train->SetReactState(ReactStates::REACT_PASSIVE);
-            l_Train->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                if (l_I == 1)
+                    continue;
 
-            l_Train->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-            l_Train->CastSpell(l_Train, eThogarSpells::StoppedFrontAura, true);
-            l_Train->EnterVehicle(l_Wheels, 2);
-
-            if (Creature* l_SiegeEngine = p_Summoner->SummonCreature(eThogarCreatures::SiegeEngine1, l_Pos))
-            {
-                l_SiegeEngine->SetReactState(ReactStates::REACT_PASSIVE);
-                l_SiegeEngine->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-                l_SiegeEngine->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-                l_SiegeEngine->EnterVehicle(l_Train, 0);
-
-                if (Creature* l_Sergeant = p_Summoner->SummonCreature(eThogarCreatures::IronGunnerySergeant, l_Pos))
+                if (Creature* l_ManAtArms = p_Summoner->SummonCreature(eThogarCreatures::ManAtArmsIntro, l_Pos))
                 {
-                    l_Sergeant->SetReactState(ReactStates::REACT_PASSIVE);
-                    l_Sergeant->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-                    l_Sergeant->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-                    l_Sergeant->EnterVehicle(l_SiegeEngine, 0);
+                    ApplyPassengerFlags(l_ManAtArms, false);
+                    l_ManAtArms->EnterVehicle(l_Train, 1);
                 }
-            }
-
-            if (Creature* l_ManAtArms = p_Summoner->SummonCreature(eThogarCreatures::ManAtArmsIntro, l_Pos))
-            {
-                l_ManAtArms->SetReactState(ReactStates::REACT_PASSIVE);
-                l_ManAtArms->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-                l_ManAtArms->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-                l_ManAtArms->EnterVehicle(l_Train, 1);
             }
         }
 
         if (Creature* l_Supplies = p_Summoner->SummonCreature(eThogarCreatures::SuppliesTransport, l_Pos))
         {
-            l_Supplies->SetReactState(ReactStates::REACT_PASSIVE);
-            l_Supplies->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-            l_Supplies->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-            l_Supplies->CastSpell(l_Supplies, eThogarSpells::StoppedFrontAura, true);
+            ApplyPassengerFlags(l_Supplies);
             l_Supplies->CastSpell(l_Supplies, eThogarSpells::SuppliesTransportAura, true);
             l_Supplies->EnterVehicle(l_Wheels, 3);
         }
@@ -519,4 +463,66 @@ static void SummonIntroSiegeTrain(Creature* p_Summoner, uint8 p_TrackID)
 
     if (l_Thogar->IsAIEnabled)
         l_Thogar->AI()->Talk(g_TrackTalks[p_TrackID]);
+}
+
+static void SummonLastIntroTrain(Creature* p_Summoner, uint8 p_TrackID)
+{
+    if (p_Summoner == nullptr || p_TrackID >= eThogarMiscDatas::MaxTrainTracks)
+        return;
+
+    InstanceScript* l_InstanceScript = p_Summoner->GetInstanceScript();
+    if (l_InstanceScript == nullptr)
+        return;
+
+    Creature* l_Thogar = Creature::GetCreature(*p_Summoner, l_InstanceScript->GetData64(eFoundryCreatures::BossOperatorThogar));
+    if (l_Thogar == nullptr)
+        return;
+
+    Position const l_Pos = g_TrainTrackSpawnPos[p_TrackID];
+
+    if (Creature* l_Wheels = p_Summoner->SummonCreature(eThogarCreatures::TrainWheels, l_Pos))
+    {
+        ApplyPassengerFlags(l_Wheels, false);
+
+        if (Creature* l_Engine = p_Summoner->SummonCreature(eThogarCreatures::TrainEngine, l_Pos))
+        {
+            ApplyPassengerFlags(l_Engine);
+            l_Engine->EnterVehicle(l_Wheels, 0);
+        }
+
+        if (Creature* l_Wood = p_Summoner->SummonCreature(eThogarCreatures::WoodTransport, l_Pos))
+        {
+            ApplyPassengerFlags(l_Wood);
+            l_Wood->CastSpell(l_Wood, eThogarSpells::WoodTransportAura, true);
+            l_Wood->EnterVehicle(l_Wheels, 1);
+        }
+
+        if (Creature* l_Train = p_Summoner->SummonCreature(eThogarCreatures::TroopTransport2, l_Pos))
+        {
+            ApplyPassengerFlags(l_Train);
+            l_Train->EnterVehicle(l_Wheels, 2);
+
+            std::vector<uint32> l_Entries = { eThogarCreatures::GromkarGunner, eThogarCreatures::GromkarGunner, eThogarCreatures::GrimrailLoader, eThogarCreatures::GrimrailLoader };
+
+            int8 l_SeatID = 0;
+            for (uint32 l_Entry : l_Entries)
+            {
+                if (Creature* l_Orc = p_Summoner->SummonCreature(l_Entry, l_Pos))
+                {
+                    l_Orc->SetReactState(ReactStates::REACT_PASSIVE);
+                    l_Orc->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
+                    l_Orc->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+                    l_Orc->EnterVehicle(l_Train, l_SeatID++);
+                }
+            }
+        }
+
+        if (l_Wheels->IsAIEnabled)
+        {
+            l_Wheels->AI()->SetGUID(p_Summoner->GetGUID());
+            l_Wheels->AI()->SetData(0, p_TrackID);
+            l_Wheels->AI()->DoAction(eThogarActions::IntroBeginPart3);
+        }
+    }
 }

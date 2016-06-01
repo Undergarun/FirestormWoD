@@ -3335,6 +3335,18 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
                 }
             }
 
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                if (m_Instance != nullptr && me->GetEntry() == eThogarCreatures::ManAtArmsIntro)
+                {
+                    if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                    {
+                        if (l_Thogar->IsAIEnabled)
+                            l_Thogar->AI()->SetGUID(me->GetGUID(), 1);
+                    }
+                }
+            }
+
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
             {
                 if (p_Target == nullptr)
