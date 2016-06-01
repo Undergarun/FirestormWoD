@@ -4730,11 +4730,21 @@ void ObjectMgr::LoadBonusQuests()
                 int32 l_AreaWidth   = std::abs(l_MaxX - l_MinX);
                 int32 l_AreaHeight  = std::abs(l_MaxY - l_MinY);
 
-                l_MinX -= abs(0.35f * float(l_AreaWidth)) / 2.0f;
-                l_MinY -= abs(0.35f * float(l_AreaHeight)) / 2.0f;
+                float l_GrowthPct = 0.35f;
 
-                l_MaxX += abs(0.35f * float(l_AreaWidth)) / 2.0f;
-                l_MaxY += abs(0.35f * float(l_AreaHeight)) / 2.0f;
+                switch (l_Quest->Id)
+                {
+                    case 36504: ///< Bonus Objective: Evermorn Springs
+                    case 34724: ///< Bonus Objective: The Forgotten Caves
+                        l_GrowthPct = 0.5f;
+                        break;
+                }
+
+                l_MinX -= abs(l_GrowthPct * float(l_AreaWidth)) / 2.0f;
+                l_MinY -= abs(l_GrowthPct * float(l_AreaHeight)) / 2.0f;
+
+                l_MaxX += abs(l_GrowthPct * float(l_AreaWidth)) / 2.0f;
+                l_MaxY += abs(l_GrowthPct * float(l_AreaHeight)) / 2.0f;
 
                 BonusQuestRectEntry l_Rect;
                 l_Rect.X = l_MinX;
