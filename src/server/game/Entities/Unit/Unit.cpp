@@ -514,6 +514,20 @@ void Unit::UpdateSplinePosition()
         l_Location.orientation = GetOrientation();
 
     UpdatePosition(l_Location.x, l_Location.y, l_Location.z, l_Location.orientation);
+
+    /// Update all passengers after updating vehicle position
+    /// This will prevent some base positioning if vehicles are updated in the wrong order
+    if (Vehicle* l_Vehicle = GetVehicleKit())
+    {
+        for (int8 l_I = 0; l_I < MAX_VEHICLE_SEATS; ++l_I)
+        {
+            if (Unit* l_Passenger = l_Vehicle->GetPassenger(l_I))
+            {
+                if (l_Passenger->movespline->Initialized())
+                    l_Passenger->UpdateSplinePosition();
+            }
+        }
+     }
 }
 
 void Unit::DisableSpline()
@@ -17236,11 +17250,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         if (procSpell && HandleSpellCritChanceAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                             takeCharges = true;
                         break;
-                    /*case SPELL_AURA_ADD_FLAT_MODIFIER:
-                    case SPELL_AURA_ADD_PCT_MODIFIER:
-                        HandleModifierAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown);
-                        takeCharges = false;
-                        break;*/
                     default:
                         // nothing do, just charges counter
                         // Don't drop charge for Earth Shield because of second effect
