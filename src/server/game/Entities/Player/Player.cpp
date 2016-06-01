@@ -545,6 +545,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_BeaconOfFaithTargetGUID = 0;
 
     m_MasteryCache = 0.0f;
+    m_BonusQuestTimer = 0;
 }
 
 Player::~Player()
@@ -8514,6 +8515,49 @@ int8 Player::GetFreeActionButton()
 
 bool Player::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
 {
+    if ((time(0) - m_BonusQuestTimer) >= 5)
+    {
+        m_BonusQuestTimer = time(0) + 5;
+        for (auto l_Current : sObjectMgr->BonusQuestsRects)
+        {
+            if (IsQuestRewarded(l_Current.first))
+                continue;
+
+            bool l_HasOneIn = false;
+
+            for (uint32 l_I = 0; l_I < l_Current.second.size(); ++l_I)
+            {
+                if (l_Current.second[l_I].IsIn(GetMapId(), x, y))
+                    l_HasOneIn = true;
+            }
+
+            uint32 l_Slot = FindQuestSlot(l_Current.first);
+
+            if (!l_HasOneIn && l_Slot < MAX_QUEST_LOG_SIZE)
+            {
+                SetQuestSlot(l_Slot, 0);
+                RemoveActiveQuest(l_Current.first, true);
+            }
+            else if (l_HasOneIn && l_Slot >= MAX_QUEST_LOG_SIZE)
+            {
+                if (const Quest * l_Quest = sObjectMgr->GetQuestTemplate(l_Current.first))
+                {
+                    AddQuest(l_Quest, this);
+
+                    l_Slot = FindQuestSlot(l_Current.first);
+
+                    if (l_Slot < MAX_QUEST_LOG_SIZE)
+                    {
+                        for (auto l_Objective : l_Quest->QuestObjectives)
+                        {
+                            SetQuestSlotCounter(l_Slot, l_Objective.Index, m_questObjectiveStatus[l_Objective.ID]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     if (!Unit::UpdatePosition(x, y, z, orientation, teleport))
         return false;
 
@@ -18502,7 +18546,6 @@ void Player::CompleteQuest(uint32 quest_id)
             else
                 SendQuestComplete(qInfo);
 
-
             sScriptMgr->OnQuestComplete(this, qInfo);
         }
 
@@ -19601,17 +19644,16 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
     UpdateForQuestWorldObjects();
 }
 
-void Player::RemoveActiveQuest(uint32 quest_id)
+void Player::RemoveActiveQuest(uint32 quest_id, bool p_BonusQuest)
 {
     QuestStatusMap::iterator itr = m_QuestStatus.find(quest_id);
     if (itr != m_QuestStatus.end())
     {
         m_QuestStatus.erase(itr);
-        m_QuestStatusSave[quest_id] = false;
 
         const Quest * l_Quest = sObjectMgr->GetQuestTemplate(quest_id);
 
-        if (l_Quest)
+        if (!p_BonusQuest)
         {
 // Not sure, need to find real flag value (LANG_CANT_ABANDON_QUEST_FLAGGED undefined in trinity_string)
 //             if ((l_Quest->GetFlags2() & QUEST_FLAGS2_NO_ABANDON_ON_ANY_OBJECTIVE_COMPLETE) != 0)
@@ -19627,13 +19669,17 @@ void Player::RemoveActiveQuest(uint32 quest_id)
 //                     }
 //                 }
 //             }
+            m_QuestStatusSave[quest_id] = false;
 
-            for (QuestObjective l_Objective : l_Quest->QuestObjectives)
+            if (l_Quest)
             {
-                m_questObjectiveStatus[l_Objective.ID] = 0;
+                for (QuestObjective l_Objective : l_Quest->QuestObjectives)
+                {
+                    m_questObjectiveStatus[l_Objective.ID] = 0;
 
-                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
-                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                    if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                        DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                }
             }
         }
 
@@ -23765,6 +23811,10 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
         if (saveItr->second)
         {
             statusItr = m_QuestStatus.find(saveItr->first);
+
+            if (sObjectMgr->BonusQuestsRects.find(statusItr->first) != sObjectMgr->BonusQuestsRects.end())
+                continue;
+
             if (statusItr != m_QuestStatus.end() && (keepAbandoned || statusItr->second.Status != QUEST_STATUS_NONE))
             {
                 uint8 index = 0;

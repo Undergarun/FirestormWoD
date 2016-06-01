@@ -1090,6 +1090,19 @@ class ObjectMgr
         void LoadFollowerQuests();
         std::vector<uint32> FollowerQuests;
 
+        void LoadBonusQuests();
+        struct BonusQuestRectEntry
+        {
+            int32 X, Y, XMax, YMax;
+            uint32 MapID;
+
+            bool IsIn(uint32 p_MapID, int p_X, int p_Y)
+            {
+                return MapID == p_MapID && X <= p_X && XMax >= p_X && Y <= p_Y && YMax >= p_Y;
+            }
+        };
+        std::map<uint32, std::vector<BonusQuestRectEntry>> BonusQuestsRects;
+
         void LoadQuestForItem();
         std::map<uint32, std::vector<std::pair<uint32, uint8>>> QuestForItem;    ///< <ItemID, [<QuestID, ObjectiveIndex>]>
 

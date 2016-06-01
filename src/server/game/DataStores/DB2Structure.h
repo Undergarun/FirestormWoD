@@ -1313,6 +1313,44 @@ enum class PackageItemRewardType : uint8
     NoRequire            = 3
 };
 
+struct QuestV2CliTaskEntry
+{
+    uint32 QuestID;                                          // 0
+    uint32 Unk1;                                             // 1
+    uint32 Unk2;                                             // 2
+    uint32 Unk3;                                             // 3
+    uint32 Unk4;                                             // 4
+    uint32 Unk5;                                             // 5
+    uint32 Unk6;                                             // 6
+    uint32 Unk7;                                             // 7
+    uint32 Unk8;                                             // 8
+    uint32 Unk9;                                             // 9
+    uint32 Unk10;                                            // 10
+    uint32 Unk11;                                            // 11
+    uint32 Unk12;                                            // 12
+    uint32 Unk13;                                            // 13
+    uint32 Level;                                            // 14
+    uint32 Unk14;                                            // 15
+    uint32 Unk15;                                            // 16
+    uint32 Unk16;                                            // 17
+    uint32 Unk17;                                            // 18
+    uint32 Unk18;                                            // 19
+    char * Name;                                             // 20
+    uint32 Unk19;                                            // 21
+    uint32 Unk20;                                            // 22
+};
+
+struct QuestPOIPointCliTaskEntry
+{
+    uint32 ID;                                              // 0
+    uint32 X;                                               // 1
+    uint32 Y;                                               // 2
+    uint32 Floor;                                           // 3
+    uint32 QuestID;                                         // 4
+    uint32 MapID;                                           // 5
+    uint32 AreaID;                                          // 6
+};
+
 ////////////////////////////////////////////////////////////////////
 /// Scaling DB2
 ////////////////////////////////////////////////////////////////////

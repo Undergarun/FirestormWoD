@@ -16,7 +16,7 @@ namespace FrostfireRidgeEvents
         EventRampage          = 2,
     };
 }
-/*
+
 namespace FrostfireRidgeQuests
 {
     enum
@@ -35,6 +35,7 @@ namespace FrostfireRidgeCreatures
 {
     enum
     {
+        FrostWolfHowler = 78894
     };
-}*/
+}
 

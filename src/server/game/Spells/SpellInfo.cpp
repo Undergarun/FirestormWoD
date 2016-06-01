@@ -4166,6 +4166,23 @@ bool SpellInfo::IsOffensiveFinishingMove() const
     }
 }
 
+bool SpellInfo::IsArcaneTorrent() const
+{
+    switch (Id)
+    {
+        case 25046: ///< Energy
+        case 28730: ///< Mana
+        case 50613: ///< Runic Power
+        case 69179: ///< Rage
+        case 80483: ///< Focus
+        case 129597: ///< Chi
+        case 155145: ///< Holy Power
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool SpellInfo::IsCanBeStolen() const
 {
     /// Special rules, some aren't using mana but can be stolen
