@@ -37,6 +37,11 @@ class boss_operator_thogar : public CreatureScript
             IntroEnd
         };
 
+        enum eMove
+        {
+            MoveJump = 5
+        };
+
         struct boss_operator_thogarAI : public BossAI
         {
             boss_operator_thogarAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataOperatorThogar)
@@ -135,6 +140,11 @@ class boss_operator_thogar : public CreatureScript
                                         l_Wheels->AI()->DoAction(eThogarActions::TrainMoveEndPart2);
                                 }
 
+                                AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                                {
+                                    SummonLastIntroTrain(me, eThogarMiscDatas::FirstTrack);
+                                });
+
                                 break;
                             }
                             default:
@@ -152,7 +162,8 @@ class boss_operator_thogar : public CreatureScript
             {
                 if (m_IntroState == eIntroStates::GunnerySergeants && !m_IntroDone)
                 {
-                    if (p_Summon->GetEntry() == eThogarCreatures::IronGunnerySergeant)
+                    if (p_Summon->GetEntry() == eThogarCreatures::IronGunnerySergeant ||
+                        p_Summon->GetEntry() == eThogarCreatures::ManAtArmsIntro)
                         m_IntroTrashes.insert(p_Summon->GetGUID());
                 }
                 else
@@ -188,8 +199,26 @@ class boss_operator_thogar : public CreatureScript
                 Talk(eThogarTalks::TalkWipe);
             }
 
-            void DoAction(int32 const /*p_Action*/) override
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
             {
+                if (p_ID == eMove::MoveJump)
+                    me->SetHomePosition(*me);
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eThogarActions::IntroEnd:
+                    {
+                        m_IntroDone = true;
+
+                        me->GetMotionMaster()->MoveJump(g_ThogarJumpPos, 30.0f, 10.0f, eMove::MoveJump);
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -237,7 +266,14 @@ class npc_foundry_train_controller : public CreatureScript
             MovementIntro = 5,
             MovementOuttro,
             SecondMovementIntro,
-            SecondMovementOuttro
+            SecondMovementOuttro,
+            ThirdMovementIntro,
+            ThirdMovementOuttro
+        };
+
+        enum eVisual
+        {
+            PreMovingTrain = 39795
         };
 
         struct npc_foundry_train_controllerAI : public ScriptedAI
@@ -275,25 +311,11 @@ class npc_foundry_train_controller : public CreatureScript
                     /// Intro: Part2 - Move intro train
                     case eThogarActions::IntroBeginPart2:
                     {
-                        for (int8 l_I = 0; l_I < 4; ++l_I)
-                        {
-                            if (Unit* l_Passenger = m_Vehicle->GetPassenger(l_I))
-                            {
-                                l_Passenger->RemoveAura(eThogarSpells::StoppedFrontAura);
-
-                                l_Passenger->CastSpell(l_Passenger, eThogarSpells::MovingTrain, true);
-                                l_Passenger->CastSpell(l_Passenger, eThogarSpells::MovingFrontAura, true);
-                            }
-                        }
+                        StartTrain(0, false);
 
                         me->GetMotionMaster()->MovePoint(p_Action == eThogarActions::IntroBegin ? eMoves::MovementIntro : eMoves::SecondMovementIntro, p_Action == eThogarActions::IntroBegin ? g_TrainTrackIntroEndPos : g_TrainTrackIntroSiegeEndPos, false);
 
-                        if (GameObject* l_RightDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].RightDoor)))
-                            l_RightDoor->SetGoState(GOState::GO_STATE_ACTIVE);
-
-                        if (GameObject* l_LeftDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].LeftDoor)))
-                            l_LeftDoor->SetGoState(GOState::GO_STATE_ACTIVE);
-
+                        HandleDoors(true);
                         break;
                     }
                     /// Intro: Part1 - Exit remaining passengers
@@ -307,7 +329,7 @@ class npc_foundry_train_controller : public CreatureScript
                     /// Intro: Part1 - Move to end of the track
                     case eThogarActions::TrainMoveEnd:
                     {
-                        for (int8 l_I = 0; l_I < 4; ++l_I)
+                        for (int8 l_I = 0; l_I < MAX_VEHICLE_SEATS; ++l_I)
                         {
                             if (Unit* l_Passenger = m_Vehicle->GetPassenger(l_I))
                             {
@@ -315,23 +337,13 @@ class npc_foundry_train_controller : public CreatureScript
                                 if (l_I == 1 || l_I == 3)
                                     l_Passenger->CastSpell(l_Passenger, eThogarSpells::TroopTransportClosed, true);
 
-                                uint64 l_Guid = l_Passenger->GetGUID();
-                                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
-                                {
-                                    if (Unit* l_Passenger = Unit::GetUnit(*me, l_Guid))
-                                    {
-                                        l_Passenger->RemoveAura(eThogarSpells::StoppedFrontAura);
-
-                                        l_Passenger->CastSpell(l_Passenger, eThogarSpells::MovingTrain, true);
-                                        l_Passenger->CastSpell(l_Passenger, eThogarSpells::MovingFrontAura, true);
-                                    }
-                                });
+                                StartTrain(l_Passenger->GetGUID());
                             }
                         }
 
                         AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            me->GetMotionMaster()->MovePoint(eMoves::MovementOuttro, g_TrainTrackEndPos[eThogarMiscDatas::FourthTrack]);
+                            me->GetMotionMaster()->MovePoint(eMoves::MovementOuttro, g_TrainTrackEndPos[m_TrackID]);
                         });
 
                         break;
@@ -339,38 +351,31 @@ class npc_foundry_train_controller : public CreatureScript
                     /// Intro: Part2 - Move to end of the track
                     case eThogarActions::TrainMoveEndPart2:
                     {
-                        for (int8 l_I = 0; l_I < 4; ++l_I)
-                        {
-                            if (Unit* l_Passenger = m_Vehicle->GetPassenger(l_I))
-                            {
-                                uint64 l_Guid = l_Passenger->GetGUID();
-                                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
-                                {
-                                    if (Unit* l_Passenger = Unit::GetUnit(*me, l_Guid))
-                                    {
-                                        l_Passenger->RemoveAura(eThogarSpells::StoppedFrontAura);
-
-                                        l_Passenger->CastSpell(l_Passenger, eThogarSpells::MovingTrain, true);
-                                        l_Passenger->CastSpell(l_Passenger, eThogarSpells::MovingFrontAura, true);
-                                    }
-                                });
-                            }
-                        }
+                        StartTrain(0);
 
                         AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            me->GetMotionMaster()->MovePoint(eMoves::MovementOuttro, g_TrainTrackEndPos[eThogarMiscDatas::FourthTrack]);
+                            me->GetMotionMaster()->MovePoint(eMoves::MovementOuttro, g_TrainTrackEndPos[m_TrackID]);
                         });
 
                         AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            if (GameObject* l_RightDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].RightDoor)))
-                                l_RightDoor->SetGoState(GOState::GO_STATE_READY);
+                            HandleDoors(false);
 
-                            if (GameObject* l_LeftDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].LeftDoor)))
-                                l_LeftDoor->SetGoState(GOState::GO_STATE_READY);
+                            if (GameObject* l_IronGate = GameObject::GetGameObject(*me, m_Instance->GetData64(eFoundryGameObjects::IronGate)))
+                                l_IronGate->SetGoState(GOState::GO_STATE_ACTIVE);
                         });
 
+                        break;
+                    }
+                    /// Intro: Part3 - Move wood train to boss
+                    case eThogarActions::IntroBeginPart3:
+                    {
+                        StartTrain(0, false);
+
+                        me->GetMotionMaster()->MovePoint(eMoves::ThirdMovementIntro, g_TrainTrackIntroWoodEndPos, false);
+
+                        HandleDoors(true);
                         break;
                     }
                     default:
@@ -397,25 +402,7 @@ class npc_foundry_train_controller : public CreatureScript
                 {
                     case eMoves::MovementIntro:
                     {
-                        if (GameObject* l_RightDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].RightDoor)))
-                            l_RightDoor->SetGoState(GOState::GO_STATE_READY);
-
-                        if (GameObject* l_LeftDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].LeftDoor)))
-                            l_LeftDoor->SetGoState(GOState::GO_STATE_READY);
-
-                        for (int8 l_I = 0; l_I < 4; ++l_I)
-                        {
-                            if (Unit* l_Passenger = m_Vehicle->GetPassenger(l_I))
-                            {
-                                l_Passenger->RemoveAura(eThogarSpells::MovingFrontAura);
-                                l_Passenger->RemoveAura(eThogarSpells::MovingTrain);
-
-                                if (AreaTrigger* l_AreaTrigger = l_Passenger->GetAreaTrigger(eThogarSpells::MovingTrain))
-                                    l_AreaTrigger->SetDuration(1);
-
-                                l_Passenger->CastSpell(l_Passenger, eThogarSpells::StoppedFrontAura, true);
-                            }
-                        }
+                        StopTrain();
 
                         if (Creature* l_Summoner = Creature::GetCreature(*me, m_SummonerGUID))
                             RemovePassengers(l_Summoner);
@@ -461,27 +448,12 @@ class npc_foundry_train_controller : public CreatureScript
                             l_SlagTank->ToCreature()->DespawnOrUnsummon();
                         }
 
+                        me->DespawnOrUnsummon();
                         break;
                     }
                     case eMoves::SecondMovementIntro:
                     {
-                        if (GameObject* l_RightDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].RightDoor)))
-                            l_RightDoor->SetGoState(GOState::GO_STATE_READY);
-
-                        /// Update visuals
-                        for (int8 l_I = 0; l_I < 4; ++l_I)
-                        {
-                            if (Unit* l_Passenger = m_Vehicle->GetPassenger(l_I))
-                            {
-                                l_Passenger->RemoveAura(eThogarSpells::MovingFrontAura);
-                                l_Passenger->RemoveAura(eThogarSpells::MovingTrain);
-
-                                if (AreaTrigger* l_AreaTrigger = l_Passenger->GetAreaTrigger(eThogarSpells::MovingTrain))
-                                    l_AreaTrigger->SetDuration(1);
-
-                                l_Passenger->CastSpell(l_Passenger, eThogarSpells::StoppedFrontAura, true);
-                            }
-                        }
+                        StopTrain();
 
                         for (int8 l_I = 1; l_I < 3; ++l_I)
                         {
@@ -550,6 +522,8 @@ class npc_foundry_train_controller : public CreatureScript
                     }
                     case eMoves::SecondMovementOuttro:
                     {
+                        HandleDoors(false);
+
                         /// Remove Engine
                         if (Unit* l_Engine = m_Vehicle->GetPassenger(0))
                         {
@@ -588,11 +562,75 @@ class npc_foundry_train_controller : public CreatureScript
                             l_Supplies->ToCreature()->DespawnOrUnsummon();
                         }
 
+                        me->DespawnOrUnsummon();
+                        break;
+                    }
+                    case eMoves::ThirdMovementIntro:
+                    {
+                        StopTrain();
+
+                        AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (m_Instance != nullptr)
+                            {
+                                if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                                {
+                                    if (l_Thogar->IsAIEnabled)
+                                        l_Thogar->AI()->Talk(eThogarTalks::TalkIntro);
+                                }
+                            }
+                        });
+
+                        AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            StartTrain(0);
+
+                            if (m_Instance != nullptr)
+                            {
+                                if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                                {
+                                    /// Launch jump into room
+                                    if (l_Thogar->IsAIEnabled)
+                                        l_Thogar->AI()->DoAction(eThogarActions::IntroEnd);
+                                }
+                            }
+                        });
+
+                        AddTimedDelayedOperation(21 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            /// Launch move
+                            me->GetMotionMaster()->MovePoint(eMoves::ThirdMovementOuttro, g_TrainTrackEndPos[m_TrackID]);
+
+                            HandleDoors(true);
+                        });
+
+                        break;
+                    }
+                    case eMoves::ThirdMovementOuttro:
+                    {
+                        HandleDoors(false);
+
+                        /// Remove passengers
+                        for (int8 l_I = 0; l_I < MAX_VEHICLE_SEATS; ++l_I)
+                        {
+                            if (Unit* l_Engine = m_Vehicle->GetPassenger(l_I))
+                            {
+                                l_Engine->RemoveAllAreasTrigger();
+                                l_Engine->ToCreature()->DespawnOrUnsummon();
+                            }
+                        }
+
+                        me->DespawnOrUnsummon();
                         break;
                     }
                     default:
                         break;
                 }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
             }
 
             void RemovePassengers(Creature* p_Source)
@@ -642,9 +680,64 @@ class npc_foundry_train_controller : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            /// Handle visuals for starting
+            void StartTrain(uint64 p_Guid, bool p_Delayed = true)
             {
-                UpdateOperations(p_Diff);
+                if (p_Guid)
+                {
+                    AddTimedDelayedOperation(p_Delayed ? 1 * TimeConstants::IN_MILLISECONDS : 0, [this, p_Guid]() -> void
+                    {
+                        if (Unit* l_Passenger = Unit::GetUnit(*me, p_Guid))
+                            l_Passenger->SendPlaySpellVisualKit(eVisual::PreMovingTrain, 0);
+                    });
+
+                    AddTimedDelayedOperation(p_Delayed ? 2 * TimeConstants::IN_MILLISECONDS : 0, [this, p_Guid]() -> void
+                    {
+                        if (Unit* l_Passenger = Unit::GetUnit(*me, p_Guid))
+                        {
+                            l_Passenger->RemoveAura(eThogarSpells::StoppedFrontAura);
+
+                            l_Passenger->CastSpell(l_Passenger, eThogarSpells::MovingTrain, true);
+                            l_Passenger->CastSpell(l_Passenger, eThogarSpells::MovingFrontAura, true);
+                        }
+                    });
+                }
+                else
+                {
+                    for (int8 l_I = 0; l_I < MAX_VEHICLE_SEATS; ++l_I)
+                    {
+                        if (Unit* l_Passenger = m_Vehicle->GetPassenger(l_I))
+                            StartTrain(l_Passenger->GetGUID(), p_Delayed);
+                    }
+                }
+            }
+
+            /// Handle visuals for stopping
+            void StopTrain()
+            {
+                /// Update visuals
+                for (int8 l_I = 0; l_I < MAX_VEHICLE_SEATS; ++l_I)
+                {
+                    if (Unit* l_Passenger = m_Vehicle->GetPassenger(l_I))
+                    {
+                        l_Passenger->RemoveAura(eThogarSpells::MovingFrontAura);
+                        l_Passenger->RemoveAura(eThogarSpells::MovingTrain);
+
+                        if (AreaTrigger* l_AreaTrigger = l_Passenger->GetAreaTrigger(eThogarSpells::MovingTrain))
+                            l_AreaTrigger->SetDuration(1);
+
+                        l_Passenger->CastSpell(l_Passenger, eThogarSpells::StoppedFrontAura, true);
+                    }
+                }
+            }
+
+            void HandleDoors(bool p_Apply)
+            {
+                if (GameObject* l_RightDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].RightDoor)))
+                    l_RightDoor->SetGoState(p_Apply ? GOState::GO_STATE_ACTIVE : GOState::GO_STATE_READY);
+
+                if (GameObject* l_LeftDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].LeftDoor)))
+                    l_LeftDoor->SetGoState(p_Apply ? GOState::GO_STATE_ACTIVE : GOState::GO_STATE_READY);
             }
         };
 
@@ -731,6 +824,8 @@ class npc_foundry_iron_gunnery_sergeant : public CreatureScript
                         if (l_SiegeEngine->GetBase()->GetTypeId() == TypeID::TYPEID_UNIT)
                             l_SiegeEngine->GetBase()->ToCreature()->DespawnOrUnsummon();
                     }
+
+                    me->GetMotionMaster()->MoveFall();
                 }
             }
 
