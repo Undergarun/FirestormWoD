@@ -14,11 +14,6 @@
 		INSERT INTO creature_equip_template (`entry`, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`) VALUES(87242, 1, 24512, 0, 0) ON DUPLICATE KEY UPDATE `entry` = VALUES(`entry`), `id` = VALUES(`id`), `itemEntry1` = VALUES(`itemEntry1`), `itemEntry2` = VALUES(`itemEntry2`), `itemEntry3` = VALUES(`itemEntry3`);
 		UPDATE creature_template SET npcflag = npcflag | 1, scriptname = "npc_SagePaluna_Garr" WHERE entry = 87242;
 
-		-- plot content (only fixed spawn are tormak and ka'la (81494), else is dynamic)
-
-		DELETE FROM garrison_plot_content WHERE plot_type_or_building = -65 AND faction_index = 1; -- horde
-		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-65','1','86974','2.35014','0.122752','1.14831','0.745757');
-
 
 		/* Quests list : 
 		-- Elever un elekk
@@ -247,6 +242,11 @@
 
 		UPDATE gameobject_template SET NAME = "Black Claw of Sethe" WHERE entry = 237169;
 		UPDATE gameobject_template SET NAME = "Garn-Tooth Necklace" WHERE entry = 237170;
+
+		-- plot content (only fixed spawn are tormak and ka'la (81494), else is dynamic)
+
+		DELETE FROM garrison_plot_content WHERE plot_type_or_building = -65 AND faction_index = 0; -- horde
+		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-65','0','86979','4.78931','-3.73092','0.930573','1.86515');
 
 -- LEVEL 2
 

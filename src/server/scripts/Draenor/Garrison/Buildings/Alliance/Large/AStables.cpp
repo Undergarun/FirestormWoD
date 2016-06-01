@@ -59,20 +59,9 @@ namespace MS { namespace Garrison
         {
             p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
 
-            if (l_QuestID == g_BoarQuests.back())
-            {
-                using namespace StablesData::Alliance;
-
-                l_AI->SummonRelativeCreature(g_KeeganQuestgiverEntry,
-                    g_AllianceCreaturesPos[4].X,
-                    g_AllianceCreaturesPos[4].Y,
-                    g_AllianceCreaturesPos[4].Z,
-                    g_AllianceCreaturesPos[4].O,
-                    TEMPSUMMON_MANUAL_DESPAWN);
-            }
-
             if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
                 l_GarrisonMgr->UpdatePlot(l_AI->GetPlotInstanceID());
+
         }
 
         return true;

@@ -73,21 +73,9 @@ namespace MS { namespace Garrison
         {
             p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
 
-            if (l_QuestID == g_BoarQuests.back() && p_Creature->AI())
-            {
-                using namespace StablesData::Horde;
-
-                l_AI->SummonRelativeCreature(g_SagePalunaQuestgiverEntry,
-                    g_HordeCreaturesPos[4].X,
-                    g_HordeCreaturesPos[4].Y,
-                    g_HordeCreaturesPos[4].Z,
-                    g_HordeCreaturesPos[4].O,
-                    TEMPSUMMON_MANUAL_DESPAWN);
-            }
+            if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
+                l_GarrisonMgr->UpdatePlot(l_AI->GetPlotInstanceID());
         }
-
-        if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
-            l_GarrisonMgr->UpdatePlot(l_AI->GetPlotInstanceID());
 
         return true;
     }
