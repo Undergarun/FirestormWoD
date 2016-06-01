@@ -721,6 +721,17 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
+    /// Custom WoD script
+    /// Mark of Sindragosa
+    if (spellProto != nullptr && IsPlayer() && getClass() == CLASS_DEATH_KNIGHT && ToPlayer()->GetSpecializationId() == SPEC_DK_BLOOD && victim->HasAura(155166, GetGUID()))
+    {
+        if (damage > 0)
+        {
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(155166);
+            HealBySpell(this, l_SpellInfo, CalculatePct(damage, 10));
+        }
+    }
+
     /// Mindbender
     if (GetEntry() == 62982 || GetEntry() == 67236)
     {
