@@ -634,6 +634,9 @@ public:
     bool IsFinishingMove() const;
     bool IsOffensiveFinishingMove() const;
 
+    // helper for Arcane Torrent passive
+    bool IsArcaneTorrent() const;
+
     // loading helpers
     uint32 _GetExplicitTargetMask() const;
     bool _IsPositiveEffect(uint8 effIndex, bool deep) const;
