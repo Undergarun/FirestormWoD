@@ -308,6 +308,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
 
     m_LastNotifyPosition.Relocate(-5000.0f, -5000.0f, -5000.0f, 0.0f);
     m_LastOutdoorPosition.Relocate(-5000.0f, -5000.0f, -5000.0f, 0.0f);
+
+    m_MapSwitchDestination = -1;
 }
 
 ////////////////////////////////////////////////////////////
@@ -10924,6 +10926,9 @@ Unit* Unit::GetCharm() const
         if (Unit* pet = ObjectAccessor::GetUnit(*this, charm_guid))
             return pet;
 
+        if (Unit* creature = sObjectAccessor->FindCreature(charm_guid))
+            return creature;
+
         const_cast<Unit*>(this)->SetGuidValue(UNIT_FIELD_CHARM, 0);
     }
 
@@ -16119,7 +16124,7 @@ void Unit::RemoveFromWorld()
     if (IsInWorld())
     {
         m_duringRemoveFromWorld = true;
-        if (IsVehicle())
+        if (IsVehicle() && GetMapSwitchDestination() == -1)
             GetVehicleKit()->Uninstall();
 
         RemoveCharmAuras();
@@ -16130,7 +16135,8 @@ void Unit::RemoveFromWorld()
         RemoveAllDynObjects();
         RemoveAllAreasTrigger();
 
-        ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
+        if (GetMapSwitchDestination() == -1)
+            ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
         UnsummonAllTotems();
         RemoveAllControlled();
 
@@ -19352,6 +19358,9 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         type = CHARM_TYPE_VEHICLE;
     else
         type = CHARM_TYPE_CHARM;
+
+    if (type == CHARM_TYPE_VEHICLE && GetMapSwitchDestination() != -1)
+        return;
 
     CastStop();
     CombatStop(); // TODO: CombatStop(true) may cause crash (interrupt spells)
