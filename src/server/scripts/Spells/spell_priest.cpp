@@ -3469,6 +3469,7 @@ class spell_pri_mind_blast: public SpellScriptLoader
             PrepareSpellScript(spell_pri_mind_blast_SpellScript);
 
             bool m_HasMarker = false;
+            bool m_AlreadyReduceCooldown = false;
 
             void HandleBeforeCast()
             {
@@ -3509,11 +3510,33 @@ class spell_pri_mind_blast: public SpellScriptLoader
                 }
             }
 
+            void HandleAfterHit()
+            {
+                if (m_AlreadyReduceCooldown)
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                {
+                    float l_Haste = 1.0f - l_Player->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+
+                    int32 l_ReduceCooldown = CalculatePct(CalculatePct(GetSpellInfo()->RecoveryTime, (l_Haste * 100)), 100);
+                    l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_ReduceCooldown);
+
+                    m_AlreadyReduceCooldown = true;
+                }
+            }
+
             void Register()
             {
                 AfterCast += SpellCastFn(spell_pri_mind_blast_SpellScript::HandleAfterCast);
                 BeforeCast += SpellCastFn(spell_pri_mind_blast_SpellScript::HandleBeforeCast);
                 OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast_SpellScript::HandleEnergize, EFFECT_3, SPELL_EFFECT_ENERGIZE);
+                AfterHit += SpellHitFn(spell_pri_mind_blast_SpellScript::HandleAfterHit);
             }
         };
 
