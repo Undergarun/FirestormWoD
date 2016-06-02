@@ -8,28 +8,7 @@
 
 # include "blackrock_foundry.hpp"
 
-////////////////////////////////////////////////////////////////////////////////
-/// This table delineates the timing and track location of all of the significant events in the first six and a half minutes of the encounter.
-/// This is not a complete list of  Moving Train locations and timers.
-////////////////////////////////////////////////////////////////////////////////
-/// Significant Events & Track Locations
-/// Time    Track #     Notes
-/// 0:40    1           4 CS, 12 R
-/// 1:00    4           1 GS
-/// 1:30    3           2 CS, 2 FM, 1 MaA
-/// 2:10    2 / 3       4 CS, 12 R / 4 CS, 12 R
-/// 2:50    1 / 4       Adds from Tracks 2&3 must be dead before these trains arrive
-/// 3:00    1           1 GS
-/// 3:25    4           4 CS, 12 R
-/// 4:20    2 / 4       2 CS, 2 FM, 1 MaA / 1 GS
-/// 5:15    1 / 4       1 GS / 1 GS
-/// 6:20    2 / 3       4 CS, 12 R / 2 CS, 2 FM, 1 MaA
-/// CS = Iron Crack-Shot, R = Iron Raider, FM = Grom'kar Firemender,
-/// MaA = Grom'kar Man-at-Arms, GS = Iron Gunnery Sergeant
-/// Times are approximate
-////////////////////////////////////////////////////////////////////////////////
-
-enum eThogarMiscDatas
+enum eThogarMiscDatas : uint8
 {
     /// Tracks handling
     FirstTrack,
@@ -46,6 +25,7 @@ enum eThogarMiscDatas
     HalfLengthAddTrains,
     FullLengthAddTrains,
     MaxTrainType,
+    MaxFightTrains = 15,
     /// Adds datas
     MaxIronRaiders = 8
 };
@@ -121,6 +101,7 @@ enum eThogarTalks
 
 enum eThogarActions
 {
+    ActionNone,
     /// Intro: Part1 - Iron Raiders
     IntroBegin,
     IntroEnd,
@@ -145,6 +126,173 @@ static std::vector<TrackDoors> g_TrackDoors =
     { eFoundryGameObjects::MassiveDoorTrack2Right, eFoundryGameObjects::MassiveDoorTrack2Left },
     { eFoundryGameObjects::MassiveDoorTrack3Right, eFoundryGameObjects::MassiveDoorTrack3Left },
     { eFoundryGameObjects::MassiveDoorTrack4Right, eFoundryGameObjects::MassiveDoorTrack4Left }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+/// This table delineates the timing and track location of all of the significant events in the first six and a half minutes of the encounter.
+/// This is not a complete list of  Moving Train locations and timers.
+////////////////////////////////////////////////////////////////////////////////
+///             Significant Events & Track Locations
+///             Time    Track #     Notes
+/// 0           0:40    1           4 CS, 12 R
+/// 1           1:00    4           1 GS
+/// 2           1:30    3           2 CS, 2 FM, 1 MaA
+/// 3 / 4       2:10    2 / 3       4 CS, 12 R / 4 CS, 12 R
+/// 5 / 6       2:50    1 / 4       Adds from Tracks 2&3 must be dead before these trains arrive
+/// 7           3:00    1           1 GS
+/// 8           3:25    4           4 CS, 12 R
+/// 9 / 10      4:20    2 / 4       2 CS, 2 FM, 1 MaA / 1 GS
+/// 11 / 12     5:15    1 / 4       1 GS / 1 GS
+/// 13 / 14     6:20    2 / 3       4 CS, 12 R / 2 CS, 2 FM, 1 MaA
+/// CS = Iron Crack-Shot, R = Iron Raider, FM = Grom'kar Firemender,
+/// MaA = Grom'kar Man-at-Arms, GS = Iron Gunnery Sergeant
+/// Times are approximate
+////////////////////////////////////////////////////////////////////////////////
+
+struct WaggonDatas
+{
+    uint32 Entry;
+    uint32 VisualAura;
+
+    std::vector<uint32> Passengers;
+};
+
+struct TrainDatas
+{
+    /// Entries
+    uint32 EngineEntry;
+
+    std::vector<WaggonDatas> WaggonsDatas;
+};
+
+enum eThogarTrains
+{
+    /// Intro trains
+    IntroWoodTrain,
+    IntroSiegeTrain,
+    IntroTroopsTrain,
+    /// Fight Trains
+    FightTrainBeginning,
+    FightTrainEnd = eThogarTrains::FightTrainBeginning + eThogarMiscDatas::MaxFightTrains,
+    /// End
+    MaxTrains = eThogarTrains::FightTrainEnd
+};
+
+static std::vector<TrainDatas> const g_TrainDatas =
+{
+    /// Wood train for intro
+    {
+        eThogarCreatures::TrainEngine,
+        {
+            { eThogarCreatures::WoodTransport, eThogarSpells::WoodTransportAura, { } },
+            { eThogarCreatures::TroopTransport2, 0, { eThogarCreatures::GromkarGunner, eThogarCreatures::GromkarGunner, eThogarCreatures::GrimrailLoader, eThogarCreatures::GrimrailLoader } }
+        }
+    },
+    /// Siege engine train for intro
+    {
+        eThogarCreatures::TrainEngine,
+        {
+            { eThogarCreatures::Train2, 0, { eThogarCreatures::SiegeEngine1 } },
+            { eThogarCreatures::Train1, 0, { eThogarCreatures::SiegeEngine1, eThogarCreatures::ManAtArmsIntro } },
+            { eThogarCreatures::SuppliesTransport, eThogarSpells::SuppliesTransportAura, { } }
+        }
+    },
+    /// Iron raider train for intro
+    {
+        eThogarCreatures::TrainEngine,
+        {
+            {
+                eThogarCreatures::TroopTransport1, 0,
+                {
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider
+                }
+            },
+            { eThogarCreatures::SlagTank, eThogarSpells::SlagTankAura, { } },
+            {
+                eThogarCreatures::TroopTransport1, 0,
+                {
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider,
+                    eFoundryCreatures::IronRaider
+                }
+            }
+        }
+    }
+};
+
+static bool const g_RightToLeftTrains[eThogarTrains::MaxTrains] =
+{
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+};
+
+static uint32 const g_TrainTrackIDs[eThogarTrains::MaxTrains] =
+{
+    eThogarMiscDatas::FirstTrack,
+    eThogarMiscDatas::FourthTrack,
+    eThogarMiscDatas::FourthTrack,
+    eThogarMiscDatas::FirstTrack,
+    eThogarMiscDatas::FourthTrack,
+    eThogarMiscDatas::ThirdTrack,
+    eThogarMiscDatas::SecondTrack,
+    eThogarMiscDatas::ThirdTrack,
+    eThogarMiscDatas::FirstTrack,
+    eThogarMiscDatas::FourthTrack,
+    eThogarMiscDatas::FirstTrack,
+    eThogarMiscDatas::FourthTrack,
+    eThogarMiscDatas::SecondTrack,
+    eThogarMiscDatas::FourthTrack,
+    eThogarMiscDatas::FirstTrack,
+    eThogarMiscDatas::FourthTrack,
+    eThogarMiscDatas::SecondTrack,
+    eThogarMiscDatas::ThirdTrack
+};
+
+static uint32 const g_TrainTimers[eThogarMiscDatas::MaxFightTrains] =
+{
+    40 * TimeConstants::IN_MILLISECONDS,
+    20 * TimeConstants::IN_MILLISECONDS,
+    30 * TimeConstants::IN_MILLISECONDS,
+    40 * TimeConstants::IN_MILLISECONDS,
+    0,  ///< At the same time than previous one
+    40 * TimeConstants::IN_MILLISECONDS,
+    0,  ///< At the same time than previous one
+    10 * TimeConstants::IN_MILLISECONDS,
+    25 * TimeConstants::IN_MILLISECONDS,
+    55 * TimeConstants::IN_MILLISECONDS,
+    0,  ///< At the same time than previous one
+    55 * TimeConstants::IN_MILLISECONDS,
+    0,  ///< At the same time than previous one
+    55 * TimeConstants::IN_MILLISECONDS,
+    0,  ///< At the same time than previous one
 };
 
 /// At Thogar's feet, left
@@ -293,9 +441,13 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrackID, uint8 p_TrainType
         l_Thogar->AI()->Talk(g_TrackTalks[p_TrackID]);
 }
 
-static void SummonIntroTrain(Creature* p_Summoner, uint8 p_TrackID)
+static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_Action = eThogarActions::ActionNone, bool p_Talk = false)
 {
-    if (p_Summoner == nullptr || p_TrackID >= eThogarMiscDatas::MaxTrainTracks)
+    if (p_Summoner == nullptr || p_TrainID >= eThogarTrains::MaxTrains)
+        return;
+
+    uint8 l_TrackID = g_TrainTrackIDs[p_TrainID];
+    if (l_TrackID >= eThogarMiscDatas::MaxTrainTracks)
         return;
 
     InstanceScript* l_InstanceScript = p_Summoner->GetInstanceScript();
@@ -306,223 +458,56 @@ static void SummonIntroTrain(Creature* p_Summoner, uint8 p_TrackID)
     if (l_Thogar == nullptr)
         return;
 
-    Position const l_Pos = g_TrainTrackSpawnPos[p_TrackID];
+    bool l_IsRightToLeft = g_RightToLeftTrains[p_TrainID];
+
+    Position const l_Pos = l_IsRightToLeft ? g_TrainTrackSpawnPos[l_TrackID] : g_TrainTrackEndPos[l_TrackID];
 
     if (Creature* l_Wheels = p_Summoner->SummonCreature(eThogarCreatures::TrainWheels, l_Pos))
     {
         ApplyPassengerFlags(l_Wheels, false);
 
-        if (Creature* l_Engine = p_Summoner->SummonCreature(eThogarCreatures::TrainEngine, l_Pos))
+        TrainDatas l_TrainDatas = g_TrainDatas[p_TrainID];
+
+        int8 l_SeatID = 0;
+        if (Creature* l_Engine = p_Summoner->SummonCreature(l_TrainDatas.EngineEntry, l_Pos))
         {
             ApplyPassengerFlags(l_Engine);
-            l_Engine->EnterVehicle(l_Wheels, 0);
+            l_Engine->EnterVehicle(l_Wheels, l_SeatID++);
         }
 
-        if (Creature* l_Train = p_Summoner->SummonCreature(eThogarCreatures::TroopTransport1, l_Pos))
+        for (WaggonDatas l_WaggonData : l_TrainDatas.WaggonsDatas)
         {
-            ApplyPassengerFlags(l_Train);
-            l_Train->EnterVehicle(l_Wheels, 1);
-
-            for (int8 l_I = 0; l_I < (int8)eThogarMiscDatas::MaxIronRaiders; ++l_I)
+            if (Creature* l_Waggon = p_Summoner->SummonCreature(l_WaggonData.Entry, l_Pos))
             {
-                if (Creature* l_Raider = p_Summoner->SummonCreature(eFoundryCreatures::IronRaider, l_Pos))
+                ApplyPassengerFlags(l_Waggon);
+
+                /// Apply visual aura if needed
+                if (uint32 l_AuraID = l_WaggonData.VisualAura)
+                    l_Waggon->CastSpell(l_Waggon, l_AuraID, true);
+
+                l_Waggon->EnterVehicle(l_Wheels, l_SeatID++);
+
+                int8 l_OtherSeatID = 0;
+                for (uint32 l_Entry : l_WaggonData.Passengers)
                 {
-                    ApplyPassengerFlags(l_Raider, false);
-                    l_Raider->EnterVehicle(l_Train, l_I);
-                }
-            }
-        }
-
-        if (Creature* l_Train = p_Summoner->SummonCreature(eThogarCreatures::SlagTank, l_Pos))
-        {
-            ApplyPassengerFlags(l_Train);
-            l_Train->CastSpell(l_Train, eThogarSpells::SlagTankAura, true);
-
-            l_Train->EnterVehicle(l_Wheels, 2);
-
-            for (int8 l_I = 0; l_I < 2; ++l_I)
-            {
-                if (Creature* l_Loader = p_Summoner->SummonCreature(eThogarCreatures::GrimrailLoader, l_Pos))
-                {
-                    ApplyPassengerFlags(l_Loader, false);
-                    l_Loader->EnterVehicle(l_Train, l_I * 2);
-                }
-            }
-
-            if (Creature* l_Hauler = p_Summoner->SummonCreature(eThogarCreatures::OgronHauler, l_Pos))
-            {
-                ApplyPassengerFlags(l_Hauler, false);
-                l_Hauler->EnterVehicle(l_Train, 1);
-            }
-
-            if (Creature* l_Grenadier = p_Summoner->SummonCreature(eThogarCreatures::GromkarGrenadier, l_Pos))
-            {
-                ApplyPassengerFlags(l_Grenadier, false);
-                l_Grenadier->EnterVehicle(l_Train, 3);
-            }
-        }
-
-        if (Creature* l_Train = p_Summoner->SummonCreature(eThogarCreatures::TroopTransport1, l_Pos))
-        {
-            ApplyPassengerFlags(l_Train);
-            l_Train->EnterVehicle(l_Wheels, 3);
-
-            for (int8 l_I = 0; l_I < (int8)eThogarMiscDatas::MaxIronRaiders; ++l_I)
-            {
-                if (Creature* l_Raider = p_Summoner->SummonCreature(eFoundryCreatures::IronRaider, l_Pos))
-                {
-                    ApplyPassengerFlags(l_Raider, false);
-                    l_Raider->EnterVehicle(l_Train, l_I);
-                }
-            }
-        }
-
-        if (l_Wheels->IsAIEnabled)
-        {
-            l_Wheels->AI()->SetGUID(p_Summoner->GetGUID());
-            l_Wheels->AI()->SetData(0, p_TrackID);
-            l_Wheels->AI()->DoAction(eThogarActions::IntroBegin);
-        }
-    }
-
-    if (l_Thogar->IsAIEnabled)
-        l_Thogar->AI()->Talk(g_TrackTalks[p_TrackID]);
-}
-
-static void SummonIntroSiegeTrain(Creature* p_Summoner, uint8 p_TrackID)
-{
-    if (p_Summoner == nullptr || p_TrackID >= eThogarMiscDatas::MaxTrainTracks)
-        return;
-
-    InstanceScript* l_InstanceScript = p_Summoner->GetInstanceScript();
-    if (l_InstanceScript == nullptr)
-        return;
-
-    Creature* l_Thogar = Creature::GetCreature(*p_Summoner, l_InstanceScript->GetData64(eFoundryCreatures::BossOperatorThogar));
-    if (l_Thogar == nullptr)
-        return;
-
-    Position const l_Pos = g_TrainTrackSpawnPos[p_TrackID];
-
-    if (Creature* l_Wheels = p_Summoner->SummonCreature(eThogarCreatures::TrainWheels, l_Pos))
-    {
-        ApplyPassengerFlags(l_Wheels, false);
-
-        if (Creature* l_Engine = p_Summoner->SummonCreature(eThogarCreatures::TrainEngine, l_Pos))
-        {
-            ApplyPassengerFlags(l_Engine);
-            l_Engine->EnterVehicle(l_Wheels, 0);
-        }
-
-        std::vector<uint32> l_Entries = { eThogarCreatures::Train2, eThogarCreatures::Train1 };
-
-        for (int8 l_I = 1; l_I < 3; ++l_I)
-        {
-            if (Creature* l_Train = p_Summoner->SummonCreature(l_Entries[l_I - 1], l_Pos))
-            {
-                ApplyPassengerFlags(l_Train);
-                l_Train->EnterVehicle(l_Wheels, l_I);
-
-                if (Creature* l_SiegeEngine = p_Summoner->SummonCreature(eThogarCreatures::SiegeEngine1, l_Pos))
-                {
-                    ApplyPassengerFlags(l_SiegeEngine, false);
-                    l_SiegeEngine->EnterVehicle(l_Train, 0);
-
-                    if (Creature* l_Sergeant = p_Summoner->SummonCreature(eThogarCreatures::IronGunnerySergeant, l_Pos))
+                    if (Creature* l_Passenger = p_Summoner->SummonCreature(l_Entry, l_Pos))
                     {
-                        ApplyPassengerFlags(l_Sergeant, false);
-                        l_Sergeant->EnterVehicle(l_SiegeEngine, 0);
+                        ApplyPassengerFlags(l_Passenger, false);
+
+                        l_Passenger->EnterVehicle(l_Waggon, l_OtherSeatID++);
                     }
                 }
-
-                if (l_I == 1)
-                    continue;
-
-                if (Creature* l_ManAtArms = p_Summoner->SummonCreature(eThogarCreatures::ManAtArmsIntro, l_Pos))
-                {
-                    ApplyPassengerFlags(l_ManAtArms, false);
-                    l_ManAtArms->EnterVehicle(l_Train, 1);
-                }
-            }
-        }
-
-        if (Creature* l_Supplies = p_Summoner->SummonCreature(eThogarCreatures::SuppliesTransport, l_Pos))
-        {
-            ApplyPassengerFlags(l_Supplies);
-            l_Supplies->CastSpell(l_Supplies, eThogarSpells::SuppliesTransportAura, true);
-            l_Supplies->EnterVehicle(l_Wheels, 3);
-        }
-
-        if (l_Wheels->IsAIEnabled)
-        {
-            l_Wheels->AI()->SetGUID(p_Summoner->GetGUID());
-            l_Wheels->AI()->SetData(0, p_TrackID);
-            l_Wheels->AI()->DoAction(eThogarActions::IntroBeginPart2);
-        }
-    }
-
-    if (l_Thogar->IsAIEnabled)
-        l_Thogar->AI()->Talk(g_TrackTalks[p_TrackID]);
-}
-
-static void SummonLastIntroTrain(Creature* p_Summoner, uint8 p_TrackID)
-{
-    if (p_Summoner == nullptr || p_TrackID >= eThogarMiscDatas::MaxTrainTracks)
-        return;
-
-    InstanceScript* l_InstanceScript = p_Summoner->GetInstanceScript();
-    if (l_InstanceScript == nullptr)
-        return;
-
-    Creature* l_Thogar = Creature::GetCreature(*p_Summoner, l_InstanceScript->GetData64(eFoundryCreatures::BossOperatorThogar));
-    if (l_Thogar == nullptr)
-        return;
-
-    Position const l_Pos = g_TrainTrackSpawnPos[p_TrackID];
-
-    if (Creature* l_Wheels = p_Summoner->SummonCreature(eThogarCreatures::TrainWheels, l_Pos))
-    {
-        ApplyPassengerFlags(l_Wheels, false);
-
-        if (Creature* l_Engine = p_Summoner->SummonCreature(eThogarCreatures::TrainEngine, l_Pos))
-        {
-            ApplyPassengerFlags(l_Engine);
-            l_Engine->EnterVehicle(l_Wheels, 0);
-        }
-
-        if (Creature* l_Wood = p_Summoner->SummonCreature(eThogarCreatures::WoodTransport, l_Pos))
-        {
-            ApplyPassengerFlags(l_Wood);
-            l_Wood->CastSpell(l_Wood, eThogarSpells::WoodTransportAura, true);
-            l_Wood->EnterVehicle(l_Wheels, 1);
-        }
-
-        if (Creature* l_Train = p_Summoner->SummonCreature(eThogarCreatures::TroopTransport2, l_Pos))
-        {
-            ApplyPassengerFlags(l_Train);
-            l_Train->EnterVehicle(l_Wheels, 2);
-
-            std::vector<uint32> l_Entries = { eThogarCreatures::GromkarGunner, eThogarCreatures::GromkarGunner, eThogarCreatures::GrimrailLoader, eThogarCreatures::GrimrailLoader };
-
-            int8 l_SeatID = 0;
-            for (uint32 l_Entry : l_Entries)
-            {
-                if (Creature* l_Orc = p_Summoner->SummonCreature(l_Entry, l_Pos))
-                {
-                    l_Orc->SetReactState(ReactStates::REACT_PASSIVE);
-                    l_Orc->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-                    l_Orc->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
-                    l_Orc->EnterVehicle(l_Train, l_SeatID++);
-                }
             }
         }
 
         if (l_Wheels->IsAIEnabled)
         {
             l_Wheels->AI()->SetGUID(p_Summoner->GetGUID());
-            l_Wheels->AI()->SetData(0, p_TrackID);
-            l_Wheels->AI()->DoAction(eThogarActions::IntroBeginPart3);
+            l_Wheels->AI()->SetData(0, l_TrackID);
+            l_Wheels->AI()->DoAction(p_Action);
         }
     }
+
+    if (p_Talk && l_Thogar->IsAIEnabled)
+        l_Thogar->AI()->Talk(g_TrackTalks[l_TrackID]);
 }
