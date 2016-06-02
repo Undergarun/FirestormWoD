@@ -30,7 +30,7 @@ namespace MS { namespace Garrison
             void Init();
 
             /// Get shipment ID for specific building & player
-            uint32 GetShipmentIDForBuilding(uint32 p_BuildingID, Player * p_Target, bool p_ForStartWorkOrder = false);
+            uint32 GetShipmentIDForBuilding(uint32 p_BuildingID, Player* p_Target, bool p_ForStartWorkOrder = false);
 
         private:
             std::map<uint32, uint32> m_ShipmentPerBuildingType;         ///< Shipment ID per building

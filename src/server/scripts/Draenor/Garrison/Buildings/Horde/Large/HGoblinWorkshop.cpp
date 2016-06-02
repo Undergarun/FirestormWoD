@@ -90,8 +90,8 @@ namespace MS { namespace Garrison
                     return true;
 
                 l_AI->SummonRelativeGameObject(WorkshopGearworks::InventionsGobIDs::GobStickyGrenades, l_GameObjectPos.X, l_GameObjectPos.Y, l_GameObjectPos.Z, l_GameObjectPos.O);
-                p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, WorkshopGearworks::InventionsGobIDs::GobStickyGrenades);
-                p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges, 25);
+                p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInvention, WorkshopGearworks::InventionsGobIDs::GobStickyGrenades);
+                p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInventionCharges, 25);
                 p_Player->SaveToDB();
             }
         }
@@ -116,7 +116,7 @@ namespace MS { namespace Garrison
         if (l_GarrisonMgr == nullptr)
             return;
 
-        uint32 l_GobID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention);
+        uint32 l_GobID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonWorkshopGearworksInvention);
 
         if (!l_GobID) ///< Quest not done
             return;
@@ -132,13 +132,13 @@ namespace MS { namespace Garrison
         else if (l_Owner->HasItemCount(WorkshopGearworks::g_GobItemRelations[l_GobID]))
             return;
 
-        if (!l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges))
+        if (!l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonWorkshopGearworksInventionCharges))
             return;
 
         SequencePosition const l_GameObjectPos = { -10.5838f, /*19.9354*/21.0f, 4.2703f, 1.5092f };
         SummonRelativeGameObject(l_GobID, l_GameObjectPos.X, l_GameObjectPos.Y, l_GameObjectPos.Z, l_GameObjectPos.O);
 
-        l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, l_GobID);
+        l_Owner->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInvention, l_GobID);
         l_Owner->SaveToDB();
     }
 

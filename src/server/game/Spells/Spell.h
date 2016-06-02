@@ -521,6 +521,7 @@ public:
     void EffectUpgradeHeirloom(SpellEffIndex p_EffIndex);
     void EffectFinishGarrisonMission(SpellEffIndex p_EffIndex);
     void EffectChangeItemBonus(SpellEffIndex p_EffIndex);
+    void EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex);
 
     typedef std::set<Aura*> UsedSpellMods;
 

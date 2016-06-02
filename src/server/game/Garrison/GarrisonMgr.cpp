@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
 //  Copyright 2016 Millenium-studio SARL
@@ -3299,6 +3299,19 @@ namespace MS { namespace Garrison
         });
     }
 
+    std::vector<GarrisonWorkOrder> Manager::GetBuildingWorkOrders(uint32 p_PlotInstanceID) const
+    {
+        std::vector<GarrisonWorkOrder> l_Orders;
+
+        for (GarrisonWorkOrder l_Order : m_WorkOrders)
+        {
+            if (p_PlotInstanceID == l_Order.PlotInstanceID)
+                l_Orders.push_back(l_Order);
+        }
+
+        return l_Orders;
+    }
+
     /// Start new work order
     uint64 Manager::StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID)
     {
@@ -5516,6 +5529,8 @@ namespace MS { namespace Garrison
 
     void Manager::ResetGarrisonWorkshopData(Player* p_Player)
     {
+        using namespace WorkshopGearworks;
+
         if (p_Player->GetTeamId() == TEAM_ALLIANCE)
         {
             if (!p_Player->IsQuestRewarded(Quests::Alliance_UnconventionalInventions))
@@ -5527,37 +5542,45 @@ namespace MS { namespace Garrison
                 return;
         }
 
-        uint32 l_Worldstate = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention);
-        uint32 l_Entry = 0;
+        uint32 l_Worldstate = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonWorkshopGearworksInvention);
+        std::vector<uint32> l_Inventions;
 
-        switch (GetBuildingLevel(GetBuildingWithType(BuildingType::Workshop)))
+        for (uint32 l_Value : g_FirstLevelInventions)
+            l_Inventions.push_back(l_Value);
+
+        if (GetBuildingLevel(GetBuildingWithType(BuildingType::Workshop)) > 1)
         {
-            case 1:
-                do
-                    l_Entry = WorkshopGearworks::g_FirstLevelInventions[urand(0, WorkshopGearworks::g_FirstLevelInventions.size() - 1)];
-                while (l_Worldstate != l_Entry);
-                break;
-            case 2:
-                do
-                    l_Entry = WorkshopGearworks::g_SecondLevelInventions[urand(0, WorkshopGearworks::g_SecondLevelInventions.size() - 1)];
-                while (l_Worldstate != l_Entry);
-                break;
-            case 3:
-                do
-                    l_Entry = WorkshopGearworks::g_ThirdLevelInvention;
-                while (l_Worldstate != l_Entry);
-                break;
-            default:
-                break;
+            for (uint32 l_Value : g_SecondLevelInventions)
+                l_Inventions.push_back(l_Value);
         }
+
+        for (std::vector<uint32>::iterator l_Itr = l_Inventions.begin(); l_Itr != l_Inventions.end();)
+        {
+            if (std::find(l_Inventions.begin(), l_Inventions.end(), *l_Itr) != l_Inventions.end())
+            {
+                ++l_Itr;
+                continue;
+            }
+
+            if (*l_Itr == l_Worldstate)
+                l_Itr = l_Inventions.erase(l_Itr);
+
+            if (p_Player->GetTeamId() == TEAM_ALLIANCE && *l_Itr == GobPrototypeMechanoHog)
+                l_Itr = l_Inventions.erase(l_Itr);
+
+            if (p_Player->GetTeamId() == TEAM_HORDE && *l_Itr == GobPrototypeMekgineersChopper)
+                l_Itr = l_Inventions.erase(l_Itr);
+        }
+
+        uint32 l_Entry = l_Inventions[urand(0, l_Inventions.size() - 1)];
 
         ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(WorkshopGearworks::g_GobItemRelations[l_Entry]);
 
         if (l_ItemProto == nullptr)
             return;
 
-        p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, l_Entry);
-        p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges, l_ItemProto->Spells[0].SpellCharges);
+        p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInvention, l_Entry);
+        p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInventionCharges, l_ItemProto->Spells[0].SpellCharges);
     }
 
     void Manager::ResetGarrisonTradingPostData(Player* p_Player)
@@ -5567,8 +5590,8 @@ namespace MS { namespace Garrison
         std::vector<uint32> l_TradingPostShipments = { 138, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 196 };
         uint32 l_Entry = p_Player->GetTeamId() == TEAM_ALLIANCE ? l_AllianceTradersEntries[urand(0, l_AllianceTradersEntries.size() - 1)] : l_HordeTradersEntries[urand(0, l_HordeTradersEntries.size() - 1)];
 
-        p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
-        p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_Entry);
+        p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
+        p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomTrader, l_Entry);
     }
 
     std::vector<GarrisonFollower> Manager::GetWeeklyFollowerRecruits(Player* p_Player)

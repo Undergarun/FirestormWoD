@@ -147,7 +147,7 @@ namespace MS { namespace Garrison
                 break;
         }
 
-        uint32 l_NpcID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader);
+        uint32 l_NpcID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTradingPostDailyRandomTrader);
 
         if (!l_NpcID) ///< Quest or daily refill not done
             return;
@@ -157,7 +157,7 @@ namespace MS { namespace Garrison
 
         SummonRelativeCreature(l_NpcID, l_NpcVendorPos, TEMPSUMMON_MANUAL_DESPAWN);
 
-        l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_NpcID);
+        l_Owner->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomTrader, l_NpcID);
         l_Owner->SaveToDB();
     }
 

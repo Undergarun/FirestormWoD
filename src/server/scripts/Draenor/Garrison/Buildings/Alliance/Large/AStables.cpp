@@ -57,7 +57,7 @@ namespace MS { namespace Garrison
             l_QuestID == BoarQuests::QuestBestingABoar || l_QuestID == ElekkQuests::QuestEntanglingAnElekk ||
             l_QuestID == ClefthoofQuests::QuestCapturingAClefthoof)
         {
-            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
+            p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonStablesFirstQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
 
             if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
                 l_GarrisonMgr->UpdatePlot(l_AI->GetPlotInstanceID());
@@ -90,7 +90,7 @@ namespace MS { namespace Garrison
         if (p_Player == nullptr)
             return;
 
-        uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest);
+        uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesFirstQuest);
         std::vector<uint32>::const_iterator l_Iterator = std::find(p_QuestsList.begin(), p_QuestsList.end(), l_QuestID);
         uint32 l_NextQuestID = 0;
 
@@ -249,7 +249,7 @@ namespace MS { namespace Garrison
         using namespace StablesData::Alliance::FannyQuestGiver;
         using namespace StablesData::Alliance::KeeganQuestGiver;
 
-        if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
+        if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesFirstQuest))
         {
             if (!l_QuestID)
                 return;
@@ -269,7 +269,7 @@ namespace MS { namespace Garrison
             }
         }
 
-        if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest))
+        if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesSecondQuest))
         {
             if (!l_QuestID)
                 return;
@@ -323,7 +323,7 @@ namespace MS { namespace Garrison
             l_QuestID == WolfQuests::QuestWanglingAWolf || l_QuestID == TalbukQuests::QuestTamingATalbuk ||
             l_QuestID == RiverbeastQuests::QuestRequisitionARiverbeast)
         {
-            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
+            p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonStablesSecondQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
         }
 
         return true;
@@ -352,7 +352,7 @@ namespace MS { namespace Garrison
         if (p_Player == nullptr)
             return;
 
-        uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest);
+        uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesSecondQuest);
         std::vector<uint32>::const_iterator l_Iterator = std::find(p_QuestsList.begin(), p_QuestsList.end(), l_QuestID);
         uint32 l_NextQuestID = 0;
 
