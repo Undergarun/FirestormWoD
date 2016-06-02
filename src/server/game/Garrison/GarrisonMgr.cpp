@@ -2735,12 +2735,6 @@ namespace MS { namespace Garrison
                     break;
                 }
 
-                if (p_IsTrait && std::find(g_FollowerTraits.begin(), g_FollowerTraits.end(), *l_Itr) != g_FollowerTraits.end())
-                {
-                    l_Itr = l_Follower.Abilities.erase(l_Itr);
-                    break;
-                }
-
                 if (!p_IsTrait && std::find(g_FollowerAbilities.begin(), g_FollowerAbilities.end(), *l_Itr) != g_FollowerAbilities.end())
                 {
                     l_Itr = l_Follower.Abilities.erase(l_Itr);
