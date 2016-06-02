@@ -12338,7 +12338,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) and Ebon Gargoyle can too - but this part is a hack and needs more research
-    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829 && GetEntry() != 77936)
+    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829 && GetEntry() != 77936 && GetEntry() != 55659)
         return 0.0f;
 
     // not critting spell
