@@ -14,14 +14,32 @@ class boss_operator_thogar : public CreatureScript
     public:
         boss_operator_thogar() : CreatureScript("boss_operator_thogar") { }
 
+        enum eSpells
+        {
+            /// Enkindle
+            SpellEnkindle                       = 155921,
+            /// Prototype Pulse Grenade
+            SpellPrototypePulseGrenade          = 155864,
+            SpellPrototypePulseGrenadeMissile   = 165190,
+            SpellPrototypePulseGrenadeAT        = 165194,
+            /// Misc
+            SpellThogarBonus                    = 177537
+        };
+
         enum eEvents
         {
-            EventBerserker = 1
+            EventBerserker = 1,
+            EventEnkindle,
+            EventPrototypePulseGrenade,
+            EventSummonTrain
         };
 
         enum eTimers
         {
-            TimerBerserker = 8 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS
+            TimerBerserker      = 8 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS,
+            TimerEnkindle       = 16 * TimeConstants::IN_MILLISECONDS,
+            TimerPulseGrenade   = 7 * TimeConstants::IN_MILLISECONDS,
+            TimerPulseGrenadeCD = 12 * TimeConstants::IN_MILLISECONDS
         };
 
         enum eGuidTypes
@@ -59,6 +77,8 @@ class boss_operator_thogar : public CreatureScript
             bool m_IntroDone;
             std::set<uint64> m_IntroTrashes;
 
+            uint8 m_TrainID;
+
             void Reset() override
             {
                 m_Events.Reset();
@@ -67,31 +87,40 @@ class boss_operator_thogar : public CreatureScript
 
                 me->RemoveAura(eFoundrySpells::Berserker);
 
-                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                if (!m_IntroDone)
                 {
-                    m_IntroTrashes.clear();
-
-                    std::list<Creature*> l_AddsList;
-                    me->GetCreatureListWithEntryInGrid(l_AddsList, eFoundryCreatures::GromkarManAtArms, 110.0f);
-
-                    uint8 l_Count = 0;
-                    for (Creature* l_Add : l_AddsList)
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        if (!l_Add->isAlive())
-                            continue;
+                        m_IntroTrashes.clear();
 
-                        ++l_Count;
-                    }
+                        std::list<Creature*> l_AddsList;
+                        me->GetCreatureListWithEntryInGrid(l_AddsList, eFoundryCreatures::GromkarManAtArms, 110.0f);
 
-                    m_IntroDone = l_Count == 0;
-                });
+                        uint8 l_Count = 0;
+                        for (Creature* l_Add : l_AddsList)
+                        {
+                            if (!l_Add->isAlive())
+                                continue;
 
-                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                {
-                    if (!m_IntroDone)
+                            ++l_Count;
+                        }
+
+                        m_IntroDone = l_Count == 0;
+                    });
+
+                    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                    }
-                });
+                        if (m_IntroDone)
+                        {
+                            DoAction(eThogarActions::IntroEnd);
+
+                            if (GameObject* l_IronGate = GameObject::GetGameObject(*me, m_Instance->GetData64(eFoundryGameObjects::IronGate)))
+                                l_IronGate->SetGoState(GOState::GO_STATE_ACTIVE);
+                        }
+                    });
+                }
+
+                m_TrainID = eThogarTrains::FightTrainBeginning;
             }
 
             void SetGUID(uint64 p_Guid, int32 p_ID) override
@@ -125,7 +154,7 @@ class boss_operator_thogar : public CreatureScript
 
                                 AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                                 {
-                                    SummonIntroSiegeTrain(me, eThogarMiscDatas::FourthTrack);
+                                    SummonTrain(me, eThogarTrains::IntroSiegeTrain, eThogarActions::IntroBeginPart2);
                                 });
 
                                 break;
@@ -142,7 +171,7 @@ class boss_operator_thogar : public CreatureScript
 
                                 AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                                 {
-                                    SummonLastIntroTrain(me, eThogarMiscDatas::FirstTrack);
+                                    SummonTrain(me, eThogarTrains::IntroWoodTrain, eThogarActions::IntroBeginPart3);
                                 });
 
                                 break;
@@ -182,27 +211,67 @@ class boss_operator_thogar : public CreatureScript
 
                 Talk(eThogarTalks::TalkAggro);
 
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
+
                 m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
+                m_Events.ScheduleEvent(eEvents::EventEnkindle, eTimers::TimerEnkindle);
+                m_Events.ScheduleEvent(eEvents::EventPrototypePulseGrenade, eTimers::TimerPulseGrenade);
+                m_Events.ScheduleEvent(eEvents::EventSummonTrain, g_TrainTimers[m_TrainID - eThogarTrains::FightTrainBeginning]);
             }
 
             void JustDied(Unit* /*p_Killer*/) override
             {
+                me->RemoveAllAreasTrigger();
+
+                summons.DespawnAll();
+
                 _JustDied();
 
                 Talk(eThogarTalks::TalkDeath);
+
+                if (m_Instance != nullptr)
+                {
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellEnkindle);
+
+                    /// Allow loots and bonus loots to be enabled/disabled with a simple reload
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::SpellThogarBonus, true);
+                }
             }
 
             void EnterEvadeMode() override
             {
                 CreatureAI::EnterEvadeMode();
 
+                me->RemoveAllAreasTrigger();
+
+                summons.DespawnAll();
+
                 Talk(eThogarTalks::TalkWipe);
+
+                if (m_Instance != nullptr)
+                {
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellEnkindle);
+                }
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
             {
                 if (p_ID == eMove::MoveJump)
+                {
+                    m_IntroDone = true;
+
                     me->SetHomePosition(*me);
+
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                }
             }
 
             void DoAction(int32 const p_Action) override
@@ -211,14 +280,21 @@ class boss_operator_thogar : public CreatureScript
                 {
                     case eThogarActions::IntroEnd:
                     {
-                        m_IntroDone = true;
-
                         me->GetMotionMaster()->MoveJump(g_ThogarJumpPos, 30.0f, 10.0f, eMove::MoveJump);
                         break;
                     }
                     default:
                         break;
                 }
+            }
+
+            void SpellHitDest(SpellDestination const* p_Dest, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Dest == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::SpellPrototypePulseGrenadeMissile)
+                    me->CastSpell(p_Dest, eSpells::SpellPrototypePulseGrenadeAT, true);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -239,6 +315,36 @@ class boss_operator_thogar : public CreatureScript
                     {
                         me->CastSpell(me, eFoundrySpells::Berserker, true);
                         Talk(eThogarTalks::TalkBerserk);
+                        break;
+                    }
+                    case eEvents::EventEnkindle:
+                    {
+                        if (Unit* l_Target = me->getVictim())
+                            me->CastSpell(l_Target, eSpells::SpellEnkindle, false);
+
+                        m_Events.ScheduleEvent(eEvents::EventEnkindle, eTimers::TimerEnkindle);
+                        break;
+                    }
+                    case eEvents::EventPrototypePulseGrenade:
+                    {
+                        if (Player* l_Target = SelectRangedTarget(true))
+                            me->CastSpell(l_Target, eSpells::SpellPrototypePulseGrenade, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventPrototypePulseGrenade, eTimers::TimerPulseGrenadeCD);
+                        break;
+                    }
+                    case eEvents::EventSummonTrain:
+                    {
+                        if (m_TrainID >= g_TrainDatas.size())
+                        {
+                            printf("TrainID [%u] is too damn high! Max is %u!", m_TrainID, uint32(g_TrainDatas.size() - 1));
+                            break;
+                        }
+
+                        SummonTrain(me, m_TrainID);
+
+                        ++m_TrainID;
+                        m_Events.ScheduleEvent(eEvents::EventSummonTrain, g_TrainTimers[m_TrainID - eThogarTrains::FightTrainBeginning]);
                         break;
                     }
                     default:
@@ -341,7 +447,7 @@ class npc_foundry_train_controller : public CreatureScript
                             }
                         }
 
-                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             me->GetMotionMaster()->MovePoint(eMoves::MovementOuttro, g_TrainTrackEndPos[m_TrackID]);
                         });
@@ -353,12 +459,12 @@ class npc_foundry_train_controller : public CreatureScript
                     {
                         StartTrain(0);
 
-                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             me->GetMotionMaster()->MovePoint(eMoves::MovementOuttro, g_TrainTrackEndPos[m_TrackID]);
                         });
 
-                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             HandleDoors(false);
 
@@ -388,7 +494,7 @@ class npc_foundry_train_controller : public CreatureScript
                 m_SummonerGUID = p_Guid;
             }
 
-            void SetData(uint32 /*p_ID*/, uint32 p_Value) override
+            void SetData(uint32 p_ID, uint32 p_Value) override
             {
                 m_TrackID = p_Value;
             }
@@ -410,45 +516,13 @@ class npc_foundry_train_controller : public CreatureScript
                         break;
                     }
                     case eMoves::MovementOuttro:
+                    case eMoves::SecondMovementOuttro:
+                    case eMoves::ThirdMovementOuttro:
                     {
-                        /// Remove Engine
-                        if (Unit* l_Engine = m_Vehicle->GetPassenger(0))
-                        {
-                            l_Engine->RemoveAllAreasTrigger();
-                            l_Engine->ToCreature()->DespawnOrUnsummon();
-                        }
+                        if (p_ID != eMoves::MovementOuttro)
+                            HandleDoors(false);
 
-                        /// Remove troop transports
-                        if (Unit* l_Transport = m_Vehicle->GetPassenger(1))
-                        {
-                            l_Transport->RemoveAllAreasTrigger();
-                            l_Transport->ToCreature()->DespawnOrUnsummon();
-                        }
-
-                        if (Unit* l_Transport = m_Vehicle->GetPassenger(3))
-                        {
-                            l_Transport->RemoveAllAreasTrigger();
-                            l_Transport->ToCreature()->DespawnOrUnsummon();
-                        }
-
-                        if (Unit* l_SlagTank = m_Vehicle->GetPassenger(2))
-                        {
-                            if (Vehicle* l_Vehicle = l_SlagTank->GetVehicleKit())
-                            {
-                                for (int8 l_I = 0; l_I < 8; ++l_I)
-                                {
-                                    if (!l_Vehicle->GetPassenger(l_I) || l_Vehicle->GetPassenger(l_I)->GetTypeId() != TypeID::TYPEID_UNIT)
-                                        continue;
-
-                                    l_Vehicle->GetPassenger(l_I)->ToCreature()->DespawnOrUnsummon();
-                                }
-                            }
-
-                            l_SlagTank->RemoveAllAreasTrigger();
-                            l_SlagTank->ToCreature()->DespawnOrUnsummon();
-                        }
-
-                        me->DespawnOrUnsummon();
+                        DespawnTrain();
                         break;
                     }
                     case eMoves::SecondMovementIntro:
@@ -520,51 +594,6 @@ class npc_foundry_train_controller : public CreatureScript
 
                         break;
                     }
-                    case eMoves::SecondMovementOuttro:
-                    {
-                        HandleDoors(false);
-
-                        /// Remove Engine
-                        if (Unit* l_Engine = m_Vehicle->GetPassenger(0))
-                        {
-                            l_Engine->RemoveAllAreasTrigger();
-                            l_Engine->ToCreature()->DespawnOrUnsummon();
-                        }
-
-                        /// Remove siege engine trains
-                        for (int8 l_I = 1; l_I < 3; ++l_I)
-                        {
-                            if (Unit* l_Train = m_Vehicle->GetPassenger(l_I))
-                            {
-                                if (Vehicle* l_Vehicle = l_Train->GetVehicleKit())
-                                {
-                                    if (Unit* l_SiegeEngine = l_Vehicle->GetPassenger(0))
-                                    {
-                                        if (Vehicle* l_VehicleSec = l_SiegeEngine->GetVehicleKit())
-                                        {
-                                            if (Unit* l_Sergeant = l_VehicleSec->GetPassenger(0))
-                                                l_Sergeant->ToCreature()->DespawnOrUnsummon();
-                                        }
-
-                                        l_SiegeEngine->ToCreature()->DespawnOrUnsummon();
-                                    }
-                                }
-
-                                l_Train->RemoveAllAreasTrigger();
-                                l_Train->ToCreature()->DespawnOrUnsummon();
-                            }
-                        }
-
-                        /// Remove Supplies transport
-                        if (Unit* l_Supplies = m_Vehicle->GetPassenger(3))
-                        {
-                            l_Supplies->RemoveAllAreasTrigger();
-                            l_Supplies->ToCreature()->DespawnOrUnsummon();
-                        }
-
-                        me->DespawnOrUnsummon();
-                        break;
-                    }
                     case eMoves::ThirdMovementIntro:
                     {
                         StopTrain();
@@ -581,10 +610,10 @@ class npc_foundry_train_controller : public CreatureScript
                             }
                         });
 
+                        StartTrain(0, true, 20 * TimeConstants::IN_MILLISECONDS);
+
                         AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            StartTrain(0);
-
                             if (m_Instance != nullptr)
                             {
                                 if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
@@ -596,7 +625,7 @@ class npc_foundry_train_controller : public CreatureScript
                             }
                         });
 
-                        AddTimedDelayedOperation(21 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        AddTimedDelayedOperation(22 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             /// Launch move
                             me->GetMotionMaster()->MovePoint(eMoves::ThirdMovementOuttro, g_TrainTrackEndPos[m_TrackID]);
@@ -604,23 +633,6 @@ class npc_foundry_train_controller : public CreatureScript
                             HandleDoors(true);
                         });
 
-                        break;
-                    }
-                    case eMoves::ThirdMovementOuttro:
-                    {
-                        HandleDoors(false);
-
-                        /// Remove passengers
-                        for (int8 l_I = 0; l_I < MAX_VEHICLE_SEATS; ++l_I)
-                        {
-                            if (Unit* l_Engine = m_Vehicle->GetPassenger(l_I))
-                            {
-                                l_Engine->RemoveAllAreasTrigger();
-                                l_Engine->ToCreature()->DespawnOrUnsummon();
-                            }
-                        }
-
-                        me->DespawnOrUnsummon();
                         break;
                     }
                     default:
@@ -680,18 +692,45 @@ class npc_foundry_train_controller : public CreatureScript
                 }
             }
 
+            void DespawnPassenger(Vehicle* p_Vehicle)
+            {
+                for (int8 l_I = 0; l_I < MAX_VEHICLE_SEATS; ++l_I)
+                {
+                    if (Unit* l_Passenger = p_Vehicle->GetPassenger(l_I))
+                    {
+                        if (Vehicle* l_Vehicle = l_Passenger->GetVehicleKit())
+                            DespawnPassenger(l_Vehicle);
+
+                        l_Passenger->ToCreature()->DespawnOrUnsummon();
+                    }
+                }
+            }
+
+            void DespawnTrain()
+            {
+                if (m_Vehicle == nullptr)
+                {
+                    me->DespawnOrUnsummon();
+                    return;
+                }
+
+                DespawnPassenger(m_Vehicle);
+            }
+
             /// Handle visuals for starting
-            void StartTrain(uint64 p_Guid, bool p_Delayed = true)
+            void StartTrain(uint64 p_Guid, bool p_Delayed = true, uint32 p_Delay = 1 * TimeConstants::IN_MILLISECONDS)
             {
                 if (p_Guid)
                 {
-                    AddTimedDelayedOperation(p_Delayed ? 1 * TimeConstants::IN_MILLISECONDS : 0, [this, p_Guid]() -> void
+                    AddTimedDelayedOperation(p_Delayed ? p_Delay : 0, [this, p_Guid]() -> void
                     {
                         if (Unit* l_Passenger = Unit::GetUnit(*me, p_Guid))
                             l_Passenger->SendPlaySpellVisualKit(eVisual::PreMovingTrain, 0);
                     });
 
-                    AddTimedDelayedOperation(p_Delayed ? 2 * TimeConstants::IN_MILLISECONDS : 0, [this, p_Guid]() -> void
+                    p_Delay += 2 * TimeConstants::IN_MILLISECONDS;
+
+                    AddTimedDelayedOperation(p_Delayed ? p_Delay : 0, [this, p_Guid]() -> void
                     {
                         if (Unit* l_Passenger = Unit::GetUnit(*me, p_Guid))
                         {
@@ -707,7 +746,7 @@ class npc_foundry_train_controller : public CreatureScript
                     for (int8 l_I = 0; l_I < MAX_VEHICLE_SEATS; ++l_I)
                     {
                         if (Unit* l_Passenger = m_Vehicle->GetPassenger(l_I))
-                            StartTrain(l_Passenger->GetGUID(), p_Delayed);
+                            StartTrain(l_Passenger->GetGUID(), p_Delayed, p_Delay);
                     }
                 }
             }
@@ -757,9 +796,7 @@ class npc_foundry_iron_gunnery_sergeant : public CreatureScript
         {
             DelayedSiegeBombSearcher    = 159480,
             DelayedSiegeBombChannel     = 159481,
-            DelayedSiegeBombAoE         = 158084,
-            DelayedSiegeBombVisual      = 156489,
-            DelayedSiegeBombMissile     = 162286
+            DelayedSiegeBombVisual      = 156489
         };
 
         enum eEvent
@@ -839,23 +876,9 @@ class npc_foundry_iron_gunnery_sergeant : public CreatureScript
                     if (Unit* l_SiegeEngine = me->GetVehicleBase())
                     {
                         l_SiegeEngine->SetFacingTo(me->GetAngle(p_Target));
-                        l_SiegeEngine->CastSpell(p_Target, eSpells::DelayedSiegeBombVisual, false);
                         l_SiegeEngine->SendPlaySpellVisualKit(eVisual::SiegeEngineVisual, 0);
+                        l_SiegeEngine->CastSpell(p_Target, eSpells::DelayedSiegeBombChannel, false);
                     }
-
-                    me->CastSpell(p_Target, eSpells::DelayedSiegeBombChannel, false);
-                }
-            }
-
-            void SpellHitDest(SpellDestination const* p_Dest, SpellInfo const* p_SpellInfo) override
-            {
-                if (p_Dest == nullptr)
-                    return;
-
-                if (p_SpellInfo->Id == eSpells::DelayedSiegeBombAoE)
-                {
-                    if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
-                        l_Thogar->CastSpell(p_Dest, eSpells::DelayedSiegeBombMissile, true);
                 }
             }
 
@@ -874,7 +897,7 @@ class npc_foundry_iron_gunnery_sergeant : public CreatureScript
                     case eEvent::EventDelayedSiegeBomb:
                     {
                         me->CastSpell(me, eSpells::DelayedSiegeBombSearcher, true);
-                        m_Events.ScheduleEvent(eEvent::EventDelayedSiegeBomb, 1 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvent::EventDelayedSiegeBomb, 11 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -886,6 +909,65 @@ class npc_foundry_iron_gunnery_sergeant : public CreatureScript
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_foundry_iron_gunnery_sergeantAI(p_Creature);
+        }
+};
+
+/// Siege Engine - 81316
+class npc_foundry_siege_engine : public CreatureScript
+{
+    public:
+        npc_foundry_siege_engine() : CreatureScript("npc_foundry_siege_engine") { }
+
+        enum eSpells
+        {
+            DelayedSiegeBombAoE     = 158084,
+            DelayedSiegeBombMissile = 162286
+        };
+
+        struct npc_foundry_siege_engineAI : public ScriptedAI
+        {
+            npc_foundry_siege_engineAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void IsSummonedBy(Unit* p_Summoner) override
+            {
+                uint64 l_Guid = p_Summoner->GetGUID();
+                AddTimedDelayedOperation(50, [this, l_Guid]() -> void
+                {
+                    if (Unit* l_Summoner = Creature::GetCreature(*me, l_Guid))
+                    {
+                        if (Creature* l_Sergeant = l_Summoner->SummonCreature(eThogarCreatures::IronGunnerySergeant, *me))
+                        {
+                            ApplyPassengerFlags(l_Sergeant, false);
+                            l_Sergeant->EnterVehicle(me, 0);
+                        }
+                    }
+                });
+            }
+
+            void SpellHitDest(SpellDestination const* p_Dest, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Dest == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::DelayedSiegeBombAoE)
+                {
+                    if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
+                    {
+                        if (Creature* l_Thogar = Creature::GetCreature(*me, l_InstanceScript->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                            l_Thogar->CastSpell(p_Dest, eSpells::DelayedSiegeBombMissile, true);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_siege_engineAI(p_Creature);
         }
 };
 
@@ -925,6 +1007,93 @@ class spell_foundry_delayed_siege_bomb_periodic : public SpellScriptLoader
         }
 };
 
+/// Prototype Pulse Grenade - 165194
+class areatrigger_foundry_prototype_pulse_grenade : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_foundry_prototype_pulse_grenade() : AreaTriggerEntityScript("areatrigger_foundry_prototype_pulse_grenade") { }
+
+        enum eSpell
+        {
+            PrototypePulseGrenadeDoT = 165195
+        };
+
+        std::set<uint64> m_AffectedPlayers;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 5.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
+                {
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::PrototypePulseGrenadeDoT, l_Caster->GetGUID()))
+                    {
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Caster->CastSpell(l_Iter, eSpell::PrototypePulseGrenadeDoT, true);
+
+                        if (l_Iter->IsPlayer())
+                            l_Iter->ToPlayer()->SendApplyMovementForce(p_AreaTrigger->GetGUID(), true, *p_AreaTrigger, 0.7f, 1);
+                    }
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
+                    {
+                        ++l_Iter;
+                        continue;
+                    }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::PrototypePulseGrenadeDoT, l_Caster->GetGUID());
+
+                        if (l_Unit->IsPlayer())
+                            l_Unit->ToPlayer()->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, Position());
+
+                        continue;
+                    }
+
+                    ++l_Iter;
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                for (uint64 l_Guid : m_AffectedPlayers)
+                {
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                    {
+                        l_Unit->RemoveAura(eSpell::PrototypePulseGrenadeDoT, l_Caster->GetGUID());
+
+                        if (l_Unit->IsPlayer())
+                            l_Unit->ToPlayer()->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, Position());
+                    }
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_foundry_prototype_pulse_grenade();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_boss_operator_thogar()
 {
@@ -934,8 +1103,12 @@ void AddSC_boss_operator_thogar()
     /// Creatures
     new npc_foundry_train_controller();
     new npc_foundry_iron_gunnery_sergeant();
+    new npc_foundry_siege_engine();
 
     /// Spells
     new spell_foundry_delayed_siege_bomb_periodic();
+
+    /// AreaTriggers
+    new areatrigger_foundry_prototype_pulse_grenade();
 }
 #endif

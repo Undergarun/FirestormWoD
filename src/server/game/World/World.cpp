@@ -1583,6 +1583,9 @@ void World::SetInitialWorldSettings()
 
     uint32 oldMSTime = getMSTime();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Texts...");
+    sCreatureTextMgr->LoadCreatureTexts();
+
     if (sWorld->getBoolConfig(CONFIG_ENABLE_LOCALES))
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Localization strings...");
@@ -1593,6 +1596,9 @@ void World::SetInitialWorldSettings()
         sObjectMgr->LoadPageTextLocales();
         sObjectMgr->LoadGossipMenuItemsLocales();
         sObjectMgr->LoadPointOfInterestLocales();
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Text Locales...");
+        sCreatureTextMgr->LoadCreatureTextLocales();
     }
 
     sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
@@ -2024,12 +2030,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell script names...");
     sObjectMgr->LoadSpellScriptNames();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Texts...");
-    sCreatureTextMgr->LoadCreatureTexts();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Text Locales...");
-    sCreatureTextMgr->LoadCreatureTextLocales();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initializing Scripts...");
     sScriptMgr->Initialize();

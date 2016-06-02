@@ -7364,6 +7364,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156655: ///< Throw Grenade (Iron Raider)
             case 158084: ///< Delayed Siege Bomb - Damage (Iron Gunnery Sergeant)
             case 160050: ///< Delayed Siege Bomb - Damage (Operator Thogar)
+            case 165195: ///< Prototype Pulse Grenade - DoT (Operator Thogar)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:

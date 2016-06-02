@@ -7,7 +7,8 @@ UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_gromkar_firemender" WHERE entry = 87841;
 
 # Trains
-UPDATE creature_template SET InhabitType = 4, ScriptName = "npc_foundry_train_controller" WHERE entry = 76907;
+UPDATE creature_template SET unit_flags = unit_flags | 0x2000302, InhabitType = 4, ScriptName = "npc_foundry_train_controller" WHERE entry = 76907;
+UPDATE creature_template SET unit_flags = unit_flags | 0x2000302 WHERE entry IN (77181, 89074, 81752);
 
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE(81197, 1, 107703, 107703, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE(87841, 1, 108772, 107801, 0);
@@ -19,14 +20,16 @@ INSERT INTO spell_script_names VALUES
 (160140, "spell_foundry_cauterizing_bolt"),
 (159481, "spell_foundry_delayed_siege_bomb_periodic");
 
-DELETE FROM areatrigger_template WHERE spell_id IN (156553);
+DELETE FROM areatrigger_template WHERE spell_id IN (156553, 165194);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, morph_curve_id, data0, data1, data2, data3, data4, data5, data6, data7, ScriptName) VALUES
-(156553, 0, 6756, 1, 1, 2180, 702, 17.5, 14.25, 5, 17.5, 14.25, 5, 0, 0, "");
+(156553, 0, 6756, 1, 1, 2180, 702, 17.5, 14.25, 5, 17.5, 14.25, 5, 0, 0, ""),
+(165194, 0, 7282, 5, 5, 16384, 0, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_prototype_pulse_grenade");
 
 SET @REF_THOGAR = 76906;
 
 UPDATE creature_template SET dmg_multiplier = 10, ScriptName = "boss_operator_thogar", mechanic_immune_mask = 617299839 WHERE entry = @REF_THOGAR;
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_gunnery_sergeant" WHERE entry = 81318;
+UPDATE creature_template SET ScriptName = "npc_foundry_siege_engine" WHERE entry = 81316;
 
 DELETE FROM creature_text WHERE entry IN (@REF_THOGAR);
 INSERT INTO creature_text VALUES
