@@ -8521,7 +8521,7 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
 {
     if ((time(0) - m_BonusQuestTimer) >= 5)
     {
-        m_BonusQuestTimer = time(0) + 5;
+        m_BonusQuestTimer = time(0);
         for (auto l_Current : sObjectMgr->BonusQuestsRects)
         {
             if (IsQuestRewarded(l_Current.first))
