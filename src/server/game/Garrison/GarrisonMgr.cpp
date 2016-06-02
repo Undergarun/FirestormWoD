@@ -2714,6 +2714,27 @@ namespace MS { namespace Garrison
             {
                 using namespace MS::Garrison::GarrisonAbilities;
 
+                if (p_IsTrait)
+                {
+                    std::vector<uint32> l_PotentialAbilities;
+                    for (uint32 l_EffectID = 0; l_EffectID < sGarrAbilityEffectStore.GetNumRows(); ++l_EffectID)
+                    {
+                        GarrAbilityEffectEntry const* l_Effect = sGarrAbilityEffectStore.LookupEntry(l_EffectID);
+
+                        if (!l_Effect)
+                            continue;
+
+                        if (l_Effect->CounterMechanicTypeID == p_AbilityID)
+                            l_PotentialAbilities.push_back(l_Effect->CounterMechanicTypeID);
+                    }
+
+                    if (!l_PotentialAbilities.empty())
+                        p_AbilityID = l_PotentialAbilities[urand(0, l_PotentialAbilities.size() - 1)];
+
+                    l_Itr = l_Follower.Abilities.erase(l_Itr);
+                    break;
+                }
+
                 if (p_IsTrait && std::find(g_FollowerTraits.begin(), g_FollowerTraits.end(), *l_Itr) != g_FollowerTraits.end())
                 {
                     l_Itr = l_Follower.Abilities.erase(l_Itr);
