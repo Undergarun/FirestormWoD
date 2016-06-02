@@ -6842,7 +6842,7 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
     {
         std::set<uint8> runes;
         for (uint8 i = 0; i < MAX_RUNES; i++)
-            if (player->GetCurrentRuneForBloodTap() == player->GetCurrentRune(i) && player->GetRuneCooldown(i) && player->GetCurrentRune(i) != RUNE_DEATH)
+            if (player->GetCurrentRuneForBloodTap() == player->GetCurrentRune(i) && player->GetRuneCooldown(i))
                 runes.insert(i);
 
         // Recalculate list if all runes are RUNE_DEATH

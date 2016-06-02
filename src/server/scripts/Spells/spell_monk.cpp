@@ -3132,18 +3132,27 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 if (p_Caster == nullptr)
                     return nullptr;
 
-                Unit* l_JadeStatue = nullptr;
+                std::list<Creature*> l_TempList;
+                std::list<Creature*> l_StatueList;
+                Creature* l_Statue = nullptr;
 
-                for (Unit::ControlList::const_iterator itr = p_Caster->m_Controlled.begin(); itr != p_Caster->m_Controlled.end(); ++itr)
+                p_Caster->GetCreatureListWithEntryInGrid(l_TempList, NPC_SNAKE_JADE_STATUE, 100.0f);
+                p_Caster->GetCreatureListWithEntryInGrid(l_StatueList, NPC_SNAKE_JADE_STATUE, 100.0f);
+
+                /// Remove other players jade statue
+                for (std::list<Creature*>::iterator i = l_TempList.begin(); i != l_TempList.end(); ++i)
                 {
-                    if ((*itr)->GetEntry() == NPC_SNAKE_JADE_STATUE)
-                    {
-                        if ((*itr)->GetDistance(p_Caster) <= 500.0f)
-                            l_JadeStatue = (*itr);
-                    }
+                    Unit* l_Owner = (*i)->GetOwner();
+                    if (l_Owner && l_Owner->GetGUID() == p_Caster->GetGUID() && (*i)->isSummon())
+                        continue;
+
+                    l_StatueList.remove((*i));
                 }
 
-                return l_JadeStatue;
+                if (l_StatueList.empty())
+                    return nullptr;
+
+                return l_StatueList.front();
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3256,7 +3265,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 p_Amount = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) * p_AurEff->GetSpellEffectInfo()->BonusMultiplier;
             }
 
-            void Register()
+            void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_soothing_mist_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
                 AfterEffectApply += AuraEffectApplyFn(spell_monk_soothing_mist_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
@@ -3265,7 +3274,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_monk_soothing_mist_AuraScript();
         }
@@ -4088,7 +4097,22 @@ class spell_monk_fists_of_fury_stun: public SpellScriptLoader
 
             void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
             {
+                Unit* l_Caster = GetCaster();
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id, GetCaster()->GetGUID()));
+
+                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+                      
+                    if (l_Caster->GetFistsOfFuryStunTargets(p_Object->GetGUID()))
+                        return true;
+
+                    return false;
+                });
+
+                for (WorldObject* l_Object : p_Targets)
+                    l_Caster->AddFistsOfFuryStunTargets(l_Object->GetGUID());
             }
 
             void Register()
@@ -4131,7 +4155,7 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterCast += SpellCastFn(spell_monk_fists_of_fury_SpellScript::HandleAfterCast);
             }
@@ -4140,6 +4164,31 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_monk_fists_of_fury_SpellScript();
+        }
+
+        class spell_monk_fists_of_fury_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_fists_of_fury_AuraScript);
+
+            void HandleRemove(AuraEffect const*, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->CleanFistsOfFuryStunTargets();
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectApplyFn(spell_monk_fists_of_fury_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_monk_fists_of_fury_AuraScript();
         }
 };
 
@@ -5436,7 +5485,7 @@ class spell_monk_WoDPvPBrewmaster2PBonus : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Detonate Chi - 115460
 class spell_monk_detonate_chi : public SpellScriptLoader
 {
@@ -5470,20 +5519,18 @@ class spell_monk_detonate_chi : public SpellScriptLoader
                     {
                         Unit* l_Caster = itr->GetCaster();
 
-                        if (l_Caster != nullptr)
-                            l_Caster->CastSpell(itr->GetPositionX(), itr->GetPositionY(), itr->GetPositionZ(), eSpells::HealingSphereDetonate, true);
                         itr->SetDuration(0);
                     }
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnCast += SpellCastFn(spell_monk_detonate_chi_SpellScript::HandleCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_detonate_chi_SpellScript();
         }

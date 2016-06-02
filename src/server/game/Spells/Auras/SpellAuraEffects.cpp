@@ -711,6 +711,13 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         m_canBeRecalculated = false;
         bool l_CustomAmount = false;
 
+        /// All kind of Polymorph should break directly
+        if (GetSpellInfo()->GetSpellSpecific() == SpellSpecificType::SpellSpecificMagePolymorph)
+        {
+            amount = 1;
+            l_CustomAmount = true;
+        }
+
         // Custom entries
         switch (GetSpellInfo()->Id)
         {
@@ -723,7 +730,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 break;
             }
             case 3355:  // Freezing Trap
-            case 118:  /// Polymorph
             {
                 amount = 1;
                 l_CustomAmount = true;

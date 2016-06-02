@@ -11,6 +11,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
+#include "GameObjectAI.h"
 #include "Language.h"
 
 /// Tarlna the Ageless - 81535
@@ -874,6 +875,205 @@ class areatrigger_tarlna_noxious_spit : public AreaTriggerEntityScript
         }
 };
 
+/// Punt Podling - 174732
+class spell_quest_gorgrond_punt_podling : public SpellScriptLoader
+{
+    enum
+    {
+        ThornyLeafling      = 85809,
+        PodlingPuntCredit   = 85815
+    };
+
+    public:
+        /// Constructor
+        spell_quest_gorgrond_punt_podling() : SpellScriptLoader("spell_quest_gorgrond_punt_podling") { }
+
+        class spell_quest_gorgrond_punt_podling_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_gorgrond_punt_podling_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (l_Target->GetEntry() == ThornyLeafling)
+                    {
+                        l_Caster->ToPlayer()->KilledMonsterCredit(PodlingPuntCredit);
+                        l_Target->ToCreature()->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
+                    }
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_gorgrond_punt_podling_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_gorgrond_punt_podling_SpellScript();
+        }
+};
+
+/// Frenzied Rumbler - 88119
+class npc_gorgrond_goren_egg : public CreatureScript
+{
+    public:
+        npc_gorgrond_goren_egg() : CreatureScript("npc_gorgrond_goren_egg") { }
+
+        struct npc_gorgrond_goren_eggAI : public CreatureAI
+        {
+            uint32 m_Timer;
+
+            npc_gorgrond_goren_eggAI(Creature* p_Creature) : CreatureAI(p_Creature), m_Timer(0) { }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_Timer += p_Diff;
+
+                if (m_Timer >= 500)
+                {
+                    Player* l_Player = me->FindNearestPlayer(MIN_MELEE_REACH, true);
+
+                    if (l_Player)
+                    {
+                        l_Player->KilledMonsterCredit(me->GetEntry());
+
+                        TempSummon* l_Summon = me->SummonCreature(0, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5 * TimeConstants::IN_MILLISECONDS);
+
+                        if (l_Summon)
+                            l_Summon->Attack(l_Player, true);
+
+                        me->DespawnOrUnsummon(0);
+                    }
+
+                    m_Timer = 0;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_gorgrond_goren_eggAI(p_Creature);
+        }
+};
+
+/// Ancient Ogre Hoard Jar - 233296
+class go_gorgrond_ancient_ogre_hoard_jar : public GameObjectScript
+{
+    public:
+        /// Constructor
+        go_gorgrond_ancient_ogre_hoard_jar() : GameObjectScript("go_gorgrond_ancient_ogre_hoard_jar") { }
+
+        struct go_gorgrond_ancient_ogre_hoard_jarAI : public GameObjectAI
+        {
+            /// Constructor
+            go_gorgrond_ancient_ogre_hoard_jarAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            bool GossipHello(Player* p_Player) override
+            {
+                if (p_Player)
+                    p_Player->KilledMonsterCredit(83467);
+
+                return false;
+            }
+        };
+
+        /// Called when a GameObjectAI object is needed for the GameObject.
+        /// @p_GameObject : GameObject instance
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
+        {
+            return new go_gorgrond_ancient_ogre_hoard_jarAI(p_GameObject);
+        }
+};
+
+/// Burn Ancient Corpse - 170769
+class spell_quest_gorgrond_burn_ancient_corpse : public SpellScriptLoader
+{
+    enum
+    {
+        AncientSeedbearer = 85524,
+    };
+
+    public:
+        /// Constructor
+        spell_quest_gorgrond_burn_ancient_corpse() : SpellScriptLoader("spell_quest_gorgrond_burn_ancient_corpse") { }
+
+        class spell_quest_gorgrond_burn_ancient_corpse_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_gorgrond_burn_ancient_corpse_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (l_Target->GetEntry() == AncientSeedbearer)
+                        l_Target->ToCreature()->DespawnOrUnsummon(0);
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_gorgrond_burn_ancient_corpse_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_gorgrond_burn_ancient_corpse_SpellScript();
+        }
+};
+
+/// Toxic Slimemold - 85732
+class npc_gorgrond_toxic_slimemold : public CreatureScript
+{
+    public:
+        npc_gorgrond_toxic_slimemold() : CreatureScript("npc_gorgrond_toxic_slimemold") { }
+
+        struct npc_gorgrond_toxic_slimemoldAI : public CreatureAI
+        {
+            uint32 m_Timer;
+
+            npc_gorgrond_toxic_slimemoldAI(Creature* p_Creature) : CreatureAI(p_Creature), m_Timer(0) { }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_Timer += p_Diff;
+
+                if (m_Timer >= 500)
+                {
+                    Player* l_Player = me->FindNearestPlayer(MIN_MELEE_REACH, true);
+
+                    if (l_Player)
+                    {
+                        l_Player->KilledMonsterCredit(me->GetEntry());
+                        me->DespawnOrUnsummon(0);
+                    }
+
+                    m_Timer = 0;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_gorgrond_toxic_slimemoldAI(p_Creature);
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -886,13 +1086,20 @@ void AddSC_gorgrond()
     new npc_giant_lasher();
     new npc_drov_rumbling_goren();
     new npc_drov_frenzied_rumbler();
+    new npc_gorgrond_goren_egg();
+    new npc_gorgrond_toxic_slimemold();
 
     /// Spells
     new spell_drov_call_of_earth();
     new spell_drov_colossal_slam();
     new spell_drov_acid_breath();
+    new spell_quest_gorgrond_punt_podling();
+    new spell_quest_gorgrond_burn_ancient_corpse();
 
     /// Areatriggers
     new areatrigger_tarlna_noxious_spit();
+
+    /// GameObjects
+    new go_gorgrond_ancient_ogre_hoard_jar();
 }
 #endif

@@ -1132,6 +1132,7 @@ class spell_dru_regrowth : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Wild growth - 48438
 class spell_dru_wild_growth : public SpellScriptLoader
 {
@@ -1163,7 +1164,10 @@ class spell_dru_wild_growth : public SpellScriptLoader
                     l_MaxTargets += 1;
 
                 if (p_Targets.size() > l_MaxTargets)
-                    JadeCore::RandomResizeList(p_Targets, l_MaxTargets);
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+                    p_Targets.resize(l_MaxTargets);
+                }
             }
 
             void HandleAfterHit()

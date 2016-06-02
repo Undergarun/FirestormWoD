@@ -681,6 +681,14 @@ void Pet::Update(uint32 diff)
                 }
             }
 
+            if (Unit* l_Victim = getVictim())
+            {
+                if (!HasUnitState(UNIT_STATE_CASTING))
+                {
+                    GetMotionMaster()->MoveChase(l_Victim);
+                }
+            }
+
             //regenerate focus for hunter pets or energy for deathknight's ghoul
             if (m_RegenPowerTimer)
             {

@@ -221,6 +221,14 @@ enum QuestObjectiveFlags
     QUEST_OBJECTIVE_FLAG_UNK_8 = 0x08,
 };
 
+enum QuestMethod
+{
+    QUEST_METHOD_AUTO_COMPLETE              = 0,
+    QUEST_METHOD_DISABLED                   = 1,
+    QUEST_METHOD_ENABLED_NO_AUTO_COMPLETE   = 2,
+    QUEST_METHOD_AUTO_SUBMITED              = 3
+};
+
 enum class QuestRewardItemBonus : uint32
 {
     UncommunToRare  = 171,

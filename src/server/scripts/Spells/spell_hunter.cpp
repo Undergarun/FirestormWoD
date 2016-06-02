@@ -4085,9 +4085,6 @@ class spell_hun_camouflage_triggered : public SpellScriptLoader
             {
                 Unit* l_Target = GetTarget();
 
-               /* if (l_Target->isMoving() && !l_Target->HasAura(119449))
-                    l_Target->RemoveAura(GetSpellInfo()->Id);
-                else*/
                 l_Target->CastSpell(l_Target, eSpells::Camouflage, true);
             }
 
@@ -4099,14 +4096,14 @@ class spell_hun_camouflage_triggered : public SpellScriptLoader
                     l_Target->RemoveAura(eSpells::Camouflage);
             }
 
-            void Register()
+            void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_hun_camouflage_triggered_AuraScript::OnApply, EFFECT_2, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_hun_camouflage_triggered_AuraScript::OnApply, EFFECT_2, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_hun_camouflage_triggered_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_hun_camouflage_triggered_AuraScript();
         }
@@ -4138,12 +4135,25 @@ class spell_hun_camouflage : public SpellScriptLoader
 
                 l_Player->CastSpell(l_Player, eSpells::CamouflageBuff, true);
 
+                if (l_Player->isInCombat())
+                {
+                    /// Should have 6s duration in Pvp
+                    Aura* l_Aura = l_Player->GetAura(GetSpellInfo()->Id);
+                    if (l_Aura != nullptr)
+                        l_Aura->SetDuration(6 * IN_MILLISECONDS);
+                }
+
                 Pet* l_Pet = l_Player->GetPet();
 
                 if (l_Pet != nullptr)
                 {
                     l_Pet->CastSpell(l_Pet, GetSpellInfo()->Id, true);
                     l_Pet->CastSpell(l_Pet, eSpells::CamouflageBuff, true);
+                    
+                    /// Should have 6s duration in Pvp
+                    Aura* l_Aura = l_Pet->GetAura(GetSpellInfo()->Id);
+                    if (l_Aura != nullptr)
+                        l_Aura->SetDuration(6 * IN_MILLISECONDS);
                 }
             }
 
@@ -4166,14 +4176,14 @@ class spell_hun_camouflage : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_hun_camouflage_AuraScript::OnApply, EFFECT_2, SPELL_AURA_MOD_CAMOUFLAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_hun_camouflage_AuraScript::OnApply, EFFECT_2, SPELL_AURA_MOD_CAMOUFLAGE, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_hun_camouflage_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_MOD_CAMOUFLAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_hun_camouflage_AuraScript();
         }
@@ -4265,7 +4275,7 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_camouflage_visual_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
                 OnEffectApply += AuraEffectApplyFn(spell_hun_camouflage_visual_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
@@ -4273,7 +4283,7 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_hun_camouflage_visual_AuraScript();
         }

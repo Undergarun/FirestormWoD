@@ -4121,8 +4121,8 @@ void ObjectMgr::LoadQuests()
         Quest* qinfo = iter->second;
 
         // Additional quest integrity checks (GO, creature_template and item_template must be loaded already)
-        if (qinfo->GetQuestMethod() >= 3)
-            sLog->outError(LOG_FILTER_SQL, "Quest %u has `Method` = %u, expected values are 0, 1 or 2.", qinfo->GetQuestId(), qinfo->GetQuestMethod());
+        if (qinfo->GetQuestMethod() >= 4)
+            sLog->outError(LOG_FILTER_SQL, "Quest %u has `Method` = %u, expected values are 0, 1, 2 or 3.", qinfo->GetQuestId(), qinfo->GetQuestMethod());
 
         if (qinfo->IsAutoComplete() && qinfo->IsRepeatable())
         {
@@ -4669,6 +4669,94 @@ void ObjectMgr::LoadQuests()
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu quests definitions in %u ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadBonusQuests()
+{
+    for (uint32 l_I = 0; l_I < sCriteriaStore.GetNumRows(); ++l_I)
+    {
+        const CriteriaEntry * l_Criteria = sCriteriaStore.LookupEntry(l_I);
+
+        if (!l_Criteria || l_Criteria->Type != ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST)
+            continue;
+
+        const QuestV2CliTaskEntry * l_QuestV2CliTask = sQuestV2CliTaskStore.LookupEntry(l_Criteria->complete_quest.questID);
+
+        if (!l_QuestV2CliTask)
+            continue;
+
+        const Quest * l_Quest = GetQuestTemplate(l_Criteria->complete_quest.questID);
+        
+        if (!l_Quest || l_Quest->Method != QUEST_METHOD_AUTO_SUBMITED || !(l_Quest->GetZoneOrSort() > 0))
+            continue;
+
+        QuestPOIVector const* l_POIs = GetQuestPOIVector(l_Quest->Id);
+
+        if (l_POIs)
+        {
+            for (QuestPOIVector::const_iterator l_It = l_POIs->begin(); l_It != l_POIs->end(); ++l_It)
+            {
+                const QuestObjective * l_Objective = l_Quest->GetQuestObjectiveXIndex(l_It->ObjectiveIndex);
+
+                int32 l_MinX, l_MinY, l_MaxX, l_MaxY;
+                bool l_FirstIter = true;
+
+                for (std::vector<QuestPOIPoint>::const_iterator l_PointIT = l_It->Points.begin(); l_PointIT != l_It->Points.end(); ++l_PointIT)
+                {
+                    if (l_FirstIter)
+                    {
+                        l_MinX = l_PointIT->x;
+                        l_MinY = l_PointIT->y;
+                        l_MaxX = l_PointIT->x;
+                        l_MaxY = l_PointIT->y;
+                        l_FirstIter = false;
+                    }
+                    else
+                    {
+                        if (l_PointIT->x > l_MaxX)
+                            l_MaxX = l_PointIT->x;
+
+                        if (l_PointIT->y > l_MaxY)
+                            l_MaxY = l_PointIT->y;
+
+                        if (l_PointIT->x < l_MinX)
+                            l_MinX = l_PointIT->x;
+
+                        if (l_PointIT->y < l_MinY)
+                            l_MinY = l_PointIT->y;
+                    }
+                }
+
+                int32 l_AreaWidth   = std::abs(l_MaxX - l_MinX);
+                int32 l_AreaHeight  = std::abs(l_MaxY - l_MinY);
+
+                float l_GrowthPct = 0.35f;
+
+                switch (l_Quest->Id)
+                {
+                    case 36504: ///< Bonus Objective: Evermorn Springs
+                    case 34724: ///< Bonus Objective: The Forgotten Caves
+                        l_GrowthPct = 0.5f;
+                        break;
+                }
+
+                l_MinX -= abs(l_GrowthPct * float(l_AreaWidth)) / 2.0f;
+                l_MinY -= abs(l_GrowthPct * float(l_AreaHeight)) / 2.0f;
+
+                l_MaxX += abs(l_GrowthPct * float(l_AreaWidth)) / 2.0f;
+                l_MaxY += abs(l_GrowthPct * float(l_AreaHeight)) / 2.0f;
+
+                BonusQuestRectEntry l_Rect;
+                l_Rect.X = l_MinX;
+                l_Rect.Y = l_MinY;
+                l_Rect.XMax = l_MaxX;
+                l_Rect.YMax = l_MaxY;
+                l_Rect.MapID = l_It->MapID;
+
+                BonusQuestsRects[l_Quest->Id].push_back(l_Rect);
+            }
+        }
+    }
 }
 
 void ObjectMgr::LoadQuestLocales()

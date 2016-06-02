@@ -723,6 +723,17 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
+    /// Custom WoD script
+    /// Mark of Sindragosa
+    if (spellProto != nullptr && IsPlayer() && getClass() == CLASS_DEATH_KNIGHT && ToPlayer()->GetSpecializationId() == SPEC_DK_BLOOD && victim->HasAura(155166, GetGUID()))
+    {
+        if (damage > 0)
+        {
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(155166);
+            HealBySpell(this, l_SpellInfo, CalculatePct(damage, 10));
+        }
+    }
+
     /// Mindbender
     if (GetEntry() == 62982 || GetEntry() == 67236)
     {
@@ -12332,7 +12343,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) and Ebon Gargoyle can too - but this part is a hack and needs more research
-    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829 && GetEntry() != 77936)
+    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829 && GetEntry() != 77936 && GetEntry() != 55659 && GetEntry() != 82927)
         return 0.0f;
 
     // not critting spell

@@ -102,10 +102,58 @@ class shadowmoon_prophet_velen_eventide_escort : public CreatureScript
 };
 */
 
-/*void AddSC_draenor_shadowmoon_valley()
+/// Squeezing - 159303
+class spell_quest_shadowmoon_squeezing : public SpellScriptLoader
 {
-    new shadowmoon_prophet_velen_eventide_questgiver();
-    new shadowmoon_prophet_velen_eventide_escort();
-    new shadowmoon_yrel_eventide_questgiver();
-    new shadowmoon_yrel_eventide_escort();
-}*/
+    enum
+    {
+        KillCredit = 74249
+    };
+
+    public:
+        /// Constructor
+        spell_quest_shadowmoon_squeezing() : SpellScriptLoader("spell_quest_shadowmoon_squeezing") { }
+
+        class spell_quest_shadowmoon_squeezing_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_shadowmoon_squeezing_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (   l_Target->GetEntry() == Shadowmoon::eCreature::JuicyMushroomA
+                        || l_Target->GetEntry() == Shadowmoon::eCreature::JuicyMushroomB
+                        || l_Target->GetEntry() == Shadowmoon::eCreature::JuicyMushroomC)
+                    {
+                        l_Caster->ToPlayer()->KilledMonsterCredit(KillCredit);
+                        l_Target->ToCreature()->DespawnOrUnsummon();
+                    }
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_shadowmoon_squeezing_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_shadowmoon_squeezing_SpellScript();
+        }
+};
+
+void AddSC_draenor_shadowmoon_valley()
+{
+    ///new shadowmoon_prophet_velen_eventide_questgiver();
+    ///new shadowmoon_prophet_velen_eventide_escort();
+    ///new shadowmoon_yrel_eventide_questgiver();
+    ///new shadowmoon_yrel_eventide_escort();
+    new spell_quest_shadowmoon_squeezing();
+}

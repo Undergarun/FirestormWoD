@@ -303,12 +303,10 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
                 {
                     m_TargetList.push_back(l_Target->GetGUID());
                     l_Caster->CastSpell(l_Target, eSpells::solarBeamSilence, true);
-                    if (Aura* l_SolarBeamSilence = l_Caster->GetAura(eSpells::solarBeamSilence))
-                        l_SolarBeamSilence->SetDuration(p_AreaTrigger->GetDuration());
                 }
             }
 
-            for (auto l_It = m_TargetList.begin(); l_It != m_TargetList.end(); )
+            for (auto l_It = m_TargetList.begin(); l_It != m_TargetList.end(); ++l_It)
             {
                 Unit* l_Target = ObjectAccessor::FindUnit(*l_It);
                 if (!l_Target || (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), l_Target) == l_NewTargetList.end()))
@@ -316,17 +314,6 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
                     if (l_Target)
                         l_Target->RemoveAura(eSpells::solarBeamSilence);
 
-                    l_It = m_TargetList.erase(l_It);
-                }
-                else
-                {
-                    if (!l_Target->HasAura(eSpells::solarBeamSilence, l_Caster->GetGUID()))
-                    {
-                        l_Caster->CastSpell(l_Target, eSpells::solarBeamSilence, true);
-                        if (Aura* l_SolarBeamSilence = l_Caster->GetAura(eSpells::solarBeamSilence))
-                            l_SolarBeamSilence->SetDuration(p_AreaTrigger->GetDuration());
-                    }
-                    ++l_It;
                 }
             }
         }

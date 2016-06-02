@@ -4678,6 +4678,33 @@ public:
     }
 };
 
+/// last update 6.2.3
+/// Drain life doesn't cost 1% of maximum mana while the player is in metamorphosis
+class PlayerScript_spell_warl_drain_life_meta_cost : public PlayerScript
+{
+public:
+    PlayerScript_spell_warl_drain_life_meta_cost() : PlayerScript("PlayerScript_spell_warl_drain_life_meta_cost") { }
+
+    enum eSpells
+    {
+        Metomorphosis = 103958,
+        DrainLife = 689
+    };
+
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/, bool p_After)
+    {
+        if (p_After)
+            return;
+
+        if (p_Power == POWER_MANA && p_Player->HasAura(eSpells::Metomorphosis) && p_Player->HasAura(eSpells::DrainLife))
+        {
+            if (p_NewValue < p_OldValue)
+                p_NewValue = p_OldValue;
+        }
+
+    }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_warlock_spell_scripts()
 {
@@ -4769,5 +4796,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_command_demon_spells();
     new spell_warl_cripple_doomguard();
     new PlayerScript_DemonicFury_On_Kill();
+    new PlayerScript_spell_warl_drain_life_meta_cost();
 }
 #endif

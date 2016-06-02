@@ -842,7 +842,7 @@ class spell_dk_blood_tap: public SpellScriptLoader
 
                     for (uint8 i = 0; i < MAX_RUNES; ++i)
                     {
-                        if (l_Player->GetCurrentRune(i) == RuneType::RUNE_DEATH || !l_Player->GetRuneCooldown(i))
+                        if (!l_Player->GetRuneCooldown(i))
                             continue;
 
                         /// First rune on cooldown, save it
@@ -922,20 +922,26 @@ class spell_dk_death_siphon: public SpellScriptLoader
                     return;
 
                 int8 l_DeathRune = -1;
+                bool l_RuneSaved = false;
 
                 for (uint8 i = 0; i < MAX_RUNES; ++i)
                 {
                     if (l_Player->GetRuneCooldown(i) && l_Player->GetCurrentRune(i) == RUNE_DEATH)
                     {
-                        l_DeathRune = i;
-                        break;
+                        if (!l_RuneSaved)
+                        {
+                            l_DeathRune = i;
+                            l_RuneSaved = true;
+                        }
+                        if (l_DeathRune != -1 && l_Player->GetRuneCooldown(i) > l_Player->GetRuneCooldown(l_DeathRune))
+                            l_DeathRune = i;
                     }
                 }
 
                 if (l_DeathRune == -1)
                     return;
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_DK_FROST)
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_DK_FROST || l_DeathRune > 1)
                     l_Player->RestoreBaseRune(uint8(l_DeathRune));
             }
 
