@@ -842,7 +842,7 @@ class spell_dk_blood_tap: public SpellScriptLoader
 
                     for (uint8 i = 0; i < MAX_RUNES; ++i)
                     {
-                        if (l_Player->GetCurrentRune(i) == RuneType::RUNE_DEATH || !l_Player->GetRuneCooldown(i))
+                        if (!l_Player->GetRuneCooldown(i))
                             continue;
 
                         /// First rune on cooldown, save it
