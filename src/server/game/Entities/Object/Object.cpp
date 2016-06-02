@@ -3117,6 +3117,7 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
                             if (bp)
                                 p_Pet->GetOwner()->CastCustomSpell(p_Pet->GetOwner(), 119904, &bp, NULL, NULL, true);
                         }
+                        p_Pet->SetFullHealth();
                     }
 
                     if (p_Pet->IsPetGhoul())
