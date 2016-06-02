@@ -7079,4 +7079,24 @@
     <field type="int" name="field3" />
     <field type="int" name="field4" />
   </VehicleUIIndSeat>
+  <SpellXSpellVisual build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="SpellID" />
+    <field type="int" name="DifficultyID" />
+    <field type="int" name="VisualIDA" />
+    <field type="int" name="VisualIDB" />
+    <field type="int" name="Scale" />
+    <field type="int" name="ConditionID" />
+    <field type="int" name="Flags" />
+  </SpellXSpellVisual>
+  <ModelFileData build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </ModelFileData>
 </DBFilesClient>
