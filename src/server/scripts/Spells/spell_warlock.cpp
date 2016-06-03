@@ -4159,7 +4159,7 @@ class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
                 if (AuraEffect* l_AuraEffect = p_Player->GetAuraEffect(eSpells::T17Destruction4P, l_I))
                 {
                     /// When a Burning Ember is filled up, you have a chance to cause your next Chaos Bolt to multistrike 3 additional times.
-                    if (p_OldValue < l_AuraEffect->GetAmount() && p_NewValue > l_AuraEffect->GetAmount() && roll_chance_i(15))
+                    if (p_OldValue < l_AuraEffect->GetAmount() && p_NewValue >= l_AuraEffect->GetAmount() && roll_chance_i(15))
                         p_Player->CastSpell(p_Player, eSpells::ChaoticInfusion, true);
                 }
             }
