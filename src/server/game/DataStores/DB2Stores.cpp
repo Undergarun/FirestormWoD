@@ -194,6 +194,7 @@ std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
 std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
 std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
+std::unordered_map<uint32, std::vector<SpellProcsPerMinuteModEntry const*>> sSpellProcsPerMinuteMods;
 std::map<uint32, uint32> g_PvPItemStoreLevels;
 
 AreaGroupMemebersByID sAreaGroupMemebersByIDStore;
