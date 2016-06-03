@@ -14009,6 +14009,10 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     if (target->HasAura(119626) || target->HasAura(117708))
         return true;
 
+    /// Prismatic Crystal should be attackable only by summoner
+    if (target->GetEntry() == 76933 && target->ToTempSummon() && target->ToTempSummon()->GetSummoner() && target->ToTempSummon()->GetSummoner()->GetGUID() != GetGUID())
+        return false;
+
     if (target->HasAuraType(SPELL_AURA_SEE_WHILE_INVISIBLE))
         return false;
 
