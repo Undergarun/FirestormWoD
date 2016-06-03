@@ -121,6 +121,15 @@ class boss_operator_thogar : public CreatureScript
                 }
 
                 m_TrainID = eThogarTrains::FightTrainBeginning;
+
+                if (m_Instance != nullptr)
+                {
+                    for (uint32 l_Entry = eFoundryGameObjects::MassiveDoorTrack4Right; l_Entry != eFoundryGameObjects::MassiveDoorTrack1Left; ++l_Entry)
+                    {
+                        if (GameObject* l_Door = GameObject::GetGameObject(*me, m_Instance->GetData64(l_Entry)))
+                            l_Door->SetGoState(GOState::GO_STATE_READY);
+                    }
+                }
             }
 
             void SetGUID(uint64 p_Guid, int32 p_ID) override
@@ -154,7 +163,7 @@ class boss_operator_thogar : public CreatureScript
 
                                 AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                                 {
-                                    SummonTrain(me, eThogarTrains::IntroSiegeTrain, eThogarActions::IntroBeginPart2);
+                                    SummonTrain(me, eThogarTrains::IntroSiegeTrain, eThogarActions::IntroBeginPart2, false);
                                 });
 
                                 break;
@@ -171,7 +180,7 @@ class boss_operator_thogar : public CreatureScript
 
                                 AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                                 {
-                                    SummonTrain(me, eThogarTrains::IntroWoodTrain, eThogarActions::IntroBeginPart3);
+                                    SummonTrain(me, eThogarTrains::IntroWoodTrain, eThogarActions::IntroBeginPart3, false);
                                 });
 
                                 break;
@@ -217,7 +226,7 @@ class boss_operator_thogar : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
                 m_Events.ScheduleEvent(eEvents::EventEnkindle, eTimers::TimerEnkindle);
                 m_Events.ScheduleEvent(eEvents::EventPrototypePulseGrenade, eTimers::TimerPulseGrenade);
-                m_Events.ScheduleEvent(eEvents::EventSummonTrain, g_TrainTimers[m_TrainID - eThogarTrains::FightTrainBeginning]);
+                m_Events.ScheduleEvent(eEvents::EventSummonTrain, g_TrainDatas[m_TrainID].SpawnTimer);
             }
 
             void JustDied(Unit* /*p_Killer*/) override
@@ -256,6 +265,12 @@ class boss_operator_thogar : public CreatureScript
 
                 if (m_Instance != nullptr)
                 {
+                    for (uint32 l_Entry = eFoundryGameObjects::MassiveDoorTrack4Right; l_Entry != eFoundryGameObjects::MassiveDoorTrack1Left; ++l_Entry)
+                    {
+                        if (GameObject* l_Door = GameObject::GetGameObject(*me, m_Instance->GetData64(l_Entry)))
+                            l_Door->SetGoState(GOState::GO_STATE_READY);
+                    }
+
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellEnkindle);
@@ -341,10 +356,13 @@ class boss_operator_thogar : public CreatureScript
                             break;
                         }
 
-                        SummonTrain(me, m_TrainID);
+                        SummonTrain(me, m_TrainID, eThogarActions::ActionNone);
 
                         ++m_TrainID;
-                        m_Events.ScheduleEvent(eEvents::EventSummonTrain, g_TrainTimers[m_TrainID - eThogarTrains::FightTrainBeginning]);
+
+                        uint32 l_Timer = g_TrainDatas[m_TrainID].SpawnTimer;
+                        /// Few timers are set to 0, because of double spawns
+                        m_Events.ScheduleEvent(eEvents::EventSummonTrain, l_Timer ? l_Timer - g_TrainDatas[m_TrainID - 1].SpawnTimer : l_Timer);
                         break;
                     }
                     default:
@@ -388,7 +406,7 @@ class npc_foundry_train_controller : public CreatureScript
             {
                 m_Instance  = p_Creature->GetInstanceScript();
                 m_Vehicle   = p_Creature->GetVehicleKit();
-                m_TrackID   = eThogarMiscDatas::FirstTrack;
+                m_TrainID   = eThogarTrains::IntroTroopsTrain;
             }
 
             InstanceScript* m_Instance;
@@ -396,7 +414,7 @@ class npc_foundry_train_controller : public CreatureScript
 
             uint64 m_SummonerGUID;
 
-            uint8 m_TrackID;
+            uint8 m_TrainID;
 
             void Reset() override
             {
@@ -412,6 +430,31 @@ class npc_foundry_train_controller : public CreatureScript
 
                 switch (p_Action)
                 {
+                    /// Action none, just move by default
+                    case eThogarActions::ActionNone:
+                    {
+                        TrainDatas l_Datas = g_TrainDatas[m_TrainID];
+
+                        switch (l_Datas.TrainType)
+                        {
+                            case eThogarMiscDatas::NonAddTrain:
+                            {
+                                StartTrain(0, false);
+
+                                me->GetMotionMaster()->MovePoint(eMoves::ThirdMovementOuttro, l_Datas.RightToLeft ? g_TrainTrackEndPos[l_Datas.TrackID] : g_TrainTrackSpawnPos[l_Datas.TrackID], false);
+
+                                HandleDoors(true);
+                                break;
+                            }
+                            case eThogarMiscDatas::HalfLengthAddTrains:
+                            case eThogarMiscDatas::FullLengthAddTrains:
+                            case eThogarMiscDatas::SiegeTrain:
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
                     /// Intro: Part1 - Move intro train
                     case eThogarActions::IntroBegin:
                     /// Intro: Part2 - Move intro train
@@ -449,7 +492,7 @@ class npc_foundry_train_controller : public CreatureScript
 
                         AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            me->GetMotionMaster()->MovePoint(eMoves::MovementOuttro, g_TrainTrackEndPos[m_TrackID]);
+                            me->GetMotionMaster()->MovePoint(eMoves::MovementOuttro, g_TrainTrackEndPos[g_TrainDatas[m_TrainID].TrackID]);
                         });
 
                         break;
@@ -461,7 +504,7 @@ class npc_foundry_train_controller : public CreatureScript
 
                         AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            me->GetMotionMaster()->MovePoint(eMoves::MovementOuttro, g_TrainTrackEndPos[m_TrackID]);
+                            me->GetMotionMaster()->MovePoint(eMoves::MovementOuttro, g_TrainTrackEndPos[g_TrainDatas[m_TrainID].TrackID]);
                         });
 
                         AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -496,7 +539,7 @@ class npc_foundry_train_controller : public CreatureScript
 
             void SetData(uint32 p_ID, uint32 p_Value) override
             {
-                m_TrackID = p_Value;
+                m_TrainID = p_Value;
             }
 
             void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
@@ -628,7 +671,7 @@ class npc_foundry_train_controller : public CreatureScript
                         AddTimedDelayedOperation(22 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             /// Launch move
-                            me->GetMotionMaster()->MovePoint(eMoves::ThirdMovementOuttro, g_TrainTrackEndPos[m_TrackID]);
+                            me->GetMotionMaster()->MovePoint(eMoves::ThirdMovementOuttro, g_TrainTrackEndPos[g_TrainDatas[m_TrainID].TrackID]);
 
                             HandleDoors(true);
                         });
@@ -772,10 +815,10 @@ class npc_foundry_train_controller : public CreatureScript
 
             void HandleDoors(bool p_Apply)
             {
-                if (GameObject* l_RightDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].RightDoor)))
+                if (GameObject* l_RightDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[g_TrainDatas[m_TrainID].TrackID].RightDoor)))
                     l_RightDoor->SetGoState(p_Apply ? GOState::GO_STATE_ACTIVE : GOState::GO_STATE_READY);
 
-                if (GameObject* l_LeftDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[m_TrackID].LeftDoor)))
+                if (GameObject* l_LeftDoor = GameObject::GetGameObject(*me, m_Instance->GetData64(g_TrackDoors[g_TrainDatas[m_TrainID].TrackID].LeftDoor)))
                     l_LeftDoor->SetGoState(p_Apply ? GOState::GO_STATE_ACTIVE : GOState::GO_STATE_READY);
             }
         };
@@ -912,6 +955,7 @@ class npc_foundry_iron_gunnery_sergeant : public CreatureScript
         }
 };
 
+/// Siege Engine - 78982
 /// Siege Engine - 81316
 class npc_foundry_siege_engine : public CreatureScript
 {
