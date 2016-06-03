@@ -7666,14 +7666,26 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (!l_Player->isInCombat())
                         return false;
 
-                    if (l_Player->HasSpellCooldown(51701))
+                    if (l_Player->HasSpellCooldown(51699))
                         return false;
 
                     if (!(procEx & PROC_EX_CRITICAL_HIT))
                         return false;
 
                     triggered_spell_id = 51699;
-                    break;
+
+                    SpellInfo const* triggerEntry = sSpellMgr->GetSpellInfo(triggered_spell_id);
+                    if (!triggerEntry)
+                        return false;
+
+                    if (cooldown_spell_id == 0)
+                        cooldown_spell_id = triggered_spell_id;
+
+                    l_Player->CastSpell(target, triggered_spell_id, true, castItem, triggeredByAura, originalCaster);
+
+                    l_Player->AddSpellCooldown(cooldown_spell_id, 0, cooldown);
+
+                    return true;
                 }
                 case 63254: // Glyph of Deadly Momentum
                 {
