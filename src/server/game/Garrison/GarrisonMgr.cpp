@@ -2709,12 +2709,13 @@ namespace MS { namespace Garrison
         while (l_FinalFollowers.size() < 3)
         {
             GarrisonFollower l_Follower = GenerateNewFollowerEntity(l_PotentialFollowers[urand(0, l_PotentialFollowers.size() - 1)]);
+            uint32 l_AbilityGenerated = 0;
 
             for (auto l_Itr = l_Follower.Abilities.begin(); l_Itr != l_Follower.Abilities.end(); ++l_Itr)
             {
                 using namespace MS::Garrison::GarrisonAbilities;
 
-                if (p_IsTrait)
+                if (!p_IsTrait)
                 {
                     std::vector<uint32> l_PotentialAbilities;
                     for (uint32 l_EffectID = 0; l_EffectID < sGarrAbilityEffectStore.GetNumRows(); ++l_EffectID)
@@ -2725,24 +2726,27 @@ namespace MS { namespace Garrison
                             continue;
 
                         if (l_Effect->CounterMechanicTypeID == p_AbilityID)
-                            l_PotentialAbilities.push_back(l_Effect->CounterMechanicTypeID);
+                            l_PotentialAbilities.push_back(l_Effect->AbilityID);
                     }
 
                     if (!l_PotentialAbilities.empty())
-                        p_AbilityID = l_PotentialAbilities[urand(0, l_PotentialAbilities.size() - 1)];
+                        l_AbilityGenerated = l_PotentialAbilities[urand(0, l_PotentialAbilities.size() - 1)];
 
                     l_Itr = l_Follower.Abilities.erase(l_Itr);
                     break;
                 }
 
-                if (!p_IsTrait && std::find(g_FollowerAbilities.begin(), g_FollowerAbilities.end(), *l_Itr) != g_FollowerAbilities.end())
+                if (p_IsTrait && std::find(g_FollowerTraits.begin(), g_FollowerTraits.end(), *l_Itr) != g_FollowerTraits.end())
                 {
                     l_Itr = l_Follower.Abilities.erase(l_Itr);
                     break;
                 }
             }
 
-            l_Follower.Abilities.push_back(p_AbilityID);
+            if (l_AbilityGenerated)
+                l_Follower.Abilities.push_back(l_AbilityGenerated);
+            else
+                l_Follower.Abilities.push_back(p_AbilityID);
 
             l_FinalFollowers.push_back(l_Follower);
         }
