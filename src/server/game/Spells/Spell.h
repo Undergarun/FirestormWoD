@@ -588,7 +588,7 @@ public:
     int32 CalculateDamage(uint8 i, Unit const* target, bool p_Log = false) const
     {
         Unit* l_Caster = m_originalCaster ? m_originalCaster : m_caster;
-        return l_Caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_CastItem, p_Log);
+        return l_Caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_castItemLevel, p_Log);
     }
 
     bool HaveTargetsForEffect(uint8 effect) const;
@@ -636,6 +636,7 @@ public:
     SpellInfo const* const m_spellInfo;
     Item* m_CastItem;
     uint64 m_castItemGUID;
+    int32 m_castItemLevel;
     uint8 m_cast_count;
     uint32 m_CastItemEntry;
     uint32 m_Misc[2];
