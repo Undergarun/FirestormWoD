@@ -3262,6 +3262,6 @@ loading.loot              = 1
 loading.locales           = 1
 loading.gameobject        = 1
 loading.researchsite      = 1
-loading.onlyspecifimaps   = 0
+loading.onlyspecificmaps   = 0
 loading.onlymaps          = ""
 loading.itemspecload      = 1
