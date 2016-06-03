@@ -115,7 +115,7 @@ namespace MS { namespace Garrison
             case WorkshopGearworks::InventionItemIDs::ItemXD57BullseyeGuidedRocketKit:
             case WorkshopGearworks::InventionItemIDs::ItemGG117MicroJetpack:
             case WorkshopGearworks::InventionItemIDs::ItemSentryTurretDispenser:
-                p_Item->SetSpellCharges(0, p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges));
+//                p_Item->SetSpellCharges(0, p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonWorkshopGearworksInventionCharges));
                 break;
             /// Scribe Quarters
             case 119126:
@@ -460,28 +460,28 @@ namespace MS { namespace Garrison
         {
             if (l_GarrisonMgr->GetBuildingWithType(BuildingType::TradingPost).BuildingID)
             {
-                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomShipment))
+                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment))
                 {
                     std::vector<uint32> l_TradingPostShipments = { 138, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 196 };
-                    p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
+                    p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
                 }
 
                 std::vector<uint32> l_AllianceTradersEntries = { 87203, 87202, 87200, 87201, 87204 };
                 std::vector<uint32> l_HordeTradersEntries    = { 86778, 86777, 86779, 86776, 86683 };
-                uint64 l_WorldState = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader);
+                uint64 l_WorldState = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTradingPostDailyRandomTrader);
 
                 switch (p_Player->GetTeamId())
                 {
                     case TEAM_ALLIANCE:
                     {
                         if (NeedsTradingPostReset(l_HordeTradersEntries, l_WorldState))
-                            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_AllianceTradersEntries[urand(0, l_AllianceTradersEntries.size() - 1)]);
+                            p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomTrader, l_AllianceTradersEntries[urand(0, l_AllianceTradersEntries.size() - 1)]);
                         break;
                     }
                     case TEAM_HORDE:
                     {
                         if (NeedsTradingPostReset(l_AllianceTradersEntries, l_WorldState))
-                            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_HordeTradersEntries[urand(0, l_HordeTradersEntries.size() - 1)]);
+                            p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomTrader, l_HordeTradersEntries[urand(0, l_HordeTradersEntries.size() - 1)]);
                         break;
                     }
                     default:
@@ -678,7 +678,7 @@ namespace MS { namespace Garrison
             {
                 if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
                 {
-                    p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges, p_Item->GetSpellCharges());
+                    p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInventionCharges, p_Item->GetSpellCharges());
                     l_GarrisonMgr->UpdatePlot(p_Player->GetPlotInstanceID());
                 }
                 break;

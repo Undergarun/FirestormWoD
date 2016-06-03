@@ -952,6 +952,7 @@ namespace MS { namespace Garrison
 
     void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::Reset()
     {
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         SetMaxPlayerDistance(200.0f);
         SetDespawnAtFar(false);
         SetDespawnAtEnd(false);

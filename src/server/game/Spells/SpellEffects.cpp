@@ -313,7 +313,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectFinishGarrisonMission,                    //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
     &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
-    &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
+    &Spell::EffectFinishGarrisonShipment,                    //248 SPELL_EFFECT_FINISH_SHIPMENT
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249                     Unused 6.1.2
     &Spell::EffectNULL,                                     //250 SPELL_EFFECT_TAKE_SCREENSHOT
     &Spell::EffectNULL,                                     //251 SPELL_EFFECT_251
@@ -8390,6 +8390,49 @@ void Spell::EffectFinishGarrisonMission(SpellEffIndex /*p_EffIndex*/)
 
                 WorldPacket l_PlaceHolder;
                 l_Player->GetSession()->HandleGetGarrisonInfoOpcode(l_PlaceHolder);
+            }
+        }
+    }
+}
+
+void Spell::EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+        return;
+
+    if (Player* l_Player = m_caster->ToPlayer())
+    {
+        using namespace MS::Garrison;
+
+        if (Manager* l_GarrisonMgr = l_Player->GetGarrison())
+        {
+            uint32 l_ShipmentCount       = m_spellValue->EffectBasePoints[p_EffIndex];
+            CharShipmentContainerEntry const* l_ContainerEntry = sCharShipmentContainerStore.LookupEntry(m_spellInfo->Effects[p_EffIndex].MiscValue);
+
+            if (l_ContainerEntry == nullptr)
+                return;
+
+            uint32 l_PlotInstanceID = l_GarrisonMgr->GetBuildingWithType(BuildingType::Type(l_ContainerEntry->BuildingType)).PlotInstanceID;
+
+            if (l_PlotInstanceID)
+            {
+                std::vector<GarrisonWorkOrder> l_Orders = l_GarrisonMgr->GetBuildingWorkOrders(l_PlotInstanceID);
+
+                if (l_Orders.size() > l_ShipmentCount)
+                {
+                    for (uint8 l_Itr = 0; l_Itr < l_ShipmentCount; ++l_Itr)
+                    {
+                        if (l_Itr >= l_Orders.size())
+                            break;
+
+                        l_Orders[l_Itr].CompleteTime = time(0);
+                    }
+                }
+                else
+                {
+                    for (GarrisonWorkOrder l_Order : l_Orders)
+                        l_Order.CompleteTime = time(0);
+                }
             }
         }
     }

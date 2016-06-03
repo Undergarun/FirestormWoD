@@ -183,13 +183,13 @@ enum TalentTree // talent tabs
 
 enum CharacterWorldStates
 {
-    CharWorldStateGarrisonStablesFirstQuest                     = 1,
-    CharWorldStateGarrisonStablesSecondQuest                    = 2,
-    CharWorldStateGarrisonWorkshopGearworksInvention            = 3,
-    CharWorldStateGarrisonWorkshopGearworksInventionCharges     = 4,
-    CharWorldStateGarrisonTradingPostDailyRandomTrader          = 5,
-    CharWorldStateGarrisonTradingPostDailyRandomShipment        = 6,
-    CharWorldStateGarrisonArmoryWeeklyCurrencyGain              = 7,
+    GarrisonStablesFirstQuest                     = 1,
+    GarrisonStablesSecondQuest                    = 2,
+    GarrisonWorkshopGearworksInvention            = 3,
+    GarrisonWorkshopGearworksInventionCharges     = 4,
+    GarrisonTradingPostDailyRandomTrader          = 5,
+    GarrisonTradingPostDailyRandomShipment        = 6,
+    GarrisonArmoryWeeklyCurrencyGain              = 7
 };
 
 // Spell modifier (used for modify other spells)

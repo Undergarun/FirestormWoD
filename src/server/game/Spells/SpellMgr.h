@@ -754,6 +754,22 @@ class SpellMgr
             return m_SpellUpgradeItemStages[p_ItemBonusTreeCategory];
         }
 
+        std::unordered_map<uint32, SpellVisualMap> VisualsBySpellMap;
+
+        uint32 GetSpellXVisualForSpellID(uint32 p_SpellId, uint32 p_Difficulty, uint32 p_Fallback)
+        {
+            auto l_It = VisualsBySpellMap.find(p_SpellId);
+            if (l_It != VisualsBySpellMap.end())
+            {
+                auto l_SecondIt = l_It->second.find(p_Difficulty);
+
+                if (l_SecondIt != l_It->second.end())
+                    return l_SecondIt->second.at(0)->Id;
+            }
+
+            return p_Fallback;
+        }
+
     // Modifiers
     public:
 

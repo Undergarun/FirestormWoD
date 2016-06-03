@@ -237,7 +237,7 @@ namespace MS { namespace Garrison
         {
             if (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuilding(static_cast<GarrisonNPCAI*>(l_AI)->GetPlotInstanceID())) >= 2)
             {
-                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain))
+                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain))
                     p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::ArmoryWeeklySeal, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             }
         }
@@ -261,7 +261,7 @@ namespace MS { namespace Garrison
         else if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_SEAL_OF_TEMPERED_FATE, 1, 1);
-            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain, 1);
+            p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain, 1);
             p_Creature->SendPlaySpellVisualKit(179, 0); /// 53 SpellCastDirected
             p_Player->SendPlaySpellVisualKit(362, 1);   /// 113 EmoteSalute
         }

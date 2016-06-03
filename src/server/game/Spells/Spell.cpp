@@ -601,6 +601,19 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
 
     for (uint8 i = 0; i < m_spellInfo->EffectCount; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
+
+    std::list<AuraEffect*>const& l_VisualModifiers = m_caster->GetAuraEffectsByType(SPELL_AURA_CHANGE_VISUAL_EFFECT);
+    m_SpellVisualID = m_spellInfo->FirstSpellXSpellVisualID;
+
+    for (AuraEffect* l_Effect : l_VisualModifiers)
+    {
+        if (l_Effect->GetMiscValue() == m_spellInfo->Id
+            && l_Effect->GetMiscValueB())
+        {
+            m_SpellVisualID = sSpellMgr->GetSpellXVisualForSpellID(l_Effect->GetMiscValueB(), caster->GetMap()->GetDifficultyID(), m_SpellVisualID);
+            break;
+        }
+    }
 }
 
 Spell::~Spell()
@@ -4860,7 +4873,7 @@ void Spell::SendSpellStart()
     data.appendPackGUID(l_CasterGuid2);
     data << uint8(m_cast_count);
     data << uint32(m_spellInfo->Id);
-    data << uint32(m_spellInfo->FirstSpellXSpellVisualID);
+    data << uint32(m_SpellVisualID);
     data << uint32(l_CastFlags);
     data << uint32(m_casttime);
     data << uint32(0);                      ///< Hitted target count
@@ -5078,7 +5091,7 @@ void Spell::SendSpellGo()
     l_Data.appendPackGUID(l_CasterGuid2);
     l_Data << uint8(m_cast_count);
     l_Data << uint32(m_spellInfo->Id);
-    l_Data << uint32(m_spellInfo->FirstSpellXSpellVisualID);
+    l_Data << uint32(m_SpellVisualID);
     l_Data << uint32(l_CastFlags);
     l_Data << uint32(getMSTime());
     l_Data << uint32(l_HitCount);

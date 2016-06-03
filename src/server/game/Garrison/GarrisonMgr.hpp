@@ -230,6 +230,8 @@ namespace MS { namespace Garrison
             uint32 GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID) const;
             /// Get in progress work order count
             uint32 GetWorkOrderCount(uint32 p_PlotInstanceID) const;
+            /// Get in progress work order count
+            std::vector<GarrisonWorkOrder> GetBuildingWorkOrders(uint32 p_PlotInstanceID) const;
             /// Start new work order
             uint64 StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID);
             /// Delete work order

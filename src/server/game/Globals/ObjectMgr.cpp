@@ -1586,7 +1586,7 @@ void ObjectMgr::LoadCreatures()
     if (sWorld->getBoolConfig(CONFIG_ENABLE_ONLY_SPECIFIC_MAP))
     {
         std::vector<uint32> l_MapsToLoad = sWorld->GetMapsToLoad();
-        std::string l_TempQueryEnding = l_Query += " WHERE creature.map IN (";
+        std::string l_TempQueryEnding = " WHERE creature.map IN (";
         uint8 l_Counter = 0;
 
         for (uint32 l_MapID : l_MapsToLoad)
@@ -1597,8 +1597,10 @@ void ObjectMgr::LoadCreatures()
             if (l_Counter < l_MapsToLoad.size())
                 l_TempQueryEnding += ", ";
             else
-                l_TempQueryEnding += ");";
+                l_TempQueryEnding += ")";
         }
+
+        l_Query += l_TempQueryEnding;
     }
 
     QueryResult result = WorldDatabase.Query(l_Query.c_str());
@@ -1941,7 +1943,7 @@ void ObjectMgr::LoadGameobjects()
     if (sWorld->getBoolConfig(CONFIG_ENABLE_ONLY_SPECIFIC_MAP))
     {
         std::vector<uint32> l_MapsToLoad = sWorld->GetMapsToLoad();
-        std::string l_TempQueryEnding = l_Query += " WHERE gameobject.map IN (";
+        std::string l_TempQueryEnding = " WHERE gameobject.map IN (";
         uint8 l_Counter = 0;
 
         for (uint32 l_MapID : l_MapsToLoad)
@@ -1952,8 +1954,10 @@ void ObjectMgr::LoadGameobjects()
             if (l_Counter < l_MapsToLoad.size())
                 l_TempQueryEnding += ", ";
             else
-                l_TempQueryEnding += ");";
+                l_TempQueryEnding += ")";
         }
+
+        l_Query += l_TempQueryEnding;
     }
 
     QueryResult result = WorldDatabase.Query(l_Query.c_str());

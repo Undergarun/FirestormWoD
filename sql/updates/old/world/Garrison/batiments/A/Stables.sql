@@ -1,10 +1,6 @@
 -- LEVEL 1
 	-- Stables
 
-		-- plot content
-
-		DELETE FROM garrison_plot_content WHERE plot_type_or_building = -65 AND faction_index = 0; -- horde
-		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-65','0','86979','4.78931','-3.73092','0.930573','1.86515');
 
 		
 		UPDATE creature_template SET npcflag = npcflag | 1, scriptname = "npc_FannyFirebeard_Garr" WHERE entry = 86974;
@@ -774,17 +770,22 @@
 	(87242, 37039),
 	(87242, 37040),
 	(87242, 37041);
+	
+	-- plot content
+
+		DELETE FROM garrison_plot_content WHERE plot_type_or_building = -65 AND faction_index = 1; -- horde
+		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-65','1','86974','2.35014','0.122752','1.14831','0.745757');
 
 -- LEVEL 2
 
 		DELETE FROM garrison_plot_content WHERE plot_type_or_building = -66 AND faction_index = 1; -- alliance
 		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-66','1','-237169','19.4235','-5.23777','0.234062','0.051848');
-		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-66','1','86979','-4.2947','-5.08406','0.587532','0.130389');
+		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-66','1','86974','-4.2947','-5.08406','0.587532','0.130389');
 
 
 -- LEVEL 3
 
 		DELETE FROM garrison_plot_content WHERE plot_type_or_building = -67 AND faction_index = 1; -- alliance
-		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-67','1','86979','2.15983','2.7714','0.822304','5.07054');
+		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-67','1','86974','2.15983','2.7714','0.822304','5.07054');
 		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-67','1','-237169','17.7012','-5.48385','0.06636','1.70118');
 		insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-67','1','-237170','18.2435','-9.17132','0.154655','3.04814');

@@ -3113,24 +3113,22 @@ void SpellMgr::LoadSpellInfoStore()
     for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         mSpellInfoMap[difficulty].resize(sSpellStore.GetNumRows(), nullptr);
 
-    std::unordered_map<uint32, SpellVisualMap> l_VisualsBySpell;
-
     for (uint32 l_ID = 0; l_ID < sSpellXSpellVisualStore.GetNumRows(); ++l_ID)
     {
         SpellXSpellVisualEntry const* l_Entry = sSpellXSpellVisualStore.LookupEntry(l_ID);
         if (!l_Entry)
             continue;
 
-        l_VisualsBySpell[l_Entry->SpellId][l_Entry->DifficultyID].push_back(l_Entry);
+        VisualsBySpellMap[l_Entry->SpellId][l_Entry->DifficultyID].push_back(l_Entry);
     }
 
-    ParallelFor(0, sSpellStore.GetNumRows(), [this, &l_VisualsBySpell](uint32 l_I) -> void
+    ParallelFor(0, sSpellStore.GetNumRows(), [this](uint32 l_I) -> void
     {
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(l_I))
         {
-            auto l_Itr = l_VisualsBySpell.find(l_I);
+            auto l_Itr = VisualsBySpellMap.find(l_I);
             SpellVisualMap emptyMap;
-            SpellVisualMap& visualMap = (l_Itr == l_VisualsBySpell.end()) ? emptyMap : l_Itr->second;
+            SpellVisualMap& visualMap = (l_Itr == VisualsBySpellMap.end()) ? emptyMap : l_Itr->second;
 
             std::set<uint32> difficultyInfo = mAvaiableDifficultyBySpell[l_I];
 

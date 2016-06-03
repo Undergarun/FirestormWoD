@@ -521,6 +521,7 @@ public:
     void EffectUpgradeHeirloom(SpellEffIndex p_EffIndex);
     void EffectFinishGarrisonMission(SpellEffIndex p_EffIndex);
     void EffectChangeItemBonus(SpellEffIndex p_EffIndex);
+    void EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex);
 
     typedef std::set<Aura*> UsedSpellMods;
 
@@ -912,6 +913,7 @@ protected:
     LogHelperMap m_effectExecuteData;
 
     bool m_redirected;
+    uint32 m_SpellVisualID;
 #ifdef MAP_BASED_RAND_GEN
     int32 irand(int32 min, int32 max)       { return int32(m_caster->GetMap()->mtRand.randInt(max - min)) + min; }
     uint32 urand(uint32 min, uint32 max)    { return m_caster->GetMap()->mtRand.randInt(max - min) + min; }
