@@ -62,8 +62,8 @@ Position const l_PositionBoneMaw = { 1851.256f, -558.721f, 199.027f, 1.991077f }
 
 Position const l_PositionAdds[2] =
 {
-    { 1801.369f, -521.248f, 200.112f, 0.030723f },
-    { 1860.075f, -497.532f, 200.112f, 4.054334f }
+    { 1801.369f, -521.248f, 196.795f, 0.030723f },
+    { 1860.075f, -497.532f, 196.796f, 4.054334f }
 };
 
 Position const g_PositionRespawnAfterDrowning = { 1837.41f, -504.11f, 201.653f, 4.845472f };
@@ -72,7 +72,7 @@ Position const g_PositionRespawnAfterDrowningWhenBossNotInCombat = { 1796.62f, -
 /// Bonemaw - 75452
 class boss_bonemaw : public CreatureScript
 {
-    public:
+public:
 
     boss_bonemaw() : CreatureScript("boss_bonemaw") { }
 
@@ -338,7 +338,7 @@ class boss_bonemaw : public CreatureScript
 					me->MonsterTextEmote("Bonemaw's piercing screech attract nerby Carrion Worms!", me->GetGUID(), false);
                     me->CastSpell(me, eBoneMawSpells::SpellVisualSubmerge);
                     for (uint8 l_I = 0; l_I < 2; l_I++)
-                        me->SummonCreature(eBoneMawCreatures::CreatureCarrionWorm, l_PositionAdds[l_I], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                        me->SummonCreature(eBoneMawCreatures::CreatureCarrionWorm, l_PositionAdds[l_I], TEMPSUMMON_MANUAL_DESPAWN);
                     events.ScheduleEvent(eBoneMawEvents::EventCancelSubmerge, 3 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
@@ -832,86 +832,6 @@ public:
     }
 };
 
-/// Necrotic Pitch - 153689  (TARGET_DEST_CASTER, TARGET_DEST_DEST_RADIUS)
-class shadowmoon_burial_grounds_bonemaw_spell_necrotic_pitch : public SpellScriptLoader
-{
-public:
-
-    shadowmoon_burial_grounds_bonemaw_spell_necrotic_pitch() : SpellScriptLoader("shadowmoon_burial_grounds_bonemaw_spell_necrotic_pitch") { }
-
-    class shadowmoon_burial_grounds_bonemaw_spell_necrotic_pitch_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(shadowmoon_burial_grounds_bonemaw_spell_necrotic_pitch_SpellScript);
-
-        void HandleTriggerMissile(SpellEffIndex p_EffIndex)
-        {
-            PreventHitDefaultEffect(p_EffIndex);
-            if (!GetCaster())
-                return;
-
-            if (Position const* l_Pos = GetExplTargetDest())
-                GetCaster()->SummonCreature(eBoneMawCreatures::CreatureNecroticPitchTrigger, l_Pos->GetPositionX(), l_Pos->GetPositionY(), l_Pos->GetPositionZ(), l_Pos->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4 * TimeConstants::IN_MILLISECONDS);
-        }
-
-        void Register()
-        {
-            OnEffectLaunch += SpellEffectFn(shadowmoon_burial_grounds_bonemaw_spell_necrotic_pitch_SpellScript::HandleTriggerMissile, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_TRIGGER_MISSILE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new shadowmoon_burial_grounds_bonemaw_spell_necrotic_pitch_SpellScript();
-    }
-};
-
-/// Necrotic Pitch - 153690 
-class shadowmoon_burial_grounds_bonemaw_necrotic_pitch : public AreaTriggerEntityScript
-{
-public:
-
-    shadowmoon_burial_grounds_bonemaw_necrotic_pitch() : AreaTriggerEntityScript("shadowmoon_burial_grounds_bonemaw_necrotic_pitch") {}
-
-    enum eNecroticPitchSpells
-    {
-        SpellNecroticPitchDebuff = 153692
-    };
-
-    uint32 m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
-
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
-    {
-        if (m_Diff <= p_Time)
-        {
-            std::list<Player*> l_ListPlayers;
-            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 1.5f);
-            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, l_ListPlayers, check);
-            p_AreaTrigger->VisitNearbyObject(2.0f, searcher);
-            if (!l_ListPlayers.empty())
-            {
-                for (std::list<Player*>::const_iterator l_Itr = l_ListPlayers.begin(); l_Itr != l_ListPlayers.end(); ++l_Itr)
-                {
-                    if (!(*l_Itr))
-                        continue;
-
-                    if (!(*l_Itr)->HasAura(eNecroticPitchSpells::SpellNecroticPitchDebuff))
-                        (*l_Itr)->AddAura(eNecroticPitchSpells::SpellNecroticPitchDebuff, (*l_Itr));
-                }
-            }
-
-            m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
-        }
-        else
-            m_Diff -= p_Time;
-    }
-
-    shadowmoon_burial_grounds_bonemaw_necrotic_pitch* GetAI() const override
-    {
-        return new shadowmoon_burial_grounds_bonemaw_necrotic_pitch();
-    }
-};
-
-
 void AddSC_boss_bonemaw()
 {
     new boss_bonemaw();                                                 ///< 75452
@@ -919,9 +839,7 @@ void AddSC_boss_bonemaw()
     new shadowmoon_burial_grounds_bonemaw_creature_necrotic_pitch();    ///< 76191
 	new shadowmoon_burial_grounds_bonemaw_creature_water_burst();		///< 77676
     new shadowmoon_burial_grounds_bonemaw_spell_inhale();               ///< 153804
-    new shadowmoon_burial_grounds_bonemaw_spell_necrotic_pitch();       ///< 153689
     new shadowmoon_burial_grounds_bonemaw_spell_drowned();              ///< 154010
     new shadowmoon_burial_grounds_bonemaw_spell_body_slam();            ///< 153686
     new shadowmoon_burial_grounds_bonemaw_spell_corpse_breath();        ///< 165578
-    new shadowmoon_burial_grounds_bonemaw_necrotic_pitch();             ///< 153690
 }

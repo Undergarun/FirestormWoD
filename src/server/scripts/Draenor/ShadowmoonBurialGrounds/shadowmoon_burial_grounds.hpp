@@ -220,22 +220,6 @@ enum eShadowmoonBurialGroundsActions
     ActionChooseTalker
 };
 
-/*
-enum eShadowmoonBurialGroundsScenarios
-{
-    ScenarioShadowmoonBurialGroundsChallengeId = ,
-    ScenarioBossSadanaBloodfury = ,
-    ScenarioBossNhallish = ,
-    ScenarioBossBonemaw = ,
-    ScenarioBossNerzul = ,
-};
-*/
-
-enum eShadowmoonBurialGroundsScenes
-{
-    SceneShadowmoonBurialGroundsNerzulAtDoor = 847
-};
-
 enum eShadowmoonBurialGroundsAchivement
 {
     /// Heroic: 
