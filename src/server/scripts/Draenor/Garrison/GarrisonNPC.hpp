@@ -1042,6 +1042,50 @@ namespace MS { namespace Garrison
 
     };
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    class npc_GearshopWorkshopTurret_Garr : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_GearshopWorkshopTurret_Garr() : CreatureScript("npc_GearshopWorkshopTurret_Garr")
+            {
+            }
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const override;
+
+            /// Creature AI
+            struct npc_GearshopWorkshopTurret_GarrAI : public VehicleAI
+            {
+                /// Constructor
+                npc_GearshopWorkshopTurret_GarrAI(Creature* creature) : VehicleAI(creature)
+                {
+                    m_SummonerGUID = 0;
+                    m_AttackTimer  = 0;
+                }
+
+                enum eSpells
+                {
+                    SpellTurretFire = 168517
+                };
+
+                uint64 m_SummonerGUID;
+                uint32 m_AttackTimer;
+
+                virtual void Reset() override;
+
+                virtual void EnterCombat(Unit* p_Attacker) override;
+
+                virtual void IsSummonedBy(Unit* p_Summoner) override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+            };
+
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 

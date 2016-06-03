@@ -156,6 +156,10 @@ namespace MS { namespace Garrison
 
         /// Follower section
         public:
+            /// Set Follower Recruit
+            bool CanRecruitFollower() const;
+            /// Set Follower Recruit
+            void SetCanRecruitFollower(bool p_Apply);
             /// Add follower
             bool AddFollower(uint32 p_FollowerID);
             /// Add follower with initialized entity
@@ -417,8 +421,8 @@ namespace MS { namespace Garrison
             uint32      m_MissionDistributionLastUpdate;
             uint64      m_LastUsedActivationGameObject;
             uint64      m_CacheGameObjectGUID;
-
             uint32      m_CacheLastTokenAmount;
+            bool        m_CanRecruitFollower;
 
             std::vector<GarrisonPlotInstanceInfoLocation>   m_Plots;
             std::vector<GarrisonMission>                    m_Missions;

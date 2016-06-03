@@ -189,7 +189,8 @@ enum CharacterWorldStates
     GarrisonWorkshopGearworksInventionCharges     = 4,
     GarrisonTradingPostDailyRandomTrader          = 5,
     GarrisonTradingPostDailyRandomShipment        = 6,
-    GarrisonArmoryWeeklyCurrencyGain              = 7
+    GarrisonArmoryWeeklyCurrencyGain              = 7,
+    GarrisonTavernBoolCanRecruitFollower          = 8
 };
 
 // Spell modifier (used for modify other spells)

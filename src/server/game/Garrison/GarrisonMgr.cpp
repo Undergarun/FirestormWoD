@@ -35,6 +35,7 @@ namespace MS { namespace Garrison
         m_CacheLastTokenAmount = 0;
 
         m_GarrisonScript = nullptr;
+        m_CanRecruitFollower = p_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTavernBoolCanRecruitFollower) == 0;
 
         /// Select Garrison site ID
         switch (GetGarrisonFactionIndex())
@@ -2582,6 +2583,16 @@ namespace MS { namespace Garrison
 
         Save();
         UpdatePlot(p_PlotInstanceID);
+    }
+
+    bool Manager::CanRecruitFollower() const
+    {
+        return m_CanRecruitFollower;
+    }
+
+    void Manager::SetCanRecruitFollower(bool p_Apply)
+    {
+        m_CanRecruitFollower = p_Apply;
     }
 
     /// Change follower activation state
@@ -5593,7 +5604,7 @@ namespace MS { namespace Garrison
 
         uint32 l_Entry = l_Inventions[urand(0, l_Inventions.size() - 1)];
 
-        ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(WorkshopGearworks::g_GobItemRelations[l_Entry]);
+        ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(g_GobItemRelations[l_Entry]);
 
         if (l_ItemProto == nullptr)
             return;

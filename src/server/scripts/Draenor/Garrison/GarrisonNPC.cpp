@@ -440,8 +440,8 @@ namespace MS { namespace Garrison
             l_Data.appendPackGUID(me->GetGUID());
 
             l_Data << uint32(0);                    ///< Unk1
-            l_Data << uint32(162);                  ///< Unk2
-            l_Data << uint32(2310);                 ///< Unk3
+            l_Data << uint32(0);                    ///< Unk2 162
+            l_Data << uint32(0);                    ///< Unk3 2310 || 1281
 
             std::vector<GarrisonFollower> l_Followers = l_GarrisonMgr->GetWeeklyFollowerRecruits(p_Player);
 
@@ -459,7 +459,7 @@ namespace MS { namespace Garrison
                     l_Follower.Write(l_Data);
             }
 
-            l_Data.WriteBit(1);                   ///< unk bit 1
+            l_Data.WriteBit(l_GarrisonMgr->CanRecruitFollower());
             l_Data.WriteBit(1);                   ///< unk bit 2
 
             p_Player->SendDirectMessage(&l_Data);
@@ -1898,6 +1898,54 @@ namespace MS { namespace Garrison
         return new npc_GarrisonWalterAI(p_Creature);
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    void npc_GearshopWorkshopTurret_Garr::npc_GearshopWorkshopTurret_GarrAI::IsSummonedBy(Unit* p_Summoner)
+    {
+        m_SummonerGUID = p_Summoner->GetGUID();
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_GearshopWorkshopTurret_Garr::GetAI(Creature* p_Creature) const
+    {
+        return new npc_GearshopWorkshopTurret_GarrAI(p_Creature);
+    }
+
+    void npc_GearshopWorkshopTurret_Garr::npc_GearshopWorkshopTurret_GarrAI::Reset()
+    {
+        m_SummonerGUID = 0;
+        m_AttackTimer  = 0;
+    }
+
+    void npc_GearshopWorkshopTurret_Garr::npc_GearshopWorkshopTurret_GarrAI::EnterCombat(Unit* p_Attacker)
+    {
+        m_AttackTimer = 500;
+    }
+
+    void npc_GearshopWorkshopTurret_Garr::npc_GearshopWorkshopTurret_GarrAI::UpdateAI(uint32 const p_Diff)
+    {
+
+        if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        if (m_AttackTimer)
+        {
+            if (m_AttackTimer <= p_Diff)
+            {
+                if (Unit* l_Victim = me->getVictim())
+                    me->CastSpell(l_Victim, eSpells::SpellTurretFire, false);
+
+                m_AttackTimer = 4000;
+            }
+            else
+                m_AttackTimer -= p_Diff;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -1916,6 +1964,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_InspiringBattleStandard;
     new MS::Garrison::npc_FearsomeBattleStandard;
     new MS::Garrison::npc_GarrisonWalter;
+    new MS::Garrison::npc_GearshopWorkshopTurret_Garr;
 
     /// Alliance
     {
