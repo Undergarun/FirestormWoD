@@ -3298,7 +3298,7 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
                         /// Must be done for train spawning
                         me->GetMap()->SetObjectVisibility(500.0f);
 
-                        SummonTrain(me, eThogarTrains::IntroTroopsTrain, eThogarActions::IntroBegin);
+                        SummonTrain(me, eThogarTrains::IntroTroopsTrain, eThogarActions::IntroBegin, false);
                     }
                     else if (Creature* l_Wheels = me->FindNearestCreature(eThogarCreatures::TrainWheels, 100.0f))
                     {

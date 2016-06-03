@@ -29,7 +29,7 @@ SET @REF_THOGAR = 76906;
 
 UPDATE creature_template SET dmg_multiplier = 10, ScriptName = "boss_operator_thogar", mechanic_immune_mask = 617299839 WHERE entry = @REF_THOGAR;
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_gunnery_sergeant" WHERE entry = 81318;
-UPDATE creature_template SET ScriptName = "npc_foundry_siege_engine" WHERE entry = 81316;
+UPDATE creature_template SET ScriptName = "npc_foundry_siege_engine" WHERE entry IN (78982, 81316);
 
 DELETE FROM creature_text WHERE entry IN (@REF_THOGAR);
 INSERT INTO creature_text VALUES

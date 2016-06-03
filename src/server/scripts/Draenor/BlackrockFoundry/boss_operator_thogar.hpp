@@ -24,8 +24,10 @@ enum eThogarMiscDatas : uint8
     SiegeTrain,
     HalfLengthAddTrains,
     FullLengthAddTrains,
-    MaxTrainType,
-    MaxFightTrains = 15,
+    MaxFightTrainType = eThogarMiscDatas::FullLengthAddTrains,
+    CosmeticIntroTrain,
+    CosmeticMovingTrain,
+    MaxFightTrains = 40,
     /// Adds datas
     MaxIronRaiders = 8
 };
@@ -49,11 +51,16 @@ enum eThogarCreatures
     SiegeEngine1        = 81316,
     SiegeEngine2        = 78982,
     IronGunnerySergeant = 81318,
-    GrimrailLoader      = 89055,
+    GrimrailLoader1     = 89055,
+    GrimrailLoader2     = 89079,
     OgronHauler         = 89062,
     GromkarGrenadier    = 89064,
     ManAtArmsIntro      = 77687,
-    GromkarGunner       = 89068
+    GromkarGunner       = 89068,
+    ThogarIronRaider    = 77394,
+    ThogarIronCrackShot = 77476,
+    ThogarFiremender    = 77487,
+    ThogarManAtArms     = 80791
 };
 
 enum eThogarGameObjects
@@ -76,7 +83,11 @@ enum eThogarSpells
     TroopTransportOpen      = 164319,
     TroopTransportClosed    = 164320,
     MovingTrain             = 156553,
-    WoodTransportAura       = 178261
+    WoodTransportAura       = 178261,
+    IronStarsTransportAura  = 178264,
+    TroopTransportAura      = 178255,
+    TroopTransportAura2     = 178231,
+    WeaponsTransportAura    = 178215
 };
 
 enum eThogarTalks
@@ -128,27 +139,6 @@ static std::vector<TrackDoors> g_TrackDoors =
     { eFoundryGameObjects::MassiveDoorTrack4Right, eFoundryGameObjects::MassiveDoorTrack4Left }
 };
 
-////////////////////////////////////////////////////////////////////////////////
-/// This table delineates the timing and track location of all of the significant events in the first six and a half minutes of the encounter.
-/// This is not a complete list of  Moving Train locations and timers.
-////////////////////////////////////////////////////////////////////////////////
-///             Significant Events & Track Locations
-///             Time    Track #     Notes
-/// 0           0:40    1           4 CS, 12 R
-/// 1           1:00    4           1 GS
-/// 2           1:30    3           2 CS, 2 FM, 1 MaA
-/// 3 / 4       2:10    2 / 3       4 CS, 12 R / 4 CS, 12 R
-/// 5 / 6       2:50    1 / 4       Adds from Tracks 2&3 must be dead before these trains arrive
-/// 7           3:00    1           1 GS
-/// 8           3:25    4           4 CS, 12 R
-/// 9 / 10      4:20    2 / 4       2 CS, 2 FM, 1 MaA / 1 GS
-/// 11 / 12     5:15    1 / 4       1 GS / 1 GS
-/// 13 / 14     6:20    2 / 3       4 CS, 12 R / 2 CS, 2 FM, 1 MaA
-/// CS = Iron Crack-Shot, R = Iron Raider, FM = Grom'kar Firemender,
-/// MaA = Grom'kar Man-at-Arms, GS = Iron Gunnery Sergeant
-/// Times are approximate
-////////////////////////////////////////////////////////////////////////////////
-
 struct WaggonDatas
 {
     uint32 Entry;
@@ -162,137 +152,847 @@ struct TrainDatas
     /// Entries
     uint32 EngineEntry;
 
+    uint32 SpawnTimer;
+
+    uint8 TrackID;
+    uint8 TrainType;
+    bool RightToLeft;
+
     std::vector<WaggonDatas> WaggonsDatas;
 };
 
 enum eThogarTrains
 {
     /// Intro trains
-    IntroWoodTrain,
-    IntroSiegeTrain,
     IntroTroopsTrain,
+    IntroSiegeTrain,
+    IntroWoodTrain,
     /// Fight Trains
     FightTrainBeginning,
     FightTrainEnd = eThogarTrains::FightTrainBeginning + eThogarMiscDatas::MaxFightTrains,
     /// End
-    MaxTrains = eThogarTrains::FightTrainEnd
+    MaxTrains
 };
 
-static std::vector<TrainDatas> const g_TrainDatas =
+static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas =
 {
-    /// Wood train for intro
     {
-        eThogarCreatures::TrainEngine,
+        /// Iron raider train for intro, right to left
         {
-            { eThogarCreatures::WoodTransport, eThogarSpells::WoodTransportAura, { } },
-            { eThogarCreatures::TroopTransport2, 0, { eThogarCreatures::GromkarGunner, eThogarCreatures::GromkarGunner, eThogarCreatures::GrimrailLoader, eThogarCreatures::GrimrailLoader } }
-        }
-    },
-    /// Siege engine train for intro
-    {
-        eThogarCreatures::TrainEngine,
-        {
-            { eThogarCreatures::Train2, 0, { eThogarCreatures::SiegeEngine1 } },
-            { eThogarCreatures::Train1, 0, { eThogarCreatures::SiegeEngine1, eThogarCreatures::ManAtArmsIntro } },
-            { eThogarCreatures::SuppliesTransport, eThogarSpells::SuppliesTransportAura, { } }
-        }
-    },
-    /// Iron raider train for intro
-    {
-        eThogarCreatures::TrainEngine,
-        {
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::CosmeticIntroTrain, true,
             {
-                eThogarCreatures::TroopTransport1, 0,
                 {
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider
+                    eThogarCreatures::TroopTransport1, 0,
+                    {
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider
+                    }
+                },
+                { eThogarCreatures::SlagTank, eThogarSpells::SlagTankAura, { } },
+                {
+                    eThogarCreatures::TroopTransport1, 0,
+                    {
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider,
+                        eFoundryCreatures::IronRaider
+                    }
                 }
-            },
-            { eThogarCreatures::SlagTank, eThogarSpells::SlagTankAura, { } },
+            }
+        },
+        /// Siege engine train for intro, right to left
+        {
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::CosmeticIntroTrain, true,
             {
-                eThogarCreatures::TroopTransport1, 0,
+                { eThogarCreatures::Train2, 0,{ eThogarCreatures::SiegeEngine1 } },
+                { eThogarCreatures::Train1, 0,{ eThogarCreatures::SiegeEngine1, eThogarCreatures::ManAtArmsIntro } },
+                { eThogarCreatures::SuppliesTransport, eThogarSpells::SuppliesTransportAura,{} }
+            }
+        },
+        /// Wood train for intro, right to left
+        {
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::CosmeticIntroTrain, true,
+            {
+                { eThogarCreatures::WoodTransport, eThogarSpells::WoodTransportAura, { } },
+                { eThogarCreatures::TroopTransport2, 0, { eThogarCreatures::GromkarGunner, eThogarCreatures::GromkarGunner, eThogarCreatures::GrimrailLoader1, eThogarCreatures::GrimrailLoader1 } }
+            }
+        },
+        /// First fight train: Moving train on track 4, left to right
+        {
+            eThogarCreatures::TrainEngine, 17 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::NonAddTrain, false,
+            {
                 {
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider,
-                    eFoundryCreatures::IronRaider
+                    eThogarCreatures::WeaponsTransport2, eThogarSpells::IronStarsTransportAura,
+                    {
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GrimrailLoader2,
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader2
+                    }
+                }
+            }
+        },
+        /// Second fight train: Moving train on track 2, right to left
+        {
+            eThogarCreatures::TrainEngine, 27 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura,
+                    {
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Third fight train: Adds train on track 1, right to left
+        {
+            eThogarCreatures::TrainEngine, 32 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::HalfLengthAddTrains, true,
+            {
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider
+                    }
+                },
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider
+                    }
+                }
+            }
+        },
+        /// Fourth fight train: Moving train on track 3, left to right
+        {
+            eThogarCreatures::TrainEngine, 47 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::NonAddTrain, false,
+            {
+                { eThogarCreatures::WoodTransport, eThogarSpells::WoodTransportAura, { } }
+            }
+        },
+        /// Fifth fight train: Siege train on track 4, left to right
+        {
+            eThogarCreatures::TrainEngine, 52 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::SiegeTrain, false,
+            {
+                {
+                    eThogarCreatures::SuppliesTransport, eThogarSpells::SuppliesTransportAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGunner
+                    }
+                },
+                { eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine1 } },
+                {
+                    eThogarCreatures::WeaponsTransport1, eThogarSpells::WeaponsTransportAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Sixth fight train: Moving train on track 2, right to left
+        {
+            eThogarCreatures::TrainEngine, 77 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura,
+                    {
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Seventh fight train: Adds train on track 3, left to right
+        {
+            eThogarCreatures::TrainEngine, 82 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::HalfLengthAddTrains, false,
+            {
+                {
+                    eThogarCreatures::Lieutnant, 0,
+                    {
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarFiremender,
+                        eThogarCreatures::ThogarManAtArms,
+                        0,
+                        0,
+                        eThogarCreatures::ThogarFiremender,
+                        eThogarCreatures::ThogarManAtArms
+                    }
+                }
+            }
+        },
+        /// Eighth fight train: Moving train on track 1, right to left
+        {
+            eThogarCreatures::TrainEngine, 107 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                {
+                    eThogarCreatures::SlagTank, eThogarSpells::SlagTankAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::OgronHauler,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGrenadier
+                    }
+                }
+            }
+        },
+        /// Ninth fight train: Adds train on track 2, left to right
+        {
+            eThogarCreatures::TrainEngine, 122 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::HalfLengthAddTrains, false,
+            {
+                {
+                    eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronCrackShot
+                    }
+                },
+                {
+                    eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronCrackShot
+                    }
+                }
+            }
+        },
+        /// Tenth fight train: Adds train on track 3, right to left
+        {
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::HalfLengthAddTrains, true,
+            {
+                {
+                    eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronCrackShot
+                    }
+                },
+                {
+                    eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronCrackShot
+                    }
+                }
+            }
+        },
+        /// Eleventh fight train: Moving train on track 1, left to right
+        {
+            eThogarCreatures::TrainEngine, 162 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::NonAddTrain, false,
+            {
+                { eThogarCreatures::WoodTransport, eThogarSpells::WoodTransportAura, { } }
+            }
+        },
+        /// Twelfth fight train: Moving train on track 4, right to left
+        {
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                {
+                    eThogarCreatures::WeaponsTransport1, 0,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Thirteenth fight train: Siege train on track 1, right to left
+        {
+            eThogarCreatures::TrainEngine, 172 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::SiegeTrain, true,
+            {
+                {
+                    eThogarCreatures::SuppliesTransport, eThogarSpells::SuppliesTransportAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGunner
+                    }
+                },
+                {
+                    eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine2 }
+                },
+                {
+                    eThogarCreatures::WeaponsTransport1, eThogarSpells::WeaponsTransportAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Fourteenth fight train: Moving train on track 2, left to right
+        {
+            eThogarCreatures::TrainEngine, 187 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::NonAddTrain, false,
+            {
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura,
+                    {
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Fifteenth fight train: Adds train on track 4, right to left
+        {
+            eThogarCreatures::TrainEngine, 197 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::HalfLengthAddTrains, true,
+            {
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider
+                    }
+                },
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider
+                    }
+                }
+            }
+        },
+        /// Sixteenth fight train: Moving train on track 3, left to right
+        {
+            eThogarCreatures::TrainEngine, 217 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::NonAddTrain, false,
+            {
+                { eThogarCreatures::WoodTransport, eThogarSpells::WoodTransportAura, { } }
+            }
+        },
+        /// Seventeenth fight train: Moving train on track 2, right to left
+        {
+            eThogarCreatures::TrainEngine, 227 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura,
+                    {
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Eighteenth fight train: Moving train on track 1, right to left
+        {
+            eThogarCreatures::TrainEngine, 237 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                {
+                    eThogarCreatures::SlagTank, eThogarSpells::SlagTankAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::OgronHauler,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGrenadier
+                    }
+                }
+            }
+        },
+        /// Nineteenth fight train: Adds train on track 2, left to right
+        {
+            eThogarCreatures::TrainEngine, 252 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::HalfLengthAddTrains, false,
+            {
+                {
+                    eThogarCreatures::Lieutnant, 0,
+                    {
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarFiremender,
+                        eThogarCreatures::ThogarManAtArms,
+                        0,
+                        0,
+                        eThogarCreatures::ThogarFiremender,
+                        eThogarCreatures::ThogarManAtArms
+                    }
+                }
+            }
+        },
+        /// Twentieth fight train: Siege train on track 4, right to left
+        {
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::SiegeTrain, true,
+            {
+                {
+                    eThogarCreatures::SuppliesTransport, eThogarSpells::SuppliesTransportAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGunner
+                    }
+                },
+                { eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine1 } },
+                {
+                    eThogarCreatures::WeaponsTransport1, eThogarSpells::WeaponsTransportAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Twenty first fight train: Moving train on track 1, left to right
+        {
+            eThogarCreatures::TrainEngine, 272 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::NonAddTrain, false,
+            {
+                { eThogarCreatures::WoodTransport, eThogarSpells::WoodTransportAura, { } }
+            }
+        },
+        /// Twenty second fight train: Moving train on track 3, right to left
+        {
+            eThogarCreatures::TrainEngine, 277 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura,
+                    {
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Twenty third fight train: Siege train on track 1, right to left
+        {
+            eThogarCreatures::TrainEngine, 307 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::SiegeTrain, true,
+            {
+                {
+                    eThogarCreatures::SuppliesTransport, eThogarSpells::SuppliesTransportAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGunner
+                    }
+                },
+                {
+                    eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine2 }
+                },
+                {
+                    eThogarCreatures::WeaponsTransport1, eThogarSpells::WeaponsTransportAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Twenty fourth fight train: Siege train on track 4, left to right
+        {
+            eThogarCreatures::TrainEngine, 0 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::SiegeTrain, false,
+            {
+                {
+                    eThogarCreatures::SuppliesTransport, eThogarSpells::SuppliesTransportAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGunner
+                    }
+                },
+                { eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine1 } },
+                {
+                    eThogarCreatures::WeaponsTransport1, eThogarSpells::WeaponsTransportAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Twenty fifth fight train: Moving train on track 2, right to left
+        {
+            eThogarCreatures::TrainEngine, 317 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura,
+                    {
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Twenty sixth fight train: Moving train on track 2, left to right
+        {
+            eThogarCreatures::TrainEngine, 342 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::NonAddTrain, false,
+            {
+                {
+                    eThogarCreatures::SlagTank, eThogarSpells::SlagTankAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::OgronHauler,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGrenadier
+                    }
+                }
+            }
+        },
+        /// Twenty seventh fight train: Adds train on track 2, right to left
+        {
+            eThogarCreatures::TrainEngine, 372 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::HalfLengthAddTrains, true,
+            {
+                {
+                    eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronCrackShot
+                    }
+                },
+                {
+                    eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronCrackShot
+                    }
+                }
+            }
+        },
+        /// Twenty eighth fight train: Adds train on track 3, left to right
+        {
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::HalfLengthAddTrains, false,
+            {
+                {
+                    eThogarCreatures::Lieutnant, 0,
+                    {
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarFiremender,
+                        eThogarCreatures::ThogarManAtArms,
+                        0,
+                        0,
+                        eThogarCreatures::ThogarFiremender,
+                        eThogarCreatures::ThogarManAtArms
+                    }
+                }
+            }
+        },
+        /// Twenty ninth fight train: Moving train on track 4, right to left
+        {
+            eThogarCreatures::TrainEngine, 387 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                {
+                    eThogarCreatures::WeaponsTransport1, 0,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Thirtieth fight train: Moving train on track 1, left to right
+        {
+            eThogarCreatures::TrainEngine, 407 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::NonAddTrain, false,
+            {
+                {
+                    eThogarCreatures::SlagTank, eThogarSpells::SlagTankAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::OgronHauler,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGrenadier
+                    }
+                }
+            }
+        },
+        /// Thirty first fight train: Siege train on track 1, right to left
+        {
+            eThogarCreatures::TrainEngine, 417 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::SiegeTrain, true,
+            {
+                {
+                    eThogarCreatures::SuppliesTransport, eThogarSpells::SuppliesTransportAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GromkarGrenadier,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGunner
+                    }
+                },
+                {
+                    eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine2 }
+                },
+                {
+                    eThogarCreatures::WeaponsTransport1, eThogarSpells::WeaponsTransportAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Thirty second fight train: Adds train on track 4, left to right
+        {
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::HalfLengthAddTrains, false,
+            {
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider
+                    }
+                },
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider
+                    }
+                }
+            }
+        },
+        /// Thirty third fight train: Moving train on track 2, right to left
+        {
+            eThogarCreatures::TrainEngine, 433 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                { eThogarCreatures::WoodTransport, eThogarSpells::WoodTransportAura, { } }
+            }
+        },
+        /// Thirty fourth fight train: Moving train on track 3, left to right
+        {
+            eThogarCreatures::TrainEngine, 442, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::NonAddTrain, false,
+            {
+                {
+                    eThogarCreatures::WeaponsTransport1, 0,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Thirty fifth fight train: Adds train on track 3, right to left
+        {
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::HalfLengthAddTrains, true,
+            {
+                {
+                    eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronCrackShot
+                    }
+                },
+                {
+                    eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
+                    {
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronRaider,
+                        eThogarCreatures::ThogarIronCrackShot,
+                        eThogarCreatures::ThogarIronCrackShot
+                    }
+                }
+            }
+        },
+        /// Thirty sixth fight train: Moving train on track 1, left to right
+        {
+            eThogarCreatures::TrainEngine, 467 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::NonAddTrain, false,
+            {
+                {
+                    eThogarCreatures::SlagTank, eThogarSpells::SlagTankAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::OgronHauler,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGrenadier
+                    }
+                }
+            }
+        },
+        /// Thirty seventh fight train: Moving train on track 4, right to left
+        {
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                {
+                    eThogarCreatures::WeaponsTransport1, 0,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Thirty eighth fight train: Moving train on track 3, left to right
+        {
+            eThogarCreatures::TrainEngine, 487 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::NonAddTrain, false,
+            {
+                { eThogarCreatures::WoodTransport, eThogarSpells::WoodTransportAura, { } }
+            }
+        },
+        /// Thirty ninth fight train: Moving train on track 2, right to left
+        {
+            eThogarCreatures::TrainEngine, 490 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                {
+                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura,
+                    {
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GromkarGunner,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GrimrailLoader1
+                    }
+                }
+            }
+        },
+        /// Forty fight train: Moving train on track 1, right to left
+        {
+            eThogarCreatures::TrainEngine, 495 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::NonAddTrain, true,
+            {
+                {
+                    eThogarCreatures::SlagTank, eThogarSpells::SlagTankAura,
+                    {
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::OgronHauler,
+                        eThogarCreatures::GrimrailLoader1,
+                        eThogarCreatures::GromkarGrenadier
+                    }
                 }
             }
         }
     }
-};
-
-static bool const g_RightToLeftTrains[eThogarTrains::MaxTrains] =
-{
-    true,
-    true,
-    true,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false
-};
-
-static uint32 const g_TrainTrackIDs[eThogarTrains::MaxTrains] =
-{
-    eThogarMiscDatas::FirstTrack,
-    eThogarMiscDatas::FourthTrack,
-    eThogarMiscDatas::FourthTrack,
-    eThogarMiscDatas::FirstTrack,
-    eThogarMiscDatas::FourthTrack,
-    eThogarMiscDatas::ThirdTrack,
-    eThogarMiscDatas::SecondTrack,
-    eThogarMiscDatas::ThirdTrack,
-    eThogarMiscDatas::FirstTrack,
-    eThogarMiscDatas::FourthTrack,
-    eThogarMiscDatas::FirstTrack,
-    eThogarMiscDatas::FourthTrack,
-    eThogarMiscDatas::SecondTrack,
-    eThogarMiscDatas::FourthTrack,
-    eThogarMiscDatas::FirstTrack,
-    eThogarMiscDatas::FourthTrack,
-    eThogarMiscDatas::SecondTrack,
-    eThogarMiscDatas::ThirdTrack
-};
-
-static uint32 const g_TrainTimers[eThogarMiscDatas::MaxFightTrains] =
-{
-    40 * TimeConstants::IN_MILLISECONDS,
-    20 * TimeConstants::IN_MILLISECONDS,
-    30 * TimeConstants::IN_MILLISECONDS,
-    40 * TimeConstants::IN_MILLISECONDS,
-    0,  ///< At the same time than previous one
-    40 * TimeConstants::IN_MILLISECONDS,
-    0,  ///< At the same time than previous one
-    10 * TimeConstants::IN_MILLISECONDS,
-    25 * TimeConstants::IN_MILLISECONDS,
-    55 * TimeConstants::IN_MILLISECONDS,
-    0,  ///< At the same time than previous one
-    55 * TimeConstants::IN_MILLISECONDS,
-    0,  ///< At the same time than previous one
-    55 * TimeConstants::IN_MILLISECONDS,
-    0,  ///< At the same time than previous one
 };
 
 /// At Thogar's feet, left
@@ -365,91 +1065,11 @@ static void ApplyPassengerFlags(Creature* p_Passenger, bool p_IsTrain = true)
         p_Passenger->CastSpell(p_Passenger, eThogarSpells::StoppedFrontAura, true);
 }
 
-static void SummonTrain(Creature* p_Summoner, uint8 p_TrackID, uint8 p_TrainType)
-{
-    if (p_Summoner == nullptr || p_TrackID >= eThogarMiscDatas::MaxTrainTracks || p_TrainType >= eThogarMiscDatas::MaxTrainType)
-        return;
-
-    InstanceScript* l_InstanceScript = p_Summoner->GetInstanceScript();
-    if (l_InstanceScript == nullptr)
-        return;
-
-    Creature* l_Thogar = Creature::GetCreature(*p_Summoner, l_InstanceScript->GetData64(eFoundryCreatures::BossOperatorThogar));
-    if (l_Thogar == nullptr)
-        return;
-
-    Position const l_Pos = g_TrainTrackSpawnPos[p_TrackID];
-
-    if (Creature* l_Wheels = p_Summoner->SummonCreature(eThogarCreatures::TrainWheels, l_Pos))
-    {
-        if (Creature* l_Engine = p_Summoner->SummonCreature(eThogarCreatures::TrainEngine, l_Pos))
-            l_Engine->EnterVehicle(l_Wheels, 0);
-
-        switch (p_TrainType)
-        {
-            case eThogarMiscDatas::NonAddTrain:
-            {
-                break;
-            }
-            case eThogarMiscDatas::SiegeTrain:
-            {
-                if (p_TrackID != eThogarMiscDatas::FirstTrack && p_TrackID != eThogarMiscDatas::FourthTrack)
-                    break;
-
-                if (Creature* l_Train = p_Summoner->SummonCreature(urand(0, 1) ? eThogarCreatures::Train1 : eThogarCreatures::Train2, l_Pos))
-                {
-                    l_Train->EnterVehicle(l_Wheels, 1);
-
-                    if (Creature* l_SiegeEngine = p_Summoner->SummonCreature(eThogarCreatures::SiegeEngine1, l_Pos))
-                    {
-                        l_SiegeEngine->EnterVehicle(l_Train, 0);
-
-                        if (Creature* l_GunnerySergeant = p_Summoner->SummonCreature(eThogarCreatures::IronGunnerySergeant, l_Pos))
-                            l_GunnerySergeant->EnterVehicle(l_SiegeEngine, 0);
-                    }
-                }
-
-                break;
-            }
-            case eThogarMiscDatas::HalfLengthAddTrains:
-            {
-                std::vector<uint32> l_Entries = { eThogarCreatures::TroopTransport1, eThogarCreatures::TroopTransport2, eThogarCreatures::TroopTransport3 };
-
-                if (Creature* l_Train = p_Summoner->SummonCreature(l_Entries[urand(0, l_Entries.size() - 1)], l_Pos))
-                    l_Train->EnterVehicle(l_Wheels, 1);
-
-                break;
-            }
-            case eThogarMiscDatas::FullLengthAddTrains:
-            {
-                if (p_TrackID != eThogarMiscDatas::SecondTrack && p_TrackID != eThogarMiscDatas::ThirdTrack)
-                    break;
-
-                std::vector<uint32> l_Entries = { eThogarCreatures::TroopTransport1, eThogarCreatures::TroopTransport2, eThogarCreatures::TroopTransport3 };
-
-                if (Creature* l_Train = p_Summoner->SummonCreature(l_Entries[urand(0, l_Entries.size() - 1)], l_Pos))
-                    l_Train->EnterVehicle(l_Wheels, 1);
-
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-    if (l_Thogar->IsAIEnabled)
-        l_Thogar->AI()->Talk(g_TrackTalks[p_TrackID]);
-}
-
-static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_Action = eThogarActions::ActionNone, bool p_Talk = false)
+static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_Action = eThogarActions::ActionNone, bool p_Talk = true)
 {
     if (p_Summoner == nullptr || p_TrainID >= eThogarTrains::MaxTrains)
         return;
 
-    uint8 l_TrackID = g_TrainTrackIDs[p_TrainID];
-    if (l_TrackID >= eThogarMiscDatas::MaxTrainTracks)
-        return;
-
     InstanceScript* l_InstanceScript = p_Summoner->GetInstanceScript();
     if (l_InstanceScript == nullptr)
         return;
@@ -458,15 +1078,15 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
     if (l_Thogar == nullptr)
         return;
 
-    bool l_IsRightToLeft = g_RightToLeftTrains[p_TrainID];
+    TrainDatas l_TrainDatas = g_TrainDatas[p_TrainID];
+    if (l_TrainDatas.TrackID >= eThogarMiscDatas::MaxTrainTracks)
+        return;
 
-    Position const l_Pos = l_IsRightToLeft ? g_TrainTrackSpawnPos[l_TrackID] : g_TrainTrackEndPos[l_TrackID];
+    Position const l_Pos = l_TrainDatas.RightToLeft ? g_TrainTrackSpawnPos[l_TrainDatas.TrackID] : g_TrainTrackEndPos[l_TrainDatas.TrackID];
 
     if (Creature* l_Wheels = p_Summoner->SummonCreature(eThogarCreatures::TrainWheels, l_Pos))
     {
         ApplyPassengerFlags(l_Wheels, false);
-
-        TrainDatas l_TrainDatas = g_TrainDatas[p_TrainID];
 
         int8 l_SeatID = 0;
         if (Creature* l_Engine = p_Summoner->SummonCreature(l_TrainDatas.EngineEntry, l_Pos))
@@ -490,6 +1110,12 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
                 int8 l_OtherSeatID = 0;
                 for (uint32 l_Entry : l_WaggonData.Passengers)
                 {
+                    if (l_Entry == 0)
+                    {
+                        ++l_OtherSeatID;
+                        continue;
+                    }
+
                     if (Creature* l_Passenger = p_Summoner->SummonCreature(l_Entry, l_Pos))
                     {
                         ApplyPassengerFlags(l_Passenger, false);
@@ -503,11 +1129,11 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
         if (l_Wheels->IsAIEnabled)
         {
             l_Wheels->AI()->SetGUID(p_Summoner->GetGUID());
-            l_Wheels->AI()->SetData(0, l_TrackID);
+            l_Wheels->AI()->SetData(0, p_TrainID);
             l_Wheels->AI()->DoAction(p_Action);
         }
     }
 
     if (p_Talk && l_Thogar->IsAIEnabled)
-        l_Thogar->AI()->Talk(g_TrackTalks[l_TrackID]);
+        l_Thogar->AI()->Talk(g_TrackTalks[l_TrainDatas.TrackID]);
 }
