@@ -20883,6 +20883,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             // Glyph of Metamorphosis
             if (HasAura(159680))
                 return 0;
+            if (HasAura(137206))
+                return 48088;
             return 25277;
         }
         default:
