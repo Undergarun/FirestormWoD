@@ -1,4 +1,4 @@
-#34822/Quest - What we need
+﻿#34822/Quest - What we need
 
 	REPLACE INTO creature_loot_template VALUE
 	(80174, 111907, -100, 1, 0, 1, 2, '');
@@ -17,7 +17,6 @@
 
 	-- garrison lvl 3
 /*#91034/NPC - Calvo Klyne <Fur Trader>
-
 	UPDATE creature_template SET npcflag = 131 WHERE entry = 91034;
 	DELETE FROM creature WHERE id = 91034;
 	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES('91034','1330','7004','7210','2','4294967295','0','0','5553.67','4598.79','141.164','5.81351','300','0','0','40','0','0','0','0','0','2048','0','0','0','0',NULL);
@@ -27,9 +26,7 @@
 	(91034, 122716, 5829),
 	(91034, 127724, 5829),
 	(91034, 127742, 5829);
-
 #91025/NPC - Dorothy Two
-
 	UPDATE creature_template SET npcflag = 131 WHERE entry = 91025;
 	DELETE FROM creature WHERE id = 91025;
 	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES('91025','1331','7078','7211','2','1','0','0','1937.66','330.089','91.764','6.21431','300','0','0','40','0','0','0','0','0','2048','0','0','0','0',NULL);
@@ -39,9 +36,7 @@
 	(91025, 122716, 5829),
 	(91025, 127724, 5829),
 	(91025, 127742, 5829);
-
 #91404/NPC - Samantha Scarlet <Herb Trader>
-
 	UPDATE creature_template SET npcflag = 131 WHERE entry = 91404;
 	DELETE FROM creature WHERE id = 91404;
 	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES('91404','1331','7078','7211','2','1','0','0','1938.53','331.616','91.7648','5.90408','300','0','0','40','0','0','0','0','0','2048','0','0','0','0',NULL);
@@ -75,7 +70,6 @@
 
 	-- garrison lvl 3
 /*#91031/NPC - Nicholas Mitrik
-
 	UPDATE creature_template SET npcflag = 131 WHERE entry = 91031;
 	DELETE FROM creature WHERE id = 91031;
 	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUE ('91031','1330','7004','7210','2','1','0','0','5554.42','4600.68','141.163','5.51585','300','0','0','40','0','0','0','0','0','2048','0','0','0','0',NULL);

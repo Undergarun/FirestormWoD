@@ -385,6 +385,10 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             bool l_HeightChangeFailed       = false;
             bool l_RemoteTimeValid          = false;
 
+            /// Prevent client disconnect
+            if (!G3D::fuzzyEq(l_Unit->m_movementInfo.splineElevation, 0.0f) && (l_MovementFlags & MovementFlags::MOVEMENTFLAG_SPLINE_ELEVATION) == 0)
+                l_MovementFlags |= MovementFlags::MOVEMENTFLAG_SPLINE_ELEVATION;
+
             p_Data->append(l_Unit->GetPackGUID());                          ///< Mover GUID
             *p_Data << uint32(getMSTime());                                 ///< Movement Time
             *p_Data << float(l_Unit->GetPositionX());                       ///< Mover position X

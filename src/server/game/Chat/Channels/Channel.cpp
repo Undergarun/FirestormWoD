@@ -257,8 +257,18 @@ void Channel::Join(uint64 p, const char *pass)
         if (!m_Players.empty())
             UpdateChannelUseageInDB();
 
+        /// Special case for the world channel, players can't be moderator or owner.
+        if (m_name == "world")
+        {
+            if (player && player->GetSession()->GetSecurity() > AccountTypes::SEC_MODERATOR)
+            {
+                m_Players[p].SetModerator(true);
+                if (!m_ownerGUID && m_ownership)
+                    SetOwner(p, (m_Players.size() > 1 ? true : false));
+            }
+        }
         // If the channel has no owner yet and ownership is allowed, set the new owner.
-        if (!m_ownerGUID && m_ownership)
+        else if (!m_ownerGUID && m_ownership)
         {
             SetOwner(p, (m_Players.size() > 1 ? true : false));
             m_Players[p].SetModerator(true);
@@ -854,19 +864,6 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
 
 void Channel::SendToAll(WorldPacket* data, uint64 p, uint64 p_SenderGUID)
 {
-    uint32 l_SenderLocaleMask = 0;
-
-    if (!l_SenderLocaleMask)
-        l_SenderLocaleMask = 0xFFFFFFFF;
-
-    if ((IsWorld() || IsConstant()) && p_SenderGUID && m_Players.find(p_SenderGUID) != m_Players.end())
-    {
-        if (Player* l_Player = ObjectAccessor::FindPlayer(p_SenderGUID))
-            l_SenderLocaleMask = 1 << (l_Player->GetSession()->GetSessionDbLocaleIndex() + 1);
-        else
-            l_SenderLocaleMask = m_Players[p_SenderGUID].LocaleFilter;
-    }
-
     m_Lock.acquire();
     for (PlayerList::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
     {
@@ -875,7 +872,7 @@ void Channel::SendToAll(WorldPacket* data, uint64 p, uint64 p_SenderGUID)
         {
             if (!p || !player->GetSocial()->HasIgnore(GUID_LOPART(p)))
             {
-                if ((IsWorld() || IsConstant()) && (i->second.LocaleFilter & l_SenderLocaleMask) != 0)
+                if (IsWorld() || IsConstant())
                     player->GetSession()->SendPacket(data);
                 else if (!(IsWorld() || IsConstant()))
                     player->GetSession()->SendPacket(data);

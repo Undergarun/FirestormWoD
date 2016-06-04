@@ -65,10 +65,10 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
       -D_GNU_SOURCE
       -D_REENTRAN)
 
-  target_link_libraries(jemalloc
-    PUBLIC
-      threads
-      valgrind)
+#  target_link_libraries(jemalloc
+#    PUBLIC
+#      threads
+#      valgrind)
 
   set_target_properties(jemalloc
       PROPERTIES

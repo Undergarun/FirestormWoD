@@ -2655,15 +2655,13 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
     if (!(victim->IsPlayer() && !victim->HasInArc(M_PI, this) && !victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)))
     {
         // Reduce dodge chance by attacker expertise rating
-        if (IsPlayer())
+        if (IsPlayer() && victim->IsPlayer())
             dodge_chance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
         else
         {
             if (isPet() && GetOwner())
                 if (GetOwner()->ToPlayer())
                     dodge_chance -= int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100);
-
-            dodge_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
         }
 
         // Modify dodge chance by attacker SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
@@ -2681,15 +2679,13 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
     {
         float l_ExpertisePercentage = 0.0f;
         // Reduce parry chance by attacker expertise rating
-        if (IsPlayer())
+        if (IsPlayer() && victim->IsPlayer())
             l_ExpertisePercentage = int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
         else
         {
             if (isPet() && GetOwner())
                 if (GetOwner()->ToPlayer())
                     l_ExpertisePercentage -= int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
-
-            parry_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
         }
 
         if (victim->getLevel() >= getLevel())
@@ -2935,16 +2931,16 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
         attType = WeaponAttackType::RangedAttack;
 
-    uint32 roll = urand(0, 10000);
+    int32 roll = urand(0, 10000);
 
     // Roll miss
-    uint32 tmp = uint32(MeleeSpellMissChance(victim, spell, attType)) * 100;
+    int32 tmp = int32(MeleeSpellMissChance(victim, spell, attType)) * 100;
     if (roll < tmp)
         return SPELL_MISS_MISS;
 
     // Roll resist
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    uint32 l_Resist = (victim->GetMechanicResistChance(spell) * 100);
+    int32 l_Resist = (victim->GetMechanicResistChance(spell) * 100);
     tmp += l_Resist;
     if (roll < l_Resist)
         return SPELL_MISS_RESIST;
@@ -2967,7 +2963,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
-            uint32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
+            int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
             tmp+=deflect_chance;
             if (roll < deflect_chance)
                 return SPELL_MISS_DEFLECT;
@@ -3028,7 +3024,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canDodge)
     {
-        uint32 l_DodgeChance = GetDodgeChance(victim) * 100;
+        int32 l_DodgeChance = GetDodgeChance(victim) * 100;
 
         tmp += l_DodgeChance;
         if (roll < l_DodgeChance)
@@ -3037,7 +3033,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canParry)
     {
-        uint32 l_ParryChance = GetParryChance(victim) * 100;
+        int32 l_ParryChance = GetParryChance(victim) * 100;
 
         tmp += l_ParryChance;
         if (roll < l_ParryChance)
@@ -3046,7 +3042,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canBlock)
     {
-        uint32 l_BlockChance = GetBlockChance(victim) * 100;
+        int32 l_BlockChance = GetBlockChance(victim) * 100;
 
         tmp += l_BlockChance;
         if (roll < l_BlockChance)
@@ -21424,8 +21420,6 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     Vehicle* vehicle = m_vehicle;
     m_vehicle = NULL;
 
-    SetControlled(false, UNIT_STATE_ROOT);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
-
     Position l_ExitPos;
 
     /// Exit position not specified
@@ -21459,6 +21453,8 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     init.SetFacing(GetOrientation());
     init.SetTransportExit();
     init.Launch();
+
+    SetControlled(false, UNIT_STATE_ROOT);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
 
     //GetMotionMaster()->MoveFall();            // Enable this once passenger positions are calculater properly (see above)
 
