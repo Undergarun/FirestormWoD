@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Omar_The_Unscarred
@@ -35,7 +25,7 @@ enum eSays
     SAY_CURSE                  = -1543013,
     SAY_KILL_1                 = -1543014,
     SAY_DIE                    = -1543015,
-    SAY_WIPE                   = -1543016,
+    SAY_WIPE                   = -1543016
 };
 
 enum eSpells
@@ -47,7 +37,7 @@ enum eSpells
     SPELL_DEMONIC_SHIELD       = 31901,
     SPELL_SHADOW_BOLT          = 30686,
     H_SPELL_SHADOW_BOLT        = 39297,
-    SPELL_SUMMON_FIENDISH_HOUND= 30707,
+    SPELL_SUMMON_FIENDISH_HOUND= 30707
 };
 
 class boss_omor_the_unscarred : public CreatureScript
@@ -226,8 +216,9 @@ class boss_omor_the_unscarred : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_omor_the_unscarred()
 {
     new boss_omor_the_unscarred();
 }
-
+#endif

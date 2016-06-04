@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "culling_of_stratholme.h"
@@ -28,7 +19,7 @@ enum corruptorData
     SAY_CORRUPTOR_DEAD      = -1595046,
     SAY_CORRUPTOR_DESPAWN   = -1595047,
 
-    NPC_TIME_RIFT           = 28409,
+    NPC_TIME_RIFT           = 28409
 };
 
 class boss_infinite_corruptor : public CreatureScript
@@ -76,7 +67,7 @@ public:
             me->Yell(SAY_CORRUPTOR_AGGRO, LANG_UNIVERSAL, 0);
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*p_Killer*/)
         {
             me->Yell(SAY_CORRUPTOR_DEAD, LANG_UNIVERSAL, 0);
             if (instance)
@@ -121,7 +112,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_infinite_corruptor()
 {
     new boss_infinite_corruptor();
 }
+#endif

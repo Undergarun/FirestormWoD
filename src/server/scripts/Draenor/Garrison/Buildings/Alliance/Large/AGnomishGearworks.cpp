@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "AGnomishGearworks.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../../GarrisonScriptData.hpp"
@@ -19,15 +20,15 @@ namespace MS {
 
         namespace npc_ZeeData
         {
-            InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+            InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
             {
             };
 
-            InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+            InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
             {
             };
 
-            InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+            InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
             {
             };
         }
@@ -56,7 +57,7 @@ namespace MS {
             return new npc_Zee_GarrisonAI(p_Creature);
         }
 
-        bool npc_Zee_Garrison::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+        bool npc_Zee_Garrison::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
         {
             if (p_Quest->GetQuestId() == Quests::Alliance_UnconventionalInventions)
             {
@@ -91,7 +92,7 @@ namespace MS {
                     SequencePosition const l_GameObjectPos = { 7.4031f, -15.7592f, 1.6757f, 2.0719f };
 
                     l_AI->SummonRelativeGameObject(WorkshopGearworks::InventionsGobIDs::GobStickyGrenades, l_GameObjectPos.X, l_GameObjectPos.Y, l_GameObjectPos.Z, l_GameObjectPos.O);
-                    p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, WorkshopGearworks::InventionsGobIDs::GobStickyGrenades);
+                    p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInvention, WorkshopGearworks::InventionsGobIDs::GobStickyGrenades);
                     p_Player->SaveToDB();
                 }
             }
@@ -104,7 +105,7 @@ namespace MS {
                 m_OwnerGUID = p_Guid;
         }
 
-        void npc_Zee_GarrisonAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+        void npc_Zee_GarrisonAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
         {
             Player* l_Owner = ObjectAccessor::GetPlayer(*me, m_OwnerGUID);
 
@@ -116,7 +117,7 @@ namespace MS {
             if (l_GarrisonMgr == nullptr)
                 return;
 
-            uint32 l_GobID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention);
+            uint32 l_GobID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonWorkshopGearworksInvention);
 
             if (!l_GobID) ///< Quest or daily refill not done
                 return;
@@ -135,7 +136,7 @@ namespace MS {
             SequencePosition const l_GameObjectPos = { 7.4031f, -15.7592f, 1.6757f, 2.0719f };
             SummonRelativeGameObject(l_GobID, l_GameObjectPos.X, l_GameObjectPos.Y, l_GameObjectPos.Z, l_GameObjectPos.O);
 
-            l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, l_GobID);
+            l_Owner->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInvention, l_GobID);
             l_Owner->SaveToDB();
         }
 
@@ -145,28 +146,8 @@ namespace MS {
             {
                 MS::Garrison::Manager* l_GarrisonMgr = l_Owner->GetGarrison();
 
-                if (l_GarrisonMgr == nullptr || !l_Owner->IsQuestRewarded(Quests::Alliance_UnconventionalInventions))
+                if (l_GarrisonMgr == nullptr)
                     return;
-
-                uint32 l_Entry = 0;
-
-                switch (l_GarrisonMgr->GetBuilding(GetPlotInstanceID()).BuildingID)
-                {
-                    case Buildings::GnomishGearworks_GoblinWorkshop_Level1:
-                        l_Entry = WorkshopGearworks::g_FirstLevelInventions[urand(0, WorkshopGearworks::g_FirstLevelInventions.size() - 1)];
-                        break;
-                    case Buildings::GnomishGearworks_GoblinWorkshop_Level2:
-                        l_Entry = WorkshopGearworks::g_SecondLevelInventions[urand(0, WorkshopGearworks::g_FirstLevelInventions.size() - 1)];
-                        break;
-                    case Buildings::GnomishGearworks_GoblinWorkshop_Level3:
-                        l_Entry = WorkshopGearworks::g_ThirdLevelInvention;
-                        break;
-                    default:
-                        break;
-                }
-
-                l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, l_Entry);
-                l_Owner->SaveToDB();
 
                 OnSetPlotInstanceID(GetPlotInstanceID());
                 l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());

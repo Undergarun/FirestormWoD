@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include <ScriptPCH.h>
 #include <ScriptMgr.h>
 
@@ -31,7 +39,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_promotion_new_players()
 {
     new PromotionNewPlayers();
 };
+#endif

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_SMARTSCRIPTMGR_H
 #define TRINITY_SMARTSCRIPTMGR_H
@@ -44,6 +35,16 @@ struct WayPoint
     float z;
 };
 
+enum eSmartAI
+{
+    SMART_EVENT_PARAM_COUNT = 4,
+    SMART_ACTION_PARAM_COUNT = 6,
+    SMART_SUMMON_COUNTER = 0xFFFFFF,
+    SMART_ESCORT_LAST_OOC_POINT = 0xFFFFFF,
+    SMART_RANDOM_POINT = 0xFFFFFE,
+    SMART_ESCORT_TARGETS = 0xFFFFFF
+};
+
 enum SMART_EVENT_PHASE
 {
     SMART_EVENT_PHASE_ALWAYS  = 0,
@@ -55,7 +56,7 @@ enum SMART_EVENT_PHASE
     SMART_EVENT_PHASE_6       = 6,
     SMART_EVENT_PHASE_MAX     = 7,
 
-    SMART_EVENT_PHASE_COUNT   = 6,
+    SMART_EVENT_PHASE_COUNT   = 6
 };
 
 enum SMART_EVENT_PHASE_BITS
@@ -67,7 +68,7 @@ enum SMART_EVENT_PHASE_BITS
     SMART_EVENT_PHASE_4_BIT        = 8,
     SMART_EVENT_PHASE_5_BIT        = 16,
     SMART_EVENT_PHASE_6_BIT        = 32,
-    SMART_EVENT_PHASE_ALL          = SMART_EVENT_PHASE_1_BIT + SMART_EVENT_PHASE_2_BIT + SMART_EVENT_PHASE_3_BIT + SMART_EVENT_PHASE_4_BIT + SMART_EVENT_PHASE_5_BIT + SMART_EVENT_PHASE_6_BIT,
+    SMART_EVENT_PHASE_ALL          = SMART_EVENT_PHASE_1_BIT + SMART_EVENT_PHASE_2_BIT + SMART_EVENT_PHASE_3_BIT + SMART_EVENT_PHASE_4_BIT + SMART_EVENT_PHASE_5_BIT + SMART_EVENT_PHASE_6_BIT
 };
 
 const uint32 SmartPhaseMask[SMART_EVENT_PHASE_COUNT][2] =
@@ -156,8 +157,12 @@ enum SMART_EVENT
     SMART_EVENT_GO_EVENT_INFORM          = 71,      // eventId
     SMART_EVENT_ACTION_DONE              = 72,      // eventId (SharedDefines.EventId)
     SMART_EVENT_ON_SPELLCLICK            = 73,      // clicker (unit)
+    SMART_EVENT_FRIENDLY_HEALTH_PCT      = 74,      // minHpPct, maxHpPct, repeatMin, repeatMax
+    SMART_EVENT_DISTANCE_CREATURE        = 75,      // guid, entry, distance, repeat
+    SMART_EVENT_DISTANCE_GAMEOBJECT      = 76,      // guid, entry, distance, repeat
+    SMART_EVENT_COUNTER_SET              = 77,      // id, value, cooldownMin, cooldownMax
 
-    SMART_EVENT_END                      = 74,
+    SMART_EVENT_END
 };
 
 struct SmartEvent
@@ -364,6 +369,30 @@ struct SmartEvent
 
         struct
         {
+            uint32 minHpPct;
+            uint32 maxHpPct;
+            uint32 repeatMin;
+            uint32 repeatMax;
+        } friendlyHealthPct;
+
+        struct
+        {
+            uint32 guid;
+            uint32 entry;
+            uint32 dist;
+            uint32 repeat;
+        } distance;
+
+        struct
+        {
+            uint32 id;
+            uint32 value;
+            uint32 cooldownMin;
+            uint32 cooldownMax;
+        } counter;
+
+        struct
+        {
             uint32 param1;
             uint32 param2;
             uint32 param3;
@@ -375,9 +404,9 @@ struct SmartEvent
 enum SMART_SCRIPT_RESPAWN_CONDITION
 {
     SMART_SCRIPT_RESPAWN_CONDITION_NONE = 0,
-    SMART_SCRIPT_RESPAWN_CONDITION_MAP = 1,
+    SMART_SCRIPT_RESPAWN_CONDITION_MAP  = 1,
     SMART_SCRIPT_RESPAWN_CONDITION_AREA = 2,
-    SMART_SCRIPT_RESPAWN_CONDITION_END = 3,
+    SMART_SCRIPT_RESPAWN_CONDITION_END  = 3
 };
 
 enum SMART_ACTION
@@ -497,10 +526,17 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_POWER                       = 110,    // PowerType, newPower
     SMART_ACTION_GAME_EVENT_STOP                    = 111,    // GameEventId
     SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
-    SMART_ACTION_SEND_SCENARIO_PROGRESS_UPDATE      = 113,
-    SMART_ACTION_SEND_SCENARIO_STATE                = 114,
-    SMART_ACTION_UPDATE_PLOT_INSTANCE               = 115,
-    SMART_ACTION_PLAY_SCENE_OBJECT                  = 116,
+    SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
+    SMART_ACTION_RISE_UP                            = 114,    // distance
+    SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
+    SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
+
+    /// IDs custom for Firestorm (check structures to get params)
+    SMART_ACTION_SEND_SCENARIO_PROGRESS_UPDATE      = 1001,
+    SMART_ACTION_SEND_SCENARIO_STATE                = 1002,
+    SMART_ACTION_UPDATE_PLOT_INSTANCE               = 1003,
+    SMART_ACTION_PLAY_SCENE_OBJECT                  = 1004,
+    SMART_ACTION_ENTER_LFG_QUEUE                    = 1005,
 
     SMART_ACTION_END
 };
@@ -973,6 +1009,27 @@ struct SmartAction
 
         struct
         {
+            uint32 wp1;
+            uint32 wp2;
+            uint32 wp3;
+            uint32 wp4;
+            uint32 wp5;
+            uint32 wp6;
+        } closestWaypointFromList;
+
+        struct
+        {
+            std::array<uint32, SMART_ACTION_PARAM_COUNT - 1> sounds;
+            uint32 onlySelf;
+        } randomSound;
+
+        struct
+        {
+            uint32 timer;
+        } corpseDelay;
+
+        struct
+        {
             uint32 CriteriaID;
             uint32 CriteriaCount;
         } sendScenarioProgressUpdate;
@@ -987,6 +1044,12 @@ struct SmartAction
         {
             uint32 SceneID;
         } playSceneObject;
+
+        struct
+        {
+            uint32 DungeonID;
+            uint32 RoleMask;
+        } enterLfgQueue;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
@@ -1042,8 +1105,9 @@ enum SMARTAI_TARGETS
     SMART_TARGET_OWNER_OR_SUMMONER              = 23,   // Unit's owner or summoner
     SMART_TARGET_THREAT_LIST                    = 24,   // All units on creature's threat list
     SMART_TARGET_CLOSEST_ENEMY                  = 25,   // maxDist
+    SMART_TARGET_CLOSEST_FRIENDLY               = 26,   // maxDist, playerOnly
 
-    SMART_TARGET_END                            = 26
+    SMART_TARGET_END
 };
 
 struct SmartTarget
@@ -1139,15 +1203,6 @@ struct SmartTarget
     };
 };
 
-enum eSmartAI
-{
-    SMART_EVENT_PARAM_COUNT         = 4,
-    SMART_ACTION_PARAM_COUNT        = 6,
-    SMART_SUMMON_COUNTER            = 0xFFFFFF,
-    SMART_ESCORT_LAST_OOC_POINT     = 0xFFFFFF,
-    SMART_RANDOM_POINT              = 0xFFFFFE,
-    SMART_ESCORT_TARGETS            = 0xFFFFFF
-};
 
 enum SmartScriptType
 {
@@ -1268,6 +1323,7 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_GO_EVENT_INFORM,           SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_ACTION_DONE,               SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_SPELLCLICK,             SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_FRIENDLY_HEALTH_PCT,       SMART_SCRIPT_TYPE_MASK_CREATURE }
 };
 
 enum SmartEventFlags
@@ -1324,10 +1380,10 @@ struct SmartScriptHolder
     bool enableTimed;
 };
 
-typedef UNORDERED_MAP<uint32, WayPoint*> WPPath;
+typedef std::unordered_map<uint32, WayPoint*> WPPath;
 
 typedef std::list<WorldObject*> ObjectList;
-typedef UNORDERED_MAP<uint32, ObjectList*> ObjectListMap;
+typedef std::unordered_map<uint32, ObjectList*> ObjectListMap;
 
 class SmartWaypointMgr
 {
@@ -1346,14 +1402,14 @@ class SmartWaypointMgr
         }
 
     private:
-        UNORDERED_MAP<uint32, WPPath*> waypoint_map;
+        std::unordered_map<uint32, WPPath*> waypoint_map;
 };
 
 // all events for a single entry
 typedef std::vector<SmartScriptHolder> SmartAIEventList;
 
 // all events for all entries / guids
-typedef UNORDERED_MAP<int32, SmartAIEventList> SmartAIEventMap;
+typedef std::unordered_map<int32, SmartAIEventList> SmartAIEventMap;
 
 class SmartAIMgr
 {

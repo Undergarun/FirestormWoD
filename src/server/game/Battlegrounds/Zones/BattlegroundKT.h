@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __BattleGroundKT_H
 #define __BattleGroundKT_H
@@ -95,7 +86,7 @@ enum BG_KT_WorldStates
     BG_KT_ICON_H                = 6307,
     BG_KT_ORB_POINTS_A          = 6303,
     BG_KT_ORB_POINTS_H          = 6304,
-    BG_KT_ORB_STATE             = 6309,
+    BG_KT_ORB_STATE             = 6309
 };
 
 enum BG_KT_Graveyards
@@ -219,7 +210,7 @@ class BattlegroundKT : public Battleground
 
         void UpdateOrbState(Team team, uint32 value);
         void UpdateTeamScore(Team team);
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundKT::UpdatePlayerScore' hides overloaded virtual function
+        void UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor = true, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         virtual void FillInitialWorldStates(ByteBuffer& p_Data);
 
         /* Scorekeeping */

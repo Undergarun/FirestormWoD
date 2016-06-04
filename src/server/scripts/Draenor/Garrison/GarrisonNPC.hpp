@@ -1,30 +1,24 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_NPC_HPP_GARRISON
-#define GARRISON_NPC_HPP_GARRISON
+# define GARRISON_NPC_HPP_GARRISON
 
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../../game/AI/ScriptedAI/ScriptedEscortAI.h"
-#include <map>
+#include "Common.h"
 #include "ScriptedCosmeticAI.hpp"
 #include "Vehicle.h"
 #include "CombatAI.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
-    /// Sequence position structure
-    struct SequencePosition
-    {
-        /// Position
-        float X, Y, Z, O;
-    };
-
     class GarrisonNPCAI : public AI::CosmeticAI
     {
         public:
@@ -47,8 +41,12 @@ namespace MS { namespace Garrison
 
             /// Show shipment crafter UI
             void SendShipmentCrafterUI(Player* p_Player, uint32 p_ShipmentID = 0);
+            /// Show Follower recruitment UI
+            void SendFollowerRecruitmentUI(Player* p_Player);
             /// Show trade skill crafter UI
             void SendTradeSkillUI(Player* p_Player);
+            /// Show selected followers to recruit
+            void SendRecruitmentFollowersGenerated(Player* p_Player, uint32 p_AbilityID, uint32 p_ErrorMessage, bool p_IsTrait);
 
             /// Get building ID
             uint32 GetBuildingID();
@@ -478,7 +476,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const; ///< 'GetAI' overrides a member function but is not marked 'override'
+            CreatureAI* GetAI(Creature* p_Creature) const override;
 
             /// Creature AI
             struct npc_SeniorPeonIIAI : public CreatureAI
@@ -611,7 +609,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const; ///< 'GetAI' overrides a member function but is not marked 'override'
+            CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
     class npc_garrison_atheeru_palestarAI : public GarrisonNPCAI
@@ -929,7 +927,15 @@ namespace MS { namespace Garrison
 
                 enum eSpells
                 {
-                    SpellAuraRideVehicle = 178807
+                    SpellAuraRideVehicle       = 178807,
+                    SpellAuraBlackClawOfSethe  = 174822,
+                    SpellAuraGarnToothNecklace = 174823
+                };
+
+                enum eItems
+                {
+                    ItemGarnToothNecklace = 118470,
+                    ItemBlackClawOfSethe  = 118469
                 };
 
                 uint64 m_SummonerGUID;
@@ -939,7 +945,7 @@ namespace MS { namespace Garrison
                 virtual void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override;
 
                 virtual void JustDied(Unit* p_Killer) override;
-            };            
+            };
 
     };
 
@@ -982,7 +988,7 @@ namespace MS { namespace Garrison
                 virtual void EnterEvadeMode() override;
 
                 virtual void UpdateAI(uint32 const p_Diff) override;
-            };            
+            };
 
     };
 
@@ -1016,7 +1022,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const override;
 
             /// Creature AI
             struct npc_GarrisonWalterAI : public VehicleAI
@@ -1032,7 +1038,51 @@ namespace MS { namespace Garrison
                 virtual void IsSummonedBy(Unit* p_Summoner) override;
 
                 virtual uint64 GetGUID(int32 p_ID) override;
-            };            
+            };
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    class npc_GearshopWorkshopTurret_Garr : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_GearshopWorkshopTurret_Garr() : CreatureScript("npc_GearshopWorkshopTurret_Garr")
+            {
+            }
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const override;
+
+            /// Creature AI
+            struct npc_GearshopWorkshopTurret_GarrAI : public VehicleAI
+            {
+                /// Constructor
+                npc_GearshopWorkshopTurret_GarrAI(Creature* creature) : VehicleAI(creature)
+                {
+                    m_SummonerGUID = 0;
+                    m_AttackTimer  = 0;
+                }
+
+                enum eSpells
+                {
+                    SpellTurretFire = 168517
+                };
+
+                uint64 m_SummonerGUID;
+                uint32 m_AttackTimer;
+
+                virtual void Reset() override;
+
+                virtual void EnterCombat(Unit* p_Attacker) override;
+
+                virtual void IsSummonedBy(Unit* p_Summoner) override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+            };
 
     };
 

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Instance_Molten_Core
@@ -40,7 +30,7 @@ Position const SummonPositions[10] =
     {726.499f, -1149.80f, -120.156f, 5.24055f},
     {722.408f, -1152.41f, -120.029f, 5.33087f},
     {718.994f, -1156.36f, -119.805f, 5.75738f},
-    {838.510f, -829.840f, -232.000f, 2.00000f},
+    {838.510f, -829.840f, -232.000f, 2.00000f}
 };
 
 class instance_molten_core : public InstanceMapScript
@@ -257,7 +247,9 @@ class instance_molten_core : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_molten_core()
 {
     new instance_molten_core();
 }
+#endif

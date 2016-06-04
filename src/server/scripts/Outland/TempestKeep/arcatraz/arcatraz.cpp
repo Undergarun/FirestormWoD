@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Arcatraz
@@ -50,7 +40,7 @@ enum eMillhouseSays
     SAY_ICEBLOCK               = 8,
     SAY_LOWHP                  = 9,
     SAY_DEATH                  = 10,
-    SAY_COMPLETE               = 11,
+    SAY_COMPLETE               = 11
 };
 
 enum eMillhouseSpells
@@ -63,7 +53,7 @@ enum eMillhouseSpells
     SPELL_FIRE_BLAST           = 13341,
     SPELL_FIREBALL             = 14034,
     SPELL_FROSTBOLT            = 15497,
-    SPELL_PYROBLAST            = 33975,
+    SPELL_PYROBLAST            = 33975
 };
 
 class npc_millhouse_manastorm : public CreatureScript
@@ -239,7 +229,7 @@ enum eWardenSays
     YELL_RELEASE2B      = 4,
     YELL_RELEASE3       = 5,
     YELL_RELEASE4       = 6,
-    YELL_WELCOME        = 7,
+    YELL_WELCOME        = 7
 };
 
 enum eWardenUnits
@@ -256,7 +246,7 @@ enum eWardenUnits
     ENTRY_TW_DRAK      = 20910,
     ENTRY_BL_DRAK      = 20911,
     //phase 6
-    ENTRY_SKYRISS      = 20912,
+    ENTRY_SKYRISS      = 20912
 };
 
 enum eWardenSpells
@@ -267,7 +257,7 @@ enum eWardenSpells
     SPELL_TARGET_DELTA  = 36857,
     SPELL_TARGET_GAMMA  = 36858,
     SPELL_TARGET_OMEGA  = 36852,
-    SPELL_BUBBLE_VISUAL = 36849,
+    SPELL_BUBBLE_VISUAL = 36849
 };
 
 class npc_warden_mellichar : public CreatureScript
@@ -526,7 +516,7 @@ class npc_warden_mellichar : public CreatureScript
 
 enum ZerekethSpell
 {
-    SPELL_VOID_ZONE_DAMAGE = 36120,
+    SPELL_VOID_ZONE_DAMAGE = 36120
 };
 
 class mob_zerekethvoidzone : public CreatureScript
@@ -557,10 +547,11 @@ class mob_zerekethvoidzone : public CreatureScript
             return new mob_zerekethvoidzoneAI(creature);
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_arcatraz()
 {
     new npc_millhouse_manastorm();
     new npc_warden_mellichar();
     new mob_zerekethvoidzone();
 }
+#endif

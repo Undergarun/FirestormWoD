@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "boss_oregorger.hpp"
@@ -285,7 +285,7 @@ class boss_oregorger : public CreatureScript
                 return 0.0f;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 _EnterCombat();
 
@@ -464,13 +464,13 @@ class boss_oregorger : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value)
+            void RegeneratePower(Powers /*p_Power*/, int32& p_Value) override
             {
                 /// Oregorger only regens by script
                 p_Value = 0;
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 _JustDied();
 
@@ -1159,7 +1159,7 @@ class npc_foundry_crate_ore : public CreatureScript
                 me->CastSpell(me, eSpell::CrateGlow, true);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAllAuras();
 
@@ -1190,7 +1190,7 @@ class spell_foundry_acid_torrent : public SpellScriptLoader
 
         class spell_foundry_acid_torrent_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_acid_torrent_SpellScript);
+            PrepareSpellScript(spell_foundry_acid_torrent_SpellScript)
 
             enum eData
             {
@@ -1205,7 +1205,7 @@ class spell_foundry_acid_torrent : public SpellScriptLoader
                 return true;
             }
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 m_Damage = GetHitDamage();
             }
@@ -1251,14 +1251,14 @@ class spell_foundry_acid_torrent_aoe : public SpellScriptLoader
 
         class spell_foundry_acid_torrent_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_acid_torrent_aoe_SpellScript);
+            PrepareSpellScript(spell_foundry_acid_torrent_aoe_SpellScript)
 
             enum eData
             {
                 DamageMitigationPct
             };
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Creature* l_Oregorger = GetCaster()->ToCreature())
                 {
@@ -1266,10 +1266,10 @@ class spell_foundry_acid_torrent_aoe : public SpellScriptLoader
                         return;
 
                     float l_Pct = l_Oregorger->AI()->GetFData(eData::DamageMitigationPct);
-                    int32 l_Dmg = GetHitDamage();
+                    float l_Dmg = (float)GetHitDamage();
 
                     l_Dmg *= l_Pct;
-                    SetHitDamage(l_Dmg);
+                    SetHitDamage((int32)l_Dmg);
                 }
             }
 
@@ -1293,7 +1293,7 @@ class spell_foundry_acid_torrent_searcher : public SpellScriptLoader
 
         class spell_foundry_acid_torrent_searcher_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_acid_torrent_searcher_SpellScript);
+            PrepareSpellScript(spell_foundry_acid_torrent_searcher_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -1330,7 +1330,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
 
         class spell_foundry_rolling_fury_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_rolling_fury_aura_AuraScript);
+            PrepareAuraScript(spell_foundry_rolling_fury_aura_AuraScript)
 
             enum eSpell
             {
@@ -1344,7 +1344,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1417,14 +1417,14 @@ class spell_foundry_harvest_volatile_blackrock : public SpellScriptLoader
 
         class spell_foundry_harvest_volatile_blackrock_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_harvest_volatile_blackrock_SpellScript);
+            PrepareSpellScript(spell_foundry_harvest_volatile_blackrock_SpellScript)
 
             enum eSpell
             {
                 CarryingVolatileBlackrock = 163454
             };
 
-            void HandleScript(SpellEffIndex p_EffIndex)
+            void HandleScript(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eSpell::CarryingVolatileBlackrock, true);
@@ -1450,7 +1450,7 @@ class spell_foundry_throw_volatile_ore : public SpellScriptLoader
 
         class spell_foundry_throw_volatile_ore_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_throw_volatile_ore_SpellScript);
+            PrepareSpellScript(spell_foundry_throw_volatile_ore_SpellScript)
 
             enum eSpell
             {
@@ -1488,7 +1488,7 @@ class areatrigger_foundry_retched_blackrock : public AreaTriggerEntityScript
 
         std::set<uint64> m_AffectedPlayers;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1533,7 +1533,7 @@ class areatrigger_foundry_retched_blackrock : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1562,7 +1562,7 @@ class areatrigger_foundry_explosive_shard : public AreaTriggerEntityScript
             ExplosiveShardAoE = 156374
         };
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
                 l_Caster->CastSpell(*p_AreaTrigger, eSpell::ExplosiveShardAoE, true);
@@ -1602,7 +1602,7 @@ class go_foundry_volatile_blackrock_ore : public GameObjectScript
                 return false;
             }
 
-            void OnStateChanged(uint32 p_State) override
+            void OnStateChanged(uint32 /*p_State*/) override
             {
                 if (m_Activated)
                 {
@@ -1661,6 +1661,7 @@ class go_founrdy_ore_grinder : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_oregorger()
 {
     /// Boss
@@ -1685,3 +1686,4 @@ void AddSC_boss_oregorger()
     new go_foundry_volatile_blackrock_ore();
     new go_founrdy_ore_grinder();
 }
+#endif

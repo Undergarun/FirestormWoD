@@ -8,7 +8,7 @@ enum Data
     DATA_TEMPLE_GUARDIAN_ANHUUR,
     DATA_EARTHRAGER_PTAH,
     DATA_ANRAPHET,
-    DATA_ISISET,                    
+    DATA_ISISET,
     DATA_AMMUNAE,
     DATA_SETESH,
     DATA_RAJH,
@@ -20,7 +20,7 @@ enum Data
     DATA_WARDENS,
     DATA_ANRAPHET_ENTRANCE_DOOR,
     DATA_ANRAPHET_BOSS_DOOR,
-    DATA_TEAM_IN_INSTANCE,
+    DATA_TEAM_IN_INSTANCE
 };
 
 enum GameObjectIds
@@ -32,7 +32,7 @@ enum GameObjectIds
     GO_DOOR_ULDUM_14                = 202306,
     GO_DOOR_ULDUM_15                = 202307,
     GO_VAULT_OF_LIGHTS_ENTR_DOOR    = 202313,
-    GO_VAULT_OF_LIGHTS_BOSS_DOOR    = 202314,
+    GO_VAULT_OF_LIGHTS_BOSS_DOOR    = 202314
 };
 
 enum CreatureIds
@@ -63,13 +63,13 @@ enum CreatureIds
     NPC_VENOMOUS_SKITTERER     = 39440,
     NPC_WATER_WARDEN           = 39802,
     NPC_AIR_WARDEN             = 39803,
-    NPC_BRANN_BRONZEBEARD      = 39908,
+    NPC_BRANN_BRONZEBEARD      = 39908
 };
 
 enum Achievements
 {
     SPELL_FASTER_THAN_LIGHT     = 94067,
-    EVENT_FASTER_THAN_LIGHT     = 24212,
+    EVENT_FASTER_THAN_LIGHT     = 24212
 };
 
 #endif

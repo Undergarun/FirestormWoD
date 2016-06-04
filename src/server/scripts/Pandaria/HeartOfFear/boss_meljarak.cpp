@@ -164,7 +164,7 @@ enum Events
     EVENT_QUICKENING,
 
     // - Whirling Blade
-    EVENT_WB_BACK,
+    EVENT_WB_BACK
 };
 
 enum Adds
@@ -175,7 +175,7 @@ enum Adds
     NPC_WIND_BOMB                 = 67053,
     NPC_AMBER_PRISON              = 62531,
     NPC_WHIRLING_BLADE            = 63930,
-    NPC_CORROSIVE_RESIN_POOL      = 67046,
+    NPC_CORROSIVE_RESIN_POOL      = 67046
 };
 
 enum Types
@@ -192,7 +192,7 @@ enum eMeljarakActions
     ACTION_SRATHIK_DIED,
     ACTION_ZARTHIK_DIED,
     ACTION_ADDGROUP_DIED,
-    ACTION_CHECK_CONTROLLED_ADDS,
+    ACTION_CHECK_CONTROLLED_ADDS
 };
 
 #define DISPLAYID_WINDBOMB 45684
@@ -333,7 +333,7 @@ public:
                 EnterCombat(who);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (instance && !inCombat)
             {
@@ -844,7 +844,7 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 value)
+        void SetData(uint32 type, uint32 /*value*/)
         {
             if (type == TYPE_NO_RESPAWN)
                 respawn = false;
@@ -864,7 +864,7 @@ public:
             AttackStart(attacker);
         }
 
-        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -1003,13 +1003,13 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 value)
+        void SetData(uint32 type, uint32 /*value*/)
         {
             if (type == TYPE_NO_RESPAWN)
                 respawn = false;
         }
 
-        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -1164,13 +1164,13 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 value)
+        void SetData(uint32 type, uint32 /*value*/)
         {
             if (type == TYPE_NO_RESPAWN)
                 respawn = false;
         }
 
-        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -1261,7 +1261,7 @@ class npc_wind_bomb_meljarak : public CreatureScript
             EventMap events;
             bool canExplode;
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 // Forcing display id, sometimes wrong otherwise
                 me->SetDisplayId(DISPLAYID_WINDBOMB);
@@ -1348,7 +1348,7 @@ public:
             timerChecktarget = 500;
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (attacker->HasAura(SPELL_RESIDUE))
                 damage = 0;
@@ -1556,8 +1556,6 @@ public:
                 break;
             }
         }
-
-        uint32 _targetCount;
     };
 
     SpellScript* GetSpellScript() const
@@ -1674,6 +1672,7 @@ class go_krithik_weapon_rack : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_meljarak()
 {
     new boss_wind_lord_meljarak();          // 62397
@@ -1690,3 +1689,4 @@ void AddSC_boss_meljarak()
     new spell_whirling_blade_damages();     // 121898
     new go_krithik_weapon_rack();           // 211675
 }
+#endif

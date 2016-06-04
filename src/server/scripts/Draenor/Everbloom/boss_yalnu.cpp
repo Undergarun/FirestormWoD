@@ -10,13 +10,13 @@
 
 enum eYalnuSpells
 {
-    SpellColossalBlow            = 169179,
-    SpellEntanglmentDummy        = 169247,
-    SpellEntaglementTrigger      = 169251,
-    SpellGenesis                 = 169613,
+	SpellColossalBlow            = 169179,
+	SpellEntanglmentDummy        = 169247,
+	SpellEntaglementTrigger      = 169251,  
+	SpellGenesis                 = 169613, 
     SpellGenesisProjectile       = 175975,
-    SpellGerminateAborbladeDummy = 169265,
-    SpellGeiminateAborbladeAura  = 169266,
+	SpellGerminateAborbladeDummy = 169265,
+	SpellGeiminateAborbladeAura  = 169266,
     SpellFontOfLife              = 169120,
     SpellFontOfLifeSummon        = 169121,
     SpellDragonBreathVisual      = 101837,
@@ -27,10 +27,10 @@ enum eYalnuSpells
 
 enum eYalnuEvents
 {
-    EventColossalBlow        = 1,
-    EventEntaglement,
-    EventGenesis,
-    EventGerminateAbroblade,
+	EventColossalBlow        = 1,
+	EventEntaglement,
+	EventGenesis,
+	EventGerminateAbroblade,
     EventFontOfLife,
     EventFeralLasherActivate,
     EventNoxiousBreath,
@@ -155,7 +155,7 @@ public:
             uint32 l_Entries[6] =
             { eEverbloomCreature::CreatureKirinTorBattleMage, eEverbloomCreature::CreatureLadyBayeu, eYalnuCreatures::CreatureSwiftSproutling,
             eYalnuCreatures::CreatureViciousMandragora, eYalnuCreatures::CreatureGnarledAncient, eYalnuCreatures::CreatureFeralLasher };
-            for (uint8 l_I = 0; l_I < 5; l_I++)
+            for (uint8 l_I = 0; l_I < 7; l_I++)
                 DespawnCreaturesInArea(l_Entries[l_I], me);        
             if (!m_First)
             {
@@ -171,6 +171,7 @@ public:
             }     
         }
     
+		/*
         void MoveInLineOfSight(Unit* p_Who) override
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 14.0f) && !m_EncounterBegin)
@@ -183,6 +184,7 @@ public:
                 }
             }
         }
+		*/
 
         void MovementInform(uint32 p_Type, uint32 p_Id) override
         {
@@ -266,7 +268,17 @@ public:
         }
 
         void UpdateAI(uint32 const p_Diff) override
-        {
+        {		
+			if (m_Instance->GetBossState(eEverbloomData::DataArchmageSol) == EncounterState::DONE)
+			{
+				if (me->FindNearestPlayer(2.0f, true) && !m_EncounterBegin)
+				{
+					m_EncounterBegin = true;
+					me->RemoveAllAuras();
+					me->GetMotionMaster()->MovePoint(eYalnuMovementInformed::MovementYalnuPoint1, g_PositionYalnuMoveToPortal.GetPositionX(), g_PositionYalnuMoveToPortal.GetPositionY(), g_PositionYalnuMoveToPortal.GetPositionZ());
+				}
+			}
+
             if (!UpdateVictim())
                 return;
 
@@ -609,11 +621,11 @@ public:
     the_everbloom_yalnu_mob_swift_sproutling() : CreatureScript("the_everbloom_yalnu_mob_swift_sproutling") { }
 
     struct the_everbloom_yalnu_mob_swift_sproutlingAI : public ScriptedAI
-    {
+	{
         the_everbloom_yalnu_mob_swift_sproutlingAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-        {
+		{
             m_Instance = me->GetInstanceScript();
-        }
+		}
 
         enum eSwiftSproutlingSpells
         {
@@ -633,10 +645,10 @@ public:
             DoZoneInCombat();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
-        {
+		void EnterCombat(Unit* p_Attacker) override
+		{
             events.ScheduleEvent(eSwiftSproutlingEvents::EventTendonRip, urand(7 * TimeConstants::IN_MILLISECONDS, 11 * TimeConstants::IN_MILLISECONDS));
-        }
+		}
 
         void UpdateAI(const uint32 p_Diff) override
         {
@@ -645,8 +657,8 @@ public:
 
             events.Update(p_Diff);
 
-            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                return;
+			if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+				return;
 
             switch (events.ExecuteEvent())
             {
@@ -659,14 +671,14 @@ public:
                     break;
             }
 
-            DoMeleeAttackIfReady();
-        }
-    };
+			DoMeleeAttackIfReady();
+		}
+	};
 
     CreatureAI* GetAI(Creature* p_Creature) const override
-    {
+	{
         return new the_everbloom_yalnu_mob_swift_sproutlingAI(p_Creature);
-    }
+	}
 };
 
 /// Vicious Mandragora - 84399
@@ -868,11 +880,11 @@ public:
     the_everbloom_yalnu_mob_feral_lasher() : CreatureScript("the_everbloom_yalnu_mob_feral_lasher") { }
 
     struct the_everbloom_yalnu_mob_feral_lasherAI : public ScriptedAI
-    {
+	{
         the_everbloom_yalnu_mob_feral_lasherAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-        {
+		{
             m_Instance = me->GetInstanceScript();
-        }
+		}
 
         enum eFeralLasherEvents
         {
@@ -890,15 +902,15 @@ public:
         InstanceScript* m_Instance;
         bool m_SleepMode;
 
-        void Reset() override
-        {
+		void Reset() override
+		{
             events.Reset();
             DoZoneInCombat();
             m_SleepMode = true;
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->AddAura(eFeralLasherSpells::SpellSubmerge, me);
             events.ScheduleEvent(eFeralLasherEvents::EventFeralLasherActivate, 14 * TimeConstants::IN_MILLISECONDS);
-        }
+		}
 
         void Trample() // Hardcoded
         {
@@ -912,7 +924,7 @@ public:
         }
 
         void UpdateAI(const uint32 p_Diff) override
-        {
+		{
             if (!UpdateVictim())
                 return;
 
@@ -921,8 +933,8 @@ public:
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
-            {
+			switch (events.ExecuteEvent())
+			{
                 case eFeralLasherEvents::EventLasherVenom:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
@@ -942,23 +954,23 @@ public:
                     }
                     default:
                         break;
-            }
+			}
 
             Trample();
-            DoMeleeAttackIfReady();
-        }
-    };
+			DoMeleeAttackIfReady();
+		}
+	};
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
         return new the_everbloom_yalnu_mob_feral_lasherAI(p_Creature);
-    }
+	}
 };
 
 /// Trigger Teleport - 324251
 class the_everbloom_yalnu_creature_teleport_to_boss : public CreatureScript
 {
-public:
+	public:
 
     the_everbloom_yalnu_creature_teleport_to_boss() : CreatureScript("the_everbloom_yalnu_creature_teleport_to_boss") { }
 
@@ -1041,7 +1053,7 @@ public:
     the_everbloom_yalnu_spell_font_of_life() : SpellScriptLoader("the_everbloom_yalnu_spell_font_of_life") { }
 
     class the_everbloom_yalnu_spell_font_of_life_SpellScript : public SpellScript
-    {
+	{
         PrepareSpellScript(the_everbloom_yalnu_spell_font_of_life_SpellScript);
 
         enum eFontOfLifeSpells
@@ -1080,18 +1092,18 @@ public:
                     GetCaster()->SummonCreature(l_Value, l_Pos, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, l_Spell->GetDuration());
                 }
             }
-        }
+		}
 
         void Register()
         {
             OnEffectHit += SpellEffectFn(the_everbloom_yalnu_spell_font_of_life_SpellScript::HandleSummon, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_SUMMON);
         }
-    };
+	};
 
     SpellScript* GetSpellScript() const override
-    {
+	{
         return new the_everbloom_yalnu_spell_font_of_life_SpellScript();
-    }
+	}
 };
 
 /// Colossal Blow - 169179 
@@ -1132,7 +1144,7 @@ public:
 
 void AddSC_boss_yalnu()
 {
-    new boss_yalnu();                                   ///< 83846
+	new boss_yalnu();                                   ///< 83846
     new the_everbloom_yalnu_mob_kirin_tor_mage();       ///< 84329
     new the_everbloom_yalnu_mob_gnarled_ancient();      ///< 84312
     new the_everbloom_yalnu_creature_teleport_to_boss();///< 324251

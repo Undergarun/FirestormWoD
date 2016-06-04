@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 79828 - Murg                                                       ///
@@ -43,7 +43,7 @@ namespace MS { namespace Garrison
         return new npc_MurgAI(p_Creature);
     }
 
-    void npc_MurgAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_MurgAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         if (Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript())
         {
@@ -63,30 +63,51 @@ namespace MS { namespace Garrison
                 if (l_GarrisonMgr == nullptr)
                     return;
 
-                std::vector<uint32>& l_Entries = l_GarrisonMgr->GetGarrisonTavernDatas();
+                std::vector<uint32>& l_Entries = l_GarrisonMgr->GetGarrisonDailyTavernDatas();
 
-                if (l_Entries.size() == 1)
-                    SummonRelativeCreature(l_Entries[0],
-                    g_QuestGiverHordePositions[0].X,
-                    g_QuestGiverHordePositions[0].Y,
-                    g_QuestGiverHordePositions[0].Z,
-                    g_QuestGiverHordePositions[0].O,
-                    TEMPSUMMON_MANUAL_DESPAWN);
-                else if (l_Entries.size() > 1)
+                if (l_Entries.empty())
+                    return;
+
+                switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(MS::Garrison::BuildingType::Inn)))
                 {
-                    SummonRelativeCreature(l_Entries[0],
-                        g_QuestGiverHordePositions[1].X,
-                        g_QuestGiverHordePositions[1].Y,
-                        g_QuestGiverHordePositions[1].Z,
-                        g_QuestGiverHordePositions[1].O,
-                        TEMPSUMMON_MANUAL_DESPAWN);
+                    case 1:
+                    {
+                        if (l_Entries.size() > 1)
+                        {
+                            SummonRelativeCreature(l_Entries[0], g_QuestGiverHordePositions[1], TEMPSUMMON_MANUAL_DESPAWN);
+                            SummonRelativeCreature(l_Entries[1], g_QuestGiverHordePositions[2], TEMPSUMMON_MANUAL_DESPAWN);
+                        }
+                        else
+                            SummonRelativeCreature(l_Entries[0], g_QuestGiverHordePositions[0], TEMPSUMMON_MANUAL_DESPAWN);
 
-                    SummonRelativeCreature(l_Entries[1],
-                        g_QuestGiverHordePositions[2].X,
-                        g_QuestGiverHordePositions[2].Y,
-                        g_QuestGiverHordePositions[2].Z,
-                        g_QuestGiverHordePositions[2].O,
-                        TEMPSUMMON_MANUAL_DESPAWN);
+                        break;
+                    }
+                    case 2:
+                    {
+                        if (l_Entries.size() > 1)
+                        {
+                            SummonRelativeCreature(l_Entries[0], g_QuestGiverHordePositions[4], TEMPSUMMON_MANUAL_DESPAWN);
+                            SummonRelativeCreature(l_Entries[1], g_QuestGiverHordePositions[5], TEMPSUMMON_MANUAL_DESPAWN);
+                        }
+                        else
+                            SummonRelativeCreature(l_Entries[0], g_QuestGiverHordePositions[3], TEMPSUMMON_MANUAL_DESPAWN);
+
+                        break;
+                    }
+                    case 3:
+                    {
+                        if (l_Entries.size() > 1)
+                        {
+                            SummonRelativeCreature(l_Entries[0], g_QuestGiverHordePositions[7], TEMPSUMMON_MANUAL_DESPAWN);
+                            SummonRelativeCreature(l_Entries[1], g_QuestGiverHordePositions[8], TEMPSUMMON_MANUAL_DESPAWN);
+                        }
+                        else
+                            SummonRelativeCreature(l_Entries[0], g_QuestGiverHordePositions[6], TEMPSUMMON_MANUAL_DESPAWN);
+
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
         }
@@ -94,40 +115,91 @@ namespace MS { namespace Garrison
 
     void npc_MurgAI::OnDailyDataReset()
     {
-        if (Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript())
+        if (Player* l_Player = GetOwner())
         {
-            if (Player* l_Player = l_GarrisonSite->GetOwner())
-            {
-                MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+            MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
 
-                if (l_GarrisonMgr == nullptr)
-                    return;
+            if (l_GarrisonMgr == nullptr)
+                return;
 
-                if (roll_chance_i(50))
-                {
-                    uint32 l_Entry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
-
-                    l_GarrisonMgr->CleanGarrisonTavernData();
-                    l_GarrisonMgr->AddGarrisonTavernData(l_Entry);
-                }
-                else
-                {
-                    uint32 l_FirstEntry  = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
-                    uint32 l_SecondEntry = 0;
-
-                    do
-                        l_SecondEntry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
-                    while (l_SecondEntry == l_FirstEntry);
-
-                    l_GarrisonMgr->CleanGarrisonTavernData();
-                    l_GarrisonMgr->AddGarrisonTavernData(l_FirstEntry);
-                    l_GarrisonMgr->AddGarrisonTavernData(l_SecondEntry);
-                }
-
-                OnSetPlotInstanceID(GetPlotInstanceID());
-                l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
-            }
+            OnSetPlotInstanceID(GetPlotInstanceID());
+            l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
         }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_akanja_garr::npc_akanja_garr()
+        : CreatureScript("npc_akanja_garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a player opens a gossip dialog with the GameObject.
+    /// @p_Player     : Source player instance
+    /// @p_Creature   : Target GameObject instance
+    bool npc_akanja_garr::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        Manager* l_GarrisonMgr = p_Player->GetGarrison();
+
+        if (l_GarrisonMgr == nullptr || l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(BuildingType::Inn)) < 2)
+            return true;
+
+        if (!p_Player->HasQuest(Quests::Horde_TheHeadHunterHarverst) && !p_Player->IsQuestRewarded(Quests::Horde_TheHeadHunterHarverst))
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_TheHeadHunterHarverst, 4);
+
+        if (p_Player->GetQuestStatus(Quests::Horde_TheHeadHunterHarverst) != QUEST_STATUS_NONE && l_GarrisonMgr->GetGarrisonWeeklyTavernDatas().empty())
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::FollowerRecruitment, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+
+        return true;
+    }
+
+    /// Called when a player selects a gossip item in the creature's gossip menu.
+    /// @p_Player   : Source player instance
+    /// @p_Creature : Target creature instance
+    /// @p_Sender   : Sender menu
+    /// @p_Action   : Action
+    bool npc_akanja_garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
+    {
+        if (p_Action == GOSSIP_ACTION_INFO_DEF)
+        {
+            GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+
+            if (l_AI == nullptr)
+                return true;
+
+            l_AI->SendFollowerRecruitmentUI(p_Player);
+        }
+
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_akanja_garr::GetAI(Creature* p_Creature) const
+    {
+        return new npc_akanja_garrAI(p_Creature);
+    }
+
+    /// Constructor
+    npc_akanja_garr::npc_akanja_garrAI::npc_akanja_garrAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+        SetAIObstacleManagerEnabled(true);
+    }
+
+    void npc_akanja_garr::npc_akanja_garrAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    {
     }
 
 }   ///< namespace Garrison

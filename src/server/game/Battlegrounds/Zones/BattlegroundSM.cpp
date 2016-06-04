@@ -1,21 +1,10 @@
-/*
-* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "BattlegroundSM.h"
 #include "Player.h"
@@ -237,7 +226,7 @@ void BattlegroundSM::CheckTrackSwitch()
     }
 }
 
-void BattlegroundSM::FirstMineCartSummon(uint32 p_Diff) ///< p_Diff is unused
+void BattlegroundSM::FirstMineCartSummon(uint32 /*p_Diff*/)
 {
     for (uint32 l_Cart = 0; l_Cart < BG_SM_MINE_CART_3; l_Cart++)
     {
@@ -264,7 +253,7 @@ void BattlegroundSM::StartingEventOpenDoors()
         SpawnBGObject(l_Iter, RESPAWN_IMMEDIATELY);
 }
 
-void BattlegroundSM::SummonMineCart(uint32 p_Diff) ///< p_Diff is unused
+void BattlegroundSM::SummonMineCart(uint32 /*p_Diff*/)
 {
     for (int l_I = 0; l_I < BG_SM_MINE_CART_3; ++l_I)
     {
@@ -295,7 +284,7 @@ void BattlegroundSM::CheckPlayerNearMineCart(uint32 p_Diff)
                 if (l_Player->HasAuraType(AuraType::SPELL_AURA_MOD_STEALTH))
                     continue;
 
-                if (l_Player->isDead()) 
+                if (l_Player->isDead())
                 {
                     UpdateWorldStateForPlayer(SM_DISPLAY_PROGRESS_BAR, BG_SM_PROGRESS_BAR_DONT_SHOW, l_Player);
                     continue;
@@ -643,7 +632,7 @@ void BattlegroundSM::EventTeamCapturedMineCart(uint32 p_Team, uint8 p_MineCart)
                     l_Player->FindNearestCreature(NPC_MINE_CART_2, 22.0f, true) ||
                     l_Player->FindNearestCreature(NPC_MINE_CART_3, 22.0f, true))
                 {
-                    UpdatePlayerScore(l_Player, SCORE_CART_CONTROLLED, 1);
+                    UpdatePlayerScore(l_Player, nullptr, SCORE_CART_CONTROLLED, 1);
                     l_Player->RewardHonor(l_Player, 1, irand(10, 12));
                 }
         }
@@ -1167,7 +1156,7 @@ void BattlegroundSM::HandleKillPlayer(Player* p_Player, Player* p_Killer)
     EventPlayerDroppedFlag(p_Player);
 }
 
-void BattlegroundSM::UpdatePlayerScore(Player* p_Player, uint32 p_Type, uint32 p_Value, bool p_AddHonor)
+void BattlegroundSM::UpdatePlayerScore(Player* p_Player, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_AddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType)
 {
     BattlegroundScoreMap::iterator l_Iter = PlayerScores.find(p_Player->GetGUID());
     if (l_Iter == PlayerScores.end())                         // player not found
@@ -1179,7 +1168,7 @@ void BattlegroundSM::UpdatePlayerScore(Player* p_Player, uint32 p_Type, uint32 p
             ((BattlegroundSMScore*)l_Iter->second)->MineCartCaptures += p_Value;
             break;
         default:
-            Battleground::UpdatePlayerScore(p_Player, NULL, p_Type, p_Value, p_AddHonor);
+            Battleground::UpdatePlayerScore(p_Player, p_Victim, p_Type, p_Value, p_AddHonor, p_RewardType);
             break;
     }
 }

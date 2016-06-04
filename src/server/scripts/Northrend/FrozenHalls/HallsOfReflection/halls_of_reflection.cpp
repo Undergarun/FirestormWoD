@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -73,7 +64,7 @@ enum Text
     SAY_FALRIC_INTRO_1                  = 5,
     SAY_FALRIC_INTRO_2                  = 6,
 
-    SAY_MARWYN_INTRO_1                  = 4,
+    SAY_MARWYN_INTRO_1                  = 4
 };
 
 enum Events
@@ -135,7 +126,7 @@ enum Events
 
     EVENT_OPEN_FROSTWORN_DOOR,
     EVENT_CLOSE_FROSTWORN_DOOR,
-    EVENT_GUARD_FINISH,
+    EVENT_GUARD_FINISH
 };
 
 enum eEnum
@@ -146,7 +137,7 @@ enum eEnum
     QUEST_DELIVRANCE_FROM_THE_PIT_A2              = 24710,
     QUEST_DELIVRANCE_FROM_THE_PIT_H2              = 24712,
     QUEST_WRATH_OF_THE_LICH_KING_A2               = 24500,
-    QUEST_WRATH_OF_THE_LICH_KING_H2               = 24802,
+    QUEST_WRATH_OF_THE_LICH_KING_H2               = 24802
 };
 
 enum Spells
@@ -167,14 +158,7 @@ enum Spells
     SPELL_SYLVANAS_DESTROY_ICE_WALL    = 70225,
     SPELL_SYLVANAS_JUMP                = 68339,
     SPELL_SYLVANAS_SHADOWSTEP          = 69087,
-    SPELL_FIRE_CANNON                  = 67461,
-};
-
-const Position HallsofReflectionLocs[]=
-{
-    {5283.234863f, 1990.946777f, 707.695679f, 0.929097f},   // 2 Loralen Follows
-    {5408.031250f, 2102.918213f, 707.695251f, 0.792756f},   // 9 Sylvanas Follows
-    {5401.866699f, 2110.837402f, 707.695251f, 0.800610f},   // 10 Loralen follows
+    SPELL_FIRE_CANNON                  = 67461
 };
 
 const Position IntroPos              = {5265.89f, 1952.98f, 707.6978f, 0.0f}; // Jaina/Sylvanas Intro Start Position
@@ -186,8 +170,8 @@ const Position LichKingMoveThronePos = {5312.080566f, 2009.172119f, 709.341431f,
 const Position LichKingMoveAwayPos   = {5400.069824f, 2102.7131689f, 707.69525f, 0.843803f}; // Lich King walks away
 const Position GuardDiePos           = {5367.544434f, 2085.288086f, 707.695007f, 0.900312f}; // Lich King walks away
 const Position FalricStartPos        = {5334.979980f, 1982.399536f, 709.320129f, 2.347014f}; // Falric start position
-const Position MarwynStartPos        = {5283.878906f, 2030.459595f, 709.319641f, 5.506670f}; // Marwyn start position 
-const Position ChestPos              = {5246.187500f, 1649.079468f, 784.301758f, 0.901268f}; // Chest position 
+const Position MarwynStartPos        = {5283.878906f, 2030.459595f, 709.319641f, 5.506670f}; // Marwyn start position
+const Position ChestPos              = {5246.187500f, 1649.079468f, 784.301758f, 0.901268f}; // Chest position
 
 class npc_jaina_or_sylvanas_hor : public CreatureScript
 {
@@ -540,7 +524,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     }
                     if (Creature* marwyn = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MARWYN_EVENT)))
                         marwyn->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY1H);
-                    _instance->ProcessEvent(0, EVENT_SPAWN_WAVES); 
+                    _instance->ProcessEvent(0, EVENT_SPAWN_WAVES);
                     _events.ScheduleEvent(EVENT_INTRO_LK_10, 4000);
                     break;
                 case EVENT_INTRO_LK_10:
@@ -583,7 +567,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                         guard->SetCorpseDelay(604800);
                         guard->GetMotionMaster()->MovePoint(0, GuardDiePos);
                     }
-                    break;                    
+                    break;
                 case EVENT_SKIP_INTRO:
                     me->GetMotionMaster()->MovePoint(0, MoveThronePos);
                     if (Creature* guard = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_LORALEN_OR_KORELN)))
@@ -650,7 +634,7 @@ enum TrashSpells
     SPELL_SHOOT                                   = 72208,
     SPELL_CURSED_ARROW                            = 72222,
     SPELL_FROST_TRAP                              = 72215,
-    SPELL_ICE_SHOT                                = 72268,
+    SPELL_ICE_SHOT                                = 72268
 };
 
 enum TrashEvents
@@ -685,7 +669,7 @@ enum TrashEvents
     EVENT_SHOOT,
     EVENT_CURSED_ARROW,
     EVENT_FROST_TRAP,
-    EVENT_ICE_SHOT,
+    EVENT_ICE_SHOT
 };
 
 struct npc_gauntlet_trash : public ScriptedAI
@@ -1112,7 +1096,7 @@ class npc_queldelar : public CreatureScript
         npc_queldelar() : CreatureScript("npc_queldelar") { }
 
         struct npc_queldelarAI  : public ScriptedAI
-        { 
+        {
             npc_queldelarAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
@@ -1166,7 +1150,6 @@ class npc_queldelar : public CreatureScript
             }
         private:
             EventMap _events;
-            bool isActive;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1386,7 +1369,7 @@ enum YellsPhase2
     
     SAY_BARTLETT_FIRE                  = 0,
 
-    SAY_KORM_FIRE                      = 0,
+    SAY_KORM_FIRE                      = 0
 };
 
 const Position CannonSpawns[4] =
@@ -1394,7 +1377,7 @@ const Position CannonSpawns[4] =
     {5230.00f, 1658.75f, 802.22f, 0.00f},
     {5245.74f, 1644.44f, 802.35f, 0.00f},
     {5260.64f, 1636.07f, 802.16f, 0.00f},
-    {5275.90f, 1633.22f, 802.25f, 0.00f},
+    {5275.90f, 1633.22f, 802.25f, 0.00f}
 };
 
 class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
@@ -1689,7 +1672,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!_instance)
                     return;
@@ -2091,6 +2074,7 @@ class at_hor_door_teleport : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_halls_of_reflection()
 {
     new npc_jaina_or_sylvanas_hor();
@@ -2108,3 +2092,4 @@ void AddSC_halls_of_reflection()
     new npc_spiritual_reflection();
     new npc_jaina_and_sylvana_hor_part2();
 }
+#endif

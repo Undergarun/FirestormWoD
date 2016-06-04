@@ -1,8 +1,14 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include"ScriptPCH.h"
 #include"Spell.h"
 #include"shadowfang_keep.h"
-
-
 
 #define SAY_AGGRO_ALLIANCE "Ivar's pack failed horribly, so now he sends mercenaries. No matter, your journey ends in agony."
 #define SAY_AGGRO_HORDE "That bitch Sylvanas sent you too, did she? No matter, your journey ends in agony."
@@ -80,7 +86,7 @@ class boss_lord_godfrey : public CreatureScript
                 _Reset();
             }
             
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, 10000);
                 events.ScheduleEvent(EVENT_CURSED_BULLET, 15000);
@@ -94,21 +100,21 @@ class boss_lord_godfrey : public CreatureScript
                 DoZoneInCombat();
             }
             
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-                        if ((me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_CURSED_BULLET	) || 
+                        if ((me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_CURSED_BULLET ) ||
                             (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_CURSED_BULLET_H))
                                 me->InterruptSpell(CURRENT_GENERIC_SPELL, false);
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*pWho*/)
             {
                 me->MonsterYell(urand(0, 1)? SAY_KILL1: SAY_KILL2, 0, 0);
             }
 
-            void JustDied(Unit* who)
+            void JustDied(Unit* /*pWho*/)
             {
                 _JustDied();
                 me->MonsterYell(SAY_DEATH, 0, 0);
@@ -173,7 +179,7 @@ class npc_godfrey_pistol_barrage : public CreatureScript
             }
             
             
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(const uint32 /*uiDiff*/)
             {
             }
      };
@@ -186,9 +192,9 @@ class spell_godfrey_summon_bloodthirsty_ghouls: public SpellScriptLoader
 
         class spell_godfrey_summon_bloodthirsty_ghouls_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_godfrey_summon_bloodthirsty_ghouls_AuraScript);
+            PrepareAuraScript(spell_godfrey_summon_bloodthirsty_ghouls_AuraScript)
 
-            void HandleDummyTick(AuraEffect const* aurEff)
+            void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {
                 GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_BLOODTHIRSTY_GHOULS_M, true);
             }
@@ -205,9 +211,11 @@ class spell_godfrey_summon_bloodthirsty_ghouls: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lord_godfrey()
 {
     new boss_lord_godfrey();
     new npc_godfrey_pistol_barrage();
     new spell_godfrey_summon_bloodthirsty_ghouls();
 }
+#endif

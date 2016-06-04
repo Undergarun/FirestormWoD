@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "ADwarvenBunker.hpp"
 #include "ADwarvenBunker_Level1Data.hpp"
 #include "ScriptMgr.h"
@@ -14,7 +15,7 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 84594 - Gussof Forgefire                                           ///
@@ -94,12 +95,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        extern InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        extern InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        extern InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        extern InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -180,12 +181,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -236,7 +237,7 @@ namespace MS { namespace Garrison
         {
             if (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuilding(static_cast<GarrisonNPCAI*>(l_AI)->GetPlotInstanceID())) >= 2)
             {
-                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain))
+                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain))
                     p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::ArmoryWeeklySeal, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             }
         }
@@ -260,7 +261,7 @@ namespace MS { namespace Garrison
         else if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_SEAL_OF_TEMPERED_FATE, 1, 1);
-            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain, 1);
+            p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain, 1);
             p_Creature->SendPlaySpellVisualKit(179, 0); /// 53 SpellCastDirected
             p_Player->SendPlaySpellVisualKit(362, 1);   /// 113 EmoteSalute
         }

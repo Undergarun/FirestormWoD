@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -49,7 +40,7 @@ const float SummonPos[MAX_SUMMON_POS][4] =
     {2729.05f, -3544.47f, 261.91f, 5.58f},
     {2728.24f, -3465.08f, 264.20f, 3.56f},
     {2704.11f, -3456.81f, 265.53f, 4.51f},
-    {2663.56f, -3464.43f, 262.66f, 5.20f},
+    {2663.56f, -3464.43f, 262.66f, 5.20f}
 };
 
 enum Events
@@ -61,7 +52,7 @@ enum Events
     EVENT_WARRIOR,
     EVENT_BALCONY,
     EVENT_WAVE,
-    EVENT_GROUND,
+    EVENT_GROUND
 };
 
 class boss_noth : public CreatureScript
@@ -211,7 +202,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_noth()
 {
     new boss_noth();
 }
+#endif

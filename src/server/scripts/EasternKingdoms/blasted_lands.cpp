@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Blasted_Lands
@@ -148,7 +138,7 @@ class npc_archmage_khadgar_gossip : public CreatureScript
         {
         }
 
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+        bool OnGossipHello(Player* p_Player, Creature* /*p_Creature*/)
         {
             if (p_Player->GetTeamId() == TEAM_ALLIANCE)
             {
@@ -208,7 +198,7 @@ class npc_blasted_lands_zidormi : public CreatureScript
         {
             npc_blasted_lands_zidormiAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_Sender*/, uint32 /*p_Action*/) override
             {
                 if (p_Player->HasAura(eSpell::TimeTravelling))
                 {
@@ -265,7 +255,7 @@ class PlayerScript_DarkPortal_Phasing: public PlayerScript
             BLASTER_LANDS_ZONE_ID       = 4
         };
 
-        void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
+        void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 /*p_NewAreaID*/)
         {
             if (p_Player->GetMapId() == BLASTED_LANDS_DRAENOR_PHASE || p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID)
             {
@@ -299,6 +289,7 @@ class PlayerScript_DarkPortal_Phasing: public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_blasted_lands()
 {
     new npc_deathly_usher();
@@ -309,3 +300,4 @@ void AddSC_blasted_lands()
     /// Player script
     new PlayerScript_DarkPortal_Phasing();
 }
+#endif

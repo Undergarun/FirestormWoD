@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Item_Scripts
@@ -217,7 +207,7 @@ const uint32 CaribouTraps[CaribouTrapsNum] =
 {
     GO_CARIBOU_TRAP_1, GO_CARIBOU_TRAP_2, GO_CARIBOU_TRAP_3, GO_CARIBOU_TRAP_4, GO_CARIBOU_TRAP_5,
     GO_CARIBOU_TRAP_6, GO_CARIBOU_TRAP_7, GO_CARIBOU_TRAP_8, GO_CARIBOU_TRAP_9, GO_CARIBOU_TRAP_10,
-    GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15,
+    GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15
 };
 
 class item_pile_fake_furs : public ItemScript
@@ -316,7 +306,7 @@ enum eHelpThemselves
     GO_MAMMOTH_TRAP_19                            = 188041,
     GO_MAMMOTH_TRAP_20                            = 188042,
     GO_MAMMOTH_TRAP_21                            = 188043,
-    GO_MAMMOTH_TRAP_22                            = 188044,
+    GO_MAMMOTH_TRAP_22                            = 188044
 };
 
 #define MammothTrapsNum 22
@@ -417,7 +407,7 @@ class item_sylvanas_music_box : public ItemScript
     public:
         item_sylvanas_music_box() : ItemScript("item_sylvanas_music_box") { }
 
-        bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/)
+        bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/)
         {
             Map* map = player->GetMap();
             if (!map)
@@ -718,7 +708,7 @@ class item_script_clinking_present : public ItemScript
             AllianceChauffeuredChopper  = 122703
         };
 
-        bool OnOpen(Player* p_Player, Item* p_Item) override
+        bool OnOpen(Player* p_Player, Item* /*p_Item*/) override
         {
             if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
                 p_Player->AddItem(eItemIDs::AllianceChauffeuredChopper, 1);
@@ -748,7 +738,7 @@ class item_script_chauffeured_chopper : public ItemScript
             SummonChauffeurAlliance = 179245
         };
 
-        bool OnUse(Player* p_Player, Item* p_Item, SpellCastTargets const& p_Targets) override
+        bool OnUse(Player* p_Player, Item* p_Item, SpellCastTargets const& /*p_Targets*/) override
         {
             switch (p_Item->GetEntry())
             {
@@ -767,6 +757,56 @@ class item_script_chauffeured_chopper : public ItemScript
             }
 
             return false;
+        }
+};
+
+/// Challenger's Strongbox - 127831
+class item_script_challengers_strongbox : public ItemScript
+{
+    public:
+        item_script_challengers_strongbox() : ItemScript("item_script_challengers_strongbox") { }
+
+        bool OnOpen(Player* p_Player, Item* p_Item) override
+        {
+            ItemTemplate const* l_Proto = p_Item->GetTemplate();
+            LootTemplate const* l_LootTemplate = LootTemplates_Item.GetLootFor(l_Proto->ItemId);
+            if (!l_LootTemplate)
+                return false;
+
+            uint32 l_ItemID = 0;
+            std::list<ItemTemplate const*> l_LootTable;
+            std::vector<uint32> l_Items;
+            l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+            uint32 l_SpecID = p_Player->GetLootSpecId() ? p_Player->GetLootSpecId() : p_Player->GetSpecializationId(p_Player->GetActiveSpec());
+
+            for (ItemTemplate const* l_Template : l_LootTable)
+            {
+                if ((l_Template->AllowableClass && !(l_Template->AllowableClass & p_Player->getClassMask())) ||
+                    (l_Template->AllowableRace && !(l_Template->AllowableRace & p_Player->getRaceMask())))
+                    continue;
+
+                if (l_Template->HasSpec((SpecIndex)l_SpecID, p_Player->getLevel()))
+                    l_Items.push_back(l_Template->ItemId);
+            }
+
+            if (l_Items.empty())
+                return false;
+
+            l_ItemID = l_Items[urand(0, l_Items.size() - 1)];
+
+            if (!l_ItemID)
+                return false;
+
+            if (!p_Player->GetBagsFreeSlots())
+                return false;
+
+            if (Item* l_Item = p_Player->AddItem(l_ItemID, 1))
+            {
+                p_Player->SendDisplayToast(l_ItemID, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false, l_Item->GetAllItemBonuses());
+                p_Player->DestroyItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
+            }
+
+            return true;
         }
 };
 
@@ -826,6 +866,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
@@ -845,7 +886,9 @@ void AddSC_item_scripts()
     new item_eye_of_the_black_prince();
     new item_script_clinking_present();
     new item_script_chauffeured_chopper();
+    new item_script_challengers_strongbox();
 
     new PlayerScript_VehicleCheck();
     new PlayerScript_ProtoDrakeLootHackfix();
 }
+#endif

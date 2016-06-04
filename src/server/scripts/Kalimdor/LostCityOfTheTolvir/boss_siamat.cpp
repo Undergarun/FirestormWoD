@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "lost_city_of_the_tolvir.h"
 #include "ScriptPCH.h"
 #include "AchievementMgr.h"
@@ -27,18 +35,18 @@ enum eSpells
     SPELL_TEMPEST_STORM_SUMMON       = 83414,
     SPELL_TEMPEST_STORM_TRANSFORM    = 83170,
     SPELL_LIGHTNING_CHARGE           = 91872,
-    SPELL_LIGHTNING_CHARGE_AURA      = 93959,
+    SPELL_LIGHTNING_CHARGE_AURA      = 93959
 };
 
 enum eCreatures
 {
     NPC_TEMPEST_STORM                = 44713,
-    NPC_SETVANT_OF_SIAMAT            = 45269,
+    NPC_SETVANT_OF_SIAMAT            = 45269
 };
 
 enum eActions
 {
-    ACTION_SERVANT_DEATH,
+    ACTION_SERVANT_DEATH
 };
 
 enum eTexts
@@ -48,7 +56,7 @@ enum eTexts
     SAY_WAILING_WINDS_1                = -1877012,
     SAY_WAILING_WINDS_2                = -1877026,
     SAY_DEATH                          = -1877013,
-    SAY_KILL_PLAYER                    = -1877025,
+    SAY_KILL_PLAYER                    = -1877025
 };
 
 enum ePhases
@@ -57,7 +65,7 @@ enum ePhases
     PHASE_WAILING_WINDS              = 2,
     PHASE_SIAMAT                     = 3,
 
-    PHASE_WAILING_WINDS_MASK         = 1 << PHASE_WAILING_WINDS,
+    PHASE_WAILING_WINDS_MASK         = 1 << PHASE_WAILING_WINDS
 };
 
 enum eEvents
@@ -78,14 +86,14 @@ enum eEvents
     // Siamat Minion
     EVENT_CHAIN_LIGHTNING            = 1,
     // Cloud Burst
-    EVENT_PERIODIC_CAST              = 1,
+    EVENT_PERIODIC_CAST              = 1
 };
 
 const uint32 StaticShock[3]=
 {
     SPELL_STATIC_SHOCK_1,
     SPELL_STATIC_SHOCK_2,
-    SPELL_STATIC_SHOCK_3,
+    SPELL_STATIC_SHOCK_3
 };
 
 #define    FLOR_COORD_Z    36.0f
@@ -304,7 +312,7 @@ public:
             events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 5000);
         }
 
-        void DamageTaken(Unit* , uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* , uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (!IsHeroic())
                 return;
@@ -421,7 +429,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* , uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* , uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage >= me->GetHealth())
             {
@@ -507,7 +515,7 @@ class spell_wailing_winds: public SpellScriptLoader
 
         class spell_wailing_winds_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_wailing_winds_SpellScript);
+            PrepareSpellScript(spell_wailing_winds_SpellScript)
 
             void RandomJump(SpellEffIndex effIndex)
             {
@@ -556,7 +564,7 @@ class spell_gathered_storms: public SpellScriptLoader
 
         class spell_gathered_storms_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gathered_storms_SpellScript);
+            PrepareSpellScript(spell_gathered_storms_SpellScript)
 
             void ApplyAura(SpellEffIndex effIndex)
             {
@@ -602,6 +610,7 @@ class achievement_headed_south : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_siamat()
 {
     new boss_siamat();
@@ -614,3 +623,4 @@ void AddSC_boss_siamat()
 
     new achievement_headed_south();
 }
+#endif

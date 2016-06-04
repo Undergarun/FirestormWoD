@@ -542,6 +542,7 @@ public:
             events.Reset();
             me->SetInCombatWithZone();
             me->setFaction(HostileFaction);
+			me->SetDisplayId(InvisibleDisplay);
             m_Interval = 20 * TimeConstants::IN_MILLISECONDS;
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);      
             events.ScheduleEvent(eAgitatedWatersEvents::EventShootWater, urand(4 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
@@ -659,15 +660,13 @@ public:
         void UpdateAI(uint32 const p_Diff) override
         {
             if (m_Instance != nullptr)
-            { 
+            {
                 if (Creature* l_Witherbark = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataWitherbark)))
                 {
                     if (l_Witherbark->isInCombat() && l_Witherbark->HasAura(eAqueousGlobuleSpells::SpellBrittleBarkAura))
                     {
-                        if (!me->IsMoving()) /// Automatically forces the aqueous globule to get to Witherbark location.
-                        {
+                        if (!me->IsMoving()) /// Automatically forces the aqueous globule to get to Witherbark location.                      
                             me->GetMotionMaster()->MovePoint(0, *l_Witherbark);
-                        }
 
                         if (m_DiffCheckup <= p_Diff && !m_Caught) // Checks radius between Witherbark and current globule and increases water power incase of contact.
                         {
@@ -676,7 +675,7 @@ public:
                                 if (l_Witherbark->IsAIEnabled)
                                 {
                                     int32 l_Val = l_Witherbark->GetPower(Powers::POWER_MANA);
-                                    l_Val += 10;
+                                    l_Val += 25;
                                     m_Caught = true;
                                     l_Witherbark->AI()->DoAction(eWitherbarkActions::ActionEnergyPower);
                                     l_Witherbark->SetInt32Value(UNIT_FIELD_POWER, l_Val);
@@ -870,7 +869,7 @@ public:
     {
         PrepareAuraScript(the_everbloom_witherbark_aura_brittle_bark_AuraScript);
 
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/) 
         { 
             if (Unit* l_Caster = GetCaster())
             {
@@ -879,7 +878,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const*/*p_aurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {

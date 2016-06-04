@@ -1,11 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2014-2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common.h"
 #include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -57,13 +58,11 @@
 #include "Buildings/Horde/HFrostwallMines.hpp"
 #include "Buildings/Horde/HHerbGarden.hpp"
 
-#include <random>
-
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature* p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Owner(nullptr)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_Owner(nullptr), m_SequenceSize(0)
     {
 
     }
@@ -293,14 +292,14 @@ namespace MS { namespace Garrison
 
     /// When the building ID is set
     /// @p_BuildingID : Set building ID
-    void GarrisonNPCAI::OnSetBuildingID(uint32 p_BuildingID)
+    void GarrisonNPCAI::OnSetBuildingID(uint32 /*p_BuildingID*/)
     {
 
     }
 
     /// When the PlotInstance ID is set
     /// @p_BuildingID : Set plot instance ID
-    void GarrisonNPCAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void GarrisonNPCAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
 
     }
@@ -427,6 +426,84 @@ namespace MS { namespace Garrison
         }
     }
 
+    /// Show Follower recruitment UI
+    void GarrisonNPCAI::SendFollowerRecruitmentUI(Player* p_Player)
+    {
+        if (p_Player->IsInGarrison())
+        {
+            Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
+
+            if (l_GarrisonMgr == nullptr)
+                return;
+
+            WorldPacket l_Data(SMSG_GARRISON_OPEN_RECRUITMENT_NPC);
+            l_Data.appendPackGUID(me->GetGUID());
+
+            l_Data << uint32(0);                    ///< Unk1
+            l_Data << uint32(0);                    ///< Unk2 162
+            l_Data << uint32(0);                    ///< Unk3 2310 || 1281
+
+            std::vector<GarrisonFollower> l_Followers = l_GarrisonMgr->GetWeeklyFollowerRecruits(p_Player);
+
+            if (l_Followers.empty())
+            {
+                for (uint8 l_Itr = 0; l_Itr < 3; ++l_Itr)
+                {
+                    GarrisonFollower l_Follower;
+                    l_Follower.Write(l_Data);
+                }
+            }
+            else
+            {
+                for (GarrisonFollower l_Follower : l_Followers)
+                    l_Follower.Write(l_Data);
+            }
+
+            l_Data.WriteBit(l_GarrisonMgr->CanRecruitFollower());
+            l_Data.WriteBit(1);                   ///< unk bit 2
+
+            p_Player->SendDirectMessage(&l_Data);
+        }
+    }
+
+    /// Show Follower recruits UI
+    void GarrisonNPCAI::SendRecruitmentFollowersGenerated(Player* p_Player, uint32 p_AbilityID, uint32 p_ErrorMessage, bool p_IsTrait)
+    {
+        if (p_Player->IsInGarrison())
+        {
+            Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
+
+            if (l_GarrisonMgr == nullptr)
+                return;
+
+            WorldPacket l_Data(SMSG_GARRISON_RECRUITMENT_FOLLOWERS_GENERATED);
+            
+            l_Data << uint32(p_ErrorMessage);                           ///< l_Error ?
+            l_Data << uint32(sWorld->GetNextWeeklyQuestsResetTime());   ///< Time left until next reset
+
+            std::vector<GarrisonFollower> l_Followers = l_GarrisonMgr->GetWeeklyFollowerRecruits(p_Player);
+
+            if (l_Followers.empty())
+            {
+                std::list<GarrisonFollower> l_FollowersList = l_GarrisonMgr->GetFollowersWithAbility(p_AbilityID, p_IsTrait);
+                JadeCore::RandomResizeList(l_FollowersList, 3); ///< Should not happen, List size must never exceed 3
+
+                for (GarrisonFollower l_Follower : l_FollowersList)
+                {
+                    l_Follower.Write(l_Data);
+                    l_GarrisonMgr->SetGarrisonWeeklyTavernData({ l_Follower.FollowerID, l_Follower.Abilities });
+                }
+            }
+            else
+            {
+                for (GarrisonFollower l_Follower : l_Followers)
+                    l_Follower.Write(l_Data);
+            }
+
+            p_Player->SendDirectMessage(&l_Data);
+        }
+    }
+
     /// Show trade skill crafter UI
     void GarrisonNPCAI::SendTradeSkillUI(Player* p_Player)
     {
@@ -496,7 +573,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_GarrisonFord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_GarrisonFord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         if (p_Player->getLevel() >= 88 && !p_Player->GetGarrison())
         {
@@ -587,7 +664,7 @@ namespace MS { namespace Garrison
                 me->m_spells[2] = me->m_spells[0];
 
             for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
-                me->m_threatModifier[i] *= 10000.f;
+                me->m_threatModifier[i] *= 10000.0f;
         }
     }
 
@@ -609,7 +686,7 @@ namespace MS { namespace Garrison
     }
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_CallToArms::npc_CallToArmsAI::UpdateAI(const uint32 p_Diff)
+    void npc_CallToArms::npc_CallToArmsAI::UpdateAI(const uint32 /*p_Diff*/)
     {
         if (!UpdateVictim())
             return;
@@ -619,7 +696,7 @@ namespace MS { namespace Garrison
 
         if (m_Ranged)
         {
-            if (me->IsWithinMeleeRange(me->getVictim(), 1.f))
+            if (me->IsWithinMeleeRange(me->getVictim(), 1.0f))
             {
                 me->CastSpell(me, Spells::Disengage, TRIGGERED_FULL_MASK);
                 me->resetAttackTimer();
@@ -725,7 +802,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_garrison_atheeru_palestar::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_garrison_atheeru_palestar::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1 && p_Creature->AI() && p_Player->HasEnoughMoney((int64)10000))
         {
@@ -735,7 +812,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    void npc_garrison_atheeru_palestarAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_garrison_atheeru_palestarAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         DoAction(1);
     }
@@ -779,7 +856,7 @@ namespace MS { namespace Garrison
             p_Clicker->CastSpell(me, 166052, true);
     }
 
-    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply)
+    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply)
     {
         if (!p_Apply)
         {
@@ -875,6 +952,7 @@ namespace MS { namespace Garrison
 
     void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::Reset()
     {
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         SetMaxPlayerDistance(200.0f);
         SetDespawnAtFar(false);
         SetDespawnAtEnd(false);
@@ -1079,7 +1157,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    bool npc_FleetCommandTable::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_FleetCommandTable::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         if (!p_Player->GetGarrison())
             return true;
@@ -1099,7 +1177,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    bool npc_AncientTradingMechanism_Garr::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_AncientTradingMechanism_Garr::OnQuestReward(Player* p_Player, Creature* /*p_Creature*/, const Quest* /*p_Quest*/, uint32 /*p_Option*/)
     {
         if (p_Player->GetGarrison() == nullptr)
             return true;
@@ -1336,7 +1414,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_follower_generic_script::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_follower_generic_script::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         Manager* l_GarrisonMgr = p_Player->GetGarrison();
         CreatureAI* l_AI = p_Creature->AI();
@@ -1666,18 +1744,51 @@ namespace MS { namespace Garrison
 
     void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::IsSummonedBy(Unit* p_Summoner)
     {
+        m_SummonerGUID = p_Summoner->GetGUID();
         p_Summoner->CastSpell(me, eSpells::SpellAuraRideVehicle, true);
     }
 
-    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply)
+    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply)
     {
-        if (p_Apply)
-            p_Passenger->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
-        else
-            p_Passenger->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
+        if (Player* l_Player = HashMapHolder<Player>::Find(m_SummonerGUID))
+        {
+            if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
+            {
+                if (p_Apply)
+                {
+                    switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(BuildingType::Stable)))
+                    {
+                        case 2:
+                        {
+                            if (l_Player->HasItemCount(eItems::ItemBlackClawOfSethe))
+                                l_Player->AddAura(eSpells::SpellAuraBlackClawOfSethe, l_Player);
+
+                            l_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                            break;
+                        }
+                        case 3:
+                        {
+                            if (l_Player->HasItemCount(eItems::ItemGarnToothNecklace))
+                                l_Player->AddAura(eSpells::SpellAuraGarnToothNecklace, l_Player);
+
+                            l_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    l_Player->RemoveAura(eSpells::SpellAuraGarnToothNecklace);
+                    l_Player->RemoveAura(eSpells::SpellAuraBlackClawOfSethe);
+                    l_Player->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_3, UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                }
+            }
+        }
     }
 
-    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::JustDied(Unit* p_Killer)
+    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::JustDied(Unit* /*p_Killer*/)
     {
         if (Player* l_Player = HashMapHolder<Player>::Find(m_SummonerGUID))
             l_Player->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
@@ -1693,7 +1804,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    void npc_robot_rooster::npc_robot_roosterAI::EnterCombat(Unit* p_Attacker)
+    void npc_robot_rooster::npc_robot_roosterAI::EnterCombat(Unit* /*p_Attacker*/)
     {
         m_Events.ScheduleEvent(eDatas::EventBerserk, 5000);
         m_Events.ScheduleEvent(eDatas::EventNitroBoosts, 20000);
@@ -1757,7 +1868,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_GarrisonWalter::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_GarrisonWalter::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         if (!p_Player->GetSession())
             return false;
@@ -1787,9 +1898,58 @@ namespace MS { namespace Garrison
         return new npc_GarrisonWalterAI(p_Creature);
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    void npc_GearshopWorkshopTurret_Garr::npc_GearshopWorkshopTurret_GarrAI::IsSummonedBy(Unit* p_Summoner)
+    {
+        m_SummonerGUID = p_Summoner->GetGUID();
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_GearshopWorkshopTurret_Garr::GetAI(Creature* p_Creature) const
+    {
+        return new npc_GearshopWorkshopTurret_GarrAI(p_Creature);
+    }
+
+    void npc_GearshopWorkshopTurret_Garr::npc_GearshopWorkshopTurret_GarrAI::Reset()
+    {
+        m_SummonerGUID = 0;
+        m_AttackTimer  = 0;
+    }
+
+    void npc_GearshopWorkshopTurret_Garr::npc_GearshopWorkshopTurret_GarrAI::EnterCombat(Unit* p_Attacker)
+    {
+        m_AttackTimer = 500;
+    }
+
+    void npc_GearshopWorkshopTurret_Garr::npc_GearshopWorkshopTurret_GarrAI::UpdateAI(uint32 const p_Diff)
+    {
+
+        if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        if (m_AttackTimer)
+        {
+            if (m_AttackTimer <= p_Diff)
+            {
+                if (Unit* l_Victim = me->getVictim())
+                    me->CastSpell(l_Victim, eSpells::SpellTurretFire, false);
+
+                m_AttackTimer = 4000;
+            }
+            else
+                m_AttackTimer -= p_Diff;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_NPC()
 {
     /// Generic
@@ -1804,6 +1964,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_InspiringBattleStandard;
     new MS::Garrison::npc_FearsomeBattleStandard;
     new MS::Garrison::npc_GarrisonWalter;
+    new MS::Garrison::npc_GearshopWorkshopTurret_Garr;
 
     /// Alliance
     {
@@ -1879,6 +2040,7 @@ void AddSC_Garrison_NPC()
 
         /// Lunarfall Inn
         new MS::Garrison::npc_MadisonClark;
+        new MS::Garrison::npc_lysa_serion_garr;
 
         /// Mage Tower
         new MS::Garrison::npc_ApprenticeVarNath;
@@ -1964,6 +2126,7 @@ void AddSC_Garrison_NPC()
 
         /// Frostwall Tavern
         new MS::Garrison::npc_Murg;
+        new MS::Garrison::npc_akanja_garr;
 
         /// Spirit Lodge
         new MS::Garrison::npc_Varsha;
@@ -1985,3 +2148,4 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_FleetCommandTable;
     }
 }
+#endif

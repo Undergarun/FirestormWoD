@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "InstanceScript.h"
 #include "DatabaseEnv.h"
@@ -37,7 +27,9 @@ InstanceScript::InstanceScript(Map* p_Map)
     m_ConditionCompleted        = false;
     m_CreatureKilled            = 0;
     m_StartChallengeTime        = 0;
-    m_ChallengeDoorGuid         = 0;
+
+    m_ChallengeDoorGuids.clear();
+
     m_ChallengeOrbGuid          = 0;
     m_ChallengeTime             = 0;
     m_MedalType                 = eChallengeMedals::MedalTypeNone;
@@ -46,6 +38,7 @@ InstanceScript::InstanceScript(Map* p_Map)
     m_BeginningTime             = 0;
     m_ScenarioID                = 0;
     m_ScenarioStep              = 0;
+    m_LastResetTime             = 0;
     m_EncounterTime             = 0;
     m_DisabledMask              = 0;
 
@@ -80,6 +73,14 @@ void InstanceScript::HandleGameObject(uint64 GUID, bool open, GameObject* go)
         sLog->outDebug(LOG_FILTER_TSCR, "InstanceScript: HandleGameObject failed");
 }
 
+void InstanceScript::Update(uint32 p_Diff)
+{
+    UpdateOperations(p_Diff);
+    ScheduleBeginningTimeUpdate(p_Diff);
+    ScheduleChallengeStartup(p_Diff);
+    ScheduleChallengeTimeUpdate(p_Diff);
+}
+
 void InstanceScript::UpdateOperations(uint32 const p_Diff)
 {
     for (auto l_It = m_TimedDelayedOperations.begin(); l_It != m_TimedDelayedOperations.end(); l_It++)
@@ -93,14 +94,14 @@ void InstanceScript::UpdateOperations(uint32 const p_Diff)
         }
     }
 
-    uint32 l_TimedDelayedOperationCountToRemove = std::count_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+    uint32 l_TimedDelayedOperationCountToRemove = (uint32)std::count_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](std::pair<int32, std::function<void()>> const& p_Pair) -> bool
     {
         return p_Pair.second == nullptr;
     });
 
     for (uint32 l_I = 0; l_I < l_TimedDelayedOperationCountToRemove; l_I++)
     {
-        auto l_It = std::find_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+        auto l_It = std::find_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](std::pair<int32, std::function<void()>> const& p_Pair) -> bool
         {
             return p_Pair.second == nullptr;
         });
@@ -358,7 +359,7 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
             l_BossInfos->state = p_State;
 
             if (p_State == EncounterState::DONE)
-                SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+                SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
 
             for (uint32 l_Type = 0; l_Type < DoorType::MAX_DOOR_TYPES; ++l_Type)
             {
@@ -383,7 +384,7 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                             return false;
                     }
 
-                    SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+                    SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
 
                     /// This buff disappears immediately after killing the boss
                     DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::SpellDetermination);
@@ -391,20 +392,21 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                     /// End of challenge
                     if (p_ID == (m_Bosses.size() - 1))
                     {
+                        SendChallengeStopElapsedTimer(1);
+
                         if (instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
                         {
                             m_ChallengeStarted = false;
 
                             SendChallengeNewPlayerRecord();
                             SendChallengeModeComplete(RewardChallengers());
-                            SendChallengeStopElapsedTimer(1);
 
                             SaveChallengeDatasIfNeeded();
 
                             DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON, instance->GetId(), m_MedalType);
-                        }
 
-                        SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
+                            SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
+                        }
                     }
 
                     /// Handle Guild challenges
@@ -440,11 +442,14 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                     DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::MageTemporalDisplacement);
                     DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::ShamanExhaustion);
                     DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::ShamanSated);
+
+                    /// Remove all cooldowns with a recovery time equal or superior than 3 minutes
+                    DoRemoveSpellCooldownWithTimeOnPlayers(3 * TimeConstants::IN_MILLISECONDS * TimeConstants::MINUTE);
                     break;
                 }
                 case EncounterState::IN_PROGRESS:
                 {
-                    m_EncounterTime = time(nullptr);
+                    m_EncounterTime = uint32(time(nullptr));
                     StartCombatResurrection();
                     break;
                 }
@@ -455,10 +460,8 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                     if (m_EncounterTime && instance->IsLFR() && (time(nullptr) - m_EncounterTime) >= 3 * TimeConstants::MINUTE)
                         DoCastSpellOnPlayers(eInstanceSpells::SpellDetermination);
 
-                    /// Upon reseting a boss, all combat bloodlust spells will have their cooldowns reset
-                    for (uint8 l_I = 0; l_I < eInstanceSpells::MaxBloodlustSpells; ++l_I)
-                        DoRemoveSpellCooldownOnPlayers(g_BloodlustSpells[l_I]);
-
+                    /// Remove all cooldowns with a recovery time equal or superior than 3 minutes
+                    DoRemoveSpellCooldownWithTimeOnPlayers(3 * TimeConstants::IN_MILLISECONDS * TimeConstants::MINUTE);
                     break;
                 }
                 default:
@@ -904,7 +907,7 @@ bool InstanceScript::CheckRequiredBosses(uint32 p_ID, Player const* p_Player) co
     return true;
 }
 
-void InstanceScript::SendEncounterUnit(uint32 p_Type, Unit* p_Unit /*= NULL*/, uint8 p_Param1 /*= 0*/, uint8 p_Param2 /*= 0*/)
+void InstanceScript::SendEncounterUnit(uint32 p_Type, Unit* p_Unit /*= NULL*/, uint8 p_Param1 /*= 0*/, uint8 /*p_Param2*/ /*= 0*/)
 {
     WorldPacket l_Data;
 
@@ -1037,7 +1040,7 @@ void InstanceScript::UpdateCriteriasAfterLoading()
         BossScenarios* l_BossScenario = &m_BossesScenarios[l_I];
 
         if (bossInfo->state == DONE)
-            SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+            SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, uint32(time(nullptr)), m_BeginningTime, 0));
     }
 }
 
@@ -1096,8 +1099,11 @@ void InstanceScript::ScheduleChallengeStartup(uint32 p_Diff)
         {
             m_StartChallengeTime = 0;
 
-            if (GameObject* l_ChallengeDoor = sObjectAccessor->FindGameObject(m_ChallengeDoorGuid))
-                l_ChallengeDoor->SetGoState(GO_STATE_ACTIVE);
+            for (uint64 l_Guid : m_ChallengeDoorGuids)
+            {
+                if (GameObject* l_ChallengeDoor = sObjectAccessor->FindGameObject(l_Guid))
+                    l_ChallengeDoor->SetGoState(GO_STATE_ACTIVE);
+            }
 
             SendChallengeStartElapsedTimer(1, 0);
             SendChallengeModeStart();
@@ -1186,7 +1192,7 @@ void InstanceScript::SendChallengeNewPlayerRecord()
                 l_Statement->setUInt32(0, l_NewBestTime ? m_ChallengeTime : l_Challenge->m_BestTime);
                 l_Statement->setUInt32(1, m_ChallengeTime);
                 l_Statement->setUInt8(2, l_NewBestMedal ? m_MedalType : l_Challenge->m_BestMedal);
-                l_Statement->setUInt32(3, l_NewBestMedal ? time(nullptr) : l_Challenge->m_BestMedalDate);
+                l_Statement->setUInt32(3, l_NewBestMedal ? uint32(time(nullptr)) : l_Challenge->m_BestMedalDate);
                 l_Statement->setUInt32(4, l_Player->GetGUIDLow());
                 l_Statement->setUInt32(5, l_MapID);
                 CharacterDatabase.Execute(l_Statement);
@@ -1194,7 +1200,7 @@ void InstanceScript::SendChallengeNewPlayerRecord()
                 if (l_NewBestMedal)
                 {
                     l_Challenge->m_BestMedal = m_MedalType;
-                    l_Challenge->m_BestMedalDate = time(nullptr);
+                    l_Challenge->m_BestMedalDate = uint32(time(nullptr));
                 }
 
                 if (l_NewBestTime)
@@ -1214,12 +1220,12 @@ void InstanceScript::SendChallengeNewPlayerRecord()
                 l_Statement->setUInt32(2, m_ChallengeTime);
                 l_Statement->setUInt32(3, m_ChallengeTime);
                 l_Statement->setUInt8(4, m_MedalType);
-                l_Statement->setUInt32(5, time(nullptr));
+                l_Statement->setUInt32(5, uint32(time(nullptr)));
                 CharacterDatabase.Execute(l_Statement);
 
                 CompletedChallenge l_Challenge;
                 l_Challenge.m_BestMedal = m_MedalType;
-                l_Challenge.m_BestMedalDate = time(nullptr);
+                l_Challenge.m_BestMedalDate = uint32(time(nullptr));
                 l_Challenge.m_BestTime = m_ChallengeTime;
                 l_Challenge.m_LastTime = m_ChallengeTime;
 
@@ -1276,16 +1282,19 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     RealmCompletedChallenge* l_GroupChallenge = sObjectMgr->GetGroupCompletedChallengeForMap(l_MapID);
     RealmCompletedChallenge* l_GuildChallenge = sObjectMgr->GetGuildCompletedChallengeForMap(l_MapID);
 
-    SaveNewGroupChallenge();
-
     /// Delete old group record if it's a new realm-best time (or if it's the first), and reward titles/achievements
-    if (l_GuildChallenge == nullptr || (l_GroupChallenge != nullptr && l_GroupChallenge->m_CompletionTime > m_ChallengeTime))
+    if (l_GroupChallenge == nullptr || (l_GroupChallenge != nullptr && l_GroupChallenge->m_CompletionTime > m_ChallengeTime))
     {
+        /// Delete old record
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_CHALLENGE);
         l_Statement->setUInt32(0, l_MapID);
         CharacterDatabase.Execute(l_Statement);
 
+        /// Add rewards
         RewardNewRealmRecord(l_GroupChallenge);
+
+        /// Insert new record, must be done after rewards, because l_GroupChallenge will be updated
+        SaveNewGroupChallenge();
     }
 
     bool l_GuildGroup = false;
@@ -1307,24 +1316,33 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     }
 
     /// New best time for the guild
-    if (l_GuildGroup)
+    /// Delete old guild record if it's a new realm-best time
+    if (l_GuildGroup && l_GuildChallenge != nullptr && l_GuildChallenge->m_CompletionTime > m_ChallengeTime)
     {
-        SaveNewGroupChallenge(l_GuildID);
+        /// Delete old record
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_CHALLENGE);
+        l_Statement->setUInt32(0, l_MapID);
+        l_Statement->setUInt32(1, l_GuildID);
+        CharacterDatabase.Execute(l_Statement);
 
-        /// Delete old guild record if it's a new realm-best time
-        if (l_GuildChallenge != nullptr && l_GuildChallenge->m_CompletionTime > m_ChallengeTime)
-        {
-            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_CHALLENGE);
-            l_Statement->setUInt32(0, l_MapID);
-            l_Statement->setUInt32(1, l_GuildID);
-            CharacterDatabase.Execute(l_Statement);
-        }
+        /// Insert new record
+        SaveNewGroupChallenge(l_GuildID);
     }
 }
 
 void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
 {
     uint32 l_Index = 0;
+    uint32 l_MapID = instance->GetId();
+    uint32 l_Date  = (uint32)time(nullptr);
+
+    RealmCompletedChallenge l_NewGroup;
+    l_NewGroup.m_AttemptID      = 0;
+    l_NewGroup.m_CompletionDate = l_Date;
+    l_NewGroup.m_CompletionTime = m_ChallengeTime;
+    l_NewGroup.m_GuildID        = p_GuildID;
+    l_NewGroup.m_MedalEarned    = m_MedalType;
+
     PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(p_GuildID ? CHAR_INS_GUILD_CHALLENGE : CHAR_INS_GROUP_CHALLENGE);
     l_Statement->setUInt32(l_Index++, instance->GetId());
 
@@ -1333,7 +1351,7 @@ void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
 
     l_Statement->setUInt32(l_Index++, 0);   ///< AttemptID
     l_Statement->setUInt32(l_Index++, m_ChallengeTime);
-    l_Statement->setUInt32(l_Index++, time(nullptr));
+    l_Statement->setUInt32(l_Index++, uint32(time(nullptr)));
     l_Statement->setUInt8(l_Index++, m_MedalType);
 
     Map::PlayerList const& l_PlayerList = instance->GetPlayers();
@@ -1345,11 +1363,17 @@ void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
     }
 
     l_Statement->setUInt8(l_Index++, l_Count);
+    l_NewGroup.m_MembersCount = l_Count;
 
+    uint8 l_J = 0;
     for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
     {
         if (Player* l_Player = l_Iter->getSource())
         {
+            l_NewGroup.m_Members[l_J].m_Guid = l_Player->GetGUID();
+            l_NewGroup.m_Members[l_J].m_SpecID = l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+            ++l_J;
+
             l_Statement->setUInt32(l_Index++, l_Player->GetGUIDLow());
             l_Statement->setUInt32(l_Index++, l_Player->GetSpecializationId(l_Player->GetActiveSpec()));
         }
@@ -1359,12 +1383,21 @@ void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
     {
         for (uint8 l_I = 0; l_I < (5 - l_Count); ++l_I)
         {
+            l_NewGroup.m_Members[l_J].m_Guid = 0;
+            l_NewGroup.m_Members[l_J].m_SpecID = 0;
+            ++l_J;
+
             l_Statement->setUInt32(l_Index++, 0);
             l_Statement->setUInt32(l_Index++, 0);
         }
     }
 
     CharacterDatabase.Execute(l_Statement);
+
+    sObjectMgr->AddGroupCompletedChallenge(l_MapID, l_NewGroup);
+
+    if (p_GuildID)
+        sObjectMgr->AddGuildCompletedChallenge(l_MapID, l_NewGroup);
 }
 
 uint32 InstanceScript::RewardChallengers()
@@ -1482,8 +1515,19 @@ void InstanceScript::RewardNewRealmRecord(RealmCompletedChallenge* p_OldChalleng
     }
 }
 
-void InstanceScript::ResetChallengeMode()
+void InstanceScript::ResetChallengeMode(Player* p_Source)
 {
+    /// Players can reset challenge mode only if it's started
+    if (!m_ChallengeStarted)
+        return;
+
+    /// Players can reset challenge mode every 2 minutes
+    if (uint32(time(nullptr)) <= (m_LastResetTime + RESET_CHALLENGE_MODE_COOLDOWN))
+    {
+        p_Source->SendGameError(GameError::Type::ERR_PARENTAL_CONTROLS_CHAT_MUTED, RESET_CHALLENGE_MODE_COOLDOWN);
+        return;
+    }
+
     /// Reset internal datas
     m_ChallengeStarted      = false;
     m_ConditionCompleted    = false;
@@ -1494,9 +1538,14 @@ void InstanceScript::ResetChallengeMode()
     m_BeginningTime         = 0;
     m_ScenarioStep          = 0;
 
+    m_LastResetTime         = uint32(time(nullptr));
+
     /// Reset challenge door
-    if (GameObject* l_ChallengeDoor = instance->GetGameObject(m_ChallengeDoorGuid))
-        l_ChallengeDoor->SetGoState(GOState::GO_STATE_READY);
+    for (uint64 l_Guid : m_ChallengeDoorGuids)
+    {
+        if (GameObject* l_ChallengeDoor = sObjectAccessor->FindGameObject(l_Guid))
+            l_ChallengeDoor->SetGoState(GOState::GO_STATE_READY);
+    }
 
     /// Reset challenge orb
     if (GameObject* l_ChallengeOrb = instance->GetGameObject(m_ChallengeOrbGuid))
@@ -1644,7 +1693,7 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
 
         m_EncounterDatas.MapID          = instance->GetId();
         m_EncounterDatas.DifficultyID   = instance->GetDifficultyID();
-        m_EncounterDatas.StartTime      = time(nullptr);
+        m_EncounterDatas.StartTime      = uint32(time(nullptr));
     }
 }
 
@@ -1664,8 +1713,8 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     if (sObjectMgr->IsDisabledEncounter(p_EncounterID, instance->GetDifficultyID()))
         return;
 
-    m_EncounterDatas.CombatDuration = time(nullptr) - m_EncounterDatas.StartTime;
-    m_EncounterDatas.EndTime        = time(nullptr);
+    m_EncounterDatas.CombatDuration = uint32(time(nullptr)) - m_EncounterDatas.StartTime;
+    m_EncounterDatas.EndTime        = uint32(time(nullptr));
     m_EncounterDatas.Success        = p_Success;
 
     if (m_EncounterDatas.GuildID || instance->IsLFR())
@@ -1805,12 +1854,12 @@ void InstanceScript::StartCombatResurrection()
         return;
 
     float l_Value = 9000.0f / (float)l_PlayerCount;
-    uint32 l_Timer = l_Value / 100;
+    uint32 l_Timer = uint32(l_Value / 100.0f);
 
     l_Value -= (float)l_Timer * 100.0f;
     l_Timer *= TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
     l_Value *= TimeConstants::MINUTE / 100.0f * TimeConstants::IN_MILLISECONDS;
-    l_Timer += l_Value;
+    l_Timer += uint32(l_Value);
 
     m_MaxInCombatResCount = 9;
     m_CombatResChargeTime = l_Timer;
@@ -1901,7 +1950,9 @@ class EncounterScript_Global : public EncounterScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_EncounterScripts()
 {
     new EncounterScript_Global();
 }
+#endif

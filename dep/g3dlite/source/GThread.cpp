@@ -7,6 +7,7 @@
  @edited  2010-09-22
  */
 
+#ifndef __clang_analyzer__
 #include "G3D/GThread.h"
 #include "G3D/System.h"
 #include "G3D/debugAssert.h"
@@ -262,3 +263,4 @@ void GMutex::unlock() {
 }
 
 } // namespace G3D
+#endif

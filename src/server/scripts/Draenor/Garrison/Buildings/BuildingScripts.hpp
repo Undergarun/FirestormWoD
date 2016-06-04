@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_BUILDING_SCRIPTS_HPP_GARRISON
 # define GARRISON_BUILDING_SCRIPTS_HPP_GARRISON
 
@@ -13,7 +14,7 @@
 # include "GarrisonMgr.hpp"
 # include "SharedDefines.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Scripts directly related to buildings.
     class GarrisonBuildingAuraPlayerScript : PlayerScript

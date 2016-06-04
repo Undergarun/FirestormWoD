@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonAllianceLevel1.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -70,7 +71,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// When instance script is updated
     /// @p_Diff : Time since last update
-    void InstanceScript_GarrisonAllianceLevel1::Update(uint32 p_Diff)
+    void InstanceScript_GarrisonAllianceLevel1::Update(uint32 /*p_Diff*/)
     {
 
     }
@@ -80,7 +81,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// When the owner enter in the garrison
     /// @p_Owner : Owner instance
-    void InstanceScript_GarrisonAllianceLevel1::OnOwnerEnter(Player* p_Owner)
+    void InstanceScript_GarrisonAllianceLevel1::OnOwnerEnter(Player* /*p_Owner*/)
     {
 
     }
@@ -91,20 +92,20 @@ namespace MS { namespace Garrison { namespace Sites
     /// When the garrison owner started a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Started quest
-    void InstanceScript_GarrisonAllianceLevel1::OnQuestStarted(Player* p_Owner, const Quest* p_Quest)
+    void InstanceScript_GarrisonAllianceLevel1::OnQuestStarted(Player* /*p_Owner*/, const Quest* /*p_Quest*/)
     {
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Rewarded quest
-    void InstanceScript_GarrisonAllianceLevel1::OnQuestReward(Player* p_Owner, const Quest* p_Quest)
+    void InstanceScript_GarrisonAllianceLevel1::OnQuestReward(Player* /*p_Owner*/, const Quest* /*p_Quest*/)
     {
 
     }
     /// When the garrison owner abandon a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Abandoned quest
-    void InstanceScript_GarrisonAllianceLevel1::OnQuestAbandon(Player* p_Owner, const Quest* p_Quest)
+    void InstanceScript_GarrisonAllianceLevel1::OnQuestAbandon(Player* /*p_Owner*/, const Quest* /*p_Quest*/)
     {
 
     }
@@ -214,7 +215,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID
     /// @p_Followers : Followers on the mission
-    void InstanceScript_GarrisonAllianceLevel1::OnMissionStart(Player* p_Owner, uint32 p_MissionID, std::vector<uint32> p_Followers)
+    void InstanceScript_GarrisonAllianceLevel1::OnMissionStart(Player* /*p_Owner*/, uint32 /*p_MissionID*/, std::vector<uint32> /*p_Followers*/)
     {
 
     }
@@ -283,12 +284,12 @@ namespace MS { namespace Garrison { namespace Sites
     /// When a building from the same type with higher level is purchased
     /// @p_Owner      : Garrison owner
     /// @p_BuildingID : Purchased building ID
-    void InstanceScript_GarrisonAllianceLevel1::OnUpgradeBuilding(Player* p_Owner, uint32 p_BuildingID)
+    void InstanceScript_GarrisonAllianceLevel1::OnUpgradeBuilding(Player* /*p_Owner*/, uint32 /*p_BuildingID*/)
     {
 
     }
 
-    void InstanceScript_GarrisonAllianceLevel1::OnDeleteBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BuildingType, bool p_RemoveForUpgrade)
+    void InstanceScript_GarrisonAllianceLevel1::OnDeleteBuilding(Player* p_Owner, uint32 /*p_BuildingID*/, uint32 p_BuildingType, bool p_RemoveForUpgrade)
     {
         if (p_RemoveForUpgrade)
             return;
@@ -315,7 +316,9 @@ namespace MS { namespace Garrison { namespace Sites
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_A1()
 {
     new MS::Garrison::Sites::InstanceMapScript_GarrisonAllianceLevel1();
 }
+#endif

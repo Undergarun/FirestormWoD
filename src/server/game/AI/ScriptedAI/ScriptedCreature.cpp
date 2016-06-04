@@ -1,9 +1,10 @@
-/* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * Thanks to the original authors: ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptedCreature.h"
 #include "Item.h"
@@ -120,14 +121,14 @@ void ScriptedAI::UpdateOperations(uint32 const p_Diff)
         }
     }
 
-    uint32 l_TimedDelayedOperationCountToRemove = std::count_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+    uint32 l_TimedDelayedOperationCountToRemove = (uint32)std::count_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](std::pair<int32, std::function<void()>> const& p_Pair) -> bool
     {
         return p_Pair.second == nullptr;
     });
 
     for (uint32 l_I = 0; l_I < l_TimedDelayedOperationCountToRemove; l_I++)
     {
-        auto l_It = std::find_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+        auto l_It = std::find_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](std::pair<int32, std::function<void()>> const& p_Pair) -> bool
         {
             return p_Pair.second == nullptr;
         });

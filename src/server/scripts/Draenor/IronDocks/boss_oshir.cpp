@@ -193,6 +193,8 @@ class boss_oshir : public CreatureScript
             bool m_Intro;
             bool m_First;
             bool m_PrimalAssault;
+            bool m_Breakout;
+            bool m_Pray;
             uint8 m_ThundlerCounters;
             uint32 m_HpPact;
             uint32 m_PrimalAssaultDiff;
@@ -213,6 +215,8 @@ class boss_oshir : public CreatureScript
                 m_WolfDests.clear();
                 m_RylakDests.clear();         
                 m_PrimalAssault = false;
+                m_Breakout = false;
+                m_Pray = false;
                 m_HpPact = me->GetHealthPct() * 0.95f;
                 m_CurrentDestTarget = 0;
                 m_CurrentTimeToFeedTarget = 0;
@@ -221,6 +225,8 @@ class boss_oshir : public CreatureScript
                 DespawnCreaturesInArea(eCreatures::CreatureRylak, me);
                 me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 10.0f, true); 
                 me->AddAura(eOshirSpells::SpellKneel, me);
+                ClearDelayedOperations();
+
                 if (!m_First)
                 {
                     m_First = true;
@@ -317,9 +323,9 @@ class boss_oshir : public CreatureScript
                 }     
 
                 RespawnDests();
-                me->SetHomePosition(*me);
                 ActivateEncounterGate();
-                events.ScheduleEvent(eOshirEvents::EventFeedingFrenzy, urand(18 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                me->SetHomePosition(g_NewHomePos);          
+                events.ScheduleEvent(eOshirEvents::EventFeedingFrenzy, 25 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eOshirEvents::EventBreakout, 10 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eOshirEvents::EventPrimalAssault, 36 * TimeConstants::IN_MILLISECONDS);
             }
@@ -332,10 +338,21 @@ class boss_oshir : public CreatureScript
                     {
                         if (me->HealthBelowPctDamaged(m_HpPact, p_Damage))
                         {
+                            m_Pray = false;
                             me->CastStop();
                             me->RemoveAllAuras();
                             me->RemoveAura(eOshirSpells::SpellFeedingFrenzy);
                             me->RemoveAura(eOshirSpells::SpellFeedingAura);
+
+                            AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 200.0f, true))
+                                {
+                                    me->AttackStop();
+                                    me->Attack(l_Target, true);
+                                    me->GetMotionMaster()->MoveChase(l_Target);
+                                }
+                            });
                         }
                     }
                 }
@@ -362,16 +379,14 @@ class boss_oshir : public CreatureScript
                         me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
                         break;
                     case eMovementInformed::MovementInformedOshirBreakOut:
+                    {
+                        m_Breakout = false;
+                        me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                         if (m_CurrentDestTarget)
-                        {
                             if (Creature* l_Creature = Creature::GetCreature(*me, m_CurrentDestTarget))
-                            {
-                                me->CastSpell(l_Creature, eOshirSpells::SpellCosmeticAttack1h);                        
-                                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 200.0f, true))
-                                    me->Attack(l_Target, true);
-                            }
-                        }
+                                me->CastSpell(l_Creature, eOshirSpells::SpellCosmeticAttack1h);
                         break;
+                    }                      
                     case eMovementInformed::MovementInformedTimeToFeed:
                         if (Player* l_Player = Player::GetPlayer(*me, m_CurrentTimeToFeedTarget))
                             me->CastSpell(l_Player, eOshirSpells::SpellFeedingFrenzy);
@@ -408,7 +423,7 @@ class boss_oshir : public CreatureScript
                             m_ThunderilingWandlers.push_back(l_Guard->GetGUID()); // 2nd positioned list is the middle one
                             l_Guard->setFaction(FriendlyFaction);          
                             l_Guard->AddAura(eOshirSpells::Spell2hlReady, l_Guard);
-                            l_Guard->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                            l_Guard->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
                             l_Guard->GetMotionMaster()->MovePoint(eMovementInformed::MovementInformWanlderingThundlerOshirFirstMovement, g_NpcMovePos[l_I]);
                         }
                     }                 
@@ -554,7 +569,7 @@ class boss_oshir : public CreatureScript
                     }
                 }
 
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasAura(eOshirSpells::SpellFeedingAura) || m_PrimalAssault)
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasAura(eOshirSpells::SpellFeedingAura) || m_PrimalAssault || m_Breakout)
                     return;
 
                 switch (events.ExecuteEvent())
@@ -562,12 +577,23 @@ class boss_oshir : public CreatureScript
                     case eOshirEvents::EventFeedingFrenzyCancel:
                     {
                         me->RemoveAura(eOshirSpells::SpellFeedingFrenzy);
+
+                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 200.0f, true))
+                            {
+                                me->AttackStop();
+                                me->Attack(l_Target, true);
+                                me->GetMotionMaster()->MoveChase(l_Target);
+                            }
+                        });
                         break;
                     }
                     case eOshirEvents::EventFeedingFrenzy:
                     {
                         me->RemoveAura(eOshirSpells::SpellFeedingFrenzy);
                         m_HpPact = me->GetHealthPct() * 0.95;
+                        m_Pray = true;
 
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {
@@ -575,7 +601,9 @@ class boss_oshir : public CreatureScript
                             me->GetMotionMaster()->MoveJump(*l_Target, 30.0f, 30.0f, eMovementInformed::MovementInformedTimeToFeed);
                         }
 
-                        events.ScheduleEvent(eOshirEvents::EventFeedingFrenzy, urand(50 * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::IN_MILLISECONDS));
+
+
+                        events.ScheduleEvent(eOshirEvents::EventFeedingFrenzy, urand(30 * TimeConstants::IN_MILLISECONDS, 40 * TimeConstants::IN_MILLISECONDS));
                         events.ScheduleEvent(eOshirEvents::EventFeedingFrenzyCancel, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
@@ -583,20 +611,45 @@ class boss_oshir : public CreatureScript
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 100.0f, true))
                         {                         
-                            m_PrimalAssaultDiff = 1 * TimeConstants::IN_MILLISECONDS;
+                            m_PrimalAssaultDiff = 4 * TimeConstants::IN_MILLISECONDS;
                             me->CastSpell(l_Target, eOshirSpells::SpellPrimalAssault);
                             me->CastSpell(me, eOshirSpells::SpellRendingSlashVis, true);
                             me->SetReactState(ReactStates::REACT_PASSIVE);
                             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-                            me->GetMotionMaster()->MovePoint(eMovementInformed::MovementInformOshirPrimalAssaultDestArrival, l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ());
+                            Position l_Position;
+                            l_Target->GetPosition(&l_Position);
+
+                            me->GetMotionMaster()->MovePoint(eMovementInformed::MovementInformOshirPrimalAssaultDestArrival, l_Position);
                             m_PrimalAssault = true;
+
+                            AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 200.0f, true))
+                                {
+                                    me->AttackStop();
+                                    me->Attack(l_Target, true);
+                                    me->GetMotionMaster()->MoveChase(l_Target);
+                                }
+                            });
                         }
                         events.ScheduleEvent(eOshirEvents::EventPrimalAssault, urand(35 * TimeConstants::IN_MILLISECONDS, 40 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     case eOshirEvents::EventBreakout:
                     {
+                        me->AttackStop();
                         me->RemoveAura(eOshirSpells::SpellFeedingAura);
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 200.0f, true))
+                            {
+                                me->AttackStop();
+                                me->Attack(l_Target, true);
+                                me->GetMotionMaster()->MoveChase(l_Target);
+                            }
+                        });
 
                         switch (urand(0, 1))
                         {
@@ -604,6 +657,8 @@ class boss_oshir : public CreatureScript
                             {
                                 if (m_WolfDests.empty())
                                     return;
+
+                                m_Breakout = true;
 
                                 auto l_Iter = m_WolfDests.begin();
                                 std::advance(l_Iter, urand(0, m_WolfDests.size() - 1));
@@ -623,6 +678,8 @@ class boss_oshir : public CreatureScript
                                 if (m_RylakDests.empty())
                                     return;
 
+                                m_Breakout = true;
+
                                 auto l_Iter = m_RylakDests.begin();
                                 std::advance(l_Iter, urand(0, m_RylakDests.size() - 1));
                                 if (Creature* l_Rylak = Unit::GetCreature(*me, *l_Iter))
@@ -639,7 +696,7 @@ class boss_oshir : public CreatureScript
                             default:
                                 break;
                         }
-                        events.ScheduleEvent(eOshirEvents::EventBreakout, 40 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eOshirEvents::EventBreakout, 45 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -664,9 +721,9 @@ public:
 
     iron_docks_mob_thundering_wandler() : CreatureScript("iron_docks_mob_thundering_wandler") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
+    struct iron_docks_mob_thundering_wandlerAI : public ScriptedAI
     {
-        mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        iron_docks_mob_thundering_wandlerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -807,7 +864,7 @@ public:
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new mob_iron_docksAI(p_Creature);
+        return new iron_docks_mob_thundering_wandlerAI(p_Creature);
     }
 };
 
@@ -818,9 +875,9 @@ class iron_docks_oshir_mob_wolf_dest : public CreatureScript
 
         iron_docks_oshir_mob_wolf_dest() : CreatureScript("iron_docks_oshir_mob_wolf_dest") { }
 
-        struct mob_iron_docksAI : public ScriptedAI
+        struct iron_docks_oshir_mob_wolf_destAI : public ScriptedAI
         {
-            mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            iron_docks_oshir_mob_wolf_destAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_Instance = me->GetInstanceScript();
             }
@@ -909,7 +966,7 @@ class iron_docks_oshir_mob_wolf_dest : public CreatureScript
 
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
-            return new mob_iron_docksAI(p_Creature);
+            return new iron_docks_oshir_mob_wolf_destAI(p_Creature);
         }
 };
 
@@ -920,9 +977,9 @@ class iron_docks_oshir_mob_rylak_dest : public CreatureScript
 
         iron_docks_oshir_mob_rylak_dest() : CreatureScript("iron_docks_oshir_mob_rylak_dest") { }
 
-        struct mob_iron_docksAI : public ScriptedAI
+        struct iron_docks_oshir_mob_rylak_destAI : public ScriptedAI
         {
-            mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            iron_docks_oshir_mob_rylak_destAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_Instance = me->GetInstanceScript();
             }
@@ -935,6 +992,8 @@ class iron_docks_oshir_mob_rylak_dest : public CreatureScript
             {
                 events.Reset();
                 m_Released = false;
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
 
                 if (Creature* l_Rylak = me->SummonCreature(eCreatures::CreatureRylak, *me, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                     l_ListRylaksGuid.push_back(l_Rylak->GetGUID());
@@ -996,7 +1055,7 @@ class iron_docks_oshir_mob_rylak_dest : public CreatureScript
 
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
-            return new mob_iron_docksAI(p_Creature);
+            return new iron_docks_oshir_mob_rylak_destAI(p_Creature);
         }
 };
 
@@ -1007,9 +1066,9 @@ public:
 
     iron_docks_oshir_mob_event() : CreatureScript("iron_docks_oshir_mob_event") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
+    struct iron_docks_oshir_mob_eventAI : public ScriptedAI
     {
-        mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        iron_docks_oshir_mob_eventAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_CanEvent = false;
         }
@@ -1028,7 +1087,7 @@ public:
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new mob_iron_docksAI(p_Creature);
+        return new iron_docks_oshir_mob_eventAI(p_Creature);
     }
 };
 
@@ -1085,9 +1144,7 @@ class iron_docks_oshir_mob_rylak : public CreatureScript
                 if (m_AcidTimer <= p_Diff)
                 {
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                    {
                         me->CastSpell(l_Target, eAcidSpitSpells::SpellAcidSpitDummy);
-                    }
 
                     m_AcidTimer = urand(11 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS);
                 }
@@ -1212,8 +1269,7 @@ class iron_docks_oshir_mob_acid_spit : public CreatureScript
                 me->setFaction(HostileFaction);
                 m_Timer = 1 * TimeConstants::IN_MILLISECONDS;         
                 me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1229,9 +1285,7 @@ class iron_docks_oshir_mob_acid_spit : public CreatureScript
                         for (auto l_Itr : l_PlayerList)
                         {
                             if (!l_Itr->HasAura(eAcidSpitSpells::SpellAcidPool))
-                            {
-                                l_Itr->CastSpell(l_Itr, eAcidSpitSpells::SpellAcidPool);
-                            }               
+                                l_Itr->CastSpell(l_Itr, eAcidSpitSpells::SpellAcidPool);            
                         }
                     }
 

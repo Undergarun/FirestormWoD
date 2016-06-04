@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -125,7 +116,7 @@ class npc_verdisa_belgaristrasz_eternos : public CreatureScript
                 player->DestroyItemCount(itemId, 1, true, false);
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) 
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
             {
                 switch (menuId)
                 {
@@ -171,7 +162,7 @@ class npc_verdisa_belgaristrasz_eternos : public CreatureScript
                 player->PlayerTalkClass->SendCloseGossip();
             }
 
-            void MovementInform(uint32 /*type*/, uint32 id) 
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 if (id != POINT_MOVE_OUT)
                     return;
@@ -185,7 +176,7 @@ class npc_verdisa_belgaristrasz_eternos : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const 
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_verdisa_belgaristrasz_eternosAI(creature);
         }
@@ -200,7 +191,7 @@ class npc_image_belgaristrasz : public CreatureScript
         {
             npc_image_belgaristraszAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void IsSummonedBy(Unit* summoner) 
+            void IsSummonedBy(Unit* summoner)
             {
                 if (summoner->GetEntry() == NPC_VAROS)
                 {
@@ -216,7 +207,7 @@ class npc_image_belgaristrasz : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const 
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_image_belgaristraszAI(creature);
         }
@@ -234,13 +225,13 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset() 
+            void Reset()
             {
                 _events.Reset();
                 _healthWarning = true;
             }
 
-            void IsSummonedBy(Unit* summoner) 
+            void IsSummonedBy(Unit* summoner)
             {
                 if (!_instance || ! summoner)
                     return;
@@ -271,13 +262,13 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 me->GetMotionMaster()->MovePoint(POINT_LAND, pos);
             }
 
-            void MovementInform(uint32 type, uint32 id) 
+            void MovementInform(uint32 type, uint32 id)
             {
                 if (type == POINT_MOTION_TYPE && id == POINT_LAND)
                     me->SetDisableGravity(false); // Needed this for proper animation after spawn, the summon in air fall to ground bug leave no other option for now, if this isn't used the drake will only walk on move.
             }
 
-            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) 
+            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply)
             {
                 if (!_instance)
                     return;
@@ -358,7 +349,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
             bool _healthWarning;
         };
 
-        CreatureAI* GetAI(Creature* creature) const 
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_ruby_emerald_amber_drakeAI(creature);
         }
@@ -393,14 +384,14 @@ class spell_oculus_call_ruby_emerald_amber_drake: public SpellScriptLoader
                 const_cast<WorldLocation*>(GetExplTargetDest())->RelocateOffset(offset);
             }
 
-            void Register() 
+            void Register()
             {
                 OnEffectHit += SpellEffectFn(spell_oculus_call_ruby_emerald_amber_drake_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
                 OnEffectLaunch += SpellEffectFn(spell_oculus_call_ruby_emerald_amber_drake_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
-        SpellScript* GetSpellScript() const 
+        SpellScript* GetSpellScript() const
         {
             return new spell_oculus_call_ruby_emerald_amber_drake_SpellScript();
         }
@@ -426,13 +417,13 @@ class spell_oculus_ride_ruby_emerald_amber_drake_que: public SpellScriptLoader
                     GetTarget()->CastSpell(caster, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
             }
 
-            void Register() 
+            void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
-        AuraScript* GetAuraScript() const 
+        AuraScript* GetAuraScript() const
         {
             return new spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript();
         }
@@ -448,7 +439,7 @@ class spell_oculus_stop_time: public SpellScriptLoader
         {
             PrepareAuraScript(spell_oculus_stop_time_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) 
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
                     return false;
@@ -466,13 +457,13 @@ class spell_oculus_stop_time: public SpellScriptLoader
                     caster->CastSpell(target, SPELL_AMBER_SHOCK_CHARGE, false);
             }
 
-            void Register() 
+            void Register()
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_oculus_stop_time_AuraScript::Apply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const 
+        AuraScript* GetAuraScript() const
         {
             return new spell_oculus_stop_time_AuraScript();
         }
@@ -492,13 +483,13 @@ class spell_oculus_touch_the_nightmare: public SpellScriptLoader
                 SetHitDamage(int32(GetCaster()->CountPctFromMaxHealth(30)));
             }
 
-            void Register() 
+            void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_oculus_touch_the_nightmare_SpellScript::HandleDamageCalc, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const 
+        SpellScript* GetSpellScript() const
         {
             return new spell_oculus_touch_the_nightmare_SpellScript();
         }
@@ -521,19 +512,20 @@ class spell_oculus_dream_funnel: public SpellScriptLoader
                 canBeRecalculated = false;
             }
 
-            void Register() 
+            void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_oculus_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_oculus_dream_funnel_AuraScript::HandleEffectCalcAmount, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
-        AuraScript* GetAuraScript() const 
+        AuraScript* GetAuraScript() const
         {
             return new spell_oculus_dream_funnel_AuraScript();
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_oculus()
 {
     new npc_verdisa_belgaristrasz_eternos();
@@ -545,3 +537,4 @@ void AddSC_oculus()
     new spell_oculus_touch_the_nightmare();
     new spell_oculus_dream_funnel();
 }
+#endif

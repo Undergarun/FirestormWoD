@@ -230,6 +230,7 @@ class boss_sadana_bloodfury : public CreatureScript
             m_CommunionGuid = 0;
             m_CommunionInRange = false;
             m_CommunionInAction = false;
+            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
             me->CastSpell(me, eSadanaSpells::SpellShadowRitual);
             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC
                 | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
@@ -1111,7 +1112,7 @@ class shadowmoon_burial_grounds_sadana_spell_dark_communion : public SpellScript
                 GetTarget()->GetAI()->DoAction(eSadanaActions::ActionActivateDefiledSpirit);
         }
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {

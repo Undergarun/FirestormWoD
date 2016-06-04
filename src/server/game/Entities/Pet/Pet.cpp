@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Player.h"
 #include "Common.h"
@@ -156,7 +146,7 @@ void Pet::RemoveFromWorld()
     }
 }
 
-void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool current, PetSlot slotID, bool stampeded, PetQueryHolder* holder, std::function<void(Pet*, bool)> p_Callback) ///< petnumber is unused
+void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 /*petnumber*/, bool current, PetSlot slotID, bool stampeded, PetQueryHolder* holder, std::function<void(Pet*, bool)> p_Callback)
 {
     m_loading = true;
 
@@ -183,7 +173,6 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     if (slotID == PET_SLOT_ACTUAL_PET_SLOT)
         slotID = owner->m_currentPetSlot;
 
-    uint32 ownerid = owner->GetGUIDLow(); ///< ownerID is never read 01/18/16
 
     PreparedQueryResult result = holder->GetPetResult();
 
@@ -282,10 +271,10 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     switch (cinfo->unit_class)
     {
         case CLASS_WARRIOR:
-            powerType = POWER_RAGE;  ///< powertype is never read 01/18/16
+            powerType = POWER_RAGE;
             break;
         case CLASS_ROGUE:
-            powerType = POWER_ENERGY; ///< powertype is never read 01/18/16
+            powerType = POWER_ENERGY;
             break;
     }
 
@@ -692,6 +681,14 @@ void Pet::Update(uint32 diff)
                 }
             }
 
+            if (Unit* l_Victim = getVictim())
+            {
+                if (!HasUnitState(UNIT_STATE_CASTING))
+                {
+                    GetMotionMaster()->MoveChase(l_Victim);
+                }
+            }
+
             //regenerate focus for hunter pets or energy for deathknight's ghoul
             if (m_RegenPowerTimer)
             {
@@ -745,7 +742,7 @@ void Creature::Regenerate(Powers power)
             if (GetOwner())
             {
                 /// Calculate owners haste
-                float l_OwnerHastePct = 1.f / GetOwner()->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+                float l_OwnerHastePct = 1.0f / GetOwner()->GetFloatValue(UNIT_FIELD_MOD_HASTE);
                 float l_OwnerBaseRegen = 4.0f;
                 /// Calculate regenerate for 1 second and multiply for update interval
                 addvalue += (l_OwnerBaseRegen * l_OwnerHastePct) * PET_FOCUS_REGEN_INTERVAL / IN_MILLISECONDS * sWorld->getRate(RATE_POWER_FOCUS);
@@ -1031,9 +1028,9 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
             CastSpell(this, 147157, true);
     }
 
-    if (l_PetType == HUNTER_PET && HasAura(20782))
+    if (l_PetType == HUNTER_PET)
     {
-        if (l_Owner && l_Owner->HasAura(152244))
+        if (l_Owner && l_Owner->HasAura(152244) && HasAura(20782))
         {
             RemoveAura(20782);
             CastSpell(this, 156843, true); ///<  Adaptation

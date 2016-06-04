@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ public:
         }
     }
 
-    void OnEnterBG(Player* p_Player, uint32 p_MapID)
+    void OnEnterBG(Player* p_Player, uint32 /*p_MapID*/)
     {
         int32 l_EventTab[MAX_WEEKLY_EVENT] =
         {
@@ -112,7 +112,7 @@ public:
         }
     }
 
-    void OnleaveBG(Player* p_Player, uint32 p_MapID)
+    void OnleaveBG(Player* p_Player, uint32 /*p_MapID*/)
     {
         int32 l_AuraTab[MAX_WEEKLY_EVENT] = {
             186400, ///< Sign of Apexis
@@ -131,7 +131,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_WeeklyEventBonusScripts()
 {
     new PlayerScript_Weekly_Event_Bonus();
 };
+#endif

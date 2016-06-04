@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -9,7 +9,7 @@
 #include "BattlepayPacketFactory.h"
 #include "Chat.h"
 #include "ObjectMgr.h"
-#include <sstream>
+#include "Common.h"
 
 namespace Battlepay
 {
@@ -24,7 +24,7 @@ namespace Battlepay
             l_Data << uint32(ProductListResult::Available);                         ///< Result
             l_Data << uint32(sBattlepayMgr->GetShopCurrency());                     ///< CurrencyID
 
-            uint32 l_ProductSize = std::count_if(sBattlepayMgr->GetProducts().begin(), sBattlepayMgr->GetProducts().end(), [p_Session, l_Player](std::pair<uint32, Battlepay::Product const&> p_Itr) -> bool
+            uint32 l_ProductSize = (uint32)std::count_if(sBattlepayMgr->GetProducts().begin(), sBattlepayMgr->GetProducts().end(), [p_Session, l_Player](std::pair<uint32, Battlepay::Product const&> p_Itr) -> bool
             {
                 if (p_Itr.second.ClassMask == 0)
                     return true;

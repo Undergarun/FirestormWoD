@@ -1,16 +1,13 @@
 #include "grim_batol.h"
 #include "ScriptPCH.h"
 
-
-//todo: щит ночных кошмаров, аое, евент с адами
-
 enum ScriptTexts
 {
     SAY_AGGRO    = 0,
     SAY_KILL    = 1,
     SAY_DEATH    = 2,
     SAY_GALE    = 3,
-    SAY_ADDS    = 4,
+    SAY_ADDS    = 4
 };
 
 enum Spells
@@ -18,7 +15,7 @@ enum Spells
     SPELL_ENFEEBLING_BLOW            = 75789,
     SPELL_ENFEEBLING_BLOW_H            = 91091,
     SPELL_BINDING_SHADOWS            = 79466,
-    SPELL_BINDING_SHADOWS_H            = 91081, 
+    SPELL_BINDING_SHADOWS_H            = 91081,
     SPELL_BINDING_SHADOWS_AURA        = 75861,
     SPELL_BINDING_SHADOWS_AURA_H    = 91079,
     SPELL_SIPHON_ESSENSE            = 75755,
@@ -41,7 +38,7 @@ enum Spells
     SPELL_TWILIGHT_BLAST_TRIGGER    = 76192,
     SPELL_TWILIGHT_BLAST_DMG        = 76194,
     SPELL_TWILIGHT_BLAST_DMG_H        = 91042,
-    SPELL_SHIELD_OF_NIGHTMARES        = 75809,
+    SPELL_SHIELD_OF_NIGHTMARES        = 75809
 };
 
 enum Adds
@@ -51,7 +48,7 @@ enum Adds
     NPC_FACELESS_PORTAL_STALKER = 44314,
     NPC_ALEXSTRASZA_EGG            = 40486,
     NPC_TWILIGHT_HATCHLING        = 39388,
-    NPC_SHADOW_GALE_STALKER        = 40567,
+    NPC_SHADOW_GALE_STALKER        = 40567
 };
 
 enum Events
@@ -65,27 +62,22 @@ enum Events
     EVENT_SHADOW_GALE                = 7,
     EVENT_TWILIGHT_CORRUPTION        = 8,
     EVENT_CORRUPTOR_MOVE            = 9,
-    EVENT_SHIELD_OF_NIGHTMARES        = 10,
+    EVENT_SHIELD_OF_NIGHTMARES        = 10
 };
 
 enum Points
 {
     POINT_SHADOWGALE    = 1001,
-    POINT_EGG            = 1002,
+    POINT_EGG            = 1002
 };
 
 const Position erudaxportalPos = {-641.515f, -827.8f, 235.5f, 3.069f};
-const Position neareggPos[2] = 
-{
-    {-719.67f, -839.64f, 232.43f, 0.0f},
-    //{-731.72f, -787.40f, 232.47f, 2.25f},
-    {-730.63f, -864.46f, 232.44f, 4.71f},
-};
-const Position shadowgalePos[3] = 
+
+const Position shadowgalePos[3] =
 {
     {-745.07f, -845.16f, 232.41f, 0.0f},
     {-724.05f, -823.47f, 232.41f, 0.0f},
-    {-741.81f, -819.44f, 232.41f, 0.0f},
+    {-741.81f, -819.44f, 232.41f, 0.0f}
 };
 const Position eggPos[23]    =
 {
@@ -111,7 +103,7 @@ const Position eggPos[23]    =
     {-731.53f, -770.02f, 236.14f, 0.10f},
     {-730.15f, -885.09f, 235.96f, 5.93f},
     {-717.82f, -887.81f, 233.95f, 6.05f},
-    {-751.01f, -886.38f, 234.87f, 3.27f},
+    {-751.01f, -886.38f, 234.87f, 3.27f}
 };
 
 class boss_erudax : public CreatureScript
@@ -172,7 +164,7 @@ class boss_erudax : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 Talk(SAY_AGGRO);
                 FacelessPortalStalker = me->SummonCreature(NPC_FACELESS_PORTAL_STALKER, erudaxportalPos,TEMPSUMMON_MANUAL_DESPAWN);
@@ -183,7 +175,7 @@ class boss_erudax : public CreatureScript
                     pInstance->SetData(DATA_ERUDAX, IN_PROGRESS);
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_DEATH);
                 summons.DespawnAll();
@@ -191,9 +183,9 @@ class boss_erudax : public CreatureScript
                     pInstance->SetData(DATA_ERUDAX, DONE);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
-                Talk(SAY_KILL);                
+                Talk(SAY_KILL);
             }
 
             void UpdateAI(const uint32 diff)
@@ -222,7 +214,7 @@ class boss_erudax : public CreatureScript
                             ShadowGaleTrigger->CastSpell(ShadowGaleTrigger, SPELL_SHADOW_GALE_SPEED_TRIGGER, false);
                         //132 error
                         //DoCast(me, SPELL_SHADOW_GALE);
-                        events.ScheduleEvent(EVENT_ADDS, 16500); 
+                        events.ScheduleEvent(EVENT_ADDS, 16500);
                         break;
                     case EVENT_REMOVE_TWILIGHT_PORTAL:
                         if (FacelessPortalStalker)
@@ -296,13 +288,13 @@ class npc_erudax_faceless_corruptor : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 events.ScheduleEvent(EVENT_UMBRAL_MENDING, urand(15000, 20000));
                 events.ScheduleEvent(EVENT_SIPHON_ESSENSE, urand(5000, 7000));
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -358,7 +350,7 @@ public:
 
         InstanceScript* pInstance;
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             DoCast(me, SPELL_SUMMON_TWILIGHT_HATCHLING, true);
         }
@@ -425,17 +417,17 @@ public:
             me->SetCanFly(true);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             me->DespawnOrUnsummon();
         }
 
-        void IsSummonedBy(Unit* owner)
+        void IsSummonedBy(Unit* /*owner*/)
         {
             DoCast(me, SPELL_TWILIGHT_BLAST_TRIGGER);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             if (!pInstance)
                 return;
@@ -454,7 +446,7 @@ class spell_erudax_shadow_gale: public SpellScriptLoader
 
         class spell_erudax_shadow_gale_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_erudax_shadow_gale_SpellScript);
+            PrepareSpellScript(spell_erudax_shadow_gale_SpellScript)
 
 
             void HandleScript()
@@ -478,6 +470,7 @@ class spell_erudax_shadow_gale: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_erudax()
 {
     new boss_erudax();
@@ -487,3 +480,4 @@ void AddSC_boss_erudax()
     new npc_erudax_twilight_hatchling();
     new spell_erudax_shadow_gale();
 }
+#endif

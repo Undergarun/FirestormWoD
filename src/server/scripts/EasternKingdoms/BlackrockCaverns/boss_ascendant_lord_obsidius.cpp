@@ -7,7 +7,7 @@ enum ScriptTexts
     SAY_AGGRO           = 0,
     SAY_KILL            = 1,
     SAY_TRANSFORMATION  = 2,
-    SAY_DEATH           = 3,
+    SAY_DEATH           = 3
 };
 enum Spells
 {
@@ -17,7 +17,7 @@ enum Spells
     SPELL_THUNDERCLAP           = 76186,
     SPELL_TWITCHY               = 76167,
     SPELL_SHADOW_OF_OBSIDIUS    = 76164,
-    SPELL_CREPUSCULAR_VEIL      = 76189,
+    SPELL_CREPUSCULAR_VEIL      = 76189
 };
 
 enum Events
@@ -25,12 +25,12 @@ enum Events
     EVENT_STONEBLOW             = 1,
     EVENT_TWILIGHT_CORRUPTION   = 2,
     EVENT_THUNDERCLAP           = 3,
-    EVENT_CREPUSCULAR_VEIL      = 4,
+    EVENT_CREPUSCULAR_VEIL      = 4
 };
 
 enum Adds
 {
-    NPC_SHADOW_OF_OBSIDIUS  = 40817,
+    NPC_SHADOW_OF_OBSIDIUS  = 40817
 };
 
 const Position shadowofobsidiusPos[3] =
@@ -79,7 +79,7 @@ class boss_ascendant_lord_obsidius : public CreatureScript
                 pInstance->SetData(DATA_ASCENDANT_LORD_OBSIDIUS, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* who) 
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_STONEBLOW, 6000);
                 events.ScheduleEvent(EVENT_TWILIGHT_CORRUPTION, 20000);
@@ -148,7 +148,7 @@ class boss_ascendant_lord_obsidius : public CreatureScript
                     pInstance->SetData(DATA_ASCENDANT_LORD_OBSIDIUS, DONE);
             }
      
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit * /*victim*/)
             {
                 Talk(SAY_KILL);
             }
@@ -167,7 +167,7 @@ class npc_shadow_of_obsidius : public CreatureScript
 
         struct npc_shadow_of_obsidiusAI : public ScriptedAI
         {
-            npc_shadow_of_obsidiusAI(Creature* creature) : ScriptedAI(creature) 
+            npc_shadow_of_obsidiusAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -181,14 +181,14 @@ class npc_shadow_of_obsidius : public CreatureScript
             {
                 DoCast(me, SPELL_TWITCHY);
                 DoCast(me, SPELL_SHADOW_OF_OBSIDIUS);
-            }   
+            }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CREPUSCULAR_VEIL, 3900);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 & /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->getVictim() != attacker)
                 {
@@ -222,11 +222,13 @@ class npc_shadow_of_obsidius : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };           
+        };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ascendant_lord_obsidius()
 {
     new boss_ascendant_lord_obsidius();
     new npc_shadow_of_obsidius();
 }
+#endif

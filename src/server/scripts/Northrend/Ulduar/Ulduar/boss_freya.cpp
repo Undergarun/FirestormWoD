@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -161,7 +152,7 @@ enum FreyaSpells
     // Attuned To Nature spells
     SPELL_ATTUNED_TO_NATURE_2_DOSE_REDUCTION     = 62524,
     SPELL_ATTUNED_TO_NATURE_10_DOSE_REDUCTION    = 62525,
-    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521,
+    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521
 };
 
 #define SPELL_IRON_ROOTS    RAID_MODE(SPELL_IRON_ROOTS_10, SPELL_IRON_ROOTS_25)
@@ -183,7 +174,7 @@ enum FreyaNpcs
     NPC_IRON_ROOTS                               = 33088,
     NPC_STRENGTHENED_IRON_ROOTS                  = 33168,
 
-    OBJECT_NATURE_BOMB                           = 194902,
+    OBJECT_NATURE_BOMB                           = 194902
 };
 
 enum FreyaActions
@@ -398,7 +389,7 @@ class boss_freya : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1100,7 +1091,7 @@ class boss_elder_stonebark : public CreatureScript
                     Talk(SAY_STONEBARK_AGGRO);
             }
 
-            void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* who, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (who == me)
                     return;
@@ -1318,7 +1309,7 @@ class npc_detonating_lasher : public CreatureScript
                 _events.ScheduleEvent(EVENT_CHANGE_TARGET, 12.5 * IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const* p_SpellInfo) // TODO: Check possible double-call
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/) // TODO: Check possible double-call
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1669,7 +1660,7 @@ class npc_ancient_conservator : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -2282,6 +2273,7 @@ class achievement_knock_knock_knock_on_wood : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_freya()
 {
     new boss_freya();
@@ -2318,3 +2310,4 @@ void AddSC_boss_freya()
     new achievement_knock_knock_knock_on_wood("achievement_knock_knock_knock_on_wood");
     new achievement_knock_knock_knock_on_wood("achievement_knock_knock_knock_on_wood_25");
 }
+#endif

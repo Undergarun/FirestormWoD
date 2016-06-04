@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -25,7 +16,7 @@ enum Spells
     H_SPELL_HATEFUL_STRIKE                      = 59192,
     SPELL_FRENZY                                = 28131,
     SPELL_BERSERK                               = 26662,
-    SPELL_SLIME_BOLT                            = 32309,
+    SPELL_SLIME_BOLT                            = 32309
 };
 
 enum Yells
@@ -35,7 +26,7 @@ enum Yells
     SAY_SLAY                                    = -1533019,
     SAY_DEATH                                   = -1533020,
     EMOTE_BERSERK                               = -1533021,
-    EMOTE_ENRAGE                                = -1533022,
+    EMOTE_ENRAGE                                = -1533022
 };
 
 enum Events
@@ -48,7 +39,7 @@ enum Events
 
 enum
 {
-    ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT  = 10286,
+    ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT  = 10286
 };
 
 class boss_patchwerk : public CreatureScript
@@ -160,7 +151,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_patchwerk()
 {
     new boss_patchwerk();
 }
+#endif

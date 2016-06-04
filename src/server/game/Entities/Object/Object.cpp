@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "SharedDefines.h"
@@ -211,7 +201,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     uint8  updateType = UPDATETYPE_CREATE_OBJECT;
     uint32 flags      = m_updateFlag;
 
-    uint32 valCount = m_valuesCount; ///< valCount is never read 01/18/16
+    //uint32 valCount = m_valuesCount; ///< valCount is never read 01/18/16
 
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
@@ -304,7 +294,7 @@ void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
     data->AddOutOfRangeGUID(GetGUID());
 }
 
-void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const ///< p_OnDeath is unused
+void Object::DestroyForPlayer(Player* p_Target, bool /*p_OnDeath*/) const
 {
     ASSERT(p_Target);
 
@@ -579,7 +569,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
                 for (uint32 l_I = 0; l_I < l_Spline->getPath().size(); l_I++)
                 {
-                    float l_Salt = (float(l_I) / 1000.f);
+                    float l_Salt = (float(l_I) / 1000.0f);
 
                     /// Add a salt in points because the client doesn't like to have 2 time the same points
                     *p_Data << float(l_Spline->getPath()[l_I].x + l_Salt);  ///< Path node X
@@ -1885,7 +1875,7 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
     VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
     return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);*/
     if (IsInWorld())
-        return GetMap()->isInLineOfSight(GetPositionX(), GetPositionY(), GetPositionZ()+2.f, ox, oy, oz+2.f, GetPhaseMask());
+        return GetMap()->isInLineOfSight(GetPositionX(), GetPositionY(), GetPositionZ()+2.0f, ox, oy, oz+2.0f, GetPhaseMask());
 
     return true;
 }
@@ -3131,6 +3121,7 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
                             if (bp)
                                 p_Pet->GetOwner()->CastCustomSpell(p_Pet->GetOwner(), 119904, &bp, NULL, NULL, true);
                         }
+                        p_Pet->SetFullHealth();
                     }
 
                     if (p_Pet->IsPetGhoul())
@@ -3583,7 +3574,7 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
     JadeCore::NormalizeMapCoord(y);
 }
 
-void WorldObject::GetNearPoint(WorldObject const* p_Searcher, float &p_InOutX, float &p_InOutY, float &p_InOutZ, float p_SearcherSize, float p_Distance2D, float p_AbsAngle) const
+void WorldObject::GetNearPoint(WorldObject const* /*p_Searcher*/, float &p_InOutX, float &p_InOutY, float &p_InOutZ, float p_SearcherSize, float p_Distance2D, float p_AbsAngle) const
 {
     GetNearPoint2D(p_InOutX, p_InOutY, p_Distance2D + p_SearcherSize, p_AbsAngle);
     p_InOutZ = GetPositionZ();
@@ -3816,7 +3807,7 @@ void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
         UpdateObjectVisibility();
 }
 
-void WorldObject::PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_SoundKitID, WorldObject * p_TargetObject /*= NULL*/, float p_SourceX /*= 0.f*/, float p_SourceY /*= 0.f*/, float p_SourceZ /*= 0.f*/)
+void WorldObject::PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_SoundKitID, WorldObject * p_TargetObject /*= NULL*/, float p_SourceX /*= 0.0f*/, float p_SourceY /*= 0.0f*/, float p_SourceZ /*= 0.0f*/)
 {
     float l_X = (p_SourceObject && p_SourceX == 0) ? p_SourceObject->GetPositionX() : p_SourceX;
     float l_Y = (p_SourceObject && p_SourceY == 0) ? p_SourceObject->GetPositionY() : p_SourceY;

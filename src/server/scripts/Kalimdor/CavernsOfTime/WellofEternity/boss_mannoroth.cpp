@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "well_of_eternity.h"
 #include "Group.h"
@@ -11,13 +19,14 @@ enum ScriptedTextMannoroth
     SAY_MANNOROTH_VAROTHEN  = 5,
     SAY_MANNOROTH_EVENT     = 6,
     SAY_MANNOROTH_KILL      = 7,
-    SAY_MANNOROTH_SPELL     = 8,
+    SAY_MANNOROTH_SPELL     = 8
 };
+
 enum ScriptedTextVarothen
 {
     SAY_VAROTHEN_AGGRO  = 0,
     SAY_VAROTHEN_DEATH  = 1,
-    SAY_VAROTHEN_KILL   = 2,
+    SAY_VAROTHEN_KILL   = 2
 };
 
 enum Spells
@@ -93,7 +102,7 @@ enum Events
     EVENT_GIFT_OF_SARGERAS_3    = 18, // Illidan says
     EVENT_GIFT_OF_SARGERAS_4    = 19, // Tyrande says
     EVENT_GIFT_OF_SARGERAS_5    = 20, // Illidan says
-    EVENT_DESPAWN               = 21,
+    EVENT_DESPAWN               = 21
 };
 
 enum Adds
@@ -107,37 +116,35 @@ enum Adds
     NPC_VAROTHEN_MAGICAL_BLADE  = 55837,
     NPC_EMBEDDED_BLADE          = 55838,
     NPC_PURPOSE_BUNNY_1         = 45979,
-    NPC_PURPOSE_BUNNY_2         = 54020,
+    NPC_PURPOSE_BUNNY_2         = 54020
 };
 
 enum Actions
 {
     ACTION_VAROTHEN_DIED    = 1,
-    ACTION_DEBILITATING_OFF = 2,
+    ACTION_DEBILITATING_OFF = 2
 };
-
-const Position portalPos = {3338.699951f, -5699.775879f, 13.01f, 3.87f};
 
 const Position varothenPos = {3319.669922f, -5716.470215f, 16.18f, 2.68f};
 
-const Position debilitatorPos[2] = 
+const Position debilitatorPos[2] =
 {
     {3295.439941f, -5687.229980f, 14.19f, 5.74f}, // left dreadlord
     {3324.479980f, -5694.270020f, 13.97f, 3.17f}  // right dreadlord
 };
 
-const Position devastatorPos[3] = 
+const Position devastatorPos[3] =
 {
     {3302.872803f, -5676.763672f, 12.53f, 4.74f},
     {3326.123047f, -5690.420410f, 13.14f, 3.81f},
     {3316.755127f, -5686.553711f, 14.03f, 4.26f}
 };
 
-const Position stalkerPos[3] = 
+const Position stalkerPos[3] =
 {
     {3295.44f, -5687.23f, 14.19f, 5.74213f},
     {3324.48f, -5694.27f, 13.97f, 3.1765f},
-    {3339.81f, -5698.5f, 15.5043f, 3.97935f},
+    {3339.81f, -5698.5f, 15.5043f, 3.97935f}
 };
 
 class boss_mannoroth : public CreatureScript
@@ -207,7 +214,7 @@ class boss_mannoroth : public CreatureScript
                 me->Attack(who, false);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (Creature* pVarothen = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VAROTHEN)))
                     if (!pVarothen->isInCombat())
@@ -265,7 +272,7 @@ class boss_mannoroth : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!bDebilitating)
                     if (me->HealthBelowPctDamaged(88, damage))
@@ -460,9 +467,9 @@ class boss_mannoroth : public CreatureScript
                 if (instance)
                 {
                     // Achievement
-                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_COMPLETE_ENCOUNTER, 0, 0, me); 
+                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_COMPLETE_ENCOUNTER, 0, 0, me);
                     instance->DoKilledMonsterKredit(QUEST_THE_PATH_TO_THE_DRAGON_SOUL, 54969, 0);
-                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_COMPLETE_ENCOUNTER, me); 
+                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_COMPLETE_ENCOUNTER, me);
                     instance->SetBossState(DATA_MANNOROTH, DONE);
                     instance->DoModifyPlayerCurrencies(395, 7000);
                 }
@@ -513,7 +520,7 @@ class npc_mannoroth_varothen : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 Talk(SAY_VAROTHEN_AGGRO);
                 events.ScheduleEvent(EVENT_MAGNISTRIKE, urand(3000, 7000));
@@ -651,7 +658,7 @@ class spell_mannoroth_gift_of_sargeras: public SpellScriptLoader
 
         class spell_mannoroth_gift_of_sargeras_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mannoroth_gift_of_sargeras_SpellScript);
+            PrepareSpellScript(spell_mannoroth_gift_of_sargeras_SpellScript)
 
             void HandleAfterHit()
             {
@@ -680,7 +687,7 @@ class achievement_thats_not_cannon : public AchievementCriteriaScript
     public:
         achievement_thats_not_cannon() : AchievementCriteriaScript("achievement_thats_not_cannon") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;
@@ -692,6 +699,7 @@ class achievement_thats_not_cannon : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_mannoroth()
 {
     new boss_mannoroth();
@@ -700,3 +708,4 @@ void AddSC_boss_mannoroth()
     new spell_mannoroth_gift_of_sargeras();
     new achievement_thats_not_cannon();
 }
+#endif

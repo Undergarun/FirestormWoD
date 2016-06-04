@@ -1,4 +1,12 @@
-﻿#include <ScriptPCH.h>
+﻿////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#include <ScriptPCH.h>
 #include <ScriptMgr.h>
 
 #include "GameEventMgr.h"
@@ -26,7 +34,7 @@ class PlayerScript_Event_April: public PlayerScript
         Player->SetDisplayId(tabFish[idFish]);
     }
 
-    void OnPVPKill(Player* Killer, Player* Killed)
+    void OnPVPKill(Player* Killer, Player* /*Killed*/)
     {
         int32 tabFish[14] = {32263,40855,32646,42160,42161,42162,42163,44563,42808,44562,33312,42836,39936,45246};
         if (Killer->GetMap()->IsBattlegroundOrArena() || Killer->GetMap()->IsRaid())
@@ -40,7 +48,9 @@ class PlayerScript_Event_April: public PlayerScript
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_event_april()
 {
     new PlayerScript_Event_April();
 };
+#endif

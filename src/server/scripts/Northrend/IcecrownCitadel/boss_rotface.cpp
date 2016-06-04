@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -38,7 +29,7 @@ enum Texts
     SAY_DEATH                   = 8,
     EMOTE_MUTATED_INFECTION     = 9,
 
-    EMOTE_PRECIOUS_ZOMBIES      = 0,
+    EMOTE_PRECIOUS_ZOMBIES      = 0
 };
 
 enum Spells
@@ -64,7 +55,7 @@ enum Spells
     // Precious
     SPELL_MORTAL_WOUND                      = 71127,
     SPELL_DECIMATE                          = 71123,
-    SPELL_AWAKEN_PLAGUED_ZOMBIES            = 71159,
+    SPELL_AWAKEN_PLAGUED_ZOMBIES            = 71159
 };
 
 #define MUTATED_INFECTION RAID_MODE<int32>(69674, 71224, 73022, 73023)
@@ -84,7 +75,7 @@ enum Events
     EVENT_STICKY_OOZE       = 7,
     EVENT_VILE_GAS          = 8,
     EVENT_BERSERK           = 9,
-    EVENT_ENABLE_ATTACK     = 10,
+    EVENT_ENABLE_ATTACK     = 10
 };
 
 class boss_rotface : public CreatureScript
@@ -472,7 +463,7 @@ class spell_rotface_ooze_flood: public SpellScriptLoader
 
         class spell_rotface_ooze_flood_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_ooze_flood_SpellScript);
+            PrepareSpellScript(spell_rotface_ooze_flood_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -522,7 +513,7 @@ class spell_rotface_mutated_infection: public SpellScriptLoader
 
         class spell_rotface_mutated_infection_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_mutated_infection_SpellScript);
+            PrepareSpellScript(spell_rotface_mutated_infection_SpellScript)
 
             bool Load()
             {
@@ -582,7 +573,7 @@ class spell_rotface_little_ooze_combine: public SpellScriptLoader
 
         class spell_rotface_little_ooze_combine_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_little_ooze_combine_SpellScript);
+            PrepareSpellScript(spell_rotface_little_ooze_combine_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -614,7 +605,7 @@ class spell_rotface_large_ooze_combine: public SpellScriptLoader
 
         class spell_rotface_large_ooze_combine_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_large_ooze_combine_SpellScript);
+            PrepareSpellScript(spell_rotface_large_ooze_combine_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -674,7 +665,7 @@ class spell_rotface_large_ooze_buff_combine: public SpellScriptLoader
 
         class spell_rotface_large_ooze_buff_combine_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_large_ooze_buff_combine_SpellScript);
+            PrepareSpellScript(spell_rotface_large_ooze_buff_combine_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -729,7 +720,7 @@ class spell_rotface_unstable_ooze_explosion_init: public SpellScriptLoader
 
         class spell_rotface_unstable_ooze_explosion_init_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_unstable_ooze_explosion_init_SpellScript);
+            PrepareSpellScript(spell_rotface_unstable_ooze_explosion_init_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -769,7 +760,7 @@ class spell_rotface_unstable_ooze_explosion: public SpellScriptLoader
 
         class spell_rotface_unstable_ooze_explosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_unstable_ooze_explosion_SpellScript);
+            PrepareSpellScript(spell_rotface_unstable_ooze_explosion_SpellScript)
 
             void CheckTarget(SpellEffIndex effIndex)
             {
@@ -839,7 +830,7 @@ class spell_rotface_slime_spray: public SpellScriptLoader
 
         class spell_rotface_slime_spray_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_slime_spray_SpellScript);
+            PrepareSpellScript(spell_rotface_slime_spray_SpellScript)
 
             void ChangeOrientation()
             {
@@ -861,6 +852,7 @@ class spell_rotface_slime_spray: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_rotface()
 {
     new boss_rotface();
@@ -877,3 +869,4 @@ void AddSC_boss_rotface()
     new spell_rotface_unstable_ooze_explosion_suicide();
     new spell_rotface_slime_spray();
 }
+#endif

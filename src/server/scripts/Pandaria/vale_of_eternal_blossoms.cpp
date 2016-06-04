@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "SpellScript.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -389,6 +397,7 @@ class spell_shadow_pan_flare: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_vale_of_eternal_blossoms()
 {
     new mob_zhao_jin();
@@ -398,3 +407,4 @@ void AddSC_vale_of_eternal_blossoms()
     new mob_shao_tien_surveyor();
     new spell_shadow_pan_flare();
 }
+#endif

@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -400,7 +408,7 @@ class mob_restless_leng : public CreatureScript
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 std::list<Player*> playerList;
                 playerList.clear();
@@ -413,6 +421,7 @@ class mob_restless_leng : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_townlong_steppes()
 {
     //Rare mobs
@@ -425,3 +434,4 @@ void AddSC_townlong_steppes()
     // Standard Mobs
     new mob_restless_leng();
 }
+#endif

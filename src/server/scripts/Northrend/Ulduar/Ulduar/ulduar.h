@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
@@ -46,7 +37,7 @@ enum UlduarBosses
     BOSS_STONEBARK           = 16,
     BOSS_VEZAX               = 17,
     BOSS_YOGGSARON           = 18,
-    BOSS_ALGALON             = 19,
+    BOSS_ALGALON             = 19
 };
 
 enum UlduarNPCs
@@ -188,7 +179,7 @@ enum UlduarNPCs
     NPC_ALGALON_VOID_ZONE_VISUAL_STALKER    = 34100,
     NPC_ALGALON_STALKER_ASTEROID_TARGET_01  = 33104,
     NPC_ALGALON_STALKER_ASTEROID_TARGET_02  = 33105,
-    NPC_UNLEASHED_DARK_MATTER               = 34097,
+    NPC_UNLEASHED_DARK_MATTER               = 34097
 };
 
 enum UlduarGameObjects
@@ -264,7 +255,7 @@ enum UlduarGameObjects
     GO_DOODAD_UL_UNIVERSEGLOBE01            = 194148,
     GO_DOODAD_UL_ULDUAR_TRAPDOOR_03         = 194253,
     GO_GIFT_OF_THE_OBSERVER_10              = 194821,
-    GO_GIFT_OF_THE_OBSERVER_25              = 194822,
+    GO_GIFT_OF_THE_OBSERVER_25              = 194822
 };
 
 enum LeviathanData
@@ -277,7 +268,7 @@ enum LeviathanData
     ACTION_TOWER_OF_FROST_DESTROYED     = 2,
     ACTION_TOWER_OF_FLAMES_DESTROYED    = 3,
     ACTION_TOWER_OF_LIFE_DESTROYED      = 4,
-    ACTION_MOVE_TO_CENTER_POSITION      = 10,
+    ACTION_MOVE_TO_CENTER_POSITION      = 10
 };
 
 enum UlduarAchievementCriteriaIds
@@ -286,12 +277,12 @@ enum UlduarAchievementCriteriaIds
     CRITERIA_DISARMED           = 21687,
     CRITERIA_HERALD_OF_TITANS   = 10678,
     CRITERIA_LUMBERJACKED_10    = 10720,
-    CRITERIA_LUMBERJACKED_25    = 10721,
+    CRITERIA_LUMBERJACKED_25    = 10721
 };
 
 enum UlduarSpells
 {
-    SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK    = 65296,
+    SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK    = 65296
 };
 
 enum UlduarTeleportSpells
@@ -348,13 +339,13 @@ enum UlduarData
     DATA_UNIVERSE_FLOOR_02,
     DATA_UNIVERSE_GLOBE,
     DATA_ALGALON_TRAPDOOR,
-    DATA_BRANN_BRONZEBEARD_ALG,
+    DATA_BRANN_BRONZEBEARD_ALG
 };
 
 enum UlduarWorldStates
 {
     WORLD_STATE_ALGALON_DESPAWN_TIMER   = 4131,
-    WORLD_STATE_ALGALON_TIMER_ENABLED   = 4132,
+    WORLD_STATE_ALGALON_TIMER_ENABLED   = 4132
 };
 
 enum UlduarAchievementData
@@ -362,14 +353,14 @@ enum UlduarAchievementData
     // FL Achievement boolean
     DATA_UNBROKEN = 29052906, // 2905, 2906 are achievement IDs,
     MAX_HERALD_ARMOR_ITEMLEVEL  = 226,
-    MAX_HERALD_WEAPON_ITEMLEVEL = 232,
+    MAX_HERALD_WEAPON_ITEMLEVEL = 232
 };
 
 enum UlduarEvents
 {
     EVENT_DESPAWN_ALGALON       = 1,
     EVENT_UPDATE_ALGALON_TIMER  = 2,
-    ACTION_INIT_ALGALON         = 6,
+    ACTION_INIT_ALGALON         = 6
 };
 
 enum UlduarArea

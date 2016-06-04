@@ -17,8 +17,9 @@
 #include "Chat.h"
 #include "ScriptMgr.h"
 #include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
+#include "../../scripts/Draenor/Garrison/GarrisonNPC.hpp"
 
-void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -146,7 +147,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& p_RecvData) ///< p_R
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -196,7 +197,7 @@ void WorldSession::HandleUpgradeGarrisonOpcode(WorldPacket& p_RecvData)
     l_Garrison->Upgrade();
 }
 
-void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -261,7 +262,7 @@ void WorldSession::HandleGarrisonRequestSetMissionNPC(WorldPacket& p_RecvData)
     SendGarrisonSetMissionNpc(l_NpcGUID);
 }
 
-void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -353,7 +354,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket& p_RecvData)
     if (!l_Result && !l_Garrison->KnownBlueprint(l_BuildingID))
         l_Result = MS::Garrison::PurchaseBuildingResults::RequireBluePrint;
 
-    if (!l_Result && l_Garrison->GetBuilding(l_BuildingID).BuildingID != 0)
+    if (!l_Result && l_Garrison->GetBuildingWithBuildingID(l_BuildingID).BuildingID != 0)
         l_Result = MS::Garrison::PurchaseBuildingResults::BuildingExists;
 
     if (!l_Result && !l_Garrison->IsBuildingPlotInstanceValid(l_BuildingID, l_PlotInstanceID))
@@ -541,6 +542,110 @@ void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket& p_RecvData)
     }
 
     l_Garrison->DoMissionBonusRoll(l_NpcGUID, l_MissionID);
+}
+
+void WorldSession::HandleGarrisonGenerateRecruitsOpcode(WorldPacket& p_RecvData)
+{
+    if (m_Player == nullptr)
+        return;
+
+    MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
+
+    if (l_Garrison == nullptr)
+        return;
+
+    uint64 l_GUID      = 0;
+    uint32 l_TraitID   = 0;
+    uint32 l_AbilityID = 0;
+
+    p_RecvData.readPackGUID(l_GUID);
+    p_RecvData >> l_AbilityID;
+    p_RecvData >> l_TraitID;
+
+    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_GUID, 0);
+
+    if (l_Unit == nullptr)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionBonusRollOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_GUID)));
+        return;
+    }
+
+    if (l_Unit->AI())
+        static_cast<MS::Garrison::GarrisonNPCAI*>(l_Unit->AI())->SendRecruitmentFollowersGenerated(m_Player, l_AbilityID ? l_AbilityID : l_TraitID, 0, l_TraitID ? true : false);
+}
+
+void WorldSession::HandleGarrisonSetRecruitmentPreferencesOpcode(WorldPacket& p_RecvData)
+{
+    if (m_Player == nullptr)
+        return;
+
+    MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
+
+    if (l_Garrison == nullptr)
+        return;
+    
+
+    uint64 l_GUID      = 0; ///< Unused ?
+    uint32 l_TraitID   = 0;
+    uint32 l_AbilityID = 0;
+
+    p_RecvData.readPackGUID(l_GUID);
+
+    p_RecvData >> l_AbilityID;
+    p_RecvData >> l_TraitID;
+}
+
+void WorldSession::HandleGarrisonRecruitFollower(WorldPacket& p_RecvData)
+{
+    if (m_Player == nullptr)
+        return;
+
+    MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
+
+    if (l_Garrison == nullptr)
+        return;
+
+    uint64 l_GUID       = 0;
+
+    p_RecvData.readPackGUID(l_GUID);
+    uint32 l_FollowerID = 0;
+    p_RecvData >> l_FollowerID;
+
+    Creature* l_Unit = m_Player->GetNPCIfCanInteractWith(l_GUID, 0);
+
+    if (l_Unit == nullptr)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionBonusRollOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_GUID)));
+        return;
+    }
+
+    WorldPacket l_RecruitmentResult(SMSG_GARRISON_RECRUIT_FOLLOWER_RESULT, 64);
+
+    if (l_Garrison->CanRecruitFollower())
+        l_RecruitmentResult << uint32(MS::Garrison::PurchaseBuildingResults::Ok);
+    else
+    {
+        l_RecruitmentResult << uint32(MS::Garrison::PurchaseBuildingResults::Ok); ///< need to find appropriate error ID
+        m_Player->PlayerTalkClass->SendCloseGossip();
+        return;
+    }
+
+    std::vector<MS::Garrison::GarrisonFollower> l_WeeklyFollowers = l_Garrison->GetWeeklyFollowerRecruits(m_Player);
+
+    for (MS::Garrison::GarrisonFollower l_Follower : l_WeeklyFollowers)
+    {
+        if (l_Follower.FollowerID == l_FollowerID)
+        {
+            l_Follower.Write(l_RecruitmentResult);
+            l_Garrison->AddFollower(l_Follower);
+            l_Garrison->SetCanRecruitFollower(true);
+            m_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTavernBoolCanRecruitFollower, 1);
+            break;
+        }
+    }
+
+    m_Player->SendDirectMessage(&l_RecruitmentResult);
+    m_Player->PlayerTalkClass->SendCloseGossip();
 }
 
 void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket& p_RecvData)
@@ -846,6 +951,12 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData)
                 l_HasReagents = false;
         }
 
+        if (l_Spell->CurrencyID)
+        {
+            if (!m_Player->HasCurrency(l_Spell->CurrencyID, l_Spell->CurrencyCount))
+                l_HasReagents = false;
+        }
+
         if (!l_HasReagents)
         {
             l_OnError("Doesn't have reagents");
@@ -863,6 +974,9 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData)
             m_Player->DestroyItemCount(l_ItemEntry, l_ItemCount, true);
         }
 
+        if (l_Spell->CurrencyID)
+            m_Player->ModifyCurrency(l_Spell->CurrencyID, -int32(l_Spell->CurrencyCount), false);
+
         m_Player->CastSpell(m_Player, l_Spell, TRIGGERED_FULL_MASK);
 
         uint64 l_DatabaseID = l_Garrison->StartWorkOrder(l_PlotInstanceID, l_ShipmentID);
@@ -876,7 +990,7 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData)
     }
 }
 
-void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player)
         return;
@@ -965,7 +1079,7 @@ void WorldSession::SendGarrisonOpenArchitect(uint64 p_CreatureGUID)
 
     SendPacket(&l_Data);
 }
-void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID) ///< p_CreatureGUID is unused
+void WorldSession::SendGarrisonOpenMissionNpc(uint64 /*p_CreatureGUID*/)
 {
     MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
 

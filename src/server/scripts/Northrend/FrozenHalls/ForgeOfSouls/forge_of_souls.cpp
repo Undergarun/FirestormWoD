@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "forge_of_souls.h"
@@ -62,7 +53,7 @@ enum Spells
 
     //Soul Horror
     SPELL_SOUL_STRIKE                           = 69088,
-    H_SPELL_SOUL_STRIKE                         = 70211,
+    H_SPELL_SOUL_STRIKE                         = 70211
 };
 
 enum Events
@@ -109,7 +100,7 @@ enum Events
     EVENT_SHADOW_MEND,
 
     //Soul Horror
-    EVENT_SOUL_STRIKE,
+    EVENT_SOUL_STRIKE
 };
 
 /****************************************SYLVANAS************************************/
@@ -132,19 +123,19 @@ enum Yells
     SAY_SYLVANAS_INTRO_3                        = -1632052,
     SAY_SYLVANAS_INTRO_4                        = -1632053,
     SAY_SYLVANAS_INTRO_5                        = -1632054,
-    SAY_SYLVANAS_INTRO_6                        = -1632055,
+    SAY_SYLVANAS_INTRO_6                        = -1632055
 };
 
 enum eSylvanas
 {
     GOSSIP_SPEECHINTRO                           = 13525,
-    ACTION_INTRO,
+    ACTION_INTRO
 };
 
 enum Phase
 {
     PHASE_NORMAL,
-    PHASE_INTRO,
+    PHASE_INTRO
 };
 
 class npc_sylvanas_fos : public CreatureScript
@@ -902,6 +893,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_forge_of_souls()
 {
     new npc_sylvanas_fos();
@@ -915,3 +907,4 @@ void AddSC_forge_of_souls()
     new mob_soulguard_adept();
     new mob_soul_horror();
 }
+#endif

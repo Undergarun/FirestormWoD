@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
@@ -75,7 +83,7 @@ class vehicle_balance_pole : public VehicleScript
     public:
         vehicle_balance_pole() : VehicleScript("vehicle_balance_pole") {}
 
-        void OnAddPassenger(Vehicle* veh, Unit* passenger, int8 /*seatId*/)
+        void OnAddPassenger(Vehicle* /*veh*/, Unit* passenger, int8 /*seatId*/)
         {
             if (passenger->HasAura(102938))
                 passenger->ExitVehicle();
@@ -141,7 +149,7 @@ class spell_rock_jump: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rock_jump_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -395,7 +403,7 @@ class spell_grab_carriage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_grab_carriage_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
 
@@ -447,7 +455,7 @@ public:
     npc_nourished_yak() : CreatureScript("npc_nourished_yak") { }
 
     struct npc_nourished_yakAI : public npc_escortAI
-    {        
+    {
         npc_nourished_yakAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -564,7 +572,7 @@ public:
             playerGuid      = 0;
         }
 
-        void DoAction(const int32 actionId)
+        void DoAction(const int32 /*actionId*/)
         {
             eventTimer = 2500;
         }
@@ -663,7 +671,7 @@ class AreaTrigger_at_middle_temple_from_east : public AreaTriggerScript
     public:
         AreaTrigger_at_middle_temple_from_east() : AreaTriggerScript("AreaTrigger_at_middle_temple_from_east") {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (Creature* shu = GetClosestCreatureWithEntry(player, 55558, 25.0f))
                 shu->DespawnOrUnsummon();
@@ -712,7 +720,7 @@ public:
                 }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 15.0f);
@@ -798,6 +806,7 @@ class playerScript_AutoAcceptQuest: public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_WanderingIsland_East()
 {
 ///    new AreaTrigger_at_bassin_curse();
@@ -813,3 +822,4 @@ void AddSC_WanderingIsland_East()
     new npc_ji_firepaw_killcredit();
     new playerScript_AutoAcceptQuest();
 }
+#endif

@@ -1,20 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "SpellMgr.h"
 #include "SpellInfo.h"
@@ -56,7 +46,7 @@ bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
     return false;
 }
 
-DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
+DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, Unit* p_Caster)
 {
     if (spellproto->IsPositive())
         return DIMINISHING_NONE;
@@ -88,6 +78,17 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Remorseless Winter -- 115001
             if (spellproto->SpellIconID == 5744 && spellproto->SpellVisual[0] == 23514)
                 return DIMINISHING_STUN;
+            // War Stomp (Tauren Racial) -- 20549
+            if (spellproto->Id == 20549)
+                return DIMINISHING_STUN;
+
+            // Quaking Palm (Pandaren Racial) -- 107079
+            if (spellproto->Id == 107079)
+                return DIMINISHING_INCAPACITATE;
+
+            // Arcane Torrent (Blood Elf Racial) -- 25046 & 28730 & 50613 & 69179 & 80483 & 129596 & 155145
+            if (spellproto->IsArcaneTorrent())
+                return DIMINISHING_SILENCE;
 
             // Gorefiend's Grasp -- 108199
             if (spellproto->SpellIconID == 5743 && spellproto->SpellVisual[0] == 28937)
@@ -148,9 +149,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_WARLOCK:
         {
-            /// Chaos Wave -- 124915, slow effect
-            if (spellproto->SpellFamilyFlags[0] & 0x201000)
-                return DIMINISHING_NONE;
             // Mortal Coil -- 6789
             if (spellproto->SpellFamilyFlags[0] & 0x80000)
                 return DIMINISHING_INCAPACITATE;
@@ -172,8 +170,16 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[1] & 0x1000)
                 return DIMINISHING_STUN;
             // Summon Infernal -- 22703
-            if (spellproto->SpellFamilyFlags[0] & 0x1000)
+            if (spellproto->Id == 22703)
                 return DIMINISHING_STUN;
+
+            // Debilitate (Terrorguard pet) -- 170996
+            if (spellproto->Id == 170996)
+                return DIMINISHING_ROOT;
+
+            /// Chaos Wave -- 124915, slow effect
+            if (spellproto->SpellFamilyFlags[0] & 0x201000 == 0x201000)
+                return DIMINISHING_NONE;
             break;
         }
         case SPELLFAMILY_WARLOCK_PET:
@@ -188,7 +194,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[0] & 0x2000000)
                 return DIMINISHING_DISORIENT;
 
-            // Axe Toss (Felguard pet) -- 89766
+            // Axe Toss (Felguard pet and Wrathguard pet) -- 89766
             if (spellproto->SpellFamilyFlags[1] & 0x4)
                 return DIMINISHING_STUN;
             break;
@@ -220,21 +226,30 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Typhoon -- 61391
             if (spellproto->SpellFamilyFlags[1] & 0x1000000)
                 return DIMINISHING_AOE_KNOCKBACK;
+            // Ursol's Vortex -- 118283
+            if (spellproto->Id == 118283)
+                return DIMINISHING_AOE_KNOCKBACK;
 
-            // Entangling Roots -- 339
+            // Entangling Roots -- 339 
             if (spellproto->SpellFamilyFlags[0] & 0x200)
                 return DIMINISHING_ROOT;
             // Mass Entanglement -- 102359, no flags on the root, 13535
             if (spellproto->SpellIconID == 5782 && spellproto->SpellVisual[0] == 38269)
                 return DIMINISHING_ROOT;
+            // Balance Force of Nature Treant Entangling roots -- 113770
+            if (spellproto->Id == 113770)
+                return DIMINISHING_ROOT;
+            // Nature's Grasp
+            if (spellproto->Id == 170855)
+                return DIMINISHING_ROOT;
+
+            // Solar Beam -- 78675
+            if (spellproto->Id == 78675)
+                return DIMINISHING_SILENCE;
 
             // Faerie Fire -- 770, Faerie Swarm -- 102355, 20 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[0] & 0x400 || spellproto->SpellFamilyFlags[0] & 0x100)
                 return DIMINISHING_LIMITONLY;
-
-            // Nature's Grasp
-            if (spellproto->Id == 170855)
-                return DIMINISHING_ROOT;
             break;
         }
         case SPELLFAMILY_ROGUE:
@@ -264,8 +279,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_HUNTER:
         {
-            // Glyph of Explosive Trap -- 149575 maybe? @todo
-            // return DIMINISHING_AOE_KNOCKBACK;
+            // Glyph of Explosive Trap -- 119403
+            if (spellproto->Id == 13812 && p_Caster->HasAura(119403))
+                return DIMINISHING_AOE_KNOCKBACK;
 
             /// Entrapment
             if (spellproto->Id == 64803)
@@ -298,6 +314,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
 
             // Turn Evil -- 10326
             if (spellproto->SpellFamilyFlags[1] & 0x800000)
+                return DIMINISHING_DISORIENT;
+            // Blinding Light -- 115750
+            if (spellproto->Id == 115750)
                 return DIMINISHING_DISORIENT;
 
             // Avenger's Shield -- 31935
@@ -376,10 +395,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Psychic Horror -- 64044
             if (spellproto->SpellFamilyFlags[2] & 0x2000)
                 return DIMINISHING_INCAPACITATE;
-
             /// Shackle Undead -- 9484
             if (spellproto->Id == 9484)
-                return DIMINISHING_DISORIENT;
+                return DIMINISHING_INCAPACITATE;
+
             /// Sin and Punishment -- 87204
             if (spellproto->Id == 87204)
                 return DIMINISHING_DISORIENT;
@@ -3094,26 +3113,29 @@ void SpellMgr::LoadSpellInfoStore()
     for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         mSpellInfoMap[difficulty].resize(sSpellStore.GetNumRows(), nullptr);
 
-    std::unordered_map<uint32, SpellVisualMap> l_VisualsBySpell;
-
     for (uint32 l_ID = 0; l_ID < sSpellXSpellVisualStore.GetNumRows(); ++l_ID)
     {
         SpellXSpellVisualEntry const* l_Entry = sSpellXSpellVisualStore.LookupEntry(l_ID);
         if (!l_Entry)
             continue;
 
-        l_VisualsBySpell[l_Entry->SpellId][l_Entry->DifficultyID].push_back(l_Entry);
+        VisualsBySpellMap[l_Entry->SpellId][l_Entry->DifficultyID].push_back(l_Entry);
     }
 
-    for (uint32 l_I = 0; l_I < sSpellStore.GetNumRows(); ++l_I)
+    ParallelFor(0, sSpellStore.GetNumRows(), [this](uint32 l_I) -> void
     {
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(l_I))
         {
+            auto l_Itr = VisualsBySpellMap.find(l_I);
+            SpellVisualMap emptyMap;
+            SpellVisualMap& visualMap = (l_Itr == VisualsBySpellMap.end()) ? emptyMap : l_Itr->second;
+
             std::set<uint32> difficultyInfo = mAvaiableDifficultyBySpell[l_I];
+
             for (std::set<uint32>::iterator itr = difficultyInfo.begin(); itr != difficultyInfo.end(); itr++)
-                mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr), std::move(l_VisualsBySpell[l_I]));
+                mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr), std::move(visualMap));
         }
-    }
+    });
 
     for (uint32 l_I = 0; l_I < sSpellPowerStore.GetNumRows(); l_I++)
     {
@@ -3399,6 +3421,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 1949: ///< Hellfire
+                spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             /// Engineering Works
             ///////////////////////////////////////////////////////////////////////////////////
@@ -3453,18 +3479,18 @@ void SpellMgr::LoadSpellCustomAttr()
             ///////////////////////////////////////////////////////////////////////////////////
             /// Stables
             ///////////////////////////////////////////////////////////////////////////////////
-            case 174216:    ///< Summon Snarler-In-Training
+            /*case 174216:    ///< Summon Snarler-In-Training
             case 174218:    ///< Summon Icehoof-In-Training - Potentially fixed, but causes player stuck
             case 174219:    ///< Summon Meadowstomper-In-Training
             case 174220:    ///< Summon Riverwallow-In-Training
             case 174221:    ///< Summon Rocktusk-In-Training
             case 174222:    ///< Summon Snarler-In-Training
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].Effect        = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOUNTED;
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                spellInfo->Effects[0].MiscValue = 305;
-                spellInfo->Effects[0].MiscValueB = 230;
-                break;
+                spellInfo->Effects[0].TargetA       = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].MiscValue     = 305;
+                spellInfo->Effects[0].MiscValueB    = 230;
+                break;*/
             case 173702: ///< Lasso Break
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                 break;
@@ -3787,7 +3813,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 140495: ///< Lingering Gaze (Durumu - Throne of Thunder)
-                spellInfo->Effects[EFFECT_0].BasePoints *= 2.9f;
+                spellInfo->Effects[EFFECT_0].BasePoints = int32(spellInfo->Effects[EFFECT_0].BasePoints * 2.9f);
                 break;
             case 136413: ///< Force of Will (Durumu - Throne of Thunder)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CONE_ENEMY_104;
@@ -3842,6 +3868,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcCharges = 0;
                 spellInfo->ProcFlags = 0;
                 spellInfo->ProcChance = 0;
+                break;
+            case 157607: ///< Instant Poison
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(29); ///< 12s
+                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 157675: ///< Chi Explosion
+            case 182078: ///< Chi Explosion
+                spellInfo->CastTimeEntry = 0;
                 break;
                 /// Shadowmoon Burial Grounds
             case 153068: ///< Void Devestation
@@ -3898,6 +3933,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = 0;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
+            case 107079: ///< Quaking Palm
+                spellInfo->SpellFamilyName = SPELLFAMILY_GENERIC;
+                break;
             case 164685: ///< Dark Eclipse
                 spellInfo->Effects[0].Amplitude = 600;
                 break;
@@ -3940,7 +3978,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
-                /// Iron Docks 
+                /// Iron Docks
             case 163705:  ///< Abrupt Restoration
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = 0;
@@ -4238,6 +4276,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 117624:///< Suicide No Blood No Logging (Tectus)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
+            case 162475:///< Tectonic Upheaval (Tectus)
+                spellInfo->InterruptFlags = 0;
+                spellInfo->ChannelInterruptFlags = 0;
+                break;
             case 166185:///< Rending Slash (Highmaul Conscript)
             case 158026:///< Enfeebling Roar - Debuff (Phemos - Twin Ogron)
             case 163134:///< Nullification Barrier - Abosrb (Ko'ragh)
@@ -4423,9 +4465,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 77762: ///< Lava Surge
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); ///< 10s
                 break;
-            case 138106: ///< Cloack and Dagger
-                spellInfo->Stances = 0;
-                break;
             case 8188:   ///< Magma Totem Passive
             case 5672:   ///< Healing Streams
             case 114941: ///< Healing Tide
@@ -4480,7 +4519,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 136050: ///< Malformed Blood
-                spellInfo->Effects[1].BasePoints *= 2.85f;
+                spellInfo->Effects[1].BasePoints = int32(spellInfo->Effects[1].BasePoints * 2.85f);
                 break;
             case 136521: ///< QuickSand
             case 136878: ///< QuickSand
@@ -4521,7 +4560,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcChance = 0;
                 break;
             case 137641: ///< Soul Fragment
-                spellInfo->Effects[1].BasePoints = spellInfo->Effects[1].BasePoints * 2.7;
+                spellInfo->Effects[1].BasePoints = int32(spellInfo->Effects[1].BasePoints * 2.7f);
                 break;
             case 174597:///< Ruthlessness (passive aura)
                 spellInfo->Effects[0].Effect = 0;
@@ -4845,6 +4884,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 5857:   ///< Hellfire damage spell
                 spellInfo->AttributesEx3 = 0;
                 spellInfo->AttributesEx4 = 0;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 break;
            case 77219: ///< Mastery: Master Demonologist
                 spellInfo->Effects[1].SpellClassMask[0] |= 0x1040;
@@ -5481,7 +5521,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 156297: ///< Acid Torrent
-                spellInfo->AttributesEx |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
+                spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 break;
             case 31224: ///< Cloak of Shadows
                 spellInfo->Effects[0].BasePoints = -200;
@@ -5615,9 +5655,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 83968: ///< Mass Resurrect
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
-                break;
-            case 121039: ///< Mana Attunement (400%)
-                spellInfo->Effects[0].BasePoints = 50;
                 break;
             case 116833: ///< Cosmetic Spirit Totem (MSV - #3 Gara'Jal)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -5783,8 +5820,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].Effect = 0;
                 break;
             case 108199: ///< Gorefiend's Grasp
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-                spellInfo->Effects[0].TargetB = 0;
+                spellInfo->Mechanic = Mechanics::MECHANIC_GRIP;
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[2].Effect = 0;
                 break;
             case 49206: ///< Summon Gargoyle
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
@@ -5845,7 +5883,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 33110: ///< Prayer of Mending
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
-            case 119611: ///< Renewing Mist 
+            case 119611: ///< Renewing Mist
                 spellInfo->Effects[0].BonusMultiplier = 0.109984f;
                 break;
             case 109186: ///< Surge of light
@@ -5890,6 +5928,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 137562: ///< Nimble Brew
             case 134758: ///< Burning Cinders
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                break;
+            case 159642 : ///< Glyph of Ghostly Speed
+                spellInfo->Attributes &= ~SPELL_ATTR0_OUTDOORS_ONLY;
                 break;
             case 173545: /// Chi Wave (healing bolt)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
@@ -6160,10 +6201,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 153596:///< Comet Storm
-                spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
-                spellInfo->ExplicitTargetMask |= TARGET_FLAG_DEST_LOCATION;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-                spellInfo->Speed = 0.50f;
+                spellInfo->Speed = 0.20f;
                 break;
             case 12654: ///< Ignite
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
@@ -6171,8 +6210,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 182287:/// Glyph of Ignite (effect)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); ///< 5s
                 break;
-            case 73651: ///< Recuperate
-                spellInfo->Effects[1].Effect = 0;
             case 153564:///< Meteor
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
@@ -6256,6 +6293,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 96840: ///< Flame Patch for Glyph of the Blazing Trail
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); ///< 1s
                 break;
+            case 7922: ///< Warbringer stun effect
             case 103828: ///< Warbringer
             case 100:   ///< Charge
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
@@ -6263,6 +6301,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 47753: ///< Divine Aegis
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 spellInfo->Effects[0].BonusMultiplier = 0;
+                break;
+            case 45438:
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
             case 170995:///< Cripple
                 spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(2); ///< 250ms - hack fix to imagine Seduction mechanic
@@ -6305,7 +6346,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 22568: ///< Ferocious Bite
             case 5221:  ///< Shred
             case 22599: ///< Chromatic Mantle of the Dawn
-            case 86273: ///< Illuminated Healing 
+            case 86273: ///< Illuminated Healing
             case 1752:  ///< Sinister Strike
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
@@ -6355,9 +6396,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52437:  ///< Sudden Death
             case 157174: ///< Elemental Fusion
                 spellInfo->ProcCharges = 1;
-                break;
-            case 117957: ///< Nether Attunement
-                spellInfo->Effects[EFFECT_0].BasePoints = 300;
                 break;
             case 111546: ///< Chaotic Energy
                 spellInfo->Effects[1].Effect = 0;
@@ -6412,6 +6450,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 115008: ///< Chi Torpedo
                 spellInfo->OverrideSpellList.push_back(121828); ///< Override List with Chi Torpedo - Talent
+                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_SPEED_NOT_STACK;
                 break;
             case 109132: ///< Roll
                 spellInfo->OverrideSpellList.push_back(121827); ///< Override List with Roll - Talent
@@ -6483,7 +6522,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 119931:
             case 119932:
             case 119933:
-                spellInfo->Speed = 5.f;
+                spellInfo->Speed = 5.0f;
                 break;
             case 106112: ///< Release Doubt
             {
@@ -7247,6 +7286,18 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[2].BasePoints = 0;
+                break;
+            case 172944:
+                spellInfo->Effects[SpellEffIndex::EFFECT_3].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_3].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_3].TargetB = Targets::TARGET_UNIT_TARGET_ANY;
+                break;
+            case 174732:    ///< 174732 Punt Podling
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetB = 0;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetB = 0;
                 break;
             default:
                 break;

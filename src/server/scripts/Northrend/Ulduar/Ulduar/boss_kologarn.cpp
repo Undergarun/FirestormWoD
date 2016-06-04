@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -55,7 +46,7 @@ enum Spells
     SPELL_FOCUSED_EYEBEAM_DAMAGE_25     = 63976,
     SPELL_KOLOGARN_REDUCE_PARRY         = 64651,
     SPELL_KOLOGARN_PACIFY               = 63726,
-    SPELL_BERSERK                       = 47008,
+    SPELL_BERSERK                       = 47008
 };
 
 #define SPELL_ARM_DEAD_DAMAGE           RAID_MODE(SPELL_ARM_DEAD_DAMAGE_10, SPELL_ARM_DEAD_DAMAGE_25)
@@ -80,7 +71,7 @@ enum Events
     EVENT_FOCUSED_EYEBEAM       = 7,
     EVENT_RESPAWN_LEFT_ARM      = 8,
     EVENT_RESPAWN_RIGHT_ARM     = 9,
-    EVENT_ENRAGE                = 10,
+    EVENT_ENRAGE                = 10
 };
 
 enum Yells
@@ -95,7 +86,7 @@ enum Yells
     SAY_BERSERK                 = 7,
     EMOTE_LEFT                  = 8,
     EMOTE_RIGHT                 = 9,
-    EMOTE_STONE                 = 10,
+    EMOTE_STONE                 = 10
 };
 
 enum DataTypes
@@ -535,7 +526,7 @@ class npc_focused_eyebeam : public CreatureScript
                 _instance = me->GetInstanceScript();
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell)
+            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_FOCUSED_EYEBEAM_DAMAGE_10 || spell->Id == SPELL_FOCUSED_EYEBEAM_DAMAGE_25)
                     if (Creature* kologarn = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_KOLOGARN)))
@@ -819,7 +810,7 @@ class spell_ulduar_stone_grip: public SpellScriptLoader
                     caster->ClearUnitState(UNIT_STATE_ONVEHICLE);
             }
 
-            void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+            void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 PreventDefaultAction();
                 Unit* caster = GetCaster();
@@ -965,6 +956,7 @@ class achievement_disarmed : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kologarn()
 {
     new boss_kologarn();
@@ -988,3 +980,4 @@ void AddSC_boss_kologarn()
     new achievement_disarmed("achievement_disarmed");
     new achievement_disarmed("achievement_disarmed_25");
 }
+#endif

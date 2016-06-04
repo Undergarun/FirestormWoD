@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "halls_of_origination.h"
 
@@ -5,14 +13,14 @@ enum ScriptTexts
 {
     SAY_DEATH   = 0,
     SAY_AGGRO   = 1,
-    SAY_KILL    = 2,
+    SAY_KILL    = 2
 };
 
 enum Spells
 {
     SPELL_FLAME_BOLT                = 77370,
-    SPELL_FLAME_BOLT_DMG            = 75540, 
-    SPELL_FLAME_BOLT_DMG_H          = 89881, 
+    SPELL_FLAME_BOLT_DMG            = 75540,
+    SPELL_FLAME_BOLT_DMG_H          = 89881,
     SPELL_RAGING_SMASH              = 83650,
     SPELL_EARTH_SPIKE               = 94974,
     SPELL_EARTH_SPIKE_DMG           = 75339,
@@ -26,14 +34,14 @@ enum Spells
     SPELL_SAND_VORTEX_DUMMY1        = 79441,
     SPELL_SAND_VORTEX_DUMMY2        = 93570,
     SPELL_SAND_VORTEX               = 83097,
-    SPELL_SAND_VORTEX_DMG           = 83096, 
+    SPELL_SAND_VORTEX_DMG           = 83096,
 
     SPELL_SUBMERGE                  = 53421,
 
     SPELL_SUMMON_DUSTBONE_HORROR    = 75521,
     SPELL_SUMMON_JEWELED_SCARAB     = 75462,
 
-    SPELL_SMASH                     = 75453,
+    SPELL_SMASH                     = 75453
 };
  
 enum Events
@@ -42,11 +50,11 @@ enum Events
     EVENT_RAGING_SMASH  = 2,
     EVENT_EARTH_POINT   = 3,
     EVENT_SUBMERGE      = 4,
-    EVENT_SUMMON        = 5,      
+    EVENT_SUMMON        = 5,
     EVENT_STORM_MOVE    = 6,
     EVENT_VORTEX_DUST   = 7,
     EVENT_SMASH         = 8,
-    EVENT_MERGE         = 9,
+    EVENT_MERGE         = 9
 };
  
 enum Adds
@@ -55,7 +63,7 @@ enum Adds
     NPC_DUSTBONE_HORROR         = 40450,
     NPC_JEWELED_SCARAB          = 40458,
     NPC_TUMULTUOUS_EARTHSTORM   = 40406,
-    NPC_BEETLE_STALKER          = 40459,
+    NPC_BEETLE_STALKER          = 40459
 };
  
 class boss_earthrager_ptah : public CreatureScript
@@ -106,7 +114,7 @@ class boss_earthrager_ptah : public CreatureScript
                 phase = 0;
             }
 
-            void EnterCombat(Unit * who)
+            void EnterCombat(Unit * /*p_Who*/)
             {
                 Talk(SAY_AGGRO);
 
@@ -123,7 +131,7 @@ class boss_earthrager_ptah : public CreatureScript
                 Talk(SAY_DEATH);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
                 Talk(SAY_KILL);
             }
@@ -189,7 +197,7 @@ class boss_earthrager_ptah : public CreatureScript
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(pTarget, SPELL_EARTH_SPIKE);
                             events.ScheduleEvent(EVENT_EARTH_POINT, urand(20000, 25000));
-                            break;                            
+                            break;
                     }
                 }
 
@@ -221,7 +229,7 @@ class npc_ptah_dustbone_horror : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_SMASH, urand(2000, 8000));
             }
@@ -249,8 +257,10 @@ class npc_ptah_dustbone_horror : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_earthrager_ptah()
 {
     new boss_earthrager_ptah();
     new npc_ptah_dustbone_horror();
 }
+#endif

@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "Spell.h"
 #include "zulgurub.h"
@@ -10,7 +18,7 @@ enum ScriptTexts
     SAY_KILL        = 3,
     SAY_SPELL       = 4,
     SAY_TRANSFORM_1 = 5,
-    SAY_TRANSFORM_2 = 6,
+    SAY_TRANSFORM_2 = 6
 };
 
 enum Spells
@@ -48,7 +56,7 @@ enum Spells
     SPELL_RAT_LANDS             = 98216,
     SPELL_RAT_LURE              = 98238,
     SPELL_POUNCE_RAT            = 98241,
-    SPELL_RAT_MUNCH             = 98242,
+    SPELL_RAT_MUNCH             = 98242
 };
 
 enum Events
@@ -63,7 +71,7 @@ enum Events
     EVENT_GAPING_WOUND      = 8,
     EVENT_CONTINUE          = 9,
     EVENT_VENGEFUL_SMASH    = 10,
-    EVENT_PRIMAL_BLESSING   = 11,
+    EVENT_PRIMAL_BLESSING   = 11
 };
 
 enum Adds
@@ -72,10 +80,10 @@ enum Adds
     NPC_WAVE_OF_AGONY       = 52147,
     NPC_WAVE_OF_AGONY_END   = 52160,
     NPC_CAVE_IN_STALKER     = 52387,
-    NPC_TEMPLE_RAT          = 53108,
+    NPC_TEMPLE_RAT          = 53108
 };
 
-const Position pridePos[16] = 
+const Position pridePos[16] =
 {
     {-11517.2f, -1646.82f, 44.4849f, 3.87463f},
     {-11519.2f, -1605.37f, 44.4849f, 3.56047f},
@@ -95,7 +103,7 @@ const Position pridePos[16] =
     {-11518.1f, -1651.48f, 44.4849f, 2.26893f}
 };
 
-const Position cavePos[4] = 
+const Position cavePos[4] =
 {
     {-11506.63f, -1605.05f, 44.41f, 0.0f},
     {-11506.26f, -1643.40f, 44.41f, 0.0f},
@@ -182,7 +190,7 @@ class boss_kilnara : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->GetGUID() == attacker->GetGUID())
                     damage = 0;
@@ -194,7 +202,7 @@ class boss_kilnara : public CreatureScript
                     Talk(bTwoPhase? SAY_KILL_FERAL: SAY_KILL);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spellInfo)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo)
             {
                 if (spellInfo->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))
                 {
@@ -301,7 +309,7 @@ class npc_kilnara_pride_of_bethekk : public CreatureScript
 
         struct npc_kilnara_pride_of_bethekkAI : public ScriptedAI
         {
-            npc_kilnara_pride_of_bethekkAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_kilnara_pride_of_bethekkAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
             }
 
@@ -345,7 +353,7 @@ class npc_kilnara_wave_of_agony : public CreatureScript
 
         struct npc_kilnara_wave_of_agonyAI : public Scripted_NoMovementAI
         {
-            npc_kilnara_wave_of_agonyAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_kilnara_wave_of_agonyAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -369,17 +377,17 @@ class npc_kilnara_temple_rat : public CreatureScript
 
         struct npc_kilnara_temple_ratAI : public ScriptedAI
         {
-            npc_kilnara_temple_ratAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_kilnara_temple_ratAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 if (me->GetEntry() == NPC_TEMPLE_RAT)
                     DoCast(me, SPELL_RAT_LURE, true);
             }
 
-            void OnSpellClick(Unit* clicker)
+            void OnSpellClick(Unit* /*clicker*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -394,11 +402,11 @@ class spell_kilnara_wave_of_agony_target: public SpellScriptLoader
 
         class spell_kilnara_wave_of_agony_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_kilnara_wave_of_agony_target_SpellScript);
+            PrepareSpellScript(spell_kilnara_wave_of_agony_target_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
-            { 
+            {
                 if (!GetCaster() || !GetHitUnit())
                     return;
 
@@ -424,9 +432,9 @@ class spell_kilnara_wave_of_agony_start: public SpellScriptLoader
 
         class spell_kilnara_wave_of_agony_start_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_kilnara_wave_of_agony_start_AuraScript);
+            PrepareAuraScript(spell_kilnara_wave_of_agony_start_AuraScript)
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetUnitOwner())
                     return;
@@ -475,16 +483,16 @@ class spell_kilnara_rat_lure: public SpellScriptLoader
 
         class spell_kilnara_rat_lure_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_kilnara_rat_lure_SpellScript);
+            PrepareSpellScript(spell_kilnara_rat_lure_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
-            { 
+            {
                 targets.remove_if(PrideCheck());
                 if (targets.size() > 1)
                     JadeCore::RandomResizeList(targets, 1);
             }
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -508,6 +516,7 @@ class spell_kilnara_rat_lure: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kilnara()
 {
     new boss_kilnara();
@@ -518,3 +527,4 @@ void AddSC_boss_kilnara()
     new spell_kilnara_wave_of_agony_start();
     new spell_kilnara_rat_lure();
 }
+#endif

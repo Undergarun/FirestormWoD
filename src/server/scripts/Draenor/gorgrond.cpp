@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,6 +11,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
+#include "GameObjectAI.h"
 #include "Language.h"
 
 /// Tarlna the Ageless - 81535
@@ -62,7 +63,7 @@ class boss_tarlna_the_ageless : public CreatureScript
                 SetEquipmentSlots(false, eDatas::MainHandEquipID);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 summons.DespawnAll();
             }
@@ -148,7 +149,7 @@ class boss_tarlna_the_ageless : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
@@ -237,7 +238,7 @@ class boss_drov_the_ruiner : public CreatureScript
                 me->RemoveAura(eSpells::SouthshoreMobScalingAura);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 summons.DespawnAll();
                 m_GorenList.clear();
@@ -331,7 +332,7 @@ class boss_drov_the_ruiner : public CreatureScript
             void HandleHealthAndDamageScaling()
             {
                 std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                uint32 l_Count = (uint32)std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
@@ -389,7 +390,7 @@ class npc_untamed_mandragora : public CreatureScript
                 me->RemoveAllAreasTrigger();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(eEvents::EventNoxiousSpit, 8 * TimeConstants::IN_MILLISECONDS);
             }
@@ -458,7 +459,7 @@ class npc_giant_lasher : public CreatureScript
                 me->CastSpell(me, eSpells::SpellSubmerged, true);
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+            void SpellHit(Unit* /*p_Caster*/, SpellInfo const* p_SpellInfo)
             {
                 if (p_SpellInfo->Id == eSpells::SpellGenesisAwake)
                 {
@@ -634,7 +635,7 @@ class npc_drov_frenzied_rumbler : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventAcidBreath, 5000);
             }
@@ -678,7 +679,7 @@ class spell_drov_call_of_earth : public SpellScriptLoader
 
         class spell_drov_call_of_earth_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_drov_call_of_earth_AuraScript);
+            PrepareAuraScript(spell_drov_call_of_earth_AuraScript)
 
             enum eAction
             {
@@ -694,7 +695,7 @@ class spell_drov_call_of_earth : public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, p_AurEff->GetAmount(), true);
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (!GetCaster())
                     return;
@@ -728,7 +729,7 @@ class spell_drov_colossal_slam : public SpellScriptLoader
 
         class spell_drov_colossal_slam_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_drov_colossal_slam_SpellScript);
+            PrepareSpellScript(spell_drov_colossal_slam_SpellScript)
 
             enum eSpell
             {
@@ -790,7 +791,7 @@ class spell_drov_acid_breath : public SpellScriptLoader
 
         class spell_drov_acid_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_drov_acid_breath_SpellScript);
+            PrepareSpellScript(spell_drov_acid_breath_SpellScript)
 
             enum eSpell
             {
@@ -847,7 +848,7 @@ class areatrigger_tarlna_noxious_spit : public AreaTriggerEntityScript
             SpellNoxiousSpitDot = 176037
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             if (p_AreaTrigger->GetCaster() == nullptr)
                 return;
@@ -874,6 +875,275 @@ class areatrigger_tarlna_noxious_spit : public AreaTriggerEntityScript
         }
 };
 
+/// Punt Podling - 174732
+class spell_quest_gorgrond_punt_podling : public SpellScriptLoader
+{
+    enum
+    {
+        ThornyLeafling      = 85809,
+        PodlingPuntCredit   = 85815
+    };
+
+    public:
+        /// Constructor
+        spell_quest_gorgrond_punt_podling() : SpellScriptLoader("spell_quest_gorgrond_punt_podling") { }
+
+        class spell_quest_gorgrond_punt_podling_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_gorgrond_punt_podling_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (l_Target->GetEntry() == ThornyLeafling)
+                    {
+                        l_Caster->ToPlayer()->KilledMonsterCredit(PodlingPuntCredit);
+                        l_Target->ToCreature()->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
+                    }
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_gorgrond_punt_podling_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_gorgrond_punt_podling_SpellScript();
+        }
+};
+
+/// Frenzied Rumbler - 88119
+class npc_gorgrond_goren_egg : public CreatureScript
+{
+    public:
+        npc_gorgrond_goren_egg() : CreatureScript("npc_gorgrond_goren_egg") { }
+
+        struct npc_gorgrond_goren_eggAI : public CreatureAI
+        {
+            uint32 m_Timer;
+
+            npc_gorgrond_goren_eggAI(Creature* p_Creature) : CreatureAI(p_Creature), m_Timer(0) { }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_Timer += p_Diff;
+
+                if (m_Timer >= 500)
+                {
+                    Player* l_Player = me->FindNearestPlayer(MIN_MELEE_REACH, true);
+
+                    if (l_Player)
+                    {
+                        l_Player->KilledMonsterCredit(me->GetEntry());
+
+                        TempSummon* l_Summon = me->SummonCreature(0, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5 * TimeConstants::IN_MILLISECONDS);
+
+                        if (l_Summon)
+                            l_Summon->Attack(l_Player, true);
+
+                        me->DespawnOrUnsummon(0);
+                    }
+
+                    m_Timer = 0;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_gorgrond_goren_eggAI(p_Creature);
+        }
+};
+
+/// Ancient Ogre Hoard Jar - 233296
+class go_gorgrond_ancient_ogre_hoard_jar : public GameObjectScript
+{
+    public:
+        /// Constructor
+        go_gorgrond_ancient_ogre_hoard_jar() : GameObjectScript("go_gorgrond_ancient_ogre_hoard_jar") { }
+
+        struct go_gorgrond_ancient_ogre_hoard_jarAI : public GameObjectAI
+        {
+            /// Constructor
+            go_gorgrond_ancient_ogre_hoard_jarAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            bool GossipHello(Player* p_Player) override
+            {
+                if (p_Player)
+                    p_Player->KilledMonsterCredit(83467);
+
+                return false;
+            }
+        };
+
+        /// Called when a GameObjectAI object is needed for the GameObject.
+        /// @p_GameObject : GameObject instance
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
+        {
+            return new go_gorgrond_ancient_ogre_hoard_jarAI(p_GameObject);
+        }
+};
+
+/// Burn Ancient Corpse - 170769
+class spell_quest_gorgrond_burn_ancient_corpse : public SpellScriptLoader
+{
+    enum
+    {
+        AncientSeedbearer = 85524,
+    };
+
+    public:
+        /// Constructor
+        spell_quest_gorgrond_burn_ancient_corpse() : SpellScriptLoader("spell_quest_gorgrond_burn_ancient_corpse") { }
+
+        class spell_quest_gorgrond_burn_ancient_corpse_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_gorgrond_burn_ancient_corpse_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (l_Target->GetEntry() == AncientSeedbearer)
+                        l_Target->ToCreature()->DespawnOrUnsummon(0);
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_gorgrond_burn_ancient_corpse_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_gorgrond_burn_ancient_corpse_SpellScript();
+        }
+};
+
+/// Toxic Slimemold - 85732
+class npc_gorgrond_toxic_slimemold : public CreatureScript
+{
+    public:
+        npc_gorgrond_toxic_slimemold() : CreatureScript("npc_gorgrond_toxic_slimemold") { }
+
+        struct npc_gorgrond_toxic_slimemoldAI : public CreatureAI
+        {
+            uint32 m_Timer;
+
+            npc_gorgrond_toxic_slimemoldAI(Creature* p_Creature) : CreatureAI(p_Creature), m_Timer(0) { }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_Timer += p_Diff;
+
+                if (m_Timer >= 500)
+                {
+                    Player* l_Player = me->FindNearestPlayer(MIN_MELEE_REACH, true);
+
+                    if (l_Player)
+                    {
+                        l_Player->KilledMonsterCredit(me->GetEntry());
+                        me->DespawnOrUnsummon(0);
+                    }
+
+                    m_Timer = 0;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_gorgrond_toxic_slimemoldAI(p_Creature);
+        }
+};
+
+/// Pollen pod - 233296
+class go_gorgrond_pollen_pod : public GameObjectScript
+{
+    enum
+    {
+        LastPhase           = 0x80000000,
+        InvisibleDisplayID  = 11686
+    };
+
+    public:
+        /// Constructor
+        go_gorgrond_pollen_pod() : GameObjectScript("go_gorgrond_pollen_pod") { }
+
+        struct go_gorgrond_pollen_podAI : public GameObjectAI
+        {
+            /// Constructor
+            go_gorgrond_pollen_podAI(GameObject* p_GameObject)
+                : GameObjectAI(p_GameObject), m_Used(false)
+            {
+                m_OriginalScale     = go->GetFloatValue(EObjectFields::OBJECT_FIELD_SCALE);
+                m_OriginalDisplayID = go->GetDisplayId();
+                m_OriginalPhase     = go->GetPhaseMask();
+            }
+
+            void UpdateAI(uint32 p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+            }
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            bool GossipHello(Player* p_Player) override
+            {
+                if (m_Used)
+                    return true;
+
+                m_Used = true;
+
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]()
+                {
+                    go->SetObjectScale(0.01f);
+                    go->SetDisplayId(InvisibleDisplayID);
+                    go->SetPhaseMask(LastPhase, true);
+                });
+                AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]()
+                {
+                    go->SetPhaseMask(m_OriginalPhase, true);
+                    go->SetObjectScale(m_OriginalScale);
+                    go->SetDisplayId(m_OriginalDisplayID);
+                    m_Used = false;
+                });
+
+                return false;
+            }
+
+            bool m_Used;
+            float m_OriginalScale;
+            uint32 m_OriginalDisplayID;
+            uint32 m_OriginalPhase;
+        };
+
+        /// Called when a GameObjectAI object is needed for the GameObject.
+        /// @p_GameObject : GameObject instance
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
+        {
+            return new go_gorgrond_pollen_podAI(p_GameObject);
+        }
+};
+
+#ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
     /// Bosses
@@ -885,12 +1155,21 @@ void AddSC_gorgrond()
     new npc_giant_lasher();
     new npc_drov_rumbling_goren();
     new npc_drov_frenzied_rumbler();
+    new npc_gorgrond_goren_egg();
+    new npc_gorgrond_toxic_slimemold();
 
     /// Spells
     new spell_drov_call_of_earth();
     new spell_drov_colossal_slam();
     new spell_drov_acid_breath();
+    new spell_quest_gorgrond_punt_podling();
+    new spell_quest_gorgrond_burn_ancient_corpse();
 
     /// Areatriggers
     new areatrigger_tarlna_noxious_spit();
+
+    /// GameObjects
+    new go_gorgrond_ancient_ogre_hoard_jar();
+    new go_gorgrond_pollen_pod();
 }
+#endif

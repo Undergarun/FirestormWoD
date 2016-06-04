@@ -1,19 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_FOLLOWER_HPP_GARRISON
-#define GARRISON_FOLLOWER_HPP_GARRISON
+# define GARRISON_FOLLOWER_HPP_GARRISON
 
 #include "Common.h"
 #include "ByteBuffer.h"
 
-#include <vector>
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Garrison follower
     class GarrisonFollower

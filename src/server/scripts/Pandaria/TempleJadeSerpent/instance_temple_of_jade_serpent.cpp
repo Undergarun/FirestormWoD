@@ -1,8 +1,10 @@
-/*
-    Dungeon : Template of the Jade Serpent 85-87
-    Instance General Script
-    Jade servers
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -72,7 +74,7 @@ enum eSpells
     SPELL_FIGMENT_OF_DOUBT_2    = 106935,
     SPELL_COPY_WEAPON           = 41054,
     SPELL_COPY_WEAPON_2         = 41055,
-    SPELL_BOUNDS_OF_REALITY_2   = 117665,
+    SPELL_BOUNDS_OF_REALITY_2   = 117665
 };
 
 enum eCreatures
@@ -95,7 +97,7 @@ enum eCreatures
     CREATURE_JADE_FIRE              = 56893,
 
     CREATURE_FIGMENT_OF_DOUBT       = 56792,
-    CREATURE_SHA_OF_DOUBT           = 56439,
+    CREATURE_SHA_OF_DOUBT           = 56439
 };
 
 enum eGameObjects
@@ -103,7 +105,7 @@ enum eGameObjects
     GAMEOBJECT_DOOR_WISE_MARI           = 213550,
     GAMEOBJECT_DOOR_LOREWALKER_STONSTEP = 213549,
     GAMEOBJECT_DOOR_LIU_FLAMEHEART      = 213548,
-    GAMEOBJECT_DOOR_LIU_FLAMEHEART_2    = 213544,
+    GAMEOBJECT_DOOR_LIU_FLAMEHEART_2    = 213544
 };
 
 enum eTypes
@@ -117,7 +119,7 @@ enum eTypes
     TYPE_LIU_FLAMEHEART_STATUS = 6,
     TYPE_IS_WIPE = 7,
     TYPE_CLASS_FIGMENT = 8,
-    TYPE_CLASS_FIGMENT_DIE = 9,
+    TYPE_CLASS_FIGMENT_DIE = 9
 };
 
 enum eStatus
@@ -127,7 +129,7 @@ enum eStatus
     STATUS_LOREWALKER_STONESTEP_SPAWN_SUNS  = 3,
     STATUS_LOREWALKER_STONESTEP_SPAWN_SUNS_2= 4,
     STATUS_LOREWALKER_STONESTEP_ZAO_COMBAT  = 5,
-    STATUS_LOREWALKER_STONESTEP_FINISH      = 6,
+    STATUS_LOREWALKER_STONESTEP_FINISH      = 6
 };
 
 class instance_temple_of_jade_serpent : public InstanceMapScript
@@ -370,7 +372,7 @@ public:
                     if (creature == nullptr)
                         return 2;
 
-                    if (creature->GetHealthPct() < 70.f)
+                    if (creature->GetHealthPct() < 70.0f)
                         return 1;
                     else
                         return 0;
@@ -974,7 +976,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_temple_of_jade_serpent()
 {
     new instance_temple_of_jade_serpent();
 }
+#endif

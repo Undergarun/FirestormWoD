@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ContentData
 go_cat_figurine (the "trap" version of GO, two different exist)
@@ -62,7 +52,7 @@ EndContentData */
 
 enum CatFigurine
 {
-    SPELL_SUMMON_GHOST_SABER    = 5968,
+    SPELL_SUMMON_GHOST_SABER    = 5968
 };
 
 class go_cat_figurine : public GameObjectScript
@@ -182,7 +172,7 @@ public:
 
 enum GildedBrazier
 {
-    NPC_STILLBLADE  = 17716,
+    NPC_STILLBLADE  = 17716
 };
 
 class go_gilded_brazier : public GameObjectScript
@@ -541,7 +531,7 @@ public:
 enum FelCrystalforge
 {
     SPELL_CREATE_1_FLASK_OF_BEAST   = 40964,
-    SPELL_CREATE_5_FLASK_OF_BEAST   = 40965,
+    SPELL_CREATE_5_FLASK_OF_BEAST   = 40965
 };
 
 class go_fel_crystalforge : public GameObjectScript
@@ -600,7 +590,7 @@ public:
 enum BashirCrystalforge
 {
     SPELL_CREATE_1_FLASK_OF_SORCERER   = 40968,
-    SPELL_CREATE_5_FLASK_OF_SORCERER   = 40970,
+    SPELL_CREATE_5_FLASK_OF_SORCERER   = 40970
 };
 
 class go_bashir_crystalforge : public GameObjectScript
@@ -664,7 +654,7 @@ enum MatrixPunchograph
     MATRIX_PUNCHOGRAPH_3005_A = 142345,
     MATRIX_PUNCHOGRAPH_3005_B = 142475,
     MATRIX_PUNCHOGRAPH_3005_C = 142476,
-    MATRIX_PUNCHOGRAPH_3005_D = 142696,
+    MATRIX_PUNCHOGRAPH_3005_D = 142696
 };
 
 class go_matrix_punchograph : public GameObjectScript
@@ -874,7 +864,7 @@ public:
 enum InconspicuousLandmark
 {
     SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB    = 11462,
-    ITEM_CUERGOS_KEY                                 = 9275,
+    ITEM_CUERGOS_KEY                                 = 9275
 };
 
 class go_inconspicuous_landmark : public GameObjectScript
@@ -900,7 +890,7 @@ public:
 enum EtherealTeleportPad
 {
     NPC_IMAGE_WIND_TRADER               = 20518,
-    ITEM_TELEPORTER_POWER_PACK          = 28969,
+    ITEM_TELEPORTER_POWER_PACK          = 28969
 };
 
 class go_ethereal_teleport_pad : public GameObjectScript
@@ -1180,7 +1170,7 @@ enum OfKeysAndCages
     QUEST_ALLIANCE_OF_KEYS_AND_CAGES    = 11231,
     QUEST_HORDE_OF_KEYS_AND_CAGES       = 11265,
     NPC_GJALERBRON_PRISONER             = 24035,
-    SAY_FREE                            = 0,
+    SAY_FREE                            = 0
 };
 
 class go_gjalerbron_cage : public GameObjectScript
@@ -1244,7 +1234,7 @@ enum MissingFriends
 {
    QUEST_MISSING_FRIENDS    = 10852,
    NPC_CAPTIVE_CHILD        = 22314,
-   SAY_FREE_0               = 0,
+   SAY_FREE_0               = 0
 };
 
 class go_veil_skith_cage : public GameObjectScript
@@ -1281,7 +1271,7 @@ enum TheCleansing
    QUEST_THE_CLEANSING_HORDE      = 11317,
    QUEST_THE_CLEANSING_ALLIANCE   = 11322,
    SPELL_CLEANSING_SOUL           = 43351,
-   SPELL_RECENT_MEDITATION        = 61720,
+   SPELL_RECENT_MEDITATION        = 61720
 };
 
 class go_frostblade_shrine : public GameObjectScript
@@ -1308,7 +1298,7 @@ public:
 
 enum MidsummerBonfire
 {
-    STAMP_OUT_BONFIRE_QUEST_COMPLETE    = 45458,
+    STAMP_OUT_BONFIRE_QUEST_COMPLETE    = 45458
 };
 
 class go_midsummer_bonfire : public GameObjectScript
@@ -1329,7 +1319,7 @@ class go_seaforium_charge : public GameObjectScript
     public:
         go_seaforium_charge() : GameObjectScript("go_seaforium_charge") { }
 
-        bool OnGossipHello(Player* player, GameObject* go)
+        bool OnGossipHello(Player* player, GameObject* /*go*/)
         {
             if (player->HasAura(52418))
                 return true;
@@ -1360,7 +1350,7 @@ class go_challenge_orb : public GameObjectScript
     public:
         go_challenge_orb() : GameObjectScript("go_challenge_orb") { }
 
-        bool OnGossipSelect(Player* p_Player, GameObject* p_GameObject, uint32 p_Sender, uint32 p_Action)
+        bool OnGossipSelect(Player* p_Player, GameObject* p_GameObject, uint32 /*p_Sender*/, uint32 /*p_Action*/)
         {
             if (InstanceScript* l_Instance = p_GameObject->GetInstanceScript())
             {
@@ -1401,6 +1391,7 @@ class go_dark_iron_mole_machine_wreckage : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_go_scripts()
 {
     new go_cat_figurine;
@@ -1448,3 +1439,4 @@ void AddSC_go_scripts()
     new go_challenge_orb();
     new go_dark_iron_mole_machine_wreckage();
 }
+#endif

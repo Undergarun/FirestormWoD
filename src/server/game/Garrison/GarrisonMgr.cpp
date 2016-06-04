@@ -1,3 +1,11 @@
+﻿////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonMgr.hpp"
 #include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 #include "Player.h"
@@ -7,7 +15,7 @@
 #include "CreatureAI.h"
 #include "DisableMgr.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     Manager::Manager(Player* p_Owner)
@@ -27,6 +35,7 @@ namespace MS { namespace Garrison
         m_CacheLastTokenAmount = 0;
 
         m_GarrisonScript = nullptr;
+        m_CanRecruitFollower = p_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTavernBoolCanRecruitFollower) == 0;
 
         /// Select Garrison site ID
         switch (GetGarrisonFactionIndex())
@@ -292,7 +301,7 @@ namespace MS { namespace Garrison
             {
                 GarrisonMission & l_Mission = m_Missions[l_I];
 
-                uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_Mission](const GarrisonMission& p_Mission)
+                uint32 l_Count = (uint32)std::count_if(m_Missions.begin(), m_Missions.end(), [l_Mission](const GarrisonMission& p_Mission)
                 {
                     return p_Mission.MissionID == l_Mission.MissionID;
                 });
@@ -339,7 +348,7 @@ namespace MS { namespace Garrison
                 if (l_Mission.State != MissionStates::InProgress)
                     continue;
 
-                uint32 l_FollowerCount = std::count_if(m_Followers.begin(), m_Followers.end(), [l_Mission](const GarrisonFollower & p_Follower) -> bool
+                uint32 l_FollowerCount = (uint32)std::count_if(m_Followers.begin(), m_Followers.end(), [l_Mission](const GarrisonFollower & p_Follower) -> bool
                 {
                     if (p_Follower.CurrentMissionID == l_Mission.MissionID)
                         return true;
@@ -1070,7 +1079,7 @@ namespace MS { namespace Garrison
         if (!l_MissionEntry || DisableMgr::IsDisabledFor(DISABLE_TYPE_GARRISON_MISSION, p_MissionRecID, m_Owner))
             return false;
 
-        uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [p_MissionRecID](const GarrisonMission& p_Mission)
+        uint32 l_Count = (uint32)std::count_if(m_Missions.begin(), m_Missions.end(), [p_MissionRecID](const GarrisonMission& p_Mission)
         {
             return p_Mission.MissionID == p_MissionRecID;
         });
@@ -1191,7 +1200,7 @@ namespace MS { namespace Garrison
         {
             std::vector<GarrisonFollower>::iterator l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [this, p_Followers, l_I](const GarrisonFollower p_Follower) -> bool
             {
-                if (p_Follower.DatabaseID == p_Followers[l_I])
+                if (p_Follower.DatabaseID == uint32(p_Followers[l_I]))
                     return true;
 
                 return false;
@@ -1935,7 +1944,7 @@ namespace MS { namespace Garrison
         std::vector<GarrisonFollower*>          l_MissionFollowers = GetMissionFollowers(p_MissionRecID);
         std::vector<uint32>                     l_PassiveEffects = GetBuildingsPassiveAbilityEffects();
         std::map<uint64, double>                l_FollowersBiasMap;
-        std::vector<uint32>                     l_CounterAbilityUsed; 
+        std::vector<uint32>                     l_CounterAbilityUsed;
 
         for (uint32 l_I = 0; l_I < sGarrMissionXEncouterStore.GetNumRows(); ++l_I)
         {
@@ -2142,7 +2151,7 @@ namespace MS { namespace Garrison
                 }
             }
         }
-        #pragma endregion 
+        #pragma endregion
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
@@ -2180,7 +2189,7 @@ namespace MS { namespace Garrison
                 }
             }
         }
-        #pragma endregion 
+        #pragma endregion
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
@@ -2290,7 +2299,7 @@ namespace MS { namespace Garrison
                 }
             }
         }
-        #pragma endregion 
+        #pragma endregion
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
@@ -2313,7 +2322,7 @@ namespace MS { namespace Garrison
                 #endif // GARRISON_CHEST_FORMULA_DEBUG
             }
         }
-        #pragma endregion 
+        #pragma endregion
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
@@ -2479,6 +2488,56 @@ namespace MS { namespace Garrison
         return true;
     }
 
+    bool Manager::AddFollower(GarrisonFollower p_Follower)
+    {
+        GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_Follower.FollowerID);
+
+        if (!l_Entry)
+            return false;
+
+        std::ostringstream l_Abilities;
+
+        for (uint32 l_Itr = 0; l_Itr < p_Follower.Abilities.size(); ++l_Itr)
+            l_Abilities << p_Follower.Abilities[l_Itr] << ' ';
+
+        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_FOLLOWER);
+
+        uint32 l_Index = 0;
+        l_Stmt->setUInt32(l_Index++, p_Follower.DatabaseID);
+        l_Stmt->setUInt32(l_Index++, m_ID);
+        l_Stmt->setUInt32(l_Index++, p_Follower.FollowerID);
+        l_Stmt->setUInt32(l_Index++, p_Follower.Level);
+        l_Stmt->setUInt32(l_Index++, p_Follower.XP);
+        l_Stmt->setUInt32(l_Index++, p_Follower.Quality);
+        l_Stmt->setUInt32(l_Index++, p_Follower.ItemLevelArmor);
+        l_Stmt->setUInt32(l_Index++, p_Follower.ItemLevelWeapon);
+        l_Stmt->setUInt32(l_Index++, p_Follower.CurrentMissionID);
+        l_Stmt->setUInt32(l_Index++, p_Follower.CurrentBuildingID);
+        l_Stmt->setString(l_Index++, l_Abilities.str());
+        l_Stmt->setUInt32(l_Index++, p_Follower.Flags);
+        l_Stmt->setString(l_Index++, p_Follower.ShipName);
+
+        CharacterDatabase.AsyncQuery(l_Stmt);
+
+        m_Followers.push_back(p_Follower);
+
+        WorldPacket l_AddFollowerResult(SMSG_GARRISON_ADD_FOLLOWER_RESULT, 64);
+        l_AddFollowerResult << uint32(PurchaseBuildingResults::Ok);
+        p_Follower.Write(l_AddFollowerResult);
+
+        m_Owner->SendDirectMessage(&l_AddFollowerResult);
+
+        if (p_Follower.Quality == ItemQualities::ITEM_QUALITY_RARE)
+        {
+            if (!m_Owner->GetAchievementMgr().HasAchieved(9130))
+                m_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(9130), nullptr);
+
+            m_Owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_FOLLOWER_IN_OWN_GARRISON);
+        }
+
+        return true;
+    }
+
     /// Assign a follower to a building
     void Manager::AssignFollowerToBuilding(uint64 p_FollowerDBID, uint32 p_PlotInstanceID)
     {
@@ -2524,6 +2583,16 @@ namespace MS { namespace Garrison
 
         Save();
         UpdatePlot(p_PlotInstanceID);
+    }
+
+    bool Manager::CanRecruitFollower() const
+    {
+        return m_CanRecruitFollower;
+    }
+
+    void Manager::SetCanRecruitFollower(bool p_Apply)
+    {
+        m_CanRecruitFollower = p_Apply;
     }
 
     /// Change follower activation state
@@ -2590,6 +2659,112 @@ namespace MS { namespace Garrison
         return m_Followers;
     }
 
+    /// Get followers dbc list with abilities
+    std::list<GarrisonFollower> Manager::GetFollowersWithAbility(uint32 p_AbilityID, bool p_IsTrait)
+    {
+        std::list<GarrisonFollower> l_FinalFollowers;
+        std::vector<uint32> l_FollowerIDs;
+        std::vector<uint32> l_PotentialFollowers;
+
+        for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
+        {
+            GarrFollowerEntry const* l_FollowerEntry = sGarrFollowerStore.LookupEntry(l_I);
+
+            if (l_FollowerEntry != nullptr)
+                l_FollowerIDs.push_back(l_FollowerEntry->ID);
+        }
+
+        l_FollowerIDs.erase(std::remove_if(l_FollowerIDs.begin(), l_FollowerIDs.end(), [this, p_AbilityID, &l_PotentialFollowers](uint32 p_FollowerID) -> bool
+        {
+            std::vector<GarrisonFollower> l_PossessedFollowers = GetFollowers();
+            
+            auto l_Found = std::find_if(l_PossessedFollowers.begin(), l_PossessedFollowers.end(), [this, p_FollowerID](GarrisonFollower p_Follower) -> bool
+            {
+                if (p_Follower.FollowerID == p_FollowerID)
+                    return true;
+
+                return false;
+            });
+
+            if (l_Found != l_PossessedFollowers.end())
+                return true;
+
+            GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_FollowerID);
+
+            if (l_Entry == nullptr || l_Entry->Quality >= ItemQualities::ITEM_QUALITY_EPIC || l_Entry->Level > 90 || l_Entry->HordeSourceText->Str[LOCALE_enUS] == "")
+                return true;
+
+            l_PotentialFollowers.push_back(p_FollowerID);
+
+            for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
+            {
+                GarrFollowerXAbilityEntry const* l_AbilityEntry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
+
+                /// TEAMID server side is inverted with DBCs 0/1 values, so real condition for l_AbilityEntry->FactionIndex != m_Owner->GetTeamId() is ==
+                if (l_AbilityEntry != nullptr && l_AbilityEntry->FollowerID == p_FollowerID && l_AbilityEntry->AbilityID == p_AbilityID && l_AbilityEntry->FactionIndex != m_Owner->GetTeamId())
+                    return false;
+            }
+
+            return true;
+        }), l_FollowerIDs.end());
+
+        for (uint32 l_FollowerID : l_FollowerIDs)
+        {
+            l_FinalFollowers.push_back(GenerateNewFollowerEntity(l_FollowerID));
+            l_PotentialFollowers.erase(std::remove(l_PotentialFollowers.begin(), l_PotentialFollowers.end(), l_FollowerID), l_PotentialFollowers.end());
+        }
+
+        if (l_PotentialFollowers.empty())
+            return l_FinalFollowers;
+
+        while (l_FinalFollowers.size() < 3)
+        {
+            GarrisonFollower l_Follower = GenerateNewFollowerEntity(l_PotentialFollowers[urand(0, l_PotentialFollowers.size() - 1)]);
+            uint32 l_AbilityGenerated = 0;
+
+            for (auto l_Itr = l_Follower.Abilities.begin(); l_Itr != l_Follower.Abilities.end(); ++l_Itr)
+            {
+                using namespace MS::Garrison::GarrisonAbilities;
+
+                if (!p_IsTrait)
+                {
+                    std::vector<uint32> l_PotentialAbilities;
+                    for (uint32 l_EffectID = 0; l_EffectID < sGarrAbilityEffectStore.GetNumRows(); ++l_EffectID)
+                    {
+                        GarrAbilityEffectEntry const* l_Effect = sGarrAbilityEffectStore.LookupEntry(l_EffectID);
+
+                        if (!l_Effect)
+                            continue;
+
+                        if (l_Effect->CounterMechanicTypeID == p_AbilityID)
+                            l_PotentialAbilities.push_back(l_Effect->AbilityID);
+                    }
+
+                    if (!l_PotentialAbilities.empty())
+                        l_AbilityGenerated = l_PotentialAbilities[urand(0, l_PotentialAbilities.size() - 1)];
+
+                    l_Itr = l_Follower.Abilities.erase(l_Itr);
+                    break;
+                }
+
+                if (p_IsTrait && std::find(g_FollowerTraits.begin(), g_FollowerTraits.end(), *l_Itr) != g_FollowerTraits.end())
+                {
+                    l_Itr = l_Follower.Abilities.erase(l_Itr);
+                    break;
+                }
+            }
+
+            if (l_AbilityGenerated)
+                l_Follower.Abilities.push_back(l_AbilityGenerated);
+            else
+                l_Follower.Abilities.push_back(p_AbilityID);
+
+            l_FinalFollowers.push_back(l_Follower);
+        }
+
+        return l_FinalFollowers;
+    }
+
     /// Get follower
     GarrisonFollower* Manager::GetFollower(uint32 p_FollowerID)
     {
@@ -2617,7 +2792,7 @@ namespace MS { namespace Garrison
     /// Get activated followers count
     uint32 Manager::GetActiveFollowerCount(uint32 p_FollowerType) const
     {
-        return std::count_if(m_Followers.begin(), m_Followers.end(), [p_FollowerType](GarrisonFollower p_Folloser) -> bool
+        return (uint32)std::count_if(m_Followers.begin(), m_Followers.end(), [p_FollowerType](GarrisonFollower p_Folloser) -> bool
         {
             auto l_Entry = p_Folloser.GetEntry();
             return l_Entry ? (l_Entry->Type == p_FollowerType && (p_FollowerType == FollowerType::Ship || !(p_Folloser.Flags & GARRISON_FOLLOWER_FLAG_INACTIVE))) : -1;
@@ -2690,7 +2865,7 @@ namespace MS { namespace Garrison
         if (!l_PlotInstanceEntry)
             return false;
 
-        /// Search building plot ID 
+        /// Search building plot ID
         for (uint32 l_I = 0; l_I < sGarrPlotBuildingStore.GetNumRows(); ++l_I)
         {
             GarrPlotBuildingEntry const* l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
@@ -3148,10 +3323,23 @@ namespace MS { namespace Garrison
     /// Get in progress work order count
     uint32 Manager::GetWorkOrderCount(uint32 p_PlotInstanceID) const
     {
-        return std::count_if(m_WorkOrders.begin(), m_WorkOrders.end(), [p_PlotInstanceID](const GarrisonWorkOrder& p_Order) -> bool
+        return (uint32)std::count_if(m_WorkOrders.begin(), m_WorkOrders.end(), [p_PlotInstanceID](const GarrisonWorkOrder& p_Order) -> bool
         {
             return p_Order.PlotInstanceID == p_PlotInstanceID;
         });
+    }
+
+    std::vector<GarrisonWorkOrder> Manager::GetBuildingWorkOrders(uint32 p_PlotInstanceID) const
+    {
+        std::vector<GarrisonWorkOrder> l_Orders;
+
+        for (GarrisonWorkOrder l_Order : m_WorkOrders)
+        {
+            if (p_PlotInstanceID == l_Order.PlotInstanceID)
+                l_Orders.push_back(l_Order);
+        }
+
+        return l_Orders;
     }
 
     /// Start new work order
@@ -3328,7 +3516,7 @@ namespace MS { namespace Garrison
         /// 20%
         else
         {
-            LootTemplate const* l_LootTemplate = LootTemplates_Item.GetLootFor(m_Owner->GetTeam() == ALLIANCE ? 120354 : 111598); //< Golden Strongbox Loot
+            LootTemplate const* l_LootTemplate = LootTemplates_Item.GetLootFor(m_Owner->GetTeam() == ALLIANCE ? 126906 : 126901); //< Golden Strongbox Loot
 
             std::list<ItemTemplate const*> l_LootTable;
             std::vector<uint32> l_Items;
@@ -3582,7 +3770,7 @@ namespace MS { namespace Garrison
 
             uint32 l_PlotID = 0;
 
-            /// Search building plot ID 
+            /// Search building plot ID
             for (uint32 l_I = 0; l_I < sGarrPlotBuildingStore.GetNumRows(); ++l_I)
             {
                 GarrPlotBuildingEntry const* l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
@@ -3742,7 +3930,7 @@ namespace MS { namespace Garrison
             if (!l_Building.Active &&
                 (l_BuildingEntry->Type != BuildingType::Mine &&
                  l_BuildingEntry->Type != BuildingType::Farm &&
-                 l_BuildingEntry->Type != BuildingType::Fishing && 
+                 l_BuildingEntry->Type != BuildingType::Fishing &&
                  l_BuildingEntry->Type != BuildingType::PetMenagerie))
             {
                 l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * PlotTypes::Max)];
@@ -3756,7 +3944,7 @@ namespace MS { namespace Garrison
             {
                 l_GobEntry = l_BuildingEntry->GameObjects[GetGarrisonFactionIndex()];
 
-                if (!l_Building.Active && l_BuildingEntry->Level > 1 && 
+                if (!l_Building.Active && l_BuildingEntry->Level > 1 &&
                     (l_BuildingEntry->Type == BuildingType::Mine ||
                      l_BuildingEntry->Type == BuildingType::Farm ||
                      l_BuildingEntry->Type == BuildingType::Fishing ||
@@ -3847,16 +4035,16 @@ namespace MS { namespace Garrison
                     l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
                 }
 
-                std::vector<GarrisonPlotBuildingContent> l_Contents; 
+                std::vector<GarrisonPlotBuildingContent> l_Contents;
 
                 if (l_IsPlotBuilding)
                     l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
-                else if ((l_Building.Active || 
-                         (l_BuildingEntry && (l_BuildingEntry->Type == BuildingType::Mine 
-                                           || l_BuildingEntry->Type == BuildingType::PetMenagerie 
-                                           || l_BuildingEntry->Type == BuildingType::Fishing 
+                else if ((l_Building.Active ||
+                         (l_BuildingEntry && (l_BuildingEntry->Type == BuildingType::Mine
+                                           || l_BuildingEntry->Type == BuildingType::PetMenagerie
+                                           || l_BuildingEntry->Type == BuildingType::Fishing
                                            || l_BuildingEntry->Type == BuildingType::Farm))
-                         ) 
+                         )
                         && l_Building.BuildingID)
                 {
                     uint32 l_BuildingID = l_Building.BuildingID;
@@ -3926,8 +4114,8 @@ namespace MS { namespace Garrison
                                     l_Creature->AI()->SetData(CreatureAIDataIDs::Builder, 1);
                                 else
                                 {
-                                    l_Creature->AI()->SetData(CreatureAIDataIDs::BuildingID,    -l_Contents[l_I].PlotTypeOrBuilding);
                                     l_Creature->AI()->SetGUID(m_Owner->GetGUID(), CreatureAIDataIDs::OwnerGuid); ///< Value first, data index next
+                                    l_Creature->AI()->SetData(CreatureAIDataIDs::BuildingID,    -l_Contents[l_I].PlotTypeOrBuilding);
                                     l_Creature->AI()->SetData(CreatureAIDataIDs::PlotInstanceID, p_PlotInstanceID | (GetGarrisonSiteLevelEntry()->SiteLevelID << 16));
                                 }
                             }
@@ -4254,6 +4442,15 @@ namespace MS { namespace Garrison
                     if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
                         continue;
 
+                    /// If player has Tavern lvl 3, he'll have 50% chance to get a treasure hunter type mission
+                    if (l_Entry->MissionType == MissionType::Treasure)
+                    {
+                        if (!GetBuildingLevel(GetBuildingWithType(BuildingType::Inn)) == 3)
+                            continue;
+                        else if (urand(0, 1))
+                            continue;
+                    }
+
                     /// Faction speific mission (No generic way to handle it)
                     switch (GetGarrisonFactionIndex())
                     {
@@ -4389,7 +4586,7 @@ namespace MS { namespace Garrison
                     if (!l_Entry)
                         continue;
 
-                    uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_Entry](const GarrisonMission & p_Mission)
+                    uint32 l_Count = (uint32)std::count_if(m_Missions.begin(), m_Missions.end(), [l_Entry](const GarrisonMission & p_Mission)
                     {
                         return p_Mission.MissionID == l_Entry->MissionRecID;
                     });
@@ -4405,6 +4602,15 @@ namespace MS { namespace Garrison
 
                     if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
                         continue;
+
+                    /// If player has Tavern lvl 3, he'll have 50% chance to get a treasure hunter type mission
+                    if (l_Entry->MissionType == MissionType::Treasure)
+                    {
+                        if (GetBuildingLevel(GetBuildingWithType(BuildingType::Inn)) != 3)
+                            continue;
+                        else if (urand(0, 1))
+                            continue;
+                    }
 
                     uint32 l_RewardCount = 0;
                     for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
@@ -4539,9 +4745,20 @@ namespace MS { namespace Garrison
 
             if (l_PlotWorkOrder.size() > 0)
             {
-                bool l_AllComplete = l_PlotWorkOrder.size() > 1;
+                CharShipmentEntry const* l_ShipmentEntry = sCharShipmentStore.LookupEntry(l_PlotWorkOrder[0]->ShipmentID);
 
+                if (l_ShipmentEntry == nullptr)
+                    continue;
+
+                CharShipmentContainerEntry const* l_ShipmentContainerEntry = sCharShipmentContainerStore.LookupEntry(l_ShipmentEntry->ShipmentContainerID);
+
+                if (l_ShipmentContainerEntry == nullptr)
+                    continue;
+
+                bool l_AllComplete = l_PlotWorkOrder.size() > 1;
+                uint32 l_GobDisplayID = l_WorkOrderGameObject->GetGOInfo() ? l_WorkOrderGameObject->GetGOInfo()->displayId : 0;
                 uint32 l_CurrentTimeStamp = time(0);
+
                 for (uint32 l_OrderI = 0; l_OrderI < l_PlotWorkOrder.size(); ++l_OrderI)
                 {
                     if (l_PlotWorkOrder[l_OrderI]->CompleteTime > l_CurrentTimeStamp)
@@ -4550,29 +4767,39 @@ namespace MS { namespace Garrison
                         l_AllComplete = true;
                 }
 
+                uint32 l_ShipmentsSize = (uint32)l_PlotWorkOrder.size();
+
+                if (l_ShipmentsSize >= 1 && l_ShipmentsSize < l_ShipmentContainerEntry->ShipmentAmountNeeded[0])
+                    l_GobDisplayID = l_ShipmentContainerEntry->OverrideDisplayID1;
+                else
+                {
+                    for (int8 l_Itr = 1; l_Itr >= 0; --l_Itr)
+                    {
+                        if (l_ShipmentsSize >= l_ShipmentContainerEntry->ShipmentAmountNeeded[l_Itr])
+                            l_GobDisplayID = l_ShipmentContainerEntry->OverrideIfAmountMet[l_Itr];
+                    }
+                }
+
                 if (l_AllComplete)
                 {
-                    l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::AllComplete);
+                    l_WorkOrderGameObject->SetDisplayId(l_GobDisplayID);
                     l_WorkOrderGameObject->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
                 }
                 else
                 {
-                    /// Keep original displayID for Barn Work Order
-                    if (l_WorkOrderGameObject->GetEntry() != GarrisonBuildingWorkOrderGameObject::GobBarnWOrkOrder)
-                        l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
-                    else
-                        l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::BaseBarn);
+                    if (l_ShipmentContainerEntry->OverrideDisplayIfNotNull) ///< Shipyards related
+                        l_WorkOrderGameObject->SetDisplayId(l_ShipmentContainerEntry->OverrideDisplayIfNotNull);
 
                     l_WorkOrderGameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
                 }
             }
             else
             {
-                /// Keep original displayID for Barn Work Order
-                if (l_WorkOrderGameObject->GetEntry() != GarrisonBuildingWorkOrderGameObject::GobBarnWOrkOrder)
-                    l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
-                else
-                    l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::BaseBarn);
+                if (GameObjectTemplate const* l_GobTemplate = l_WorkOrderGameObject->GetGOInfo())
+                {
+                    if (!l_GobTemplate->garrisonShipment.LargeAOI) ///< Shipyard ?
+                        l_WorkOrderGameObject->SetDisplayId(l_GobTemplate->displayId);
+                }
 
                 l_WorkOrderGameObject->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
             }
@@ -4631,7 +4858,7 @@ namespace MS { namespace Garrison
 
     uint32 Manager::GetTotalFollowerCount(uint32 p_Type)
     {
-        return std::count_if(m_Followers.begin(), m_Followers.end(), [p_Type](GarrisonFollower l_Follower) -> bool
+        return (uint32)std::count_if(m_Followers.begin(), m_Followers.end(), [p_Type](GarrisonFollower l_Follower) -> bool
         {
             GarrFollowerEntry const* l_Entry = l_Follower.GetEntry();
             return l_Entry && l_Entry->Type == p_Type;
@@ -4810,7 +5037,7 @@ namespace MS { namespace Garrison
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
     }
 
-    void Manager::GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset /* = true */, bool p_Abilities /* = true */, bool p_Traits /* = true */, bool p_Update /* = false */) ///< p_Abilities & p_Traits are unused
+    void Manager::GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset /* = true */, bool /*p_Abilities*/ /* = true */, bool /*p_Traits*/ /* = true */, bool p_Update /* = false */)
     {
         if (p_Reset)
             p_Follower.Abilities.clear();
@@ -4924,7 +5151,7 @@ namespace MS { namespace Garrison
     }
 
     uint32 Manager::CountFollowerAbilitiesByType(uint32 p_FollowerID, uint32 p_Type) const
-{
+    {
         auto l_Iter = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerID](GarrisonFollower P_RefFollower) -> bool
         {
             return P_RefFollower.DatabaseID == p_FollowerID;
@@ -4933,7 +5160,7 @@ namespace MS { namespace Garrison
         if (l_Iter == m_Followers.end())
             return 0;
 
-        return std::count_if(l_Iter->Abilities.begin(), l_Iter->Abilities.end(), [p_Type](uint32 p_Ability) -> bool
+        return (uint32)std::count_if(l_Iter->Abilities.begin(), l_Iter->Abilities.end(), [p_Type](uint32 p_Ability) -> bool
         {
             auto l_Ability = sGarrAbilityStore.LookupEntry(p_Ability);
             return l_Ability ? l_Ability->AbilityType == p_Type : false;
@@ -5006,6 +5233,34 @@ namespace MS { namespace Garrison
 
         l_Iter->Abilities[l_Index] = p_SpellInfo->Effects[p_EffIndex].MiscValue;
         l_Iter->SendFollowerUpdate(m_Owner);
+    }
+
+    GarrisonFollower Manager::GenerateNewFollowerEntity(uint32 p_FollowerID)
+    {
+        GarrisonFollower l_Follower;
+
+        if (GetFollower(p_FollowerID) != nullptr)
+            return *GetFollower(p_FollowerID);
+
+        GarrFollowerEntry const* l_FollowerEntry = sGarrFollowerStore.LookupEntry(p_FollowerID);
+
+        if (l_FollowerEntry == nullptr)
+            return l_Follower;
+
+        l_Follower.DatabaseID        = 0;
+        l_Follower.FollowerID        = l_FollowerEntry->ID;
+        l_Follower.Level             = l_FollowerEntry->Level;
+        l_Follower.XP                = 0;
+        l_Follower.Quality           = l_FollowerEntry->Quality;
+        l_Follower.ItemLevelArmor    = l_FollowerEntry->ItemLevelArmor;
+        l_Follower.ItemLevelWeapon   = l_FollowerEntry->ItemLevelWeapon;
+        l_Follower.CurrentBuildingID = 0;
+        l_Follower.CurrentMissionID  = 0;
+        l_Follower.Flags             = 0;
+
+        GenerateFollowerAbilities(l_Follower, true, true, true, true);
+
+        return l_Follower;
     }
 
     uint32 Manager::GetFollowerSoftCap(uint32 p_FollowerType) const
@@ -5185,20 +5440,209 @@ namespace MS { namespace Garrison
             || m_Owner->HasAura(StablesData::TrainingMountsAuras::SnarlerTrainingMountAura);
     }
 
-    void Manager::AddGarrisonTavernData(uint32 p_Data)
+    void Manager::HandleStablesAuraBonuses(bool p_Remove /*= false*/)
     {
-        SetGarrisonTavernData(p_Data);
+        if (m_Owner->GetMapId() != 1116) ///< MapID Draenor
+            return;
+
+        using namespace StablesData;
+
+        if (!p_Remove)
+        {
+            switch (GetBuildingLevel(GetBuildingWithType(BuildingType::Stable)))
+            {
+                case 1:
+                    m_Owner->AddAura(BonusAuras::StablesAuraLevel1, m_Owner);
+                    break;
+                case 2:
+                    m_Owner->AddAura(BonusAuras::StablesAuraLevel2, m_Owner);
+                    m_Owner->SetFlag(UNIT_FIELD_FLAGS_3, UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                    break;
+                case 3:
+                    m_Owner->AddAura(BonusAuras::StablesAuraLevel3, m_Owner);
+                    m_Owner->SetFlag(UNIT_FIELD_FLAGS_3, UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                    break;
+            }
+        }
+        else
+        {
+            switch (GetBuildingLevel(GetBuildingWithType(BuildingType::Stable)))
+            {
+                case 1:
+                    m_Owner->RemoveAura(BonusAuras::StablesAuraLevel1);
+                    break;
+                case 2:
+                    m_Owner->RemoveAura(BonusAuras::StablesAuraLevel2);
+                    m_Owner->RemoveFlag(UNIT_FIELD_FLAGS_3, UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                    break;
+                case 3:
+                    m_Owner->RemoveAura(BonusAuras::StablesAuraLevel3);
+                    m_Owner->RemoveFlag(UNIT_FIELD_FLAGS_3, UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                    break;
+            }
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////
+    //////////////////////// DAILY TAVERN DATA ///////////////////////////
+    //////////////////////////////////////////////////////////////////////
+
+    void Manager::AddGarrisonDailyTavernData(uint32 p_Data)
+    {
+        SetGarrisonDailyTavernData(p_Data);
         m_Owner->SaveToDB(false);
     }
 
-    void Manager::SetGarrisonTavernData(uint32 p_Data)
+    void Manager::SetGarrisonDailyTavernData(uint32 p_Data)
     {
-        GetGarrisonTavernDatas().push_back(p_Data);
+        GetGarrisonDailyTavernDatas().push_back(p_Data);
     }
 
-    void Manager::CleanGarrisonTavernData()
+    void Manager::CleanGarrisonDailyTavernData()
     {
-        GetGarrisonTavernDatas().clear();
+        GetGarrisonDailyTavernDatas().clear();
+    }
+
+    void Manager::ResetGarrisonDailyTavernData()
+    {
+        if (roll_chance_i(50))
+        {
+            uint32 l_Entry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
+
+            CleanGarrisonDailyTavernData();
+            AddGarrisonDailyTavernData(l_Entry);
+        }
+        else
+        {
+            uint32 l_FirstEntry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
+            uint32 l_SecondEntry = 0;
+
+            do
+                l_SecondEntry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
+            while (l_SecondEntry == l_FirstEntry);
+
+            CleanGarrisonDailyTavernData();
+            AddGarrisonDailyTavernData(l_FirstEntry);
+            AddGarrisonDailyTavernData(l_SecondEntry);
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////
+
+
+    //////////////////////////////////////////////////////////////////////
+    //////////////////////// WEEKLY TAVERN DATA //////////////////////////
+    //////////////////////////////////////////////////////////////////////
+
+    void Manager::AddGarrisonWeeklyTavernData(WeeklyTavernData p_Data)
+    {
+        SetGarrisonWeeklyTavernData(p_Data);
+        m_Owner->SaveToDB(false);
+    }
+
+    void Manager::SetGarrisonWeeklyTavernData(WeeklyTavernData p_Data)
+    {
+        GetGarrisonWeeklyTavernDatas().push_back(p_Data);
+    }
+
+    void Manager::CleanGarrisonWeeklyTavernData()
+    {
+        GetGarrisonWeeklyTavernDatas().clear();
+    }
+
+    void Manager::ResetGarrisonWeeklyTavernData()
+    {
+        CleanGarrisonWeeklyTavernData();
+    }
+
+    //////////////////////////////////////////////////////////////////////
+
+    void Manager::ResetGarrisonWorkshopData(Player* p_Player)
+    {
+        using namespace WorkshopGearworks;
+
+        if (p_Player->GetTeamId() == TEAM_ALLIANCE)
+        {
+            if (!p_Player->IsQuestRewarded(Quests::Alliance_UnconventionalInventions))
+                return;
+        }
+        else if (p_Player->GetTeamId() == TEAM_HORDE)
+        {
+            if (!p_Player->IsQuestRewarded(Quests::Horde_UnconventionalInventions))
+                return;
+        }
+
+        uint32 l_Worldstate = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonWorkshopGearworksInvention);
+        std::vector<uint32> l_Inventions;
+
+        for (uint32 l_Value : g_FirstLevelInventions)
+            l_Inventions.push_back(l_Value);
+
+        if (GetBuildingLevel(GetBuildingWithType(BuildingType::Workshop)) > 1)
+        {
+            for (uint32 l_Value : g_SecondLevelInventions)
+                l_Inventions.push_back(l_Value);
+        }
+
+        for (std::vector<uint32>::iterator l_Itr = l_Inventions.begin(); l_Itr != l_Inventions.end();)
+        {
+            if (std::find(l_Inventions.begin(), l_Inventions.end(), *l_Itr) != l_Inventions.end())
+            {
+                ++l_Itr;
+                continue;
+            }
+
+            if (*l_Itr == l_Worldstate)
+                l_Itr = l_Inventions.erase(l_Itr);
+
+            if (p_Player->GetTeamId() == TEAM_ALLIANCE && *l_Itr == GobPrototypeMechanoHog)
+                l_Itr = l_Inventions.erase(l_Itr);
+
+            if (p_Player->GetTeamId() == TEAM_HORDE && *l_Itr == GobPrototypeMekgineersChopper)
+                l_Itr = l_Inventions.erase(l_Itr);
+        }
+
+        uint32 l_Entry = l_Inventions[urand(0, l_Inventions.size() - 1)];
+
+        ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(g_GobItemRelations[l_Entry]);
+
+        if (l_ItemProto == nullptr)
+            return;
+
+        p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInvention, l_Entry);
+        p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInventionCharges, l_ItemProto->Spells[0].SpellCharges);
+    }
+
+    void Manager::ResetGarrisonTradingPostData(Player* p_Player)
+    {
+        std::vector<uint32> l_HordeTradersEntries = { 86778, 86777, 86779, 86776, 86683 };
+        std::vector<uint32> l_AllianceTradersEntries = { 87203, 87202, 87200, 87201, 87204 };
+        std::vector<uint32> l_TradingPostShipments = { 138, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 196 };
+        uint32 l_Entry = p_Player->GetTeamId() == TEAM_ALLIANCE ? l_AllianceTradersEntries[urand(0, l_AllianceTradersEntries.size() - 1)] : l_HordeTradersEntries[urand(0, l_HordeTradersEntries.size() - 1)];
+
+        p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
+        p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomTrader, l_Entry);
+    }
+
+    std::vector<GarrisonFollower> Manager::GetWeeklyFollowerRecruits(Player* p_Player)
+    {
+        std::vector<GarrisonFollower> l_Followers;
+        
+        std::vector<WeeklyTavernData> l_Data = GetGarrisonWeeklyTavernDatas();
+
+        for (WeeklyTavernData l_Datum : l_Data)
+        {
+            GarrisonFollower l_Follower = GenerateNewFollowerEntity(l_Datum.FollowerID);
+
+            l_Follower.Abilities.clear();
+
+            for (uint32 l_Ability : l_Datum.Abilities)
+                l_Follower.Abilities.push_back(l_Ability);
+
+            l_Followers.push_back(l_Follower);
+        }
+
+        return l_Followers;
     }
 }   ///< namespace Garrison
 }   ///< namespace MS

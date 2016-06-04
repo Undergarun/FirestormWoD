@@ -1,12 +1,16 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software licensed under GPL version 2
-* Please see the included DOCS/LICENSE.TXT for more information */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef SC_SYSTEM_H
 #define SC_SYSTEM_H
 
 #include "ScriptMgr.h"
-#include <ace/Singleton.h>
+#include "Common.h"
 
 #define TEXT_SOURCE_RANGE -1000000                          //the amount of entries each text source has available
 
@@ -62,8 +66,8 @@ class SystemMgr
 
     public:
         //Maps and lists
-        typedef UNORDERED_MAP<int32, StringTextData> TextDataMap;
-        typedef UNORDERED_MAP<uint32, ScriptPointVector> PointMoveMap;
+        typedef std::unordered_map<int32, StringTextData> TextDataMap;
+        typedef std::unordered_map<uint32, ScriptPointVector> PointMoveMap;
 
         //Database
         void LoadScriptTexts();

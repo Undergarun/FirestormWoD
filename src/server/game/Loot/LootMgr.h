@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_LOOTMGR_H
 #define TRINITY_LOOTMGR_H
@@ -26,9 +16,7 @@
 #include "ConditionMgr.h"
 #include "Object.h"
 #include "ItemPrototype.h"
-
-#include <map>
-#include <vector>
+#include "Common.h"
 
 enum RollType
 {
@@ -199,7 +187,7 @@ typedef std::vector<QuestItem> QuestItemList;
 typedef std::vector<LootItem> LootItemList;
 typedef std::map<uint32, QuestItemList*> QuestItemMap;
 typedef std::vector<LootStoreItem> LootStoreItemList;
-typedef UNORDERED_MAP<uint32, LootTemplate*> LootTemplateMap;
+typedef std::unordered_map<uint32, LootTemplate*> LootTemplateMap;
 
 typedef std::set<uint32> LootIdSet;
 
@@ -340,7 +328,7 @@ struct Loot
     std::vector<LootItem>            QuestItems;
 
     LootType loot_type;                                     ///< required for achievement system
-    uint64 source;                                          ///< Source guid of loot (gameobject, creature) 
+    uint64 source;                                          ///< Source guid of loot (gameobject, creature)
     LootType Type;                                          ///< required for achievement system
     uint64 RoundRobinPlayer;                                ///< GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     uint32 MaxLinkedSlot;

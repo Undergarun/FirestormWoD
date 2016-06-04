@@ -14,7 +14,7 @@ enum eBosses
 {
     BOSS_MING_THE_CUNNING,
     BOSS_KUAI_THE_BRUTE,
-    BOSS_HAIYAN_THE_UNSTOPPABLE,
+    BOSS_HAIYAN_THE_UNSTOPPABLE
 };
 
 class mob_xian_the_weaponmaster_trigger : public CreatureScript
@@ -65,7 +65,7 @@ class mob_xian_the_weaponmaster_trigger : public CreatureScript
             void MoveInLineOfSight(Unit* who)
             {
                 // If Lorewalker stonestep sees a player, launch the speech.
-                if (!event_go && who->IsPlayer() && who->GetAreaId() == 6471)//Salle de l'assemblée cramoisie
+                if (!event_go && who->IsPlayer() && who->GetAreaId() == 6471)//Salle de l'assemblee cramoisie
                 {
                     if (me->GetInstanceScript())
                         me->GetInstanceScript()->SetData(TYPE_MING_INTRO, 0);
@@ -93,7 +93,7 @@ class mob_xian_the_weaponmaster_trigger : public CreatureScript
                         break;
                     case EVENT_JUMP_XIAN:
                         Talk(TALK_INTRO_02);
-                        me->GetMotionMaster()->MoveJump(-4296.391f, -2613.577f, 22.325f, 30.f, 20.f);
+                        me->GetMotionMaster()->MoveJump(-4296.391f, -2613.577f, 22.325f, 30.0f, 20.0f);
                         events.ScheduleEvent(EVENT_DISAPPEAR, 5000);
                         break;
                     case EVENT_DISAPPEAR:
@@ -172,7 +172,7 @@ class boss_ming_the_cunning : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_AGGRO);
                 me->CastSpell(me, SPELL_GUARDIAN_GRUNT, false);
@@ -181,7 +181,7 @@ class boss_ming_the_cunning : public CreatureScript
                 events.ScheduleEvent(EVENT_MAGNETIC_FIELD, 30000);
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*p_Unit*/)
             {
                 Talk(TALK_KILLING);
             }
@@ -204,7 +204,7 @@ class boss_ming_the_cunning : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* killer, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Killer*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 //We need to retire Ming and let the next boss enter combat.
                 if (int(me->GetHealth()) - int(damage) <= 0)
@@ -242,8 +242,8 @@ class boss_ming_the_cunning : public CreatureScript
                                 Player* plr = i->getSource();
                                 if (!plr)
                                     continue;
-                                if (plr->GetDistance2d(me) <= 5.f)
-                                    plr->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 25.0f, 10.f);
+                                if (plr->GetDistance2d(me) <= 5.0f)
+                                    plr->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 25.0f, 10.0f);
                             }
                         }
                         magnetic_timer = 1000;
@@ -322,7 +322,7 @@ class mob_whirling_dervish : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
             }
@@ -442,7 +442,7 @@ class mob_adepts : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 motionType, uint32 pointId)
+            void MovementInform(uint32 /*motionType*/, uint32 pointId)
             {
                 if (pointId == 1)
                     me->SetFacingTo(me->GetOrientation() - M_PI);
@@ -450,7 +450,7 @@ class mob_adepts : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (who->IsPlayer() && who->GetAreaId() == 6471//Salle de l'assemblée cramoisie
+                if (who->IsPlayer() && who->GetAreaId() == 6471//Salle de l'assemblee cramoisie
                     && me->GetDistance2d(who) < 2.0f
                     && who->isInFront(me)
                     && status != STATUS_ATTACK_GRUNTS)
@@ -555,7 +555,7 @@ class boss_kuai_the_brute : public CreatureScript
                 _Reset();
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*p_Unit*/)
             {
                 Talk(TALK_KILLING);
             }
@@ -575,7 +575,7 @@ class boss_kuai_the_brute : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_AGGRO);
                 events.ScheduleEvent(EVENT_SHOCKWAVE, 3000);
@@ -584,7 +584,7 @@ class boss_kuai_the_brute : public CreatureScript
                     mu_shiba->AI()->DoAction(ACTION_ATTACK);
             }
 
-            void DamageTaken(Unit* killer, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Killer*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 //We need to retire Ming and let the next boss enter combat.
                 if (int(me->GetHealth()) - int(damage) <= 0)
@@ -691,7 +691,7 @@ class mob_mu_shiba : public CreatureScript
                 DoAction(ACTION_ATTACK_STOP);
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
             }
@@ -795,7 +795,7 @@ class boss_haiyan_the_unstoppable : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_AGGRO);
                 events.ScheduleEvent(EVENT_TRAUMATIC_BLOW, 3000);
@@ -825,12 +825,12 @@ class boss_haiyan_the_unstoppable : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*p_Unit*/)
             {
                 Talk(TALK_KILLING);
             }
 
-            void DamageTaken(Unit* killer, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Killer*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 //We need to retire Ming and let the next boss enter combat.
                 if (int(me->GetHealth()) - int(damage) <= 0)
@@ -894,6 +894,7 @@ class boss_haiyan_the_unstoppable : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_trial_of_the_king()
 {
     new mob_xian_the_weaponmaster_trigger();
@@ -904,3 +905,4 @@ void AddSC_boss_trial_of_the_king()
     new mob_mu_shiba();
     new boss_haiyan_the_unstoppable();
 }
+#endif

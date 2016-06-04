@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "Spell.h"
 #include "halls_of_origination.h"
@@ -7,7 +15,7 @@ enum ScriptTexts
     SAY_DEATH       = 0,
     SAY_AGGRO       = 1,
     SAY_EVENT       = 2,
-    SAY_KILL        = 3, 
+    SAY_KILL        = 3
 };
 
 enum Spells
@@ -18,9 +26,9 @@ enum Spells
     SPELL_SEARING_FLAME_SUM     = 75114,
     SPELL_SEARING_FLAME_DMG     = 75116,
     SPELL_SHIELD_OF_LIGHT       = 74938,
-    SPELL_BEAM_LEFT             = 83697, 
-    SPELL_BEAM_RIGHT            = 83698, 
-    SPELL_POISON_TIPPED_FANGS   = 74538,
+    SPELL_BEAM_LEFT             = 83697,
+    SPELL_BEAM_RIGHT            = 83698,
+    SPELL_POISON_TIPPED_FANGS   = 74538
 };
 
 enum Events
@@ -30,17 +38,17 @@ enum Events
     EVENT_POISON_TIPPED_FANGS   = 3,
     EVENT_ACHIEVEMENT           = 4,
     EVENT_SHIELD_OF_LIGHT       = 5,
-    EVENT_REVERBERATING_HYMN    = 6,
+    EVENT_REVERBERATING_HYMN    = 6
 };
 
 enum Actions
 {
-    ACTION_ACTIVATE = 1,
+    ACTION_ACTIVATE = 1
 };
 
 enum Points
 {
-    POINT_CENTER = 1,
+    POINT_CENTER = 1
 };
 
 enum Adds
@@ -50,7 +58,7 @@ enum Adds
     NPC_SEARING_FLAME   = 40283,
 
     GO_BEACON_LEFT      = 203133,
-    GO_BEACON_RIGHT     = 203136,
+    GO_BEACON_RIGHT     = 203136
 };
 
 const Position SpawnPosition[] =
@@ -173,7 +181,7 @@ class boss_temple_guardian_anhuur : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (me->HasAura(SPELL_SHIELD_OF_LIGHT))
                     return;
@@ -291,7 +299,7 @@ class npc_pit_snake : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_POISON_TIPPED_FANGS, urand(2000, 8000));
             }
@@ -324,7 +332,7 @@ class go_beacon_of_light : public GameObjectScript
 public:
     go_beacon_of_light() : GameObjectScript("go_beacon_of_light") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGO)
     {
         if (Creature* pAnhuur = pGO->FindNearestCreature(NPC_TEMPLE_GUARDIAN_ANHUUR, 100.0f))
             pAnhuur->GetAI()->DoAction(ACTION_ACTIVATE);
@@ -340,7 +348,7 @@ class achievement_i_hate_that_song : public AchievementCriteriaScript
     public:
         achievement_i_hate_that_song() : AchievementCriteriaScript("achievement_i_hate_that_song") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;
@@ -352,6 +360,7 @@ class achievement_i_hate_that_song : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_temple_guardian_anhuur()
 {
     new boss_temple_guardian_anhuur();
@@ -359,3 +368,4 @@ void AddSC_boss_temple_guardian_anhuur()
     new go_beacon_of_light();
     new achievement_i_hate_that_song();
 }
+#endif

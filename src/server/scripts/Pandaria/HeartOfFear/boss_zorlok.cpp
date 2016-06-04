@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 // TODO : Finish Heroic mode
 
@@ -139,7 +128,7 @@ Position zorlokPlatforms[3] =
     {-2315.77f,     218.20f,    409.90f,    0.0f}   // SE Platform
 };
 
-Position zorlokReachPoints[3] = 
+Position zorlokReachPoints[3] =
 {
     {-2317.21f,     300.67f,    420.0f,     0.0f},  // NE Platform
     {-2234.36f,     216.88f,    420.0f,     0.0f},  // SW Platform
@@ -172,15 +161,15 @@ float tabCenter[3] = {-2274.8f, 259.187f, 406.5f};
 
 float rangeAttenuation1[2][2] =
 {
-    -2256.0f, -2208.0f,
-      190.0f,   240.0f
+    {-2256.0f, -2208.0f},
+    {190.0f,   240.0f}
 };
 
 float rangeAttenuation2[2][2] =
 {
     // Coords to redone
-    -2297.0f, -2250.0f,
-      237.0f,   280.0f
+    {-2297.0f, -2250.0f},
+      {237.0f,   280.0f}
 };
 
 // Zorlok - 62980
@@ -475,7 +464,7 @@ class boss_zorlok : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (pInstance)
                 {
@@ -548,7 +537,7 @@ class boss_zorlok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 // Check if trashes are done
                 if (pInstance && !isEcho)
@@ -1126,8 +1115,8 @@ class mob_sonic_ring : public CreatureScript
                 me->SetSpeed(MOVE_WALK, 0.5f);
                 me->SetSpeed(MOVE_RUN,  0.5f);
 
-                float l_PosX = me->GetPositionX() + 50.f * cos(me->GetOrientation());
-                float l_PosY = me->GetPositionY() + 50.f * sin(me->GetOrientation());
+                float l_PosX = me->GetPositionX() + 50.0f * cos(me->GetOrientation());
+                float l_PosY = me->GetPositionY() + 50.0f * sin(me->GetOrientation());
                 m_TargetPos = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
                 m_Events.ScheduleEvent(EVENT_SONIC_MOVE, 500);
 
@@ -1185,8 +1174,8 @@ class mob_sonic_pulse : public CreatureScript
                 me->SetSpeed(MOVE_WALK, 0.3f);
                 me->SetSpeed(MOVE_RUN,  0.3f);
 
-                float l_PosX = me->GetPositionX() + 50.f * cos(me->GetOrientation());
-                float l_PosY = me->GetPositionY() + 50.f * sin(me->GetOrientation());
+                float l_PosX = me->GetPositionX() + 50.0f * cos(me->GetOrientation());
+                float l_PosY = me->GetPositionY() + 50.0f * sin(me->GetOrientation());
                 m_TargetPos = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
                 m_Events.ScheduleEvent(EVENT_SONIC_MOVE, 500);
 
@@ -1480,7 +1469,7 @@ class spell_zorlok_exhale : public SpellScriptLoader
                     caster->RemoveAurasDueToSpell(SPELL_INHALE);
             }
 
-            void HandleScriptEffect(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1627,7 +1616,7 @@ class spell_convert : public SpellScriptLoader
                             itr = ++next;
                             if (itr == playerList.end())
                                 itr = playerList.begin();
-                        }   
+                        }
                     }
                 }
             }
@@ -1650,7 +1639,7 @@ class at_cancelling_noise : public AreaTriggerEntityScript
     public:
         at_cancelling_noise() : AreaTriggerEntityScript("at_cancelling_noise") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 10.0f;
@@ -1682,6 +1671,7 @@ class at_cancelling_noise : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_zorlok()
 {
     new boss_zorlok();                  ///< 62980 - Imperial Vizier Zor'lok
@@ -1697,3 +1687,4 @@ void AddSC_boss_zorlok()
     new spell_convert();                ///< 122740 - Convert
     new at_cancelling_noise();          ///< 122731 - Cancelling Noise AreaTrigger
 }
+#endif

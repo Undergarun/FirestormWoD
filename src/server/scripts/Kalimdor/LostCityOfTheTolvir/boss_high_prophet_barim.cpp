@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "lost_city_of_the_tolvir.h"
 #include "Vehicle.h"
@@ -33,7 +41,7 @@ enum eSpells
     SPELL_BLAZE_OF_THE_HEAVENS_VISUAL          = 91179,
     SPELL_BLAZE_OF_THE_HEAVENS_TRANSFORM       = 95276,
     SPELL_BLAZE_OF_THE_HEAVENS_PERIODIC        = 95248,
-    SPELL_BLAZE_OF_THE_HEAVENS_SUMMON_FIRE     = 91189,
+    SPELL_BLAZE_OF_THE_HEAVENS_SUMMON_FIRE     = 91189
 };
 
 enum eCreatures
@@ -41,13 +49,13 @@ enum eCreatures
     NPC_BLAZE_OF_THE_HEAVENS_SUMMONER          = 48904,
     NPC_REPENTANCE_MIRROR                      = 43817,
     NPC_WAIL_OF_DARKNESS                       = 43926,
-    NPC_SOUL_FRAGMENT                          = 43934,
+    NPC_SOUL_FRAGMENT                          = 43934
 };
 
 enum eActions
 {
     ACTION_REPENTANCE_START                    = 1,
-    ACTION_REPENTANCE_DONE                     = 2,
+    ACTION_REPENTANCE_DONE                     = 2
 };
 
 enum eTexts
@@ -56,7 +64,7 @@ enum eTexts
     SAY_KNEEL_DOWN                             = -1877005,
     SAY_DEATH                                  = -1877006,
     SAY_KILL_PLAYER_1                          = -1877023,
-    SAY_KILL_PLAYER_2                          = -1877024,
+    SAY_KILL_PLAYER_2                          = -1877024
 };
 
 enum ePhases
@@ -68,7 +76,7 @@ enum ePhases
     PHASE_BLAZE                                = 3,
     PHASE_EGG                                  = 4,
     PHASE_BLAZE_MASK                           = 1 << PHASE_BLAZE,
-    PHASE_EGG_MASK                             = 1 << PHASE_EGG,
+    PHASE_EGG_MASK                             = 1 << PHASE_EGG
 };
 
 enum eEvents
@@ -83,12 +91,12 @@ enum eEvents
     EVENT_SOUL_SEVER                           = 1,
     EVENT_WAIL_OF_DARKNESS                     = 2,
     // Blaze
-    EVENT_SUMMON_BLAZE_OF_THE_HEAVENS_GROUND   = 1,
+    EVENT_SUMMON_BLAZE_OF_THE_HEAVENS_GROUND   = 1
 };
 
 enum eModels
 {
-    INVISIBLE_CREATURE_MODEL                   = 11686,
+    INVISIBLE_CREATURE_MODEL                   = 11686
 };
 
 class boss_high_prophet_barim : public CreatureScript
@@ -155,7 +163,7 @@ public:
                 lSummons.DespawnEntry(NPC_SOUL_FRAGMENT);
 
                 for (SummonList::const_iterator itr = lSummons.begin(); itr != lSummons.end(); ++itr)
-                    if (Creature* pSummon = Unit::GetCreature(*me, (*itr))) 
+                    if (Creature* pSummon = Unit::GetCreature(*me, (*itr)))
                         if (pSummon->GetEntry() == NPC_REPENTANCE_MIRROR && pSummon->IsAIEnabled)
                             pSummon->AI()->DoAction(ACTION_REPENTANCE_DONE);
                     
@@ -203,7 +211,7 @@ public:
                 DoScriptText(RAND(SAY_KILL_PLAYER_1, SAY_KILL_PLAYER_2), me);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (!Repentance && me->GetHealthPct() <= 50.0f)
             {
@@ -451,7 +459,7 @@ public:
                 }
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage >= me->GetHealth())
             {
@@ -480,7 +488,7 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (Birth)
-            { 
+            {
                 if (uiBirthTimer <= diff)
                 {
                     switch(uiBirthPhase)
@@ -665,7 +673,7 @@ public:
                 barim->AI()->EnterEvadeMode();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage >= me->GetHealth())
             {
@@ -932,7 +940,7 @@ public:
                 }
         }*/
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
             //DoUpdate(diff);
         }
@@ -1142,6 +1150,7 @@ class spell_repentance_player_summon_mirror: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_high_prophet_barim()
 {
     new boss_high_prophet_barim();
@@ -1156,3 +1165,4 @@ void AddSC_boss_high_prophet_barim()
     new spell_repentance_player_kneel();
     new spell_repentance_player_summon_mirror();
 }
+#endif

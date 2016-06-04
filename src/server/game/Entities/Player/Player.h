@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _PLAYER_H
 #define _PLAYER_H
@@ -45,15 +35,13 @@
 #include "BitSet.hpp"
 #include "MutexedMap.hpp"
 #include "PlayerTaxi.h"
+#include "Common.h"
+#include "KillRewarder.h"
+#include "TradeData.h"
 
 // for template
 #include "SpellMgr.h"
-
-#include <string>
-#include <vector>
-#include <mutex>
 #include <ace/Stack_Trace.h>
-#include <unordered_set>
 #include <chrono>
 #include <deque>
 
@@ -195,13 +183,14 @@ enum TalentTree // talent tabs
 
 enum CharacterWorldStates
 {
-    CharWorldStateGarrisonStablesFirstQuest                     = 1,
-    CharWorldStateGarrisonStablesSecondQuest                    = 2,
-    CharWorldStateGarrisonWorkshopGearworksInvention            = 3,
-    CharWorldStateGarrisonWorkshopGearworksInventionCharges     = 4,
-    CharWorldStateGarrisonTradingPostDailyRandomTrader          = 5,
-    CharWorldStateGarrisonTradingPostDailyRandomShipment        = 6,
-    CharWorldStateGarrisonArmoryWeeklyCurrencyGain              = 7
+    GarrisonStablesFirstQuest                     = 1,
+    GarrisonStablesSecondQuest                    = 2,
+    GarrisonWorkshopGearworksInvention            = 3,
+    GarrisonWorkshopGearworksInventionCharges     = 4,
+    GarrisonTradingPostDailyRandomTrader          = 5,
+    GarrisonTradingPostDailyRandomShipment        = 6,
+    GarrisonArmoryWeeklyCurrencyGain              = 7,
+    GarrisonTavernBoolCanRecruitFollower          = 8
 };
 
 // Spell modifier (used for modify other spells)
@@ -698,9 +687,10 @@ enum QuestSlotOffsets
     QUEST_ID_OFFSET     = 0,
     QUEST_STATE_OFFSET  = 1,
     QUEST_COUNTS_OFFSET = 2,
-    QUEST_TIME_OFFSET   = 4
+    QUEST_TIME_OFFSET   = 14
 };
 
+#define MAX_QUEST_COUNTS 24
 #define MAX_QUEST_OFFSET 15
 
 enum QuestSlotStateMask
@@ -854,14 +844,6 @@ struct ItemPosCount
     uint32 count;
 };
 typedef std::vector<ItemPosCount> ItemPosCountVec;
-
-enum TradeSlots
-{
-    TRADE_SLOT_TRADED_COUNT     = 6,
-    TRADE_SLOT_COUNT            = 7,
-    TRADE_SLOT_NONTRADED        = 10,
-    TRADE_SLOT_INVALID          = -1
-};
 
 enum TransferAbortReason
 {
@@ -1047,6 +1029,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_WORLD_STATES                 = 60,
     PLAYER_LOGIN_QUERY_STORE_PROFESSION             = 61,
     PLAYER_LOGIN_QUERY_GARRISON_MISSIONS_TAVERNDATA = 62,
+    PLAYER_LOGIN_QUERY_GARRISON_WEEKLY_TAVERNDATA   = 63,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1096,7 +1079,7 @@ enum PlayerDelayedOperations
 
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
-#define MAX_MONEY_AMOUNT               (UI64LIT(9999999999)) // @TODO: Move this restriction to worldserver.conf, default to this value, hardcap at uint64.max
+#define MAX_MONEY_AMOUNT               (UI64LIT(9999999999))
 
 struct InstancePlayerBind
 {
@@ -1284,59 +1267,6 @@ struct VoidStorageItem
     std::vector<uint32> Bonuses;
 };
 
-class TradeData
-{
-    public:                                                 // constructors
-        TradeData(Player* player, Player* trader) :
-            m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false),
-            m_money(0), m_spell(0), m_spellCastItem(0)
-        {
-            memset(m_items, 0, TRADE_SLOT_COUNT * sizeof(uint64));
-        }
-
-        Player* GetTrader() const { return m_trader; }
-        TradeData* GetTraderData() const;
-
-        Item* GetItem(TradeSlots slot) const;
-        bool HasItem(uint64 itemGuid) const;
-        TradeSlots GetTradeSlotForItem(uint64 itemGuid) const;
-        void SetItem(TradeSlots slot, Item* item);
-
-        uint32 GetSpell() const { return m_spell; }
-        void SetSpell(uint32 spell_id, Item* castItem = NULL);
-
-        Item*  GetSpellCastItem() const;
-        bool HasSpellCastItem() const { return m_spellCastItem != 0; }
-
-        uint64 GetMoney() const { return m_money; }
-        void SetMoney(uint64 money);
-
-        bool IsAccepted() const { return m_accepted; }
-        void SetAccepted(bool state, bool crosssend = false);
-
-        bool IsInAcceptProcess() const { return m_acceptProccess; }
-        void SetInAcceptProcess(bool state) { m_acceptProccess = state; }
-
-    private:                                                // internal functions
-
-        void Update(bool for_trader = true);
-
-    private:                                                // fields
-
-        Player*    m_player;                                // Player who own of this TradeData
-        Player*    m_trader;                                // Player who trade with m_player
-
-        bool       m_accepted;                              // m_player press accept for trade list
-        bool       m_acceptProccess;                        // one from player/trader press accept and this processed
-
-        uint64     m_money;                                 // m_player place money to trade
-
-        uint32     m_spell;                                 // m_player apply spell to non-traded slot item
-        uint64     m_spellCastItem;                         // applied spell casted by item use
-
-        uint64     m_items[TRADE_SLOT_COUNT];               // traded items from m_player side including non-traded slot
-};
-
 struct ResurrectionData
 {
     uint64 GUID;
@@ -1345,38 +1275,6 @@ struct ResurrectionData
     uint32 Mana;
     uint32 Aura;
     SpellInfo const* ResSpell;
-};
-
-class KillRewarder
-{
-public:
-    KillRewarder(Player* killer, Unit* victim, bool isBattleGround);
-
-    void Reward();
-
-private:
-    void _InitXP(Player* player);
-    void _InitGroupData();
-
-    void _RewardHonor(Player* player);
-    void _RewardXP(Player* player, float rate);
-    void _RewardReputation(Player* player, float rate);
-    void _RewardKillCredit(Player* player);
-    void _RewardPlayer(Player* player, bool isDungeon);
-    void _RewardGroup();
-
-    Player* _killer;
-    Unit* _victim;
-    Group* _group;
-    float _groupRate;
-    Player* _maxNotGrayMember;
-    uint32 _count;
-    uint32 _sumLevel;
-    uint32 _xp;
-    bool _isFullXP;
-    uint8 _maxLevel;
-    bool _isBattleGround;
-    bool _isPvP;
 };
 
 struct PlayerTalentInfo
@@ -1476,7 +1374,7 @@ struct CompletedChallenge
     uint32 m_BestMedalDate;
 };
 
-///<             MapID
+/// MapID
 typedef std::map<uint32, CompletedChallenge> CompletedChallengesMap;
 
 enum BattlegroundTimerTypes
@@ -1499,7 +1397,7 @@ struct CharacterWorldState
     bool   Changed;
 };
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     class Manager;
 }   ///< namespace Garrison
@@ -1538,10 +1436,10 @@ class Player : public Unit, public GridObject<Player>
 
         //AnticheatData anticheatData;
 
-        void CleanupsBeforeDelete(bool finalCleanup = true); ///< overrides a member function but is not marked 'override'
+        void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
-        void AddToWorld(); ///< overrides a member function but is not marked 'override'
-        void RemoveFromWorld(); ///< overrides a member function but is not marked 'override'
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, bool forced_far = false);
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0, bool forced_far = false)
@@ -1575,14 +1473,14 @@ class Player : public Unit, public GridObject<Player>
 
         bool Create(uint32 guidlow, CharacterCreateInfo* createInfo);
 
-        void Update(uint32 time); ///< overrides a member function but is not marked 'override'
+        void Update(uint32 time) override;
 
         static bool BuildEnumData(PreparedQueryResult p_Result, ByteBuffer * p_Data);
 
         void SetInWater(bool apply);
 
-        bool IsInWater() const { return m_isInWater; } ///< overrides a member function but is not marked 'override'
-        bool IsUnderWater() const; ///< overrides a member function but is not marked 'override'
+        bool IsInWater() const override { return m_isInWater; }
+        bool IsUnderWater() const override;
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
@@ -1656,7 +1554,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetTotalPlayedTime() { return m_Played_time[PLAYED_TIME_TOTAL]; }
         uint32 GetLevelPlayedTime() { return m_Played_time[PLAYED_TIME_LEVEL]; }
 
-        void setDeathState(DeathState s);                   // overwrite Unit::setDeathState ///< overrides a member function but is not marked 'override'
+        void setDeathState(DeathState s) override;                   // overwrite Unit::setDeathState
 
         void InnEnter (time_t time, uint32 mapid, float x, float y, float z)
         {
@@ -1701,7 +1599,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         void SetVirtualItemSlot(uint8 i, Item* item);
-        void SetSheath(SheathState sheathed);             // overwrite Unit version ///< overrides a member function but is not marked 'override'
+        void SetSheath(SheathState sheathed) override;             // overwrite Unit version
         uint8 FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) const;
         uint8 GetGuessedEquipSlot(ItemTemplate const* proto) const;
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = NULL) const;
@@ -1853,6 +1751,7 @@ class Player : public Unit, public GridObject<Player>
         void MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool update, bool in_characterInventoryDB = false);
                                                             // in trade, guild bank, mail....
         void RemoveItemDependentAurasAndCasts(Item* pItem);
+        void RemoveAuraDependentItem(Item* p_Item);
         void DestroyItem(uint8 bag, uint8 slot, bool update);
         void DestroyItemCount(uint32 item, uint32 count, bool update, bool unequip_check = false);
         void DestroyItemCount(Item* item, uint32& count, bool update);
@@ -1891,7 +1790,7 @@ class Player : public Unit, public GridObject<Player>
 
         float GetReputationPriceDiscount(Creature const* creature) const;
 
-        Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : NULL; }
+        Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : nullptr; }
         TradeData* GetTradeData() const { return m_trade; }
         void TradeCancel(bool sendback);
         uint32 GetClientStateIndex() const { return m_ClientStateIndex; }
@@ -1980,7 +1879,7 @@ class Player : public Unit, public GridObject<Player>
         bool GetQuestRewardStatus(uint32 quest_id) const;
         QuestStatus GetQuestStatus(uint32 quest_id) const;
         void SetQuestStatus(uint32 quest_id, QuestStatus status);
-        void RemoveActiveQuest(uint32 quest_id);
+        void RemoveActiveQuest(uint32 quest_id, bool p_BonusQuest = false);
         void RemoveRewardedQuest(uint32 quest_id);
 
         void SetDailyQuestStatus(uint32 quest_id);
@@ -1997,21 +1896,30 @@ class Player : public Unit, public GridObject<Player>
         uint16 FindQuestSlot(uint32 quest_id) const;
         uint32 GetQuestSlotQuestId(uint16 slot) const { return GetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET); }
         uint32 GetQuestSlotState(uint16 slot)   const { return GetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET); }
-        uint16 GetQuestSlotCounter(uint16 slot, uint8 counter) const { return (uint16)(GetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET) >> (counter * 16)); }
+        uint16 GetQuestSlotCounter(uint16 slot, uint8 counter) const
+        {
+            if (counter < MAX_QUEST_COUNTS)
+               return GetUInt16Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + counter / 2, counter % 2);
+
+            return 0;
+        }
         uint32 GetQuestSlotTime(uint16 slot)    const { return GetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET); }
         void SetQuestSlot(uint16 slot, uint32 quest_id, uint32 timer = 0)
         {
             SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET, quest_id);
             SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, 0);
-            SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET, 0);
+
+            for (uint32 i = 0; i < MAX_QUEST_COUNTS / 2; ++i)
+                SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + i, 0);
+
             SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, timer);
         }
         void SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count)
         {
-            uint64 val = GetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET);
-            val &= ~((uint64)0xFFFF << (counter * 16));
-            val |= ((uint64)count << (counter * 16));
-            SetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET, val);
+            if (counter >= MAX_QUEST_COUNTS)
+               return;
+            
+            SetUInt16Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + counter / 2, counter % 2, count);
         }
         void SetQuestSlotState(uint16 slot, uint32 state) { SetFlag(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, state); }
         void RemoveQuestSlotState(uint16 slot, uint32 state) { RemoveFlag(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, state); }
@@ -2037,7 +1945,7 @@ class Player : public Unit, public GridObject<Player>
         void KilledPlayerCredit();
         void CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id);
         void TalkedToCreature(uint32 entry, uint64 guid);
-        void MoneyChanged(uint32 value);
+        void MoneyChanged(uint64 value);
         void ReputationChanged(FactionEntry const* factionEntry);
         void ReputationChanged2(FactionEntry const* factionEntry);
         void ReputationChangedQuestCheck(FactionEntry const* factionEntry);
@@ -2073,7 +1981,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         bool LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_LoginDBQueryHolder);
-        bool isBeingLoaded() const { return GetSession()->PlayerLoading();} ///< overrides a member function but is not marked 'override'
+        bool isBeingLoaded() const override { return GetSession()->PlayerLoading();}
 
         void Initialize(uint32 guid);
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
@@ -2168,7 +2076,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 unReadMails;
         time_t m_nextMailDelivereTime;
 
-        typedef UNORDERED_MAP<uint32, Item*> ItemMap;
+        typedef std::unordered_map<uint32, Item*> ItemMap;
 
         ItemMap mMitems;                                    //template defined in objectmgr.cpp
 
@@ -2196,7 +2104,7 @@ class Player : public Unit, public GridObject<Player>
         void VehicleSpellInitialize();
         void SendRemoveControlBar();
         void SendKnownSpells();
-        bool HasSpell(uint32 spell) const; ///< overrides a member function but is not marked 'override'
+        bool HasSpell(uint32 spell) const override;
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
         TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
         bool IsSpellFitByClassAndRace(uint32 spell_id) const;
@@ -2231,9 +2139,9 @@ class Player : public Unit, public GridObject<Player>
         void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
         uint32 GetSpecializationResetCost() const { return _talentMgr->ResetSpecializationCost; }
         void SetSpecializationResetCost(uint32 cost) { _talentMgr->ResetSpecializationCost = cost; }
-        uint32 GetSpecializationResetTime() const { return _talentMgr->ResetSpecializationTime; }
+        uint32 GetSpecializationResetTime() const { return uint32(_talentMgr->ResetSpecializationTime); }
         void SetSpecializationResetTime(time_t time_) { _talentMgr->ResetSpecializationTime = time_; }
-        uint32 GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
+        uint32 GetTalentResetTime() const { return uint32(_talentMgr->ResetTalentsTime); }
         void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
         uint32 GetPrimaryTalentTree(uint8 spec) const { return _talentMgr->SpecInfo[spec].TalentTree; }
         void SetPrimaryTalentTree(uint8 spec, uint32 tree) { _talentMgr->SpecInfo[spec].TalentTree = tree; }
@@ -2338,7 +2246,7 @@ class Player : public Unit, public GridObject<Player>
         void AddSpellCooldown(uint32 spell_id, uint32 itemid, uint64 end_time, bool send = false);
         void SendCategoryCooldown(uint32 categoryId, int32 cooldown);
         void SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID = 0, Spell * p_Spell = NULL, bool p_SetCooldown = true);
-        void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs); ///< overrides a member function but is not marked 'override'
+        void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs) override;
         void ReduceSpellCooldown(uint32 spell_id, time_t modifyTime);
         void RemoveSpellCooldown(uint32 spell_id, bool update = false);
         void SendClearCooldown(uint32 p_SpellID, Unit * p_Target, bool p_ClearOnHold = false);
@@ -2418,9 +2326,9 @@ class Player : public Unit, public GridObject<Player>
         void UpdateZone(uint32 newZone, uint32 newArea);
         void UpdateArea(uint32 newArea);
 
-        uint32 GetZoneId(bool forceRecalc = false) const;
-        uint32 GetAreaId(bool forceRecalc = false) const;
-        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool forceRecalc = false) const;
+        uint32 GetZoneId(bool forceRecalc = false) const override;
+        uint32 GetAreaId(bool forceRecalc = false) const override;
+        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool forceRecalc = false) const override;
 
         void UpdateZoneDependentAuras(uint32 zone_id);    // zones
         void UpdateAreaDependentAuras(uint32 area_id);    // subzones
@@ -2575,14 +2483,14 @@ class Player : public Unit, public GridObject<Player>
 
         float GetHealthBonusFromStamina();
 
-        bool UpdateStats(Stats stat); ///< overrides a member function but is not marked 'override'
-        bool UpdateAllStats(); ///< overrides a member function but is not marked 'override'
-        void UpdateResistances(uint32 school); ///< overrides a member function but is not marked 'override'
-        void UpdateArmor(); ///< overrides a member function but is not marked 'override'
-        void UpdateMaxHealth(); ///< overrides a member function but is not marked 'override'
-        void UpdateMaxPower(Powers power); ///< overrides a member function but is not marked 'override'
-        void UpdateAttackPowerAndDamage(bool ranged = false); ///< overrides a member function but is not marked 'override'
-        void UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields = false); ///< overrides a member function but is not marked 'override'
+        bool UpdateStats(Stats stat) override;
+        bool UpdateAllStats() override;
+        void UpdateResistances(uint32 school) override;
+        void UpdateArmor() override;
+        void UpdateMaxHealth() override;
+        void UpdateMaxPower(Powers power) override;
+        void UpdateAttackPowerAndDamage(bool ranged = false) override;
+        void UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields = false) override;
         void ApplySpellPowerBonus(int32 amount, bool apply);
         void UpdateSpellDamageAndHealingBonus();
         void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
@@ -2648,8 +2556,8 @@ class Player : public Unit, public GridObject<Player>
 
         WorldSession* GetSession() const { return m_session; }
 
-        void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const; ///< overrides a member function but is not marked 'override'
-        void DestroyForPlayer(Player* target, bool onDeath = false) const; ///< overrides a member function but is not marked 'override'
+        void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
+        void DestroyForPlayer(Player* target, bool onDeath = false) const override;
         void SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend = false, float group_rate=1.0f);
 
         // notifiers
@@ -2665,9 +2573,9 @@ class Player : public Unit, public GridObject<Player>
         void SendResetInstanceFailed(ResetFailedReason reason, uint32 MapId);
         void SendResetFailedNotify();
 
-        virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false); ///< overrides a member function but is not marked 'override'
+        virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
-        void UpdateUnderwaterState(Map* m, float x, float y, float z); ///< overrides a member function but is not marked 'override'
+        void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
         void SendMessageToSet(WorldPacket* data, bool self, const GuidUnorderedSet& p_IgnoreList = GuidUnorderedSet()) override { SendMessageToSetInRange(data, GetVisibilityRange(), self, p_IgnoreList); };
         void SendMessageToSetInRange(WorldPacket* data, float fist, bool self, const GuidUnorderedSet& p_IgnoreList = GuidUnorderedSet()) override;
@@ -2786,7 +2694,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateCorpseReclaimDelay();
         void SendCorpseReclaimDelay(bool load = false);
 
-        uint32 GetBlockPercent() { return GetUInt32Value(PLAYER_FIELD_SHIELD_BLOCK); } ///< overrides a member function but is not marked 'override'
+        uint32 GetBlockPercent() override { return GetUInt32Value(PLAYER_FIELD_SHIELD_BLOCK); }
         bool CanParry() const { return m_canParry; }
         void SetCanParry(bool value);
         bool CanBlock() const { return m_canBlock; }
@@ -2877,7 +2785,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetBattlegroundQueueJoinTime(MS::Battlegrounds::BattlegroundType::Type bgTypeId) const
         {
             auto itr = m_bgData.bgQueuesJoinedTime.find(bgTypeId);
-            return itr != m_bgData.bgQueuesJoinedTime.end() ? itr->second : time(NULL);
+            return itr != m_bgData.bgQueuesJoinedTime.end() ? itr->second : uint32(time(nullptr));
         }
 
         void ChangeBattlegroundQueueJoinTimeKey(MS::Battlegrounds::BattlegroundType::Type p_BgTypeId, MS::Battlegrounds::BattlegroundType::Type p_OldBgTypeId)
@@ -3158,7 +3066,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool HaveAtClient(WorldObject const* u) const { return u == this || m_clientGUIDs.find(u->GetGUID()) != m_clientGUIDs.end(); }
 
-        bool IsNeverVisible() const; ///< overrides a member function but is not marked 'override'
+        bool IsNeverVisible() const override;
 
         bool IsVisibleGloballyFor(Player* player) const;
 
@@ -3203,7 +3111,7 @@ class Player : public Unit, public GridObject<Player>
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/
 
-        typedef UNORDERED_MAP< uint32 /*mapId*/, InstancePlayerBind > BoundInstancesMap;
+        typedef std::unordered_map< uint32 /*mapId*/, InstancePlayerBind > BoundInstancesMap;
 
         void UpdateHomebindTime(uint32 time);
 
@@ -3274,8 +3182,8 @@ class Player : public Unit, public GridObject<Player>
         MapReference &GetMapRef() { return m_mapRef; }
 
         // Set map to player and add reference
-        void SetMap(Map* map); ///< overrides a member function but is not marked 'override'
-        void ResetMap(); ///< overrides a member function but is not marked 'override'
+        void SetMap(Map* map) override;
+        void ResetMap() override;
 
         bool isAllowedToLoot(const Creature* creature);
 
@@ -3344,7 +3252,7 @@ class Player : public Unit, public GridObject<Player>
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
         void SendMovementSetCollisionHeight(float height);
 
-        bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); } ///< overrides a member function but is not marked 'override'
+        bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 
         //! Return collision height sent to client
         float GetCollisionHeight(bool p_Mounted);
@@ -3737,7 +3645,7 @@ class Player : public Unit, public GridObject<Player>
         //We allow only one timed quest active at the same time. Below can then be simple value instead of set.
         typedef std::set<uint32> QuestSet;
         typedef std::set<uint32> SeasonalQuestSet;
-        typedef UNORDERED_MAP<uint32,SeasonalQuestSet> SeasonalEventQuestMap;
+        typedef std::unordered_map<uint32,SeasonalQuestSet> SeasonalEventQuestMap;
         QuestSet m_timedquests;
         QuestSet m_weeklyquests;
         QuestSet m_monthlyquests;
@@ -3784,7 +3692,8 @@ class Player : public Unit, public GridObject<Player>
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadBossLooted(PreparedQueryResult p_Result);
         void _LoadWorldStates(PreparedQueryResult p_Result);
-        void _LoadGarrisonTavernDatas(PreparedQueryResult p_Result);
+        void _LoadGarrisonDailyTavernDatas(PreparedQueryResult p_Result);
+        void _LoadCharacterGarrisonWeeklyTavernDatas(PreparedQueryResult p_Result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -3812,7 +3721,8 @@ class Player : public Unit, public GridObject<Player>
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);
         void _SaveCharacterWorldStates(SQLTransaction& p_Transaction);
-        void _SaveCharacterGarrisonTavernDatas(SQLTransaction& p_Transaction);
+        void _SaveCharacterGarrisonDailyTavernDatas(SQLTransaction& p_Transaction);
+        void _SaveCharacterGarrisonWeeklyTavernDatas(SQLTransaction& p_Transaction);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -3986,9 +3896,9 @@ class Player : public Unit, public GridObject<Player>
         RuneType m_BloodTapRune;
         EquipmentSets m_EquipmentSets;
 
-        bool CanAlwaysSee(WorldObject const* obj) const; ///< overrides a member function but is not marked 'override'
+        bool CanAlwaysSee(WorldObject const* obj) const override;
 
-        bool IsAlwaysDetectableFor(WorldObject const* seer) const; ///< overrides a member function but is not marked 'override'
+        bool IsAlwaysDetectableFor(WorldObject const* seer) const override;
 
         uint8 m_grantableLevels;
 
@@ -4133,6 +4043,8 @@ class Player : public Unit, public GridObject<Player>
 
         CUFProfiles m_cufProfiles;
 
+        uint32 m_BonusQuestTimer;
+
         /*********************************************************/
         /***                  SCENES SYSTEM                    ***/
         /*********************************************************/
@@ -4265,8 +4177,8 @@ template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T&
             DropModCharge(l_SpellMod, p_Spell);
     }
 
-    float l_Diff = (float)p_Basevalue * (l_TotalMul - 1.0f) + (float)l_TotalFlat;
-    p_Basevalue = T((float)p_Basevalue + l_Diff);
-    return T(l_Diff);
+    T l_OldBaseValue = p_Basevalue;
+    p_Basevalue = T(float(p_Basevalue + l_TotalFlat) * l_TotalMul);
+    return T(l_OldBaseValue - p_Basevalue);
 }
 #endif

@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "highmaul.hpp"
@@ -360,7 +360,7 @@ class boss_brackenspore : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 _EnterCombat();
 
@@ -405,7 +405,7 @@ class boss_brackenspore : public CreatureScript
                     l_Warmaster->DespawnOrUnsummon();
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 _JustDied();
 
@@ -442,7 +442,7 @@ class boss_brackenspore : public CreatureScript
                     m_Instance->SetBossState(eHighmaulDatas::BossBrackenspore, EncounterState::FAIL);
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            void SetGUID(uint64 p_Guid, int32 /*p_ID*/) override
             {
                 m_Creatures.push_back(p_Guid);
                 m_CosmeticEvent.RescheduleEvent(eEvents::EventCheckForIntro, 1000);
@@ -480,7 +480,7 @@ class boss_brackenspore : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers /*p_Power*/, int32& p_Value) override
             {
                 /// Brackenspore only regens by script
                 p_Value = 0;
@@ -775,7 +775,7 @@ class npc_highmaul_mind_fungus : public CreatureScript
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAura(eSpells::MindFungusVisual);
                 me->RemoveAura(eSpells::MindFungusAura);
@@ -784,7 +784,7 @@ class npc_highmaul_mind_fungus : public CreatureScript
                 me->DespawnOrUnsummon(500);
             }
 
-            void UpdateAI(uint32 const p_Diff) override { }
+            void UpdateAI(uint32 const /*p_Diff*/) override { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
@@ -823,12 +823,12 @@ class npc_highmaul_spore_shooter : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventSporeShot, urand(100, 1500));
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
             }
@@ -919,7 +919,7 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
                 m_Scheduled = false;
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType) override
+            void DamageDealt(Unit* /*p_Victim*/, uint32& /*p_Damage*/, DamageEffectType /*p_DamageType*/) override
             {
                 if (!m_Scheduled)
                 {
@@ -929,7 +929,7 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
@@ -1029,19 +1029,19 @@ class npc_highmaul_living_mushroom : public CreatureScript
                 AddTimedDelayedOperation(30 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->DespawnOrUnsummon(); });
             }
 
-            void HealReceived(Unit* p_Healer, uint32& p_Heal) override
+            void HealReceived(Unit* /*p_Healer*/, uint32& p_Heal) override
             {
                 if ((me->GetHealth() + p_Heal) >= me->GetMaxHealth() && !me->HasAura(eSpells::LivingSpores))
                     me->CastSpell(me, eSpells::LivingSpores, true);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (p_Attacker != me)
                     p_Damage = 0;
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
@@ -1109,19 +1109,19 @@ class npc_highmaul_rejuvenating_mushroom : public CreatureScript
                 AddTimedDelayedOperation(30 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->DespawnOrUnsummon(); });
             }
 
-            void HealReceived(Unit* p_Healer, uint32& p_Heal) override
+            void HealReceived(Unit* /*p_Healer*/, uint32& p_Heal) override
             {
                 if ((me->GetHealth() + p_Heal) >= me->GetMaxHealth() && !me->HasAura(eSpells::RejuvenatingSpores))
                     me->CastSpell(me, eSpells::RejuvenatingSpores, true);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (p_Attacker != me)
                     p_Damage = 0;
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
@@ -1184,7 +1184,7 @@ class spell_highmaul_necrotic_breath : public SpellScriptLoader
 
         class spell_highmaul_necrotic_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_necrotic_breath_SpellScript);
+            PrepareSpellScript(spell_highmaul_necrotic_breath_SpellScript)
 
             enum eSpell
             {
@@ -1244,7 +1244,7 @@ class spell_highmaul_flamethrower_aura : public SpellScriptLoader
 
         class spell_highmaul_flamethrower_aura_AuraScript: public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_flamethrower_aura_AuraScript);
+            PrepareAuraScript(spell_highmaul_flamethrower_aura_AuraScript)
 
             void OnTick(AuraEffect const* p_AurEff)
             {
@@ -1282,7 +1282,7 @@ class spell_highmaul_flamethrower_aura : public SpellScriptLoader
 
         class spell_highmaul_flamethrower_aura_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_flamethrower_aura_SpellScript);
+            PrepareSpellScript(spell_highmaul_flamethrower_aura_SpellScript)
 
             SpellCastResult CheckPulsingHeat()
             {
@@ -1309,7 +1309,7 @@ class spell_highmaul_flamethrower_aura : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_highmaul_flamethrower_aura_SpellScript();
         }
@@ -1323,7 +1323,7 @@ class spell_highmaul_flamethrower_regen : public SpellScriptLoader
 
         class spell_highmaul_flamethrower_regen_AuraScript: public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_flamethrower_regen_AuraScript);
+            PrepareAuraScript(spell_highmaul_flamethrower_regen_AuraScript)
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
             {
@@ -1351,7 +1351,7 @@ class spell_highmaul_pulsing_heat : public SpellScriptLoader
 
         class spell_highmaul_pulsing_heat_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_pulsing_heat_AuraScript);
+            PrepareAuraScript(spell_highmaul_pulsing_heat_AuraScript)
 
             enum eSpell
             {
@@ -1384,7 +1384,7 @@ class spell_highmaul_creeping_moss : public SpellScriptLoader
 
         class spell_highmaul_creeping_moss_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_creeping_moss_AuraScript);
+            PrepareAuraScript(spell_highmaul_creeping_moss_AuraScript)
 
             enum eAction
             {
@@ -1430,9 +1430,9 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
 
         class spell_highmaul_flamethrower_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_flamethrower_SpellScript);
+            PrepareSpellScript(spell_highmaul_flamethrower_SpellScript)
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1496,7 +1496,7 @@ class spell_highmaul_burning_infusion : public SpellScriptLoader
 
         class spell_highmaul_burning_infusion_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_burning_infusion_AuraScript);
+            PrepareAuraScript(spell_highmaul_burning_infusion_AuraScript)
 
             void OnTick(AuraEffect const* p_AurEff)
             {
@@ -1528,9 +1528,9 @@ class spell_highmaul_energy_regen : public SpellScriptLoader
 
         class spell_highmaul_energy_regen_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_energy_regen_AuraScript);
+            PrepareAuraScript(spell_highmaul_energy_regen_AuraScript)
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1564,7 +1564,7 @@ class spell_highmaul_spore_shot : public SpellScriptLoader
 
         class spell_highmaul_spore_shot_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_spore_shot_SpellScript);
+            PrepareSpellScript(spell_highmaul_spore_shot_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -1614,7 +1614,7 @@ class spell_highmaul_flamethrower_overrider : public SpellScriptLoader
 
         class spell_highmaul_flamethrower_overrider_AuraScript: public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_flamethrower_overrider_AuraScript);
+            PrepareAuraScript(spell_highmaul_flamethrower_overrider_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -1657,7 +1657,7 @@ class areatrigger_highmaul_mind_fungus : public AreaTriggerEntityScript
 
         std::set<uint64> m_AffectedPlayers;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1702,7 +1702,7 @@ class areatrigger_highmaul_mind_fungus : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1736,7 +1736,7 @@ class areatrigger_highmaul_spore_shot : public AreaTriggerEntityScript
 
         bool m_Casted;
 
-        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
+        void OnSetCreatePosition(AreaTrigger* /*p_AreaTrigger*/, Unit* p_Caster, Position& /*p_SourcePosition*/, Position& p_DestinationPosition, std::list<Position>& /*p_PathToLinearDestination*/) override
         {
             if (p_Caster == nullptr)
                 return;
@@ -1745,7 +1745,7 @@ class areatrigger_highmaul_spore_shot : public AreaTriggerEntityScript
                 p_DestinationPosition = *l_Target;
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1758,7 +1758,7 @@ class areatrigger_highmaul_spore_shot : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1785,7 +1785,7 @@ class areatrigger_highmaul_creeping_moss : public AreaTriggerEntityScript
             CreepingMossHealing = 165494
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1856,7 +1856,7 @@ class areatrigger_highmaul_call_of_the_tides : public AreaTriggerEntityScript
             CallOfTheTidesDamage = 163798
         };
 
-        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
+        void OnSetCreatePosition(AreaTrigger* /*p_AreaTrigger*/, Unit* p_Caster, Position& /*p_SourcePosition*/, Position& p_DestinationPosition, std::list<Position>& /*p_PathToLinearDestination*/) override
         {
             if (p_Caster == nullptr)
                 return;
@@ -1871,7 +1871,7 @@ class areatrigger_highmaul_call_of_the_tides : public AreaTriggerEntityScript
             p_DestinationPosition.m_positionZ = l_Z;
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1895,18 +1895,19 @@ class areatrigger_at_highmaul_infested_waters : public AreaTriggerScript
             InfestedWaters = 164642
         };
 
-        void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) override
+        void OnEnter(Player* p_Player, AreaTriggerEntry const* /*p_AreaTrigger*/) override
         {
             p_Player->RemoveAura(eSpell::InfestedWaters);
         }
 
-        void OnExit(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) override
+        void OnExit(Player* p_Player, AreaTriggerEntry const* /*p_AreaTrigger*/) override
         {
             if (p_Player->GetPositionZ() < 0.0f)
                 p_Player->CastSpell(p_Player, eSpell::InfestedWaters, true);
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_brackenspore()
 {
     /// Boss
@@ -1941,3 +1942,4 @@ void AddSC_boss_brackenspore()
     /// AreaTriggers (Area)
     new areatrigger_at_highmaul_infested_waters();
 }
+#endif

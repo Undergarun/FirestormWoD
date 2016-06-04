@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#ifndef __clang_analyzer__
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -773,3 +774,4 @@ bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 	
 	return true;
 }
+#endif

@@ -1,22 +1,10 @@
-/*
-* Copyright (C) 2014-20xx AhsranCore <http://www.ashran.com/>
-* Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 
@@ -171,7 +159,7 @@ class item_strongbox : public ItemScript
             {
                 if (roll_chance_i(60))
                 {
-                    int64 l_GoldAmount = urand(l_MinMoney * GOLD , (l_MinMoney + 10) * GOLD) * sWorld->getRate(RATE_DROP_MONEY);
+                    uint32 l_GoldAmount = uint32(urand(l_MinMoney * GOLD , (l_MinMoney + 10) * GOLD) * sWorld->getRate(RATE_DROP_MONEY));
                     p_Player->ModifyMoney(l_GoldAmount);
                     p_Player->SendDisplayToast(0, l_GoldAmount, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_MONEY, false, false);
                 }
@@ -236,8 +224,10 @@ class item_runic_pouch : public ItemScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_item_strongboxes()
 {
     new item_strongbox();
     new item_runic_pouch();
 }
+#endif

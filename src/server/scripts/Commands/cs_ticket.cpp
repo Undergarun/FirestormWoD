@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 Name: ticket_commandscript
@@ -229,7 +220,7 @@ public:
         return true;
     }
     
-    static bool FSCHandleGMTicketEnd(ChatHandler* p_Handler, char const* p_Args)
+    static bool FSCHandleGMTicketEnd(ChatHandler* p_Handler, char const* /*p_Args*/)
     {
         // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
         if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
@@ -249,7 +240,7 @@ public:
         return true;
     }
 
-    static bool FSCHandleGMTicketDelete(ChatHandler* p_Handler, char const* p_Args)
+    static bool FSCHandleGMTicketDelete(ChatHandler* p_Handler, char const* /*p_Args*/)
     {
         Player* l_Player = p_Handler->GetSession()->GetPlayer();
 
@@ -269,7 +260,7 @@ public:
         return true;
     }
 
-    static bool FSCHandleGMTicketGet(ChatHandler* p_Handler, char const* p_Args)
+    static bool FSCHandleGMTicketGet(ChatHandler* p_Handler, char const* /*p_Args*/)
     {
         Player* l_Player = p_Handler->GetSession()->GetPlayer();
 
@@ -281,7 +272,7 @@ public:
         return true;
     }
 
-    static bool FSCHandleGMResponseResolve(ChatHandler* p_Handler, char const* p_Args)
+    static bool FSCHandleGMResponseResolve(ChatHandler* p_Handler, char const* /*p_Args*/)
     {
         Player* l_Player = p_Handler->GetSession()->GetPlayer();
 
@@ -738,7 +729,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_ticket_commandscript()
 {
     new ticket_commandscript();
 }
+#endif

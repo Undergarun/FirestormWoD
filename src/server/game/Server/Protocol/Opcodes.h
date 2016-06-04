@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License alonge
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /// \addtogroup u2w
 /// @{
@@ -238,6 +228,7 @@ enum Opcodes
         SMSG_CHAR_RENAME                            = 0x0264, ///< 6.2.3 20726
         SMSG_CHAR_CUSTOMIZE_RESULT                  = 0x1B6B, ///< 6.2.3 20726
         SMSG_CHAR_CUSTOMIZE                         = 0x1263, ///< 6.2.3 20726
+        SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT  = 0x070E, ///< 6.2.3 20726
 
         /// Account data
         SMSG_ACCOUNT_DATA_TIMES                     = 0x1773, ///< 6.2.3 20726
@@ -945,39 +936,42 @@ enum Opcodes
     /// Jam Client Garrison
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamGarrison
-        SMSG_GET_GARRISON_INFO_RESULT                                   = 0x1196, ///< 6.2.3 20726
-        SMSG_GARRISON_PLOT_PLACED                                       = 0x1191, ///< 6.2.3 20726
-        SMSG_GARRISON_PLOT_REMOVED                                      = 0x1C16, ///< 6.2.3 20726
-        SMSG_GARRISON_PLACE_BUILDING_RESULT                             = 0x1992, ///< 6.2.3 20726
-        SMSG_GARRISON_BUILDING_REMOVED                                  = 0x113D, ///< 6.2.3 20726
-        SMSG_GARRISON_LEARN_SPECIALIZATION_RESULT                       = 0x0000,
-        SMSG_GARRISON_BUILDING_SET_ACTIVE_SPECIALIZATION_RESULT         = 0x0000,
-        SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x1819, ///< 6.2.3 20726
-        SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA                 = 0x1491, ///< 6.2.3 20726
-        SMSG_GARRISON_GET_BUILDINGS_DATA                                = 0x14B6, ///< 6.2.3 20726
-        SMSG_GARRISON_REMOTE_INFO                                       = 0x1811, ///< 6.2.3 20726
-        SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x151A, ///< 6.2.3 20726
-        SMSG_GARRISON_UPGRADE_RESULT                                    = 0x0000,
-        SMSG_GARRISON_ADD_FOLLOWER_RESULT                               = 0x113A, ///< 6.2.3 20726
-        SMSG_GARRISON_REMOVE_FOLLOWER_RESULT                            = 0x0000,
+        SMSG_GET_GARRISON_INFO_RESULT                                   = 0x1196, ///< 6.2.3 20779
+        SMSG_GARRISON_PLOT_PLACED                                       = 0x1191, ///< 6.2.3 20779
+        SMSG_GARRISON_PLOT_REMOVED                                      = 0x1C16, ///< 6.2.3 20779
+        SMSG_GARRISON_PLACE_BUILDING_RESULT                             = 0x1992, ///< 6.2.3 20779
+        SMSG_GARRISON_BUILDING_REMOVED                                  = 0x113D, ///< 6.2.3 20779
+        SMSG_GARRISON_LEARN_SPECIALIZATION_RESULT                       = 0x1095, ///< 6.2.3 20779
+        SMSG_GARRISON_BUILDING_SET_ACTIVE_SPECIALIZATION_RESULT         = 0x199E, ///< 6.2.3 20779
+        SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x1819, ///< 6.2.3 20779
+        SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA                 = 0x1491, ///< 6.2.3 20779
+        SMSG_GARRISON_GET_BUILDINGS_DATA                                = 0x14B6, ///< 6.2.3 20779
+        SMSG_GARRISON_REMOTE_INFO                                       = 0x1811, ///< 6.2.3 20779
+        SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x151A, ///< 6.2.3 20779
+        SMSG_GARRISON_UPGRADE_RESULT                                    = 0x181E, ///< 6.2.3 20779
+        SMSG_GARRISON_ADD_FOLLOWER_RESULT                               = 0x113A, ///< 6.2.3 20779
+        SMSG_GARRISON_REMOVE_FOLLOWER_RESULT                            = 0x18B5, ///< 6.2.3 20779
         SMSG_GARRISON_LIST_FOLLOWERS_CHEAT_RESULT                       = 0x0000,
-        SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT                  = 0x1832, ///< 6.2.3 20726
-        SMSG_GARRISON_UPDATE_FOLLOWER                                   = 0x1939, ///< 6.2.3 20726
-        SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x1599, ///< 6.2.3 20726
-        SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x1111, ///< 6.2.3 20726
-        SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x1135, ///< 6.2.3 20726
-        SMSG_GARRISON_START_MISSION_RESULT                              = 0x1C1A, ///< 6.2.3 20726
-        SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x149D, ///< 6.2.3 20726
-        SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x14B2, ///< 6.2.3 20726
-        SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT                = 0x1931, ///< 6.2.3 20726 (0x149D for 20779)
+        SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT                  = 0x1832, ///< 6.2.3 20779
+        SMSG_GARRISON_UPDATE_FOLLOWER                                   = 0x1939, ///< 6.2.3 20779
+        SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x1599, ///< 6.2.3 20779
+        SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x1111, ///< 6.2.3 20779
+        SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x1135, ///< 6.2.3 20779
+        SMSG_GARRISON_START_MISSION_RESULT                              = 0x1C1A, ///< 6.2.3 20779
+        SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x149D, ///< 6.2.3 20779
+        SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x14B2, ///< 6.2.3 20779
+        SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT                = 0x1931, ///< 6.2.3 20779
         SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x1036, ///< 6.2.3 20779
-        SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
-        SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,
-        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x119E, ///< 6.2.3 20726
-        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x10BA, ///< 6.2.3 20726
-        SMSG_GARRISON_OPEN_TRADESKILL_NPC                               = 0x141E, ///< 6.2.3 20726
-        SMSG_GARRISON_SET_MISSION_NPC                                   = 0x159A, ///< 6.2.3 20726
-        SMSG_GARRISON_FOLLOWER_DELETE_NOTIFY                            = 0x18B5, ///< 6.2.3 20726
+        SMSG_GARRISON_DELETE_RESULT                                     = 0x1836, ///< 6.2.3 20779
+        SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x1195, ///< 6.2.3 20779
+        SMSG_GARRISON_OPEN_RECRUITMENT_NPC                              = 0x1C12, ///< 6.2.3 20779
+        SMSG_GARRISON_RECRUITMENT_FOLLOWERS_GENERATED                   = 0x159E, ///< 6.2.3 20779
+        SMSG_GARRISON_RECRUIT_FOLLOWER_RESULT                           = 0x18B5, ///< 6.2.3 20779
+        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x119E, ///< 6.2.3 20779
+        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x10BA, ///< 6.2.3 20779
+        SMSG_GARRISON_OPEN_TRADESKILL_NPC                               = 0x141E, ///< 6.2.3 20779
+        SMSG_GARRISON_SET_MISSION_NPC                                   = 0x159A, ///< 6.2.3 20779
+        SMSG_GARRISON_FOLLOWER_DELETE_NOTIFY                            = 0x18B5, ///< 6.2.3 20779
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1006,32 +1000,35 @@ enum Opcodes
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION_CHEAT  = 0x0000,
     CMSG_GET_GARRISON_INFO                                  = 0x0414, ///< 6.2.3 20726
     CMSG_GARRISON_LEARN_BLUEPRINT_CHEAT                     = 0x0000,
-    CMSG_GARRISON_REQUEST_BUILDINGS                         = 0x0175, ///< 6.2.3 20726
-    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x047E, ///< 6.2.3 20726
-    CMSG_GARRISON_SET_BUILDING_ACTIVE                       = 0x0000,
+    CMSG_GARRISON_REQUEST_BUILDINGS                         = 0x0175, ///< 6.2.3 20779
+    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x047E, ///< 6.2.3 20779
+    CMSG_GARRISON_SET_BUILDING_ACTIVE                       = 0x0417, ///< 6.2.3 20779
     CMSG_GARRISON_FORCE_BUILDING_ACTIVE                     = 0x0000,
     CMSG_GARRISON_PORT_CHEAT                                = 0x0000,
     CMSG_GARRISON_ADD_FOLLOWER_XPCHEAT                      = 0x0000,
     CMSG_GARRISON_SET_FOLLOWER_ITEM_LEVEL_CHEAT             = 0x0000,
-    CMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING               = 0x0583,
-    CMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING             = 0x100A, ///< 6.2.3 20726
-    CMSG_GARRISON_CHANGE_FOLLOWER_ACTIVATION_STATE          = 0x08B0, ///< 6.2.3 20726
+    CMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING               = 0x0583, ///< 6.2.3 20779
+    CMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING             = 0x100A, ///< 6.2.3 20779
+    CMSG_GARRISON_CHANGE_FOLLOWER_ACTIVATION_STATE          = 0x08B0, ///< 6.2.3 20779
     CMSG_SHOW_GARRISON_TRANSFER                             = 0x0000,
     CMSG_GARRISON_ADD_UNIQUE_FOLLOWER_CHEAT                 = 0x0000,
     CMSG_GARRISON_REMOVE_FOLLOWER_CHEAT                     = 0x0000,
     CMSG_GARRISON_LIST_FOLLOWERS_CHEAT                      = 0x0000,
     CMSG_GARRISON_ADD_MISSION_CHEAT                         = 0x0000,
-    CMSG_GARRISON_START_MISSION                             = 0x087E, ///< 6.2.3 20726
-    CMSG_GARRISON_COMPLETE_MISSION                          = 0x0D4D, ///< 6.2.3 20726
-    CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0125, ///< 6.2.3 20726
-    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x08ED, ///< 6.2.3 20726
-    CMSG_UPGRADE_GARRISON                                   = 0x0466, ///< 6.2.3 20726
-    CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
-    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x08B1, ///< 6.2.3 20726
-    CMSG_GET_SHIPMENT_INFO                                  = 0x00EA, ///< 6.2.3 20726
-    CMSG_CREATE_SHIPMENT                                    = 0x0575, ///< 6.2.3 20726
-    CMSG_GET_SHIPMENTS                                      = 0x18AA, ///< 6.2.3 20726
-    CMSG_REQUEST_SET_MISSION_NPC                            = 0x092D, ///< 6.2.3 20726
+    CMSG_GARRISON_START_MISSION                             = 0x087E, ///< 6.2.3 20779
+    CMSG_GARRISON_COMPLETE_MISSION                          = 0x0D4D, ///< 6.2.3 20779
+    CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0125, ///< 6.2.3 20779
+    CMSG_GARRISON_GENERATE_RECRUITS                         = 0x016E, ///< 6.2.3 20779
+    CMSG_GARRISON_SET_RECRUITMENT_PREFERENCES               = 0x013E, ///< 6.2.3 20779
+    CMSG_GARRISON_RECRUIT_FOLLOWER                          = 0x0588, ///< 6.2.3 20779
+    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x08ED, ///< 6.2.3 20779
+    CMSG_UPGRADE_GARRISON                                   = 0x0466, ///< 6.2.3 20779
+    CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x18AA, ///< 6.2.3 20779
+    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x08B1, ///< 6.2.3 20779
+    CMSG_GET_SHIPMENT_INFO                                  = 0x00EA, ///< 6.2.3 20779
+    CMSG_CREATE_SHIPMENT                                    = 0x0575, ///< 6.2.3 20779
+    CMSG_GET_SHIPMENTS                                      = 0x18AA, ///< 6.2.3 20779
+    CMSG_REQUEST_SET_MISSION_NPC                            = 0x092D, ///< 6.2.3 20779
 
     /// Shipyard
     CMSG_GARRISON_FOLLOWER_RENAME                           = 0x0472, ///< 6.2.3 20726
@@ -1058,6 +1055,8 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_ENUM_CHARACTERS                        = 0x1163, ///< 6.2.3 20726
     CMSG_CREATE_CHARACTER                       = 0x143B, ///< 6.2.3 20726
+    CMSG_GENERATE_RANDOM_CHARACTER_NAME         = 0x0580, ///< 6.2.3 20726
+
     CMSG_CHAR_DELETE                            = 0x0428, ///< 6.2.3 20726
     CMSG_REORDER_CHARACTERS                     = 0x10B3, ///< 6.2.3 20726
     CMSG_PLAYER_LOGIN                           = 0x10F3, ///< 6.2.3 20726
@@ -1612,7 +1611,7 @@ enum Opcodes
     /// LFG
     //////////////////////////////////////////////////////////////////////////
     CMSG_DFGET_SYSTEM_INFO                         = 0x1138, ///< 6.2.3 20726
-    CMSG_LFG_GET_PLAYER_INFO                       = 0x0000, 
+    CMSG_LFG_GET_PLAYER_INFO                       = 0x0000,
     CMSG_LFG_GET_STATUS                            = 0x11A7, ///< 6.2.3 20726
     CMSG_LFG_JOIN                                  = 0x11F8, ///< 6.2.3 20726
     CMSG_LFG_LEAVE                                 = 0x0424, ///< 6.2.3 20726
@@ -1798,7 +1797,6 @@ enum Opcodes
     CMSG_QUERY_BATTLEFIELD_STATE                        = 0x0000,
     CMSG_QUERY_TIME                                     = 0x0000,
     CMSG_QUEST_NPC_QUERY                                = 0x0000,
-    CMSG_RANDOMIZE_CHAR_NAME                            = 0x0000,
     CMSG_REALM_SPLIT                                    = 0x0000,
     CMSG_REDIRECTION_AUTH_PROOF                         = 0x0000,
     CMSG_REQUEST_BATTLEPET_JOURNAL                      = 0x0000,
@@ -1828,7 +1826,7 @@ enum Opcodes
     CMSG_SUBMIT_COMPLAIN                                = 0x0000,
     CMSG_SUGGESTION_SUBMIT                              = 0x0000,
     CMSG_SUMMON_BATTLEPET_COMPANION                     = 0x0000,
-    CMSG_SUSPEND_TOKEN                                  = 0x0000, ///< 
+    CMSG_SUSPEND_TOKEN                                  = 0x0000, ///<
     CMSG_SYNC_DANCE                                     = 0x0000,
     CMSG_TELEPORT_TO_UNIT                               = 0x0000,
     CMSG_TIME_ADJUSTMENT_RESPONSE                       = 0x0000, ///<
@@ -1847,7 +1845,7 @@ enum Opcodes
     CMSG_WRAP_ITEM                                      = 0x0000,
     CMSG_ARENA_2v2_STATS_REQUEST                        = 0x0000,
     CMSG_ARENA_3v3_STATS_REQUEST                        = 0x0000,
-    
+
     CMSG_GMSURVEY_SUBMIT                            = 0x0000, ///< RIP ???
     CMSG_GMTICKET_GET_CASE_STATUS                   = 0x0000, ///< RIP ????
     CMSG_GMTICKET_SYSTEMSTATUS                      = 0x0000, ///< RIP ????
@@ -1943,7 +1941,6 @@ enum Opcodes
     SMSG_PLAY_TIME_WARNING                              = 0x0000,
     SMSG_PROPOSE_LEVEL_GRANT                            = 0x0000,
     SMSG_SUMMON_RAID_MEMBER_VALIDATE_FAILED             = 0x0000,
-    SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT          = 0x0000,
     SMSG_REALM_SPLIT                                    = 0x0000,
     SMSG_REFER_A_FRIEND_EXPIRED                         = 0x0000,
     SMSG_REFER_A_FRIEND_FAILURE                         = 0x0000,

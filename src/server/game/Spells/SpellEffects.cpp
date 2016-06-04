@@ -1,20 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -289,7 +279,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //211 SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION
     &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212                     Unused 6.1.2
     &Spell::EffectDeathGrip,                                //213 SPELL_EFFECT_DEATH_GRIP
-    &Spell::EffectCreateGarrison,                                     //214 SPELL_EFFECT_CREATE_GARRISON
+    &Spell::EffectCreateGarrison,                           //214 SPELL_EFFECT_CREATE_GARRISON
     &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS Unlocks boosted players' spells (ChrUpgrade*.db2)
     &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_UPGRADE_GARRISON        171905
@@ -323,7 +313,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectFinishGarrisonMission,                    //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
     &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
-    &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
+    &Spell::EffectFinishGarrisonShipment,                    //248 SPELL_EFFECT_FINISH_SHIPMENT
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249                     Unused 6.1.2
     &Spell::EffectNULL,                                     //250 SPELL_EFFECT_TAKE_SCREENSHOT
     &Spell::EffectNULL,                                     //251 SPELL_EFFECT_251
@@ -1045,7 +1035,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         case 106299:// Summon Living Air
         {
             TempSummon* enne = m_caster->SummonCreature(54631, m_caster->GetPositionX() + rand() % 5, m_caster->GetPositionY() + 2 + rand() % 5, m_caster->GetPositionZ() + 1, 3.3f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-            enne->AddThreat(m_caster, 2000.f);
+            enne->AddThreat(m_caster, 2000.0f);
             break;
         }
         case 120202:// Gate of the Setting Sun | Boss 3 | Bombard
@@ -1901,7 +1891,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         {
             // http://fr.wowhead.com/spell=117549#english-comments
             // uint32 targetSpec = unitTarget->ToPlayer()->GetSpecializationId(unitTarget->ToPlayer()->GetActiveSpec());
-            uint32 innervationId = 0;
 
             if (unitTarget == caster)
             {
@@ -2725,6 +2714,7 @@ void Spell::EffectSummonChangeItem(SpellEffIndex effIndex)
                 m_targets.SetItemTarget(NULL);
 
             m_CastItem = NULL;
+            m_castItemLevel = -1;
 
             player->StoreItem(dest, pNewItem, true);
             return;
@@ -2743,6 +2733,7 @@ void Spell::EffectSummonChangeItem(SpellEffIndex effIndex)
                 m_targets.SetItemTarget(NULL);
 
             m_CastItem = NULL;
+            m_castItemLevel = -1;
 
             player->BankItem(dest, pNewItem, true);
             return;
@@ -2765,6 +2756,7 @@ void Spell::EffectSummonChangeItem(SpellEffIndex effIndex)
                 m_targets.SetItemTarget(NULL);
 
             m_CastItem = NULL;
+            m_castItemLevel = -1;
 
             player->EquipItem(dest, pNewItem, true);
             player->AutoUnequipOffhandIfNeed();
@@ -3818,6 +3810,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             owner->GetClosePoint(px, py, pz, OldSummon->GetObjectSize());
 
             OldSummon->NearTeleportTo(px, py, pz, OldSummon->GetOrientation());
+            OldSummon->SetFullHealth();
             //OldSummon->Relocate(px, py, pz, OldSummon->GetOrientation());
             //OldSummon->SetMap(owner->GetMap());
             //owner->GetMap()->Add(OldSummon->ToCreature());
@@ -4274,7 +4267,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                         if (m_originalCaster->HasAura(165995))
                             m_originalCaster->CastSpell(m_originalCaster, 165996, true);
 
-                        /// Glyph Of kick 
+                        /// Glyph Of kick
                         if (m_originalCaster->HasAura(56805))
                         {
                             AuraEffect* l_AuraEffect = m_originalCaster->GetAuraEffect(56805, EFFECT_2);
@@ -5923,7 +5916,7 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
             Position pos;
             unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
-            unitTarget->GetMap()->getObjectHitPos(unitTarget->GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.f);
+            unitTarget->GetMap()->getObjectHitPos(unitTarget->GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f);
             m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
         }
         else
@@ -6373,7 +6366,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     if (goinfo->type == GAMEOBJECT_TYPE_FISHINGNODE || goinfo->type == GAMEOBJECT_TYPE_FISHINGHOLE)
     {
         LiquidData liqData;
-        if (!cMap->IsInWater(fx, fy, fz + 1.f/* -0.5f */, &liqData))             // Hack to prevent fishing bobber from failing to land on fishing hole
+        if (!cMap->IsInWater(fx, fy, fz + 1.0f/* -0.5f */, &liqData))             // Hack to prevent fishing bobber from failing to land on fishing hole
         { // but this is not proper, we really need to ignore not materialized objects
             SendCastResult(SPELL_FAILED_NOT_HERE);
             SendChannelUpdate(0);
@@ -6852,7 +6845,7 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
     {
         std::set<uint8> runes;
         for (uint8 i = 0; i < MAX_RUNES; i++)
-            if (player->GetCurrentRuneForBloodTap() == player->GetCurrentRune(i) && player->GetRuneCooldown(i) && player->GetCurrentRune(i) != RUNE_DEATH)
+            if (player->GetCurrentRuneForBloodTap() == player->GetCurrentRune(i) && player->GetRuneCooldown(i))
                 runes.insert(i);
 
         // Recalculate list if all runes are RUNE_DEATH
@@ -7380,7 +7373,7 @@ void Spell::EffectSummonRaFFriend(SpellEffIndex effIndex)
     m_caster->CastSpell(unitTarget, m_spellInfo->Effects[effIndex].TriggerSpell, true);
 }
 
-void Spell::EffectUnlearnTalent(SpellEffIndex p_EffIndex)
+void Spell::EffectUnlearnTalent(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -7537,7 +7530,7 @@ void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
     SendResurrectRequest(target);
 }
 
-void Spell::EffectTeleportToDigsite(SpellEffIndex p_EffectIndex)
+void Spell::EffectTeleportToDigsite(SpellEffIndex /*p_EffectIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -7885,7 +7878,7 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
-void Spell::EffectCreateGarrison(SpellEffIndex p_EffIndex)
+void Spell::EffectCreateGarrison(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -7932,7 +7925,7 @@ void Spell::EffectCreateGarrison(SpellEffIndex p_EffIndex)
 
 }
 
-void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
+void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -7953,7 +7946,7 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
     l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
 }
 
-void Spell::EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex)
+void Spell::EffectRerollFollowerAbilities(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -7975,7 +7968,7 @@ void Spell::EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex)
         l_GarrisonMgr->GenerateFollowerAbilities(l_Follower->DatabaseID, true, true, true, true);
 }
 
-void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
+void Spell::EffectGiveExperience(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -8010,7 +8003,7 @@ void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
     m_CastItem = nullptr;
 }
 
-void Spell::EffectGarrisonFinalize(SpellEffIndex p_EffIndex)
+void Spell::EffectGarrisonFinalize(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -8058,7 +8051,7 @@ void Spell::EffectIncreaseSkill(SpellEffIndex p_EffIndex)
     l_Player->UpdateSkillPro(l_SkillId, 1000, l_BasePoints);
 }
 
-void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
+void Spell::EffectResurectPetBattles(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -8080,12 +8073,12 @@ void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
     }
 }
 
-void Spell::EffectUncagePetBattle(SpellEffIndex effIndex)
+void Spell::EffectUncagePetBattle(SpellEffIndex /*effIndex*/)
 {
 
 }
 
-void Spell::EffectCanPetBattle(SpellEffIndex effIndex)
+void Spell::EffectCanPetBattle(SpellEffIndex /*effIndex*/)
 {
     if (!unitTarget)
         return;
@@ -8128,7 +8121,7 @@ void Spell::EffectForcePlayerInteraction(SpellEffIndex p_EffIndex)
     m_caster->CastSpell(l_Target, l_SpellInfo->Id, false);
 }
 
-void Spell::EffectBecomeUntargettable(SpellEffIndex p_EffIndex)
+void Spell::EffectBecomeUntargettable(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -8250,7 +8243,7 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
     }
 }
 
-void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
+void Spell::EffectCreateHeirloom(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -8326,7 +8319,7 @@ void Spell::EffectLearnFollowerAbility(SpellEffIndex p_EffIndex)
     l_Garrison->LearnFollowerTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), p_EffIndex);
 }
 
-void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
+void Spell::EffectUpgradeHeirloom(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -8379,7 +8372,7 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
     }
 }
 
-void Spell::EffectFinishGarrisonMission(SpellEffIndex p_EffIndex)
+void Spell::EffectFinishGarrisonMission(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
@@ -8400,6 +8393,49 @@ void Spell::EffectFinishGarrisonMission(SpellEffIndex p_EffIndex)
 
                 WorldPacket l_PlaceHolder;
                 l_Player->GetSession()->HandleGetGarrisonInfoOpcode(l_PlaceHolder);
+            }
+        }
+    }
+}
+
+void Spell::EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+        return;
+
+    if (Player* l_Player = m_caster->ToPlayer())
+    {
+        using namespace MS::Garrison;
+
+        if (Manager* l_GarrisonMgr = l_Player->GetGarrison())
+        {
+            uint32 l_ShipmentCount       = m_spellValue->EffectBasePoints[p_EffIndex];
+            CharShipmentContainerEntry const* l_ContainerEntry = sCharShipmentContainerStore.LookupEntry(m_spellInfo->Effects[p_EffIndex].MiscValue);
+
+            if (l_ContainerEntry == nullptr)
+                return;
+
+            uint32 l_PlotInstanceID = l_GarrisonMgr->GetBuildingWithType(BuildingType::Type(l_ContainerEntry->BuildingType)).PlotInstanceID;
+
+            if (l_PlotInstanceID)
+            {
+                std::vector<GarrisonWorkOrder> l_Orders = l_GarrisonMgr->GetBuildingWorkOrders(l_PlotInstanceID);
+
+                if (l_Orders.size() > l_ShipmentCount)
+                {
+                    for (uint8 l_Itr = 0; l_Itr < l_ShipmentCount; ++l_Itr)
+                    {
+                        if (l_Itr >= l_Orders.size())
+                            break;
+
+                        l_Orders[l_Itr].CompleteTime = time(0);
+                    }
+                }
+                else
+                {
+                    for (GarrisonWorkOrder l_Order : l_Orders)
+                        l_Order.CompleteTime = time(0);
+                }
             }
         }
     }

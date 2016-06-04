@@ -348,7 +348,7 @@ public:
                         default:
                             break;
                     }
-                    events.ScheduleEvent(eNhalishEvents::EventPlanarShift, 30 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eNhalishEvents::EventPlanarShift, 22 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eNhalishEvents::EventVoidDevastation:
                     Talk(eNhallishTalks::TalkSpell02);
@@ -420,42 +420,15 @@ public:
         ActionTimeout = 1
     };
 
-    bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
-    {   
-        if (p_Creature)
-        {
-            if (InstanceScript* l_Instance = p_Creature->GetInstanceScript())
-            {
-                if (Creature* l_Nhalish = l_Instance->instance->GetCreature(l_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossNhallish)))
-                {
-                    if (shadowmoon_burial_grounds_nhalish_creature_soul::shadowmoon_burial_grounds_nhalish_creature_soulAI* l_LinkAI = CAST_AI(shadowmoon_burial_grounds_nhalish_creature_soul::shadowmoon_burial_grounds_nhalish_creature_soulAI, l_Nhalish->GetAI()))
-                    {
-                        if (l_LinkAI && l_LinkAI->m_HasDied)
-                        {
-                            p_Player->RemoveAura(ePossessedSoulSpells::SpellSoulless);
-                            /// Returned Soul
-                            if (p_Player->HasAura(ePossessedSoulSpells::SpellSoulShred))
-                            {
-                                p_Player->CastSpell(p_Player, ePossessedSoulSpells::SpellRegainYourSoul, true);
-                                p_Player->RemoveAura(ePossessedSoulSpells::SpellSoulShred);
-                            }
-                            p_Player->SetPhaseMask(1, true);
-                            p_Creature->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
-                        }
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
     struct shadowmoon_burial_grounds_nhalish_creature_soulAI : public ScriptedAI
     {
         shadowmoon_burial_grounds_nhalish_creature_soulAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_VictimGUID(0)
         {
             m_HasDied = false;
+            m_Instance = me->GetInstanceScript();
         }
 
+        InstanceScript* m_Instance;
         uint64 m_VictimGUID;
         bool m_HasDiedBeforeTimeout;
         bool m_HasDied;
@@ -524,7 +497,31 @@ public:
                 if (m_VictimGUID)
                 {
                     if (Unit* l_Victim = Unit::GetUnit(*me, m_VictimGUID))
+                    {
                         l_Victim->AddAura(ePossessedSoulSpells::SpellRegainYourSoul, l_Victim);
+
+                        if (m_Instance != nullptr)
+                        {
+                            if (Creature* l_Nhalish = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossNhallish)))
+                            {
+                                if (shadowmoon_burial_grounds_nhalish_creature_soul::shadowmoon_burial_grounds_nhalish_creature_soulAI* l_LinkAI = CAST_AI(shadowmoon_burial_grounds_nhalish_creature_soul::shadowmoon_burial_grounds_nhalish_creature_soulAI, l_Nhalish->GetAI()))
+                                {
+                                    if (l_LinkAI && l_LinkAI->m_HasDied)
+                                    {
+                                        l_Victim->RemoveAura(ePossessedSoulSpells::SpellSoulless);
+                                        /// Returned Soul
+                                        if (l_Victim->HasAura(ePossessedSoulSpells::SpellSoulShred))
+                                        {
+                                            l_Victim->CastSpell(l_Victim, ePossessedSoulSpells::SpellRegainYourSoul, true);
+                                            l_Victim->RemoveAura(ePossessedSoulSpells::SpellSoulShred);
+                                        }
+                                        l_Victim->SetPhaseMask(1, true);
+                                        me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -675,15 +672,13 @@ public:
             if (!GetCaster())
                 return;
 
-            GetCaster()->MonsterSay("hoomos", LANG_UNIVERSAL, GetCaster()->GetGUID());
-   
             if (Position const* l_Pos = GetExplTargetDest())
                 GetCaster()->SummonCreature(eNhalishCreatures::CreatureDevestationTrigger, l_Pos->GetPositionX(), l_Pos->GetPositionY(), l_Pos->GetPositionZ(), l_Pos->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4 * TimeConstants::IN_MILLISECONDS);
         }
 
         void Register()
         {
-            OnEffectHitTarget += SpellEffectFn(shadowmoon_burial_grounds_nhalish_spell_void_devestation_SpellScript::HandleTriggerMissile, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_TRIGGER_MISSILE);
+            OnEffectLaunch += SpellEffectFn(shadowmoon_burial_grounds_nhalish_spell_void_devestation_SpellScript::HandleTriggerMissile, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_TRIGGER_MISSILE);
         }
     };
 
@@ -709,7 +704,7 @@ public:
             SpellVoidBlastDot = 153501
         };
 
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -721,7 +716,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -757,7 +752,7 @@ public:
     {
         PrepareAuraScript(shadowmoon_burial_grounds_nhalish_spell_void_vortex_SpellScript);
 
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -769,7 +764,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -919,6 +914,52 @@ public:
     }
 };
 
+/// Void Devestation - 153072
+class shadowmoon_burial_grounds_nhallish_at_vd : public AreaTriggerEntityScript
+{
+public:
+
+    shadowmoon_burial_grounds_nhallish_at_vd() : AreaTriggerEntityScript("shadowmoon_burial_grounds_nhallish_at_vd") {}
+
+    enum eVoidDevastationSpells
+    {
+        SpellVoidDevastationDebuff = 153070
+    };
+
+    uint32 m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+    {
+        if (m_Diff <= p_Time)
+        {
+            std::list<Player*> l_ListPlayers;
+            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 1.5f);
+            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, l_ListPlayers, check);
+            p_AreaTrigger->VisitNearbyObject(2.0f, searcher);
+            if (!l_ListPlayers.empty())
+            {
+                for (std::list<Player*>::const_iterator l_Itr = l_ListPlayers.begin(); l_Itr != l_ListPlayers.end(); ++l_Itr)
+                {
+                    if (!(*l_Itr))
+                        continue;
+
+                    if (!(*l_Itr)->HasAura(eVoidDevastationSpells::SpellVoidDevastationDebuff))
+                        (*l_Itr)->AddAura(eVoidDevastationSpells::SpellVoidDevastationDebuff, (*l_Itr));
+                }
+            }
+
+            m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
+        }
+        else
+            m_Diff -= p_Time;
+    }
+
+    shadowmoon_burial_grounds_nhallish_at_vd* GetAI() const override
+    {
+        return new shadowmoon_burial_grounds_nhallish_at_vd();
+    }
+};
+
 void AddSC_boss_nhalish()
 {
     new boss_nhalish();                                                     ///< 75829
@@ -930,4 +971,5 @@ void AddSC_boss_nhalish()
     new shadowmoon_burial_grounds_nhalish_spell_soul_steal();               ///< 152962
     new shadowmoon_burial_grounds_nhalish_spell_void_blast();               ///< 152792
     new shadowmoon_burial_grounds_nhalish_spell_void_vortex();              ///< 152801
+    new shadowmoon_burial_grounds_nhallish_at_vd();                         ///< 153072
 }

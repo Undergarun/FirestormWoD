@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef DEF_HOUROFTWILIGHT_H
 #define DEF_HOUROFTWILIGHT_H
 
@@ -10,7 +18,7 @@ enum Datas
 {
     DATA_ARCURION   = 0,
     DATA_ASIRA      = 1,
-    DATA_BENEDICTUS = 2,
+    DATA_BENEDICTUS = 2
 };
 
 enum CreatureIds
@@ -25,7 +33,7 @@ enum CreatureIds
 
     NPC_ARCURION        = 54590,
     NPC_ASIRA           = 54968,
-    NPC_BENEDICTUS      = 54938,
+    NPC_BENEDICTUS      = 54938
 };
 
 enum GameObjectIds
@@ -36,12 +44,12 @@ enum GameObjectIds
     GO_GATE                 = 190236,
 
     GO_ICEWALL_2            = 210048, // after Arcurion
-    GO_ICEWALL_1            = 210049, // before Arcurion
+    GO_ICEWALL_1            = 210049  // before Arcurion
 };
 
 enum OtherSpells
 {
-    SPELL_TELEPORT_ARCURION_DEATH   = 108928,
+    SPELL_TELEPORT_ARCURION_DEATH   = 108928
 };
 
 #endif

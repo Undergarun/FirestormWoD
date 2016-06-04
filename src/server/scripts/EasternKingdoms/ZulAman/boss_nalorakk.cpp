@@ -3,12 +3,12 @@
 
 enum ScriptTexts
 {
-    SAY_AGGRO   = 4, 
+    SAY_AGGRO   = 4,
     SAY_BEAR    = 6,
     SAY_TROLL   = 7,
     SAY_SURGE   = 5,
     SAY_KILL    = 8,
-    SAY_DEATH   = 9,
+    SAY_DEATH   = 9
 };
 
 enum Spells
@@ -17,7 +17,7 @@ enum Spells
     SPELL_BRUTAL_STRIKE     = 42384,
     SPELL_SURGE             = 42402,
     SPELL_LACERATING_SLASH  = 42395,
-    SPELL_DEAFENING_ROAR    = 49721,
+    SPELL_DEAFENING_ROAR    = 49721
 };
 
 enum Events
@@ -27,7 +27,7 @@ enum Events
     EVENT_SURGE             = 3,
     EVENT_LACERATING_SLASH  = 4,
     EVENT_DEAFENING_ROAR    = 5,
-    EVENT_TROLLFORM         = 6,
+    EVENT_TROLLFORM         = 6
 };
 
 class boss_nalorakk : public CreatureScript
@@ -64,7 +64,7 @@ class boss_nalorakk : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_BEARFORM, 30000);
@@ -137,10 +137,12 @@ class boss_nalorakk : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };     
+        };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_nalorakk()
 {
     new boss_nalorakk();
 }
+#endif

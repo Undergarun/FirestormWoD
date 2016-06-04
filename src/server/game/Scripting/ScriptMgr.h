@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifndef SC_SCRIPTMGR_H
@@ -62,7 +62,7 @@ class ScriptMgr
     public:
         /// Called when the area trigger is activated by a player.
         /// @p_Player  : Player who trigger this area trigger
-        /// @p_Trigger : Area Trigger 
+        /// @p_Trigger : Area Trigger
         bool OnAreaTrigger(Player* p_Player, AreaTriggerEntry const* p_Trigger);
 
         /// Called when a player enters the AreaTrigger
@@ -550,7 +550,7 @@ class ScriptMgr
         void OnColorCodeCalculation(XPColorChar& p_Color, uint8 p_PlayerLevel, uint8 p_MobLevel);
 
         /// Called after calculating zero difference.
-        /// @p_Diff        : Level difference 
+        /// @p_Diff        : Level difference
         /// @p_PlayerLevel : Player level
         void OnZeroDifferenceCalculation(uint8& p_Diff, uint8 p_PlayerLevel);
 
@@ -621,7 +621,8 @@ class ScriptMgr
         /// @p_OldValue  : Old value
         /// @p_NewValue  : New value
         /// @p_Regen  : If it's a regen modification
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen);
+        /// @p_After : If it's after modification
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen, bool p_After);
 
         /// Called when the player switch from indoors to outdoors or from outdoors to indoors
         /// @p_Player : Player instance
@@ -828,6 +829,11 @@ class ScriptMgr
         /// Called when a player enter in combat
         /// @p_Player : Player instance
         void OnPlayerEnterInCombat(Player* p_Player);
+
+        /// Called when a player enters a mount
+        /// @p_Player     : Player instance
+        /// @p_CreatureID : Mount entry
+        void OnPlayerMount(Player* p_Player, uint32 p_CreatureID);
 
         /// Called when a player leave combat status
         /// @p_Player : Player instance

@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "AMageTower.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../../GarrisonScriptData.hpp"
@@ -18,15 +19,15 @@ namespace MS { namespace Garrison
 
     namespace npc_ApprenticeVarNathAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
     }
@@ -72,7 +73,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    void npc_ApprenticeVarNathAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_ApprenticeVarNathAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         using namespace MS::Garrison::GarrisonPortals;
 
@@ -214,7 +215,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_AncientWaygateProtector::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_AncientWaygateProtector::OnGossipSelect(Player* p_Player, Creature* /*p_Creature*/, uint32 /*p_Sender*/, uint32 p_Action)
     {
             p_Player->PlayerTalkClass->ClearMenus();
 

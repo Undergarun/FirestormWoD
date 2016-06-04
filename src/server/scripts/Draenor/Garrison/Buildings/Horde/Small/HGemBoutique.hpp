@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_GEM_BOUTIQUE_HORDE_HPP_GARRISON
 #define GARRISON_GEM_BOUTIQUE_HORDE_HPP_GARRISON
 
@@ -13,7 +14,7 @@
 #include "../../ProfessionBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 79832 - Dorogarr                                                  ////

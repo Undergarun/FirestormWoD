@@ -4,7 +4,7 @@
 //  Copyright 2014 Millenium-studio SARL
 //  All Rights Reserved.
 //
-//////////////////////////////////////////////////////////////////////////////// 
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef BATTLEGROUND_MGR_HPP
 # define BATTLEGROUND_MGR_HPP
@@ -25,7 +25,7 @@ namespace MS
     namespace Battlegrounds
     {
         using BattlegroundList = std::list<std::pair<uint32, Battleground*>>;
-        using BattleMastersMap = UNORDERED_MAP<uint32, BattlegroundTypeId>;
+        using BattleMastersMap = std::unordered_map<uint32, BattlegroundTypeId>;
         using BattlegroundSelectionWeightMap = std::map<BattlegroundTypeId, uint8>; ///< TypeId and its selectionWeight.
 
         namespace WsCurrency

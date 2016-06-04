@@ -42,7 +42,8 @@ class instance_iron_docks : public InstanceMapScript
             /// Iron stars
             bool m_SecondEvent;
             bool m_ThirdEvent;
-
+            /// Scenario handling
+            uint32 m_CreatureKilled;
             /// Encounter Gates
             uint64 m_EncounterGateOshirGuid;
 
@@ -71,7 +72,7 @@ class instance_iron_docks : public InstanceMapScript
                 m_KoramarGuid       = 0;
                 m_SecondEvent       = false;
                 m_ThirdEvent        = false;
-
+                m_CreatureKilled    = 0;
                 /// Encounter Gates
                 m_EncounterGateOshirGuid = 0;
             }
@@ -129,10 +130,7 @@ class instance_iron_docks : public InstanceMapScript
                 switch (p_GameObject->GetEntry())
                 {
                     case eIronDocksGameObject::GameObjectChallengeModeDoor:
-                        m_ChallengeDoorGuid = p_GameObject->GetGUID();
-                        break;
-                    case CHALLENGE_MOD_ORB:
-                        m_ChallengeOrbGuid = p_GameObject->GetGUID();
+                        AddChallengeModeDoor(p_GameObject);
                         break;
                     case eIronDocksGameObject::GameObjectEncounterGateOshir:
                         m_EncounterGateOshirGuid = p_GameObject->GetGUID();
@@ -204,32 +202,45 @@ class instance_iron_docks : public InstanceMapScript
                     /// Bosses
                     case eIronDocksDatas::DataNokgar:
                         return m_NokgarGuid;
+                        break;
                     case eIronDocksDatas::DataOshir:
                         return m_OshirGuid;
+                        break;
                     case eIronDocksDatas::DataSkulloc:
                         return m_SkullocGuid;
+                        break;
                     case eIronDocksDatas::DataGrimrailDuguru:
                         return m_DuguruGuid;
+                        break;
                     case eIronDocksDatas::DataGrimrailMakogg:
                         return m_MakoggGuid;
+                        break;
                     case eIronDocksDatas::DataGrimrailNoxx:
                         return m_NoxxGuid;
+                        break;
                     case eIronDocksDatas::DataMountWolf:
                         return m_WolfGuid;
+                        break;
                     case eIronDocksDatas::DataTurret:
                         return m_TurretGuid;
+                        break;
                     // Mini Bosses
                     case eIronDocksDatas::DataDaruna:
                         return m_DarunaGuid;
+                        break;
                     case eIronDocksDatas::DataGwarnok:
                         return m_GwarnokGuid;
+                        break;
                     case eIronDocksDatas::DataOlugar:
                         return m_OlugarGuid;
+                        break;
                     /// RP
                     case eIronDocksDatas::DataZuggosh:
                         return m_ZoggoshGuid;
+                        break;
                     case eIronDocksDatas::DataKoramar:
                         return m_KoramarGuid;
+                        break;
                     /// Encounter Gates
                     case eIronDocksDatas::DataEncounterGateOshir:
                         return m_EncounterGateOshirGuid;
@@ -245,6 +256,19 @@ class instance_iron_docks : public InstanceMapScript
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
+
+                switch (type)
+                {
+                    case eIronDocksDatas::DataSkulloc:
+                    {
+                        if (state == EncounterState::DONE)
+                            DoKilledMonsterKredit(eIronDocksScenario::DailyChallengeQuestID, eIronDocksScenario::DailyChallengeKillCredit);
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
 
                 return true;
             }

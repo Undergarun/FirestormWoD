@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -81,7 +72,7 @@ enum ScriptTexts
     SAY_OUTRO_ALLIANCE_11           = 0,
     SAY_OUTRO_ALLIANCE_16           = 1,
     SAY_OUTRO_ALLIANCE_18           = 2,
-    SAY_OUTRO_ALLIANCE_20           = 3,
+    SAY_OUTRO_ALLIANCE_20           = 3
 };
 
 enum Spells
@@ -114,7 +105,7 @@ enum Spells
     SPELL_RIDE_VEHICLE                  = 70640, // Outro
     SPELL_ACHIEVEMENT                   = 72928,
     SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION = 72257,
-    SPELL_PERMANENT_FEIGN_DEATH         = 70628,
+    SPELL_PERMANENT_FEIGN_DEATH         = 70628
 };
 
 // Helper to get id of the aura on different modes (HasAura(baseId) wont work)
@@ -178,7 +169,7 @@ enum EventTypes
     EVENT_OUTRO_HORDE_5         = 48,
     EVENT_OUTRO_HORDE_6         = 49,
     EVENT_OUTRO_HORDE_7         = 50,
-    EVENT_OUTRO_HORDE_8         = 51,
+    EVENT_OUTRO_HORDE_8         = 51
 };
 
 enum Phases
@@ -196,7 +187,7 @@ enum Actions
     ACTION_START_OUTRO                  = -3781303,
     ACTION_DESPAWN                      = -3781304,
     ACTION_INTERRUPT_INTRO              = -3781305,
-    ACTION_MARK_OF_THE_FALLEN_CHAMPION  = -72293,
+    ACTION_MARK_OF_THE_FALLEN_CHAMPION  = -72293
 };
 
 #define DATA_MADE_A_MESS 45374613 // 4537, 4613 are achievement IDs
@@ -344,7 +335,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!_frenzied && HealthBelowPct(31)) // AT 30%, not below
                 {
@@ -398,7 +389,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_BLOOD_LINK_POWER)
                     if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
@@ -993,7 +984,7 @@ class spell_deathbringer_blood_link: public SpellScriptLoader
 
         class spell_deathbringer_blood_link_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_blood_link_SpellScript);
+            PrepareSpellScript(spell_deathbringer_blood_link_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/)
             {
@@ -1029,7 +1020,7 @@ class spell_deathbringer_blood_link_aura: public SpellScriptLoader
 
         class spell_deathbringer_blood_link_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_deathbringer_blood_link_AuraScript);
+            PrepareAuraScript(spell_deathbringer_blood_link_AuraScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/)
             {
@@ -1065,7 +1056,7 @@ class spell_deathbringer_blood_power: public SpellScriptLoader
 
         class spell_deathbringer_blood_power_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_blood_power_SpellScript);
+            PrepareSpellScript(spell_deathbringer_blood_power_SpellScript)
 
             void ModAuraValue()
             {
@@ -1081,7 +1072,7 @@ class spell_deathbringer_blood_power: public SpellScriptLoader
 
         class spell_deathbringer_blood_power_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_deathbringer_blood_power_AuraScript);
+            PrepareAuraScript(spell_deathbringer_blood_power_AuraScript)
 
             void RecalculateHook(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated)
             {
@@ -1114,7 +1105,7 @@ class spell_deathbringer_rune_of_blood: public SpellScriptLoader
 
         class spell_deathbringer_rune_of_blood_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_rune_of_blood_SpellScript);
+            PrepareSpellScript(spell_deathbringer_rune_of_blood_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/)
             {
@@ -1149,7 +1140,7 @@ class spell_deathbringer_blood_nova: public SpellScriptLoader
 
         class spell_deathbringer_blood_nova_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_blood_nova_SpellScript);
+            PrepareSpellScript(spell_deathbringer_blood_nova_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/)
             {
@@ -1184,7 +1175,7 @@ class spell_deathbringer_blood_nova_targeting: public SpellScriptLoader
 
         class spell_deathbringer_blood_nova_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_blood_nova_targeting_SpellScript);
+            PrepareSpellScript(spell_deathbringer_blood_nova_targeting_SpellScript)
 
             bool Load()
             {
@@ -1263,7 +1254,7 @@ class spell_deathbringer_boiling_blood: public SpellScriptLoader
 
         class spell_deathbringer_boiling_blood_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_deathbringer_boiling_blood_AuraScript);
+            PrepareAuraScript(spell_deathbringer_boiling_blood_AuraScript)
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
@@ -1293,7 +1284,7 @@ class spell_deathbringer_remove_marks: public SpellScriptLoader
 
         class spell_deathbringer_remove_marks_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_deathbringer_remove_marks_SpellScript);
+            PrepareSpellScript(spell_deathbringer_remove_marks_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1329,6 +1320,7 @@ class achievement_ive_gone_and_made_a_mess : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_deathbringer_saurfang()
 {
     new boss_deathbringer_saurfang();
@@ -1345,3 +1337,4 @@ void AddSC_boss_deathbringer_saurfang()
     new spell_deathbringer_remove_marks();
     new achievement_ive_gone_and_made_a_mess();
 }
+#endif

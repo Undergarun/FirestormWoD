@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "Item.h"
@@ -777,9 +767,9 @@ void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector
             l_StatsBonus.push_back(ItemBonus::Stats::Indestructible);
 
         if (roll_chance_f(ItemBonus::Chances::Stats) && !p_OnlyDifficulty)
-        { 
+        {
             /// Could be a good thing to improve performance to declare one random generator somewhere and always use the same instead of declare it new one for each std::shuffle call
-            /// Note for developers : std::random_shuffle is c based and will be removed soon (c++x14), so it's a good tips to always use std::shuffle instead 
+            /// Note for developers : std::random_shuffle is c based and will be removed soon (c++x14), so it's a good tips to always use std::shuffle instead
             std::random_device l_RandomDevice;
             std::mt19937 l_RandomGenerator(l_RandomDevice());
             std::shuffle(l_StatsBonus.begin(), l_StatsBonus.end(), l_RandomGenerator);
@@ -2159,7 +2149,7 @@ bool Item::IsLegendaryCloak() const
 float ItemTemplate::GetScalingDamageValue(uint32 ilvl) const
 {
     if (Quality > ITEM_QUALITY_HEIRLOOM)
-        return 0.f;
+        return 0.0f;
 
     ItemDamageEntry const* damageEntry = NULL;
 
@@ -2217,7 +2207,7 @@ float ItemTemplate::GetScalingDamageValue(uint32 ilvl) const
     default:
         break;
     }
-    return damageEntry ? damageEntry->DPS[Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_RARE : Quality] : 0.f;
+    return damageEntry ? damageEntry->DPS[Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_RARE : Quality] : 0.0f;
 }
 
 int32 ItemTemplate::GetRandomPointsOffset() const
@@ -2287,7 +2277,7 @@ uint32 ItemTemplate::CalculateScalingStatDBCValue(uint32 ilvl) const
 float ItemTemplate::GetSocketCost(uint32 ilvl) const
 {
     gtItemSocketCostPerLevelEntry const* socket = sgtItemSocketCostPerLevelStore.LookupEntry(ilvl);
-    return socket ? socket->cost : 0.f;
+    return socket ? socket->cost : 0.0f;
 }
 
 int32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
@@ -2352,21 +2342,21 @@ void ItemTemplate::CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, 
         return;
 
     float weaponMinDamageCalc = (float)Delay * GetScalingDamageValue(ilvl) * 0.001f;
-    float weaponMaxDamageCalc = (((StatScalingFactor * 0.5f) + 1.f) * weaponMinDamageCalc) + 0.5f;
+    float weaponMaxDamageCalc = (((StatScalingFactor * 0.5f) + 1.0f) * weaponMinDamageCalc) + 0.5f;
 
     if (Delay != 0)
     {
         float delayModifier = 1000.0f / (float)Delay;
-        float midCalc = (delayModifier * ((1.f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc)) + ArmorDamageModifier;
-        midCalc = midCalc > 1.f ? midCalc : 1.f;
-        float delayCoeff = 1.f / delayModifier;
+        float midCalc = (delayModifier * ((1.0f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc)) + ArmorDamageModifier;
+        midCalc = midCalc > 1.0f ? midCalc : 1.0f;
+        float delayCoeff = 1.0f / delayModifier;
         minDamage = floor((delayCoeff * midCalc) + 0.5f);
         maxDamage = floor((delayCoeff * ((delayModifier * weaponMaxDamageCalc) + ArmorDamageModifier)) + 0.5f);
     }
     else
     {
         maxDamage = floor(weaponMaxDamageCalc + 0.5f);
-        minDamage = floor(((1.f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc) + 0.5f);
+        minDamage = floor(((1.0f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc) + 0.5f);
     }
 }
 

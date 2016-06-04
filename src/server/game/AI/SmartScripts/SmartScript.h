@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_SMARTSCRIPT_H
 #define TRINITY_SMARTSCRIPT_H
@@ -46,6 +37,7 @@ class SmartScript
         void UpdateTimer(SmartScriptHolder& e, uint32 const diff);
         void InitTimer(SmartScriptHolder& e);
         void ProcessAction(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
+        void ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
         ObjectList* GetTargets(SmartScriptHolder const& e, Unit* invoker = NULL);
         ObjectList* GetWorldObjectsInDist(float dist);
         void InstallTemplate(SmartScriptHolder const& e);
@@ -144,6 +136,42 @@ class SmartScript
             return NULL;
         }
 
+        void StoreCounter(uint32 id, uint32 value, uint32 reset)
+        {
+            CounterMap::const_iterator itr = mCounterList.find(id);
+
+            if (itr != mCounterList.end())
+            {
+                if (reset == 0)
+                    value += GetCounterValue(id);
+
+                mCounterList.erase(id);
+            }
+
+            mCounterList.insert(std::make_pair(id, value));
+            ProcessEventsFor(SMART_EVENT_COUNTER_SET);
+        }
+
+        uint32 GetCounterId(uint32 id)
+        {
+            CounterMap::iterator itr = mCounterList.find(id);
+
+            if (itr != mCounterList.end())
+                return itr->first;
+
+            return 0;
+        }
+
+        uint32 GetCounterValue(uint32 id)
+        {
+            CounterMap::iterator itr = mCounterList.find(id);
+
+            if (itr != mCounterList.end())
+                return itr->second;
+
+            return 0;
+        }
+
         GameObject* FindGameObjectNear(WorldObject* searchObject, uint32 guid) const
         {
             GameObject* gameObject = NULL;
@@ -204,6 +232,8 @@ class SmartScript
         void SetScript9(SmartScriptHolder& e, uint32 entry);
         Unit* GetLastInvoker();
         uint64 mLastInvoker;
+        typedef std::unordered_map<uint32, uint32> CounterMap;
+        CounterMap mCounterList;
 
     private:
         void IncPhase(int32 p = 1)
@@ -229,7 +259,7 @@ class SmartScript
         SmartScriptType mScriptType;
         uint32 mEventPhase;
 
-        UNORDERED_MAP<int32, int32> mStoredDecimals;
+        std::unordered_map<int32, int32> mStoredDecimals;
         uint32 mPathId;
         SmartAIEventList mStoredEvents;
         std::list<uint32>mRemIDs;

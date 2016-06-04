@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -36,7 +27,7 @@ enum Texts
     SAY_KILL                    = 8,
     SAY_WIPE                    = 9,
     SAY_BERSERK                 = 10,
-    SAY_DEATH                   = 11,
+    SAY_DEATH                   = 11
 };
 
 enum Spells
@@ -61,7 +52,7 @@ enum Spells
     SPELL_TWILIGHT_BLOODBOLT                = 71446,
     SPELL_INCITE_TERROR                     = 73070,
     SPELL_BLOODBOLT_WHIRL                   = 71772,
-    SPELL_ANNIHILATE                        = 71322,
+    SPELL_ANNIHILATE                        = 71322
 };
 
 enum Shadowmourne
@@ -70,14 +61,14 @@ enum Shadowmourne
     ITEM_SHADOW_S_EDGE                      = 49888,
 
     SPELL_GUSHING_WOUND                     = 72132,
-    SPELL_THIRST_QUENCHED                   = 72154,
+    SPELL_THIRST_QUENCHED                   = 72154
 };
 
 uint32 const vampireAuras[3][Difficulty::MaxDifficulties] =
 {
     {70867, 71473, 71532, 71533},
     {70879, 71525, 71530, 71531},
-    {70877, 71474, 70877, 71474},
+    {70877, 71474, 70877, 71474}
 };
 
 #define ESSENCE_OF_BLOOD_QUEEN     RAID_MODE<uint32>(70867, 71473, 71532, 71533)
@@ -99,13 +90,13 @@ enum Events
     EVENT_AIR_FLY_DOWN              = 10,
 
     EVENT_GROUP_NORMAL              = 1,
-    EVENT_GROUP_CANCELLABLE         = 2,
+    EVENT_GROUP_CANCELLABLE         = 2
 };
 
 enum Guids
 {
     GUID_VAMPIRE    = 1,
-    GUID_BLOODBOLT  = 2,
+    GUID_BLOODBOLT  = 2
 };
 
 enum Points
@@ -113,7 +104,7 @@ enum Points
     POINT_CENTER    = 1,
     POINT_AIR       = 2,
     POINT_GROUND    = 3,
-    POINT_MINCHAR   = 4,
+    POINT_MINCHAR   = 4
 };
 
 Position const centerPos  = {4595.7090f, 2769.4190f, 400.6368f, 0.000000f};
@@ -527,7 +518,7 @@ class spell_blood_queen_vampiric_bite: public SpellScriptLoader
 
         class spell_blood_queen_vampiric_bite_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_blood_queen_vampiric_bite_SpellScript);
+            PrepareSpellScript(spell_blood_queen_vampiric_bite_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -611,7 +602,7 @@ class spell_blood_queen_frenzied_bloodthirst: public SpellScriptLoader
 
         class spell_blood_queen_frenzied_bloodthirst_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_blood_queen_frenzied_bloodthirst_AuraScript);
+            PrepareAuraScript(spell_blood_queen_frenzied_bloodthirst_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -670,7 +661,7 @@ class spell_blood_queen_bloodbolt: public SpellScriptLoader
 
         class spell_blood_queen_bloodbolt_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_blood_queen_bloodbolt_SpellScript);
+            PrepareSpellScript(spell_blood_queen_bloodbolt_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -720,7 +711,7 @@ class spell_blood_queen_pact_of_the_darkfallen: public SpellScriptLoader
 
         class spell_blood_queen_pact_of_the_darkfallen_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen_SpellScript);
+            PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -768,7 +759,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg: public SpellScriptLoader
 
         class spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript);
+            PrepareAuraScript(spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -806,7 +797,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg_target: public SpellScriptLoa
 
         class spell_blood_queen_pact_of_the_darkfallen_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen_dmg_SpellScript);
+            PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen_dmg_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
@@ -906,6 +897,7 @@ class achievement_once_bitten_twice_shy_v25 : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_blood_queen_lana_thel()
 {
     new boss_blood_queen_lana_thel();
@@ -920,3 +912,4 @@ void AddSC_boss_blood_queen_lana_thel()
     new achievement_once_bitten_twice_shy_n25();
     new achievement_once_bitten_twice_shy_v25();
 }
+#endif

@@ -4,27 +4,25 @@
 ///  MILLENIUM-STUDIO
 ///  Copyright 2015 Millenium-studio SARL
 ///  All Rights Reserved.
-///
+///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "GridNotifiers.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "auchindon.hpp"
+#include "auchindoun.hpp"
 
 enum eKaatharSpells
 {
     SpellHallowedGround                = 154526,
-    SpellHallowedGroundVisual          = 155646,
-    SpellHallowedGroundHackedVisual    = 178266,
-    SpellHallowedGroundHackedVisual2   = 174212,
-    SpellHallowedGroundHackedVisual3   = 174184,
+    SpellHallowedGroundsTriggerMissile = 155646,
     SpellConsecratedLight              = 153006,
     SpellConsecratedLightDamage        = 156746,
     SpellHolyShieldThrow               = 153002,
     SpellHolyShieldLos                 = 153028,
     SpellHolyShieldLosSpells           = 153452,
+    SpellHolyShieldAreatrigger         = 153478,
     SpellHolyShieldOffHandDisarm       = 174205,
     SpellHolyShieldTwoHandDisarm       = 174206,
     SpellHolyShieldKnockBack           = 153481,
@@ -38,7 +36,7 @@ enum eKaatharSpells
     SpellSanctifiedStrikeAreaTrigger2  = 163559,
     SpellSancitfiedStrikeAreaTrigger3  = 165055,
     SpellSanctifiedStrikeAreaTrigger4  = 165065,
-    SpellFate                          = 157465,
+    SpellFate                          = 157465
 };
 
 enum eKaatharEvents
@@ -50,13 +48,13 @@ enum eKaatharEvents
     EventHolyShieldReturn,
     EventFate,
     EventCheckPlayer,
-    EventDecreaseSize,
+    EventDecreaseSize
 };
 
 enum eKaatharActions
 {
     ActionActivateBoss = 1,
-    ActionFateHallowedGround,
+    ActionFateHallowedGround
 };
 
 enum eKaatharTalks
@@ -66,19 +64,22 @@ enum eKaatharTalks
     VigilantKaatherSpell1 = 20,   ///< Bathe In The Glory Of The Light! (46438)
     VigilantKaatherSpell2 = 21,   ///< The Light Guide My Hand! (46439)
     VigilantKaatherKill   = 22,   ///< Light Guide You. (46434)
-    VigilantKaatherDeath  = 23,   ///< Auchindoun...Is...Doomed...(46435)
+    VigilantKaatherDeath  = 23    ///< Auchindoun...Is...Doomed...(46435)
 };
 
-enum eKaatharTriggers
+enum eKaatharCreatures
 {
     TriggerHallowedGround  = 537324,
     TriggerHolyShield      = 76071,
-    TriggerFissureSummoner = 543536,
+    TriggerFissureSummoner = 543536
 };
+
+Position const g_KaatharNewHomePosition = { 1911.47f, 3152.13f, 30.972f, 1.166194f };
 
 class EventNyamiEscape : public BasicEvent
 {
-public:
+    public:
+
     explicit EventNyamiEscape(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
     {
     }
@@ -89,85 +90,91 @@ public:
         {
             if (InstanceScript* l_Instance = m_Obj->GetInstanceScript())
             {
-                if (Creature* l_Tuulani = l_Instance->instance->GetCreature(l_Instance->GetData64(eDataAuchindonDatas::DataTuulani)))
+                if (Creature* l_Tuulani = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataTuulani)))
                 {
-                    if (Creature* l_Nyami = l_Instance->instance->GetCreature(l_Instance->GetData64(eDataAuchindonDatas::DataNyami)))
+                    if (Creature* l_Nyami = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataNyami)))
                     {
-                        if (Creature* l_Kaathar = l_Instance->instance->GetCreature(l_Instance->GetData64(eDataAuchindonDatas::DataBossKathaar)))
+                        if (Creature* l_Kaathar = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossKathaar)))
                         {
-                            if (l_Tuulani->GetAI() && l_Nyami->GetAI() &&  l_Kaathar->GetAI())
+                            if (l_Tuulani->IsAIEnabled && l_Nyami->IsAIEnabled && l_Kaathar->IsAIEnabled)
                             {
                                 switch (m_Modifier)
                                 {
-                                    case 100:
-                                    {
-                                        l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK6);
-                                        l_Nyami->CastSpell(l_Nyami, eAuchindonSpells::SpellNyamiExplodeCrystal);
-                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 101), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
-                                        break;
-                                    }
-                                    case 101:
-                                    {
-                                        l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK7);
-                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 0), l_Tuulani->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
-                                        break;
-                                    }
                                     case 0:
                                     {
-                                        l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK8);
-                                        l_Nyami->GetMotionMaster()->MovePoint(eAuchindonMovementInform::MovementInformNyamiEscape05, g_PositionNyamiEscape01);
+                                        l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK6);
+                                        l_Nyami->CastSpell(l_Nyami, eAuchindounSpells::SpellNyamiExplodeCrystal);
+                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 1), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     }
                                     case 1:
                                     {
-                                        l_Nyami->GetMotionMaster()->MovePoint(eAuchindonMovementInform::MovementInformNyamiEscape06, g_PositionNyamiEscape02);
+                                        /// Cosmetic crystal projectiles flies toward the middle
+                                        if (Creature* l_Teronagar = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+                                        {
+                                            for (uint8 l_I = 0; l_I < 20; l_I++)
+                                            {
+                                                if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
+                                                {
+                                                    G3D::Vector3 l_Source(l_Caster->m_positionX, l_Caster->m_positionY, l_Caster->m_positionZ);
+                                                    G3D::Vector3 l_Dest(l_Teronagar->m_positionX, l_Teronagar->m_positionY, l_Teronagar->m_positionZ);
+                                                    G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
+
+                                                    l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 1.0f);
+                                                }
+                                            }
+                                        }
+
+                                        l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK7);
+                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 2), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     }
                                     case 2:
                                     {
-                                        l_Nyami->RemoveAura(eAuchindonSpells::SpellTuulaniCapturedVoidPrison);
-                                        l_Nyami->AddAura(eAuchindonSpells::SpellDispersionVisualNyami, l_Nyami);
-                                        l_Nyami->SetSpeed(UnitMoveType::MOVE_RUN, 10.0f, true);
-                                        l_Nyami->CastSpell(l_Nyami, eAuchindonSpells::SpellCrystalEarthquake);
-                                        l_Nyami->GetMotionMaster()->MovePoint(eAuchindonMovementInform::MovementInformNyamiEscape07, g_PositionNyamiEscape03);
-
-                                        l_Kaathar->setFaction(eAuchindonInformation::InformationHostileFaction);
-                                        l_Kaathar->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                                        l_Kaathar->GetMotionMaster()->MoveJump(g_PositionKaatharCombatJump.GetPositionX(), g_PositionKaatharCombatJump.GetPositionY(), g_PositionKaatharCombatJump.GetPositionZ(), 10.0f, 10.0f, 10.0f, 0);
+                                        l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK8);
+                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 3), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     }
                                     case 3:
                                     {
-                                        l_Nyami->GetMotionMaster()->MovePoint(eAuchindonMovementInform::MovementInformNyamiEscape08, g_PositionNyamiEscape04);
+                                        l_Nyami->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformNyamiEscape06, g_PositionNyamiEscapeMovement[1]);
+                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 4), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     }
                                     case 4:
                                     {
-                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 6), l_Tuulani->m_Events.CalculateTime(500));
-                                        break;
-                                    }
-                                    case 6:
-                                    {
-                                        l_Tuulani->AI()->Talk(eAuchindonTalk::TUULANITALK10);
-                                        l_Tuulani->AddAura(eAuchindonSpells::SpellTuulaniCapturedVoidPrison, l_Tuulani);
-                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 7), l_Tuulani->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
+                                        l_Kaathar->setFaction(HostileFaction);
+                                        l_Nyami->SetSpeed(UnitMoveType::MOVE_RUN, 10.0f, true);
+                                        l_Nyami->RemoveAura(eAuchindounSpells::SpellTuulaniCapturedVoidPrison);
+                                        l_Nyami->AddAura(eAuchindounSpells::SpellDispersionVisualNyami, l_Nyami);                                     
+                                        l_Nyami->CastSpell(l_Nyami, eAuchindounSpells::SpellCrystalEarthquake);
+                                        l_Nyami->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformNyamiEscape07, g_PositionNyamiEscapeMovement[2]);                                 
+                                        l_Kaathar->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                                        l_Kaathar->GetMotionMaster()->MoveJump(g_PositionKaatharCombatJump.GetPositionX(), g_PositionKaatharCombatJump.GetPositionY(), g_PositionKaatharCombatJump.GetPositionZ(), 10.0f, 10.0f, 10.0f, 0);
+                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 7), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     }
                                     case 7:
                                     {
-                                        l_Tuulani->AI()->Talk(eAuchindonTalk::TUULANITALK11);
-                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 8), l_Tuulani->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
+                                        l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK10);
+                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 8), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     }
                                     case 8:
                                     {
-                                        l_Tuulani->AI()->Talk(eAuchindonTalk::TUULANITALK9);
-                                        l_Tuulani->AddAura(eAuchindonSpells::SpellTuulaniCapturedVoidPrison, l_Tuulani);
-
-                                        l_Nyami->GetMotionMaster()->MovePoint(9, g_PositionNyamiEscape05);
-                                        l_Nyami->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);                                  
+                                        l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK11);
+                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 9), l_Tuulani->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     }
+                                    case 9:
+                                    {
+                                        l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK9);
+                                        l_Nyami->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
+                                        l_Tuulani->AddAura(eAuchindounSpells::SpellTuulaniCapturedVoidPrison, l_Tuulani);                                        
+                                        break;
+                                    }
+                                    default:
+                                        break;
                                 }
                             }
                         }
@@ -185,6 +192,7 @@ private:
     int m_Event;
 };
 
+
 class EventPostKaathar : public BasicEvent
 {
 public:
@@ -198,91 +206,64 @@ public:
         {
             if (InstanceScript* l_Instance = m_Obj->GetInstanceScript())
             {
-                if (Creature* l_Tuulani = l_Instance->instance->GetCreature(l_Instance->GetData64(eDataAuchindonDatas::DataTuulani)))
+                if (Creature* l_Tuulani = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataTuulani)))
                 {
-                    if (l_Tuulani->GetAI())
+                    if (l_Tuulani->IsAIEnabled)
                     {
                         switch (m_Modifier)
                         {
                             case 0:
                             {
-                                l_Tuulani->AI()->Talk(eAuchindonTalk::TUULANITALK14);
-                                l_Tuulani->RemoveAura(eAuchindonSpells::SpellTuulaniCapturedVoidPrison); // void prison
+                                l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK14);
+                                l_Tuulani->RemoveAura(eAuchindounSpells::SpellTuulaniCapturedVoidPrison);
 
-                                for (int32 i = 0; i < 4; i++)
+                                for (int8 l_I = 0; l_I < 4; l_I++)
                                 {
-                                    if (Creature* l_Defender = m_Obj->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionFourMagesThatSpawnAfterKaatharIsKaaput[i], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                                    if (Creature* l_Defender = m_Obj->SummonCreature(eAuchindounCreatures::CreatureAucheniDefender, g_PositionFourMagesThatSpawnAfterKaatharIsKaaput[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                                     {
                                         l_Defender->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 505);
-                                        l_Defender->GetMotionMaster()->MovePoint(0, g_PositionFourMagesThatSpawnAfterKaatharIsKaaput[i]);
+                                        l_Defender->GetMotionMaster()->MovePoint(0, g_PositionFourMagesThatSpawnAfterKaatharIsKaaput[l_I]);
                                     }
                                 }
 
-                                if (Creature* l_Magus = m_Obj->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionMageSpawning, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                                if (Creature* l_Magus = m_Obj->SummonCreature(eAuchindounCreatures::CreatureAucheniMagus, g_PositionMageSpawning, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                                 {
                                     l_Magus->GetMotionMaster()->MovePoint(0, g_PositionMageMoveTo);
                                     l_Magus->m_Events.AddEvent(new EventPostKaathar(l_Magus, 1), l_Magus->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
-                                }
+                                }                      
                                 break;
                             }
                             case 1:
-                            {                        
-                                l_Tuulani->SummonCreature(eAuchindonBosses::BossNyami, g_PositionNyamiSpawn, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                            {                 
+                                l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK15);
+                                /// Summoning a boss
+                                l_Tuulani->SummonCreature(eAuchindounBosses::BossNyami, g_PositionNyamiSpawn, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                                /// Holy Wall, Object In MIddle
+                                l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInMiddleFromNyami.GetPositionX(), g_PositionWallInMiddleFromNyami.GetPositionY(), g_PositionWallInMiddleFromNyami.GetPositionZ(), g_PositionWallInMiddleFromNyami.GetOrientation(), 0, 0, 0, 0, 0);
+                                /// Holy Wall, Object Behind
+                                l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInBackFromNyami.GetPositionX(), g_PositionWallInBackFromNyami.GetPositionY(), g_PositionWallInBackFromNyami.GetPositionZ(), g_PositionWallInBackFromNyami.GetOrientation(), 0, 0, 0, 0, 0);
 
-                                // Corpses
-                                for (int32 i = 0; i < 2; i++)
+                                /// Three prisonners
+                                for (int8 l_I = 0; l_I < 3; l_I++)
                                 {
-                                    if (Creature* l_Corpses = l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionThreeCorpses[i], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
-                                    {
-                                        l_Corpses->SetReactState(ReactStates::REACT_PASSIVE);
-                                        l_Corpses->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                                        l_Corpses->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
-                                        l_Corpses->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                                        l_Corpses->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                                    }
-                                }
-
-                                l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargereiDefender, g_PositionMagusAndDefenderHostile[1], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
-
-                                // Hostile near Two corpses          
-                                Creature* l_Magus = l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargereiMagus, g_PositionMagusAndDefenderHostile[0], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);   
-                                {
-                                    l_Magus->CastSpell(l_Magus, SpellArcaneChanneling);
-                                }
-
-                                // Two defender
-                                for (int32 i = 0; i < 2; i++)
-                                {
-                                    l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargereiDefender, g_PositionSargereiDefenders[i], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
-                                }
-
-                                // Magus p_Who control footmans                            
-                                if (Creature* l_Magus = l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargereiMagus, g_PositionMagusp_WhoControlFootmans, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
-                                {
-                                    l_Magus->CastSpell(l_Magus, SpellArcaneChanneling);
-                                }
-
-                                // Three prisonners
-                                for (int32 i = 0; i < 3; i++)
-                                {                           
-                                    if (Creature* l_Prisoners = l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureAucheniSoulPriest, g_PositionThreePrisoners[i], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                                    if (Creature* l_Prisoners = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniSoulPriest, g_PositionThreePrisoners[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                                     {
                                         l_Prisoners->SetCanFly(true);
                                         l_Prisoners->SetDisableGravity(true);
-                                        l_Prisoners->CastSpell(l_Prisoners, eAuchindonSpells::SpellPrisonAura);
-                                        l_Prisoners->CastSpell(l_Prisoners, eAuchindonSpells::SpellStrangulate);
-                                        l_Prisoners->SetReactState(ReactStates::REACT_PASSIVE);                   
+                                        l_Prisoners->SetReactState(ReactStates::REACT_PASSIVE);
                                         l_Prisoners->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                                        l_Prisoners->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
-                                        l_Prisoners->SetFlag(EUnitFields::UNIT_FIELD_FLAGS,  eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                                        l_Prisoners->CastSpell(l_Prisoners, eAuchindounSpells::SpellPrisonAura, true);
+                                        l_Prisoners->CastSpell(l_Prisoners, eAuchindounSpells::SpellStrangulate, true);                                          
+                                        l_Prisoners->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                                         l_Prisoners->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                                        l_Prisoners->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);                                                                      
                                     }
                                 }
 
-                                // Twelve prisoners (cosmetic)
-                                for (int32 i = 0; i <= 11; i++)
-                                {                              
-                                    if (Creature* l_Prisoners = l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionCorpsesNearNyomi[i], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                                /// Twelve prisoners (cosmetic)
+                                for (int8 l_I = 0; l_I < 11; l_I++)
+                                {
+                                    if (Creature* l_Prisoners = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniDefender, g_PositionCorpsesNearNyomi[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                                     {
                                         l_Prisoners->SetReactState(ReactStates::REACT_PASSIVE);
                                         l_Prisoners->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
@@ -291,57 +272,38 @@ public:
                                         l_Prisoners->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
                                     }
                                 }
-
-                                // Pack of arbitrer and magus and defender.
-                                l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSpitefulArbitrerTrash, g_PositionThreeHostileArbitrerMagusSoulPriest[0], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
-                                l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargereiMagus, g_PositionThreeHostileArbitrerMagusSoulPriest[1], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
-                                l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargeriSoulPriest, g_PositionThreeHostileArbitrerMagusSoulPriest[2], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
-
-                                // Warden
-                                l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargeriWarden, g_PositionWardenAndGuards, TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
-                     
-                                // Defenders
-                                for (int32 i = 0; i < 2; i++)
+                                
+                                /// Defenders
+                                for (int8 l_I = 0; l_I < 4; l_I++)
                                 {
-                                    l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargereiDefender, g_PositionGuardsAndWardens[i], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
-                                }
-
-                                // Holy Wall, Object In MIddle
-                                l_Tuulani->SummonGameObject(eAuchindonObjects::GameobjectHolyWall, g_PositionWallInMiddleFromNyami.GetPositionX(), g_PositionWallInMiddleFromNyami.GetPositionY(), g_PositionWallInMiddleFromNyami.GetPositionZ(), g_PositionWallInMiddleFromNyami.GetOrientation(), 0, 0, 0, 0, 0);
-
-                                for (int32 i = 0; i < 4; i++)
-                                {
-                                    if (Creature* l_Defenders = l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureAucheniWarden, g_PositionDefenderBehindMiddleWallOfNyami[i], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                                    if (Creature* l_Defenders = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniWarden, g_PositionDefenderBehindMiddleWallOfNyami[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                                     {
-                                        l_Defenders->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                                         l_Defenders->SetReactState(ReactStates::REACT_PASSIVE);
-
-                                        if (Creature* l_Stalker = l_Defenders->FindNearestCreature(eAuchindonCreatures::CreatureLightWallTargets, 8.0f))
-                                            l_Defenders->CastSpell(l_Stalker, eAuchindonSpells::SpellHolyBeam);
+                                        l_Defenders->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                                       
+                                        if (Creature* l_Stalker = l_Defenders->FindNearestCreature(eAuchindounCreatures::CreatureLightWallTargets, 8.0f))
+                                            l_Defenders->CastSpell(l_Stalker, eAuchindounSpells::SpellHolyBeam);
                                     } 
                                 }
 
-                                // Holy Wall, Object Behind
-                                l_Tuulani->SummonGameObject(eAuchindonObjects::GameobjectHolyWall, g_PositionWallInBackFromNyami.GetPositionX(), g_PositionWallInBackFromNyami.GetPositionY(), g_PositionWallInBackFromNyami.GetPositionZ(), g_PositionWallInBackFromNyami.GetOrientation(), 0, 0, 0, 0, 0);
-
-                                for (int32 i = 0; i < 2; i++)
+                                /// Cosmetic Wardens
+                                for (int8 l_I = 0; l_I < 2; l_I++)
                                 {
-                                    if (Creature* l_Defenders = l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureAucheniWarden, g_PositionDefenderBehindBackWallOfNyami[i], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                                    if (Creature* l_Defenders = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniWarden, g_PositionDefenderBehindBackWallOfNyami[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                                     {
-                                        l_Defenders->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                                         l_Defenders->SetReactState(ReactStates::REACT_PASSIVE);
+                                        l_Defenders->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
 
-                                        if (Creature* l_Stalker = l_Defenders->FindNearestCreature(eAuchindonCreatures::CreatureLightWallTargets, 8.0f))
-                                            l_Defenders->CastSpell(l_Stalker, eAuchindonSpells::SpellHolyBeam);
+                                        if (Creature* l_Stalker = l_Defenders->FindNearestCreature(eAuchindounCreatures::CreatureLightWallTargets, 15.0f))
+                                            l_Defenders->CastSpell(l_Stalker, eAuchindounSpells::SpellHolyBeam);
                                     }
-                                }
+                                }     
 
-                                l_Tuulani->AI()->Talk(TUULANITALK15);
-
-                                // Magus
-                                m_Obj->CastSpell(m_Obj, eAuchindonSpells::SpellArcaneChanneling);
-                                m_Obj->SummonGameObject(eAuchindonObjects:: GameobjectTaladorPortal, g_PositionTuulaniGobjectPortalSpawn.GetPositionX(), g_PositionTuulaniGobjectPortalSpawn.GetPositionY(), g_PositionTuulaniGobjectPortalSpawn.GetPositionZ(), g_PositionTuulaniGobjectPortalSpawn.GetOrientation(), 0, 0, 0, 0, 0);
-                                m_Obj->m_Events.AddEvent(new EventPostKaathar(m_Obj, 2), m_Obj->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));           
+                                /// Magus
+                                m_Obj->CastSpell(m_Obj, eAuchindounSpells::SpellArcaneChanneling);
+                                m_Obj->SummonGameObject(eAuchindounObjects::GameobjectTaladorPortal, g_PositionTuulaniGobjectPortalSpawn.GetPositionX(), g_PositionTuulaniGobjectPortalSpawn.GetPositionY(), g_PositionTuulaniGobjectPortalSpawn.GetPositionZ(), g_PositionTuulaniGobjectPortalSpawn.GetOrientation(), 0, 0, 0, 0, 0);
+                                break;
+                            default:
                                 break;
                             }
                         }
@@ -357,18 +319,18 @@ public:
       Unit* m_Obj;
       int m_Modifier;
       int m_Event;
-      std::list<Creature*> l_Dispeonsor;
 };
 
 /// Nyami Mob - 77810
-class auchindon_mob_nyami : public CreatureScript
+class auchindoun_kaathar_mob_nyami : public CreatureScript
 {
-public:
-    auchindon_mob_nyami() : CreatureScript("auchindon_mob_nyami") {}
+    public:
 
-    struct auchindon_creaturesAI : public ScriptedAI
+    auchindoun_kaathar_mob_nyami() : CreatureScript("auchindoun_kaathar_mob_nyami") {}
+
+    struct auchindoun_kaathar_mob_nyamiAI : public ScriptedAI
     {
-        auchindon_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        auchindoun_kaathar_mob_nyamiAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = p_Creature->GetInstanceScript();
         }
@@ -377,86 +339,81 @@ public:
 
         void Reset() override
         {
-            me->CastSpell(me, eAuchindonSpells::SpellLevitateNyami);
-
-            me->setFaction(eAuchindonInformation::InformationFriendlyFaction);    
+            me->setFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
+            me->CastSpell(me, eAuchindounSpells::SpellLevitateNyami);  
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
-        }
-
-        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
-        {
-            switch (p_Id)
-            {
-                case eAuchindonMovementInform::MovementInformNyamiEscape05:
-                    me->m_Events.AddEvent(new EventNyamiEscape(me, 1), me->m_Events.CalculateTime(200));
-                    break;
-                case eAuchindonMovementInform::MovementInformNyamiEscape06:
-                    me->m_Events.AddEvent(new EventNyamiEscape(me, 2), me->m_Events.CalculateTime(200));
-                    break;
-                case eAuchindonMovementInform::MovementInformNyamiEscape07:
-                    me->m_Events.AddEvent(new EventNyamiEscape(me, 3), me->m_Events.CalculateTime(200));
-                    break;
-                case eAuchindonMovementInform::MovementInformNyamiEscape08:
-                    me->m_Events.AddEvent(new EventNyamiEscape(me, 4), me->m_Events.CalculateTime(200));
-                    break;
-            }
-        }
-
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
         }
     };
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new auchindon_creaturesAI(p_Creature);
+        return new auchindoun_kaathar_mob_nyamiAI(p_Creature);
     }
 };
 
 /// Vigilant Kaathar - 75839
-class auchindon_boss_kaathar : public CreatureScript
+class boss_kaathar : public CreatureScript
 {
-public:
-    auchindon_boss_kaathar() : CreatureScript("auchindon_boss_kaathar") { }
+    public:
+
+    boss_kaathar() : CreatureScript("boss_kaathar") { }
 
     struct boss_kaatharAI : public BossAI
     {
-        boss_kaatharAI(Creature* p_Creature) : BossAI(p_Creature, eDataAuchindonDatas::DataBossKathaar)
+        boss_kaatharAI(Creature* p_Creature) : BossAI(p_Creature, eAuchindounDatas::DataBossKathaar)
         {
             m_Instance = me->GetInstanceScript();
-
-            ActivateDoors();
-
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-            me->setFaction(eAuchindonInformation::InformationFriendlyFaction);     
-            
-            me->CastSpell(me, eAuchindonSpells::SpellGuard);
-
-            m_Counting  = 0;
-            m_IntroDone = false;
-            m_Intro     = false;
+            m_False = true;
         }
 
         InstanceScript* m_Instance;
         uint32 m_Counting;
         bool m_IntroDone;
         bool m_Intro;
+        bool m_False;
 
         void Reset() override
         {
             _Reset();
             events.Reset(); 
+            me->SetCurrentEquipmentId(1); // Equipment Id    
+            ClearDelayedOperations();
 
-            me->SetCurrentEquipmentId(1); // Equipment Id              
+            std::list<AreaTrigger*> l_listAreaTriggers;
+            me->GetAreatriggerListInRange(l_listAreaTriggers, 300.0f);
+            if (!l_listAreaTriggers.empty())
+            {
+                for (AreaTrigger* l_Itr : l_listAreaTriggers)
+                {
+                    if (!l_Itr)
+                        continue;
+
+                    if (l_Itr->GetSpellId() != eKaatharSpells::SpellHolyShieldAreatrigger)
+                        continue;
+
+                    l_Itr->Remove(1 * TimeConstants::IN_MILLISECONDS);
+                }
+            }
+
+            if (m_False)
+            {
+                m_Counting = 0;
+                m_Intro = false;
+                m_False = false;
+                m_IntroDone = false;
+                ActivateDoors();
+                me->setFaction(FriendlyFaction);
+                me->CastSpell(me, eAuchindounSpells::SpellGuard);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);                                                
+            }
         }
 
         void ActivateDoors()
         {
             if (m_Instance != nullptr)
             {
-                if (GameObject* l_HolyBarrier = m_Instance->instance->GetGameObject(m_Instance->GetData64(DataHolyBarrier)))
+                if (GameObject* l_HolyBarrier = m_Instance->instance->GetGameObject(m_Instance->GetData64(eAuchindounDatas::DataHolyBarrier)))
                 {
                     l_HolyBarrier->SetLootState(LootState::GO_READY);
                     l_HolyBarrier->UseDoorOrButton();
@@ -468,13 +425,7 @@ public:
         {
             _JustReachedHome();      
             summons.DespawnAll();
-
-            ActivateDoors();
-
-            if (m_Instance != nullptr)
-            {
-                instance->SetBossState(DataBossKathaar, EncounterState::FAIL);
-            }   
+            ActivateDoors();        
         }
 
         void MoveInLineOfSight(Unit* p_Who) override
@@ -483,23 +434,20 @@ public:
             {
                 m_Intro = true;
                 Talk(eKaatharTalks::VigilantKaatherIntro);
-
-                me->SetHomePosition(1911.47f, 3152.13f, 30.972f, 1.166194f);
+                me->SetHomePosition(g_KaatharNewHomePosition);
             }
         }
 
         void KilledUnit(Unit* p_Who) override
         {
-            if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
+            if (p_Who && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
                 Talk(eKaatharTalks::VigilantKaatherKill);
         }
 
         void EnterCombat(Unit* p_Who) override
         {
             _EnterCombat();
-            Talk(eKaatharTalks::VigilantKaatherAgro);
-
-            ActivateDoors();
+            ActivateDoors();     
 
             ///< Heroics
             if (me->GetMap() && me->GetMap()->IsHeroic())
@@ -510,70 +458,152 @@ public:
             events.ScheduleEvent(eKaatharEvents::EventHolyShield, 30 * TimeConstants::IN_MILLISECONDS);
 
             if (m_Instance != nullptr)
-            {
-                instance->SetBossState(eDataAuchindonDatas::DataBossKathaar, EncounterState::IN_PROGRESS);
-                m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
-
-                DoZoneInCombat();
-            }  
+				m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
+			Talk(eKaatharTalks::VigilantKaatherAgro);
         }
 
         void DoAction(int32 const p_Action) override
         {
             switch (p_Action)
             {
-                case eAuchindonGeneralActions::ActionCountPre1StBossKill:
+                case eAuchindounActions::ActionCountPre1StBossKill:
+                {
                     m_Counting = m_Counting + 1;
 
                     if (m_Counting >= 12)
                     {
-                        me->RemoveAura(eAuchindonSpells::SpellGuard);
+                        me->RemoveAura(eAuchindounSpells::SpellGuard);
 
-                        if (Creature* l_Tuulani = instance->instance->GetCreature(instance->GetData64(eDataAuchindonDatas::DataTuulani)))
+                        if (m_Instance != nullptr)
                         {
-                            if (Creature* l_Nyami = instance->instance->GetCreature(instance->GetData64(eDataAuchindonDatas::DataNyami)))
+                            if (Creature* l_Tuulani = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataTuulani)))
                             {
-                                l_Tuulani->m_Events.KillAllEvents(true);
-                                l_Nyami->m_Events.KillAllEvents(true);
+                                if (Creature* l_Nyami = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataNyami)))
+                                {
+                                    l_Tuulani->m_Events.KillAllEvents(true);
+                                    l_Nyami->m_Events.KillAllEvents(true);
+                                }
                             }
                         }
 
                         m_IntroDone = true;
-                        me->m_Events.AddEvent(new EventNyamiEscape(me, 100), me->m_Events.CalculateTime(500));
+                        me->m_Events.AddEvent(new EventNyamiEscape(me, 0), me->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
                     }
+                    break;
+                }
+                default:
                     break;
             }
         }
 
+        /// Responsible for the phase change after Kaathar fight - despawning
         void DespawnAllAucheniDraeneis()
         {
-            int32 l_Entries[14] = {76595, CreatureAuchenaiDefenderUnique, CreatureAucheniMagus2, CreatureAucheniVigiliant, CreatureAucheniHoplite, CreatureAucheniZealot, CreatureAucheniWarden, CreatureAucheniRitualist, CreatureAucheniMagus, CreatureAucheniSoulPriest, CreatureAucheniArbiter, CreatureAucheniCleric, CreatureAucheniDefender};
+            if (m_Instance != nullptr)
+            {
+                if (Creature* l_AssinatingGuard = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataAssinatingGuard)))
+                {
+                    if (Creature* l_AssinatedGuard = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataAssinatedGuard)))
+                    {
+                        l_AssinatingGuard->GetMotionMaster()->MovePoint(0, *l_AssinatedGuard);
 
-            for (int32 i = 0; i < 14; i++)
-                DespawnCreaturesInArea(l_Entries[i], me);
+                        l_AssinatingGuard->Attack(l_AssinatedGuard, true);
+                        l_AssinatedGuard->Kill(l_AssinatedGuard);
+                    }
+                }
+            }
+
+            int32 l_Entries[13] = { 77693, 76595, eAuchindounCreatures::CreatureAuchenaiDefenderUnique, eAuchindounCreatures::CreatureAucheniMagus2, eAuchindounCreatures::CreatureAucheniHoplite,
+                eAuchindounCreatures::CreatureAucheniZealot, eAuchindounCreatures::CreatureAucheniWarden, eAuchindounCreatures::CreatureAucheniRitualist, eAuchindounCreatures::CreatureAucheniMagus,
+                eAuchindounCreatures::CreatureAucheniSoulPriest, eAuchindounCreatures::CreatureAucheniArbiter, eAuchindounCreatures::CreatureAucheniCleric, eAuchindounCreatures::CreatureAucheniDefender };
+
+            for (uint8 l_I = 0; l_I < 13; l_I++)
+                DespawnCreaturesInArea(l_Entries[l_I], me);
+
+            SpawnSargereiDraenies();
+        }
+
+        /// Responsible for the phase change after Kaathar fight - Spawning
+        void SpawnSargereiDraenies()
+        {
+            uint32 l_EntriesOfSargereiDraeneis[6] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
+                eAuchindounCreatures::CreatureSargeriSoulPriest, eAuchindounCreatures::CreatureSargeriWarden,
+                eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating};
+
+            std::list<Creature*> l_ListSargereiDraeneis;
+            for (uint8 l_I = 0; l_I < 6; l_I++)
+            {
+                me->GetCreatureListInGrid(l_ListSargereiDraeneis, l_EntriesOfSargereiDraeneis[l_I]);              
+            }
+
+            if (!l_ListSargereiDraeneis.empty())
+            {
+                for (Creature* l_Itr : l_ListSargereiDraeneis)
+                {
+                    l_Itr->SetPhaseMask(1, true);
+                }
+            }
         }
 
         void JustDied(Unit* /*p_Killer*/) override
         {
             _JustDied();
-            Talk(eKaatharTalks::VigilantKaatherDeath);
 
-            DespawnAllAucheniDraeneis();
-
-            if (m_Instance != nullptr)
+            AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
             {
-                m_Instance->SetBossState(eDataAuchindonDatas::DataBossKathaar, EncounterState::DONE);
+                DespawnAllAucheniDraeneis();
+            });    
+
+            /// From here Teronogor spawns
+            std::list<Player*> l_ListPlayers;
+            me->GetPlayerListInGrid(l_ListPlayers, 600.0f, true);
+            if (!l_ListPlayers.empty())
+            {
+                for (Player* l_Itr : l_ListPlayers)
+                {
+                    if (!l_Itr)
+                        continue;
+
+                    l_Itr->PlayScene(eAuchindounScenes::SpellAuchindounSceneTeronogorSpawn, l_Itr);
+                }               
             }
 
+            /// Phases Teronogor and all the other creatures back to phase 1
+            uint32 l_CreaturesTeronogorPhaseIn[8] = { eAuchindounCreatures::CreatureZipteq, eAuchindounCreatures::CreatureZashoo, eAuchindounCreatures::CreatureShaadum,
+                eAuchindounCreatures::CreatureGromtashTheDestructor, eAuchindounCreatures::CreatureGulkosh, eAuchindounCreatures::CreatureDurem, eAuchindounBosses::BossTeronogor };
+
+            std::list<Creature*> l_ListCreatures;
+
+            for (uint8 l_I = 0; l_I < 8; l_I++)
+            {
+                me->GetCreatureListWithEntryInGrid(l_ListCreatures, l_CreaturesTeronogorPhaseIn[l_I], 600.0f);
+            }
+
+            if (!l_ListCreatures.empty())
+            {
+                for (Creature* l_Itr : l_ListCreatures)
+                {
+                    if (!l_Itr)
+                        continue;
+
+                    l_Itr->SetPhaseMask(4, true);
+                }
+            }
+
+            /// Remove the auchenai shield npc
+            if (Creature* l_Nearest = me->FindNearestCreature(eAuchindounCreatures::CreatureAuchenaiShield, 300.0f))
+                l_Nearest->DespawnOrUnsummon();
+
+            Talk(eKaatharTalks::VigilantKaatherDeath);  
             me->m_Events.AddEvent(new EventPostKaathar(me, 0), me->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));
         }
 
         void UpdateAI(uint32 const p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
-                return;    
+                return;
+
+            events.Update(p_Diff);   
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -589,11 +619,9 @@ public:
                 }
                 case eKaatharEvents::EventHallowedGround:
                 {
-                    Position g_Position;
-                    me->GetRandomNearPosition(g_Position, 40.0f);
-
-                    if (Creature* l_Trigger = me->SummonCreature(eKaatharTriggers::TriggerHallowedGround, g_Position, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                        me->CastSpell(l_Trigger, eKaatharSpells::SpellHallowedGroundVisual);
+                    Position l_Position;
+                    me->GetRandomNearPosition(l_Position, 20.0f);
+                    me->SummonCreature(eKaatharCreatures::TriggerHallowedGround, l_Position, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 30 * TimeConstants::IN_MILLISECONDS);
 
                     events.ScheduleEvent(eKaatharEvents::EventHallowedGround, 8 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -602,13 +630,11 @@ public:
                 {
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                     {
+                        float l_X = l_Target->m_positionX + 10 * cos(l_Target->m_orientation);
+                        float l_Y = l_Target->m_positionY + 10 * sin(l_Target->m_orientation);
+
                         Talk(eKaatharTalks::VigilantKaatherSpell2);
                         me->CastSpell(l_Target, eKaatharSpells::SpellHolyShieldThrow);
-
-                        events.ScheduleEvent(eKaatharEvents::EventHolyShield, 30 * TimeConstants::IN_MILLISECONDS);
-                        events.ScheduleEvent(eKaatharEvents::EventConsecratedLight, 4 * TimeConstants::IN_MILLISECONDS);
-                        events.ScheduleEvent(eKaatharEvents::EventHolyShieldReturn, 14 * TimeConstants::IN_MILLISECONDS);
-
                         if (me->HasAura(eKaatharSpells::SpellHolyShieldOffHandDisarm))
                             me->AddAura(eKaatharSpells::SpellHolyShieldTwoHandDisarm, me);
                         else
@@ -617,37 +643,34 @@ public:
                         std::string l_Str;
                         l_Str += "Vigilant kaathar hurls his |cffff0000[Holy Shield]|cfffaeb00! at ";
                         l_Str += l_Target->GetName();
-
-                        me->MonsterTextEmote(l_Str.c_str(), me->GetGUID(), true);
+                        me->MonsterTextEmote(l_Str.c_str(), me->GetGUID(), true);                
+                        events.ScheduleEvent(eKaatharEvents::EventConsecratedLight, 4 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eKaatharEvents::EventHolyShieldReturn, 14 * TimeConstants::IN_MILLISECONDS);
                     }
+                    events.ScheduleEvent(eKaatharEvents::EventHolyShield, 30 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eKaatharEvents::EventHolyShieldReturn:
                 {
-                    if (Creature* l_Shield = me->FindNearestCreature(eKaatharTriggers::TriggerHolyShield, 50.0f, true))
+                    if (Creature* l_Shield = me->FindNearestCreature(eKaatharCreatures::TriggerHolyShield, 50.0f, true))
                     {
-                        l_Shield->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 20.0f, 10.0f, 10.0f);
+                        me->SetCurrentEquipmentId(1); /// Equipment Id
                         l_Shield->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
-
-                        me->SetCurrentEquipmentId(1); // Equipment Id
+                        l_Shield->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 20.0f, 10.0f, 10.0f);
+                        DespawnCreaturesInArea(eKaatharCreatures::TriggerHolyShield, me);
 
                         if (me->HasAura(eKaatharSpells::SpellHolyShieldOffHandDisarm))
                             me->RemoveAura(eKaatharSpells::SpellHolyShieldOffHandDisarm);
                         else if (me->HasAura(eKaatharSpells::SpellHolyShieldTwoHandDisarm))
                             me->RemoveAura(eKaatharSpells::SpellHolyShieldTwoHandDisarm);
-
-                        DespawnCreaturesInArea(eKaatharTriggers::TriggerHolyShield, me);
-
-                        // Despawn previous Holy Shields.
+                 
+                        /// Despawn previous Holy Shields.
                         std::list<AreaTrigger*> l_ListAreaTriggers;
                         me->GetAreaTriggerList(l_ListAreaTriggers, eKaatharSpells::SpellHolyShieldAreaTrigger);
-
-                        if (l_ListAreaTriggers.empty())
-                            return;
-
-                        for (auto itr : l_ListAreaTriggers)
+                        if (!l_ListAreaTriggers.empty())
                         {
-                            itr->Remove(10);
+                            for (AreaTrigger* l_Itr : l_ListAreaTriggers)
+                                l_Itr->Remove(4 * TimeConstants::IN_MILLISECONDS);
                         }
                     }
                     break;
@@ -656,40 +679,34 @@ public:
                 {
                     Talk(eKaatharTalks::VigilantKaatherSpell1);
                     DoCast(eKaatharSpells::SpellConsecratedLight);
-
                     me->MonsterTextEmote("Vigilant Kaathar readies |cffff0000[Consecrated Light]|cfffaeb00!. Hide!", me->GetGUID(), true);
                     break;
                 }
                 case eKaatharEvents::EventSanctifiedStrike:
                 {
                     DoCastVictim(eKaatharSpells::SpellSanctifiedStrikeDummy);
-
                     float l_PosX = me->GetPositionX();
                     float l_PosY = me->GetPositionY();
                     float l_Orientation = me->GetOrientation() * M_PI;
-
-                    for (int32 i = 0; i <= 10; i++)
+                    for (uint8 l_I = 0; l_I <= 10; l_I++)
                     {
-                        if (i == 9 || i == 5 || i == 6)
+                        if (l_I == 9 || l_I == 5 || l_I == 6)
                             l_Orientation = l_Orientation / 4;
-
-                        me->SummonCreature(eKaatharTriggers::TriggerFissureSummoner, l_PosX, l_PosY, me->GetPositionZ(), l_Orientation, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS);
-
+                        me->SummonCreature(eKaatharCreatures::TriggerFissureSummoner, l_PosX, l_PosY, me->GetPositionZ(), l_Orientation, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS);
                         l_PosX += frand(0.5f, 1.8f);
                         l_PosY += frand(0.7f, 1.9f);
                     }
-
-                    for (int32 i = 0; i <= 4; i++)
+                    for (uint8 l_I = 0; l_I <= 4; l_I++)
                     {
                         l_PosX -= 3;
                         l_PosY -= float(2.7);
-
-                        me->SummonCreature(eKaatharTriggers::TriggerFissureSummoner, l_PosX, l_PosY, me->GetPositionZ(), l_Orientation / 2 + i, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS);
+                        me->SummonCreature(eKaatharCreatures::TriggerFissureSummoner, l_PosX, l_PosY, me->GetPositionZ(), l_Orientation / 2 + l_I, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS);
                     }
-
                     events.ScheduleEvent(eKaatharEvents::EventSanctifiedStrike, 8 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
+                default:
+                    break;
             }
 
             DoMeleeAttackIfReady();
@@ -702,103 +719,38 @@ public:
     }
 };
 
-/// Sanctified Strike Fissure - 
-class auchindon_kaathar_areatrigger_fissure : public AreaTriggerEntityScript
-{
-public:
-    auchindon_kaathar_areatrigger_fissure() : AreaTriggerEntityScript("auchindon_kaathar_areatrigger_fissure")
-    {
-    }
-
-    uint32 m_Diff = 2 * TimeConstants::IN_MILLISECONDS;
-    std::list<uint64> m_Targets;
-
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        if (m_Diff <= p_Time)
-        {
-            std::list<Player*> l_PlayerList;
-            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 2.0f);
-            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, l_PlayerList, check);
-            p_AreaTrigger->VisitNearbyObject(2.0f, searcher);
-
-            if (l_PlayerList.empty())
-                return;
-
-            for (std::list<Player*>::const_iterator itr = l_PlayerList.begin(); itr != l_PlayerList.end(); ++itr)
-            {
-                if (!(*itr))
-                    return;
-
-                if (!(*itr)->HasAura(eKaatharSpells::SpellSanctifiedGroundAura))
-                {
-                    (*itr)->CastSpell((*itr), eKaatharSpells::SpellSanctifiedGroundAura);
-                    m_Targets.push_back((*itr)->GetGUID());
-
-                    if ((*itr)->HasAura(eKaatharSpells::SpellSanctifiedGroundAura))
-                    {
-                        Aura* l_Aura = (*itr)->GetAura(eKaatharSpells::SpellSanctifiedGroundAura);
-
-                        if (l_Aura)
-                        {
-                            l_Aura->SetDuration(1);
-                        }
-                    }
-                }
-            }
-
-            m_Diff = 2 * TimeConstants::IN_MILLISECONDS;
-        }
-        else
-        {
-            m_Diff -= p_Time;
-        }
-    }
-
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        for (auto l_Guid : m_Targets)
-        {
-            Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-            if (l_Target && l_Target->HasAura(eKaatharSpells::SpellSanctifiedGroundAura))
-                l_Target->RemoveAura(eKaatharSpells::SpellSanctifiedGroundAura);
-        }
-    }
-
-    auchindon_kaathar_areatrigger_fissure* GetAI() const override
-    {
-        return new auchindon_kaathar_areatrigger_fissure();
-    }
-};
-
 /// Hallowed Ground - 537324
-class auchindon_trigger_hallowed_ground : public CreatureScript
+class auchindoun_kaathar_mob_hallowed_ground : public CreatureScript
 {
-public:
-    auchindon_trigger_hallowed_ground() : CreatureScript("auchindon_trigger_hallowed_ground") { }
+    public:
 
-    struct trigger_hallowed_groundAI : public Scripted_NoMovementAI
+    auchindoun_kaathar_mob_hallowed_ground() : CreatureScript("auchindoun_kaathar_mob_hallowed_ground") { }
+
+    struct auchindoun_kaathar_mob_hallowed_groundAI : public Scripted_NoMovementAI
     {
-        trigger_hallowed_groundAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
-        {        
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-            me->SetReactState(ReactStates::REACT_PASSIVE);
-
-            me->SetObjectScale(1.0f);
+        auchindoun_kaathar_mob_hallowed_groundAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        {
+            m_First = false;
         }
 
         uint32 m_VisualDiff;
         bool m_HasExploded;
+        bool m_First;
 
         void Reset() override
         {
             events.Reset();
- 
-            m_VisualDiff = 1 * TimeConstants::IN_MILLISECONDS;
             m_HasExploded = false;
-
-            me->setFaction(eAuchindonInformation::InformationHostileFaction);
+            me->setFaction(HostileFaction);
+            m_VisualDiff = 1 * TimeConstants::IN_MILLISECONDS;
             events.ScheduleEvent(eKaatharEvents::EventCheckPlayer, 4 * TimeConstants::IN_MILLISECONDS); // Takes 4 seconds to charge
+
+            if (!m_First)
+            {
+                me->SetObjectScale(1.0f);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+            }
         }
 
         void DoAction(int32 const p_Action) override
@@ -808,6 +760,8 @@ public:
             case eKaatharActions::ActionFateHallowedGround:
                 DoCast(me, eKaatharSpells::SpellHallowedGround);
                 me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+                break;
+            default:
                 break;
             }
         }
@@ -819,8 +773,7 @@ public:
             // Visual
             if (m_VisualDiff <= p_Diff)
             {
-                me->CastSpell(me, eKaatharSpells::SpellHallowedGroundVisual);
-
+                me->CastSpell(me, eKaatharSpells::SpellHallowedGroundsTriggerMissile);
                 m_VisualDiff = 1 * TimeConstants::IN_MILLISECONDS;
             }
             else
@@ -828,101 +781,44 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eKaatharEvents::EventCheckPlayer:
-                    if (m_HasExploded)
-                        return;
-
-                        if (Player* l_Player = me->FindNearestPlayer(4.0f, true))
-                        {
-                            if (l_Player->IsWithinDistInMap(me, 4.0f))
-                            {
-                                m_HasExploded = true;
-
-                                DoCast(me, eKaatharSpells::SpellHallowedGround);
-                                me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
-                            }
-                        }
-
-                        events.ScheduleEvent(eKaatharEvents::EventCheckPlayer, 1 * TimeConstants::IN_MILLISECONDS);
-                        break;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
-        return new trigger_hallowed_groundAI(p_Creature);
-    }
-};
-
-/// Holy Shield - 76071
-class auchindon_trigger_holy_shield : public CreatureScript
-{
-public:
-    auchindon_trigger_holy_shield() : CreatureScript("auchindon_trigger_holy_shield") { }
-
-    struct trigger_holy_shieldAI : public Scripted_NoMovementAI
-    {
-        trigger_holy_shieldAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
-        {
-            m_Instance = p_Creature->GetInstanceScript();
-        }
-
-        InstanceScript* m_Instance;
-
-        void Reset() override
-        {
-            events.Reset();
-
-            me->setFaction(eAuchindonInformation::InformationHostileFaction);
-            me->SetDisplayId(eAuchindonInformation::InformationDisplayIdInvis);
-
-            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-            me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-
-            me->CastSpell(me, eKaatharSpells::SpellHolyShieldLos);
-
-            // Knockback
-            std::list<Player*> l_ListPlayers;
-            me->GetPlayerListInGrid(l_ListPlayers, 5.0f);
-
-            if (l_ListPlayers.empty())
-                return;
-
-            for (auto itr : l_ListPlayers)
-            {
-                if (!itr)
+            case eKaatharEvents::EventCheckPlayer:
+                if (m_HasExploded)
                     return;
 
-                itr->CastSpell(itr, eKaatharSpells::SpellHolyShieldKnockBack);
-                me->CastSpell(itr,  eKaatharSpells::SpellHolyShieldDamageFromKnockBack);
-            }
-        }
+                if (Player* l_Player = me->FindNearestPlayer(4.0f, true))
+                {
+                    if (l_Player->IsWithinDistInMap(me, 4.0f))
+                    {
+                        m_HasExploded = true;
 
-        void UpdateAI(uint32 const p_Diff)
-        {
-            events.Update(p_Diff);
+                        DoCast(me, eKaatharSpells::SpellHallowedGround);
+                        me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+                    }
+                }
+
+                events.ScheduleEvent(eKaatharEvents::EventCheckPlayer, 1 * TimeConstants::IN_MILLISECONDS);
+                break;
+            default:
+                break;
+            }
         }
     };
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new trigger_holy_shieldAI(p_Creature);
+        return new auchindoun_kaathar_mob_hallowed_groundAI(p_Creature);
     }
 };
 
 /// Fissure Spawner Trigger - 543536
-class auchindon_trigger_spawn_fissures : public CreatureScript
+class auchindoun_kaathar_mob_spawn_fissures : public CreatureScript
 {
 public:
-    auchindon_trigger_spawn_fissures() : CreatureScript("auchindon_trigger_spawn_fissures") { }
+    auchindoun_kaathar_mob_spawn_fissures() : CreatureScript("auchindoun_kaathar_mob_spawn_fissures") { }
 
-    struct trigger_spawn_fissuresAI : public Scripted_NoMovementAI
+    struct auchindoun_kaathar_mob_spawn_fissuresAI : public Scripted_NoMovementAI
     {
-        trigger_spawn_fissuresAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        auchindoun_kaathar_mob_spawn_fissuresAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
         {
             m_Instance = p_Creature->GetInstanceScript();
         }
@@ -931,123 +827,162 @@ public:
 
         void Reset() override
         {
-            events.Reset();
-
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-            me->setFaction(eAuchindonInformation::InformationHostileFaction);
-            me->SetDisplayId(eAuchindonInformation::InformationDisplayIdInvis);
+            me->setFaction(HostileFaction);
+            me->SetDisplayId(InvisibleDisplay);
             me->CastSpell(me, eKaatharSpells::SpellSanctifiedStrikeAreaTrigger4);
-        }
-
-        void UpdateAI(uint32 const p_Diff) override
-        {
-            events.Update(p_Diff);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
         }
     };
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new trigger_spawn_fissuresAI(p_Creature);
+        return new auchindoun_kaathar_mob_spawn_fissuresAI(p_Creature);
+    }
+};
+
+
+/// Holy Shield - 76071
+class auchindoun_kaathar_mob_holy_shield : public CreatureScript
+{
+public:
+    auchindoun_kaathar_mob_holy_shield() : CreatureScript("auchindoun_kaathar_mob_holy_shield") { }
+
+    struct auchindoun_kaathar_mob_holy_shieldAI : public Scripted_NoMovementAI
+    {
+        auchindoun_kaathar_mob_holy_shieldAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        {
+            m_Instance = p_Creature->GetInstanceScript();
+        }
+
+        InstanceScript* m_Instance;
+
+        void Reset() override
+        {
+            me->setFaction(HostileFaction);
+            me->SetDisplayId(InvisibleDisplay);
+            me->CastSpell(me, eKaatharSpells::SpellHolyShieldLos);    
+            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);      
+            /// Knockback
+            std::list<Player*> l_ListPlayers;
+            me->GetPlayerListInGrid(l_ListPlayers, 5.0f);
+            if (!l_ListPlayers.empty())
+            {
+                for (Player* l_itr : l_ListPlayers)
+                {
+                    if (!l_itr)
+                        continue;
+
+                    l_itr->CastSpell(l_itr, eKaatharSpells::SpellHolyShieldKnockBack);
+                    me->CastSpell(l_itr, eKaatharSpells::SpellHolyShieldDamageFromKnockBack);
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const override
+    {
+        return new auchindoun_kaathar_mob_holy_shieldAI(p_Creature);
     }
 };
 
 /// Consecrated Light - 153006
-class auchindon_spell_consecrated_light : public SpellScriptLoader
+class auchindoun_kaathar_spell_consecrated_light : public SpellScriptLoader
 {
 public:
-    auchindon_spell_consecrated_light() : SpellScriptLoader("auchindon_spell_consecrated_light") { }
 
-    class auchindon_spells : public AuraScript
+    auchindoun_kaathar_spell_consecrated_light() : SpellScriptLoader("auchindoun_kaathar_spell_consecrated_light") { }
+
+    class auchindoun_kaathar_spell_consecrated_light_SpellScript : public AuraScript
     {
-        PrepareAuraScript(auchindon_spells);
+        PrepareAuraScript(auchindoun_kaathar_spell_consecrated_light_SpellScript);
 
         void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
         {
             if (GetCaster())
             {
-                InstanceScript* m_Instance = GetCaster()->GetInstanceScript();
-
-                if (!m_Instance)
-                    return;
-
-                std::list<Player*> l_ListPlayers;
-                GetCaster()->GetPlayerListInGrid(l_ListPlayers, 200.0f);
-
-                if (l_ListPlayers.empty())
-                    return;                
-
-                for (auto itr : l_ListPlayers)
+                if (InstanceScript* m_Instance = GetCaster()->GetInstanceScript())
                 {
-                    if (!itr)
-                        return;
+                    std::list<Player*> l_ListPlayers;
+                    GetCaster()->GetPlayerListInGrid(l_ListPlayers, 200.0f);
+                    if (!l_ListPlayers.empty())
+                    {
+                        for (Player* l_Itr : l_ListPlayers)
+                        {
+                            if (!l_Itr)
+                                continue;
 
-                     itr->CastSpell(itr, eKaatharSpells::SpellConsecratedLightDamage, true);
+                            l_Itr->CastSpell(l_Itr, eKaatharSpells::SpellConsecratedLightDamage, true);
+                        }
+                    }
                 }
             }
         }
 
         void Register()
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(auchindon_spells::HandlePeriodic, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            OnEffectPeriodic += AuraEffectPeriodicFn(auchindoun_kaathar_spell_consecrated_light_SpellScript::HandlePeriodic, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL);
         }
     };
 
     AuraScript* GetAuraScript() const override
     {
-        return new auchindon_spells();
+        return new auchindoun_kaathar_spell_consecrated_light_SpellScript();
     }
 };
 
 /// Consecrated Light - 156746
-class auchindon_spell_conscreated_damage : public SpellScriptLoader
+class auchindoun_kaathar_spell_conscreated_damage : public SpellScriptLoader
 {
-public:
-    auchindon_spell_conscreated_damage() : SpellScriptLoader("auchindon_spell_conscreated_damage") { }
+    public:
 
-    class auchindon_spells : public SpellScript
+    auchindoun_kaathar_spell_conscreated_damage() : SpellScriptLoader("auchindoun_kaathar_spell_conscreated_damage") { }
+
+    class auchindoun_kaathar_spell_conscreated_damage_SpellScript : public SpellScript
     {
-        PrepareSpellScript(auchindon_spells);
+        PrepareSpellScript(auchindoun_kaathar_spell_conscreated_damage_SpellScript);
 
         void RecalculateDamage(SpellEffIndex /*p_EffIndex*/)
         {
             if (!GetCaster() && !GetHitUnit())
                 return;
 
-            InstanceScript* l_Instance = GetCaster()->GetInstanceScript();
+              if (InstanceScript* l_Instance = GetCaster()->GetInstanceScript())
+              {
+                  if (!GetHitDamage())
+                      return;
 
-            if (!l_Instance)
-                return;
-
-            if (!GetHitDamage())
-                return;
-
-            if (Creature* l_Kaathar = l_Instance->instance->GetCreature(l_Instance->GetData64(eDataAuchindonDatas::DataBossKathaar)))
-                if (Creature* l_Shield = GetCaster()->FindNearestCreature(eKaatharTriggers::TriggerHolyShield, 200.0f))
-                    if (l_Shield->IsInBetween(GetHitUnit(), l_Kaathar))
-                          SetHitDamage(0);
+                  if (Creature* l_Kaathar = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossKathaar)))
+                      if (Creature* l_Shield = GetCaster()->FindNearestCreature(eKaatharCreatures::TriggerHolyShield, 200.0f))
+                          if (l_Shield->IsInBetween(GetHitUnit(), l_Kaathar))
+                              SetHitDamage(0);
+              }
         }
 
         void Register()
         {
-            OnEffectHitTarget += SpellEffectFn(auchindon_spells::RecalculateDamage, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnEffectHitTarget += SpellEffectFn(auchindoun_kaathar_spell_conscreated_damage_SpellScript::RecalculateDamage, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
     SpellScript* GetSpellScript() const override
     {
-        return new auchindon_spells();
+        return new auchindoun_kaathar_spell_conscreated_damage_SpellScript();
     }
 };
 
 /// Sanctified Ground Periodic Dummy - 153430
-class auchindon_spell_sanctified_ground_periodic_dummy : public SpellScriptLoader
+class auchindoun_kaathar_spell_sanctified_ground : public SpellScriptLoader
 {
-public:
-    auchindon_spell_sanctified_ground_periodic_dummy() : SpellScriptLoader("auchindon_spell_sanctified_ground_periodic_dummy") { }
+    public:
 
-    class auchindon_spells : public AuraScript
+    auchindoun_kaathar_spell_sanctified_ground() : SpellScriptLoader("auchindoun_kaathar_spell_sanctified_ground") { }
+
+    class auchindoun_kaathar_spell_sanctified_ground_AuraScript : public AuraScript
     {
-        PrepareAuraScript(auchindon_spells);
+        PrepareAuraScript(auchindoun_kaathar_spell_sanctified_ground_AuraScript);
 
         void HandlePeriodic(AuraEffect const* p_AurEff)
         {
@@ -1061,66 +996,186 @@ public:
 
         void Register()
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(auchindon_spells::HandlePeriodic, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_DUMMY);
+            OnEffectPeriodic += AuraEffectPeriodicFn(auchindoun_kaathar_spell_sanctified_ground_AuraScript::HandlePeriodic, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_DUMMY);
         }
     };
 
     AuraScript* GetAuraScript() const override
     {
-        return new auchindon_spells();
+        return new auchindoun_kaathar_spell_sanctified_ground_AuraScript();
     }
 };
 
 /// Fate - 157465
-class auchindon_spell_fate : public SpellScriptLoader
+class auchindoun_kaathar_spell_fate : public SpellScriptLoader
 {
-public:
-    auchindon_spell_fate() : SpellScriptLoader("auchindon_spell_fate") { }
+   public: 
 
-    class auchindon_spells : public SpellScript
+       auchindoun_kaathar_spell_fate() : SpellScriptLoader("auchindoun_kaathar_spell_fate") { }
+
+    class auchindoun_kaathar_spell_fate_SpellScript : public SpellScript
     {
-        PrepareSpellScript(auchindon_spells);
+        PrepareSpellScript(auchindoun_kaathar_spell_fate_SpellScript);
 
         void HandleDummy(SpellEffIndex p_EffIndex)
         {
             if (Unit* l_Caster = GetCaster())
             {
                 std::list<Creature*> l_HallowedGroundCreatures;
-                GetCaster()->GetCreatureListWithEntryInGrid(l_HallowedGroundCreatures, eKaatharTriggers::TriggerHallowedGround, 150.0f);
-
-                if (l_HallowedGroundCreatures.empty())
-                    return;
-
-                for (auto itr : l_HallowedGroundCreatures)
+                GetCaster()->GetCreatureListWithEntryInGrid(l_HallowedGroundCreatures, eKaatharCreatures::TriggerHallowedGround, 150.0f);
+                if (!l_HallowedGroundCreatures.empty())
                 {
-                    if (itr->GetAI())
-                    itr->GetAI()->DoAction(eKaatharActions::ActionFateHallowedGround);
+                    for (Creature* l_Itr : l_HallowedGroundCreatures)
+                    {
+                        if (l_Itr->IsAIEnabled)
+                            l_Itr->GetAI()->DoAction(eKaatharActions::ActionFateHallowedGround);
+                    }
                 }
             }
         }
 
         void Register()
         {
-            OnEffectLaunch += SpellEffectFn(auchindon_spells::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
+            OnEffectLaunch += SpellEffectFn(auchindoun_kaathar_spell_fate_SpellScript::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
         }
     };
 
     SpellScript* GetSpellScript() const override
     {
-        return new auchindon_spells();
+        return new auchindoun_kaathar_spell_fate_SpellScript();
     }
 };
 
-void AddSC_kaathar()
+/// Sanctified Strike Fissure - 
+class auchindoun_kaathar_at_fissure : public AreaTriggerEntityScript
 {
-    new auchindon_boss_kaathar();
-    new auchindon_trigger_hallowed_ground();
-    new auchindon_trigger_holy_shield();
-    new auchindon_trigger_spawn_fissures();
-    new auchindon_kaathar_areatrigger_fissure();
-    new auchindon_spell_consecrated_light();
-    new auchindon_spell_fate();
-    new auchindon_spell_sanctified_ground_periodic_dummy();
-    new auchindon_spell_conscreated_damage();
-    new auchindon_mob_nyami();
+    public:
+
+    auchindoun_kaathar_at_fissure() : AreaTriggerEntityScript("auchindoun_kaathar_at_fissure")
+    {
+    }
+
+    uint32 m_Diff = 2 * TimeConstants::IN_MILLISECONDS;
+    std::list<uint64> m_Targets;
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+    {
+        if (m_Diff <= p_Time)
+        {
+            std::list<Player*> l_PlayerList;
+            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 2.0f);
+            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, l_PlayerList, check);
+            p_AreaTrigger->VisitNearbyObject(2.0f, searcher);
+
+            if (!l_PlayerList.empty())
+            {
+                for (std::list<Player*>::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                {
+                    if (!(*l_Itr))
+                        continue;
+
+                    if (!(*l_Itr)->HasAura(eKaatharSpells::SpellSanctifiedGroundAura))
+                        (*l_Itr)->CastSpell((*l_Itr), eKaatharSpells::SpellSanctifiedGroundAura);
+                }
+            }
+
+            m_Diff = 2 * TimeConstants::IN_MILLISECONDS;
+        }
+        else
+            m_Diff -= p_Time;
+    }
+
+    auchindoun_kaathar_at_fissure* GetAI() const override
+    {
+        return new auchindoun_kaathar_at_fissure();
+    }
+};
+
+/// Hallowed Ground  - 
+class auchindoun_kaathar_at_hallowed_ground : public AreaTriggerEntityScript
+{
+    public:
+
+    auchindoun_kaathar_at_hallowed_ground() : AreaTriggerEntityScript("auchindoun_kaathar_at_hallowed_ground")
+    {
+    }
+
+    float m_Size;
+    uint32 m_Diff = 2 * TimeConstants::IN_MILLISECONDS;
+    uint32 m_Explosion = 15 * TimeConstants::IN_MILLISECONDS;
+    std::list<uint64> m_Targets;
+
+    void OnCreate(AreaTrigger* p_AreaTrigger)
+    {
+        m_Size = 3.0f;
+        p_AreaTrigger->SetObjectScale(m_Size);
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+    {
+        if (m_Diff <= p_Time)
+        {
+            m_Size -= float(0.3f);
+            p_AreaTrigger->SetObjectScale(m_Size);
+
+            std::list<Player*> l_PlayerList;
+            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 2.0f);
+            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, l_PlayerList, check);
+            p_AreaTrigger->VisitNearbyObject(2.0f, searcher);
+
+            if (!l_PlayerList.empty())
+            {
+                for (std::list<Player*>::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                {
+                    if (!(*l_Itr))
+                        continue;
+
+                    if (!(*l_Itr)->HasAura(eKaatharSpells::SpellSanctifiedGroundAura))
+                    {
+                        (*l_Itr)->CastSpell((*l_Itr), eKaatharSpells::SpellSanctifiedGroundAura);
+                        m_Targets.push_back((*l_Itr)->GetGUID());
+                    }
+                }
+            }
+
+            m_Diff = 2 * TimeConstants::IN_MILLISECONDS;
+        }
+        else
+            m_Diff -= p_Time;
+    }
+
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+    {
+        if (!m_Targets.empty())
+        {
+            for (uint64 l_Guid : m_Targets)
+            {
+                if (!l_Guid)
+                    continue;
+
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(eKaatharSpells::SpellSanctifiedGroundAura))
+                    l_Target->RemoveAura(eKaatharSpells::SpellSanctifiedGroundAura);
+            }
+        }
+    }
+
+    auchindoun_kaathar_at_hallowed_ground* GetAI() const override
+    {
+        return new auchindoun_kaathar_at_hallowed_ground();
+    }
+};
+
+void AddSC_boss_kaathar()
+{
+    new boss_kaathar();                                                 ///< 75839
+    new auchindoun_kaathar_mob_spawn_fissures();                        ///< 543536
+    new auchindoun_kaathar_mob_hallowed_ground();                       ///< 537324
+    new auchindoun_kaathar_mob_holy_shield();                           ///< 76071
+    new auchindoun_kaathar_mob_nyami();                                 ///< 77810
+    new auchindoun_kaathar_spell_consecrated_light();                   ///< 153006
+    new auchindoun_kaathar_spell_fate();                                ///< 157465
+    new auchindoun_kaathar_spell_sanctified_ground();                   ///< 153430
+    new auchindoun_kaathar_spell_conscreated_damage();                  ///< 156746
+    new auchindoun_kaathar_at_fissure();                                ///< 165065
 }

@@ -1,23 +1,14 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "ulduar.h"
-#include <limits>
+#include "Common.h"
 
 enum Spells
 {
@@ -63,7 +54,7 @@ enum Spells
     SPELL_FROSTBOLT_VOLLEY      = 62580,
     SPELL_FROSTNOVA             = 62597,
     SPELL_BLIZZARD              = 62576,
-    SPELL_FROSTBOLT             = 69274,
+    SPELL_FROSTBOLT             = 69274
 };
 
 enum Events
@@ -103,7 +94,7 @@ enum Events
 
     // Ancient Rune Giant
     EVENT_STOMP                     = 1,
-    EVENT_DETONATION                = 2,
+    EVENT_DETONATION                = 2
 };
 
 enum Yells
@@ -121,7 +112,7 @@ enum Yells
     SAY_END_HARD    = 9,
 
     // Runic Colossus
-    EMOTE_BARRIER   = 0,
+    EMOTE_BARRIER   = 0
 };
 
 enum Actions
@@ -138,7 +129,7 @@ enum Actions
 enum ThorimData
 {
     DATA_LOSE_ILLUSION                  = 1,
-    DATA_DO_NOT_STAND_IN_THE_LIGHTING   = 2,
+    DATA_DO_NOT_STAND_IN_THE_LIGHTING   = 2
 };
 
 enum Phases
@@ -152,7 +143,7 @@ enum Phases
     // Runic Colossus
     PHASE_COLOSSUS_IDLE     = 1,
     PHASE_RUNIC_SMASH       = 2,
-    PHASE_MELEE             = 3,
+    PHASE_MELEE             = 3
 };
 
 const Position Pos[7] =
@@ -751,7 +742,7 @@ class boss_thorim : public CreatureScript
                 summon->RemoveCorpse(false);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -794,7 +785,6 @@ class boss_thorim : public CreatureScript
 
             private:
                 Phases phase;
-                uint8 PreAddsCount;
                 uint32 EncounterTime;
                 uint32 checkTargetTimer;
                 bool gotAddsWiped;
@@ -1159,7 +1149,7 @@ class npc_thorim_arena_phase_add : public CreatureScript
                 return (IsInArena == ArenaAreaCheck(false)(who));
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!isOnSameSide(attacker))
                     damage = 0;
@@ -1865,9 +1855,6 @@ class spell_thorim_berserk: public SpellScriptLoader
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thorim_berserk_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
             }
-
-            private:
-                WorldObject* _target;
         };
 
         SpellScript* GetSpellScript() const
@@ -2051,6 +2038,7 @@ class achievement_who_needs_bloodlust : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_thorim()
 {
     new boss_thorim();
@@ -2080,3 +2068,4 @@ void AddSC_boss_thorim()
     new achievement_who_needs_bloodlust("achievement_who_needs_bloodlust");
     new achievement_who_needs_bloodlust("achievement_who_needs_bloodlust_25");
 }
+#endif
