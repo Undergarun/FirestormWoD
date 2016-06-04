@@ -2959,7 +2959,9 @@ const char* Creature::GetNameForLocaleIdx(LocaleConstant loc_idx) const
 //Do not if this works or not, moving creature to another map is very dangerous
 void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
 {
-    CleanupBeforeRemoveFromMap(false);
+    if (GetMapSwitchDestination() == -1)
+        CleanupBeforeRemoveFromMap(false);
+
     GetMap()->RemoveFromMap(this, false);
     Relocate(X, Y, Z, O);
     SetMap(map);

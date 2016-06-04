@@ -92,7 +92,7 @@ namespace MS {
                     SequencePosition const l_GameObjectPos = { 7.4031f, -15.7592f, 1.6757f, 2.0719f };
 
                     l_AI->SummonRelativeGameObject(WorkshopGearworks::InventionsGobIDs::GobStickyGrenades, l_GameObjectPos.X, l_GameObjectPos.Y, l_GameObjectPos.Z, l_GameObjectPos.O);
-                    p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, WorkshopGearworks::InventionsGobIDs::GobStickyGrenades);
+                    p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInvention, WorkshopGearworks::InventionsGobIDs::GobStickyGrenades);
                     p_Player->SaveToDB();
                 }
             }
@@ -117,7 +117,7 @@ namespace MS {
             if (l_GarrisonMgr == nullptr)
                 return;
 
-            uint32 l_GobID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention);
+            uint32 l_GobID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonWorkshopGearworksInvention);
 
             if (!l_GobID) ///< Quest or daily refill not done
                 return;
@@ -136,7 +136,7 @@ namespace MS {
             SequencePosition const l_GameObjectPos = { 7.4031f, -15.7592f, 1.6757f, 2.0719f };
             SummonRelativeGameObject(l_GobID, l_GameObjectPos.X, l_GameObjectPos.Y, l_GameObjectPos.Z, l_GameObjectPos.O);
 
-            l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, l_GobID);
+            l_Owner->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInvention, l_GobID);
             l_Owner->SaveToDB();
         }
 

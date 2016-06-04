@@ -315,6 +315,7 @@ char const TransportAnimationfmt[]            = "diifffx";
 char const TransportRotationfmt[]             = "diiffff";
 const char WorldMapOverlayEntryfmt[]          = "nxiiiixxxxxxxxxx";
 const char SpellProcsPerMinuteEntryfmt[]      = "nfx";
+char const SpellProcsPerMinuteModfmt[]        = "niifi";
 const char QuestPOIPointfmt[]                 = "niii";
 
 #endif

@@ -621,7 +621,14 @@ void WorldSession::HandleGarrisonRecruitFollower(WorldPacket& p_RecvData)
 
     WorldPacket l_RecruitmentResult(SMSG_GARRISON_RECRUIT_FOLLOWER_RESULT, 64);
 
-    l_RecruitmentResult << uint32(MS::Garrison::PurchaseBuildingResults::Ok);
+    if (l_Garrison->CanRecruitFollower())
+        l_RecruitmentResult << uint32(MS::Garrison::PurchaseBuildingResults::Ok);
+    else
+    {
+        l_RecruitmentResult << uint32(MS::Garrison::PurchaseBuildingResults::Ok); ///< need to find appropriate error ID
+        m_Player->PlayerTalkClass->SendCloseGossip();
+        return;
+    }
 
     std::vector<MS::Garrison::GarrisonFollower> l_WeeklyFollowers = l_Garrison->GetWeeklyFollowerRecruits(m_Player);
 
@@ -631,6 +638,8 @@ void WorldSession::HandleGarrisonRecruitFollower(WorldPacket& p_RecvData)
         {
             l_Follower.Write(l_RecruitmentResult);
             l_Garrison->AddFollower(l_Follower);
+            l_Garrison->SetCanRecruitFollower(true);
+            m_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTavernBoolCanRecruitFollower, 1);
             break;
         }
     }

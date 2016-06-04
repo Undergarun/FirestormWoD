@@ -301,12 +301,12 @@ namespace MS { namespace Garrison
             ItemGG117MicroJetpack             = 114244,
             ItemSentryTurretDispenser         = 114744,
 
-            /// Level 3
-            ItemOverchargedSiegeEngine        = 119436,
-            ItemOverchargedDemolkisher        = 119437
+            /// Level 3 (shipments, not daily loot)
+            ItemOverchargedSiegeEngine        = 119436, ///< Alliance
+            ItemOverchargedDemolkisher        = 119437  ///< Horde
         };
 
-        static std::vector<uint32> const g_FirstLevelInventions =
+        static std::vector<uint32> g_FirstLevelInventions =
         {
             GobStickyGrenades,
             GobRoboBooster,
@@ -314,7 +314,7 @@ namespace MS { namespace Garrison
             GobSkyTerrorPersonnalDeliverySystem
         };
 
-        static std::vector<uint32> const g_SecondLevelInventions =
+        static std::vector<uint32> g_SecondLevelInventions =
         {
             GobPrototypeMechanoHog,
             GobPrototypeMekgineersChopper,

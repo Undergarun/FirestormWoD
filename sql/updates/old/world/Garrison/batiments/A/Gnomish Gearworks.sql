@@ -21,6 +21,15 @@
 
 	UPDATE quest_template SET rewardmoney = 114000, RewardMoneyMaxLevel = 5 WHERE id = 37091;
 
+	-- Overcharged Siege Engine
+	UPDATE creature_template SET vehicleid = 3946, minlevel = 100, maxlevel = 100, faction = 2203, spell1 = 177291, spell2 = 177290, spell3 = 177293, spell4 = 177292 WHERE entry = 88694;
+
+	-- Overcharged Demolisher
+	UPDATE creature_template SET vehicleid = 3946, minlevel = 100, maxlevel = 100, faction = 2203, spell1 = 177291, spell2 = 177290, spell3 = 177293, spell4 = 177292 WHERE entry = 88695;
+
+	-- Sentry Turret
+	UPDATE creature_template SET minlevel = 100, maxlevel = 100, faction = 2203, unit_flags = 33554436, scriptname = "npc_GearshopWorkshopTurret_Garr" WHERE entry =  84143;
+
 -- LEVEL 2
 
 -- LEVEL 3

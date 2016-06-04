@@ -2649,7 +2649,10 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
 
     // Remove from old map now
     if (Map* l_OldMap = IsInWorld() ? GetMap() : NULL)
+    {
+        SetMapSwitchDestination(p_MapID);
         l_OldMap->RemovePlayerFromMap(this, false);
+    }
 
     // Relocate the player to the teleport destination
     Map* l_NewMap = sMapMgr->CreateMap(p_MapID, this);
@@ -2684,6 +2687,7 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
     }
 
     GetMap()->AddPlayerToMap(this, true);
+    SetMapSwitchDestination(-1);
 
     // Update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 l_NewZone, l_NewArea;
@@ -8517,7 +8521,7 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
 {
     if ((time(0) - m_BonusQuestTimer) >= 5)
     {
-        m_BonusQuestTimer = time(0) + 5;
+        m_BonusQuestTimer = time(0);
         for (auto l_Current : sObjectMgr->BonusQuestsRects)
         {
             if (IsQuestRewarded(l_Current.first))
@@ -18205,9 +18209,7 @@ bool Player::CanCompleteQuest(uint32 p_QuestID)
 
         // auto complete quest
         if (l_Quest->IsAutoComplete() && CanTakeQuest(l_Quest, false))
-        {
             return true;
-        }
 
         QuestStatusMap::iterator itr = m_QuestStatus.find(p_QuestID);
         if (itr == m_QuestStatus.end())
@@ -21428,7 +21430,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, g_RealmID);
     ReloadPetBattles();
 
-    MS::Garrison::Manager * l_Garrison = new MS::Garrison::Manager(this);
+    MS::Garrison::Manager* l_Garrison = new MS::Garrison::Manager(this);
 
     if (l_Garrison->Load(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_MISSIONS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_WORKORDERS)))
         m_Garrison = l_Garrison;
@@ -21575,6 +21577,7 @@ void Player::_LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEf
             int32 maxduration = fields[6].GetInt32();
             int32 remaintime = fields[7].GetInt32();
             uint8 remaincharges = fields[8].GetUInt8();
+            int32 castItemLevel = fields[9].GetInt32();
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
             if (!spellInfo)
@@ -21612,7 +21615,7 @@ void Player::_LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEf
                 }
             }
 
-            Aura* aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid);
+            Aura* aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid, castItemLevel);
             if (aura != nullptr)
             {
                 if (!aura->CanBeSaved())
@@ -23567,7 +23570,8 @@ void Player::_SaveAuras(SQLTransaction& trans)
         stmt->setUInt8(index++, itr->second->GetStackAmount());
         stmt->setInt32(index++, itr->second->GetMaxDuration());
         stmt->setInt32(index++, itr->second->GetDuration());
-        stmt->setUInt8(index, itr->second->GetCharges());
+        stmt->setUInt8(index++, itr->second->GetCharges());
+        stmt->setInt32(index++, aura->GetCastItemLevel());
         trans->Append(stmt);
     }
 }
@@ -24647,9 +24651,30 @@ void Player::StopCastingCharm()
     {
         if (charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_PUPPET))
             ((Puppet*)charm)->UnSummon();
-        else if (charm->IsVehicle())
-            ExitVehicle();
     }
+
+    if (charm->IsVehicle())
+    {
+        /// Prevent exit vehicle at map switch
+        if (GetMapSwitchDestination() != -1 && charm->GetTypeId() == TYPEID_UNIT)
+        {
+            Map* l_NewMap = sMapMgr->CreateMap(GetMapSwitchDestination(), this);
+
+            if (l_NewMap && l_NewMap->CanEnter(this))
+            {
+                charm->SetMapSwitchDestination(GetMapSwitchDestination());
+                charm->ToCreature()->SetLockAI(true);
+                charm->ToCreature()->FarTeleportTo(l_NewMap, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+                charm->ToCreature()->SetLockAI(false);
+                charm->SetMapSwitchDestination(-1);
+
+                return;
+            }
+        }
+
+        ExitVehicle();
+    }
+
     if (GetCharmGUID())
         charm->RemoveCharmAuras();
 
@@ -28047,11 +28072,11 @@ void Player::ResetDailyGarrisonDatas()
 
         if (l_Garrison->HasBuildingType(BuildingType::Stable))
         {
-            if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
-                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
+            if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesFirstQuest))
+                SetCharacterWorldState(CharacterWorldStates::GarrisonStablesFirstQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
 
-            if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest))
-                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
+            if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesSecondQuest))
+                SetCharacterWorldState(CharacterWorldStates::GarrisonStablesSecondQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
         }
 
         if (l_Garrison->HasBuildingType(BuildingType::Workshop))
@@ -28097,8 +28122,8 @@ void Player::ResetWeeklyGarrisonDatas()
         ///< Armory token handling
         if (l_Garrison->GetBuildingWithType(BuildingType::Armory).DatabaseID)
         {
-            if (GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain) == 1)
-                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain, 0);
+            if (GetCharacterWorldStateValue(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain) == 1)
+                SetCharacterWorldState(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain, 0);
         }
     }
 }

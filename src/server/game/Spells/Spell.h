@@ -521,6 +521,7 @@ public:
     void EffectUpgradeHeirloom(SpellEffIndex p_EffIndex);
     void EffectFinishGarrisonMission(SpellEffIndex p_EffIndex);
     void EffectChangeItemBonus(SpellEffIndex p_EffIndex);
+    void EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex);
 
     typedef std::set<Aura*> UsedSpellMods;
 
@@ -587,7 +588,7 @@ public:
     int32 CalculateDamage(uint8 i, Unit const* target, bool p_Log = false) const
     {
         Unit* l_Caster = m_originalCaster ? m_originalCaster : m_caster;
-        return l_Caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_CastItem, p_Log);
+        return l_Caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_castItemLevel, p_Log);
     }
 
     bool HaveTargetsForEffect(uint8 effect) const;
@@ -635,6 +636,7 @@ public:
     SpellInfo const* const m_spellInfo;
     Item* m_CastItem;
     uint64 m_castItemGUID;
+    int32 m_castItemLevel;
     uint8 m_cast_count;
     uint32 m_CastItemEntry;
     uint32 m_Misc[2];
@@ -912,6 +914,7 @@ protected:
     LogHelperMap m_effectExecuteData;
 
     bool m_redirected;
+    uint32 m_SpellVisualID;
 #ifdef MAP_BASED_RAND_GEN
     int32 irand(int32 min, int32 max)       { return int32(m_caster->GetMap()->mtRand.randInt(max - min)) + min; }
     uint32 urand(uint32 min, uint32 max)    { return m_caster->GetMap()->mtRand.randInt(max - min) + min; }

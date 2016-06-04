@@ -156,6 +156,10 @@ namespace MS { namespace Garrison
 
         /// Follower section
         public:
+            /// Set Follower Recruit
+            bool CanRecruitFollower() const;
+            /// Set Follower Recruit
+            void SetCanRecruitFollower(bool p_Apply);
             /// Add follower
             bool AddFollower(uint32 p_FollowerID);
             /// Add follower with initialized entity
@@ -230,6 +234,8 @@ namespace MS { namespace Garrison
             uint32 GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID) const;
             /// Get in progress work order count
             uint32 GetWorkOrderCount(uint32 p_PlotInstanceID) const;
+            /// Get in progress work order count
+            std::vector<GarrisonWorkOrder> GetBuildingWorkOrders(uint32 p_PlotInstanceID) const;
             /// Start new work order
             uint64 StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID);
             /// Delete work order
@@ -415,8 +421,8 @@ namespace MS { namespace Garrison
             uint32      m_MissionDistributionLastUpdate;
             uint64      m_LastUsedActivationGameObject;
             uint64      m_CacheGameObjectGUID;
-
             uint32      m_CacheLastTokenAmount;
+            bool        m_CanRecruitFollower;
 
             std::vector<GarrisonPlotInstanceInfoLocation>   m_Plots;
             std::vector<GarrisonMission>                    m_Missions;

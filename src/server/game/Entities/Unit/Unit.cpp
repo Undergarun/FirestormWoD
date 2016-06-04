@@ -308,6 +308,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
 
     m_LastNotifyPosition.Relocate(-5000.0f, -5000.0f, -5000.0f, 0.0f);
     m_LastOutdoorPosition.Relocate(-5000.0f, -5000.0f, -5000.0f, 0.0f);
+
+    m_MapSwitchDestination = -1;
 }
 
 ////////////////////////////////////////////////////////////
@@ -3756,7 +3758,7 @@ void Unit::DeMorph()
     SetDisplayId(GetNativeDisplayId());
 }
 
-Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
+Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, int32 castItemLevel /*= -1*/)
 {
     ASSERT(casterGUID || caster);
     if (!casterGUID)
@@ -3801,6 +3803,9 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint3
             {
                 uint64* oldGUID = const_cast<uint64 *>(&foundAura->m_castItemGuid);
                 *oldGUID = castItemGUID;
+
+                int32* oldItemLevel = const_cast<int32*>(&foundAura->m_castItemLevel);
+                *oldItemLevel = castItemLevel;
             }
 
             // try to increase stack amount
@@ -7664,14 +7669,26 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (!l_Player->isInCombat())
                         return false;
 
-                    if (l_Player->HasSpellCooldown(51701))
+                    if (l_Player->HasSpellCooldown(51699))
                         return false;
 
                     if (!(procEx & PROC_EX_CRITICAL_HIT))
                         return false;
 
                     triggered_spell_id = 51699;
-                    break;
+
+                    SpellInfo const* triggerEntry = sSpellMgr->GetSpellInfo(triggered_spell_id);
+                    if (!triggerEntry)
+                        return false;
+
+                    if (cooldown_spell_id == 0)
+                        cooldown_spell_id = triggered_spell_id;
+
+                    l_Player->CastSpell(target, triggered_spell_id, true, castItem, triggeredByAura, originalCaster);
+
+                    l_Player->AddSpellCooldown(cooldown_spell_id, 0, cooldown);
+
+                    return true;
                 }
                 case 63254: // Glyph of Deadly Momentum
                 {
@@ -10935,6 +10952,9 @@ Unit* Unit::GetCharm() const
         if (Unit* pet = ObjectAccessor::GetUnit(*this, charm_guid))
             return pet;
 
+        if (Unit* creature = sObjectAccessor->FindCreature(charm_guid))
+            return creature;
+
         const_cast<Unit*>(this)->SetGuidValue(UNIT_FIELD_CHARM, 0);
     }
 
@@ -12338,7 +12358,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) and Ebon Gargoyle can too - but this part is a hack and needs more research
-    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829 && GetEntry() != 77936)
+    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829 && GetEntry() != 77936 && GetEntry() != 55659 && GetEntry() != 82927)
         return 0.0f;
 
     // not critting spell
@@ -14009,6 +14029,10 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     if (target->HasAura(119626) || target->HasAura(117708))
         return true;
 
+    /// Prismatic Crystal should be attackable only by summoner
+    if (target->GetEntry() == 76933 && target->ToTempSummon() && target->ToTempSummon()->GetSummoner() && target->ToTempSummon()->GetSummoner()->GetGUID() != GetGUID())
+        return false;
+
     if (target->HasAuraType(SPELL_AURA_SEE_WHILE_INVISIBLE))
         return false;
 
@@ -15146,9 +15170,9 @@ float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index
 }
 
 // function uses real base points (typically value - 1)
-int32 Unit::CalculateSpellDamage(Unit const* p_Target, SpellInfo const* p_SpellProto, uint8 p_EffectIndex, int32 const* p_BasePoints, Item const* p_Item, bool p_Log /* = false */) const
+int32 Unit::CalculateSpellDamage(Unit const* p_Target, SpellInfo const* p_SpellProto, uint8 p_EffectIndex, int32 const* p_BasePoints, int32 itemLevel, bool p_Log /* = false */) const
 {
-    return p_SpellProto->Effects[p_EffectIndex].CalcValue(this, p_BasePoints, p_Target, p_Item, p_Log);
+    return p_SpellProto->Effects[p_EffectIndex].CalcValue(this, p_BasePoints, p_Target, itemLevel, p_Log);
 }
 
 int32 Unit::CalcSpellDuration(SpellInfo const* p_SpellInfo)
@@ -16130,7 +16154,7 @@ void Unit::RemoveFromWorld()
     if (IsInWorld())
     {
         m_duringRemoveFromWorld = true;
-        if (IsVehicle())
+        if (IsVehicle() && GetMapSwitchDestination() == -1)
             GetVehicleKit()->Uninstall();
 
         RemoveCharmAuras();
@@ -16141,7 +16165,8 @@ void Unit::RemoveFromWorld()
         RemoveAllDynObjects();
         RemoveAllAreasTrigger();
 
-        ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
+        if (GetMapSwitchDestination() == -1)
+            ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
         UnsummonAllTotems();
         RemoveAllControlled();
 
@@ -16838,6 +16863,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
     damageInfo.ModifyAbsorb(absorb);
 
+    uint32 now = getMSTime();
+
     ProcTriggeredList procTriggered;
     // Fill procTriggered list
     for (AuraApplicationMap::const_iterator itr = GetAppliedAuras().begin(); itr!= GetAppliedAuras().end(); ++itr)
@@ -16890,6 +16917,11 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         // AuraScript Hook
         if (!triggerData.aura->CallScriptCheckProcHandlers(itr->second, eventInfo))
+            continue;
+
+        bool procSuccess = RollProcResult(target, triggerData.aura, attType, isVictim, triggerData.spellProcEvent);
+        triggerData.aura->SetLastProcAttemptTime(now);
+        if (!procSuccess)
             continue;
 
         // Triggered spells not triggering additional spells
@@ -16947,6 +16979,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         uint32 cooldown = spellInfo->InternalCooldown;
         if (prepare && IsPlayer() && i->spellProcEvent && i->spellProcEvent->cooldown)
             cooldown = i->spellProcEvent->cooldown * IN_MILLISECONDS;
+
+        i->aura->SetLastProcSuccessTime(now);
 
         // Hack Fix : Stealth is not removed on absorb damage
         if (spellInfo->HasAura(SPELL_AURA_MOD_STEALTH) && procExtra & PROC_EX_ABSORB && isVictim)
@@ -18182,7 +18216,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
         /// Pyroblast! must make T17 fire 4P bonus procs!
         /// Arcane Charge must make T17 arcane 4P bonus procs!
         else if ((spellProto && spellProto->Id == 165459 && procSpell && procSpell->Id == 48108) ||
-                 (spellProto && spellProto->Id == 165476 && procSpell && procSpell->Id == 36032))
+            (spellProto && spellProto->Id == 165476 && procSpell && procSpell->Id == 36032))
         {
             /// Nothing to do here
             /// We must use the ProcsPerMinuteRate calculated after that
@@ -18227,45 +18261,42 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
             if (player->IsInFeralForm())
                 return false;
 
-            if (!item || item->CantBeUse() || item->GetTemplate()->Class != ITEM_CLASS_WEAPON || !((1<<item->GetTemplate()->SubClass) & spellProto->EquippedItemSubClassMask))
+            if (!item || item->CantBeUse() || item->GetTemplate()->Class != ITEM_CLASS_WEAPON || !((1 << item->GetTemplate()->SubClass) & spellProto->EquippedItemSubClassMask))
                 return false;
         }
         else if (spellProto->EquippedItemClass == ITEM_CLASS_ARMOR)
         {
             // Check if player is wearing shield
             Item* item = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-            if (!item || item->CantBeUse() || item->GetTemplate()->Class != ITEM_CLASS_ARMOR || !((1<<item->GetTemplate()->SubClass) & spellProto->EquippedItemSubClassMask))
+            if (!item || item->CantBeUse() || item->GetTemplate()->Class != ITEM_CLASS_ARMOR || !((1 << item->GetTemplate()->SubClass) & spellProto->EquippedItemSubClassMask))
                 return false;
         }
     }
+
+    return true;
+}
+
+bool Unit::RollProcResult(Unit* victim, Aura* aura, WeaponAttackType attType, bool isVictim, SpellProcEventEntry const* spellProcEvent)
+{
+    SpellInfo const* spellInfo = aura->GetSpellInfo();
+
     // Get chance from spell
-    float chance = float(spellProto->ProcChance);
+    float chance = float(spellInfo->ProcChance);
     // If in spellProcEvent exist custom chance, chance = spellProcEvent->customChance;
     if (spellProcEvent && spellProcEvent->customChance)
         chance = spellProcEvent->customChance;
     // If PPM exist calculate chance from PPM
-    float procsPerMinute = spellProto->ProcsPerMinute;
+    float procsPerMinute = spellInfo->ProcsPerMinute;
     if (procsPerMinute == 0.0f && spellProcEvent && spellProcEvent->ppmRate != 0.0f)
         procsPerMinute = spellProcEvent->ppmRate;
 
     if (procsPerMinute != 0.0f)
-    {
-        if (!isVictim)
-        {
-            uint32 WeaponSpeed = GetAttackTime(attType);
-            chance = GetPPMProcChance(WeaponSpeed, procsPerMinute, spellProto);
-        }
-        else
-        {
-            uint32 WeaponSpeed = victim->GetAttackTime(attType);
-            chance = victim->GetPPMProcChance(WeaponSpeed, procsPerMinute, spellProto);
-        }
-    }
+        chance = aura->CalcPPMProcChance(procsPerMinute, isVictim ? victim : this);
+
     // Apply chance modifer aura
     if (Player* modOwner = GetSpellModOwner())
-    {
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CHANCE_OF_SUCCESS, chance);
-    }
+        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CHANCE_OF_SUCCESS, chance);
+
     return roll_chance_f(chance);
 }
 
@@ -19363,6 +19394,9 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         type = CHARM_TYPE_VEHICLE;
     else
         type = CHARM_TYPE_CHARM;
+
+    if (type == CHARM_TYPE_VEHICLE && GetMapSwitchDestination() != -1)
+        return;
 
     CastStop();
     CombatStop(); // TODO: CombatStop(true) may cause crash (interrupt spells)
@@ -20874,6 +20908,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             // Glyph of Metamorphosis
             if (HasAura(159680))
                 return 0;
+            if (HasAura(137206))
+                return 48088;
             return 25277;
         }
         default:

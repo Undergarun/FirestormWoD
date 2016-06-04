@@ -71,23 +71,11 @@ namespace MS { namespace Garrison
             l_QuestID == BoarQuests::QuestBestingABoar || l_QuestID == ElekkQuests::QuestEntanglingAnElekk ||
             l_QuestID == ClefthoofQuests::QuestCapturingAClefthoof)
         {
-            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
+            p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonStablesFirstQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
 
-            if (l_QuestID == g_BoarQuests.back() && p_Creature->AI())
-            {
-                using namespace StablesData::Horde;
-
-                l_AI->SummonRelativeCreature(g_SagePalunaQuestgiverEntry,
-                    g_HordeCreaturesPos[4].X,
-                    g_HordeCreaturesPos[4].Y,
-                    g_HordeCreaturesPos[4].Z,
-                    g_HordeCreaturesPos[4].O,
-                    TEMPSUMMON_MANUAL_DESPAWN);
-            }
+            if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
+                l_GarrisonMgr->UpdatePlot(l_AI->GetPlotInstanceID());
         }
-
-        if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
-            l_GarrisonMgr->UpdatePlot(l_AI->GetPlotInstanceID());
 
         return true;
     }
@@ -115,7 +103,7 @@ namespace MS { namespace Garrison
         if (p_Player == nullptr)
             return 0;
 
-        uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest);
+        uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesFirstQuest);
         std::vector<uint32>::const_iterator l_Iterator = std::find(p_QuestsList.begin(), p_QuestsList.end(), l_QuestID);
         uint32 l_NextQuestID = 0;
 
@@ -287,7 +275,7 @@ namespace MS { namespace Garrison
         using namespace StablesData::Horde::TormakQuestGiver;
         using namespace StablesData::Horde::SagePalunaQuestGiver;
 
-        if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
+        if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesFirstQuest))
         {
             uint32 l_TormakNextQuestID = 0;
 
@@ -326,7 +314,7 @@ namespace MS { namespace Garrison
             }
         }
 
-        if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest))
+        if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesSecondQuest))
         {
             if (Creature* l_SecondCreature = SummonRelativeCreature(305, g_HordeCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
             {
@@ -421,7 +409,7 @@ namespace MS { namespace Garrison
             l_QuestID == WolfQuests::QuestWanglingAWolf || l_QuestID == TalbukQuests::QuestTamingATalbuk ||
             l_QuestID == RiverbeastQuests::QuestRequisitionARiverbeast)
         {
-            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
+            p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonStablesSecondQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
         }
 
         if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
@@ -453,7 +441,7 @@ namespace MS { namespace Garrison
         if (p_Player == nullptr)
             return;
 
-        uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest);
+        uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesSecondQuest);
         std::vector<uint32>::const_iterator l_Iterator = std::find(p_QuestsList.begin(), p_QuestsList.end(), l_QuestID);
         uint32 l_NextQuestID = 0;
 

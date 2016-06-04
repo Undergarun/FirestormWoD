@@ -1043,6 +1043,7 @@ void Player::UpdateManaRegen()
 
     uint8 l_PercentOfMana = 2;
     float l_SpiritRegenIncrease = OCTRegenMPPerSpirit();   ///< Mana regen increase from spirit - per-point calculation * player stat.
+    l_SpiritRegenIncrease *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
 
     float l_CombatRegenFromSpirit = 0;
     float l_CombatRegenFromAurPct = 0;
