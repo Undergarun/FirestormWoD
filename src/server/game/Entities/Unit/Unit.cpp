@@ -13653,7 +13653,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         player->UnsummonCurrentBattlePetIfAny(true);
         player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true));
 
-        if ((mount == 19296 || mount == 19085) || player->HasAura(57958)) // TODO: we need to create a new trigger flag - on mount, to handle it properly
+        if ((mount == 19296 || mount == 19085 || mount == 31367 || mount == 31368 || mount == 8469 || mount == 14548 || mount == 30366 || mount == 30501 || mount == 28919) && player->HasAura(57958)) // TODO: we need to create a new trigger flag - on mount, to handle it properly
             player->AddAura(20217, player);
 
         sScriptMgr->OnPlayerMount(player, creatureEntry);
