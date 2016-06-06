@@ -289,31 +289,24 @@ class spell_warr_storm_bolt: public SpellScriptLoader
                 StormBoltStun = 132169
             };
 
-            void HandleOnCast()
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetExplTargetUnit();
+                Unit* l_Target = GetHitUnit();
 
                 if (l_Target == nullptr)
                     return;
 
                 if (GetSpellInfo()->Id == eSpells::StormBoltOffHand && !l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), EFFECT_0))
                     l_Caster->CastSpell(l_Target, eSpells::StormBoltStun, true);
-            }
 
-            void HandleOnHit()
-            {
-                if (Unit* l_Target = GetHitUnit())
-                {
-                    if (l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), EFFECT_0))
-                        SetHitDamage(GetHitDamage() * 4); ///< Deals quadruple damage to targets permanently immune to stuns
-                }
+                if (l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), EFFECT_0))
+                    SetHitDamage(GetHitDamage() * 4); ///< Deals quadruple damage to targets permanently immune to stuns
             }
 
             void Register()
             {
-                OnCast += SpellCastFn(spell_warr_storm_bolt_SpellScript::HandleOnCast);
-                OnHit += SpellHitFn(spell_warr_storm_bolt_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             }
         };
 
