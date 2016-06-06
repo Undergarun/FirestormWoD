@@ -1774,15 +1774,17 @@ class spell_warr_anger_management: public PlayerScript
                 return;
 
             m_RageSpend += -l_diffValue / p_Player->GetPowerCoeff(POWER_RAGE);
-            if (m_RageSpend >= l_AngerManagementAura->GetAmount())
+
+            uint8 l_Nb = m_RageSpend / l_AngerManagementAura->GetAmount();
+            m_RageSpend = m_RageSpend % l_AngerManagementAura->GetAmount();
+
+            for (uint8 l_I = 0; l_I < l_Nb; ++l_I)
             {
                 for (int l_I = 0; l_I < REDUCED_SPELLS_ID_MAX; l_I++)
                 {
                     if (p_Player->HasSpellCooldown(g_ReducedSpellsId[l_I]))
                         p_Player->ReduceSpellCooldown(g_ReducedSpellsId[l_I], 1 * IN_MILLISECONDS);
                 }
-
-                m_RageSpend = 0;
             }
         }
 };
