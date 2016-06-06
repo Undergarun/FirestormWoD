@@ -3760,7 +3760,7 @@ class spell_dru_rake: public SpellScriptLoader
                 }
             }
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -3788,8 +3788,8 @@ class spell_dru_rake: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_rake_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnPrepare += SpellOnPrepareFn(spell_dru_rake_SpellScript::HandleOnPrepare);
-                OnHit += SpellHitFn(spell_dru_rake_SpellScript::HandleOnHit);
             }
         };
 

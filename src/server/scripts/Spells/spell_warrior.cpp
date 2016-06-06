@@ -55,6 +55,7 @@ enum WarriorSpells
     WARRIOR_HEAVY_REPERCUSSIONS                 = 169680
 };
 
+/// Last Update 6.2.3
 /// Ravager - 152277
 class spell_warr_ravager : public SpellScriptLoader
 {
@@ -109,14 +110,14 @@ class spell_warr_ravager : public SpellScriptLoader
                 l_Caster->CastSpell(l_Ravager, eDatas::RavagerDamage, true);
             }
 
-            void Register()
+            void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_ravager_AuraScript::CalculateParryPCT, EFFECT_0, SPELL_AURA_MOD_PARRY_PERCENT);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_ravager_AuraScript::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_warr_ravager_AuraScript();
         }
@@ -1741,6 +1742,7 @@ uint32 g_ReducedSpellsId[REDUCED_SPELLS_ID_MAX] =
     118038  ///< Die by the Sword
 };
 
+/// Last Update 6.2.3
 /// Anger Management - 152278
 class spell_warr_anger_management: public PlayerScript
 {
