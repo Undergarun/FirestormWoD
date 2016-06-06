@@ -642,19 +642,20 @@ class spell_quest_spires_of_arak_detonate_iron_grenade : public SpellScriptLoade
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
 
-                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                if (l_Caster)
                 {
-                    if (l_Target->GetEntry() == SpiresOfArakCreatures::IronGrenad)
-                        l_Target->ToCreature()->DespawnOrUnsummon(0);
+                    Creature* l_Creature = l_Caster->FindNearestCreature(SpiresOfArakCreatures::IronGrenad, 1.2f);
+
+                    if (l_Creature)
+                        l_Creature->DespawnOrUnsummon(0 * TimeConstants::IN_MILLISECONDS);
                 }
             }
 
             /// Register all effect
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_quest_spires_of_arak_detonate_iron_grenade_SpellScript::HandleDummy, EFFECT_3, SPELL_EFFECT_DUMMY);
+                OnEffectHit += SpellEffectFn(spell_quest_spires_of_arak_detonate_iron_grenade_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_KILL_CREDIT2);
             }
         };
 
