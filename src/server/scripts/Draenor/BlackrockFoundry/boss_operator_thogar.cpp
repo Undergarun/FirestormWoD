@@ -112,6 +112,9 @@ class boss_operator_thogar : public CreatureScript
                     {
                         if (m_IntroDone)
                         {
+                            /// Must be done for train spawning
+                            me->GetMap()->SetObjectVisibility(500.0f);
+
                             DoAction(eThogarActions::IntroEnd);
 
                             if (GameObject* l_IronGate = GameObject::GetGameObject(*me, m_Instance->GetData64(eFoundryGameObjects::IronGate)))
@@ -205,7 +208,7 @@ class boss_operator_thogar : public CreatureScript
                         m_IntroTrashes.insert(p_Summon->GetGUID());
                 }
                 else
-                    CreatureAI::JustSummoned(p_Summon);
+                    BossAI::JustSummoned(p_Summon);
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -360,9 +363,23 @@ class boss_operator_thogar : public CreatureScript
 
                         ++m_TrainID;
 
-                        uint32 l_Timer = g_TrainDatas[m_TrainID].SpawnTimer;
                         /// Few timers are set to 0, because of double spawns
-                        m_Events.ScheduleEvent(eEvents::EventSummonTrain, l_Timer ? l_Timer - g_TrainDatas[m_TrainID - 1].SpawnTimer : l_Timer);
+                        uint32 l_Timer = g_TrainDatas[m_TrainID].SpawnTimer;
+                        if (!l_Timer)
+                            m_Events.ScheduleEvent(eEvents::EventSummonTrain, 0);
+                        else
+                        {
+                            uint32 l_TrainID = m_TrainID;
+                            uint32 l_PrevTimer = 0;
+                            do
+                            {
+                                l_PrevTimer = g_TrainDatas[--l_TrainID].SpawnTimer;
+                            }
+                            while (l_TrainID >= eThogarTrains::FightTrainBeginning && l_PrevTimer == 0);
+
+                            m_Events.ScheduleEvent(eEvents::EventSummonTrain, l_Timer - l_PrevTimer);
+                        }
+
                         break;
                     }
                     default:
@@ -392,7 +409,8 @@ class npc_foundry_train_controller : public CreatureScript
             SecondMovementIntro,
             SecondMovementOuttro,
             ThirdMovementIntro,
-            ThirdMovementOuttro
+            ThirdMovementOuttro,
+            MovementInFight
         };
 
         enum eVisual
@@ -416,9 +434,16 @@ class npc_foundry_train_controller : public CreatureScript
 
             uint8 m_TrainID;
 
+            std::set<uint64> m_Passengers;
+            int32 m_CheckPassengersTime;
+
+            std::set<uint64> m_CollisionBoxes;
+
             void Reset() override
             {
                 m_SummonerGUID = 0;
+
+                m_CheckPassengersTime = 0;
 
                 me->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
             }
@@ -447,8 +472,18 @@ class npc_foundry_train_controller : public CreatureScript
                                 break;
                             }
                             case eThogarMiscDatas::HalfLengthAddTrains:
-                            case eThogarMiscDatas::FullLengthAddTrains:
                             case eThogarMiscDatas::SiegeTrain:
+                            {
+                                StartTrain(0, false);
+
+                                Position l_Pos      = l_Datas.RightToLeft ? g_TrainTrackEndPos[l_Datas.TrackID] : g_TrainTrackSpawnPos[l_Datas.TrackID];
+                                l_Pos.m_positionY   = g_InFightStopPosY;
+
+                                me->GetMotionMaster()->MovePoint(eMoves::MovementInFight, l_Pos, false);
+
+                                HandleDoors(true);
+                                break;
+                            }
                             default:
                                 break;
                         }
@@ -525,6 +560,29 @@ class npc_foundry_train_controller : public CreatureScript
                         me->GetMotionMaster()->MovePoint(eMoves::ThirdMovementIntro, g_TrainTrackIntroWoodEndPos, false);
 
                         HandleDoors(true);
+                        break;
+                    }
+                    case eThogarActions::TrainFightMoveEnd:
+                    {
+                        StartTrain(0);
+
+                        AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            TrainDatas l_Datas = g_TrainDatas[m_TrainID];
+                            me->GetMotionMaster()->MovePoint(eMoves::ThirdMovementOuttro, l_Datas.RightToLeft ? g_TrainTrackEndPos[l_Datas.TrackID] : g_TrainTrackSpawnPos[l_Datas.TrackID], false);
+
+                            for (uint64 l_Guid : m_CollisionBoxes)
+                            {
+                                if (GameObject* l_Box = GameObject::GetGameObject(*me, l_Guid))
+                                    l_Box->Delete();
+                            }
+                        });
+
+                        AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            HandleDoors(false);
+                        });
+
                         break;
                     }
                     default:
@@ -678,6 +736,132 @@ class npc_foundry_train_controller : public CreatureScript
 
                         break;
                     }
+                    case eMoves::MovementInFight:
+                    {
+                        TrainDatas l_Datas = g_TrainDatas[m_TrainID];
+
+                        StopTrain();
+
+                        switch (l_Datas.TrainType)
+                        {
+                            case eThogarMiscDatas::HalfLengthAddTrains:
+                            {
+                                for (int8 l_I = 1; l_I <= 2; ++l_I)
+                                {
+                                    if (Unit* l_Passenger = m_Vehicle->GetPassenger(l_I))
+                                    {
+                                        if (Vehicle* l_Vehicle = l_Passenger->GetVehicleKit())
+                                        {
+                                            for (int8 l_J = 0; l_J < MAX_VEHICLE_SEATS; ++l_J)
+                                            {
+                                                if (l_Vehicle->GetPassenger(l_J) == nullptr)
+                                                    continue;
+
+                                                if (Creature* l_Add = l_Vehicle->GetPassenger(l_J)->ToCreature())
+                                                {
+                                                    l_Add->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                                                    l_Add->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
+                                                    l_Add->ExitVehicle();
+
+                                                    uint64 l_Guid = l_Add->GetGUID();
+
+                                                    m_Passengers.insert(l_Guid);
+
+                                                    m_CheckPassengersTime = 1 * TimeConstants::IN_MILLISECONDS;
+
+                                                    AddTimedDelayedOperation(100, [this, l_Guid]() -> void
+                                                    {
+                                                        if (Creature* l_Passenger = Creature::GetCreature(*me, l_Guid))
+                                                        {
+                                                            if (Unit* l_Victim = l_Passenger->SelectNearestPlayerNotGM(30.0f))
+                                                                l_Passenger->GetMotionMaster()->MoveJump(*l_Victim, 30.0f, 10.0f);
+                                                        }
+                                                    });
+
+                                                    AddTimedDelayedOperation(500, [this, l_Guid]() -> void
+                                                    {
+                                                        if (Creature* l_Passenger = Creature::GetCreature(*me, l_Guid))
+                                                        {
+                                                            if (Unit* l_Victim = l_Passenger->SelectNearestPlayerNotGM(30.0f))
+                                                            {
+                                                                if (l_Passenger->IsAIEnabled)
+                                                                    l_Passenger->AI()->AttackStart(l_Victim);
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+                            case eThogarMiscDatas::SiegeTrain:
+                            {
+                                /// Gunner wagon
+                                if (Unit* l_Passenger = m_Vehicle->GetPassenger(2))
+                                {
+                                    if (l_Passenger->GetVehicleKit() == nullptr)
+                                        break;
+
+                                    l_Passenger = l_Passenger->GetVehicleKit()->GetPassenger(0);
+
+                                    if (Vehicle* l_SiegeEngine = l_Passenger->GetVehicleKit())
+                                    {
+                                        l_Passenger = l_SiegeEngine->GetPassenger(0);
+                                        if (l_Passenger == nullptr)
+                                            break;
+
+                                        if (Creature* l_Sergeant = l_Passenger->ToCreature())
+                                        {
+                                            l_Sergeant->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                                            l_Sergeant->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
+                                            if (Player* l_Target = l_Sergeant->SelectNearestPlayerNotGM(60.0f))
+                                            {
+                                                if (l_Sergeant->IsAIEnabled)
+                                                    l_Sergeant->AI()->AttackStart(l_Target);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        /// Spawn collision boxes
+                        for (int8 l_I = 0; l_I < MAX_VEHICLE_SEATS; ++l_I)
+                        {
+                            Unit* l_Passenger = m_Vehicle->GetPassenger(l_I);
+                            if (l_Passenger == nullptr)
+                                continue;
+
+                            switch (l_I)
+                            {
+                                case 0: ///< Always the engine
+                                {
+                                    if (GameObject* l_Box = me->SummonGameObject(eThogarGameObjects::EngineCollisionBox, *l_Passenger, 0.0f, 0.7071066f, 0.7071069f, 0.0f, 0))
+                                        m_CollisionBoxes.insert(l_Box->GetGUID());
+
+                                    break;
+                                }
+                                default:
+                                {
+                                    if (GameObject* l_Box = me->SummonGameObject(urand(0, 1) ? eThogarGameObjects::TrainAndCarCollisionBox1 : eThogarGameObjects::TrainAndCarCollisionBox2, *l_Passenger, 0.0f, 0.7071066f, 0.7071069f, 0.0f, 0))
+                                        m_CollisionBoxes.insert(l_Box->GetGUID());
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -686,6 +870,36 @@ class npc_foundry_train_controller : public CreatureScript
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
+
+                if (m_CheckPassengersTime)
+                {
+                    if (m_CheckPassengersTime <= (int32)p_Diff)
+                    {
+                        for (auto l_Iter = m_Passengers.begin(); l_Iter != m_Passengers.end();)
+                        {
+                            if (Unit* l_Passenger = Unit::GetUnit(*me, *l_Iter))
+                            {
+                                if (!l_Passenger->isAlive())
+                                {
+                                    l_Iter = m_Passengers.erase(l_Iter);
+                                    continue;
+                                }
+                                else
+                                    ++l_Iter;
+                            }
+                        }
+
+                        if (m_Passengers.empty())
+                        {
+                            DoAction(eThogarActions::TrainFightMoveEnd);
+                            m_CheckPassengersTime = 0;
+                        }
+                        else
+                            m_CheckPassengersTime = 1 * TimeConstants::IN_MILLISECONDS;
+                    }
+                    else
+                        m_CheckPassengersTime -= p_Diff;
+                }
             }
 
             void RemovePassengers(Creature* p_Source)
@@ -887,10 +1101,13 @@ class npc_foundry_iron_gunnery_sergeant : public CreatureScript
             {
                 if (m_Instance != nullptr)
                 {
-                    if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                    if (!m_Instance->IsEncounterInProgress())
                     {
-                        if (l_Thogar->IsAIEnabled)
-                            l_Thogar->AI()->SetGUID(me->GetGUID(), 1);
+                        if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                        {
+                            if (l_Thogar->IsAIEnabled)
+                                l_Thogar->AI()->SetGUID(me->GetGUID(), 1);
+                        }
                     }
                 }
             }
@@ -899,6 +1116,21 @@ class npc_foundry_iron_gunnery_sergeant : public CreatureScript
             {
                 if (p_Damage >= me->GetHealth())
                 {
+                    if (m_Instance != nullptr && m_Instance->IsEncounterInProgress())
+                    {
+                        if (Unit* l_Base = me->GetVehicleBase())
+                        {
+                            while (l_Base->GetVehicleBase() != nullptr)
+                                l_Base = l_Base->GetVehicleBase();
+
+                            if (Creature* l_Wheels = l_Base->ToCreature())
+                            {
+                                if (l_Wheels->IsAIEnabled)
+                                    l_Wheels->AI()->DoAction(eThogarActions::TrainFightMoveEnd);
+                            }
+                        }
+                    }
+
                     if (Vehicle* l_SiegeEngine = me->GetVehicle())
                     {
                         if (l_SiegeEngine->GetBase()->GetTypeId() == TypeID::TYPEID_UNIT)
