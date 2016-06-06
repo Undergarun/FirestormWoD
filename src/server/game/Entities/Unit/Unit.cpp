@@ -8059,7 +8059,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     basepoints0 = triggerAmount;
                     break;
                 }
-                case 31801: // Seal of Truth (damage calc on apply aura)
+                case 31801: /// Seal of Truth (damage calc on apply aura)
                 {
                     if (effIndex != 0)                       // effect 2 used by seal unleashing code
                         return false;

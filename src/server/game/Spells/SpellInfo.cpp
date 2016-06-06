@@ -4822,6 +4822,7 @@ bool SpellInfo::IsAffectedByWodAuraSystem() const
         case 158831: ///< Devouring Plague DOT
         case 124280: ///< Touch of Karma
         case 114635: ///< Ember Tap
+        case 31803: ///< Censure
             return false;
         default:
             return true;
