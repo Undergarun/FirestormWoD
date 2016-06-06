@@ -84,22 +84,29 @@ class spell_warr_ravager : public SpellScriptLoader
                 }
             }
 
-            void OnTick(AuraEffect const* /*p_AurEff*/)
+            void OnTick(AuraEffect const* p_AurEff)
             {
-                if (Unit* l_Caster = GetCaster())
+                int32 l_TickNumber = p_AurEff->GetTickNumber();
+
+                if (l_TickNumber > p_AurEff->GetSpellInfo()->Effects[EFFECT_3].BasePoints)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Creature* l_Ravager = nullptr;
+                for (auto l_Iter : l_Caster->m_Controlled)
                 {
-                    Creature* l_Ravager = nullptr;
-                    for (auto l_Iter : l_Caster->m_Controlled)
-                    {
-                        if (l_Iter->GetEntry() == eDatas::RavagerNPC)
-                            l_Ravager = l_Iter->ToCreature();
-                    }
-
-                    if (l_Ravager == nullptr)
-                        return;
-
-                    l_Caster->CastSpell(l_Ravager, eDatas::RavagerDamage, true);
+                    if (l_Iter->GetEntry() == eDatas::RavagerNPC)
+                        l_Ravager = l_Iter->ToCreature();
                 }
+
+                if (l_Ravager == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Ravager, eDatas::RavagerDamage, true);
             }
 
             void Register()
