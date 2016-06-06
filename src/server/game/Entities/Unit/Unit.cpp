@@ -18286,8 +18286,8 @@ bool Unit::RollProcResult(Unit* victim, Aura* aura, WeaponAttackType attType, bo
     if (spellProcEvent && spellProcEvent->customChance)
         chance = spellProcEvent->customChance;
     // If PPM exist calculate chance from PPM
-    float procsPerMinute = spellInfo->ProcsPerMinute;
-    if (procsPerMinute == 0.0f && spellProcEvent && spellProcEvent->ppmRate != 0.0f)
+    float procsPerMinute = spellInfo->ProcBasePPM;
+    if (spellProcEvent && spellProcEvent->ppmRate != 0.0f)
         procsPerMinute = spellProcEvent->ppmRate;
 
     if (procsPerMinute != 0.0f)
