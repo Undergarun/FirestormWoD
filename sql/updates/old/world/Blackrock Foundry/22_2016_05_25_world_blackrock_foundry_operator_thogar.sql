@@ -357,3 +357,34 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     "Eso no estaba... programado...",
     "В расписании... этого не было..."
 );
+
+DELETE FROM `reference_loot_template` WHERE entry = @REF_THOGAR;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_THOGAR, 113953, 0, 1, 1, 1, 1),
+(@REF_THOGAR, 113954, 0, 1, 1, 1, 1),
+(@REF_THOGAR, 113955, 0, 1, 1, 1, 1),
+(@REF_THOGAR, 113956, 0, 1, 1, 1, 1),
+(@REF_THOGAR, 113957, 0, 1, 1, 1, 1),
+(@REF_THOGAR, 113958, 0, 1, 1, 1, 1),
+(@REF_THOGAR, 113959, 0, 1, 1, 1, 1),
+(@REF_THOGAR, 113960, 0, 1, 1, 1, 1),
+(@REF_THOGAR, 113961, 0, 1, 1, 1, 1),
+(@REF_THOGAR, 113962, 0, 1, 1, 1, 1),
+(@REF_THOGAR, 113963, 0, 1, 1, 1, 1),
+(@REF_THOGAR, 113964, 0, 1, 1, 1, 1);
+
+# Set tokens
+DELETE FROM `reference_loot_template` WHERE entry = @REF_THOGAR + 1;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_THOGAR + 1, 119309, 0, 14, 1, 1, 1),
+(@REF_THOGAR + 1, 119314, 0, 14, 1, 1, 1),
+(@REF_THOGAR + 1, 119322, 0, 14, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_THOGAR WHERE `entry`= @REF_THOGAR;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_THOGAR;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_THOGAR, 1, 100, 1, 0, -@REF_THOGAR, 6),
+(@REF_THOGAR, 2, 100, 2, 0, -(@REF_THOGAR + 1), 2),
+(@REF_THOGAR, 3, 100, 4, 0, -(@REF_THOGAR + 1), 1),
+(@REF_THOGAR, 4, 100, 8, 0, -(@REF_THOGAR + 1), 1);

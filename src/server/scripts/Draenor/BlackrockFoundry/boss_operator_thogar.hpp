@@ -23,8 +23,6 @@ enum eThogarMiscDatas : uint8
     NonAddTrain = 0,
     SiegeTrain,
     HalfLengthAddTrains,
-    FullLengthAddTrains,
-    MaxFightTrainType = eThogarMiscDatas::FullLengthAddTrains,
     CosmeticIntroTrain,
     CosmeticMovingTrain,
     MaxFightTrains = 40,
@@ -87,7 +85,7 @@ enum eThogarSpells
     IronStarsTransportAura  = 178264,
     TroopTransportAura      = 178255,
     TroopTransportAura2     = 178231,
-    WeaponsTransportAura    = 178215
+    TroopTransportAura3     = 164620
 };
 
 enum eThogarTalks
@@ -122,7 +120,9 @@ enum eThogarActions
     TrainMoveEndPart2,
     /// Intro: Part3 - Wood transport, before intro text
     IntroBeginPart3,
-    TrainMoveEndPart3
+    TrainMoveEndPart3,
+    /// Fight actions
+    TrainFightMoveEnd
 };
 
 struct TrackDoors
@@ -317,7 +317,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
                 },
                 { eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine1 } },
                 {
-                    eThogarCreatures::WeaponsTransport1, eThogarSpells::WeaponsTransportAura,
+                    eThogarCreatures::WeaponsTransport1, eThogarSpells::TroopTransportAura3,
                     {
                         eThogarCreatures::GrimrailLoader1,
                         eThogarCreatures::GrimrailLoader1,
@@ -481,7 +481,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
                     eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine2 }
                 },
                 {
-                    eThogarCreatures::WeaponsTransport1, eThogarSpells::WeaponsTransportAura,
+                    eThogarCreatures::WeaponsTransport1, eThogarSpells::TroopTransportAura3,
                     {
                         eThogarCreatures::GrimrailLoader1,
                         eThogarCreatures::GrimrailLoader1,
@@ -612,7 +612,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
                 },
                 { eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine1 } },
                 {
-                    eThogarCreatures::WeaponsTransport1, eThogarSpells::WeaponsTransportAura,
+                    eThogarCreatures::WeaponsTransport1, eThogarSpells::TroopTransportAura3,
                     {
                         eThogarCreatures::GrimrailLoader1,
                         eThogarCreatures::GrimrailLoader1,
@@ -664,7 +664,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
                     eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine2 }
                 },
                 {
-                    eThogarCreatures::WeaponsTransport1, eThogarSpells::WeaponsTransportAura,
+                    eThogarCreatures::WeaponsTransport1, eThogarSpells::TroopTransportAura3,
                     {
                         eThogarCreatures::GrimrailLoader1,
                         eThogarCreatures::GrimrailLoader1,
@@ -692,7 +692,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
                 },
                 { eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine1 } },
                 {
-                    eThogarCreatures::WeaponsTransport1, eThogarSpells::WeaponsTransportAura,
+                    eThogarCreatures::WeaponsTransport1, eThogarSpells::TroopTransportAura3,
                     {
                         eThogarCreatures::GrimrailLoader1,
                         eThogarCreatures::GrimrailLoader1,
@@ -832,7 +832,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
                     eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine2 }
                 },
                 {
-                    eThogarCreatures::WeaponsTransport1, eThogarSpells::WeaponsTransportAura,
+                    eThogarCreatures::WeaponsTransport1, eThogarSpells::TroopTransportAura3,
                     {
                         eThogarCreatures::GrimrailLoader1,
                         eThogarCreatures::GrimrailLoader1,
@@ -995,8 +995,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
     }
 };
 
-/// At Thogar's feet, left
-Position const g_UnkPos1 = { 589.925f, 3296.323f, 299.4833f, 1.570796f };
+float const g_InFightStopPosY = 3313.50f;
 
 Position const g_TrainTrackSpawnPos[eThogarMiscDatas::MaxTrainTracks] =
 {
