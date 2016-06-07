@@ -3532,26 +3532,23 @@ class spell_warl_corruption : public SpellScriptLoader
         }
 };
 
-/// Dark Soul Knowledge- 113861
+/// Dark Soul Knowledge - 113861
+/// Dark Soul Misery - 113860
+/// Dark Soul Instability - 113858
 class spell_warl_dark_soul_knowledge : public SpellScriptLoader
 {
 public:
-    spell_warl_dark_soul_knowledge() : SpellScriptLoader("spell_warl_dark_soul_knowledge") { }
+    spell_warl_dark_soul_knowledge() : SpellScriptLoader("spell_warl_dark_soul_charges") { }
 
     class spell_warl_dark_soul_knowledge_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_warl_dark_soul_knowledge_SpellScript);
 
-        enum eSpells
-        {
-            DarkSoulKnowledge = 113861
-        };
-
         SpellCastResult CheckAura()
         {
             if (Unit* l_Caster = GetCaster())
             {
-                if (l_Caster->HasAura(113861))
+                if (l_Caster->HasAura(GetSpellInfo()->Id))
                     return SPELL_FAILED_CASTER_AURASTATE;
             }
 
