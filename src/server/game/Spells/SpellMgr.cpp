@@ -7291,7 +7291,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 172944:
                 spellInfo->Effects[SpellEffIndex::EFFECT_3].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[SpellEffIndex::EFFECT_3].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
-                spellInfo->Effects[SpellEffIndex::EFFECT_3].TargetB = Targets::TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_3].TargetB = 0;
                 break;
             case 174732:    ///< 174732 Punt Podling
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_UNIT_TARGET_ANY;

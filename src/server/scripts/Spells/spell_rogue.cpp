@@ -2516,7 +2516,23 @@ public:
         void HandleOnHit()
         {
             if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_0].BasePoints, POWER_COMBO_POINT);
+            {
+                uint64 l_PlayerGUID = l_Player->GetGUID();
+                uint32 l_SpellID = GetSpellInfo()->Id;
+                uint32 l_Value = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+
+                GetCaster()->ToPlayer()->AddCriticalOperation([l_PlayerGUID, l_SpellID, l_Value]() -> bool
+                {
+                    Player * l_LambdaPlayer = HashMapHolder<Player>::Find(l_PlayerGUID);
+
+                    if (l_LambdaPlayer && l_LambdaPlayer->IsInWorld())
+                        l_LambdaPlayer->EnergizeBySpell(l_LambdaPlayer, l_SpellID, l_Value, POWER_COMBO_POINT);
+                    else
+                        return false;
+                    
+                    return true;
+                });
+            }
         }
 
         void Register()

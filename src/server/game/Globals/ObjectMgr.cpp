@@ -4738,7 +4738,6 @@ void ObjectMgr::LoadBonusQuests()
 
                 l_MinX -= abs(l_GrowthPct * float(l_AreaWidth)) / 2.0f;
                 l_MinY -= abs(l_GrowthPct * float(l_AreaHeight)) / 2.0f;
-
                 l_MaxX += abs(l_GrowthPct * float(l_AreaWidth)) / 2.0f;
                 l_MaxY += abs(l_GrowthPct * float(l_AreaHeight)) / 2.0f;
 
