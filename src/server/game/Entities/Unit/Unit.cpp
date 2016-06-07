@@ -514,6 +514,20 @@ void Unit::UpdateSplinePosition()
         l_Location.orientation = GetOrientation();
 
     UpdatePosition(l_Location.x, l_Location.y, l_Location.z, l_Location.orientation);
+
+    /// Update all passengers after updating vehicle position
+    /// This will prevent some base positioning if vehicles are updated in the wrong order
+    if (Vehicle* l_Vehicle = GetVehicleKit())
+    {
+        for (int8 l_I = 0; l_I < MAX_VEHICLE_SEATS; ++l_I)
+        {
+            if (Unit* l_Passenger = l_Vehicle->GetPassenger(l_I))
+            {
+                if (l_Passenger->movespline->Initialized())
+                    l_Passenger->UpdateSplinePosition();
+            }
+        }
+     }
 }
 
 void Unit::DisableSpline()
@@ -1449,6 +1463,18 @@ void Unit::CastSpell(Position const p_Pos, uint32 p_SpellID, bool p_Triggered, I
 
     SpellCastTargets l_Targets;
     l_Targets.SetDst(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_Pos.m_orientation);
+
+    CastSpell(l_Targets, l_SpellInfo, nullptr, p_Triggered ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE, p_CastItem, p_AurEff, p_OriginalCaster);
+}
+
+void Unit::CastSpell(SpellDestination const* p_Dest, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, AuraEffect const* p_AurEff /*= nullptr*/, uint64 p_OriginalCaster /*= 0*/)
+{
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
+    if (!l_SpellInfo)
+        return;
+
+    SpellCastTargets l_Targets;
+    l_Targets.SetDst(p_Dest->_position.m_positionX, p_Dest->_position.m_positionY, p_Dest->_position.m_positionZ, p_Dest->_position.m_orientation);
 
     CastSpell(l_Targets, l_SpellInfo, nullptr, p_Triggered ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE, p_CastItem, p_AurEff, p_OriginalCaster);
 }
@@ -17224,11 +17250,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         if (procSpell && HandleSpellCritChanceAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                             takeCharges = true;
                         break;
-                    /*case SPELL_AURA_ADD_FLAT_MODIFIER:
-                    case SPELL_AURA_ADD_PCT_MODIFIER:
-                        HandleModifierAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown);
-                        takeCharges = false;
-                        break;*/
                     default:
                         // nothing do, just charges counter
                         // Don't drop charge for Earth Shield because of second effect
