@@ -3535,14 +3535,14 @@ class spell_warl_corruption : public SpellScriptLoader
 /// Dark Soul Knowledge - 113861
 /// Dark Soul Misery - 113860
 /// Dark Soul Instability - 113858
-class spell_warl_dark_soul_knowledge : public SpellScriptLoader
+class spell_warl_dark_soul_charges : public SpellScriptLoader
 {
 public:
-    spell_warl_dark_soul_knowledge() : SpellScriptLoader("spell_warl_dark_soul_charges") { }
+    spell_warl_dark_soul_charges() : SpellScriptLoader("spell_warl_dark_soul_charges") { }
 
-    class spell_warl_dark_soul_knowledge_SpellScript : public SpellScript
+    class spell_warl_dark_soul_charges_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_warl_dark_soul_knowledge_SpellScript);
+        PrepareSpellScript(spell_warl_dark_soul_charges_SpellScript);
 
         SpellCastResult CheckAura()
         {
@@ -3557,13 +3557,13 @@ public:
 
         void Register() override
         {
-            OnCheckCast += SpellCheckCastFn(spell_warl_dark_soul_knowledge_SpellScript::CheckAura);
+            OnCheckCast += SpellCheckCastFn(spell_warl_dark_soul_charges_SpellScript::CheckAura);
         }
     };
 
     SpellScript* GetSpellScript() const
     {
-        return new spell_warl_dark_soul_knowledge_SpellScript();
+        return new spell_warl_dark_soul_charges_SpellScript();
     }
 };
 
@@ -4705,7 +4705,7 @@ public:
 #ifndef __clang_analyzer__
 void AddSC_warlock_spell_scripts()
 {
-    new spell_warl_dark_soul_knowledge();
+    new spell_warl_dark_soul_charges();
     new spell_warl_glyph_of_soul_consumption();
     new spell_warl_t17_Demonology_2p();
     new spell_warl_grimoire_of_supremacy_bonus();
