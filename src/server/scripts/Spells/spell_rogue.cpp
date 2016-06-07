@@ -160,7 +160,8 @@ class spell_rog_anticipation : public SpellScriptLoader
 
 /// Last Update 6.2.3
 /// Called by Rogue WoD PvP 2P Bonus - Kick - 165996
-/// Called by Rogue WoD PvO Assassination 4P Bonus - Cold Blood - 170882
+/// Called by Rogue WoD PvP Assassination 4P Bonus - Cold Blood - 170882
+/// Called by Rogue WoD PvP Combat 4P Bonus - Cold Blood - 182304
 /// Called by Sinister strike - 1752
 /// Anticipation doesn't automatically proc on these spells
 class spell_rog_anticipation_special_procs : public SpellScriptLoader
@@ -172,8 +173,6 @@ class spell_rog_anticipation_special_procs : public SpellScriptLoader
         {
             AnticipationProc = 115189,
             Anticipation = 114015,
-            ColdBlood = 170882,
-            Kick = 165996,
             SinisterStrike = 1752
         };
 
