@@ -22,7 +22,7 @@ INSERT INTO spell_script_names VALUES
 
 DELETE FROM areatrigger_template WHERE spell_id IN (156553, 165194);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, morph_curve_id, data0, data1, data2, data3, data4, data5, data6, data7, ScriptName) VALUES
-(156553, 0, 6756, 1, 1, 2180, 702, 17.5, 14.25, 5, 17.5, 14.25, 5, 0, 0, ""),
+(156553, 0, 6756, 1, 1, 2180, 702, 17.5, 14.25, 5, 17.5, 14.25, 5, 0, 0, "areatrigger_foundry_moving_train"),
 (165194, 0, 7282, 5, 5, 16384, 0, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_prototype_pulse_grenade");
 
 SET @REF_THOGAR = 76906;
@@ -30,6 +30,10 @@ SET @REF_THOGAR = 76906;
 UPDATE creature_template SET dmg_multiplier = 10, ScriptName = "boss_operator_thogar", mechanic_immune_mask = 617299839 WHERE entry = @REF_THOGAR;
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_gunnery_sergeant" WHERE entry = 81318;
 UPDATE creature_template SET ScriptName = "npc_foundry_siege_engine" WHERE entry IN (78982, 81316);
+UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_raider" WHERE entry = 77394;
+UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_crack_shot" WHERE entry = 77476;
+UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_gromkar_firemender" WHERE entry = 77487;
+UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_gromkar_man_at_arms" WHERE entry = 80791;
 
 DELETE FROM creature_text WHERE entry IN (@REF_THOGAR);
 INSERT INTO creature_text VALUES

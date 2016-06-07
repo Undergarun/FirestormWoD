@@ -3236,6 +3236,7 @@ class npc_foundry_markog_abadir : public CreatureScript
 
 /// Grom'kar Man-at-Arms - 78832
 /// Grom'kar Man-at-Arms - 77687
+/// Grom'kar Man-at-Arms - 80791
 class npc_foundry_gromkar_man_at_arms : public CreatureScript
 {
     public:
@@ -3268,6 +3269,9 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
                     m_IsThogarIntro = true;
                 else
                     m_IsThogarIntro = false;
+
+                if (p_Creature->GetEntry() != eFoundryCreatures::GromkarManAtArms)
+                    m_IsThogarIntro = false;
             }
 
             EventMap m_Events;
@@ -3286,6 +3290,8 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
 
             void EnterCombat(Unit* /*p_Attacker*/) override
             {
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
                 m_Events.ScheduleEvent(eEvents::EventIronBellow, 1);
                 m_Events.ScheduleEvent(eEvents::EventRecklessSlash, 3 * TimeConstants::IN_MILLISECONDS);
 
@@ -3410,6 +3416,7 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
 };
 
 /// Iron Raider - 81197
+/// Iron Raider - 77394
 class npc_foundry_iron_raider : public CreatureScript
 {
     public:
@@ -3438,11 +3445,19 @@ class npc_foundry_iron_raider : public CreatureScript
 
             void EnterCombat(Unit* /*p_Attacker*/) override
             {
+                AddTimedDelayedOperation(100, [this]() -> void
+                {
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                });
+
                 m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
             }
 
             void JustDied(Unit* /*p_Killer*/) override
             {
+                if (me->GetEntry() == eThogarCreatures::ThogarIronRaider)
+                    return;
+
                 if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
                 {
                     if (Creature* l_Thogar = Creature::GetCreature(*me, l_InstanceScript->GetData64(eFoundryCreatures::BossOperatorThogar)))
@@ -3487,6 +3502,7 @@ class npc_foundry_iron_raider : public CreatureScript
 };
 
 /// Iron Crack-Shot - 81315
+/// Iron Crack-Shot - 77476
 class npc_foundry_iron_crack_shot : public CreatureScript
 {
     public:
@@ -3517,6 +3533,8 @@ class npc_foundry_iron_crack_shot : public CreatureScript
 
             void EnterCombat(Unit* /*p_Attacker*/) override
             {
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
                 m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
             }
 
@@ -3554,6 +3572,7 @@ class npc_foundry_iron_crack_shot : public CreatureScript
 };
 
 /// Grom'kar Firemender - 87841
+/// Grom'kar Firemender - 77487
 class npc_foundry_gromkar_firemender : public CreatureScript
 {
     public:
@@ -3586,6 +3605,8 @@ class npc_foundry_gromkar_firemender : public CreatureScript
 
             void EnterCombat(Unit* /*p_Attacker*/) override
             {
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
                 m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 5 * TimeConstants::IN_MILLISECONDS);
             }
 

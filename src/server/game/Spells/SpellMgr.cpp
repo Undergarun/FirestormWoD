@@ -7401,6 +7401,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158084: ///< Delayed Siege Bomb - Damage (Iron Gunnery Sergeant)
             case 160050: ///< Delayed Siege Bomb - Damage (Operator Thogar)
             case 165195: ///< Prototype Pulse Grenade - DoT (Operator Thogar)
+            case 156553: ///< Moving Train (Operator Thogar)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:

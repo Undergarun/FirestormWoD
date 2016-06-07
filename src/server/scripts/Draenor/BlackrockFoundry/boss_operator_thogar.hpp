@@ -22,7 +22,8 @@ enum eThogarMiscDatas : uint8
     /// full-length train (train that is as long as a track) and half-length train (train that is half as long as a track).
     NonAddTrain = 0,
     SiegeTrain,
-    HalfLengthAddTrains,
+    AddsTrain,
+    BigAddsTrain,
     CosmeticIntroTrain,
     CosmeticMovingTrain,
     MaxFightTrains = 40,
@@ -122,7 +123,8 @@ enum eThogarActions
     IntroBeginPart3,
     TrainMoveEndPart3,
     /// Fight actions
-    TrainFightMoveEnd
+    TrainFightMoveEnd,
+    SiegeTrainMoveEnd
 };
 
 struct TrackDoors
@@ -261,7 +263,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
         },
         /// Third fight train: Adds train on track 1, right to left
         {
-            eThogarCreatures::TrainEngine, 32 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::HalfLengthAddTrains, true,
+            eThogarCreatures::TrainEngine, 32 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::AddsTrain, true,
             {
                 {
                     eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
@@ -343,7 +345,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
         },
         /// Seventh fight train: Adds train on track 3, left to right
         {
-            eThogarCreatures::TrainEngine, 82 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::HalfLengthAddTrains, false,
+            eThogarCreatures::TrainEngine, 82 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::BigAddsTrain, false,
             {
                 {
                     eThogarCreatures::Lieutnant, 0,
@@ -377,7 +379,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
         },
         /// Ninth fight train: Adds train on track 2, left to right
         {
-            eThogarCreatures::TrainEngine, 122 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::HalfLengthAddTrains, false,
+            eThogarCreatures::TrainEngine, 122 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::AddsTrain, false,
             {
                 {
                     eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
@@ -409,7 +411,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
         },
         /// Tenth fight train: Adds train on track 3, right to left
         {
-            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::HalfLengthAddTrains, true,
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::AddsTrain, true,
             {
                 {
                     eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
@@ -507,7 +509,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
         },
         /// Fifteenth fight train: Adds train on track 4, right to left
         {
-            eThogarCreatures::TrainEngine, 197 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::HalfLengthAddTrains, true,
+            eThogarCreatures::TrainEngine, 197 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::AddsTrain, true,
             {
                 {
                     eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
@@ -576,7 +578,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
         },
         /// Nineteenth fight train: Adds train on track 2, left to right
         {
-            eThogarCreatures::TrainEngine, 252 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::HalfLengthAddTrains, false,
+            eThogarCreatures::TrainEngine, 252 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::BigAddsTrain, false,
             {
                 {
                     eThogarCreatures::Lieutnant, 0,
@@ -733,7 +735,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
         },
         /// Twenty seventh fight train: Adds train on track 2, right to left
         {
-            eThogarCreatures::TrainEngine, 372 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::HalfLengthAddTrains, true,
+            eThogarCreatures::TrainEngine, 372 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::SecondTrack, eThogarMiscDatas::AddsTrain, true,
             {
                 {
                     eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
@@ -765,7 +767,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
         },
         /// Twenty eighth fight train: Adds train on track 3, left to right
         {
-            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::HalfLengthAddTrains, false,
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::BigAddsTrain, false,
             {
                 {
                     eThogarCreatures::Lieutnant, 0,
@@ -843,7 +845,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
         },
         /// Thirty second fight train: Adds train on track 4, left to right
         {
-            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::HalfLengthAddTrains, false,
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::AddsTrain, false,
             {
                 {
                     eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
@@ -896,7 +898,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
         },
         /// Thirty fifth fight train: Adds train on track 3, right to left
         {
-            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::HalfLengthAddTrains, true,
+            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::AddsTrain, true,
             {
                 {
                     eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
@@ -1045,6 +1047,8 @@ Position const g_ManAtArmsExitPos = { 482.475f, 3312.533f, 302.3777f, 1.570796f 
 
 Position const g_ThogarJumpPos = { 596.063f, 3312.91f, 299.145f, M_PI };
 
+Position const g_CenterPos = { 553.36f, 3312.41f, 299.65f, 0.0f };
+
 eThogarTalks const g_TrackTalks[eThogarMiscDatas::MaxTrainTracks] =
 {
     eThogarTalks::TalkTrack1,
@@ -1057,6 +1061,8 @@ static void ApplyPassengerFlags(Creature* p_Passenger, bool p_IsTrain = true)
 {
     p_Passenger->SetReactState(ReactStates::REACT_PASSIVE);
     p_Passenger->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
+    p_Passenger->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
 
     p_Passenger->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
 
@@ -1133,6 +1139,35 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
         }
     }
 
+    eThogarTalks l_Talk = g_TrackTalks[l_TrainDatas.TrackID];
     if (p_Talk && l_Thogar->IsAIEnabled)
-        l_Thogar->AI()->Talk(g_TrackTalks[l_TrainDatas.TrackID]);
+    {
+        switch (l_TrainDatas.TrainType)
+        {
+            case eThogarMiscDatas::AddsTrain:
+            {
+                l_Talk = eThogarTalks::TalkReinforcements;
+                break;
+            }
+            case eThogarMiscDatas::BigAddsTrain:
+            {
+                l_Talk = eThogarTalks::TalkGromkarManAtArms;
+                break;
+            }
+            case eThogarMiscDatas::NonAddTrain:
+            {
+                l_Talk = eThogarTalks::TalkExpress;
+                break;
+            }
+            case eThogarMiscDatas::SiegeTrain:
+            {
+                l_Talk = eThogarTalks::TalkIronGunnerySergeant;
+                break;
+            }
+            default:
+                break;
+        }
+
+        l_Thogar->AI()->Talk(l_Talk);
+    }
 }
