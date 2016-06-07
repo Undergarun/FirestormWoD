@@ -2475,12 +2475,12 @@ class spell_alexstrasza_gift_beam_visual: public SpellScriptLoader
             {
                 if (Creature* target = GetTarget()->ToCreature())
                 {
-                    if (target->GetMap()->GetDifficulty() == Difficulty::Difficulty10N)
+                    if (target->GetMap()->GetDifficultyID() == Difficulty::Difficulty10N)
                     {
                         if (GameObject* alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0))
                             _alexstraszaGiftGuid = alexstraszaGift->GetGUID();
                     }
-                    else if (target->GetMap()->GetDifficulty() == Difficulty::Difficulty25N)
+                    else if (target->GetMap()->GetDifficultyID() == Difficulty::Difficulty25N)
                     {
                         if (GameObject* alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0))
                             _alexstraszaGiftGuid = alexstraszaGift->GetGUID();
