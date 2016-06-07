@@ -1222,6 +1222,114 @@ class go_gorgrond_keg_of_grog : public GameObjectScript
         }
 };
 
+/// Toxic Slimemold - 85732
+class npc_quest_frightened_spirit : public CreatureScript
+{
+    enum
+    {
+        SpellVisual = 167012,
+        KillCredit = 88819
+    };
+    public:
+        npc_quest_frightened_spirit() : CreatureScript("npc_quest_frightened_spirit") { }
+
+        struct npc_quest_frightened_spiritAI : public ScriptedAI
+        {
+            bool m_Locked;
+
+            npc_quest_frightened_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset() override
+            {
+                ScriptedAI::Reset();
+                me->SetCanFly(false);
+                me->SetDisableGravity(false);
+                me->SetWalk(true);
+                me->GetMotionMaster()->MoveRandom();
+                m_Locked = false;
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                ScriptedAI::UpdateAI(p_Diff);
+                UpdateOperations(p_Diff);
+            }
+
+            virtual void sGossipHello(Player* p_Player) override
+            {
+                if (m_Locked)
+                    return;
+
+                m_Locked = true;
+
+                p_Player->CLOSE_GOSSIP_MENU();
+                uint64 l_PlayedGUID = p_Player->GetGUID();
+
+                me->GetMotionMaster()->Clear();
+                me->SetCanFly(true);
+                me->SetDisableGravity(true);
+                me->CastSpell(me, SpellVisual, TRIGGERED_FULL_MASK);
+
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_PlayedGUID]() -> void
+                {
+                    if (Player* l_Player = HashMapHolder<Player>::Find(l_PlayedGUID))
+                        l_Player->KilledMonsterCredit(KillCredit);
+                });
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->DespawnOrUnsummon(0);
+                });
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_quest_frightened_spiritAI(p_Creature);
+        }
+};
+
+/// Showing "Mercy" - 170792
+class spell_quest_gorgrond_showing_mercy_peon : public SpellScriptLoader
+{
+    enum
+    {
+        Grom_karPeon = 85540,
+    };
+
+    public:
+        /// Constructor
+        spell_quest_gorgrond_showing_mercy_peon() : SpellScriptLoader("spell_quest_gorgrond_showing_mercy_peon") { }
+
+        class spell_quest_gorgrond_showing_mercy_peon_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_gorgrond_showing_mercy_peon_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (l_Target->GetEntry() == Grom_karPeon)
+                        l_Target->ToCreature()->DespawnOrUnsummon(0);
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_gorgrond_showing_mercy_peon_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_gorgrond_showing_mercy_peon_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -1236,6 +1344,7 @@ void AddSC_gorgrond()
     new npc_drov_frenzied_rumbler();
     new npc_gorgrond_goren_egg();
     new npc_gorgrond_toxic_slimemold();
+    new npc_quest_frightened_spirit();
 
     /// Spells
     new spell_drov_call_of_earth();
@@ -1243,6 +1352,7 @@ void AddSC_gorgrond()
     new spell_drov_acid_breath();
     new spell_quest_gorgrond_punt_podling();
     new spell_quest_gorgrond_burn_ancient_corpse();
+    new spell_quest_gorgrond_showing_mercy_peon();
 
     /// Areatriggers
     new areatrigger_tarlna_noxious_spit();
