@@ -8521,7 +8521,7 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
 {
     if ((time(0) - m_BonusQuestTimer) >= 5)
     {
-        m_BonusQuestTimer = time(0) + 5;
+        m_BonusQuestTimer = time(0);
         for (auto l_Current : sObjectMgr->BonusQuestsRects)
         {
             if (IsQuestRewarded(l_Current.first))
@@ -21577,6 +21577,7 @@ void Player::_LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEf
             int32 maxduration = fields[6].GetInt32();
             int32 remaintime = fields[7].GetInt32();
             uint8 remaincharges = fields[8].GetUInt8();
+            int32 castItemLevel = fields[9].GetInt32();
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
             if (!spellInfo)
@@ -21614,7 +21615,7 @@ void Player::_LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEf
                 }
             }
 
-            Aura* aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid);
+            Aura* aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid, castItemLevel);
             if (aura != nullptr)
             {
                 if (!aura->CanBeSaved())
@@ -23569,7 +23570,8 @@ void Player::_SaveAuras(SQLTransaction& trans)
         stmt->setUInt8(index++, itr->second->GetStackAmount());
         stmt->setInt32(index++, itr->second->GetMaxDuration());
         stmt->setInt32(index++, itr->second->GetDuration());
-        stmt->setUInt8(index, itr->second->GetCharges());
+        stmt->setUInt8(index++, itr->second->GetCharges());
+        stmt->setInt32(index++, aura->GetCastItemLevel());
         trans->Append(stmt);
     }
 }

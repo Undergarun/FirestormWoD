@@ -44,7 +44,7 @@ Position const g_PositionNerzulHome                  = { 1723.754f, -799.859f, 7
 
 Position const g_PositionRituaOfSoulInitialRight     = { 1679.524f,  -799.805f,  73.736f, 4.900199f };
 
-Position const g_PositionRituaOfSoulInitialLeft      = { 1718.061f, -860.241,  73.360f, 2.248413f};
+Position const g_PositionRituaOfSoulInitialLeft      = { 1718.061f, -860.241f,  73.360f, 2.248413f};
 
 Position const g_PositionShadowLandPortal            = { 1727.250f, -810.651f, 73.806f, 3.561160f};
 
@@ -217,7 +217,7 @@ public:
                     {
                         case 0: /// Right
                         {
-                            for (uint8 l_I = 0; l_I <= 8; l_I++)
+                            for (uint8 l_I = 0; l_I <= 7; l_I++)
                             {
 								if (Creature* l_RitualOfBones = me->SummonCreature(eNerzulCreatures::CreatureRitualOfBones, g_PositionRituaOfSoulInitialRight.GetPositionX() + (m_X * l_I),
 									g_PositionRituaOfSoulInitialRight.GetPositionY() + (m_Y * l_I), g_PositionRituaOfSoulInitialRight.GetPositionZ(),
@@ -233,7 +233,7 @@ public:
                         }                   
                         case 1: /// Left
                         {
-							for (uint8 l_I = 0; l_I <= 8; l_I++)
+							for (uint8 l_I = 0; l_I <= 7; l_I++)
 							{
 								if (Creature* l_RitualOfBones = me->SummonCreature(eNerzulCreatures::CreatureRitualOfBones, g_PositionRituaOfSoulInitialLeft.GetPositionX() + (m_X * l_I),
 									g_PositionRituaOfSoulInitialLeft.GetPositionY() + (m_Y * l_I), g_PositionRituaOfSoulInitialLeft.GetPositionZ(),
@@ -720,7 +720,6 @@ public:
 
         InstanceScript* m_Instance;
 		uint32 m_TeleportPlayersDiff;
-        std::list<Player*> l_TargetsOld;
         bool m_Intro;
 
         void Reset() override
@@ -757,7 +756,7 @@ public:
 			if (m_TeleportPlayersDiff <= p_Diff)
 			{
 				std::list<Player*> l_ListPlayersBeforeTeleport;
-				me->GetPlayerListInGrid(l_ListPlayersBeforeTeleport, 55.0f, true);
+				me->GetPlayerListInGrid(l_ListPlayersBeforeTeleport, 40.0f, true);
 				if (!l_ListPlayersBeforeTeleport.empty())
 				{
 					for (Player* l_Itr : l_ListPlayersBeforeTeleport)
@@ -767,8 +766,7 @@ public:
 
 						if (l_Itr->GetPositionZ() > 152.585f)
 						{
-                            l_Itr->NearTeleportTo(g_PositionPortalFall);
-                            l_Itr->PlayScene(eShadowmoonBurialGroundsScenes::SceneShadowmoonBurialGroundsNerzulAtDoor, l_Itr);					
+							l_Itr->NearTeleportTo(g_PositionPortalFall);
 						}
 					}
 				}
@@ -872,11 +870,11 @@ public:
 
             if (Unit* l_Target = GetHitUnit())
             {
-                float l_ReducedDamage = 3000.0f;
+                float l_ReducedDamage = 1000.0f;
                 float l_Damage = GetSpell()->GetDamage();
                 int32 l_NewDamage = std::max(1.0f, l_Damage - (l_ReducedDamage * l_Target->GetDistance(*GetCaster())));
 
-                if (l_Target->GetDistance(GetCaster()) > 30.0f) /// Max range
+                if (l_Target->GetDistance(GetCaster()) > 40.0f) /// Max range
                     l_NewDamage = 0;
 
                 SetHitDamage(l_NewDamage);

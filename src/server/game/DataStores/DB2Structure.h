@@ -1450,9 +1450,18 @@ struct SpellItemEnchantmentConditionEntry
 
 struct SpellProcsPerMinuteEntry
 {
-    uint32 Id;                                                      ///< 0        m_ID
-    float  ProcsPerMinute;                                          ///< 1        m_procsPerMinute
-    uint32 Flags;                                                   ///< 2
+    uint32 ID;
+    float BaseProcRate;
+    uint32 Flags;
+};
+
+struct SpellProcsPerMinuteModEntry
+{
+    uint32 ID;
+    uint32 Type;
+    uint32 Param;
+    float Coeff;
+    uint32 SpellProcsPerMinuteID;
 };
 
 struct SpellRadiusEntry

@@ -55,6 +55,7 @@ enum WarriorSpells
     WARRIOR_HEAVY_REPERCUSSIONS                 = 169680
 };
 
+/// Last Update 6.2.3
 /// Ravager - 152277
 class spell_warr_ravager : public SpellScriptLoader
 {
@@ -84,32 +85,39 @@ class spell_warr_ravager : public SpellScriptLoader
                 }
             }
 
-            void OnTick(AuraEffect const* /*p_AurEff*/)
+            void OnTick(AuraEffect const* p_AurEff)
             {
-                if (Unit* l_Caster = GetCaster())
+                int32 l_TickNumber = p_AurEff->GetTickNumber();
+
+                if (l_TickNumber > p_AurEff->GetSpellInfo()->Effects[EFFECT_3].BasePoints)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Creature* l_Ravager = nullptr;
+                for (auto l_Iter : l_Caster->m_Controlled)
                 {
-                    Creature* l_Ravager = nullptr;
-                    for (auto l_Iter : l_Caster->m_Controlled)
-                    {
-                        if (l_Iter->GetEntry() == eDatas::RavagerNPC)
-                            l_Ravager = l_Iter->ToCreature();
-                    }
-
-                    if (l_Ravager == nullptr)
-                        return;
-
-                    l_Caster->CastSpell(l_Ravager, eDatas::RavagerDamage, true);
+                    if (l_Iter->GetEntry() == eDatas::RavagerNPC)
+                        l_Ravager = l_Iter->ToCreature();
                 }
+
+                if (l_Ravager == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Ravager, eDatas::RavagerDamage, true);
             }
 
-            void Register()
+            void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_ravager_AuraScript::CalculateParryPCT, EFFECT_0, SPELL_AURA_MOD_PARRY_PERCENT);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_ravager_AuraScript::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_warr_ravager_AuraScript();
         }
@@ -281,31 +289,24 @@ class spell_warr_storm_bolt: public SpellScriptLoader
                 StormBoltStun = 132169
             };
 
-            void HandleOnCast()
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetExplTargetUnit();
+                Unit* l_Target = GetHitUnit();
 
                 if (l_Target == nullptr)
                     return;
 
                 if (GetSpellInfo()->Id == eSpells::StormBoltOffHand && !l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), EFFECT_0))
                     l_Caster->CastSpell(l_Target, eSpells::StormBoltStun, true);
-            }
 
-            void HandleOnHit()
-            {
-                if (Unit* l_Target = GetHitUnit())
-                {
-                    if (l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), EFFECT_0))
-                        SetHitDamage(GetHitDamage() * 4); ///< Deals quadruple damage to targets permanently immune to stuns
-                }
+                if (l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), EFFECT_0))
+                    SetHitDamage(GetHitDamage() * 4); ///< Deals quadruple damage to targets permanently immune to stuns
             }
 
             void Register()
             {
-                OnCast += SpellCastFn(spell_warr_storm_bolt_SpellScript::HandleOnCast);
-                OnHit += SpellHitFn(spell_warr_storm_bolt_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             }
         };
 
@@ -1734,6 +1735,7 @@ uint32 g_ReducedSpellsId[REDUCED_SPELLS_ID_MAX] =
     118038  ///< Die by the Sword
 };
 
+/// Last Update 6.2.3
 /// Anger Management - 152278
 class spell_warr_anger_management: public PlayerScript
 {
@@ -1767,15 +1769,17 @@ class spell_warr_anger_management: public PlayerScript
                 return;
 
             m_RageSpend += -l_diffValue / p_Player->GetPowerCoeff(POWER_RAGE);
-            if (m_RageSpend >= l_AngerManagementAura->GetAmount())
+
+            uint8 l_Nb = m_RageSpend / l_AngerManagementAura->GetAmount();
+            m_RageSpend = m_RageSpend % l_AngerManagementAura->GetAmount();
+
+            for (uint8 l_I = 0; l_I < l_Nb; ++l_I)
             {
                 for (int l_I = 0; l_I < REDUCED_SPELLS_ID_MAX; l_I++)
                 {
                     if (p_Player->HasSpellCooldown(g_ReducedSpellsId[l_I]))
                         p_Player->ReduceSpellCooldown(g_ReducedSpellsId[l_I], 1 * IN_MILLISECONDS);
                 }
-
-                m_RageSpend = 0;
             }
         }
 };

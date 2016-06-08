@@ -1163,3 +1163,40 @@ insert into `quest_poi_points` (`QuestID`, `id`, `Idx`, `x`, `y`) values('34504'
 ('39441','0','9','3942','498'), 
 ('39441','0','10','3973','390'), 
 ('39441','0','11','4062','304');
+
+DELETE FROM quest_poi  WHERE QuestID=34501;
+
+DELETE FROM quest_poi_points  WHERE questId=34501;
+
+INSERT INTO quest_poi (`QuestID`, `BlobIndex`, `ObjectiveIndex`, `MapID`, `WorldMapAreaId`, `Floor`, `Priority`, `Flags`, `WorldEffectID`, `PlayerConditionID`, `Unk`) VALUES(34501, 0, 32, 1116, 941, 0, 0, 0, 0, 0, 0) ON DUPLICATE KEY UPDATE `QuestID` = VALUES(`QuestID`), `BlobIndex` = VALUES(`BlobIndex`), `ObjectiveIndex` = VALUES(`ObjectiveIndex`), `MapID` = VALUES(`MapID`), `WorldMapAreaId` = VALUES(`WorldMapAreaId`), `Floor` = VALUES(`Floor`), `Priority` = VALUES(`Priority`), `Flags` = VALUES(`Flags`), `WorldEffectID` = VALUES(`WorldEffectID`), `PlayerConditionID` = VALUES(`PlayerConditionID`), `Unk` = VALUES(`Unk`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 0, 0, 7536, 3458) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+INSERT INTO quest_poi (`QuestID`, `BlobIndex`, `ObjectiveIndex`, `MapID`, `WorldMapAreaId`, `Floor`, `Priority`, `Flags`, `WorldEffectID`, `PlayerConditionID`, `Unk`) VALUES(34501, 1, 0, 1116, 941, 0, 0, 0, 0, 25292, 0) ON DUPLICATE KEY UPDATE `QuestID` = VALUES(`QuestID`), `BlobIndex` = VALUES(`BlobIndex`), `ObjectiveIndex` = VALUES(`ObjectiveIndex`), `MapID` = VALUES(`MapID`), `WorldMapAreaId` = VALUES(`WorldMapAreaId`), `Floor` = VALUES(`Floor`), `Priority` = VALUES(`Priority`), `Flags` = VALUES(`Flags`), `WorldEffectID` = VALUES(`WorldEffectID`), `PlayerConditionID` = VALUES(`PlayerConditionID`), `Unk` = VALUES(`Unk`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 1, 0, 7584, 3489) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 1, 1, 7599, 3489) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 1, 2, 7629, 3494) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 1, 3, 7629, 3514) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 1, 4, 7629, 3529) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 1, 5, 7624, 3539) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 1, 6, 7614, 3544) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 1, 7, 7604, 3549) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 1, 8, 7594, 3553) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 1, 9, 7579, 3549) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 1, 10, 7579, 3529) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(34501, 1, 11, 7579, 3509) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+
+
+

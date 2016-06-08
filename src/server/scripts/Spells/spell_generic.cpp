@@ -5100,6 +5100,15 @@ class spell_gen_mark_of_thunderlord : public SpellScriptLoader
 
             void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
+                AuraEffect* p_NotConstAurEff = p_AurEff->GetBase()->GetEffect(EFFECT_1);
+                if (!p_NotConstAurEff)
+                    return;
+
+                uint8 l_TimesIncreasedTime = p_AurEff->GetAmount();
+
+                if (l_TimesIncreasedTime > 2)
+                    return;
+
                 PreventDefaultAction();
 
                 if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
@@ -5109,6 +5118,8 @@ class spell_gen_mark_of_thunderlord : public SpellScriptLoader
                     return;
 
                 p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() + 2 * IN_MILLISECONDS);
+                l_TimesIncreasedTime++;
+                p_NotConstAurEff->SetAmount(l_TimesIncreasedTime);
             }
 
             void Register()

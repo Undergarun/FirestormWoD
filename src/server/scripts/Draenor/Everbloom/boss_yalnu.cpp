@@ -171,6 +171,7 @@ public:
             }     
         }
     
+		/*
         void MoveInLineOfSight(Unit* p_Who) override
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 14.0f) && !m_EncounterBegin)
@@ -183,6 +184,7 @@ public:
                 }
             }
         }
+		*/
 
         void MovementInform(uint32 p_Type, uint32 p_Id) override
         {
@@ -266,7 +268,17 @@ public:
         }
 
         void UpdateAI(uint32 const p_Diff) override
-        {
+        {		
+			if (m_Instance->GetBossState(eEverbloomData::DataArchmageSol) == EncounterState::DONE)
+			{
+				if (me->FindNearestPlayer(2.0f, true) && !m_EncounterBegin)
+				{
+					m_EncounterBegin = true;
+					me->RemoveAllAuras();
+					me->GetMotionMaster()->MovePoint(eYalnuMovementInformed::MovementYalnuPoint1, g_PositionYalnuMoveToPortal.GetPositionX(), g_PositionYalnuMoveToPortal.GetPositionY(), g_PositionYalnuMoveToPortal.GetPositionZ());
+				}
+			}
+
             if (!UpdateVictim())
                 return;
 
@@ -958,7 +970,7 @@ public:
 /// Trigger Teleport - 324251
 class the_everbloom_yalnu_creature_teleport_to_boss : public CreatureScript
 {
-public:
+	public:
 
     the_everbloom_yalnu_creature_teleport_to_boss() : CreatureScript("the_everbloom_yalnu_creature_teleport_to_boss") { }
 

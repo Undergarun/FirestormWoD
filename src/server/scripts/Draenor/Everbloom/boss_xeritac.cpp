@@ -136,10 +136,12 @@ public:
             m_Descend = false;
             m_Count = 0;
             m_Phase = 1;
-            m_ConsumedGuid = 0;
-            m_TimeBetween = 6 * TimeConstants::IN_MILLISECONDS;   
+            m_ConsumedGuid = 0;    
             me->setFaction(HostileFaction);       
+			me->SetCanFly(true);
+			me->SetDisableGravity(true);
             me->SetReactState(ReactStates::REACT_PASSIVE);
+			m_TimeBetween = 6 * TimeConstants::IN_MILLISECONDS;
             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
             if (!m_First)
             {
@@ -275,7 +277,7 @@ public:
                         events.ScheduleEvent(eXeritacEvents::EventVenomousString, 16 * TimeConstants::IN_MILLISECONDS);
                         events.ScheduleEvent(eXeritacEvents::EventGasVolley, 30 * TimeConstants::IN_MILLISECONDS);
                         events.ScheduleEvent(eXeritacEvents::EventVenomCrazedPaleOne, 20 * TimeConstants::IN_MILLISECONDS);
-                        me->MonsterTextEmote("Xeri'tac descends from her web!", Language::LANG_UNIVERSAL, me->GetGUID());
+                        me->MonsterTextEmote("Xeri'tac descends from her web!", me->GetGUID(), true);
                     }
                     break;
                 }
@@ -392,7 +394,7 @@ public:
                     std::list<Position>::const_iterator l_It = l_Position.begin();
                     std::advance(l_It, urand(0, l_Position.size() - 1));
                     me->SummonCreature(eEverbloomCreature::CreatureToxicSpiderling, *l_It, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                    me->MonsterTextEmote("|TInterface\\Icons\\achievement_halloween_rottenegg_01.blp:20|tXeri'tac begins unleashing Toxic Spiderlings down on you!", me->GetGUID());
+                    me->MonsterTextEmote("|TInterface\\Icons\\achievement_halloween_rottenegg_01.blp:20|tXeri'tac begins unleashing Toxic Spiderlings down on you!", me->GetGUID(), true);
                     events.ScheduleEvent(eXeritacEvents::EventToxicSpiderling, 30 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }

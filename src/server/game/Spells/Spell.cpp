@@ -557,6 +557,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
 
     m_CastItem = NULL;
     m_castItemGUID = 0;
+    m_castItemLevel = -1;
 
     /// Target used in SpellEffect
     unitTarget    = nullptr;
@@ -3305,7 +3306,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         {
             bool refresh = false;
             m_spellAura = Aura::TryRefreshStackOrCreate(aurSpellInfo, effectMask, unit,
-                m_originalCaster, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, 0, &refresh);
+                m_originalCaster, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, 0, &refresh, m_castItemLevel);
             if (m_spellAura)
             {
                 // Set aura stack amount to desired value
@@ -3599,7 +3600,20 @@ bool Spell::UpdateChanneledTargetList()
 void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura)
 {
     if (m_CastItem)
+    {
         m_castItemGUID = m_CastItem->GetGUID();
+
+        if (m_CastItem->GetOwnerGUID() == m_caster->GetGUID())
+            m_castItemLevel = m_caster->ToPlayer()->GetEquipItemLevelFor(m_CastItem->GetTemplate(), m_CastItem);
+        else if (Player* owner = m_CastItem->GetOwner())
+            m_castItemLevel = owner->GetEquipItemLevelFor(m_CastItem->GetTemplate(), m_CastItem);
+        else
+        {
+            SendCastResult(SPELL_FAILED_EQUIPPED_ITEM);
+            finish(false);
+            return;
+        }
+    }
     else
         m_castItemGUID = 0;
 
@@ -3629,7 +3643,10 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     m_spellState = SPELL_STATE_PREPARING;
 
     if (triggeredByAura)
-        m_triggeredByAuraSpell  = triggeredByAura->GetSpellInfo();
+    {
+        m_triggeredByAuraSpell = triggeredByAura->GetSpellInfo();
+        m_castItemLevel = triggeredByAura->GetBase()->GetCastItemLevel();
+    }
 
     // create and add update event for this spell
     SpellEvent* Event = new SpellEvent(this);
@@ -8250,7 +8267,19 @@ void Spell::UpdatePointers()
     }
 
     if (m_castItemGUID && m_caster->IsPlayer())
+    {
         m_CastItem = m_caster->ToPlayer()->GetItemByGuid(m_castItemGUID);
+        m_castItemLevel = -1;
+
+        // cast item not found, somehow the item is no longer where we expected
+        if (m_CastItem)
+        {
+            if (m_CastItem->GetOwnerGUID() == m_caster->GetGUID())
+                m_castItemLevel = m_caster->ToPlayer()->GetEquipItemLevelFor(m_CastItem->GetTemplate(), m_CastItem);
+            else if (Player* owner = m_CastItem->GetOwner())
+                m_castItemLevel = owner->GetEquipItemLevelFor(m_CastItem->GetTemplate(), m_CastItem);
+        }
+    }
 
     m_targets.Update(m_caster);
 

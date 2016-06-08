@@ -23,7 +23,7 @@ Position const g_PositionNerzulFightLocation = {1712.679f, -797.858f, 73.736f, 4
 /// Restless Wanderer - 980006
 class shadowmoon_burial_grounds_creature_talker : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_talker() : CreatureScript("shadowmoon_burial_grounds_creature_talker") { }
 
@@ -86,7 +86,7 @@ class shadowmoon_burial_grounds_creature_talker : public CreatureScript
 /// Restless Wanderer - 75729
 class shadowmoon_burial_grounds_creature_spirits : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_spirits() : CreatureScript("shadowmoon_burial_grounds_creature_spirits") { }
 
@@ -169,7 +169,7 @@ class shadowmoon_burial_grounds_creature_spirits : public CreatureScript
 /// Restless Wanderer - 75729
 class shadowmoon_burial_grounds_creature_restless_wanderer : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_restless_wanderer() : CreatureScript("shadowmoon_burial_grounds_creature_restless_wanderer") { }
 
@@ -207,7 +207,7 @@ class shadowmoon_burial_grounds_creature_restless_wanderer : public CreatureScri
 /// Monstrous Corpse Spider - 76104
 class shadowmoon_burial_grounds_creature_monstrous_corpse_spider : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_monstrous_corpse_spider() : CreatureScript("shadowmoon_burial_grounds_creature_monstrous_corpse_spider") { }
 
@@ -286,7 +286,7 @@ class shadowmoon_burial_grounds_creature_monstrous_corpse_spider : public Creatu
 /// Exhume Spirits - 75979
 class shadowmoon_burial_grounds_creature_exhume_spirits : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_exhume_spirits() : CreatureScript("shadowmoon_burial_grounds_creature_exhume_spirits") { }
 
@@ -317,7 +317,7 @@ class shadowmoon_burial_grounds_creature_exhume_spirits : public CreatureScript
 /// Plague bat - 75459
 class shadowmoon_burial_grounds_creature_plague_bat : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_plague_bat() : CreatureScript("shadowmoon_burial_grounds_creature_plague_bat") { }
 
@@ -386,8 +386,7 @@ class shadowmoon_burial_grounds_creature_plague_bat : public CreatureScript
 /// Shadowmoon Bone-Mender - 75713
 class shadowmoon_burial_grounds_creature_bone_mender : public CreatureScript
 {
-	public:
-
+public:
     shadowmoon_burial_grounds_creature_bone_mender() : CreatureScript("shadowmoon_burial_grounds_creature_bone_mender") { }
 
     struct shadowmoon_burial_grounds_creature_bone_menderAI : public ScriptedAI
@@ -476,7 +475,7 @@ class shadowmoon_burial_grounds_creature_bone_mender : public CreatureScript
 /// Shadowmoon Exhumer - 77700
 class shadowmoon_burial_grounds_creature_exhumer : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_exhumer() : CreatureScript("shadowmoon_burial_grounds_creature_exhumer") { }
 
@@ -546,7 +545,7 @@ class shadowmoon_burial_grounds_creature_exhumer : public CreatureScript
 /// Disturbed Soul - 76400
 class shadowmoon_burial_grounds_creature_disturbed_soul : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_disturbed_soul() : CreatureScript("shadowmoon_burial_grounds_creature_disturbed_soul") { }
 
@@ -603,7 +602,7 @@ class shadowmoon_burial_grounds_creature_disturbed_soul : public CreatureScript
 /// Shadowmoon Enslaver - 76446
 class shadowmoon_burial_grounds_creature_enslaver : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_enslaver() : CreatureScript("shadowmoon_burial_grounds_creature_enslaver") { }
 
@@ -702,7 +701,7 @@ class shadowmoon_burial_grounds_creature_enslaver : public CreatureScript
 /// Shadowmoon Loyalist - 75506
 class shadowmoon_burial_grounds_creature_loyalist : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_loyalist() : CreatureScript("shadowmoon_burial_grounds_creature_loyalist") { }
 
@@ -831,7 +830,7 @@ class shadowmoon_burial_grounds_creature_loyalist : public CreatureScript
 /// Defiled Spirit - 75451
 class shadowmoon_burial_grounds_creature_defiled_spirit_trash : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_defiled_spirit_trash() : CreatureScript("shadowmoon_burial_grounds_creature_defiled_spirit_trash") { }
 
@@ -869,7 +868,7 @@ class shadowmoon_burial_grounds_creature_defiled_spirit_trash : public CreatureS
 /// Subjugated Soul - 76444
 class shadowmoon_burial_grounds_creature_subjugated_soul : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_subjugated_soul() : CreatureScript("shadowmoon_burial_grounds_creature_subjugated_soul") { }
 
@@ -905,7 +904,7 @@ class shadowmoon_burial_grounds_creature_subjugated_soul : public CreatureScript
 /// Defiled Burial Site - 75977
 class shadowmoon_burial_grounds_creature_site : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_site() : CreatureScript("shadowmoon_burial_grounds_creature_site") { }
 
@@ -966,7 +965,7 @@ class shadowmoon_burial_grounds_creature_site : public CreatureScript
 /// Reanimated Ritual Boens - 75715
 class shadowmoon_burial_grounds_creature_ritual_of_bones_mob : public CreatureScript
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_creature_ritual_of_bones_mob() : CreatureScript("shadowmoon_burial_grounds_creature_ritual_of_bones_mob") { }
 
@@ -1035,7 +1034,7 @@ class shadowmoon_burial_grounds_creature_ritual_of_bones_mob : public CreatureSc
 /// Exhume the Crypts - 153268 
 class shadowmoon_burial_grounds_spell_exhume_the_crypts : public SpellScriptLoader
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_spell_exhume_the_crypts() : SpellScriptLoader("shadowmoon_burial_grounds_spell_exhume_the_crypts")
     {
@@ -1072,7 +1071,7 @@ class shadowmoon_burial_grounds_spell_exhume_the_crypts : public SpellScriptLoad
 /// Necrotic Burst - 156718  
 class shadowmoon_burial_grounds_spell_necrotic_burst : public SpellScriptLoader
 {
-	public:
+public:
 
     shadowmoon_burial_grounds_spell_necrotic_burst() : SpellScriptLoader("shadowmoon_burial_grounds_spell_exhume_the_crypts")
     {
