@@ -913,6 +913,7 @@ class npc_foundry_train_controller : public CreatureScript
                                                 {
                                                     if (Creature* l_Sergeant = Creature::GetCreature(*me, l_PassengerGuid))
                                                     {
+                                                        l_Sergeant->NearTeleportTo(*l_Vehicle);
                                                         l_Sergeant->EnterVehicle(l_Vehicle);
 
                                                         l_Sergeant->SetReactState(ReactStates::REACT_AGGRESSIVE);
