@@ -295,7 +295,7 @@ class boss_operator_thogar : public CreatureScript
 
                 if (m_Instance != nullptr)
                 {
-                    for (uint32 l_Entry = eFoundryGameObjects::MassiveDoorTrack4Right; l_Entry != eFoundryGameObjects::MassiveDoorTrack1Left; ++l_Entry)
+                    for (uint32 l_Entry = eFoundryGameObjects::MassiveDoorTrack4Right; l_Entry <= eFoundryGameObjects::MassiveDoorTrack1Left; ++l_Entry)
                     {
                         if (GameObject* l_Door = GameObject::GetGameObject(*me, m_Instance->GetData64(l_Entry)))
                             l_Door->SetGoState(GOState::GO_STATE_READY);
