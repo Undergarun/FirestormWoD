@@ -6533,6 +6533,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 126084: ///< Fingers of Frost - visual
                 spellInfo->StackAmount = 2;
                 break;
+            case 137017:
+                spellInfo->Effects[EFFECT_1].SpellClassMask[1] &= ~0x80000000;
+                break;
             case 116330: ///< Dizzying Haze
                 spellInfo->Effects[EFFECT_1].BasePoints = 2000;
                 break;
