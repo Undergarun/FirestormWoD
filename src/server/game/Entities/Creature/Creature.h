@@ -593,17 +593,20 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool AIM_Initialize(CreatureAI* ai = nullptr);
         void Motion_Initialize();
 
-        bool isCanGiveSpell(Unit* /*caster*/)
+        bool isCanGiveSpell(Unit* /*caster*/, SpellInfo const* p_ProcSpell)
         {
             if (IsPetGuardianStuff())
                 return true;
 
-            // TODO: we need to make a list spells that can be stolen from bosses/rare elites (there are some exceptions)
-            uint32 rank = GetCreatureTemplate()->rank;
+            if (p_ProcSpell->AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED || p_ProcSpell->AttributesEx & SPELL_ATTR1_CANT_BE_REDIRECTED)
+                return false;
+            return true;
+
+            /*uint32 rank = GetCreatureTemplate()->rank;
             if (rank > CREATURE_ELITE_NORMAL)
                 return false;
 
-            return true;
+            return true;*/
         }
 
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
