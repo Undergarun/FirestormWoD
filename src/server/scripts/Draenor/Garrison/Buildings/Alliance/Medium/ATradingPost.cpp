@@ -63,7 +63,7 @@ namespace MS { namespace Garrison
         p_Player->PlayerTalkClass->ClearMenus();
 
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
-            l_AI->SendShipmentCrafterUI(p_Player);
+            l_AI->SendShipmentCrafterUI(p_Player, p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment));
 
         return true;
     }
@@ -76,6 +76,9 @@ namespace MS { namespace Garrison
 
             if (l_AI == nullptr)
                 return true;
+
+            std::vector<uint32> l_TradingPostShipments = { 138, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 196 };
+            p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
 
             if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
                 l_GarrisonMgr->ActivateBuilding(l_AI->GetPlotInstanceID());

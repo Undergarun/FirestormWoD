@@ -4755,21 +4755,18 @@ namespace MS { namespace Garrison
                 if (l_ShipmentContainerEntry == nullptr)
                     continue;
 
-                bool l_AllComplete = l_PlotWorkOrder.size() > 1;
+                bool l_Complete = false;
                 uint32 l_GobDisplayID = l_WorkOrderGameObject->GetGOInfo() ? l_WorkOrderGameObject->GetGOInfo()->displayId : 0;
                 uint32 l_CurrentTimeStamp = time(0);
-
-                for (uint32 l_OrderI = 0; l_OrderI < l_PlotWorkOrder.size(); ++l_OrderI)
-                {
-                    if (l_PlotWorkOrder[l_OrderI]->CompleteTime > l_CurrentTimeStamp)
-                        l_AllComplete = false;
-                    else if (l_PlotWorkOrder.size() == 1)
-                        l_AllComplete = true;
-                }
-
                 uint32 l_ShipmentsSize = (uint32)l_PlotWorkOrder.size();
 
-                if (l_ShipmentsSize >= 1 && l_ShipmentsSize < l_ShipmentContainerEntry->ShipmentAmountNeeded[0])
+                for (uint32 l_OrderI = 0; l_OrderI < l_ShipmentsSize; ++l_OrderI)
+                {
+                    if (l_PlotWorkOrder[l_OrderI]->CompleteTime <= l_CurrentTimeStamp)
+                        l_Complete = true;
+                }
+
+                if (l_ShipmentsSize < l_ShipmentContainerEntry->ShipmentAmountNeeded[0])
                     l_GobDisplayID = l_ShipmentContainerEntry->OverrideDisplayID1;
                 else
                 {
@@ -4780,7 +4777,7 @@ namespace MS { namespace Garrison
                     }
                 }
 
-                if (l_AllComplete)
+                if (l_Complete)
                 {
                     l_WorkOrderGameObject->SetDisplayId(l_GobDisplayID);
                     l_WorkOrderGameObject->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
@@ -4789,6 +4786,14 @@ namespace MS { namespace Garrison
                 {
                     if (l_ShipmentContainerEntry->OverrideDisplayIfNotNull) ///< Shipyards related
                         l_WorkOrderGameObject->SetDisplayId(l_ShipmentContainerEntry->OverrideDisplayIfNotNull);
+                    else
+                    {
+                        if (GameObjectTemplate const* l_GobTemplate = l_WorkOrderGameObject->GetGOInfo())
+                        {
+                            if (!l_GobTemplate->garrisonShipment.LargeAOI) ///< Shipyard ?
+                                l_WorkOrderGameObject->SetDisplayId(l_GobTemplate->displayId);
+                        }
+                    }
 
                     l_WorkOrderGameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
                 }

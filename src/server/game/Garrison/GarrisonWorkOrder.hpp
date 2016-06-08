@@ -16,7 +16,7 @@ namespace MS { namespace Garrison
         uint32 DatabaseID;      ///< Building DB ID
         uint32 PlotInstanceID;  ///< Plot instance ID
         uint32 ShipmentID;      ///< Shipment ID (CharShipment.db2)
-        uint32 CreationTime;    ///< Timestamp of creatop,
+        uint32 CreationTime;    ///< Timestamp of creation
         uint32 CompleteTime;    ///< Timestamp of completion
     };
 
