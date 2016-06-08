@@ -1966,7 +1966,8 @@ class spell_mage_ice_lance: public SpellScriptLoader
             enum eSpells
             {
                 T17Frost4P  = 165469,
-                IceShard    = 166869
+                IceShard    = 166869,
+                FingerOfFrost = 44544
             };
 
             enum eCreature
@@ -2019,7 +2020,8 @@ class spell_mage_ice_lance: public SpellScriptLoader
 
                 if (Unit* l_Target = GetHitUnit())
                 {
-                    if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA, l_Caster->GetGUID()))
+                    if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA, l_Caster->GetGUID()) &&
+                        (l_Target->HasAuraState(AURA_STATE_FROZEN) || l_Caster->HasAura(eSpells::FingerOfFrost)))
                         l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
                 }
             }
@@ -3231,7 +3233,7 @@ class spell_mage_finger_of_frost : public SpellScriptLoader
                 FingerOfFrostVisualUi   = 126084
             };
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
                 if (m_AlreadyDrop)
                     return;
@@ -3247,7 +3249,7 @@ class spell_mage_finger_of_frost : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mage_finger_of_frost_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_mage_finger_of_frost_SpellScript::HandleAfterHit);
             }
         };
 
