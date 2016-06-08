@@ -2003,10 +2003,8 @@ class spell_mage_ice_lance: public SpellScriptLoader
                             l_FrostOrb = l_Iter->ToCreature();
                     }
 
-                    if (l_FrostOrb == nullptr)
-                        return;
-
-                    l_Caster->CastSpell(l_Caster, eSpells::IceShard, true);
+                    if (l_FrostOrb != nullptr)
+                        l_Caster->CastSpell(l_Caster, eSpells::IceShard, true);
                 }
 
                 if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
