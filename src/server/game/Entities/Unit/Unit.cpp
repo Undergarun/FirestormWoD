@@ -9664,7 +9664,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             if (!procSpell)
                 return false;
 
-            if (procSpell->Id == 4143 || procSpell->Id == 7268)
+            if (procSpell->Id == 4143 || procSpell->Id == 7268 || procSpell->Id == 155152)
                 return false;
 
             if (ToPlayer()->GetSpecializationId() != SPEC_MAGE_ARCANE)
