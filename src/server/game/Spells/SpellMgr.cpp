@@ -6504,6 +6504,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 126895: ///< Zen Pilgrimage : Return
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 break;
+            case 126:
+                spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_MOD_STEALTH_DETECT;
+                spellInfo->Effects[EFFECT_2].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_2].BasePoints = 500;
+                spellInfo->Effects[EFFECT_2].MiscValue = 1;
+                break;
             case 125084: ///< Charging Ox Wave
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); ///< radius 30
                 break;
