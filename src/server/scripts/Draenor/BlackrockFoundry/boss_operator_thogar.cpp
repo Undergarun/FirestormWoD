@@ -382,10 +382,7 @@ class boss_operator_thogar : public CreatureScript
                     {
                         /// Spawn train only if track is available
                         if (m_AvailableLines[g_TrainDatas[m_TrainID].TrackID])
-                        {
-                            printf("Train incoming in track %u\r\n", g_TrainDatas[m_TrainID].TrackID);
                             SummonTrain(me, m_TrainID, eThogarActions::ActionNone);
-                        }
 
                         ++m_TrainID;
 
