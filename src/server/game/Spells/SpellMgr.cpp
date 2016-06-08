@@ -4589,7 +4589,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159234: ///< Thunderlord
             case 159675: ///< Warsong
             case 159676: ///< Frostwolf
-            case 173322: ////< BleedingHollow
+            case 173322: ///< BleedingHollow
+            case 159238: ///< Shattered Bleed
             case 118334: ///< Dancing Steel (agility)
             case 118335: ///< Dancing Steel (strength)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_ENCHANT_STACK;
@@ -6385,6 +6386,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 166009: ///< Item - Hunter WoD PvP 2P Bonus
             case 171383: ///< Item - Warlock WoD PvP Destruction 2P Bonus
             case 171379: ///< Item - Warlock WoD PvP Affliction 4P Bonus
+            case 56414: ///< Glyph of Dazing Shield
             case 162452: ///< Shadowy Insight
             case 87160:  ///< Surge of Darkness
             case 73685:  ///< Unleash Life (restoration)
