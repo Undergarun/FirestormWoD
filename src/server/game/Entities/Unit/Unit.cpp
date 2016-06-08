@@ -12202,7 +12202,7 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* /*p_Target*
     uint8 l_ProcTimes = 0;
 
     /// Hackfix for Blade Flurry
-    if (p_ProcSpell && p_ProcSpell->Id == 22482)
+    if (p_ProcSpell && (p_ProcSpell->Id == 22482 || p_ProcSpell->Id == 12654))
         l_MaxProcTimes = 0;
 
     for (uint8 l_Idx = 0; l_Idx < l_MaxProcTimes; l_Idx++)
@@ -16899,6 +16899,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (procAura && procAura->Id == itr->first)
             continue;
         ProcTriggeredData triggerData(itr->second->GetBase());
+
         // Defensive procs are active on absorbs (so absorption effects are not a hindrance)
         bool active = (damage + absorb) || (procExtra & PROC_EX_BLOCK && isVictim);
         if (isVictim)
