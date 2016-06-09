@@ -1327,10 +1327,13 @@ class npc_foundry_siege_engine : public CreatureScript
                             ApplyPassengerFlags(l_Sergeant, false);
 
                             uint64 l_SergeantGuid = l_Sergeant->GetGUID();
-                            AddTimedDelayedOperation(50, [this, l_SergeantGuid]() -> void
+                            AddTimedDelayedOperation(300, [this, l_SergeantGuid]() -> void
                             {
                                 if (Unit* l_Sergeant = Creature::GetCreature(*me, l_SergeantGuid))
+                                {
+                                    l_Sergeant->NearTeleportTo(*me);
                                     l_Sergeant->EnterVehicle(me, 0);
+                                }
                             });
                         }
                     }
