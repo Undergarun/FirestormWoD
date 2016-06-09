@@ -3422,14 +3422,16 @@ class npc_foundry_iron_raider : public CreatureScript
     public:
         npc_foundry_iron_raider() : CreatureScript("npc_foundry_iron_raider") { }
 
-        enum eSpell
+        enum eSpells
         {
-            SpellThrowGrenade = 156294
+            SpellThrowGrenade   = 156294,
+            SpellSerratedSlash  = 155701
         };
 
-        enum eEvent
+        enum eEvents
         {
-            EventThrowGrenade = 1
+            EventThrowGrenade = 1,
+            EventSerratedSlash
         };
 
         struct npc_foundry_iron_raiderAI : public ScriptedAI
@@ -3450,7 +3452,8 @@ class npc_foundry_iron_raider : public CreatureScript
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
                 });
 
-                m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
+                m_Events.ScheduleEvent(eEvents::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
+                m_Events.ScheduleEvent(eEvents::EventSerratedSlash, 6 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustDied(Unit* /*p_Killer*/) override
@@ -3480,11 +3483,18 @@ class npc_foundry_iron_raider : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
-                    case eEvent::EventThrowGrenade:
+                    case eEvents::EventThrowGrenade:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(*l_Target, eSpell::SpellThrowGrenade, false);
-                        m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(5 * TimeConstants::IN_MILLISECONDS, 7 * TimeConstants::IN_MILLISECONDS));
+                            me->CastSpell(*l_Target, eSpells::SpellThrowGrenade, false);
+                        m_Events.ScheduleEvent(eEvents::EventThrowGrenade, urand(5 * TimeConstants::IN_MILLISECONDS, 7 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    }
+                    case eEvents::EventSerratedSlash:
+                    {
+                        if (Unit* l_Target = me->getVictim())
+                            me->CastSpell(l_Target, eSpells::SpellSerratedSlash, true);
+                        m_Events.ScheduleEvent(eEvents::EventSerratedSlash, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
