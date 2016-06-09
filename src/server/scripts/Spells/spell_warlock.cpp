@@ -4702,9 +4702,56 @@ public:
     }
 };
 
+/// Last Update 6.2.3
+/// Drain Fel Energy - 139200
+class spell_warl_drain_fel_energy : public SpellScriptLoader
+{
+public:
+    spell_warl_drain_fel_energy() : SpellScriptLoader("spell_warl_drain_fel_energy") { }
+
+    class spell_warl_drain_fel_energy_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warl_drain_fel_energy_AuraScript);
+
+        enum eSpells
+        {
+            CodexOfXerrath1 = 101508,
+            CodexOfXerrath2 = 137206
+        };
+
+        void OnRemoveAura(AuraEffect const* p_AuraEffect, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (!l_Player)
+                return;
+
+            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                return;
+
+            l_Player->learnSpell(eSpells::CodexOfXerrath1, false);
+            l_Player->learnSpell(eSpells::CodexOfXerrath2, false);
+        }
+
+        void Register() override
+        {
+            AfterEffectRemove += AuraEffectRemoveFn(spell_warl_drain_fel_energy_AuraScript::OnRemoveAura, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warl_drain_fel_energy_AuraScript();
+    }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_drain_fel_energy();
     new spell_warl_dark_soul_charges();
     new spell_warl_glyph_of_soul_consumption();
     new spell_warl_t17_Demonology_2p();
