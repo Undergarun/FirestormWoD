@@ -57,7 +57,8 @@ Position const g_PositionitionPaleOne[2] =
 /// Xeri'tac - 84550
 class boss_xeritac : public CreatureScript
 {
-public:
+	public:
+
     boss_xeritac() : CreatureScript("boss_xeritac") { }
 
     struct boss_xeritacAI : public BossAI
@@ -136,12 +137,12 @@ public:
             m_Descend = false;
             m_Count = 0;
             m_Phase = 1;
-            m_ConsumedGuid = 0;    
-            me->setFaction(HostileFaction);       
+            m_ConsumedGuid = 0;
+            m_TimeBetween = 6 * TimeConstants::IN_MILLISECONDS;   
+            me->setFaction(HostileFaction);     
 			me->SetCanFly(true);
 			me->SetDisableGravity(true);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-			m_TimeBetween = 6 * TimeConstants::IN_MILLISECONDS;
             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
             if (!m_First)
             {
