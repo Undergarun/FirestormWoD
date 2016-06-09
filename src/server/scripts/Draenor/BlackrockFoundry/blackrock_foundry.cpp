@@ -3668,7 +3668,7 @@ class npc_foundry_gromkar_firemender : public CreatureScript
                     case eEvent::EventCauterizingBolt:
                     {
                         me->CastSpell(me, eSpells::SpellCauterizingBoltSearcher, true);
-                        m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 10 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
