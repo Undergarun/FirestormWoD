@@ -3107,13 +3107,24 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
 
-    if (!m_spellInfo->IsIgnoringCombat() && missInfo != SPELL_MISS_EVADE && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
+    if (!m_spellInfo->IsIgnoringCombat() && missInfo != SPELL_MISS_EVADE && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && m_caster->_IsValidAttackTarget(unit, m_spellInfo))
     {
-        m_caster->CombatStart(unit, !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO));
+        bool l_ShouldAttack = true;
+        if (Creature* l_Creature = unit->ToCreature())
+        {
+            uint32 l_CreatureType = l_Creature->GetCreatureTemplate()->type;
+            if (l_CreatureType == CREATURE_TYPE_CRITTER || l_CreatureType == CREATURE_TYPE_WILD_PET)
+                l_ShouldAttack = false;
+        }
 
-        if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_AURA_CC)
-            if (!unit->IsStandState())
-                unit->SetStandState(UNIT_STAND_STATE_STAND);
+        if (l_ShouldAttack)
+        {
+            m_caster->CombatStart(unit, !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO));
+
+            if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_AURA_CC)
+                if (!unit->IsStandState())
+                    unit->SetStandState(UNIT_STAND_STATE_STAND);
+        }
     }
 
     if (spellHitTarget)
