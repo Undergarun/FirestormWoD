@@ -1410,14 +1410,16 @@ class areatrigger_foundry_moving_train : public AreaTriggerEntityScript
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
-            if (InstanceScript* l_InstanceScript = p_AreaTrigger->GetInstanceScript())
-            {
-                if (!l_InstanceScript->IsEncounterInProgress())
-                    return;
-            }
+            InstanceScript* l_InstanceScript = p_AreaTrigger->GetInstanceScript();
+            if (l_InstanceScript == nullptr || !l_InstanceScript->IsEncounterInProgress())
+                return;
 
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
+                Creature* l_Thogar = Creature::GetCreature(*l_Caster, l_InstanceScript->GetData64(eFoundryCreatures::BossOperatorThogar));
+                if (l_Thogar == nullptr)
+                    return;
+
                 std::list<Unit*> l_TargetList;
                 float l_Radius = 15.0f;
 
@@ -1439,7 +1441,7 @@ class areatrigger_foundry_moving_train : public AreaTriggerEntityScript
                     if (l_Iter->GetPositionX() <= (p_AreaTrigger->GetPositionX() + l_CheckX) && l_Iter->GetPositionX() >= (p_AreaTrigger->GetPositionX() - l_CheckX) &&
                         l_Iter->GetPositionY() <= (p_AreaTrigger->GetPositionY() + l_CheckY) && l_Iter->GetPositionY() >= (p_AreaTrigger->GetPositionY() - l_CheckY))
                     {
-                        l_Iter->CastSpell(l_Iter, eSpells::MovingTrainDamage, true, nullptr, nullptr, l_Caster->GetGUID());
+                        l_Iter->CastSpell(l_Iter, eSpells::MovingTrainDamage, true, nullptr, nullptr, l_Thogar->GetGUID());
 
                         Position l_Pos;
                         l_Pos.m_positionX   = l_Iter->m_positionX + 20.0f * cos(l_Iter->GetAngle(&g_CenterPos));
