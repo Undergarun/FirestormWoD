@@ -644,6 +644,11 @@ void WorldSession::HandleGarrisonRecruitFollower(WorldPacket& p_RecvData)
         }
     }
 
+    if (m_Player->GetTeamId() == TEAM_ALLIANCE && m_Player->HasQuest(MS::Garrison::Quests::Alliance_TheHeadHunterHarverst))
+        m_Player->QuestObjectiveSatisfy(39383, 1);
+    else if (m_Player->GetTeamId() == TEAM_HORDE && m_Player->HasQuest(MS::Garrison::Quests::Horde_TheHeadHunterHarverst))
+        m_Player->QuestObjectiveSatisfy(39418, 1);
+
     m_Player->SendDirectMessage(&l_RecruitmentResult);
     m_Player->PlayerTalkClass->SendCloseGossip();
 }

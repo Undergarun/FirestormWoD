@@ -2476,18 +2476,31 @@ class spell_alexstrasza_gift_beam_visual: public SpellScriptLoader
                 if (Creature* target = GetTarget()->ToCreature())
                 {
                     if (target->GetMap()->GetDifficultyID() == Difficulty::Difficulty10N)
-                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                    {
+                        if (GameObject* alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                            _alexstraszaGiftGuid = alexstraszaGift->GetGUID();
+                    }
                     else if (target->GetMap()->GetDifficultyID() == Difficulty::Difficulty25N)
-                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                    {
+                        if (GameObject* alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                            _alexstraszaGiftGuid = alexstraszaGift->GetGUID();
+                    }
                 }
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
-                    if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                {
+                    Unit* caster = GetCaster();
+                    if (!caster)
+                        return;
+
+                    if (InstanceScript* instance = caster->GetInstanceScript())
                     {
-                        _alexstraszaGift->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        if (GameObject* alexstraszaGift = GameObject::GetGameObject(*caster, _alexstraszaGiftGuid))
+                            alexstraszaGift->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
                         if (GameObject* heartMagic = target->GetMap()->GetGameObject(instance->GetData64(DATA_HEART_OF_MAGIC_GUID)))
                         {
                             heartMagic->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -2496,6 +2509,7 @@ class spell_alexstrasza_gift_beam_visual: public SpellScriptLoader
                             heartMagic->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                         }
                     }
+                }
             }
 
             void Register()
@@ -2504,7 +2518,8 @@ class spell_alexstrasza_gift_beam_visual: public SpellScriptLoader
                 AfterEffectRemove += AuraEffectRemoveFn(spell_alexstrasza_gift_beam_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
 
-            GameObject* _alexstraszaGift;
+            uint64 _alexstraszaGiftGuid;
+            //GameObject* _alexstraszaGift;
         };
 
         AuraScript* GetAuraScript() const

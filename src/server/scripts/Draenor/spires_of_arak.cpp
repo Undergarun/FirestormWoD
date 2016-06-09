@@ -666,6 +666,81 @@ class spell_quest_spires_of_arak_detonate_iron_grenade : public SpellScriptLoade
         }
 };
 
+/// Barrel of Harvested Toxin - 233035
+class go_spires_of_arak_barrel_of_harvested_toxin : public GameObjectScript
+{
+    enum
+    {
+        LastPhase           = 0x80000000,
+        InvisibleDisplayID  = 11686
+    };
+
+    public:
+        /// Constructor
+        go_spires_of_arak_barrel_of_harvested_toxin() : GameObjectScript("go_spires_of_arak_barrel_of_harvested_toxin") { }
+
+        struct go_spires_of_arak_barrel_of_harvested_toxinAI : public GameObjectAI
+        {
+            /// Constructor
+            go_spires_of_arak_barrel_of_harvested_toxinAI(GameObject* p_GameObject)
+                : GameObjectAI(p_GameObject), m_Used(false)
+            {
+                m_OriginalScale     = go->GetFloatValue(EObjectFields::OBJECT_FIELD_SCALE);
+                m_OriginalDisplayID = go->GetDisplayId();
+                m_OriginalPhase     = go->GetPhaseMask();
+            }
+
+            void UpdateAI(uint32 p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+            }
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            bool GossipHello(Player* p_Player) override
+            {
+                if (m_Used)
+                    return true;
+
+                m_Used = true;
+
+                uint64 l_PlayerGUID = p_Player->GetGUID();
+
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_PlayerGUID]()
+                {
+                    go->SetObjectScale(0.01f);
+                    go->SetDisplayId(InvisibleDisplayID);
+                    go->SetPhaseMask(LastPhase, true);
+
+                    if (Player* l_Player = HashMapHolder<Player>::Find(l_PlayerGUID))
+                        l_Player->QuestObjectiveSatisfy(go->GetEntry(), 1, QUEST_OBJECTIVE_TYPE_GO, go->GetGUID());
+                });
+                AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]()
+                {
+                    go->SetPhaseMask(m_OriginalPhase, true);
+                    go->SetObjectScale(m_OriginalScale);
+                    go->SetDisplayId(m_OriginalDisplayID);
+                    m_Used = false;
+                });
+
+                return false;
+            }
+
+            bool m_Used;
+            float m_OriginalScale;
+            uint32 m_OriginalDisplayID;
+            uint32 m_OriginalPhase;
+        };
+
+        /// Called when a GameObjectAI object is needed for the GameObject.
+        /// @p_GameObject : GameObject instance
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
+        {
+            return new go_spires_of_arak_barrel_of_harvested_toxinAI(p_GameObject);
+        }
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_spires_of_arak()
 {
@@ -676,5 +751,6 @@ void AddSC_spires_of_arak()
     new spell_aura_pierced_armor();
     new spell_quest_spires_of_arak_free_prisoners();
     new spell_quest_spires_of_arak_detonate_iron_grenade();
+    new go_spires_of_arak_barrel_of_harvested_toxin();
 }
 #endif

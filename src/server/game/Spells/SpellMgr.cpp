@@ -178,7 +178,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 return DIMINISHING_ROOT;
 
             /// Chaos Wave -- 124915, slow effect
-            if (spellproto->SpellFamilyFlags[0] & 0x201000 == 0x201000)
+            if ((spellproto->SpellFamilyFlags[0] & 0x201000) == 0x201000)
                 return DIMINISHING_NONE;
             break;
         }
@@ -3421,6 +3421,90 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            ///////////////////////////////////////////////////////////////////////////////////
+            /// Rush Orders
+            ///////////////////////////////////////////////////////////////////////////////////
+            case 181507: ///< Alchemy Lab
+                spellInfo->Reagent[0]              = 122576;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181228;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181229;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181518: ///< The Tannery
+                spellInfo->Reagent[0]              = 122596;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181240;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181241;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181519: ///< Scribes Quarters
+                spellInfo->Reagent[0]              = 122593;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181236;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181237;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181520: ///< The Forge
+                spellInfo->Reagent[0]              = 122595;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181230;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181231;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181521: ///< Tailoring Emporium
+                spellInfo->Reagent[0]              = 122594;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181242;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181243;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181522: ///< Gem Boutique
+                spellInfo->Reagent[0]              = 122592;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181238;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181239;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181524: ///< Enchanters Study
+                spellInfo->Reagent[0]              = 122590;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181232;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181233;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181525: ///< Engineering Works
+                spellInfo->Reagent[0]              = 122591;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181234;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181235;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            ///////////////////////////////////////////////////////////////////////////////////
             case 1949: ///< Hellfire
                 spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
@@ -6382,6 +6466,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 182303: ///< Item - Rogue WoD PvP Combat 4P Bonus
             case 170883: ///< Item - Rogue WoD PvP Assassination 4P Bonus
             case 165886: ///< Item - Paladin WoD PvP Retribution 2P Bonus
+			case 165905: ///< Item - Paladin WoD PvP Protection 2P Bonus
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
             case 166009: ///< Item - Hunter WoD PvP 2P Bonus
             case 171383: ///< Item - Warlock WoD PvP Destruction 2P Bonus

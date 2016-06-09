@@ -1736,20 +1736,19 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 if (!caster)
                     break;
 
+                if (GetSpellInfo()->GetSpellSpecific() == SpellSpecificType::SpellSpecificMagePolymorph)
+                {
+                    /// Glyph of Polymorph
+                    if (caster && caster->HasAura(56375))
+                    {
+                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, 0, 159625); ///< Except Glyph of the Inquisitor damage spell
+                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+                    }
+                }
+
                 switch (GetId())
                 {
-                    case 118:   // Polymorph
-                    case 61305: // Polymorph (Black Cat)
-                    {
-                        // Glyph of Polymorph
-                        if (caster && caster->HasAura(56375))
-                        {
-                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, 0, 159625); ///< Except Glyph of the Inquisitor damage spell
-                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
-                        }
-                        break;
-                    }
                     // Ring of Frost - 2.5 sec immune
                     case 82691:
                         target->AddAura(91264, target);

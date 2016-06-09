@@ -3788,12 +3788,7 @@ bool World::CanBeSaveInLoginDatabase() const
     {
         case REALM_ZONE_DEVELOPMENT:
         case REALM_ZONE_TEST_SERVER:
-        case REALM_ZONE_TOURNAMENT_5:
-        case REALM_ZONE_TOURNAMENT_7:
-        case REALM_ZONE_TOURNAMENT_13:
-        case REALM_ZONE_TOURNAMENT_15:
-        case REALM_ZONE_TOURNAMENT_25:
-        case REALM_ZONE_TOURNAMENT_27:
+        case REALM_ZONE_QA_SERVER:
             return false;
         default:
             return true;

@@ -11685,7 +11685,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     }
 
     uint32 creatureTypeMask = victim->GetCreatureTypeMask(); ///> creatureTypeMask is unused
-    
+
     // done scripted mod (take it from owner)
     Unit const* owner = GetOwner() ? GetOwner() : this;
     AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
@@ -11710,8 +11710,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
             }
         }
     }
-    
-    
+
+
 
     // Custom scripted damage
     switch (spellProto->SpellFamilyName)
@@ -16022,7 +16022,7 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
     /// Hook playerScript OnModifyPower
     if (IsPlayer())
         sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, m_powers[l_PowerIndex], p_PowerValue, p_Regen, false);
-    
+
     uint32 l_OldPower = m_powers[l_PowerIndex];
 
     m_powers[l_PowerIndex] = p_PowerValue;
@@ -18910,7 +18910,7 @@ Position Unit::GetInterpolatedPosition(bool p_AtClientScreen, uint32 p_ProjectTi
     float l_Distance = (l_CurrentTime - l_LastMoveTimeStamp) / 1000.0f;
 
     uint32 l_MovementFlags = m_movementInfo.GetMovementFlags();
-    
+
     if ((l_MovementFlags & MOVEMENTFLAG_STRAFE_LEFT) != 0)
         l_Orientation += M_PI / 2.0f;
     else if ((l_MovementFlags & MOVEMENTFLAG_STRAFE_RIGHT) != 0)

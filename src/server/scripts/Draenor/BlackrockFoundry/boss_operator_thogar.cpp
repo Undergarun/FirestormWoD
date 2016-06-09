@@ -295,7 +295,7 @@ class boss_operator_thogar : public CreatureScript
 
                 if (m_Instance != nullptr)
                 {
-                    for (uint32 l_Entry = eFoundryGameObjects::MassiveDoorTrack4Right; l_Entry != eFoundryGameObjects::MassiveDoorTrack1Left; ++l_Entry)
+                    for (uint32 l_Entry = eFoundryGameObjects::MassiveDoorTrack4Right; l_Entry <= eFoundryGameObjects::MassiveDoorTrack1Left; ++l_Entry)
                     {
                         if (GameObject* l_Door = GameObject::GetGameObject(*me, m_Instance->GetData64(l_Entry)))
                             l_Door->SetGoState(GOState::GO_STATE_READY);
@@ -382,10 +382,7 @@ class boss_operator_thogar : public CreatureScript
                     {
                         /// Spawn train only if track is available
                         if (m_AvailableLines[g_TrainDatas[m_TrainID].TrackID])
-                        {
-                            printf("Train incoming in track %u\r\n", g_TrainDatas[m_TrainID].TrackID);
                             SummonTrain(me, m_TrainID, eThogarActions::ActionNone);
-                        }
 
                         ++m_TrainID;
 
@@ -916,6 +913,7 @@ class npc_foundry_train_controller : public CreatureScript
                                                 {
                                                     if (Creature* l_Sergeant = Creature::GetCreature(*me, l_PassengerGuid))
                                                     {
+                                                        l_Sergeant->NearTeleportTo(*l_Vehicle);
                                                         l_Sergeant->EnterVehicle(l_Vehicle);
 
                                                         l_Sergeant->SetReactState(ReactStates::REACT_AGGRESSIVE);

@@ -260,4 +260,16 @@
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -36 AND faction_index = 0;
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-36','0','87305','-3.3287','-2.98104','1.23286','2.1018');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-36','0','87300','-5.96617','7.7921','1.23279','4.91353');
-	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-36','0','79828','-10.0681','8.31484','1.23389','5.
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-36','0','79828','-10.0681','8.31484','1.23389','5.0');
+
+-- Rush Orders
+
+REPLACE INTO spell_script_names VALUES
+(181507, "spell_garrison_rush_order"),
+(181518, "spell_garrison_rush_order"),
+(181519, "spell_garrison_rush_order"),
+(181520, "spell_garrison_rush_order"),
+(181521, "spell_garrison_rush_order"),
+(181522, "spell_garrison_rush_order"),
+(181524, "spell_garrison_rush_order"),
+(181525, "spell_garrison_rush_order");
