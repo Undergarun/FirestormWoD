@@ -1220,6 +1220,8 @@ class npc_foundry_iron_gunnery_sergeant : public CreatureScript
                         }
                     }
                 }
+
+                me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
             }
 
             void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override

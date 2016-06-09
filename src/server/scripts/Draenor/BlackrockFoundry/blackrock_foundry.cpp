@@ -3351,6 +3351,9 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
                             l_Thogar->AI()->SetGUID(me->GetGUID(), 1);
                     }
                 }
+
+                if (me->GetEntry() == eThogarCreatures::ThogarManAtArms)
+                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -3459,7 +3462,10 @@ class npc_foundry_iron_raider : public CreatureScript
             void JustDied(Unit* /*p_Killer*/) override
             {
                 if (me->GetEntry() == eThogarCreatures::ThogarIronRaider)
+                {
+                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
                     return;
+                }
 
                 if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
                 {
@@ -3548,6 +3554,15 @@ class npc_foundry_iron_crack_shot : public CreatureScript
                 m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
             }
 
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                if (me->GetEntry() == eThogarCreatures::ThogarIronCrackShot)
+                {
+                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                    return;
+                }
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
                 if (!UpdateVictim())
@@ -3618,6 +3633,15 @@ class npc_foundry_gromkar_firemender : public CreatureScript
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
 
                 m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                if (me->GetEntry() == eThogarCreatures::ThogarFiremender)
+                {
+                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                    return;
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
