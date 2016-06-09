@@ -11592,7 +11592,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         return pdamage;
 
     // small exception for Crimson Tempest, can't find any general rule
-    // should ignore ALL damage mods, they already calculated in trigger spell
+    // should ignore ALL damage mods, they already calculated in trigger spellSPELL_ATTR3_NO_DONE_BONUS
     if (spellProto->Id == 122233 || spellProto->Id == 96172) // Crimson Tempest and Hand of Light
         return pdamage;
 

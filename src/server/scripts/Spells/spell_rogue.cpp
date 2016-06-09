@@ -3247,50 +3247,6 @@ class spell_rog_item_t17_assassination_2p_bonus : public SpellScriptLoader
         }
 };
 
-/// Item - Rogue T17 Subtlety 2P Bonus - 165482
-class spell_rog_item_t17_subtlety_2p_bonus : public SpellScriptLoader
-{
-    public:
-        spell_rog_item_t17_subtlety_2p_bonus() : SpellScriptLoader("spell_rog_item_t17_subtlety_2p_bonus") { }
-
-        class spell_rog_item_t17_subtlety_2p_bonus_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_item_t17_subtlety_2p_bonus_AuraScript);
-
-            enum eSpells
-            {
-                ShadowDance = 51713,
-                QuickBlades = 165509
-            };
-
-            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
-            {
-                PreventDefaultAction();
-
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
-
-                SpellInfo const* l_ProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
-                if (!l_ProcSpell || l_ProcSpell->Id != eSpells::ShadowDance)
-                    return;
-
-                /// When you activate Shadow Dance, you gain 60 Energy.
-                l_Caster->CastSpell(l_Caster, eSpells::QuickBlades, true);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_rog_item_t17_subtlety_2p_bonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_item_t17_subtlety_2p_bonus_AuraScript();
-        }
-};
-
 /// Called by Shadow Dance - 51713
 /// Item - Rogue T17 Subtlety 4P Bonus - 165514
 class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
@@ -3304,8 +3260,21 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
 
             enum eSpells
             {
-                ShadowStrikes = 166881
+                T17Subtlety2PBonus  = 165482,
+                QuickBlades         = 165509,
+                ShadowStrikes       = 166881
             };
+
+            void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::T17Subtlety2PBonus))
+                    l_Caster->CastSpell(l_Caster, eSpells::QuickBlades, true);
+            }
 
             void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -3315,6 +3284,7 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
 
             void Register() override
             {
+                AfterEffectApply += AuraEffectApplyFn(spell_rog_item_t17_subtlety_4p_bonus_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_IGNORE_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectApplyFn(spell_rog_item_t17_subtlety_4p_bonus_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_IGNORE_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -3611,7 +3581,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_glyph_of_energy_flows();
     new spell_rog_find_weakness();
     new spell_rog_item_t17_assassination_2p_bonus();
-    new spell_rog_item_t17_subtlety_2p_bonus();
     new spell_rog_item_t17_subtlety_4p_bonus();
     new spell_rog_ruthlessness_and_relentless_strikes();
 

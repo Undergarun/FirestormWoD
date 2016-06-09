@@ -6471,6 +6471,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 166009: ///< Item - Hunter WoD PvP 2P Bonus
             case 171383: ///< Item - Warlock WoD PvP Destruction 2P Bonus
             case 171379: ///< Item - Warlock WoD PvP Affliction 4P Bonus
+            case 165482: ///< Item - Rogue T17 Subtlety 2P Bonus
             case 56414: ///< Glyph of Dazing Shield
             case 162452: ///< Shadowy Insight
             case 87160:  ///< Surge of Darkness
