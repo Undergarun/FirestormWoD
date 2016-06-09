@@ -349,6 +349,12 @@ class boss_operator_thogar : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                if (me->GetDistance(me->GetHomePosition()) >= 120.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 m_Events.Update(p_Diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
