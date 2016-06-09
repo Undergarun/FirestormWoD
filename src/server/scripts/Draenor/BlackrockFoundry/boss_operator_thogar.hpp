@@ -59,7 +59,8 @@ enum eThogarCreatures
     ThogarIronRaider    = 77394,
     ThogarIronCrackShot = 77476,
     ThogarFiremender    = 77487,
-    ThogarManAtArms     = 80791
+    ThogarManAtArms     = 80791,
+    ThogarSergeant      = 78981
 };
 
 enum eThogarGameObjects
@@ -216,8 +217,8 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
         {
             eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::CosmeticIntroTrain, true,
             {
-                { eThogarCreatures::Train2, 0,{ eThogarCreatures::SiegeEngine1 } },
-                { eThogarCreatures::Train1, 0,{ eThogarCreatures::SiegeEngine1, eThogarCreatures::ManAtArmsIntro } },
+                { eThogarCreatures::Train2, 0, { eThogarCreatures::SiegeEngine1 } },
+                { eThogarCreatures::Train1, 0, { eThogarCreatures::SiegeEngine1, eThogarCreatures::ManAtArmsIntro } },
                 { eThogarCreatures::SuppliesTransport, eThogarSpells::SuppliesTransportAura,{} }
             }
         },
@@ -317,7 +318,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
                         eThogarCreatures::GromkarGunner
                     }
                 },
-                { eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine1 } },
+                { eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine2 } },
                 {
                     eThogarCreatures::WeaponsTransport1, eThogarSpells::TroopTransportAura3,
                     {
@@ -612,7 +613,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
                         eThogarCreatures::GromkarGunner
                     }
                 },
-                { eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine1 } },
+                { eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine2 } },
                 {
                     eThogarCreatures::WeaponsTransport1, eThogarSpells::TroopTransportAura3,
                     {
@@ -692,7 +693,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
                         eThogarCreatures::GromkarGunner
                     }
                 },
-                { eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine1 } },
+                { eThogarCreatures::Gunner, 0, { eThogarCreatures::SiegeEngine2 } },
                 {
                     eThogarCreatures::WeaponsTransport1, eThogarSpells::TroopTransportAura3,
                     {

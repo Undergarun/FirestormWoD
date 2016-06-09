@@ -1146,7 +1146,8 @@ class npc_foundry_train_controller : public CreatureScript
         }
 };
 
-/// Iron Gunnery Sergeant - 81318
+/// Iron Gunnery Sergeant (Intro) - 81318
+/// Iron Gunnery Sergeant (Fight) - 78981
 class npc_foundry_iron_gunnery_sergeant : public CreatureScript
 {
     public:
@@ -1314,10 +1315,17 @@ class npc_foundry_siege_engine : public CreatureScript
                 {
                     if (Unit* l_Summoner = Creature::GetCreature(*me, l_Guid))
                     {
-                        if (Creature* l_Sergeant = l_Summoner->SummonCreature(eThogarCreatures::IronGunnerySergeant, *me))
+                        bool l_IsIntro = me->GetEntry() == eThogarCreatures::SiegeEngine1;
+                        if (Creature* l_Sergeant = l_Summoner->SummonCreature(l_IsIntro ? eThogarCreatures::IronGunnerySergeant : eThogarCreatures::ThogarSergeant, *me))
                         {
                             ApplyPassengerFlags(l_Sergeant, false);
-                            l_Sergeant->EnterVehicle(me, 0);
+
+                            uint64 l_SergeantGuid = l_Sergeant->GetGUID();
+                            AddTimedDelayedOperation(50, [this, l_SergeantGuid]() -> void
+                            {
+                                if (Unit* l_Sergeant = Creature::GetCreature(*me, l_SergeantGuid))
+                                    l_Sergeant->EnterVehicle(me, 0);
+                            });
                         }
                     }
                 });
