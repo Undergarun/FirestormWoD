@@ -4797,9 +4797,81 @@ class spell_item_hypnotize_critter : public SpellScriptLoader
         }
 };
 
+class spell_item_ghostly_backfire : public SpellScriptLoader
+{
+    public:
+        spell_item_ghostly_backfire() : SpellScriptLoader("spell_item_ghostly_backfire") {}
+
+        class spell_item_ghostly_backfire_SpellScript : public SpellScript
+        {
+            enum Creatures
+            {
+                NPC_DOZER = 35558
+            };
+
+            PrepareSpellScript(spell_item_ghostly_backfire_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                if (GetCaster()->FindNearestCreature(NPC_DOZER, 20.0f) != nullptr)
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CANT_USE_THAT_ITEM);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_ghostly_backfire_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_ghostly_backfire_SpellScript();
+        }
+};
+
+/// Blessing of A'dal 175442
+class spell_item_blessing_of_adal : public SpellScriptLoader
+{
+    public:
+        spell_item_blessing_of_adal() : SpellScriptLoader("spell_item_blessing_of_adal") { }
+
+        class spell_item_blessing_of_adal_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_blessing_of_adal_AuraScript);
+
+            void OnUpdate(uint32 /*p_Diff*/)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (l_Target->GetMapId() != 1116)
+                        Remove();
+                }
+            }
+
+            void Register() override
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_item_blessing_of_adal_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_blessing_of_adal_AuraScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
 {
+    // 175442 Blessing of A'dal
+    new spell_item_blessing_of_adal();
+    // 67689 Ghostly Backfire
+    new spell_item_ghostly_backfire();
     // 23074 Arcanite Dragonling
     new spell_item_trigger_spell("spell_item_arcanite_dragonling", SPELL_ARCANITE_DRAGONLING);
     // 23133 Gnomish Battle Chicken

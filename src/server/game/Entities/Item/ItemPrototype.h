@@ -888,6 +888,11 @@ struct ItemTemplate
         return Class == ITEM_CLASS_WEAPON && !IsOneHanded();
     }
 
+    bool IsQuestItem() const
+    {
+        return Class == ITEM_CLASS_QUEST;
+    }
+
     uint32 GetSkill() const
     {
         const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] =

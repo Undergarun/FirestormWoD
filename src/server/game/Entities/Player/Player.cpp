@@ -18583,8 +18583,14 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
         {
             case QUEST_OBJECTIVE_TYPE_ITEM:
             {
-                if (!(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
-                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                {
+                    if (ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(l_Objective.ObjectID))
+                    {
+                        if (!l_ItemProto->IsQuestItem())
+                            DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                    }
+                }
                 break;
             }
             case QUEST_OBJECTIVE_TYPE_CURRENCY:
@@ -19680,7 +19686,13 @@ void Player::RemoveActiveQuest(uint32 quest_id, bool p_BonusQuest)
                     m_questObjectiveStatus[l_Objective.ID] = 0;
 
                     if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
-                        DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                    {
+                        if (ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(l_Objective.ObjectID))
+                        {
+                            if (l_ItemProto->IsQuestItem())
+                                DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                        }
+                    }
                 }
             }
         }
