@@ -16,9 +16,11 @@ REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEnt
 
 DELETE FROM spell_script_names WHERE ScriptName = "spell_foundry_cauterizing_bolt" AND spell_id = 160140;
 DELETE FROM spell_script_names WHERE ScriptName = "spell_foundry_delayed_siege_bomb_periodic" AND spell_id = 159481;
+DELETE FROM spell_script_names WHERE ScriptName = "spell_foundry_berated" AND spell_id = 156281;
 INSERT INTO spell_script_names VALUES
 (160140, "spell_foundry_cauterizing_bolt"),
-(159481, "spell_foundry_delayed_siege_bomb_periodic");
+(159481, "spell_foundry_delayed_siege_bomb_periodic"),
+(156281, "spell_foundry_berated");
 
 DELETE FROM areatrigger_template WHERE spell_id IN (156553, 165194);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, morph_curve_id, data0, data1, data2, data3, data4, data5, data6, data7, ScriptName) VALUES

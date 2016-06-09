@@ -1405,6 +1405,54 @@ class spell_foundry_delayed_siege_bomb_periodic : public SpellScriptLoader
         }
 };
 
+/// Berated - 156281
+class spell_foundry_berated : public SpellScriptLoader
+{
+    public:
+        spell_foundry_berated() : SpellScriptLoader("spell_foundry_berated") { }
+
+        class spell_foundry_berated_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_berated_SpellScript)
+
+            enum eSpell
+            {
+                TargetRestrict = 24223
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (p_Object->IsPlayer() || p_Object->ToUnit()->isCharmedOwnedByPlayerOrPlayer())
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_berated_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_berated_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_berated_SpellScript::CorrectTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_berated_SpellScript::CorrectTargets, EFFECT_3, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_berated_SpellScript::CorrectTargets, EFFECT_4, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_berated_SpellScript();
+        }
+};
+
 /// Moving Train - 156553
 class areatrigger_foundry_moving_train : public AreaTriggerEntityScript
 {
@@ -1574,6 +1622,7 @@ void AddSC_boss_operator_thogar()
 
     /// Spells
     new spell_foundry_delayed_siege_bomb_periodic();
+    new spell_foundry_berated();
 
     /// AreaTriggers
     new areatrigger_foundry_moving_train();
