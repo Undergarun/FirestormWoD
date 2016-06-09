@@ -2653,6 +2653,13 @@ class Unit : public WorldObject
         // Movement info
         Movement::MoveSpline * movespline;
 
+
+        /// Helper for Rushing Jade Wind
+        bool GetRushingJadeWindTargets(uint64 p_Guid) { return m_RushingJadeWindTargetsGUID.count(p_Guid); }
+        int8 GetRushingJadeWindNbTargets () { return m_RushingJadeWindTargetsGUID.size(); }
+        void AddRushingJadeWindTargets(uint64 p_Guid) { m_RushingJadeWindTargetsGUID.insert(p_Guid); }
+        void CleanRushingJadeWindTargets() { m_RushingJadeWindTargetsGUID.clear(); }
+
         /// Helper for Glaive of Toss
         uint64 GetGlaiveOfTossTargetGUID() { return m_GlaiveOfTossTargetGUID;  }
         void SetGlaiveTossTarget(uint64 guid) { m_GlaiveOfTossTargetGUID = guid; }
@@ -2899,6 +2906,7 @@ class Unit : public WorldObject
         uint64 simulacrumTargetGUID;
         uint64 m_GlaiveOfTossTargetGUID;
         std::set<uint64> m_FistsOfFuryStunTargetsGUID;
+        std::set<uint64> m_RushingJadeWindTargetsGUID;
         uint64 iciclesTargetGUID;
         uint32 m_AmountOfComets;
         float m_CometCoordinateX;

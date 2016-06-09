@@ -3856,6 +3856,16 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                     l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_HEAL, true);
             }
 
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->CleanRushingJadeWindTargets();
+            }
+
             void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit *l_Caster = GetCaster();
@@ -3865,19 +3875,21 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                     return;
 
                 // Generates 1 Chi if it hits at least 3 targets.
-                if (p_AurEff->GetAmount() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                if (l_Caster->GetRushingJadeWindNbTargets() >= 3)
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
 
+                l_Caster->CleanRushingJadeWindTargets();
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_rushing_jade_wind_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                AfterEffectApply += AuraEffectRemoveFn(spell_monk_rushing_jade_wind_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_monk_rushing_jade_wind_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_monk_rushing_jade_wind_AuraScript();
         }
@@ -3905,8 +3917,11 @@ class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                if (AuraEffect* l_Aura = l_Caster->GetAuraEffect(eSpells::RushingJadeWindAura, EFFECT_0))
-                    l_Aura->SetAmount(l_Aura->GetAmount() + p_Targets.size());
+                for (WorldObject* l_Target: p_Targets)
+                {
+                    if (!l_Caster->GetRushingJadeWindTargets(l_Target->GetGUID()))
+                        l_Caster->AddRushingJadeWindTargets(l_Target->GetGUID());
+                }
             }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
@@ -3934,14 +3949,14 @@ class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
                 SetHitDamage(l_Bp0);
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_rushing_jade_wind_damage_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_rushing_jade_wind_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_rushing_jade_wind_damage_SpellScript();
         }
@@ -3975,8 +3990,11 @@ class spell_monk_rushing_jade_wind_heal : public SpellScriptLoader
 
                 JadeCore::RandomResizeList(p_Targets, 6);
 
-                if (AuraEffect* l_Aura = l_Caster->GetAuraEffect(eSpells::RushingJadeWindAura, EFFECT_0))
-                    l_Aura->SetAmount(l_Aura->GetAmount() + p_Targets.size());
+                for (WorldObject* l_Target : p_Targets)
+                {
+                    if (!l_Caster->GetRushingJadeWindTargets(l_Target->GetGUID()))
+                        l_Caster->AddRushingJadeWindTargets(l_Target->GetGUID());
+                }
             }
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
@@ -3995,14 +4013,14 @@ class spell_monk_rushing_jade_wind_heal : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_rushing_jade_wind_heal_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_rushing_jade_wind_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_rushing_jade_wind_heal_SpellScript();
         }

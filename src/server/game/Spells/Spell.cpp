@@ -1579,26 +1579,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
         if (m_spellInfo->Id == 5246 && p_EffIndex != EFFECT_0)
             l_UnitTargets.remove(m_targets.GetUnitTarget());
 
-        // Custom MoP Script
-        if (m_caster->IsPlayer())
-        {
-            switch (m_spellInfo->Id)
-            {
-                // Spinning Crane Kick / Rushing Jade Wind : Give 1 Chi if the spell hits at least 3 targets
-                case 107270:
-                case 117640:
-                case 148187:
-                    if (m_caster->ToPlayer()->HasSpellCooldown(129881) || l_UnitTargets.size() < 3)
-                        break;
-
-                    m_caster->CastSpell(m_caster, 129881, true);
-                    m_caster->ToPlayer()->AddSpellCooldown(129881, 0, 3 * IN_MILLISECONDS);
-                    break;
-                default:
-                    break;
-            }
-        }
-
         if (m_caster->IsPlayer() && m_spellInfo->Id == 1449)
             if (m_caster->ToPlayer()->GetSpecializationId() == SPEC_MAGE_ARCANE)
                 if (roll_chance_i(30))
