@@ -3365,26 +3365,36 @@ class spell_warr_taunt : public SpellScriptLoader
 
             enum eSpells
             {
-                GladiatorStance = 156291
+                GladiatorStance = 156291,
+                DefensiveStance = 71
             };
 
             SpellCastResult CheckStance()
             {
                 Unit* l_Caster = GetCaster();
 
-                if (l_Caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE)
+                if (l_Caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE && l_Caster->GetShapeshiftForm() != FORM_GLADIATORSTANCE)
                     return SPELL_FAILED_NOT_SHAPESHIFT;
 
                 return SPELL_CAST_OK;
             }
 
-            void Register()
+            void HandleOnCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE)
+                    l_Caster->CastSpell(l_Caster, eSpells::DefensiveStance, true);
+            }
+
+            void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_warr_taunt_SpellScript::CheckStance);
+                OnCast += SpellCastFn(spell_warr_taunt_SpellScript::HandleOnCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_warr_taunt_SpellScript();
         }
