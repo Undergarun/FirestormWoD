@@ -765,6 +765,13 @@ class SpellMgr
 
                 if (l_SecondIt != l_It->second.end())
                     return l_SecondIt->second.at(0)->Id;
+                else
+                {
+                    p_Difficulty = 0;
+                    l_SecondIt = l_It->second.find(p_Difficulty);
+                    if (l_SecondIt != l_It->second.end())
+                        return l_SecondIt->second.at(0)->Id;
+                }
             }
 
             return p_Fallback;
