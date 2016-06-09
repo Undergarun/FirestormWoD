@@ -25,7 +25,6 @@ DoorData const g_DoorData[] =
     { eFoundryGameObjects::KromogDoor,                  eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::TheBeastGate,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::TerminusDoor,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
-    { eFoundryGameObjects::IronGate,                    eFoundryDatas::DataOperatorThogar,      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -427,7 +426,6 @@ class instance_blackrock_foundry : public InstanceMapScript
                         m_TrackDoorsGuids[p_GameObject->GetEntry()] = p_GameObject->GetGUID();
                         break;
                     case eFoundryGameObjects::IronGate:
-                        AddDoor(p_GameObject, true);
                         m_IronGateDoorGuid = p_GameObject->GetGUID();
                         break;
                     default:
@@ -454,7 +452,6 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BlackForgeGate:
                     case eFoundryGameObjects::TheBeastGate:
                     case eFoundryGameObjects::TerminusDoor:
-                    case eFoundryGameObjects::IronGate:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -772,6 +769,24 @@ class instance_blackrock_foundry : public InstanceMapScript
                             case EncounterState::DONE:
                             {
                                 instance->SetObjectVisibility(150.0f);
+
+                                if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
+                                    l_IronGate->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                                break;
+                            }
+                            case EncounterState::FAIL:
+                            {
+                                if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
+                                    l_IronGate->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                                break;
+                            }
+                            case EncounterState::IN_PROGRESS:
+                            {
+                                if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
+                                    l_IronGate->SetGoState(GOState::GO_STATE_READY);
+
                                 break;
                             }
                             default:
