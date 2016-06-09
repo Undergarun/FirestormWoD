@@ -266,11 +266,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
             eThogarCreatures::TrainEngine, 32 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FirstTrack, eThogarMiscDatas::AddsTrain, true,
             {
                 {
-<<<<<<< HEAD
-                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
-=======
                     eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
->>>>>>> wod
                     {
                         eThogarCreatures::ThogarIronRaider,
                         eThogarCreatures::ThogarIronCrackShot,
@@ -283,11 +279,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
                     }
                 },
                 {
-<<<<<<< HEAD
-                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
-=======
                     eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
->>>>>>> wod
                     {
                         eThogarCreatures::ThogarIronRaider,
                         eThogarCreatures::ThogarIronCrackShot,
@@ -520,11 +512,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
             eThogarCreatures::TrainEngine, 197 * TimeConstants::IN_MILLISECONDS, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::AddsTrain, true,
             {
                 {
-<<<<<<< HEAD
-                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
-=======
                     eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
->>>>>>> wod
                     {
                         eThogarCreatures::ThogarIronRaider,
                         eThogarCreatures::ThogarIronCrackShot,
@@ -537,11 +525,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
                     }
                 },
                 {
-<<<<<<< HEAD
-                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
-=======
                     eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
->>>>>>> wod
                     {
                         eThogarCreatures::ThogarIronRaider,
                         eThogarCreatures::ThogarIronCrackShot,
@@ -864,11 +848,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
             eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::FourthTrack, eThogarMiscDatas::AddsTrain, false,
             {
                 {
-<<<<<<< HEAD
-                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
-=======
                     eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
->>>>>>> wod
                     {
                         eThogarCreatures::ThogarIronRaider,
                         eThogarCreatures::ThogarIronCrackShot,
@@ -881,11 +861,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
                     }
                 },
                 {
-<<<<<<< HEAD
-                    eThogarCreatures::TroopTransport2, eThogarSpells::TroopTransportAura2,
-=======
                     eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,
->>>>>>> wod
                     {
                         eThogarCreatures::ThogarIronRaider,
                         eThogarCreatures::ThogarIronCrackShot,
@@ -1113,57 +1089,6 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
 
     Position const l_Pos = l_TrainDatas.RightToLeft ? g_TrainTrackSpawnPos[l_TrainDatas.TrackID] : g_TrainTrackEndPos[l_TrainDatas.TrackID];
 
-<<<<<<< HEAD
-    if (Creature* l_Wheels = p_Summoner->SummonCreature(eThogarCreatures::TrainWheels, l_Pos))
-    {
-        ApplyPassengerFlags(l_Wheels, false);
-
-        int8 l_SeatID = 0;
-        if (Creature* l_Engine = p_Summoner->SummonCreature(l_TrainDatas.EngineEntry, l_Pos))
-        {
-            ApplyPassengerFlags(l_Engine);
-            l_Engine->EnterVehicle(l_Wheels, l_SeatID++);
-        }
-
-        for (WaggonDatas l_WaggonData : l_TrainDatas.WaggonsDatas)
-        {
-            if (Creature* l_Waggon = p_Summoner->SummonCreature(l_WaggonData.Entry, l_Pos))
-            {
-                ApplyPassengerFlags(l_Waggon);
-
-                /// Apply visual aura if needed
-                if (uint32 l_AuraID = l_WaggonData.VisualAura)
-                    l_Waggon->CastSpell(l_Waggon, l_AuraID, true);
-
-                l_Waggon->EnterVehicle(l_Wheels, l_SeatID++);
-
-                int8 l_OtherSeatID = 0;
-                for (uint32 l_Entry : l_WaggonData.Passengers)
-                {
-                    if (l_Entry == 0)
-                    {
-                        ++l_OtherSeatID;
-                        continue;
-                    }
-
-                    if (Creature* l_Passenger = p_Summoner->SummonCreature(l_Entry, l_Pos))
-                    {
-                        ApplyPassengerFlags(l_Passenger, false);
-
-                        l_Passenger->EnterVehicle(l_Waggon, l_OtherSeatID++);
-                    }
-                }
-            }
-        }
-
-        if (l_Wheels->IsAIEnabled)
-        {
-            l_Wheels->AI()->SetGUID(p_Summoner->GetGUID());
-            l_Wheels->AI()->SetData(0, p_TrainID);
-            l_Wheels->AI()->DoAction(p_Action);
-        }
-    }
-=======
     uint64 l_SummonerGuid = p_Summoner->GetGUID();
     l_InstanceScript->AddTimedDelayedOperation(10, [l_InstanceScript, p_TrainID, p_Action, l_TrainDatas, l_Pos, l_SummonerGuid]() -> void
     {
@@ -1291,7 +1216,6 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
             });
         }
     });
->>>>>>> wod
 
     eThogarTalks l_Talk = g_TrackTalks[l_TrainDatas.TrackID];
     if (p_Talk && l_Thogar->IsAIEnabled)
