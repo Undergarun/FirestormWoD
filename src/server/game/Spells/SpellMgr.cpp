@@ -3725,6 +3725,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 177855: ///< Ember in the Wind (aura - Mol'dana Two Blade)
             case 154932: ///< Molten Torrent (aura - Flamebender Ka'graz)
             case 161570: ///< Searing Plates (DoT - Franzok)
+            case 159481: ///< Delayed Siege Bomb (Channel - Iron Gunnery Sergeant)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 156039: ///< Drop the Hammer (Aknor Steelbringer)
