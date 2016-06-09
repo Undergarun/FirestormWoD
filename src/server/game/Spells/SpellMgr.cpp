@@ -7318,17 +7318,20 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 spellInfo->Effects[EFFECT_0].ItemType = 0;
                 break;
-            case 124280:// Touch of Karma (DoT)
+            case 124280:///< Touch of Karma (DoT)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REDIRECTED;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
                 break;
-            case 49016: // Unholy Frenzy
-            case 87023: // Cauterize
-            case 113344:// Bloodbath (DoT)
-            case 148022:// Icicle hit
+            case 49016: ///< Unholy Frenzy
+            case 87023: ///< Cauterize
+            case 113344:///< Bloodbath (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                break;
+            case 148022:///< Icicle hit
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 110914:// Dark Bargain (DoT)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
