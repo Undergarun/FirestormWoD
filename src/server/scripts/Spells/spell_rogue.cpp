@@ -712,6 +712,7 @@ class spell_rog_enhanced_vendetta : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Killing Spree - 51690
 class spell_rog_killing_spree: public SpellScriptLoader
 {
@@ -722,18 +723,23 @@ class spell_rog_killing_spree: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_killing_spree_AuraScript);
 
-            enum eSpell
+            enum eSpells
             {
-                KillingSpreeDeselect = 61851
+                KillingSpreeDeselect    = 61851,
+                GlyphofKillingSpree     = 63252
             };
 
             uint64 m_TargetGUID = 0;
+            float m_X = 0.0f;
+            float m_Y = 0.0f;
+            float m_Z = 0.0f;
+            float m_Orientation = 0.0f;
 
             void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    l_Caster->CastSpell(l_Caster, eSpell::KillingSpreeDeselect, true);
+                    l_Caster->CastSpell(l_Caster, eSpells::KillingSpreeDeselect, true);
 
                     Unit* l_Target = l_Caster->getVictim();
                     if (!l_Target && l_Caster->ToPlayer())
@@ -742,7 +748,29 @@ class spell_rog_killing_spree: public SpellScriptLoader
                         return;
 
                     m_TargetGUID = l_Target->GetGUID();
+                    m_X = l_Caster->GetPositionX();
+                    m_Y = l_Caster->GetPositionY();
+                    m_Z = l_Caster->GetPositionZ();
+                    m_Orientation = l_Caster->GetOrientation();
                 }
+            }
+
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(eSpells::GlyphofKillingSpree))
+                    return;
+
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+
+                if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                l_Caster->NearTeleportTo(m_X, m_Y, m_Z, m_Orientation, true);
             }
 
             void OnTick(AuraEffect const*)
@@ -793,14 +821,15 @@ class spell_rog_killing_spree: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_rog_killing_spree_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_rog_killing_spree_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectApplyFn(spell_rog_killing_spree_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_killing_spree_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_rog_killing_spree_AuraScript();
         }
