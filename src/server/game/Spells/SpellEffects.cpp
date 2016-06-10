@@ -61,7 +61,7 @@
 #include "PetBattle.h"
 #include "PathGenerator.h"
 #include "Chat.h"
-#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
 {

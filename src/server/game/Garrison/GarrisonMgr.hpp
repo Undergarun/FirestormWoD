@@ -17,7 +17,7 @@
 #include "GarrisonWorkOrder.hpp"
 #include "GarrisonShipmentManager.hpp"
 #include "GarrisonBuildingManager.hpp"
-#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
 #include "Interfaces/Interface_GarrisonSite.hpp"
 

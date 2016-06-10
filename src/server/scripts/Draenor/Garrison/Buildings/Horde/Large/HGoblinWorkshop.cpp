@@ -62,7 +62,7 @@ namespace MS { namespace Garrison
         {
             if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
             {
-                GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+                GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
                 if (l_AI == nullptr)
                     return true;
@@ -80,7 +80,7 @@ namespace MS { namespace Garrison
         {
             if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
             {
-                GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+                GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
                 SequencePosition const l_GameObjectPos = { -10.5838f, /*19.9354*/21.0f, 4.2703f, 1.5092f };
 
                 if (l_AI == nullptr)

@@ -45,7 +45,7 @@ namespace MS { namespace Garrison
 
     bool npc_Tormak::OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* /*p_Quest*/)
     {
-        GarrisonNPCAI* l_AI = p_Creature->GetAI() ? dynamic_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_AI == nullptr)
             return true;
@@ -60,7 +60,7 @@ namespace MS { namespace Garrison
     {
         using namespace StablesData::Horde::TormakQuestGiver;
         uint32 l_QuestID = p_Quest->GetQuestId();
-        GarrisonNPCAI* l_AI = p_Creature->GetAI() ? dynamic_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_AI == nullptr)
             return true;
@@ -396,7 +396,7 @@ namespace MS { namespace Garrison
     bool npc_SagePaluna::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         using namespace StablesData::Horde::SagePalunaQuestGiver;
-        GarrisonNPCAI* l_AI = p_Creature->GetAI() ? dynamic_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_AI == nullptr)
             return true;

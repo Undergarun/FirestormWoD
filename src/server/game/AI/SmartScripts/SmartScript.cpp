@@ -2308,7 +2308,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (l_Creature == nullptr || l_Creature->AI() == nullptr)
                 return;
 
-            MS::Garrison::GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());
+            GarrisonNPCAI* l_GarrisonAI = l_Creature->GarrAI();
 
             if (l_GarrisonAI != nullptr && l_GarrisonAI->GetOwner() != nullptr && l_GarrisonAI->GetOwner()->GetGarrison() != nullptr)
                 l_GarrisonAI->GetOwner()->GetGarrison()->UpdatePlot(l_GarrisonAI->GetPlotInstanceID());
