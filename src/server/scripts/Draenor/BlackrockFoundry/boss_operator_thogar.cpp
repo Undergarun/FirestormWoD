@@ -1543,6 +1543,17 @@ class areatrigger_foundry_prototype_pulse_grenade : public AreaTriggerEntityScri
 
                 std::set<uint64> l_Targets;
 
+                if (l_TargetList.empty())
+                    return;
+
+                l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                {
+                    if (!p_Unit->IsPlayer() && !p_Unit->ToUnit()->isCharmedOwnedByPlayerOrPlayer())
+                        return true;
+
+                    return false;
+                });
+
                 for (Unit* l_Iter : l_TargetList)
                 {
                     l_Targets.insert(l_Iter->GetGUID());
