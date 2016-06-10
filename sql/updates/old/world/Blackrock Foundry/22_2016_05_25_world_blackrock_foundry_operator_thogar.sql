@@ -14,10 +14,12 @@ REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEnt
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE(87841, 1, 108772, 107801, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE(81315, 1, 0, 0, 108426);
 
+DELETE FROM spell_script_names WHERE ScriptName = "spell_foundry_cauterizing_bolt_searcher" AND spell_id = 160177;
 DELETE FROM spell_script_names WHERE ScriptName = "spell_foundry_cauterizing_bolt" AND spell_id = 160140;
 DELETE FROM spell_script_names WHERE ScriptName = "spell_foundry_delayed_siege_bomb_periodic" AND spell_id = 159481;
 DELETE FROM spell_script_names WHERE ScriptName = "spell_foundry_berated" AND spell_id = 156281;
 INSERT INTO spell_script_names VALUES
+(160177, "spell_foundry_cauterizing_bolt_searcher"),
 (160140, "spell_foundry_cauterizing_bolt"),
 (159481, "spell_foundry_delayed_siege_bomb_periodic"),
 (156281, "spell_foundry_berated");

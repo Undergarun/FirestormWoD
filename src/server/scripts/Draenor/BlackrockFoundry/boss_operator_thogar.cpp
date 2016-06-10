@@ -1415,11 +1415,6 @@ class spell_foundry_berated : public SpellScriptLoader
         {
             PrepareSpellScript(spell_foundry_berated_SpellScript)
 
-            enum eSpell
-            {
-                TargetRestrict = 24223
-            };
-
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
                 if (p_Targets.empty())
