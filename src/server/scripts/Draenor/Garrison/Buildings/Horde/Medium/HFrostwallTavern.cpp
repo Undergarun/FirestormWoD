@@ -172,7 +172,7 @@ namespace MS { namespace Garrison
         if (l_GarrisonMgr == nullptr || l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(BuildingType::Inn)) < 2)
             return true;
 
-        if (!p_Player->HasQuest(Quests::Horde_TheHeadHunterHarverst) && !p_Player->IsQuestRewarded(Quests::Horde_TheHeadHunterHarverst))
+        if (!p_Player->IsQuestRewarded(Quests::Horde_TheHeadHunterHarverst))
             p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_TheHeadHunterHarverst, 4);
 
         if (p_Player->GetQuestStatus(Quests::Horde_TheHeadHunterHarverst) != QUEST_STATUS_NONE)
