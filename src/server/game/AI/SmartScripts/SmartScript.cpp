@@ -540,7 +540,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         tempLastInvoker->InterruptNonMeleeSpells(false);
 
                     if (!(e.action.cast.flags & SMARTCAST_AURA_NOT_PRESENT) || !(*itr)->ToUnit()->HasAura(e.action.cast.spell))
-                        tempLastInvoker->CastSpell((*itr)->ToUnit(), e.action.cast.spell, (e.action.cast.flags & SMARTCAST_TRIGGERED) ? true : false);
+                        /// HackFix for greenfire unlearning
+                        if (e.action.cast.spell == 139366)
+                            (*itr)->ToUnit()->CastSpell(tempLastInvoker, e.action.cast.spell, (e.action.cast.flags & SMARTCAST_TRIGGERED) ? true : false);
+                        else
+                            tempLastInvoker->CastSpell((*itr)->ToUnit(), e.action.cast.spell, (e.action.cast.flags & SMARTCAST_TRIGGERED) ? true : false);
                     else
                         sLog->outDebug(LOG_FILTER_DATABASE_AI, "Spell %u not casted because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (Guid: " UI64FMTD " Entry: %u Type: %u) already has the aura", e.action.cast.spell, (*itr)->GetGUID(), (*itr)->GetEntry(), uint32((*itr)->GetTypeId()));
 
@@ -2304,7 +2308,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (l_Creature == nullptr || l_Creature->AI() == nullptr)
                 return;
 
-            MS::Garrison::GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());
+            GarrisonNPCAI* l_GarrisonAI = l_Creature->ToGarrisonNPCAI();
 
             if (l_GarrisonAI != nullptr && l_GarrisonAI->GetOwner() != nullptr && l_GarrisonAI->GetOwner()->GetGarrison() != nullptr)
                 l_GarrisonAI->GetOwner()->GetGarrison()->UpdatePlot(l_GarrisonAI->GetPlotInstanceID());
@@ -2749,6 +2753,13 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 if (Unit* target = me->SelectNearestTarget(e.target.closestAttackable.maxDist))
                     l->push_back(target);
 
+            break;
+        }
+        case SMART_TARGET_CLOSEST_FRIENDLY:
+        {
+            if (me)
+                if (Unit* target = DoFindClosestFriendlyInRange(e.target.closestFriendly.maxDist, e.target.closestFriendly.playerOnly != 0))
+                    l->push_back(target);
             break;
         }
         case SMART_TARGET_POSITION:
@@ -3704,6 +3715,18 @@ void SmartScript::DoFindFriendlyMissingBuff(std::list<Creature*>& list, float ra
     TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::FriendlyMissingBuffInRange>, GridTypeMapContainer >  grid_creature_searcher(searcher);
 
     cell.Visit(p, grid_creature_searcher, *me->GetMap(), *me, range);
+}
+
+Unit* SmartScript::DoFindClosestFriendlyInRange(float range, bool playerOnly)
+{
+    if (!me)
+        return NULL;
+
+    Unit* unit = NULL;
+    JadeCore::AnyFriendlyUnitInObjectRangeCheckTC u_check(me, me, range, playerOnly);
+    JadeCore::UnitLastSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheckTC> searcher(me, unit, u_check);
+    me->VisitNearbyObject(range, searcher);
+    return unit;
 }
 
 void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)

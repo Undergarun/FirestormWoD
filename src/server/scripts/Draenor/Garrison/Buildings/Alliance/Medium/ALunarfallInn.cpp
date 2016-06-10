@@ -71,11 +71,17 @@ namespace MS { namespace Garrison
                 {
                     if (l_Entries.size() > 1)
                     {
-                        SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[1], TEMPSUMMON_MANUAL_DESPAWN);
-                        SummonRelativeCreature(l_Entries[1], g_QuestGiverAlliancePositions[2], TEMPSUMMON_MANUAL_DESPAWN);
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[1], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[1], g_QuestGiverAlliancePositions[2], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
                     }
                     else
-                        SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[0], TEMPSUMMON_MANUAL_DESPAWN);
+                    {
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[0], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+                    }
 
                     break;
                 }
@@ -83,11 +89,17 @@ namespace MS { namespace Garrison
                 {
                     if (l_Entries.size() > 1)
                     {
-                        SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[4], TEMPSUMMON_MANUAL_DESPAWN);
-                        SummonRelativeCreature(l_Entries[1], g_QuestGiverAlliancePositions[5], TEMPSUMMON_MANUAL_DESPAWN);
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[4], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[1], g_QuestGiverAlliancePositions[5], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
                     }
                     else
-                        SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[3], TEMPSUMMON_MANUAL_DESPAWN);
+                    {
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[3], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+                    }
 
                     break;
                 }
@@ -95,11 +107,17 @@ namespace MS { namespace Garrison
                 {
                     if (l_Entries.size() > 1)
                     {
-                        SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[7], TEMPSUMMON_MANUAL_DESPAWN);
-                        SummonRelativeCreature(l_Entries[1], g_QuestGiverAlliancePositions[8], TEMPSUMMON_MANUAL_DESPAWN);
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[7], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[1], g_QuestGiverAlliancePositions[8], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
                     }
                     else
-                        SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[6], TEMPSUMMON_MANUAL_DESPAWN);
+                    {
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[6], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+                    }
 
                     break;
                 }
@@ -166,7 +184,7 @@ namespace MS { namespace Garrison
     {
         if (p_Action == GOSSIP_ACTION_INFO_DEF)
         {
-            GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+            GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
             if (l_AI == nullptr)
                 return true;

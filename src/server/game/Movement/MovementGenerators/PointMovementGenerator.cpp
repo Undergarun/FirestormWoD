@@ -16,6 +16,7 @@
 #include "Player.h"
 #include "CreatureGroups.h"
 #include "ObjectAccessor.h"
+#include <stack>
 
 //----- Point Movement Generator
 template<class T>
@@ -81,6 +82,33 @@ void PointMovementGenerator<T>::DoFinalize(T* unit)
 {
     if (unit->HasUnitState(UNIT_STATE_CHARGING))
         unit->ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
+
+    /// Update all passengers after updating vehicle position
+    /// This will prevent some base positioning if vehicles are updated in the wrong order
+    if (unit->GetVehicleBase())
+    {
+        std::stack<Unit*> l_RecursivesVehicles;
+        Unit* l_Current = unit;
+
+        do
+        {
+            l_Current = l_Current->GetVehicleBase();
+
+            if (l_Current != nullptr)
+                l_RecursivesVehicles.push(l_Current);
+        }
+        while (l_Current);
+
+        while (!l_RecursivesVehicles.empty())
+        {
+            Unit* l_Vehicle = l_RecursivesVehicles.top();
+
+            l_Vehicle->UpdateSplinePosition();
+            l_RecursivesVehicles.pop();
+        }
+
+        unit->UpdateSplinePosition();
+    }
 
     if (unit->movespline->Finalized())
         MovementInform(unit);

@@ -1196,6 +1196,12 @@ struct SmartTarget
 
         struct
         {
+            uint32 maxDist;
+            uint32 playerOnly;
+        } closestFriendly;
+
+        struct
+        {
             uint32 param1;
             uint32 param2;
             uint32 param3;

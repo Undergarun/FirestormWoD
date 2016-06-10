@@ -86,6 +86,10 @@ enum eFoundryCreatures
     BossDreadwing           = 76874,
     BossIroncrusher         = 76945,
     ThunderlordPackPens     = 77631,
+    GromkarManAtArms        = 78832,
+    IronRaider              = 81197,
+    IronCrackShot           = 81315,
+    GromkarFiremender       = 87841,
     /// Operator Thogar
     BossOperatorThogar      = 76906,
     /// Iron Maidens
@@ -155,6 +159,15 @@ enum eFoundryGameObjects
     TheBeastGate                = 231841,
     BeastsEnclosureDoor         = 232021,
     TerminusDoor                = 237307,
+    IronGate                    = 231842,
+    MassiveDoorTrack4Right      = 231843,
+    MassiveDoorTrack3Right      = 231844,
+    MassiveDoorTrack2Right      = 231845,
+    MassiveDoorTrack1Right      = 231846,
+    MassiveDoorTrack4Left       = 231848,
+    MassiveDoorTrack3Left       = 231847,
+    MassiveDoorTrack2Left       = 231849,
+    MassiveDoorTrack1Left       = 231850,
     /// Blackhand's Crucible - Part 4
     SpikeGate                   = 232556,
     CrucibleDoor                = 233006
@@ -190,6 +203,8 @@ enum eFoundryDatas
     AknorDied,
     GraspingEarthTime,
     DarmacBeastMountedFirst,
+    DataAfterFightAddCount,
+    DataThogarIntroStarted,
 
     /// Counters
     /// Gruul
@@ -208,7 +223,12 @@ enum eFoundryDatas
     /// Beastlord Darmac
     DataDreadwingFirst      = 1,
     DataIronCrusherFirst    = 2,
-    DataCruelfangFirst      = 3
+    DataCruelfangFirst      = 3,
+    /// After Beastlord Darmac fight counters
+    DataGromkarManAtArms    = 1,
+    DataIronRaider          = 2,
+    DataIronCrackShot       = 2,
+    DataGromkarFiremender   = 2
 };
 
 enum eFoundrySpells
@@ -256,5 +276,28 @@ enum eFoundryDungeons
     IronAssembly        = 848,
     BlackhandsCrucible  = 823
 };
+
+Position const g_GromkarManAtArmsMovePos = { 379.8316f, 3322.484f, 303.9331f, 0.0f };
+
+Position const g_IronRaiderMovePos[eFoundryDatas::DataIronRaider] =
+{
+    { 385.01f, 3310.060f, 303.6845f, M_PI },
+    { 384.85f, 3316.058f, 303.6845f, M_PI }
+};
+
+Position const g_IronCrackShotMovePos[eFoundryDatas::DataIronCrackShot] =
+{
+    { 395.39f, 3313.339f, 303.6845f, M_PI },
+    { 395.47f, 3310.340f, 303.6845f, M_PI }
+};
+
+Position const g_GromkarFiremenderMovePos[eFoundryDatas::DataGromkarFiremender] =
+{
+    { 384.93f, 3313.059f, 303.6845f, M_PI },
+    { 395.32f, 3316.338f, 303.6845f, M_PI }
+};
+
+Position const g_GromkarManAtArmsIntroRightPos  = { 502.17f, 3275.37f, 305.984f, 0.538223f };
+Position const g_GromkarManAtArmsIntroLeftPos   = { 501.031f, 3348.45f, 306.277f, 5.37476f };
 
 #endif

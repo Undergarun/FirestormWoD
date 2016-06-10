@@ -61,7 +61,7 @@
 #include "PetBattle.h"
 #include "PathGenerator.h"
 #include "Chat.h"
-#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
 {
@@ -8400,7 +8400,7 @@ void Spell::EffectFinishGarrisonMission(SpellEffIndex /*p_EffIndex*/)
 
 void Spell::EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex)
 {
-    if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+    if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_HIT)
         return;
 
     if (Player* l_Player = m_caster->ToPlayer())
@@ -8419,23 +8419,28 @@ void Spell::EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex)
 
             if (l_PlotInstanceID)
             {
-                std::vector<GarrisonWorkOrder> l_Orders = l_GarrisonMgr->GetBuildingWorkOrders(l_PlotInstanceID);
+                std::vector<MS::Garrison::GarrisonWorkOrder>& l_PlotWorkOrder = l_GarrisonMgr->GetWorkOrders();
+                uint8 l_Itr = 0;
 
-                if (l_Orders.size() > l_ShipmentCount)
+                if (l_PlotWorkOrder.size() > 0)
                 {
-                    for (uint8 l_Itr = 0; l_Itr < l_ShipmentCount; ++l_Itr)
-                    {
-                        if (l_Itr >= l_Orders.size())
-                            break;
+                    uint32 l_CurrentTimeStamp = time(0);
 
-                        l_Orders[l_Itr].CompleteTime = time(0);
+                    for (uint32 l_OrderI = 0; l_OrderI < l_PlotWorkOrder.size(); ++l_OrderI)
+                    {
+                        if (l_PlotWorkOrder[l_OrderI].PlotInstanceID == l_PlotInstanceID)
+                        {
+                            ++l_Itr;
+
+                            if (l_Itr > l_ShipmentCount)
+                                break;
+
+                            l_PlotWorkOrder[l_OrderI].CompleteTime = l_CurrentTimeStamp;
+                        }
                     }
                 }
-                else
-                {
-                    for (GarrisonWorkOrder l_Order : l_Orders)
-                        l_Order.CompleteTime = time(0);
-                }
+
+                m_caster->CastSpell(m_caster, 180704, true); ///< Rush Order visual
             }
         }
     }

@@ -314,7 +314,7 @@ const char TotemCategoryEntryfmt[]            = "nxii";
 char const TransportAnimationfmt[]            = "diifffx";
 char const TransportRotationfmt[]             = "diiffff";
 const char WorldMapOverlayEntryfmt[]          = "nxiiiixxxxxxxxxx";
-const char SpellProcsPerMinuteEntryfmt[]      = "nfx";
+const char SpellProcsPerMinuteEntryfmt[]      = "nfi";
 char const SpellProcsPerMinuteModfmt[]        = "niifi";
 const char QuestPOIPointfmt[]                 = "niii";
 

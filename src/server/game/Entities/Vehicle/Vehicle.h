@@ -41,12 +41,10 @@ class Vehicle : public TransportBase
 
         bool CheckCustomCanEnter();
         bool AddPassenger(Unit* passenger, int8 seatId = -1);
-        void EjectPassenger(Unit* passenger, Unit* controller);
         void RemovePassenger(Unit* passenger);
         void RelocatePassengers();
         void RemoveAllPassengers(bool dismount = false);
         void Dismiss();
-        void TeleportVehicle(float x, float y, float z, float ang);
         bool IsVehicleInUse() const;
 
         inline bool ArePassengersSpawnedByAI() const { return _passengersSpawnedByAI; }

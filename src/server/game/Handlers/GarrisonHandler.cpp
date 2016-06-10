@@ -16,7 +16,7 @@
 #include "CreatureAI.h"
 #include "Chat.h"
 #include "ScriptMgr.h"
-#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 #include "../../scripts/Draenor/Garrison/GarrisonNPC.hpp"
 
 void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& /*p_RecvData*/)
@@ -570,8 +570,8 @@ void WorldSession::HandleGarrisonGenerateRecruitsOpcode(WorldPacket& p_RecvData)
         return;
     }
 
-    if (l_Unit->AI())
-        static_cast<MS::Garrison::GarrisonNPCAI*>(l_Unit->AI())->SendRecruitmentFollowersGenerated(m_Player, l_AbilityID ? l_AbilityID : l_TraitID, 0, l_TraitID ? true : false);
+    if (l_Unit->ToGarrisonNPCAI())
+        l_Unit->ToGarrisonNPCAI()->SendRecruitmentFollowersGenerated(m_Player, l_AbilityID ? l_AbilityID : l_TraitID, 0, l_TraitID ? true : false);
 }
 
 void WorldSession::HandleGarrisonSetRecruitmentPreferencesOpcode(WorldPacket& p_RecvData)
@@ -643,6 +643,11 @@ void WorldSession::HandleGarrisonRecruitFollower(WorldPacket& p_RecvData)
             break;
         }
     }
+
+    if (m_Player->GetTeamId() == TEAM_ALLIANCE && m_Player->GetQuestStatus(MS::Garrison::Quests::Alliance_TheHeadHunterHarverst) == QUEST_STATUS_INCOMPLETE)
+        m_Player->QuestObjectiveSatisfy(39383, 1, 14);
+    else if (m_Player->GetTeamId() == TEAM_HORDE && m_Player->GetQuestStatus(MS::Garrison::Quests::Horde_TheHeadHunterHarverst) == QUEST_STATUS_INCOMPLETE)
+        m_Player->QuestObjectiveSatisfy(39418, 1, 14);
 
     m_Player->SendDirectMessage(&l_RecruitmentResult);
     m_Player->PlayerTalkClass->SendCloseGossip();

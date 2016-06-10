@@ -578,7 +578,6 @@ namespace MS { namespace Garrison
             }
     };
 
-    /// Pneumatic Power Gauntlet - 168555
     class spell_garrison_combine_scribe_items : public SpellScriptLoader
     {
         public:
@@ -592,7 +591,12 @@ namespace MS { namespace Garrison
                 {
                     Unit* l_Caster = GetCaster();
 
-                    if (l_Caster == nullptr || l_Caster->GetTypeId() != TYPEID_PLAYER)
+                    if (l_Caster == nullptr)
+                        return;
+
+                    Player* l_Player = l_Caster->ToPlayer();
+
+                    if (l_Player == nullptr)
                         return;
 
                     uint32 l_RewardID = 119027;
@@ -607,15 +611,15 @@ namespace MS { namespace Garrison
                     uint32 l_NoSpaceForCount = 0;
                     ItemPosCountVec l_Destination;
 
-                    InventoryResult l_Message = l_Caster->ToPlayer()->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardID, 1, &l_NoSpaceForCount);
+                    InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardID, 1, &l_NoSpaceForCount);
 
                     if (l_Message == EQUIP_ERR_OK)
                     {
-                        if (Item* l_Item = l_Caster->ToPlayer()->StoreNewItem(l_Destination, l_RewardID, true, Item::GenerateItemRandomPropertyId(l_RewardID)))
-                            l_Caster->ToPlayer()->SendNewItem(l_Item, 1, true, false, false);
+                        if (Item* l_Item = l_Player->StoreNewItem(l_Destination, l_RewardID, true, Item::GenerateItemRandomPropertyId(l_RewardID)))
+                            l_Player->SendNewItem(l_Item, 1, true, false, false);
                     }
                     else
-                        l_Caster->ToPlayer()->SendEquipError(l_Message, nullptr, nullptr, l_RewardID);
+                        l_Player->SendEquipError(l_Message, nullptr, nullptr, l_RewardID);
                 }
 
                 void Register()
@@ -630,12 +634,56 @@ namespace MS { namespace Garrison
             }
     };
 
+    class spell_garrison_rush_order : public SpellScriptLoader
+    {
+        public:
+            spell_garrison_rush_order() : SpellScriptLoader("spell_garrison_rush_order") { }
+
+            class spell_garrison_rush_order_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_garrison_rush_order_SpellScript)
+
+                void HandleCast(SpellEffIndex p_EffIndex)
+                {
+                    Unit* l_Caster = GetCaster();
+
+                    if (l_Caster == nullptr)
+                        return;
+
+                    Player* l_Player = l_Caster->ToPlayer();
+
+                    if (l_Player == nullptr)
+                        return;
+
+                    SpellInfo const* l_SpellInfo = GetSpellInfo();
+
+                    if (l_SpellInfo == nullptr)
+                        return;
+
+                    if (l_Player->GetTeamId() != l_SpellInfo->Effects[p_EffIndex].BasePoints)
+                        PreventHitEffect(p_EffIndex);
+                }
+
+                void Register() override
+                {
+                    OnEffectLaunch += SpellEffectFn(spell_garrison_rush_order_SpellScript::HandleCast, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_TRIGGER_SPELL);
+                    OnEffectLaunch += SpellEffectFn(spell_garrison_rush_order_SpellScript::HandleCast, SpellEffIndex::EFFECT_1, SpellEffects::SPELL_EFFECT_TRIGGER_SPELL);
+                }
+            };
+
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_garrison_rush_order_SpellScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
 #ifndef __clang_analyzer__
 void AddSC_Garrison()
 {
+    new MS::Garrison::spell_garrison_rush_order();
     new MS::Garrison::spell_garrison_combine_scribe_items();
     new MS::Garrison::spell_aura_garrison_skyterror_falling();
     new MS::Garrison::spell_garrison_stables_lasso();

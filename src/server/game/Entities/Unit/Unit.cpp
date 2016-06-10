@@ -514,6 +514,20 @@ void Unit::UpdateSplinePosition()
         l_Location.orientation = GetOrientation();
 
     UpdatePosition(l_Location.x, l_Location.y, l_Location.z, l_Location.orientation);
+
+    /// Update all passengers after updating vehicle position
+    /// This will prevent some base positioning if vehicles are updated in the wrong order
+    if (Vehicle* l_Vehicle = GetVehicleKit())
+    {
+        for (int8 l_I = 0; l_I < MAX_VEHICLE_SEATS; ++l_I)
+        {
+            if (Unit* l_Passenger = l_Vehicle->GetPassenger(l_I))
+            {
+                if (l_Passenger->movespline->Initialized())
+                    l_Passenger->UpdateSplinePosition();
+            }
+        }
+     }
 }
 
 void Unit::DisableSpline()
@@ -1449,6 +1463,18 @@ void Unit::CastSpell(Position const p_Pos, uint32 p_SpellID, bool p_Triggered, I
 
     SpellCastTargets l_Targets;
     l_Targets.SetDst(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_Pos.m_orientation);
+
+    CastSpell(l_Targets, l_SpellInfo, nullptr, p_Triggered ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE, p_CastItem, p_AurEff, p_OriginalCaster);
+}
+
+void Unit::CastSpell(SpellDestination const* p_Dest, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, AuraEffect const* p_AurEff /*= nullptr*/, uint64 p_OriginalCaster /*= 0*/)
+{
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
+    if (!l_SpellInfo)
+        return;
+
+    SpellCastTargets l_Targets;
+    l_Targets.SetDst(p_Dest->_position.m_positionX, p_Dest->_position.m_positionY, p_Dest->_position.m_positionZ, p_Dest->_position.m_orientation);
 
     CastSpell(l_Targets, l_SpellInfo, nullptr, p_Triggered ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE, p_CastItem, p_AurEff, p_OriginalCaster);
 }
@@ -11659,7 +11685,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     }
 
     uint32 creatureTypeMask = victim->GetCreatureTypeMask(); ///> creatureTypeMask is unused
-    
+
     // done scripted mod (take it from owner)
     Unit const* owner = GetOwner() ? GetOwner() : this;
     AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
@@ -11684,8 +11710,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
             }
         }
     }
-    
-    
+
+
 
     // Custom scripted damage
     switch (spellProto->SpellFamilyName)
@@ -13653,7 +13679,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         player->UnsummonCurrentBattlePetIfAny(true);
         player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true));
 
-        if ((mount == 19296 || mount == 19085) && player->HasAura(57958)) // TODO: we need to create a new trigger flag - on mount, to handle it properly
+        if ((mount == 19296 || mount == 19085 || mount == 31367 || mount == 31368 || mount == 8469 || mount == 14548 || mount == 30366 || mount == 30501 || mount == 28919) && player->HasAura(57958)) // TODO: we need to create a new trigger flag - on mount, to handle it properly
             player->AddAura(20217, player);
 
         sScriptMgr->OnPlayerMount(player, creatureEntry);
@@ -15996,7 +16022,7 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
     /// Hook playerScript OnModifyPower
     if (IsPlayer())
         sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, m_powers[l_PowerIndex], p_PowerValue, p_Regen, false);
-    
+
     uint32 l_OldPower = m_powers[l_PowerIndex];
 
     m_powers[l_PowerIndex] = p_PowerValue;
@@ -17224,11 +17250,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         if (procSpell && HandleSpellCritChanceAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                             takeCharges = true;
                         break;
-                    /*case SPELL_AURA_ADD_FLAT_MODIFIER:
-                    case SPELL_AURA_ADD_PCT_MODIFIER:
-                        HandleModifierAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown);
-                        takeCharges = false;
-                        break;*/
                     default:
                         // nothing do, just charges counter
                         // Don't drop charge for Earth Shield because of second effect
@@ -18286,8 +18307,8 @@ bool Unit::RollProcResult(Unit* victim, Aura* aura, WeaponAttackType attType, bo
     if (spellProcEvent && spellProcEvent->customChance)
         chance = spellProcEvent->customChance;
     // If PPM exist calculate chance from PPM
-    float procsPerMinute = spellInfo->ProcsPerMinute;
-    if (procsPerMinute == 0.0f && spellProcEvent && spellProcEvent->ppmRate != 0.0f)
+    float procsPerMinute = spellInfo->ProcBasePPM;
+    if (spellProcEvent && spellProcEvent->ppmRate != 0.0f)
         procsPerMinute = spellProcEvent->ppmRate;
 
     if (procsPerMinute != 0.0f)
@@ -18888,7 +18909,7 @@ Position Unit::GetInterpolatedPosition(bool p_AtClientScreen, uint32 p_ProjectTi
     float l_Distance = (l_CurrentTime - l_LastMoveTimeStamp) / 1000.0f;
 
     uint32 l_MovementFlags = m_movementInfo.GetMovementFlags();
-    
+
     if ((l_MovementFlags & MOVEMENTFLAG_STRAFE_LEFT) != 0)
         l_Orientation += M_PI / 2.0f;
     else if ((l_MovementFlags & MOVEMENTFLAG_STRAFE_RIGHT) != 0)

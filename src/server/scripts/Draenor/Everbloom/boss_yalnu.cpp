@@ -171,20 +171,20 @@ public:
             }     
         }
     
-		/*
         void MoveInLineOfSight(Unit* p_Who) override
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 14.0f) && !m_EncounterBegin)
             {
-                if (m_Instance->GetBossState(eEverbloomData::DataArchmageSol) == EncounterState::DONE)
-                {
-                    m_EncounterBegin = true;
-                    me->RemoveAllAuras();
-                    me->GetMotionMaster()->MovePoint(eYalnuMovementInformed::MovementYalnuPoint1, g_PositionYalnuMoveToPortal.GetPositionX(), g_PositionYalnuMoveToPortal.GetPositionY(), g_PositionYalnuMoveToPortal.GetPositionZ());
-                }
+				if (m_Instance->GetBossState(eEverbloomData::DataArchmageSol) == EncounterState::DONE)
+				{
+					m_EncounterBegin = true;
+					me->RemoveAllAuras();
+					me->GetMotionMaster()->MovePoint(eYalnuMovementInformed::MovementYalnuPoint1, g_PositionYalnuMoveToPortal.GetPositionX(), g_PositionYalnuMoveToPortal.GetPositionY(), g_PositionYalnuMoveToPortal.GetPositionZ());
+				}
+				else
+					me->MonsterSay("debug: instance is not done sol kapaaaaraa", LANG_UNIVERSAL, me->GetGUID());
             }
         }
-		*/
 
         void MovementInform(uint32 p_Type, uint32 p_Id) override
         {
@@ -268,16 +268,8 @@ public:
         }
 
         void UpdateAI(uint32 const p_Diff) override
-        {		
-			if (m_Instance->GetBossState(eEverbloomData::DataArchmageSol) == EncounterState::DONE)
-			{
-				if (me->FindNearestPlayer(2.0f, true) && !m_EncounterBegin)
-				{
-					m_EncounterBegin = true;
-					me->RemoveAllAuras();
-					me->GetMotionMaster()->MovePoint(eYalnuMovementInformed::MovementYalnuPoint1, g_PositionYalnuMoveToPortal.GetPositionX(), g_PositionYalnuMoveToPortal.GetPositionY(), g_PositionYalnuMoveToPortal.GetPositionZ());
-				}
-			}
+        {
+
 
             if (!UpdateVictim())
                 return;
@@ -291,7 +283,7 @@ public:
             {
                 case eYalnuEvents::EventGenesis:
                 {
-                    me->MonsterTextEmote("|TInterface\\Icons\\Ability_Druid_EmpoweredTouch:20|t Yalnu begins to channel |cFFFF0404|Hspell:169613|h[Genesis]|h|r.", LANG_UNIVERSAL, me->GetGUID());
+                    me->MonsterTextEmote("|TInterface\\Icons\\Ability_Druid_EmpoweredTouch:20|t Yalnu begins to channel |cFFFF0404|Hspell:169613|h[Genesis]|h|r.", me->GetGUID(), true);
                     me->CastSpell(me, eYalnuSpells::SpellGenesis);
                     events.ScheduleEvent(eYalnuEvents::EventGenesis, 45 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -970,7 +962,7 @@ public:
 /// Trigger Teleport - 324251
 class the_everbloom_yalnu_creature_teleport_to_boss : public CreatureScript
 {
-	public:
+public:
 
     the_everbloom_yalnu_creature_teleport_to_boss() : CreatureScript("the_everbloom_yalnu_creature_teleport_to_boss") { }
 
