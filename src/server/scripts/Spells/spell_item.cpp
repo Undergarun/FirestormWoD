@@ -4806,6 +4806,43 @@ class spell_item_hypnotize_critter : public SpellScriptLoader
         }
 };
 
+/// Enduring Elixir of Wisdom - 146939 (item 103557)
+class spell_item_enduring_elixir_of_wisdom : public SpellScriptLoader
+{
+public:
+    spell_item_enduring_elixir_of_wisdom() : SpellScriptLoader("spell_item_enduring_elixir_of_wisdom") { }
+
+    class spell_item_enduring_elixir_of_wisdom_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_enduring_elixir_of_wisdom_SpellScript);
+
+        enum eSpells
+        {
+            EnduringElixirOfWisdomBonus = 146929
+        };
+
+        void AfterCast()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            l_Caster->CastSpell(l_Caster, eSpells::EnduringElixirOfWisdomBonus, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_enduring_elixir_of_wisdom_SpellScript::AfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_enduring_elixir_of_wisdom_SpellScript();
+    }
+};
+
+#ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4901,4 +4938,6 @@ void AddSC_item_spell_scripts()
     new spell_item_sargerei_disguise();
     new spell_item_swapblaster();
     new spell_item_hypnotize_critter();
+    new spell_item_enduring_elixir_of_wisdom();
 }
+#endif
