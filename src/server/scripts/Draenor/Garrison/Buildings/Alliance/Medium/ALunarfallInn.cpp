@@ -42,7 +42,7 @@ namespace MS { namespace Garrison
         return new npc_MadisonClarkAI(p_Creature);
     }
 
-    void npc_MadisonClarkAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
+    void npc_MadisonClarkAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
         if (Player* l_Player = GetOwner())
         {
@@ -63,7 +63,11 @@ namespace MS { namespace Garrison
             std::vector<uint32>& l_Entries = l_GarrisonMgr->GetGarrisonDailyTavernDatas();
 
             if (l_Entries.empty())
+            {
+                l_GarrisonMgr->ResetGarrisonDailyTavernData();
+                OnSetPlotInstanceID(p_PlotInstanceID);
                 return;
+            }
 
             switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(MS::Garrison::BuildingType::Inn)))
             {
@@ -164,10 +168,10 @@ namespace MS { namespace Garrison
         if (l_GarrisonMgr == nullptr || l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(BuildingType::Inn)) < 2)
             return true;
 
-        if (!p_Player->HasQuest(Quests::Alliance_TheHeadHunterHarverst) && !p_Player->IsQuestRewarded(Quests::Alliance_TheHeadHunterHarverst))
+        if (!p_Player->IsQuestRewarded(Quests::Alliance_TheHeadHunterHarverst))
             p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_TheHeadHunterHarverst, 4);
 
-        if (p_Player->GetQuestStatus(Quests::Alliance_TheHeadHunterHarverst) != QUEST_STATUS_NONE && l_GarrisonMgr->GetGarrisonWeeklyTavernDatas().empty())
+        if (p_Player->GetQuestStatus(Quests::Alliance_TheHeadHunterHarverst) != QUEST_STATUS_NONE)
             p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::FollowerRecruitment, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
