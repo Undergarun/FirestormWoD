@@ -8929,30 +8929,48 @@ void Player::RewardReputation(Unit* victim, float rate)
 
     ReputationOnKillEntry const* Rep = sObjectMgr->GetReputationOnKilEntry(victim->ToCreature()->GetCreatureTemplate()->Entry);
 
-    if (!Rep)
-        return;
-
-    uint32 ChampioningFaction = 0;
-
-    if (GetChampioningFaction())
+    if (GetChampioningFaction() && !Rep && victim->ToCreature())
     {
-        // support for: Championing - http://www.wowwiki.com/Championing
+        /// Support for: Championing - http://www.wowwiki.com/Championing
 
-        Map const* map = GetMap();
-        if (map && map->IsDungeon())
+        Map const* l_Map = GetMap();
+        if (l_Map && l_Map->IsDungeon() && !l_Map->IsRaid())
         {
-            InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(map->GetId());
-            if (instance)
+            AccessRequirement const* l_AccessRequirement = sObjectMgr->GetAccessRequirement(l_Map->GetId(), ((InstanceMap*)l_Map)->GetDifficultyID());
+            if (l_AccessRequirement && l_AccessRequirement->levelMin >= 80)
             {
-                AccessRequirement const* pAccessRequirement = sObjectMgr->GetAccessRequirement(map->GetId(), ((InstanceMap*)map)->GetDifficultyID());
-                if (pAccessRequirement)
+                uint32 l_ReputationGain = 0;
+
+                switch (victim->ToCreature()->GetCreatureTemplate()->rank)
                 {
-                    if (!map->IsRaid() && pAccessRequirement->levelMin == 80)
-                        ChampioningFaction = GetChampioningFaction();
+                    case CREATURE_ELITE_TRIVIAL:
+                    case CREATURE_ELITE_NORMAL:
+                    case CREATURE_ELITE_RARE:
+                        l_ReputationGain = l_Map->GetDifficultyID() == DifficultyHeroic ? 5 : 3;
+                        break;
+                    case CREATURE_ELITE_ELITE:
+                        l_ReputationGain = 15;
+                        break;
+                    case CREATURE_ELITE_RAREELITE:
+                        l_ReputationGain = 300;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (l_ReputationGain)
+                {
+                    FactionEntry const* l_FactionEntry = sFactionStore.LookupEntry(GetChampioningFaction());
+
+                    if (l_FactionEntry)
+                        GetReputationMgr().ModifyReputation(l_FactionEntry, l_ReputationGain);
                 }
             }
         }
     }
+
+    if (!Rep)
+        return;
 
     // Favored reputation increase START
     uint32 zone = GetZoneId();
@@ -8960,7 +8978,7 @@ void Player::RewardReputation(Unit* victim, float rate)
     float favored_rep_mult = 0;
 
     if ((HasAura(32096) || HasAura(32098)) && (zone == 3483 || zone == 3562 || zone == 3836 || zone == 3713 || zone == 3714)) favored_rep_mult = 0.25; // Thrallmar's Favor and Honor Hold's Favor
-    else if (HasAura(30754) && (Rep->RepFaction1 == 609 || Rep->RepFaction2 == 609) && !ChampioningFaction)                   favored_rep_mult = 0.25; // Cenarion Favor
+    else if (HasAura(30754) && (Rep->RepFaction1 == 609 || Rep->RepFaction2 == 609))                   favored_rep_mult = 0.25; // Cenarion Favor
 
     if (favored_rep_mult > 0) favored_rep_mult *= 2; // Multiplied by 2 because the reputation is divided by 2 for some reason (See "donerep1 / 2" and "donerep2 / 2") -- if you know why this is done, please update/explain :)
     // Favored reputation increase END
@@ -8969,13 +8987,13 @@ void Player::RewardReputation(Unit* victim, float rate)
 
     if (Rep->RepFaction1 && (!Rep->TeamDependent || team == ALLIANCE))
     {
-        int32 donerep1 = CalculateReputationGain(victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : Rep->RepFaction1, false);
+        int32 donerep1 = CalculateReputationGain(victim->getLevel(), Rep->RepValue1, Rep->RepFaction1, false);
         donerep1 = int32(donerep1*(rate + favored_rep_mult));
 
         if (recruitAFriend)
             donerep1 = int32(donerep1 * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
 
-        FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
+        FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(Rep->RepFaction1);
         uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
         if (factionEntry1 && current_reputation_rank1 <= Rep->ReputationMaxCap1)
             GetReputationMgr().ModifyReputation(factionEntry1, donerep1);
@@ -8983,13 +9001,13 @@ void Player::RewardReputation(Unit* victim, float rate)
 
     if (Rep->RepFaction2 && (!Rep->TeamDependent || team == HORDE))
     {
-        int32 donerep2 = CalculateReputationGain(victim->getLevel(), Rep->RepValue2, ChampioningFaction ? ChampioningFaction : Rep->RepFaction2, false);
+        int32 donerep2 = CalculateReputationGain(victim->getLevel(), Rep->RepValue2, Rep->RepFaction2, false);
         donerep2 = int32(donerep2*(rate + favored_rep_mult));
 
         if (recruitAFriend)
             donerep2 = int32(donerep2 * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
 
-        FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction2);
+        FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(Rep->RepFaction2);
         uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
         if (factionEntry2 && current_reputation_rank2 <= Rep->ReputationMaxCap2)
             GetReputationMgr().ModifyReputation(factionEntry2, donerep2);
