@@ -1007,7 +1007,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
                 uint32 rating = l_Player->GetArenaPersonalRating(slot);
                 l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
                 l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
-                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD), true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::Arena);
             }
             else
             {
@@ -1038,7 +1038,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
                     l_Player->KilledMonsterCredit(66623);
                 }
 
-                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD));
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD), true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundRated);
 
                 int32 MMRating_mod = Arena::GetMatchmakerRatingMod(winner_matchmaker_rating, loser_matchmaker_rating, true);
                 l_Player->SetArenaMatchMakerRating(SLOT_RBG, l_Player->GetArenaMatchMakerRating(SLOT_RBG) + MMRating_mod);
@@ -1083,12 +1083,12 @@ void Battleground::EndBattleground(uint32 p_Winner)
 
             if (IsSkirmish())
             {
-                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, ArenaSkirmishRewards::ConquestPointsWinner, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, ArenaSkirmishRewards::ConquestPointsWinner, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::Arena);
 
                 uint32 l_HonorReward = ArenaSkirmishRewards::HonorPointsWinnerBase;
                 l_HonorReward += ArenaSkirmishRewards::HonorPointsWinnerBonusPerMinute * (GetElapsedTime() / (IN_MILLISECONDS * MINUTE));
 
-                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, l_HonorReward, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
+                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, l_HonorReward, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::Arena);
             }
 
             l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
@@ -1115,7 +1115,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
             }
 
             if (IsSkirmish())
-                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, ArenaSkirmishRewards::HonorPointLoser, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
+                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, ArenaSkirmishRewards::HonorPointLoser, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::Arena);
         }
 
         l_Player->ResetAllPowers();
@@ -1659,7 +1659,7 @@ void Battleground::UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 
                     if (isBattleground())
                         p_Source->RewardHonor(nullptr, 1, p_Value, false, p_RewardCurrencyType);
                     else
-                        p_Source->RewardHonor(nullptr, 1, p_Value, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
+                        p_Source->RewardHonor(nullptr, 1, p_Value, false, MS::Battlegrounds::RewardCurrencyType::Type::Arena);
                 }
                 else
                     itr->second->BonusHonor += p_Value;
