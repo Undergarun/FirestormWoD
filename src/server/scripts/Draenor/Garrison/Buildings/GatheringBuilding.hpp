@@ -363,8 +363,8 @@ namespace MS { namespace Garrison
             /// @p_Action   : Action
             virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/) override
             {
-                if (p_Player && p_Creature && p_Creature->GarrAI() && p_Creature->GetScriptName() == CreatureScript::GetName() && p_Player->IsQuestRewarded(t_QuestID))
-                    p_Creature->GarrAI()->SendShipmentCrafterUI(p_Player);
+                if (p_Player && p_Creature && p_Creature->ToGarrisonNPCAI() && p_Creature->GetScriptName() == CreatureScript::GetName() && p_Player->IsQuestRewarded(t_QuestID))
+                    p_Creature->ToGarrisonNPCAI()->SendShipmentCrafterUI(p_Player);
 
                 return true;
             }

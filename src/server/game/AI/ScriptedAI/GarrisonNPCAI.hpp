@@ -10,8 +10,14 @@
 #include "GarrisonMgr.hpp"
 #include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
-struct MS::Garrison::SequencePosition;
-struct MS::Garrison::GarrisonPlotInstanceInfoLocation;
+namespace MS
+{
+    namespace Garrison
+    {
+        struct SequencePosition;
+        struct GarrisonPlotInstanceInfoLocation;
+    }
+}
 
 class GarrisonNPCAI : public MS::AI::CosmeticAI
 {

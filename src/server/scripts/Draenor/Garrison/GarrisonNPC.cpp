@@ -707,9 +707,9 @@ namespace MS { namespace Garrison
         {
             if (Creature* l_Creature = sObjectAccessor->GetCreature(*p_Player, *l_Itr))
             {
-                if (l_Creature->GarrAI())
+                if (l_Creature->ToGarrisonNPCAI())
                 {
-                    GarrisonNPCAI* l_GarrisonAI = l_Creature->GarrAI();
+                    GarrisonNPCAI* l_GarrisonAI = l_Creature->ToGarrisonNPCAI();
 
                     if (l_GarrisonAI != nullptr && l_GarrisonAI->GetOwner() != nullptr)
                         l_GarrisonAI->GetOwner()->GetGarrison()->UpdatePlot(l_GarrisonAI->GetPlotInstanceID());
@@ -778,7 +778,7 @@ namespace MS { namespace Garrison
                             break;
                     }
 
-                    GarrisonNPCAI* l_GarrisonAI = p_Creature->GarrAI();
+                    GarrisonNPCAI* l_GarrisonAI = p_Creature->ToGarrisonNPCAI();
 
                     if (l_GarrisonAI == nullptr)
                         return false;
@@ -837,7 +837,7 @@ namespace MS { namespace Garrison
                     l_Recipes.push_back({ 176425, 0 }); ///< Voodoo Doctor's Hovel
                     l_Recipes.push_back({ 176420, 0 }); ///< Simple Tent
 
-                    GarrisonNPCAI* l_GarrisonAI = p_Creature->GarrAI();
+                    GarrisonNPCAI* l_GarrisonAI = p_Creature->ToGarrisonNPCAI();
 
                     if (l_GarrisonAI == nullptr)
                         return false;
@@ -896,7 +896,7 @@ namespace MS { namespace Garrison
                         { 175074, 0 }
                     };
 
-                    GarrisonNPCAI* l_GarrisonAI = p_Creature->GarrAI();
+                    GarrisonNPCAI* l_GarrisonAI = p_Creature->ToGarrisonNPCAI();
 
                     if (l_GarrisonAI == nullptr)
                         return false;
@@ -914,7 +914,7 @@ namespace MS { namespace Garrison
                         { 176513, 0 }
                     };
 
-                    GarrisonNPCAI* l_GarrisonAI = p_Creature->GarrAI();
+                    GarrisonNPCAI* l_GarrisonAI = p_Creature->ToGarrisonNPCAI();
 
                     if (l_GarrisonAI == nullptr)
                         return false;

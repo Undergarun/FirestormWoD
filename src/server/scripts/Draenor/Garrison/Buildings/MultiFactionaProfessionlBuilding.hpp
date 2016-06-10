@@ -43,9 +43,9 @@ namespace MS { namespace Garrison
             {
                 uint32 l_QuestID = GET_QUEST_ID(p_Player);
 
-                if (!l_QuestID && p_Creature->GarrAI() && p_Creature->GetScriptName() == CreatureScript::GetName())
+                if (!l_QuestID && p_Creature->ToGarrisonNPCAI() && p_Creature->GetScriptName() == CreatureScript::GetName())
                 {
-                    p_Creature->GarrAI()->SendShipmentCrafterUI(p_Player);
+                    p_Creature->ToGarrisonNPCAI()->SendShipmentCrafterUI(p_Player);
                     return true;
                 }
 
@@ -67,8 +67,8 @@ namespace MS { namespace Garrison
             /// @p_Action   : Action
             virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action) override
             {
-                if (p_Creature->GarrAI() && p_Creature->GetScriptName() == CreatureScript::GetName())
-                    p_Creature->GarrAI()->SendShipmentCrafterUI(p_Player);
+                if (p_Creature->ToGarrisonNPCAI() && p_Creature->GetScriptName() == CreatureScript::GetName())
+                    p_Creature->ToGarrisonNPCAI()->SendShipmentCrafterUI(p_Player);
 
                 return true;
             }
@@ -102,9 +102,9 @@ namespace MS { namespace Garrison
             {
                 uint32 l_QuestID = GET_QUEST_ID(p_Player);
 
-                if (!l_QuestID && p_Player && p_Creature && p_Creature->GarrAI() && p_Creature->GetScriptName() == CreatureScript::GetName())
+                if (!l_QuestID && p_Player && p_Creature && p_Creature->ToGarrisonNPCAI() && p_Creature->GetScriptName() == CreatureScript::GetName())
                 {
-                    p_Creature->GarrAI()->SendShipmentCrafterUI(p_Player);
+                    p_Creature->ToGarrisonNPCAI()->SendShipmentCrafterUI(p_Player);
                     return true;
                 }
 
@@ -135,9 +135,9 @@ namespace MS { namespace Garrison
 
                 if (t_Skill && !p_Player->HasSkill(t_Skill))
                 {
-                    if (p_Creature->GarrAI() && p_Creature->GetScriptName() == CreatureScript::GetName())
+                    if (p_Creature->ToGarrisonNPCAI() && p_Creature->GetScriptName() == CreatureScript::GetName())
                     {
-                        GarrisonNPCAI* l_AI = p_Creature->GarrAI();
+                        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
                         l_AI->SetRecipes(m_Recipes, t_Skill);
                         l_AI->SendTradeSkillUI(p_Player);
                     }
