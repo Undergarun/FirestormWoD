@@ -51,8 +51,8 @@ namespace MS { namespace Garrison
     /// @p_Creature   : Target GameObject instance
     bool npc_AltarOfBones::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
-        if (p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
-            reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+        if (p_Creature->ToGarrisonNPCAI() && p_Creature->GetScriptName() == CreatureScript::GetName())
+            p_Creature->ToGarrisonNPCAI()->SendShipmentCrafterUI(p_Player);
 
         return true;
     }

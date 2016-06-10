@@ -769,6 +769,24 @@ class instance_blackrock_foundry : public InstanceMapScript
                             case EncounterState::DONE:
                             {
                                 instance->SetObjectVisibility(150.0f);
+
+                                if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
+                                    l_IronGate->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                                break;
+                            }
+                            case EncounterState::FAIL:
+                            {
+                                if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
+                                    l_IronGate->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                                break;
+                            }
+                            case EncounterState::IN_PROGRESS:
+                            {
+                                if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
+                                    l_IronGate->SetGoState(GOState::GO_STATE_READY);
+
                                 break;
                             }
                             default:

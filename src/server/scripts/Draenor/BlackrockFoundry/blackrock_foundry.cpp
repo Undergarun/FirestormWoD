@@ -3351,6 +3351,9 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
                             l_Thogar->AI()->SetGUID(me->GetGUID(), 1);
                     }
                 }
+
+                if (me->GetEntry() == eThogarCreatures::ThogarManAtArms)
+                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -3422,14 +3425,16 @@ class npc_foundry_iron_raider : public CreatureScript
     public:
         npc_foundry_iron_raider() : CreatureScript("npc_foundry_iron_raider") { }
 
-        enum eSpell
+        enum eSpells
         {
-            SpellThrowGrenade = 156294
+            SpellThrowGrenade   = 156294,
+            SpellSerratedSlash  = 155701
         };
 
-        enum eEvent
+        enum eEvents
         {
-            EventThrowGrenade = 1
+            EventThrowGrenade = 1,
+            EventSerratedSlash
         };
 
         struct npc_foundry_iron_raiderAI : public ScriptedAI
@@ -3450,13 +3455,17 @@ class npc_foundry_iron_raider : public CreatureScript
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
                 });
 
-                m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
+                m_Events.ScheduleEvent(eEvents::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
+                m_Events.ScheduleEvent(eEvents::EventSerratedSlash, 6 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustDied(Unit* /*p_Killer*/) override
             {
                 if (me->GetEntry() == eThogarCreatures::ThogarIronRaider)
+                {
+                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
                     return;
+                }
 
                 if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
                 {
@@ -3480,11 +3489,18 @@ class npc_foundry_iron_raider : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
-                    case eEvent::EventThrowGrenade:
+                    case eEvents::EventThrowGrenade:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(*l_Target, eSpell::SpellThrowGrenade, false);
-                        m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(5 * TimeConstants::IN_MILLISECONDS, 7 * TimeConstants::IN_MILLISECONDS));
+                            me->CastSpell(*l_Target, eSpells::SpellThrowGrenade, false);
+                        m_Events.ScheduleEvent(eEvents::EventThrowGrenade, urand(5 * TimeConstants::IN_MILLISECONDS, 7 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    }
+                    case eEvents::EventSerratedSlash:
+                    {
+                        if (Unit* l_Target = me->getVictim())
+                            me->CastSpell(l_Target, eSpells::SpellSerratedSlash, true);
+                        m_Events.ScheduleEvent(eEvents::EventSerratedSlash, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -3536,6 +3552,15 @@ class npc_foundry_iron_crack_shot : public CreatureScript
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
 
                 m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
+            }
+
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                if (me->GetEntry() == eThogarCreatures::ThogarIronCrackShot)
+                {
+                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                    return;
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -3610,6 +3635,15 @@ class npc_foundry_gromkar_firemender : public CreatureScript
                 m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                if (me->GetEntry() == eThogarCreatures::ThogarFiremender)
+                {
+                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                    return;
+                }
+            }
+
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
             {
                 if (p_Target == nullptr)
@@ -3634,7 +3668,7 @@ class npc_foundry_gromkar_firemender : public CreatureScript
                     case eEvent::EventCauterizingBolt:
                     {
                         me->CastSpell(me, eSpells::SpellCauterizingBoltSearcher, true);
-                        m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 10 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:

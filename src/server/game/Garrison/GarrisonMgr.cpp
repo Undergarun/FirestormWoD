@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "GarrisonMgr.hpp"
-#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 #include "Player.h"
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"

@@ -16,7 +16,7 @@
 #include "CreatureAI.h"
 #include "Chat.h"
 #include "ScriptMgr.h"
-#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 #include "../../scripts/Draenor/Garrison/GarrisonNPC.hpp"
 
 void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& /*p_RecvData*/)
@@ -570,8 +570,8 @@ void WorldSession::HandleGarrisonGenerateRecruitsOpcode(WorldPacket& p_RecvData)
         return;
     }
 
-    if (l_Unit->AI())
-        static_cast<MS::Garrison::GarrisonNPCAI*>(l_Unit->AI())->SendRecruitmentFollowersGenerated(m_Player, l_AbilityID ? l_AbilityID : l_TraitID, 0, l_TraitID ? true : false);
+    if (l_Unit->ToGarrisonNPCAI())
+        l_Unit->ToGarrisonNPCAI()->SendRecruitmentFollowersGenerated(m_Player, l_AbilityID ? l_AbilityID : l_TraitID, 0, l_TraitID ? true : false);
 }
 
 void WorldSession::HandleGarrisonSetRecruitmentPreferencesOpcode(WorldPacket& p_RecvData)

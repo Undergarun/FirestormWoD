@@ -184,7 +184,7 @@ namespace MS { namespace Garrison
     {
         if (p_Action == GOSSIP_ACTION_INFO_DEF)
         {
-            GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+            GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
             if (l_AI == nullptr)
                 return true;

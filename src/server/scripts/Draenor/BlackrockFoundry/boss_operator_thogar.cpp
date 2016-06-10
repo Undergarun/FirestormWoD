@@ -349,6 +349,12 @@ class boss_operator_thogar : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                if (me->GetDistance(me->GetHomePosition()) >= 120.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 m_Events.Update(p_Diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
@@ -1146,7 +1152,8 @@ class npc_foundry_train_controller : public CreatureScript
         }
 };
 
-/// Iron Gunnery Sergeant - 81318
+/// Iron Gunnery Sergeant (Intro) - 81318
+/// Iron Gunnery Sergeant (Fight) - 78981
 class npc_foundry_iron_gunnery_sergeant : public CreatureScript
 {
     public:
@@ -1213,6 +1220,8 @@ class npc_foundry_iron_gunnery_sergeant : public CreatureScript
                         }
                     }
                 }
+
+                me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
             }
 
             void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
@@ -1314,10 +1323,20 @@ class npc_foundry_siege_engine : public CreatureScript
                 {
                     if (Unit* l_Summoner = Creature::GetCreature(*me, l_Guid))
                     {
-                        if (Creature* l_Sergeant = l_Summoner->SummonCreature(eThogarCreatures::IronGunnerySergeant, *me))
+                        bool l_IsIntro = me->GetEntry() == eThogarCreatures::SiegeEngine1;
+                        if (Creature* l_Sergeant = l_Summoner->SummonCreature(l_IsIntro ? eThogarCreatures::IronGunnerySergeant : eThogarCreatures::ThogarSergeant, *me))
                         {
                             ApplyPassengerFlags(l_Sergeant, false);
-                            l_Sergeant->EnterVehicle(me, 0);
+
+                            uint64 l_SergeantGuid = l_Sergeant->GetGUID();
+                            AddTimedDelayedOperation(300, [this, l_SergeantGuid]() -> void
+                            {
+                                if (Unit* l_Sergeant = Creature::GetCreature(*me, l_SergeantGuid))
+                                {
+                                    l_Sergeant->NearTeleportTo(*me);
+                                    l_Sergeant->EnterVehicle(me, 0);
+                                }
+                            });
                         }
                     }
                 });
@@ -1386,6 +1405,54 @@ class spell_foundry_delayed_siege_bomb_periodic : public SpellScriptLoader
         }
 };
 
+/// Berated - 156281
+class spell_foundry_berated : public SpellScriptLoader
+{
+    public:
+        spell_foundry_berated() : SpellScriptLoader("spell_foundry_berated") { }
+
+        class spell_foundry_berated_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_berated_SpellScript)
+
+            enum eSpell
+            {
+                TargetRestrict = 24223
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (p_Object->IsPlayer() || p_Object->ToUnit()->isCharmedOwnedByPlayerOrPlayer())
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_berated_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_berated_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_berated_SpellScript::CorrectTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_berated_SpellScript::CorrectTargets, EFFECT_3, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_berated_SpellScript::CorrectTargets, EFFECT_4, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_berated_SpellScript();
+        }
+};
+
 /// Moving Train - 156553
 class areatrigger_foundry_moving_train : public AreaTriggerEntityScript
 {
@@ -1402,14 +1469,16 @@ class areatrigger_foundry_moving_train : public AreaTriggerEntityScript
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
-            if (InstanceScript* l_InstanceScript = p_AreaTrigger->GetInstanceScript())
-            {
-                if (!l_InstanceScript->IsEncounterInProgress())
-                    return;
-            }
+            InstanceScript* l_InstanceScript = p_AreaTrigger->GetInstanceScript();
+            if (l_InstanceScript == nullptr || !l_InstanceScript->IsEncounterInProgress())
+                return;
 
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
+                Creature* l_Thogar = Creature::GetCreature(*l_Caster, l_InstanceScript->GetData64(eFoundryCreatures::BossOperatorThogar));
+                if (l_Thogar == nullptr)
+                    return;
+
                 std::list<Unit*> l_TargetList;
                 float l_Radius = 15.0f;
 
@@ -1431,7 +1500,7 @@ class areatrigger_foundry_moving_train : public AreaTriggerEntityScript
                     if (l_Iter->GetPositionX() <= (p_AreaTrigger->GetPositionX() + l_CheckX) && l_Iter->GetPositionX() >= (p_AreaTrigger->GetPositionX() - l_CheckX) &&
                         l_Iter->GetPositionY() <= (p_AreaTrigger->GetPositionY() + l_CheckY) && l_Iter->GetPositionY() >= (p_AreaTrigger->GetPositionY() - l_CheckY))
                     {
-                        l_Iter->CastSpell(l_Iter, eSpells::MovingTrainDamage, true, nullptr, nullptr, l_Caster->GetGUID());
+                        l_Iter->CastSpell(l_Iter, eSpells::MovingTrainDamage, true, nullptr, nullptr, l_Thogar->GetGUID());
 
                         Position l_Pos;
                         l_Pos.m_positionX   = l_Iter->m_positionX + 20.0f * cos(l_Iter->GetAngle(&g_CenterPos));
@@ -1553,6 +1622,7 @@ void AddSC_boss_operator_thogar()
 
     /// Spells
     new spell_foundry_delayed_siege_bomb_periodic();
+    new spell_foundry_berated();
 
     /// AreaTriggers
     new areatrigger_foundry_moving_train();
