@@ -1535,7 +1535,7 @@ class areatrigger_foundry_prototype_pulse_grenade : public AreaTriggerEntityScri
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 5.0f;
+                float l_Radius = 2.0f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
