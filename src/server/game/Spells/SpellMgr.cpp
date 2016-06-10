@@ -7248,6 +7248,22 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[2].BasePoints = 0;
                 break;
+            case 172944:
+                spellInfo->Effects[SpellEffIndex::EFFECT_3].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_3].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_3].TargetB = Targets::TARGET_UNIT_TARGET_ANY;
+                break;
+            case 174732:    ///< 174732 Punt Podling
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetB = 0;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetB = 0;
+                break;
+            case 170494:    ///< Flask of Conquest
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].MiscValue = CURRENCY_TYPE_CONQUEST_META_ARENA_BG;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].MiscValue = CURRENCY_TYPE_CONQUEST_META_ARENA_BG;
+                break;
             default:
                 break;
         }

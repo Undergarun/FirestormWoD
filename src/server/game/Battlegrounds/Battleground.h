@@ -68,9 +68,9 @@ namespace MS
                 None                    = 0,
                 Kill                    = 7,
                 BattlegroundWin         = 8,
-                BarttlegroundRated      = 15,
+                BattlegroundRated       = 15,
                 BattlegroundObjectif    = 16,
-                ArenaSkyrmish           = 17
+                Arena                   = 17
             };
         }
 
