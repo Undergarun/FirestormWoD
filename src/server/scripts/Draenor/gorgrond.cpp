@@ -1112,11 +1112,16 @@ class go_gorgrond_pollen_pod : public GameObjectScript
 
                 m_Used = true;
 
-                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]()
+                uint64 l_PlayerGUID = p_Player->GetGUID();
+
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this, l_PlayerGUID]()
                 {
                     go->SetObjectScale(0.01f);
                     go->SetDisplayId(InvisibleDisplayID);
                     go->SetPhaseMask(LastPhase, true);
+
+                    if (Player* l_Player = HashMapHolder<Player>::Find(l_PlayerGUID))
+                        l_Player->QuestObjectiveSatisfy(go->GetEntry(), 1, QUEST_OBJECTIVE_TYPE_GO, go->GetGUID());
                 });
                 AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]()
                 {
@@ -1143,6 +1148,188 @@ class go_gorgrond_pollen_pod : public GameObjectScript
         }
 };
 
+/// Keg of Grog - 235916
+class go_gorgrond_keg_of_grog : public GameObjectScript
+{
+    enum
+    {
+        LastPhase           = 0x80000000,
+        InvisibleDisplayID  = 11686
+    };
+
+    public:
+        /// Constructor
+        go_gorgrond_keg_of_grog() : GameObjectScript("go_gorgrond_keg_of_grog") { }
+
+        struct go_gorgrond_keg_of_grogAI : public GameObjectAI
+        {
+            /// Constructor
+            go_gorgrond_keg_of_grogAI(GameObject* p_GameObject)
+                : GameObjectAI(p_GameObject), m_Used(false)
+            {
+                m_OriginalScale     = go->GetFloatValue(EObjectFields::OBJECT_FIELD_SCALE);
+                m_OriginalDisplayID = go->GetDisplayId();
+                m_OriginalPhase     = go->GetPhaseMask();
+            }
+
+            void UpdateAI(uint32 p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+            }
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            bool GossipHello(Player* p_Player) override
+            {
+                if (m_Used)
+                    return true;
+
+                m_Used = true;
+
+                uint64 l_PlayerGUID = p_Player->GetGUID();
+
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_PlayerGUID]()
+                {
+                    go->SetObjectScale(0.01f);
+                    go->SetDisplayId(InvisibleDisplayID);
+                    go->SetPhaseMask(LastPhase, true);
+
+                    if (Player* l_Player = HashMapHolder<Player>::Find(l_PlayerGUID))
+                        l_Player->QuestObjectiveSatisfy(go->GetEntry(), 1, QUEST_OBJECTIVE_TYPE_GO, go->GetGUID());
+                });
+                AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]()
+                {
+                    go->SetPhaseMask(m_OriginalPhase, true);
+                    go->SetObjectScale(m_OriginalScale);
+                    go->SetDisplayId(m_OriginalDisplayID);
+                    m_Used = false;
+                });
+
+                return false;
+            }
+
+            bool m_Used;
+            float m_OriginalScale;
+            uint32 m_OriginalDisplayID;
+            uint32 m_OriginalPhase;
+        };
+
+        /// Called when a GameObjectAI object is needed for the GameObject.
+        /// @p_GameObject : GameObject instance
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
+        {
+            return new go_gorgrond_keg_of_grogAI(p_GameObject);
+        }
+};
+
+/// Toxic Slimemold - 85732
+class npc_quest_frightened_spirit : public CreatureScript
+{
+    enum
+    {
+        SpellVisual = 167012,
+        KillCredit = 88819
+    };
+    public:
+        npc_quest_frightened_spirit() : CreatureScript("npc_quest_frightened_spirit") { }
+
+        struct npc_quest_frightened_spiritAI : public ScriptedAI
+        {
+            bool m_Locked;
+
+            npc_quest_frightened_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset() override
+            {
+                ScriptedAI::Reset();
+                me->SetCanFly(false);
+                me->SetDisableGravity(false);
+                me->SetWalk(true);
+                me->GetMotionMaster()->MoveRandom();
+                m_Locked = false;
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                ScriptedAI::UpdateAI(p_Diff);
+                UpdateOperations(p_Diff);
+            }
+
+            virtual void sGossipHello(Player* p_Player) override
+            {
+                if (m_Locked)
+                    return;
+
+                m_Locked = true;
+
+                p_Player->CLOSE_GOSSIP_MENU();
+                uint64 l_PlayedGUID = p_Player->GetGUID();
+
+                me->GetMotionMaster()->Clear();
+                me->SetCanFly(true);
+                me->SetDisableGravity(true);
+                me->CastSpell(me, SpellVisual, TRIGGERED_FULL_MASK);
+
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_PlayedGUID]() -> void
+                {
+                    if (Player* l_Player = HashMapHolder<Player>::Find(l_PlayedGUID))
+                        l_Player->KilledMonsterCredit(KillCredit);
+                });
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->DespawnOrUnsummon(0);
+                });
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_quest_frightened_spiritAI(p_Creature);
+        }
+};
+
+/// Showing "Mercy" - 170792
+class spell_quest_gorgrond_showing_mercy_peon : public SpellScriptLoader
+{
+    enum
+    {
+        Grom_karPeon = 85540,
+    };
+
+    public:
+        /// Constructor
+        spell_quest_gorgrond_showing_mercy_peon() : SpellScriptLoader("spell_quest_gorgrond_showing_mercy_peon") { }
+
+        class spell_quest_gorgrond_showing_mercy_peon_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_gorgrond_showing_mercy_peon_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (l_Target->GetEntry() == Grom_karPeon)
+                        l_Target->ToCreature()->DespawnOrUnsummon(0);
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_gorgrond_showing_mercy_peon_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_gorgrond_showing_mercy_peon_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -1157,6 +1344,7 @@ void AddSC_gorgrond()
     new npc_drov_frenzied_rumbler();
     new npc_gorgrond_goren_egg();
     new npc_gorgrond_toxic_slimemold();
+    new npc_quest_frightened_spirit();
 
     /// Spells
     new spell_drov_call_of_earth();
@@ -1164,6 +1352,7 @@ void AddSC_gorgrond()
     new spell_drov_acid_breath();
     new spell_quest_gorgrond_punt_podling();
     new spell_quest_gorgrond_burn_ancient_corpse();
+    new spell_quest_gorgrond_showing_mercy_peon();
 
     /// Areatriggers
     new areatrigger_tarlna_noxious_spit();
@@ -1171,5 +1360,6 @@ void AddSC_gorgrond()
     /// GameObjects
     new go_gorgrond_ancient_ogre_hoard_jar();
     new go_gorgrond_pollen_pod();
+    new go_gorgrond_keg_of_grog();
 }
 #endif

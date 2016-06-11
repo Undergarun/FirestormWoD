@@ -227,11 +227,11 @@ namespace MS { namespace Garrison
     bool npc_Magrish_Garr::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         Manager* l_GarrisonMgr = p_Player->GetGarrison();
-        CreatureAI* l_AI = p_Creature->AI();
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_GarrisonMgr && l_AI)
         {
-            if (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuilding(static_cast<GarrisonNPCAI*>(l_AI)->GetPlotInstanceID())) >= 2)
+            if (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuilding(l_AI->GetPlotInstanceID())) >= 2)
             {
                 if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain))
                     p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::ArmoryWeeklySeal, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -251,8 +251,8 @@ namespace MS { namespace Garrison
     {
         if (p_Action == GOSSIP_ACTION_INFO_DEF)
         {
-            if (p_Creature->AI())
-                static_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+            if (p_Creature->ToGarrisonNPCAI())
+                p_Creature->ToGarrisonNPCAI()->SendShipmentCrafterUI(p_Player);
         }
         else if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
         {

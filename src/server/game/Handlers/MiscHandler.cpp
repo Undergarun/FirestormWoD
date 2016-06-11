@@ -1674,7 +1674,7 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& p_Packet)
 {
     bool l_Apply = p_Packet.ReadBit();
 
-    if (l_Apply)
+    if (!l_Apply)
     {
         m_Player->SetSeer(m_Player);
     }

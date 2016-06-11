@@ -1589,6 +1589,9 @@ void World::SetInitialWorldSettings()
 
     uint32 oldMSTime = getMSTime();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Texts...");
+    sCreatureTextMgr->LoadCreatureTexts();
+
     if (sWorld->getBoolConfig(CONFIG_ENABLE_LOCALES))
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Localization strings...");
@@ -1599,6 +1602,9 @@ void World::SetInitialWorldSettings()
         sObjectMgr->LoadPageTextLocales();
         sObjectMgr->LoadGossipMenuItemsLocales();
         sObjectMgr->LoadPointOfInterestLocales();
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Text Locales...");
+        sCreatureTextMgr->LoadCreatureTextLocales();
     }
 
     sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
@@ -2030,12 +2036,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell script names...");
     sObjectMgr->LoadSpellScriptNames();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Texts...");
-    sCreatureTextMgr->LoadCreatureTexts();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Text Locales...");
-    sCreatureTextMgr->LoadCreatureTextLocales();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initializing Scripts...");
     sScriptMgr->Initialize();
@@ -3806,12 +3806,7 @@ bool World::CanBeSaveInLoginDatabase() const
     {
         case REALM_ZONE_DEVELOPMENT:
         case REALM_ZONE_TEST_SERVER:
-        case REALM_ZONE_TOURNAMENT_5:
-        case REALM_ZONE_TOURNAMENT_7:
-        case REALM_ZONE_TOURNAMENT_13:
-        case REALM_ZONE_TOURNAMENT_15:
-        case REALM_ZONE_TOURNAMENT_25:
-        case REALM_ZONE_TOURNAMENT_27:
+        case REALM_ZONE_QA_SERVER:
             return false;
         default:
             return true;

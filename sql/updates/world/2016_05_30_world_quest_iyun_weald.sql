@@ -5,3 +5,5 @@ UPDATE `creature_template` SET npcflag= `npcflag` | 0x01000000 WHERE entry=85809
 
 DELETE FROM `spell_script_names` WHERE `spell_id` = 174732;
 INSERT INTO `spell_script_names`(spell_id, ScriptName) VALUES (174732, "spell_quest_gorgrond_punt_podling");
+
+UPDATE creature_template SET faction = 35 WHERE entry = 85809;

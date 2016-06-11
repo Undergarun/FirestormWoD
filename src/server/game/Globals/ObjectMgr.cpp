@@ -4741,9 +4741,28 @@ void ObjectMgr::LoadBonusQuests()
 
                 l_MinX -= abs(l_GrowthPct * float(l_AreaWidth)) / 2.0f;
                 l_MinY -= abs(l_GrowthPct * float(l_AreaHeight)) / 2.0f;
-
                 l_MaxX += abs(l_GrowthPct * float(l_AreaWidth)) / 2.0f;
                 l_MaxY += abs(l_GrowthPct * float(l_AreaHeight)) / 2.0f;
+
+                /// @TODO Some POI are wrong, temp fix
+                switch (l_Quest->Id)
+                {
+                    /// Bonus Objective: The Writhing Mire
+                    case 35649:
+                        l_MaxX = -141;
+                        l_MaxY = 2765;
+                        l_MinX = -675;
+                        l_MinY = 2689;
+                        break;
+
+                    /// Bonus Objective: Frostbite Hollow
+                    case 34501:
+                        l_MaxX = 7536;
+                        l_MaxY = 3701;
+                        l_MinX = 7412;
+                        l_MinY = 3195;
+                        break;
+                }
 
                 BonusQuestRectEntry l_Rect;
                 l_Rect.X = l_MinX;

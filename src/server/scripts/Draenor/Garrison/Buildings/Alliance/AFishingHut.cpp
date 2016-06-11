@@ -322,7 +322,7 @@ namespace MS { namespace Garrison
         {
             if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
             {
-                GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+                GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
                 if (l_AI == nullptr)
                     return true;

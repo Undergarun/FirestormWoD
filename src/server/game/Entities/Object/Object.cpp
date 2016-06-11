@@ -2444,7 +2444,12 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
     if (!obj->m_stealth.GetFlags())
         return true;
 
-    float distance = GetExactDist(obj);
+    float distance = 0.0f;
+
+    if (IsPlayer() && ToPlayer()->m_seer != this)
+        distance = ToPlayer()->m_seer->GetExactDist(obj);
+    else
+        distance = GetExactDist(obj);
 
     // stealth detection of traps = invisibility detection, calculate from compare detection and stealth values
     if (obj->m_stealth.HasFlag(STEALTH_TRAP))

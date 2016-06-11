@@ -13,6 +13,7 @@
 #include "SpellScript.h"
 #include "GameObjectAI.h"
 #include "Language.h"
+#include "Vehicle.h"
 
 /// Warlock Soulstealer - 79482
 class npc_talador_warlock_soulstealer : public CreatureScript
@@ -35,7 +36,19 @@ class npc_talador_warlock_soulstealer : public CreatureScript
             /// Called when the creature is killed
             void JustDied(Unit* p_Killer) override
             {
+                Player* l_PlayerKiller = nullptr;
+
                 if (p_Killer->IsPlayer())
+                    l_PlayerKiller = p_Killer->ToPlayer();
+                else if (p_Killer->IsVehicle())
+                {
+                    Unit* l_Passenger = p_Killer->GetVehicleKit()->GetPassenger(0);
+
+                    if (l_Passenger && l_Passenger->IsPlayer())
+                        l_PlayerKiller = l_Passenger->ToPlayer();
+                }
+
+                if (l_PlayerKiller)
                 {
                     std::list<Unit*> l_NearCreatures;
                     JadeCore::AllCreaturesOfEntryInRange l_UCheck(me, DraeneiSpirit, 15.0f);
@@ -49,7 +62,7 @@ class npc_talador_warlock_soulstealer : public CreatureScript
                             l_Unit->RemoveAura(TormentedSoul);
                             l_Unit->GetMotionMaster()->MoveFleeing(me, 5 * TimeConstants::IN_MILLISECONDS);
                             l_Unit->ToCreature()->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
-                            p_Killer->ToPlayer()->KilledMonsterCredit(KillCredit_RescueDraeneiSpirits);
+                            l_PlayerKiller->KilledMonsterCredit(KillCredit_RescueDraeneiSpirits);
                         }
                     }
                 }

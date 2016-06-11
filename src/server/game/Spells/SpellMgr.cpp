@@ -178,7 +178,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 return DIMINISHING_ROOT;
 
             /// Chaos Wave -- 124915, slow effect
-            if (spellproto->SpellFamilyFlags[0] & 0x201000 == 0x201000)
+            if ((spellproto->SpellFamilyFlags[0] & 0x201000) == 0x201000)
                 return DIMINISHING_NONE;
             break;
         }
@@ -3421,6 +3421,90 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            ///////////////////////////////////////////////////////////////////////////////////
+            /// Rush Orders
+            ///////////////////////////////////////////////////////////////////////////////////
+            case 181507: ///< Alchemy Lab
+                spellInfo->Reagent[0]              = 122576;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181228;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181229;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181518: ///< The Tannery
+                spellInfo->Reagent[0]              = 122596;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181240;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181241;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181519: ///< Scribes Quarters
+                spellInfo->Reagent[0]              = 122593;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181236;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181237;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181520: ///< The Forge
+                spellInfo->Reagent[0]              = 122595;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181230;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181231;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181521: ///< Tailoring Emporium
+                spellInfo->Reagent[0]              = 122594;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181242;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181243;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181522: ///< Gem Boutique
+                spellInfo->Reagent[0]              = 122592;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181238;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181239;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181524: ///< Enchanters Study
+                spellInfo->Reagent[0]              = 122590;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181232;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181233;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            case 181525: ///< Engineering Works
+                spellInfo->Reagent[0]              = 122591;
+                spellInfo->ReagentCount[0]         = 1;
+                spellInfo->Effects[0].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 181234;
+                spellInfo->Effects[0].BasePoints   = 0; ///< TEAM_ALLIANCE
+                spellInfo->Effects[1].Effect       = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[1].TriggerSpell = 181235;
+                spellInfo->Effects[1].BasePoints   = 1; ///< TEAM_HORDE
+                break;
+            ///////////////////////////////////////////////////////////////////////////////////
             case 1949: ///< Hellfire
                 spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
@@ -3641,6 +3725,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 177855: ///< Ember in the Wind (aura - Mol'dana Two Blade)
             case 154932: ///< Molten Torrent (aura - Flamebender Ka'graz)
             case 161570: ///< Searing Plates (DoT - Franzok)
+            case 159481: ///< Delayed Siege Bomb (Channel - Iron Gunnery Sergeant)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 156039: ///< Drop the Hammer (Aknor Steelbringer)
@@ -3732,6 +3817,23 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AuraInterruptFlags = 0;
                 spellInfo->ChannelInterruptFlags = 0;
                 spellInfo->InterruptFlags = 0;
+                break;
+            case 156294: ///< Throw Grenade (Iron Raider)
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_DEST_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 160177: ///< Cautorizing Bolt (Grom'kar Firemender)
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 159480: ///< Delayed Siege Bomb - Searcher (Iron Gunnery Sergeant)
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                break;
+            case 159482: ///< Delayed Siege Bomb - Missile (Iron Gunnery Sergeant)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_ENEMY;
+                break;
+            case 158084: ///< Delayed Siege Bomb - Damage (Iron Gunnery Sergeant)
+            case 160050: ///< Delayed Siege Bomb - Damage (Operator Thogar)
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
@@ -6364,6 +6466,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 182303: ///< Item - Rogue WoD PvP Combat 4P Bonus
             case 170883: ///< Item - Rogue WoD PvP Assassination 4P Bonus
             case 165886: ///< Item - Paladin WoD PvP Retribution 2P Bonus
+			case 165905: ///< Item - Paladin WoD PvP Protection 2P Bonus
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
             case 166009: ///< Item - Hunter WoD PvP 2P Bonus
             case 171383: ///< Item - Warlock WoD PvP Destruction 2P Bonus
@@ -6485,6 +6588,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 126892: ///< Zen Pilgrimage
             case 126895: ///< Zen Pilgrimage : Return
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
+                break;
+            case 126:
+                spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_MOD_STEALTH_DETECT;
+                spellInfo->Effects[EFFECT_2].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_2].BasePoints = 500;
+                spellInfo->Effects[EFFECT_2].MiscValue = 1;
                 break;
             case 125084: ///< Charging Ox Wave
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); ///< radius 30
@@ -7290,7 +7400,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 172944:
                 spellInfo->Effects[SpellEffIndex::EFFECT_3].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[SpellEffIndex::EFFECT_3].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
-                spellInfo->Effects[SpellEffIndex::EFFECT_3].TargetB = Targets::TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_3].TargetB = 0;
                 break;
             case 174732:    ///< 174732 Punt Podling
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
@@ -7298,6 +7408,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetB = 0;
+                break;
+            case 170494:    ///< Flask of Conquest
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].MiscValue = CURRENCY_TYPE_CONQUEST_META_ARENA_BG;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].MiscValue = CURRENCY_TYPE_CONQUEST_META_ARENA_BG;
+                break;
+            case 127250:    ///< Ancient Knowledge
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
                 break;
             default:
                 break;
@@ -7377,6 +7494,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156824: ///< Inferno Pyre - DoT (Dreadwing)
             case 156823: ///< Superheated Scrap - DoT (Beastlord Darmac)
             case 155657: ///< Flame Infusion - DoT (Pack Beast)
+            case 163754: ///< Iron Bellow (Grom'kar Man-at-Arms)
+            case 163752: ///< Reckless Slash (Grom'kar Man-at-Arms)
+            case 156655: ///< Throw Grenade (Iron Raider)
+            case 158084: ///< Delayed Siege Bomb - Damage (Iron Gunnery Sergeant)
+            case 160050: ///< Delayed Siege Bomb - Damage (Operator Thogar)
+            case 165195: ///< Prototype Pulse Grenade - DoT (Operator Thogar)
+            case 156553: ///< Moving Train (Operator Thogar)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:

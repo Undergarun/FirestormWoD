@@ -55,7 +55,7 @@ namespace MS { namespace Garrison
 
     bool npc_FaylaFairfeather::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
-        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_AI == nullptr)
             return true;
@@ -63,7 +63,7 @@ namespace MS { namespace Garrison
         p_Player->PlayerTalkClass->ClearMenus();
 
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
-            l_AI->SendShipmentCrafterUI(p_Player);
+            l_AI->SendShipmentCrafterUI(p_Player, p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment));
 
         return true;
     }
@@ -74,10 +74,13 @@ namespace MS { namespace Garrison
         {
             if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
             {
-                GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+                GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
                 if (l_AI == nullptr)
                     return true;
+
+                std::vector<uint32> l_TradingPostShipments = { 138, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 196 };
+                p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
 
                 l_GarrisonMgr->ActivateBuilding(l_AI->GetPlotInstanceID());
             }

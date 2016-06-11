@@ -160,7 +160,8 @@ class spell_rog_anticipation : public SpellScriptLoader
 
 /// Last Update 6.2.3
 /// Called by Rogue WoD PvP 2P Bonus - Kick - 165996
-/// Called by Rogue WoD PvO Assassination 4P Bonus - Cold Blood - 170882
+/// Called by Rogue WoD PvP Assassination 4P Bonus - Cold Blood - 170882
+/// Called by Rogue WoD PvP Combat 4P Bonus - Cold Blood - 182304
 /// Called by Sinister strike - 1752
 /// Anticipation doesn't automatically proc on these spells
 class spell_rog_anticipation_special_procs : public SpellScriptLoader
@@ -172,8 +173,6 @@ class spell_rog_anticipation_special_procs : public SpellScriptLoader
         {
             AnticipationProc = 115189,
             Anticipation = 114015,
-            ColdBlood = 170882,
-            Kick = 165996,
             SinisterStrike = 1752
         };
 
@@ -2513,10 +2512,45 @@ public:
     {
         PrepareSpellScript(spell_rog_combo_point_delayed_SpellScript);
 
+        enum eSpells {
+            AnticipationStacks = 115189
+        };
+        
+
         void HandleOnHit()
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_0].BasePoints, POWER_COMBO_POINT);
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (!l_Player)
+                return;
+
+            bool l_AddAnticipationStack = false;
+
+            if (l_Player->HasAura(eSpells::AnticipationStacks))
+            {
+                if (l_Player->GetAura(eSpells::AnticipationStacks)->GetStackAmount() == 5)
+                    l_AddAnticipationStack = true;
+            }
+
+            uint64 l_PlayerGUID = l_Player->GetGUID();
+            uint32 l_SpellID = GetSpellInfo()->Id;
+            uint32 l_Value = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+            
+            GetCaster()->ToPlayer()->AddCriticalOperation([l_AddAnticipationStack, l_PlayerGUID, l_SpellID, l_Value]() -> bool
+            {
+                Player * l_LambdaPlayer = HashMapHolder<Player>::Find(l_PlayerGUID);
+
+                if (l_LambdaPlayer && l_LambdaPlayer->IsInWorld())
+                {
+                    if (l_AddAnticipationStack)
+                        l_LambdaPlayer->CastSpell(l_LambdaPlayer, eSpells::AnticipationStacks, true);
+                    else
+                        l_LambdaPlayer->EnergizeBySpell(l_LambdaPlayer, l_SpellID, l_Value, POWER_COMBO_POINT);
+                }
+                else
+                    return false;
+
+                return true;
+            });
         }
 
         void Register()

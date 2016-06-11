@@ -135,7 +135,7 @@ namespace MS { namespace Garrison
 
     bool npc_Varsha::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
-        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_AI == nullptr)
             return true;

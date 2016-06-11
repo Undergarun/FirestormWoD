@@ -13,7 +13,7 @@
 
 class instance_shadowmoon_burial_grounds : public InstanceMapScript
 {
-public:
+	public:
 
     instance_shadowmoon_burial_grounds() : InstanceMapScript("instance_shadowmoon_burial_grounds", 1176) { }
 

@@ -809,12 +809,6 @@ class debug_commandscript: public CommandScript
 
             uint32 l_ID = (uint32)atoi(l_StrID);
             uint32 l_Type = (uint32)atoi(l_StrType);
-            if (!l_ID || !l_Type)
-            {
-                p_Handler->SendSysMessage(LANG_BAD_VALUE);
-                p_Handler->SetSentErrorMessage(true);
-                return false;
-            }
 
             if (p_Handler->getSelectedUnit())
                 p_Handler->getSelectedUnit()->SendPlaySpellVisualKit(l_ID, l_Type);

@@ -3946,9 +3946,51 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Hammer of Justice - 853
+class spell_pal_hammer_of_justice : public SpellScriptLoader
+{
+	public:
+		spell_pal_hammer_of_justice() : SpellScriptLoader("spell_pal_hammer_of_justice") { }
+
+		class spell_pal_hammer_of_justice_SpellScript : public SpellScript
+		{
+			PrepareSpellScript(spell_pal_hammer_of_justice_SpellScript);
+
+			enum eSpells
+			{
+				WoDPvPProtection2PBonus = 165905,
+				Lawbringer				= 165909
+			};
+
+			void HandleAfterHit()
+			{
+				Unit* l_Caster = GetCaster();
+				Unit* l_Target = GetHitUnit();
+
+				if (l_Target == nullptr)
+					return;
+
+				if (l_Caster->HasAura(eSpells::WoDPvPProtection2PBonus))
+					l_Caster->CastSpell(l_Target, eSpells::Lawbringer, true);
+			}
+
+			void Register() override
+			{
+				AfterHit += SpellHitFn(spell_pal_hammer_of_justice_SpellScript::HandleAfterHit);
+			}
+		};
+
+		SpellScript* GetSpellScript() const override
+		{
+			return new spell_pal_hammer_of_justice_SpellScript();
+		}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_paladin_spell_scripts()
 {
+	new spell_pal_hammer_of_justice();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_glyph_of_pillar_of_light();
     new spell_pal_empowered_seals();
