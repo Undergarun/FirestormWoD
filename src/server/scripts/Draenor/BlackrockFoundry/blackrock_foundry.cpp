@@ -4270,6 +4270,49 @@ class spell_foundry_electrical_storm : public SpellScriptLoader
         }
 };
 
+/// Cauterizing Bolt (Searcher) - 160177
+class spell_foundry_cauterizing_bolt_searcher : public SpellScriptLoader
+{
+    public:
+        spell_foundry_cauterizing_bolt_searcher() : SpellScriptLoader("spell_foundry_cauterizing_bolt_searcher") { }
+
+        class spell_foundry_cauterizing_bolt_searcher_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_cauterizing_bolt_searcher_SpellScript)
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                p_Targets.remove_if([l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (p_Object->IsPlayer() || p_Object->ToUnit()->isCharmedOwnedByPlayerOrPlayer())
+                        return true;
+
+                    if (!l_Caster->IsValidAssistTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_cauterizing_bolt_searcher_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_cauterizing_bolt_searcher_SpellScript();
+        }
+};
+
 /// Cauterizing Bolt - 160140
 class spell_foundry_cauterizing_bolt : public SpellScriptLoader
 {
@@ -4829,6 +4872,7 @@ void AddSC_blackrock_foundry()
     new spell_foundry_crushing_slam();
     new spell_foundry_ember_in_the_wind_damage();
     new spell_foundry_electrical_storm();
+    new spell_foundry_cauterizing_bolt_searcher();
     new spell_foundry_cauterizing_bolt();
 
     /// GameObjects

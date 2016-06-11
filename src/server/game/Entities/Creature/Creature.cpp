@@ -42,6 +42,7 @@
 #include "MoveSpline.h"
 #include "WildBattlePet.h"
 #include "Transport.h"
+#include "GarrisonNPCAI.hpp"
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -1106,6 +1107,11 @@ void Creature::AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint3
         m_moveTime = time;*/
     float speed = GetDistance(x, y, z) / ((float)time * 0.001f);
     MonsterMoveWithSpeed(x, y, z, speed);
+}
+
+GarrisonNPCAI* Creature::ToGarrisonNPCAI() const
+{
+    return static_cast<GarrisonNPCAI*>(i_AI);
 }
 
 Player* Creature::GetLootRecipient() const

@@ -98,7 +98,7 @@ namespace MS { namespace Garrison
     bool npc_FarmerLokLub::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
-        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_AI == nullptr)
             return true;
@@ -130,7 +130,7 @@ namespace MS { namespace Garrison
     bool npc_FarmerLokLub::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         p_Player->PlayerTalkClass->ClearMenus();
-        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_AI == nullptr)
             return true;

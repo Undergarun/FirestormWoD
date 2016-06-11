@@ -28,7 +28,8 @@ enum eThogarMiscDatas : uint8
     CosmeticMovingTrain,
     MaxFightTrains = 40,
     /// Adds datas
-    MaxIronRaiders = 8
+    MaxIronRaiders = 8,
+    HostileFaction = 16
 };
 
 enum eThogarCreatures
@@ -1060,6 +1061,7 @@ eThogarTalks const g_TrackTalks[eThogarMiscDatas::MaxTrainTracks] =
 
 static void ApplyPassengerFlags(Creature* p_Passenger, bool p_IsTrain = true)
 {
+    p_Passenger->setFaction(eThogarMiscDatas::HostileFaction);
     p_Passenger->SetReactState(ReactStates::REACT_PASSIVE);
     p_Passenger->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
 
