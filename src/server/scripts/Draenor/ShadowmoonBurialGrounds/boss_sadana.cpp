@@ -549,11 +549,13 @@ class boss_sadana_bloodfury : public CreatureScript
                     me->GetCreatureListWithEntryInGrid(l_ListShadowrunes, eSadanaCreatures::CreatureShadowRune, 200.0f);
                     if (!l_ListShadowrunes.empty())
                     {
-                        std::list<Creature*>::const_iterator l_It = l_ListShadowrunes.begin();
-                        std::advance(l_It, urand(0, l_ListShadowrunes.size() - 6));
-
-                        if ((*l_It)->IsAIEnabled)
-                            (*l_It)->GetAI()->DoAction(eSadanaActions::ActionActivateLunarTriggersActivate);
+						for (Creature* l_Itr : l_ListShadowrunes)
+						{
+							if (!l_Itr)
+								continue;
+							
+							l_Itr->Respawn();
+						}
                     }
                     /// Eclipse triggers = functional: adds the friendly buff upon standing on the rune itself and getting immuned to the eclipse damage within seconds.
                     std::list<Creature*> l_ListTriggersLunars;
@@ -661,12 +663,12 @@ class shadowmoon_burial_grounds_sadana_creature_defiled_spirit : public Creature
             me->setFaction(HostileFaction);           
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->CastSpell(me, eSadanaSpells::SpellTenebreuxViolet);
-            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.9f);              
+            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.6f);              
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC); 
             if (me->GetMap())
                 me->GetMap()->SetObjectVisibility(1000.0f);
 
-            Movement::MoveSplineInit init(me);
+            Movement::MoveSplineInit init(*me);
             FillCirclePath(g_PositionSpiritHomePoint, me->GetDistance2d(g_PositionSpiritHomePoint.GetPositionX(), g_PositionSpiritHomePoint.GetPositionY()), g_PositionSpiritHomePoint.GetPositionZ(), init.Path(), true);
             init.SetWalk(true);
             init.SetCyclic();
@@ -691,10 +693,8 @@ class shadowmoon_burial_grounds_sadana_creature_defiled_spirit : public Creature
 					events.Reset();
 					m_Activation = true;
 					me->StopMoving();
-					me->SetSpeed(UnitMoveType::MOVE_RUN, 1.5f, true);
-					me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 1.5f, true);
 					me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-					me->GetMotionMaster()->MoveTakeoff(eSadanaMovements::MovementCreatureGoDown, g_PositionSpiritGoDown);
+					me->GetMotionMaster()->MoveTakeoff(eSadanaMovements::MovementCreatureGoDown, g_PositionSpiritGoDown);			
 					break;
 				}
                 default:
@@ -718,7 +718,6 @@ class shadowmoon_burial_grounds_sadana_creature_defiled_spirit : public Creature
             }
         }
 
-		
         void MovementInform(uint32 p_Type, uint32 p_Id) override
         {
 			/*
@@ -751,7 +750,6 @@ class shadowmoon_burial_grounds_sadana_creature_defiled_spirit : public Creature
 				}
 			}
         }
-		
 
         void JustDied(Unit* /*p_Killer*/) override
         {
@@ -894,12 +892,14 @@ class shadowmoon_burial_grounds_sadana_creature_shadow_rune : public CreatureScr
         };
 
         InstanceScript* m_Instance;
+		uint32 m_Diff;
         bool m_HasBeenActivated;
 		bool m_HasExploaded;
 
         void Reset() override
         {
             events.Reset();
+			m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
 			m_HasExploaded = false;
             me->setFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
@@ -981,12 +981,19 @@ class shadowmoon_burial_grounds_sadana_creature_shadow_rune : public CreatureScr
 		{
 			if (!m_HasExploaded)
 			{
-				if (Player* l_Player = me->FindNearestPlayer(1.2f, true))
+				if (m_Diff <= p_Diff)
 				{
-					m_HasExploaded = true;
-					DoCastAOE(eShadowRuneSpells::SpellShadowRuneDamage);
-					me->DespawnOrUnsummon();
+					if (Player* l_Player = me->FindNearestPlayer(1.2f, true))
+					{
+						m_HasExploaded = true;
+						DoCastAOE(eShadowRuneSpells::SpellShadowRuneDamage);
+						me->DespawnOrUnsummon();
+					}
+
+					m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
 				}
+				else
+					m_Diff -= p_Diff;
 			}
 		}
     };
