@@ -6082,6 +6082,7 @@ public:
     }
 };
 
+/// Glyph of Charm Woodland Creature - 57855
 class spell_dru_glyph_of_charm_woodland_creature : public SpellScriptLoader
 {
     public:
@@ -6093,36 +6094,79 @@ class spell_dru_glyph_of_charm_woodland_creature : public SpellScriptLoader
 
             enum eSpells
             {
-                GlyphOfCharmWoodlandCreature = 57855,
                 CharmWoodlandCreature = 127757
             };
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->learnSpell(CharmWoodlandCreature, true);
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->learnSpell(eSpells::CharmWoodlandCreature, false);
             }
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->removeSpell(CharmWoodlandCreature);
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->removeSpell(eSpells::CharmWoodlandCreature, false, false);
             }
 
-            void Register() override
+            void Register()
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const override
+        AuraScript* GetAuraScript() const
         {
             return new spell_dru_glyph_of_charm_woodland_creature_AuraScript();
         }
 };
 
-#ifndef __clang_analyzer__
+/// Glyph of Charm Woodland Creature - 57855
+class spell_dru_charm_woodland_creature : public SpellScriptLoader
+{
+    public:
+        spell_dru_charm_woodland_creature() : SpellScriptLoader("spell_dru_charm_woodland_creature") { }
+
+        class spell_dru_charm_woodland_creature_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_charm_woodland_creature_SpellScript);
+
+            void HandleDummy()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                Unit* l_Target = l_Player->GetSelectedUnit();   ///< Woodland Creature
+                if (l_Target == nullptr)
+                    return;
+
+                l_Target->GetMotionMaster()->MoveFollow(l_Player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE, MOTION_SLOT_CONTROLLED);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_dru_charm_woodland_creature_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_charm_woodland_creature_SpellScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_germination();
@@ -6225,6 +6269,8 @@ void AddSC_druid_spell_scripts()
     new spell_dru_item_t17_feral_4p_bonus_proc_driver();
     new spell_dru_item_t17_guardian_2p_bonus();
     new spell_dru_item_t17_restoration_4p_bonus();
+    new spell_dru_glyph_of_charm_woodland_creature();
+    new spell_dru_charm_woodland_creature();
 
     /// PlayerScript
     new PlayerScript_soul_of_the_forest();
