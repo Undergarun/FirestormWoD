@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonGO.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -14,12 +15,12 @@
 #include "GarrisonMgr.hpp"
 #include "Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     go_garrison_cache::go_garrison_cache()
         : GameObjectScript("go_garrison_cache")
-    { 
+    {
 
     }
 
@@ -29,7 +30,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
     /// @p_GameObject : Target GameObject instance
-    bool go_garrison_cache::OnGossipHello(Player * p_Player, GameObject * p_GameObject)
+    bool go_garrison_cache::OnGossipHello(Player* p_Player, GameObject* p_GameObject)
     {
         if (p_Player->GetGarrison())
         {
@@ -44,7 +45,7 @@ namespace MS { namespace Garrison
             {
                 p_Player->QuestObjectiveSatisfy(41325, 2, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_GameObject->GetGUID());
 
-                Creature * l_Creature = p_Player->FindNearestCreature(NPCs::NPC_LADY_SENA, 15);
+                Creature* l_Creature = p_Player->FindNearestCreature(NPCs::NPC_LADY_SENA, 15);
 
                 if (l_Creature)
                     l_Creature->AI()->Talk(0);
@@ -62,7 +63,7 @@ namespace MS { namespace Garrison
     /// Constructor
     go_garrison_outhouse::go_garrison_outhouse()
         : GameObjectScript("go_garrison_outhouse")
-    { 
+    {
 
     }
 
@@ -72,7 +73,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
     /// @p_GameObject : Target GameObject instance
-    bool go_garrison_outhouse::OnGossipHello(Player * p_Player, GameObject * p_GameObject)
+    bool go_garrison_outhouse::OnGossipHello(Player* p_Player, GameObject* /*p_GameObject*/)
     {
         p_Player->CastSpell(p_Player, MS::Garrison::Spells::SPELL_RELIEVED);
 
@@ -99,7 +100,7 @@ namespace MS { namespace Garrison
 
     /// Called when a GameObjectAI object is needed for the GameObject.
     /// @p_GameObject : GameObject instance
-    GameObjectAI* go_garrison_shipment_container::GetAI(GameObject * p_GameObject) const
+    GameObjectAI* go_garrison_shipment_container::GetAI(GameObject* p_GameObject) const
     {
         return new go_garrison_shipment_containerAI(p_GameObject);
     }
@@ -108,7 +109,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    go_garrison_shipment_container::go_garrison_shipment_containerAI::go_garrison_shipment_containerAI(GameObject * p_GameObject)
+    go_garrison_shipment_container::go_garrison_shipment_containerAI::go_garrison_shipment_containerAI(GameObject* p_GameObject)
         : GameObjectAI(p_GameObject)
     {
 
@@ -119,7 +120,7 @@ namespace MS { namespace Garrison
 
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
-    bool go_garrison_shipment_container::go_garrison_shipment_containerAI::GossipHello(Player * p_Player)
+    bool go_garrison_shipment_container::go_garrison_shipment_containerAI::GossipHello(Player* p_Player)
     {
         if (!p_Player || !p_Player->GetGarrison())
             return false;
@@ -161,7 +162,6 @@ namespace MS { namespace Garrison
                 case ShipmentTest:
                 case ShipmentUnk1:
                 case ShipmentFishingHut:
-                case ShipmentConquerorsTribute:
                 case ShipmentOverchargedDemolisher:
                 case ShipmentOverchargedSiegeEngine:
                 case ShipmentShipDestroyer:
@@ -331,6 +331,8 @@ namespace MS { namespace Garrison
                     l_RewardItems.insert(std::make_pair(122514, roll_chance_i(15) ? 1 : 0));
                     break;
                 case ShipmentGladiatorsSanctum:
+                case ShipmentConquerorsTribute:
+                    l_RewardItems.clear();
                     if (l_Garrison->FillSanctumWorkOrderRewards(l_RewardItems, l_RewardedCurrencies))
                     {
                         uint32 l_Quest = p_Player->GetTeamId() == TEAM_ALLIANCE ? Quests::Alliance_WarlordOfDraenor : Quests::Horde_WarlordOfDraenor;
@@ -346,7 +348,6 @@ namespace MS { namespace Garrison
             /// Adding items
             bool l_CanGetItems = true;
             uint32 l_NoSpaceForCount = 0;
-            uint8 l_Itr = 0;
             std::vector<uint32> l_UniqueItems = { 113261, 113262, 113263, 113264 };
 
             for (auto l_RewardItem : l_RewardItems)
@@ -845,7 +846,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    bool go_garrison_deactivated_mage_portal::OnGameObjectSpellCasterUse(const GameObject* p_GameObject, Player* p_User) const
+    bool go_garrison_deactivated_mage_portal::OnGameObjectSpellCasterUse(const GameObject* /*p_GameObject*/, Player* p_User) const
     {
         uint8 l_BuildingLevel = 0;
 
@@ -928,7 +929,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
     /// @p_GameObject : Target GameObject instance
-    bool go_garrison_essence_font::OnGossipHello(Player* p_Player, GameObject* p_GameObject)
+    bool go_garrison_essence_font::OnGossipHello(Player* p_Player, GameObject* /*p_GameObject*/)
     {
         if (p_Player)
         {
@@ -949,7 +950,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    void go_garrison_anvil::OnGameObjectStateChanged(const GameObject* p_GameObject, uint32 p_State)
+    void go_garrison_anvil::OnGameObjectStateChanged(const GameObject* p_GameObject, uint32 /*p_State*/)
     {
         if (p_GameObject->IsInGarrison() && p_GameObject->GetGoState() != GO_STATE_ACTIVE_ALTERNATIVE)
         {
@@ -962,6 +963,7 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_GO()
 {
     new MS::Garrison::go_garrison_anvil;
@@ -975,3 +977,4 @@ void AddSC_Garrison_GO()
     new MS::Garrison::go_garrison_timber;
     new MS::Garrison::go_garrison_essence_font;
 }
+#endif

@@ -1,9 +1,17 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "bastion_of_twilight.h"
 
 #define MAX_ENCOUNTER 5
 
-static const DoorData doordata[] = 
+static const DoorData doordata[] =
 {
     {DOOR_HALFUS_ENTRANCE,  DATA_HALFUS,            DOOR_TYPE_ROOM,     BOUNDARY_NONE},
     {DOOR_HALFUS_EXIT,      DATA_HALFUS,            DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
@@ -284,7 +292,7 @@ public:
                     if (GetBossState(DATA_CHOGALL) != DONE)
                         return false;
                     break;
-                default:   
+                default:
                     break;
             }
             return true;
@@ -350,8 +358,8 @@ public:
                 loadStream >> playerDied;
 
 
-            } 
-            else 
+            }
+            else
                 OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;
@@ -381,7 +389,10 @@ public:
             uint32 playerDied;
     };
 };
+
+#ifndef __clang_analyzer__
 void AddSC_instance_bastion_of_twilight()
 {
     new instance_bastion_of_twilight();
 }
+#endif

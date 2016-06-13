@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -61,14 +52,14 @@ class boss_varos : public CreatureScript
         {
             boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS) { }
 
-            void InitializeAI() 
+            void InitializeAI()
             {
                 BossAI::InitializeAI();
                 if (instance->GetBossState(DATA_DRAKOS) != DONE)
                     DoCast(me, SPELL_CENTRIFUGE_SHIELD);
             }
 
-            void Reset() 
+            void Reset()
             {
                 _Reset();
 
@@ -81,7 +72,7 @@ class boss_varos : public CreatureScript
                 coreEnergizeOrientation = 0.0f;
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
 
@@ -143,7 +134,7 @@ class boss_varos : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/) 
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -155,7 +146,7 @@ class boss_varos : public CreatureScript
             float coreEnergizeOrientation;
         };
 
-        CreatureAI* GetAI(Creature* creature) const 
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_varosAI (creature);
         }
@@ -173,7 +164,7 @@ class npc_azure_ring_captain : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            void Reset() 
+            void Reset()
             {
                 targetGUID = 0;
 
@@ -183,7 +174,7 @@ class npc_azure_ring_captain : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) 
+            void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_ICE_BEAM)
                 {
@@ -200,7 +191,7 @@ class npc_azure_ring_captain : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void MovementInform(uint32 type, uint32 id) 
+            void MovementInform(uint32 type, uint32 id)
             {
                 if (type != POINT_MOTION_TYPE ||
                     id != ACTION_CALL_DRAGON_EVENT)
@@ -239,7 +230,7 @@ class npc_azure_ring_captain : public CreatureScript
             InstanceScript* instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const 
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_azure_ring_captainAI(creature);
         }
@@ -254,7 +245,7 @@ class spell_varos_centrifuge_shield: public SpellScriptLoader
         {
             PrepareAuraScript(spell_varos_centrifuge_shield_AuraScript);
 
-            bool Load() 
+            bool Load()
             {
                 Unit* caster = GetCaster();
                 return (caster && caster->ToCreature());
@@ -282,14 +273,14 @@ class spell_varos_centrifuge_shield: public SpellScriptLoader
                 }
             }
 
-            void Register() 
+            void Register()
             {
                 OnEffectRemove += AuraEffectRemoveFn(spell_varos_centrifuge_shield_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectApply += AuraEffectApplyFn(spell_varos_centrifuge_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const 
+        AuraScript* GetAuraScript() const
         {
             return new spell_varos_centrifuge_shield_AuraScript();
         }
@@ -330,13 +321,13 @@ class spell_varos_energize_core_area_enemy: public SpellScriptLoader
                 }
             }
 
-            void Register() 
+            void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_varos_energize_core_area_enemySpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_54);
             }
         };
 
-        SpellScript* GetSpellScript() const 
+        SpellScript* GetSpellScript() const
         {
             return new spell_varos_energize_core_area_enemySpellScript();
         }
@@ -377,18 +368,19 @@ class spell_varos_energize_core_area_entry: public SpellScriptLoader
                 }
             }
 
-            void Register() 
+            void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_varos_energize_core_area_entrySpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_54);
             }
         };
 
-        SpellScript* GetSpellScript() const 
+        SpellScript* GetSpellScript() const
         {
             return new spell_varos_energize_core_area_entrySpellScript();
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_varos()
 {
     new boss_varos();
@@ -397,3 +389,4 @@ void AddSC_boss_varos()
     new spell_varos_energize_core_area_enemy();
     new spell_varos_energize_core_area_entry();
 }
+#endif

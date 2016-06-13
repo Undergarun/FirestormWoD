@@ -6,13 +6,13 @@ enum Spells
     SPELL_FEL_FIRESTORM       = 88972,
     SPELL_CONSUMING_DARKNESS  = 88954,
     SPELL_METEOR_SLASH        = 88942,
-    SPELL_BERSERK             = 47008,
+    SPELL_BERSERK             = 47008
 };
 
 enum ePhases
 {
     PHASE_1,
-    PHASE_2,
+    PHASE_2
 };
 
 class boss_argaloth : public CreatureScript
@@ -61,12 +61,12 @@ class boss_argaloth : public CreatureScript
                 Phase = PHASE_1;
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 instance->SetBossState(DATA_ARGALOTH, IN_PROGRESS);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
             }
@@ -129,7 +129,9 @@ class boss_argaloth : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_argaloth()
 {
     new boss_argaloth();
 }
+#endif

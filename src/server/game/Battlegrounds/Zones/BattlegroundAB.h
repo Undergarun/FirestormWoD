@@ -1,20 +1,11 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef __BATTLEGROUNDAB_H
 #define __BATTLEGROUNDAB_H
 
@@ -95,7 +86,7 @@ enum BG_AB_ObjectType
     BG_AB_OBJECT_SPEEDBUFF_GOLD_MINE     = 19,
     BG_AB_OBJECT_REGENBUFF_GOLD_MINE     = 20,
     BG_AB_OBJECT_BERSERKBUFF_GOLD_MINE   = 21,
-    BG_AB_OBJECT_MAX                     = 22,
+    BG_AB_OBJECT_MAX                     = 22
 };
 
 /* Object id templates from DB */
@@ -130,7 +121,7 @@ enum BG_AB_BattlegroundNodes
     BG_AB_SPIRIT_ALLIANCE       = 5,
     BG_AB_SPIRIT_HORDE          = 6,
 
-    BG_AB_ALL_NODES_COUNT       = 7,                        // all nodes (dynamic and static)
+    BG_AB_ALL_NODES_COUNT       = 7                        // all nodes (dynamic and static)
 };
 
 enum BG_AB_NodeStatus
@@ -257,7 +248,7 @@ class BattlegroundAB : public Battleground
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         /* Scorekeeping */
-        virtual void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        virtual void UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor = true, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType = MS::Battlegrounds::RewardCurrencyType::Type::None);
 
         virtual void FillInitialWorldStates(ByteBuffer& data);
 

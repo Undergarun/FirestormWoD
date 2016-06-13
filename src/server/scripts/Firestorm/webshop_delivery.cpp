@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include <ScriptPCH.h>
 #include <ScriptMgr.h>
 
@@ -10,7 +18,7 @@ namespace WebShop
         GoldAdded           = 3002,
         DontHaveEnoughSpace = 3003
     };
-    
+
     /// ...of Draenor Spell
     enum ProfessionBookSpells
     {
@@ -53,7 +61,7 @@ namespace WebShop
                 l_Callback = CharacterDatabase.AsyncPQuery("SELECT itemid, ItemBonus, count, transaction FROM webshop_delivery_item WHERE guid = '%u' and delivery = 0", l_LowGuid);
             }
 
-            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
             {
                 uint32 l_LowGuid = p_Player->GetGUIDLow();
 
@@ -106,7 +114,7 @@ namespace WebShop
                         l_Item->SetState(ItemUpdateState::ITEM_CHANGED, p_Player);
                         CharacterDatabase.PExecute("UPDATE webshop_delivery_item SET delivery = 1 WHERE transaction = %u", l_Transaction);
                     }
-                } 
+                }
                 while (l_Result->NextRow());
 
                 l_Callback.cancel();
@@ -132,7 +140,7 @@ namespace WebShop
                 l_Callback = CharacterDatabase.AsyncPQuery("SELECT gold, transaction FROM webshop_delivery_gold WHERE guid = '%u' and delivery = 0", l_LowGuid);
             }
 
-            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
             {
                 uint32 l_LowGuid = p_Player->GetGUIDLow();
 
@@ -173,7 +181,7 @@ namespace WebShop
                     p_Player->ModifyMoney(l_Gold);
 
                     CharacterDatabase.PExecute("UPDATE webshop_delivery_gold SET delivery = 1 WHERE transaction = %u", l_Transaction);
-                } 
+                }
                 while (l_Result->NextRow());
 
                 if (l_GoldCount != 0)
@@ -202,7 +210,7 @@ namespace WebShop
                 l_Callback = CharacterDatabase.AsyncPQuery("SELECT currency, amount, transaction FROM webshop_delivery_currency WHERE guid = '%u' and delivery = 0", l_LowGuid);
             }
 
-            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
             {
                 uint32 l_LowGuid = p_Player->GetGUIDLow();
 
@@ -240,7 +248,7 @@ namespace WebShop
                     p_Player->ModifyCurrency(l_Currency, l_Amount, true, true, true);
 
                     CharacterDatabase.PExecute("UPDATE webshop_delivery_currency SET delivery = 1 WHERE transaction = %u", l_Transaction);
-                } 
+                }
                 while (l_Result->NextRow());
 
                 l_Callback.cancel();
@@ -266,7 +274,7 @@ namespace WebShop
                 l_Callback = CharacterDatabase.AsyncPQuery("SELECT level, transaction FROM webshop_delivery_level WHERE guid = '%u' and delivery = 0", l_LowGuid);
             }
 
-            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
             {
                 uint32 l_LowGuid = p_Player->GetGUIDLow();
 
@@ -298,7 +306,7 @@ namespace WebShop
                     p_Player->GiveLevel(l_Level);
 
                     CharacterDatabase.PExecute("UPDATE webshop_delivery_level SET delivery = 1 WHERE transaction = %u", l_Transaction);
-                } 
+                }
                 while (l_Result->NextRow());
 
                 l_Callback.cancel();
@@ -327,7 +335,7 @@ namespace WebShop
                 l_Callback = CharacterDatabase.AsyncPQuery("SELECT skill, recipe, transaction FROM webshop_delivery_profession WHERE guid = '%u' and delivery = 0", l_LowGuid);
             }
 
-            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
             {
                 uint32 l_LowGuid = p_Player->GetGUIDLow();
 
@@ -414,7 +422,7 @@ namespace WebShop
                         p_Player->learnSpell(l_SpellID, false);
 
                     CharacterDatabase.PExecute("UPDATE webshop_delivery_profession SET delivery = 1 WHERE transaction = %u", l_Transaction);
-                } 
+                }
                 while (l_Result->NextRow());
 
                 l_Callback.cancel();
@@ -430,7 +438,7 @@ namespace WebShop
             {
             }
 
-            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
             {
                 if (p_Player->IsStoreDeliverySaved())
                     return;
@@ -447,6 +455,7 @@ namespace WebShop
     };
 }
 
+#ifndef __clang_analyzer__
 void AddSC_Webshop_Delivery()
 {
     new WebShop::Delivery_Item();
@@ -456,3 +465,4 @@ void AddSC_Webshop_Delivery()
     new WebShop::Delivery_Profession();
     new WebShop::Delivery_Save();
 };
+#endif

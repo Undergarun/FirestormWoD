@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include"ScriptPCH.h"
 #include"shadowfang_keep.h"
 
@@ -14,7 +22,7 @@ enum ScriptTexts
 enum Events
 {
     EVENT_VEIL_OF_SHADOW    = 1,
-    EVENT_CURSED_VEIL_H     = 3,
+    EVENT_CURSED_VEIL_H     = 3
 };
 
 enum Spells
@@ -26,7 +34,7 @@ enum Spells
     SPELL_NANDOS_T              = 93899,
     SPELL_ODO_T                 = 93864,
     SPELL_RETHILGORE_T          = 93927,
-    SPELL_RAZORCLAW_T           = 93924,
+    SPELL_RAZORCLAW_T           = 93924
 };
 
 enum Adds
@@ -38,7 +46,7 @@ enum Adds
     NPC_ODO              = 50857,
     NPC_RAZORCLAW        = 50869,
     NPC_RETHILGORE       = 50834,
-    NPC_NANDOS           = 50851,
+    NPC_NANDOS           = 50851
 };
 
 class boss_baron_silverlaine : public CreatureScript
@@ -75,7 +83,7 @@ class boss_baron_silverlaine : public CreatureScript
                 phase = 0;
             }
 
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 me->MonsterYell(SAY_AGGRO, 0, 0);
                 events.ScheduleEvent(EVENT_VEIL_OF_SHADOW, 12000);
@@ -83,12 +91,12 @@ class boss_baron_silverlaine : public CreatureScript
                 instance->SetBossState(DATA_SILVERLAINE, IN_PROGRESS);
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*who*/)
             {
                 me->MonsterYell(urand(0, 1)? SAY_KILL1: SAY_KILL2, 0, 0);
             }
 
-            void JustDied(Unit* pWho)
+            void JustDied(Unit* /*pWho*/)
             {
                 _JustDied();
                 me->MonsterYell(SAY_DEATH, 0, 0);
@@ -150,14 +158,14 @@ class npc_silverlaine_worgen : public CreatureScript
 
             InstanceScript *pInstance;
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 if (Creature* _silverlaine = me->FindNearestCreature(NPC_SILVERLAINE, 200.0f))
                     if (Unit* target = _silverlaine->AI()->SelectTarget(SELECT_TARGET_RANDOM))
                         AttackStart(target);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (pInstance && pInstance->GetBossState(DATA_SILVERLAINE) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -182,7 +190,7 @@ class npc_silverlaine_worgen_spirit : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 switch (me->GetEntry())
                 {
@@ -197,7 +205,7 @@ class npc_silverlaine_worgen_spirit : public CreatureScript
                         break;
                     case NPC_RAZORCLAW_DUMMY:
                         DoCast(me, SPELL_RAZORCLAW_T);
-                        break;    
+                        break;
                 }
             }
          };
@@ -211,10 +219,10 @@ class spell_silverlaine_summon_worgen_spirit: public SpellScriptLoader
 
         class spell_silverlaine_summon_worgen_spirit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_silverlaine_summon_worgen_spirit_SpellScript);
+            PrepareSpellScript(spell_silverlaine_summon_worgen_spirit_SpellScript)
 
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster())
                     return;
@@ -248,7 +256,7 @@ class spell_silverlaine_summon_worgen_spirit: public SpellScriptLoader
         }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_boss_baron_silverlaine()
 {
     new boss_baron_silverlaine();
@@ -256,3 +264,4 @@ void AddSC_boss_baron_silverlaine()
     new npc_silverlaine_worgen_spirit();
     new spell_silverlaine_summon_worgen_spirit();
 }
+#endif

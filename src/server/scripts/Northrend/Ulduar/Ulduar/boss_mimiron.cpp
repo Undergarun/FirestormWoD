@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "ScriptMgr.h"
@@ -23,9 +14,8 @@
 #include "Unit.h"
 #include "Vehicle.h"
 #include "GridNotifiers.h"
+#include "Common.h"
 
-#include <limits>
-#include <map>
 #include "ace/Mutex.h"
 
 enum Yells
@@ -48,7 +38,7 @@ enum Yells
     SAY_BERSERK                                 = 14,
 
     // Leviathan MK II
-    EMOTE_PLASMA_BLAST                          = 0,
+    EMOTE_PLASMA_BLAST                          = 0
 };
 
 enum Spells
@@ -108,7 +98,7 @@ enum Spells
     SPELL_NOT_SO_FRIENDLY_FIRE                  = 65040,
 
     SPELL_WATER_SPRAY                           = 64619,
-    SPELL_RIDE_VEHICLE                          = 46598,
+    SPELL_RIDE_VEHICLE                          = 46598
 };
 
 enum Events
@@ -173,7 +163,7 @@ enum Phases
 
     // Aerial unit
     PHASE_AERIAL_SOLO__GLOBAL_3             = 10,
-    PHASE_AERIAL_ASSEMBLED__GLOBAL_4        = 11,
+    PHASE_AERIAL_ASSEMBLED__GLOBAL_4        = 11
 };
 
 enum Actions
@@ -914,7 +904,7 @@ class boss_leviathan_mk : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1344,7 +1334,7 @@ class boss_vx_001 : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1873,7 +1863,7 @@ class boss_aerial_unit : public CreatureScript
                     summon->CastSpell(summon, SPELL_EMERGENCY_MODE, true);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -2424,6 +2414,7 @@ class achievement_set_up_us_the_bomb__boombot_explosion : public AchievementCrit
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_mimiron()
 {
     new boss_mimiron();
@@ -2459,3 +2450,4 @@ void AddSC_boss_mimiron()
     new achievement_set_up_us_the_bomb__rocket_strikes("achievement_set_up_us_the_bomb__rockets");
     new achievement_set_up_us_the_bomb__rocket_strikes("achievement_set_up_us_the_bomb__rockets_25");
 }
+#endif

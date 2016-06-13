@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "HBarn.hpp"
 #include "GarrisonMgr.hpp"
 #include "GameObjectAI.h"
@@ -19,17 +20,17 @@ namespace MS { namespace Garrison
 
     namespace npc_FarmerLokLubAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -53,7 +54,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    void npc_FarmerLokLub::OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32 p_BuildingID)
+    void npc_FarmerLokLub::OnShipmentCreated(Player* p_Player, Creature* /*p_Creature*/, uint32 p_BuildingID)
     {
         switch (p_BuildingID)
         {
@@ -97,7 +98,7 @@ namespace MS { namespace Garrison
     bool npc_FarmerLokLub::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
-        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_AI == nullptr)
             return true;
@@ -126,10 +127,10 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_FarmerLokLub::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_FarmerLokLub::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         p_Player->PlayerTalkClass->ClearMenus();
-        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_AI == nullptr)
             return true;
@@ -196,7 +197,7 @@ namespace MS { namespace Garrison
             m_ProductionChosen = p_Value;
     }
 
-    int npc_FarmerLokLubAI::OnShipmentIDRequest(Player* p_Player)
+    int npc_FarmerLokLubAI::OnShipmentIDRequest(Player* /*p_Player*/)
     {
         return m_ProductionChosen ? m_ProductionChosen : -1;
     }

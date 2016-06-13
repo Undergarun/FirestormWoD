@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_SPELLAURAEFFECTS_H
 #define TRINITY_SPELLAURAEFFECTS_H
@@ -30,7 +20,7 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uin
 class AuraEffect
 {
     friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
+    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID, int32 castItemLevel);
     friend Aura::~Aura();
     private:
         explicit AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster);
@@ -336,6 +326,7 @@ class AuraEffect
         void HandleModCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
+        void HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;

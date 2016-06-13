@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "GameObjectAI.h"
 #include "ScriptMgr.h"
@@ -54,7 +43,7 @@ enum eShekzeedAdds
     NPC_SHA_OF_FEAR_MOB             = 63942,
     NPC_STICKY_RESIN                = 63730,
     NPC_AMBER_TRAP                  = 64351,
-    NPC_HEART_OF_FEAR               = 63445,
+    NPC_HEART_OF_FEAR               = 63445
 };
 
 enum eShekzeerSpells
@@ -167,7 +156,7 @@ enum eShekzeerEvents
 
     // Heart of fear
     EVENT_HOF_ATTACK,
-    EVENT_HOF_DESTROY,
+    EVENT_HOF_DESTROY
 };
 
 enum eShekzeerActions
@@ -182,13 +171,13 @@ enum eShekzeerActions
     ACTION_FIGHTBACK,
     ACTION_LAST_PHASE,
     ACTION_WITHDRAW,
-    ACTION_LEAVING,
+    ACTION_LEAVING
 };
 
 enum eShekzeerTypes
 {
     TYPE_RETREAT,
-    TYPE_END_FIGHT,
+    TYPE_END_FIGHT
 };
 
 #define TIME_PHASE_DELAY 150000
@@ -203,7 +192,7 @@ Position addSpawnLeft[4] =
     {-2360.0f, 1014.0f, 575.90f, 3.141593f},
     {-2352.0f, 1014.0f, 575.90f, 3.141593f},
     {-2352.0f, 1006.0f, 575.90f, 3.141593f},
-    {-2352.0f, 1022.0f, 575.90f, 3.141593f},
+    {-2352.0f, 1022.0f, 575.90f, 3.141593f}
 };
 
 Position addSpawnRight[4] =
@@ -211,7 +200,7 @@ Position addSpawnRight[4] =
     {-2600.0f, 1014.0f, 575.90f, 0.0f},
     {-2608.0f, 1014.0f, 575.90f, 0.0f},
     {-2608.0f, 1006.0f, 575.90f, 0.0f},
-    {-2608.0f, 1022.0f, 575.90f, 0.0f},
+    {-2608.0f, 1022.0f, 575.90f, 0.0f}
 };
 
 // Zorlok - 62837
@@ -451,7 +440,7 @@ class boss_shekzeer : public CreatureScript
                 _EnterEvadeMode();
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (phase == 3)
                     return;
@@ -1354,7 +1343,7 @@ class mob_amber_trap : public CreatureScript
                         target->RemoveAura(SPELL_TRAPPED);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
                 {
@@ -1407,7 +1396,7 @@ class mob_dissonance_field : public CreatureScript
             }
 
             // Can't be wounded directly by player attacks
-            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (attacker->IsPlayer() || attacker->GetEntry() == me->GetEntry())
                     damage = 0;
@@ -1436,8 +1425,8 @@ class mob_dissonance_field : public CreatureScript
                         uint8 dmg = 0;
                         for (Player* plr : playerList)
                         {
-                            if (plr->GetCurrentSpell(CURRENT_GENERIC_SPELL)    || 
-                                plr->GetCurrentSpell(CURRENT_MELEE_SPELL)      || 
+                            if (plr->GetCurrentSpell(CURRENT_GENERIC_SPELL)    ||
+                                plr->GetCurrentSpell(CURRENT_MELEE_SPELL)      ||
                                 plr->GetCurrentSpell(CURRENT_CHANNELED_SPELL)  ||
                                 plr->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL) ||
                                 plr->HasUnitState(UNIT_STATE_CASTING))
@@ -1494,7 +1483,7 @@ class mob_sha_of_fear : public CreatureScript
                 me->SetDisplayId(DISPLAYID_INVISIBLE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 damage = 0;
             }
@@ -1910,6 +1899,7 @@ class spell_visions_of_demise : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_shekzeer()
 {
     new boss_shekzeer();                // 62837 - Shek'zeer
@@ -1927,3 +1917,4 @@ void AddSC_boss_shekzeer()
     new spell_calamity();               // 124845 - Calamity
     new spell_visions_of_demise();      // 124862 - Visions of Demise
 }
+#endif

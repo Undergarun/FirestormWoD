@@ -1,21 +1,10 @@
-/*
-* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "PetBattle.h"
 #include "PetBattleAbilityEffect.h"
@@ -770,7 +759,7 @@ bool PetBattleTeam::CanSwap(int8 p_ReplacementPet)
     if (HasPendingMultiTurnCast())
         return false;
 
-    if (PetBattleInstance->Pets[ActivePetID]->IsAlive() 
+    if (PetBattleInstance->Pets[ActivePetID]->IsAlive()
         &&  (  PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_swapOutLock]
             || PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsWebbed]))
         return false;
@@ -1090,7 +1079,7 @@ void PetBattle::Begin()
             l_Player->PetBattleCountBattleSpecies();
 
             l_Player->GetSession()->SendPetBattleInitialUpdate(this);
-            l_Player->GetSession()->SendPetBattleFirstRound(this); 
+            l_Player->GetSession()->SendPetBattleFirstRound(this);
         }
 
         RoundEvents.clear();
@@ -1337,7 +1326,7 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                 {
                     uint32  l_MyTeamPetCount = Teams[l_CurrentTeamID]->TeamPetCount; ///< l_MyTeamPetCount is never read 01/18/16
                     uint32  l_XpEarn = 0;
-                    float   l_XpMod[] = { 1.f, 1.f, 0.5f };
+                    float   l_XpMod[] = { 1.0f, 1.0f, 0.5f };
 
                     for (uint32 l_OpponentTeamCurrentPet = 0; l_OpponentTeamCurrentPet < Teams[PETBATTLE_PVE_TEAM_ID]->TeamPetCount; l_OpponentTeamCurrentPet++)
                     {

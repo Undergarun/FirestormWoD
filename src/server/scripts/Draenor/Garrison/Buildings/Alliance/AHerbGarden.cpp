@@ -1,16 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "AHerbGarden.hpp"
 #include "../../GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
 
     std::vector<uint32> g_AllyHerbsGobsEntry
@@ -43,17 +44,17 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_OllyNimkipAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -99,7 +100,7 @@ namespace MS { namespace Garrison
         {
             if (p_Player->GetGarrison())
             {
-                if (!p_Player->GetGarrison()->HasFollowerAbility(MS::Garrison::GarrisonAbilities::AbilityHerbalism))
+                if (!p_Player->GetGarrison()->HasFollowerAbility(MS::Garrison::GarrisonAbilitiesEnum::AbilityHerbalism))
                     p_Player->GetSession()->SendListInventory(p_Creature->GetGUID());
                 else
                 {
@@ -119,7 +120,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_NaronBloomthistle::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_NaronBloomthistle::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
         CreatureAI* l_AI = p_Creature->AI();
@@ -193,7 +194,7 @@ namespace MS { namespace Garrison
 
     /// When the PlotInstance ID is set
     /// @p_BuildingID : Set plot instance ID
-    void npc_NaronBloomthistleAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_NaronBloomthistleAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 
@@ -230,7 +231,7 @@ namespace MS { namespace Garrison
             static const uint32 s_PositionCount = sizeof(s_Position) / sizeof(s_Position[0]);
 
             std::list<Creature*> l_CreatureList;
-            me->GetCreatureListWithEntryInGrid(l_CreatureList, NPCs::LunarfallRaccoon, 65.f);
+            me->GetCreatureListWithEntryInGrid(l_CreatureList, NPCs::LunarfallRaccoon, 65.0f);
 
             for (Creature* l_Creature : l_CreatureList)
                 l_Creature->DespawnOrUnsummon();
@@ -240,7 +241,7 @@ namespace MS { namespace Garrison
                 SequencePosition const& l_CurrentPosition = s_Position[l_I];
                 Creature * l_Creature = SummonRelativeCreature(NPCs::LunarfallRaccoon, l_CurrentPosition.X, l_CurrentPosition.Y, l_CurrentPosition.Z, 0, TEMPSUMMON_MANUAL_DESPAWN);
                 if (l_Creature)
-                    l_Creature->GetMotionMaster()->MoveRandom(10.f);
+                    l_Creature->GetMotionMaster()->MoveRandom(10.0f);
             }
         }
     }
@@ -252,7 +253,7 @@ namespace MS { namespace Garrison
     /// @p_Player : Subject
     /// @p_Quest  : Rewarded quest template
     /// @p_Opt    : Quest reward option (eg: Loot choose)
-    void npc_NaronBloomthistleAI::sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Opt)
+    void npc_NaronBloomthistleAI::sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 /*p_Opt*/)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 
@@ -269,7 +270,7 @@ namespace MS { namespace Garrison
             static const Position s_CinematicLoc = { 1847.9746f, 144.6517f, 78.40f, 0.803772f };
 
             std::list<Creature*> l_CreatureList;
-            me->GetCreatureListWithEntryInGrid(l_CreatureList, NPCs::LunarfallRaccoon, 65.f);
+            me->GetCreatureListWithEntryInGrid(l_CreatureList, NPCs::LunarfallRaccoon, 65.0f);
 
             for (Creature* l_Creature : l_CreatureList)
                 l_Creature->DespawnOrUnsummon();

@@ -18,14 +18,6 @@ if(WITHOUT_GIT)
   set(rev_branch "Archived")
 else()
   if(GIT_EXECUTABLE)
-     # Get the tag that we can use
-     execute_process(
-       COMMAND "${GIT_EXECUTABLE}" pull --tags
-       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-       OUTPUT_STRIP_TRAILING_WHITESPACE
-       ERROR_QUIET
-     )
-
     # Create a revision-string that we can use
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" describe --dirty=+ --abbrev=12

@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -8,9 +16,9 @@
 class npc_prince_anduin : public CreatureScript
 {
     public:
-        npc_prince_anduin() : CreatureScript("npc_prince_anduin") 
-		{ 
-		}
+        npc_prince_anduin() : CreatureScript("npc_prince_anduin")
+        {
+        }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -49,7 +57,7 @@ class npc_prince_anduin : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
         };
@@ -59,11 +67,11 @@ class npc_prince_anduin : public CreatureScript
 class npc_kairoz : public CreatureScript
 {
     public:
-        npc_kairoz() : CreatureScript("npc_kairoz") 
-		{
-		}
+        npc_kairoz() : CreatureScript("npc_kairoz")
+        {
+        }
 
-        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
+        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
         {
             if (quest->GetQuestId() == QUEST_TIME_KEEPER_KAIROZ_H || quest->GetQuestId() == QUEST_TIME_KEEPER_KAIROZ_A)
             {
@@ -97,7 +105,7 @@ class npc_kairoz : public CreatureScript
                 conversationEngaged = false;
             }
 
-            void SetGUID(uint64 guid, int32 bab /*= 0*/)
+            void SetGUID(uint64 guid, int32 /*p_Id*/ /*= 0*/)
             {
                 playerGuid = guid;
             }
@@ -347,9 +355,11 @@ class spell_item_timeless_caches : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_timeless_isle()
 {
     new npc_prince_anduin();
     new npc_kairoz();
     new spell_item_timeless_caches();
 }
+#endif

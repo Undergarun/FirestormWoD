@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 #include "../../ProfessionBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 79826 - Pozzlow                                                   ////
@@ -39,7 +39,7 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
-    }    
+    }
 
     class npc_GarbraFizzwonk : public CreatureScript
     {

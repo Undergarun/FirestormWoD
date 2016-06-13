@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -31,7 +21,7 @@ enum eSpells
 
     SPELL_MUNITION_STABLE               = 109987,
     SPELL_MUNITION_EXPLOSION            = 107153,
-    SPELL_MUNITION_EXPLOSION_AURA       = 120551,
+    SPELL_MUNITION_EXPLOSION_AURA       = 120551
 };
 
 enum eEvents
@@ -84,7 +74,7 @@ class boss_saboteur_kiptilak : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 switch (attacker->GetEntry())
                 {
@@ -221,12 +211,12 @@ public:
             me->AddAura(SPELL_MUNITION_EXPLOSION_AURA, me);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             damage = 0;
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id)
         {
             if (id == 1)
                 me->DespawnOrUnsummon();
@@ -346,6 +336,7 @@ class spell_kiptilak_sabotage: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_saboteur_kiptilak()
 {
     new boss_saboteur_kiptilak();
@@ -353,3 +344,4 @@ void AddSC_boss_saboteur_kiptilak()
     new spell_kiptilak_munitions_explosion();
     new spell_kiptilak_sabotage();
 }
+#endif

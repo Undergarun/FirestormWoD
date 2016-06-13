@@ -1,5 +1,3 @@
-#ifndef JADE_FOREST_H
-#define JADE_FOREST_H
 
 namespace FrostfireRidgeSpells
 {
@@ -37,7 +35,7 @@ namespace FrostfireRidgeCreatures
 {
     enum
     {
+        FrostWolfHowler = 78894
     };
 }
 
-#endif

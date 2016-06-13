@@ -1,7 +1,10 @@
-/*
-    Dungeon : Stormstout Brewery 85-87
-    Instance General Script
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -49,14 +52,15 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* /*go*/)
         {
         }
 
-        void SetData(uint32 type, uint32 data)
-        {}
+        void SetData(uint32 /*type*/, uint32 /*p_Data*/)
+        {
+        }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 /*type*/)
         {
             return 0;
         }
@@ -79,7 +83,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_stormstout_brewery()
 {
     new instance_stormstout_brewery();
 }
+#endif

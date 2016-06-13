@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "deadmines.h"
 #include "Vehicle.h"
@@ -12,7 +20,7 @@ enum ScriptTexts
     SAY_OAF_DEAD = 2,
 
     SAY_OAF1     = 0,
-    SAY_OAF2     = 1,
+    SAY_OAF2     = 1
 };
 
 enum Spells
@@ -29,13 +37,13 @@ enum Spells
     SPELL_OAF_SMASH_H           = 91568,
     SPELL_CHARGE                = 88288,
     SPELL_FORCE_PLAYER_RIDE_OAF = 88278,
-    SPELL_RIDE_OAF              = 88277,
+    SPELL_RIDE_OAF              = 88277
 };
 
 enum Adds
 {
     NPC_STICKY_BOMB = 47314,
-    NPC_HELIX_CREW  = 49136,
+    NPC_HELIX_CREW  = 49136
 };
 
 enum Events
@@ -50,28 +58,28 @@ enum Events
     EVENT_CHARGE_OAF3   = 4,
     EVENT_BOMB_READY    = 9,
     EVENT_BOMB_EXPLODE  = 10,
-    EVENT_CHEST_BOMB    = 11,
+    EVENT_CHEST_BOMB    = 11
 };
 
 enum Points
 {
     POINT_START = 1,
-    POINT_END   = 2,
+    POINT_END   = 2
 };
 
 enum Actions
 {
-    ACTION_CHARGE   = 1,
+    ACTION_CHARGE   = 1
 };
 
-const Position lumberingoafPos[3] = 
+const Position lumberingoafPos[3] =
 {
     {-301.93f, -516.32f, 51.71f, 2.03f},
     {-289.98f, -528.06f, 49.75f, 1.59f},
-    {-289.67f, -488.46f, 49.80f, 1.54f} 
+    {-289.67f, -488.46f, 49.80f, 1.54f}
 };
 
-const Position helixcrewPos[4] = 
+const Position helixcrewPos[4] =
 {
     {-295.26f,-503.38f,60.16f, 0.0f},
     {-280.85f,-503.98f,60.16f, 0.0f},
@@ -108,7 +116,7 @@ class boss_helix_gearbreaker : public CreatureScript
                 me->setActive(true);
             }
             
-            void Reset() 
+            void Reset()
             {
                 _Reset();
             }
@@ -126,7 +134,7 @@ class boss_helix_gearbreaker : public CreatureScript
                 instance->SetBossState(DATA_HELIX, IN_PROGRESS);
             }
 
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit * /*victim*/)
             {
                 Talk(SAY_KILL);
             }
@@ -170,7 +178,7 @@ class boss_helix_gearbreaker : public CreatureScript
                         case EVENT_STICKY_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
-                                me->SummonCreature(NPC_STICKY_BOMB, 
+                                me->SummonCreature(NPC_STICKY_BOMB,
                                     target->GetPositionX(),
                                     target->GetPositionY(),
                                     target->GetPositionZ(),
@@ -203,7 +211,7 @@ class npc_lumbering_oaf : public CreatureScript
      
         struct npc_lumbering_oafAI : public ScriptedAI
         {
-            npc_lumbering_oafAI(Creature *c) : ScriptedAI(c) 
+            npc_lumbering_oafAI(Creature *c) : ScriptedAI(c)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -238,7 +246,7 @@ class npc_lumbering_oaf : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_CHARGE_OAF0, 10000);
             }
@@ -248,7 +256,7 @@ class npc_lumbering_oaf : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (me->GetHealth() <= damage)
                     me->GetVehicleKit()->RemoveAllPassengers();
@@ -355,13 +363,13 @@ class npc_sticky_bomb : public CreatureScript
                 events.Reset();
             }
      
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_BOMB_READY, 6000);
                 events.ScheduleEvent(EVENT_BOMB_EXPLODE, 18000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -402,7 +410,7 @@ class npc_helix_crew : public CreatureScript
      
         struct npc_helix_crewAI : public Scripted_NoMovementAI
         {
-            npc_helix_crewAI(Creature *c) : Scripted_NoMovementAI(c), summons(me) 
+            npc_helix_crewAI(Creature *c) : Scripted_NoMovementAI(c), summons(me)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -446,12 +454,12 @@ class npc_helix_crew : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_STICKY_BOMB, 8000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 if (!pInstance)
                     return;
@@ -523,7 +531,7 @@ class spell_helix_force_player_to_ride_oaf: public SpellScriptLoader
 
         class spell_helix_force_player_to_ride_oaf_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_helix_force_player_to_ride_oaf_SpellScript);
+            PrepareSpellScript(spell_helix_force_player_to_ride_oaf_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -547,6 +555,7 @@ class spell_helix_force_player_to_ride_oaf: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_helix_gearbreaker()
 {
     new boss_helix_gearbreaker();
@@ -556,3 +565,4 @@ void AddSC_boss_helix_gearbreaker()
     new spell_helix_force_player_to_ride_oaf();
     new spell_helix_chest_bomb();
 }
+#endif

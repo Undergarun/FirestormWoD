@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "the_stonecore.h"
 
@@ -8,7 +16,7 @@ enum Spells
     SPELL_LAVA_FISSURE_DUM  = 80798,
     SPELL_ERUPTION          = 80800,
     SPELL_ERUPTION_AURA     = 80801,
-    SPELL_ERUPTION_H        = 92657,
+    SPELL_ERUPTION_H        = 92657
 };
 
 enum Events
@@ -17,14 +25,14 @@ enum Events
     EVENT_LAVA_FISSURE  = 2,
     EVENT_FLY           = 3,
     EVENT_GROUND        = 4,
-    EVENT_ERUPTION      = 5,
+    EVENT_ERUPTION      = 5
 };
 
 enum Adds
 {
     NPC_LAVA_FISSURE = 43242,
     NPC_STALACTITE_TRIGGER  = 43159,
-    NPC_STALACTITE__GROUND_TRIGGER = 43357,
+    NPC_STALACTITE__GROUND_TRIGGER = 43357
 };
 
 Position slabhidegroundPos = {1278.23f, 1212.27f, 247.28f, 0.0f};
@@ -76,7 +84,7 @@ class boss_slabhide : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_FLY, 50000);
                 events.ScheduleEvent(EVENT_SAND_BLAST, 10000);
@@ -84,7 +92,7 @@ class boss_slabhide : public CreatureScript
                 instance->SetBossState(DATA_SLABHIDE, IN_PROGRESS);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 me->SetCanFly(false);
@@ -202,8 +210,10 @@ class npc_lava_fissure : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_slabhide()
 {
     new boss_slabhide();
     new npc_lava_fissure();
 }
+#endif

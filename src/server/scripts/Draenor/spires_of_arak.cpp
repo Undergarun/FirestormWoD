@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
@@ -15,7 +15,7 @@
 #include "NPCHandler.h"
 #include "Vehicle.h"
 #include "PhaseMgr.h"
-#include <random>
+#include "Common.h"
 
 /// 83746 - Rukhmar
 class boss_rukhmar : public CreatureScript
@@ -44,7 +44,7 @@ class boss_rukhmar : public CreatureScript
             float m_ZRef;
             float m_ZNew;
 
-            void Reset()
+            void Reset() override
             {
                 m_ZRef               = 0.0f;
                 me->m_CombatDistance = 90.0f;
@@ -90,7 +90,7 @@ class boss_rukhmar : public CreatureScript
                   m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 38000);
             }
 
-            void EnterCombat(Unit* p_Who) override
+            void EnterCombat(Unit* /*p_Who*/) override
             {
                 me->SetHomePosition(*me);
                 me->AddAura(SpiresOfArakSpells::SpellSolarRadiationAura, me);
@@ -162,7 +162,7 @@ class boss_rukhmar : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_MoveType, uint32 p_ID) override
+            void MovementInform(uint32 /*p_MoveType*/, uint32 p_ID) override
             {
                 switch (p_ID)
                 {
@@ -460,9 +460,7 @@ class spell_rukhmar_blaze_of_glory : public SpellScriptLoader
 
         class spell_rukhmar_blaze_of_glory_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rukhmar_blaze_of_glory_SpellScript);
-
-            uint64 m_MainTarget;
+            PrepareSpellScript(spell_rukhmar_blaze_of_glory_SpellScript)
 
             void HandleOnCast()
             {
@@ -520,7 +518,7 @@ class spell_rukhmar_loose_quills : public SpellScriptLoader
 
         class spell_rukhmar_loose_quills_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rukhmar_loose_quills_AuraScript);
+            PrepareAuraScript(spell_rukhmar_loose_quills_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -556,9 +554,9 @@ class spell_aura_pierced_armor : public SpellScriptLoader
 
         class spell_aura_pierced_armor_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_aura_pierced_armor_AuraScript);
+            PrepareAuraScript(spell_aura_pierced_armor_AuraScript)
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 WorldObject* l_Owner = GetOwner();
 
@@ -581,6 +579,169 @@ class spell_aura_pierced_armor : public SpellScriptLoader
         }
 };
 
+/// Free Prisoners - 172113
+class spell_quest_spires_of_arak_free_prisoners : public SpellScriptLoader
+{
+    public:
+        /// Constructor
+        spell_quest_spires_of_arak_free_prisoners() : SpellScriptLoader("spell_quest_spires_of_arak_free_prisoners") { }
+
+        class spell_quest_spires_of_arak_free_prisoners_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_spires_of_arak_free_prisoners_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (l_Target->GetEntry() == SpiresOfArakCreatures::PrisonerPost)
+                    {
+                        Creature* l_Creature = l_Target->FindNearestCreature(SpiresOfArakCreatures::RavenspeakerInitiate, 1.2f);
+
+                        if (l_Creature)
+                        {
+                            l_Creature->CastStop(SpiresOfArakSpells::Rope);
+                            l_Creature->RemoveAura(SpiresOfArakSpells::Rope);
+                            l_Creature->GetMotionMaster()->MoveFleeing(l_Caster, 5 * TimeConstants::IN_MILLISECONDS);
+                            l_Creature->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
+                        }
+ 
+                        l_Target->ToCreature()->DespawnOrUnsummon(0);
+                    }
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_spires_of_arak_free_prisoners_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_spires_of_arak_free_prisoners_SpellScript();
+        }
+};
+
+/// Detonate Iron Grenade - 172944
+class spell_quest_spires_of_arak_detonate_iron_grenade : public SpellScriptLoader
+{
+    public:
+        /// Constructor
+        spell_quest_spires_of_arak_detonate_iron_grenade() : SpellScriptLoader("spell_quest_spires_of_arak_detonate_iron_grenade") { }
+
+        class spell_quest_spires_of_arak_detonate_iron_grenade_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_spires_of_arak_detonate_iron_grenade_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster)
+                {
+                    Creature* l_Creature = l_Caster->FindNearestCreature(SpiresOfArakCreatures::IronGrenad, 1.2f);
+
+                    if (l_Creature)
+                        l_Creature->DespawnOrUnsummon(0 * TimeConstants::IN_MILLISECONDS);
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_quest_spires_of_arak_detonate_iron_grenade_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_KILL_CREDIT2);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_spires_of_arak_detonate_iron_grenade_SpellScript();
+        }
+};
+
+/// Barrel of Harvested Toxin - 233035
+class go_spires_of_arak_barrel_of_harvested_toxin : public GameObjectScript
+{
+    enum
+    {
+        LastPhase           = 0x80000000,
+        InvisibleDisplayID  = 11686
+    };
+
+    public:
+        /// Constructor
+        go_spires_of_arak_barrel_of_harvested_toxin() : GameObjectScript("go_spires_of_arak_barrel_of_harvested_toxin") { }
+
+        struct go_spires_of_arak_barrel_of_harvested_toxinAI : public GameObjectAI
+        {
+            /// Constructor
+            go_spires_of_arak_barrel_of_harvested_toxinAI(GameObject* p_GameObject)
+                : GameObjectAI(p_GameObject), m_Used(false)
+            {
+                m_OriginalScale     = go->GetFloatValue(EObjectFields::OBJECT_FIELD_SCALE);
+                m_OriginalDisplayID = go->GetDisplayId();
+                m_OriginalPhase     = go->GetPhaseMask();
+            }
+
+            void UpdateAI(uint32 p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+            }
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            bool GossipHello(Player* p_Player) override
+            {
+                if (m_Used)
+                    return true;
+
+                m_Used = true;
+
+                uint64 l_PlayerGUID = p_Player->GetGUID();
+
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_PlayerGUID]()
+                {
+                    go->SetObjectScale(0.01f);
+                    go->SetDisplayId(InvisibleDisplayID);
+                    go->SetPhaseMask(LastPhase, true);
+
+                    if (Player* l_Player = HashMapHolder<Player>::Find(l_PlayerGUID))
+                        l_Player->QuestObjectiveSatisfy(go->GetEntry(), 1, QUEST_OBJECTIVE_TYPE_GO, go->GetGUID());
+                });
+                AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]()
+                {
+                    go->SetPhaseMask(m_OriginalPhase, true);
+                    go->SetObjectScale(m_OriginalScale);
+                    go->SetDisplayId(m_OriginalDisplayID);
+                    m_Used = false;
+                });
+
+                return false;
+            }
+
+            bool m_Used;
+            float m_OriginalScale;
+            uint32 m_OriginalDisplayID;
+            uint32 m_OriginalPhase;
+        };
+
+        /// Called when a GameObjectAI object is needed for the GameObject.
+        /// @p_GameObject : GameObject instance
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
+        {
+            return new go_spires_of_arak_barrel_of_harvested_toxinAI(p_GameObject);
+        }
+};
+
+
+#ifndef __clang_analyzer__
 void AddSC_spires_of_arak()
 {
     new boss_rukhmar();
@@ -588,4 +749,8 @@ void AddSC_spires_of_arak()
     new spell_rukhmar_blaze_of_glory();
     new spell_rukhmar_loose_quills();
     new spell_aura_pierced_armor();
+    new spell_quest_spires_of_arak_free_prisoners();
+    new spell_quest_spires_of_arak_detonate_iron_grenade();
+    new go_spires_of_arak_barrel_of_harvested_toxin();
 }
+#endif

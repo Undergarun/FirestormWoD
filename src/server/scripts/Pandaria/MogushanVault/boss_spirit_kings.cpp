@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -104,7 +93,7 @@ enum eEvents
     EVENT_SLEIGHT_OF_HAND       = 18,
     EVENT_SHIELD_OF_DARKNESS    = 19,
 
-    EVENT_CHECK_SPIRITKINGS     = 20,
+    EVENT_CHECK_SPIRITKINGS     = 20
 };
 
 enum equipId
@@ -114,7 +103,7 @@ enum equipId
     EQUIP_SUBETAI_BOW           = 60790,
     EQUIP_ZIAN_STAFF            = 76369,
     EQUIP_FLANKING_MOGU_SWORD   = 68838,
-    EQUIP_FLANKING_MOGU_SHIELD  = 32375,
+    EQUIP_FLANKING_MOGU_SHIELD  = 32375
 };
 
 enum qiangTalk
@@ -123,7 +112,7 @@ enum qiangTalk
     QIANG_DEATH     = 1,
     QIANG_INTRO     = 2,
     QIANG_SLAY      = 3,
-    QIANG_SPELL     = 4,
+    QIANG_SPELL     = 4
 };
 
 enum subetaiTalk
@@ -132,7 +121,7 @@ enum subetaiTalk
     SUBETAI_DEATH   = 1,
     SUBETAI_INTRO   = 2,
     SUBETAI_SLAY    = 3,
-    SUBETAI_SPELL   = 4,
+    SUBETAI_SPELL   = 4
 };
 
 enum zianTalk
@@ -141,7 +130,7 @@ enum zianTalk
     ZIAN_DEATH  = 1,
     ZIAN_INTRO  = 2,
     ZIAN_SLAY   = 3,
-    ZIAN_SPELL  = 4,
+    ZIAN_SPELL  = 4
 };
 
 enum mengTalk
@@ -151,7 +140,7 @@ enum mengTalk
     MENG_DEATH_COWARDICE    = 2,
     MENG_INTRO              = 3,
     MENG_SLAY               = 4,
-    MENG_SPELL              = 5,
+    MENG_SPELL              = 5
 };
 
 #define MAX_FLANKING_MOGU   48
@@ -598,7 +587,7 @@ class boss_spirit_kings_controler : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -653,7 +642,7 @@ class boss_spirit_kings : public CreatureScript
             uint8 shadowCount;
             uint8 maxShadowCount;
 
-            void Reset()
+            void Reset() override
             {
                 shadowCount = 0;
                 maxShadowCount = 3;
@@ -691,7 +680,7 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void JustReachedHome()
+            void JustReachedHome() override
             {
                 if (me->GetEntry() != NPC_QIANG)
                 {
@@ -714,7 +703,7 @@ class boss_spirit_kings : public CreatureScript
                     return NULL;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
             {
                 if (me->IsWithinDistInMap(who, 50.0f, false) && !_introQiangDone && me->GetEntry() == NPC_QIANG)
                 {
@@ -727,7 +716,7 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/) override
             {
 
                 if (pInstance)
@@ -796,7 +785,7 @@ class boss_spirit_kings : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 action) override
             {
                 switch (action)
                 {
@@ -875,7 +864,7 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) override
             {
                 summons.Summon(summon);
 
@@ -883,7 +872,7 @@ class boss_spirit_kings : public CreatureScript
                     ++shadowCount;
             }
 
-            void SummonedCreatureDespawn(Creature* summon)
+            void SummonedCreatureDespawn(Creature* summon) override
             {
                 summons.Despawn(summon);
 
@@ -891,7 +880,7 @@ class boss_spirit_kings : public CreatureScript
                     --shadowCount;
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == POINT_MOTION_TYPE)
                 {
@@ -902,14 +891,14 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers power, int32& value)
+            void RegeneratePower(Powers /*power*/, int32& value) override
             {
                 // Any regeneration for Meng, except with Crazed or Cowardice
                 if (me->GetEntry() == NPC_MENG)
                     value = 0;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->GetEntry() == NPC_QIANG)
                 {
@@ -1019,7 +1008,7 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* who) override
             {
                 if (who->IsPlayer())
                 {
@@ -1043,7 +1032,7 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 if (!UpdateVictim() && preEventDone)
                     return;
@@ -1296,7 +1285,7 @@ class mob_pinning_arrow : public CreatureScript
                 victim->RemoveAurasDueToSpell(SPELL_PINNED_DOWN_DOT);
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*attacker*/)
             {
                 if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                 {
@@ -1307,7 +1296,7 @@ class mob_pinning_arrow : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*diff*/)
             {
                 if (me->HasUnitState(UNIT_STATE_UNATTACKABLE))
                     me->ClearUnitState(UNIT_STATE_UNATTACKABLE);
@@ -1362,7 +1351,7 @@ class mob_undying_shadow : public CreatureScript
                 phase = PHASE_UNDYING_SHADOW;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (phase == PHASE_UNDYING_SHADOW)
                 {
@@ -1568,7 +1557,7 @@ class spell_maddening_shout : public SpellScriptLoader
         {
             PrepareAuraScript(spell_maddening_shout_AuraScript);
 
-            void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 if (Unit* attacker = dmgInfo.GetAttacker())
                     if (attacker->GetTypeId() != TYPEID_PLAYER)
@@ -1713,7 +1702,7 @@ class spell_crazy_thought : public SpellScriptLoader
         {
             PrepareSpellScript(spell_crazy_thought_SpellScript);
 
-            void HandleEffect(SpellEffIndex effIndex)
+            void HandleEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1852,6 +1841,7 @@ class spell_shield_of_darkness : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_spirit_kings()
 {
     new boss_spirit_kings_controler();
@@ -1868,3 +1858,4 @@ void AddSC_boss_spirit_kings()
     new spell_sleight_of_hand();
     new spell_shield_of_darkness();
 }
+#endif

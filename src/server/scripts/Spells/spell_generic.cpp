@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Scripts for spells with SPELLFAMILY_GENERIC which cannot be included in AI script file
@@ -174,7 +165,7 @@ class spell_gen_burn_brutallus: public SpellScriptLoader
 
 enum CannibalizeSpells
 {
-    SPELL_CANNIBALIZE_TRIGGERED = 20578,
+    SPELL_CANNIBALIZE_TRIGGERED = 20578
 };
 
 class spell_gen_cannibalize: public SpellScriptLoader
@@ -230,7 +221,7 @@ class spell_gen_cannibalize: public SpellScriptLoader
 enum ParachuteSpells
 {
     SPELL_PARACHUTE         = 45472,
-    SPELL_PARACHUTE_BUFF    = 44795,
+    SPELL_PARACHUTE_BUFF    = 44795
 };
 
 class spell_gen_parachute: public SpellScriptLoader
@@ -275,7 +266,7 @@ enum NPCEntries
 {
     NPC_DOOMGUARD   = 11859,
     NPC_INFERNAL    = 89,
-    NPC_IMP         = 416,
+    NPC_IMP         = 416
 };
 
 class spell_gen_pet_summoned: public SpellScriptLoader
@@ -405,7 +396,7 @@ class spell_gen_remove_flight_auras: public SpellScriptLoader
 enum LeechingSwarmSpells
 {
     SPELL_LEECHING_SWARM_DMG    = 66240,
-    SPELL_LEECHING_SWARM_HEAL   = 66125,
+    SPELL_LEECHING_SWARM_HEAL   = 66125
 };
 
 class spell_gen_leeching_swarm: public SpellScriptLoader
@@ -417,7 +408,7 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_leeching_swarm_AuraScript);
 
-            bool Validate(SpellInfo const* spellEntry)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_DMG) || !sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_HEAL))
                     return false;
@@ -459,7 +450,7 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
                 }
             }
 
-            void CheckSpell(AuraEffect const* aurEff, bool& isPeriodic, int32& amplitude)
+            void CheckSpell(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& /*amplitude*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Owner = GetUnitOwner();
@@ -529,7 +520,7 @@ enum EluneCandle
     SPELL_ELUNE_CANDLE_OMEN_CHEST  = 26624,
     SPELL_ELUNE_CANDLE_OMEN_HAND_R = 26625,
     SPELL_ELUNE_CANDLE_OMEN_HAND_L = 26649,
-    SPELL_ELUNE_CANDLE_NORMAL      = 26636,
+    SPELL_ELUNE_CANDLE_NORMAL      = 26636
 };
 
 class spell_gen_elune_candle: public SpellScriptLoader
@@ -621,7 +612,7 @@ class spell_creature_permanent_feign_death: public SpellScriptLoader
 enum PvPTrinketTriggeredSpells
 {
     SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER         = 72752,
-    SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF    = 72757,
+    SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF    = 72757
 };
 
 class spell_pvp_trinket_wotf_shared_cd: public SpellScriptLoader
@@ -667,7 +658,7 @@ class spell_pvp_trinket_wotf_shared_cd: public SpellScriptLoader
 enum AnimalBloodPoolSpell
 {
     SPELL_ANIMAL_BLOOD      = 46221,
-    SPELL_SPAWN_BLOOD_POOL  = 63471,
+    SPELL_SPAWN_BLOOD_POOL  = 63471
 };
 
 class spell_gen_animal_blood: public SpellScriptLoader
@@ -715,7 +706,7 @@ class spell_gen_animal_blood: public SpellScriptLoader
 
 enum DivineStormSpell
 {
-    SPELL_DIVINE_STORM  = 53385,
+    SPELL_DIVINE_STORM  = 53385
 };
 
 // 70769 Divine Storm!
@@ -795,7 +786,7 @@ class spell_gen_gunship_portal: public SpellScriptLoader
 
 enum parachuteIC
 {
-    SPELL_PARACHUTE_IC = 66657,
+    SPELL_PARACHUTE_IC = 66657
 };
 
 class spell_gen_parachute_ic: public SpellScriptLoader
@@ -1112,7 +1103,7 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
 
 enum FriendOrFowl
 {
-    SPELL_TURKEY_VENGEANCE  = 25285,
+    SPELL_TURKEY_VENGEANCE  = 25285
 };
 
 class spell_gen_turkey_marker: public SpellScriptLoader
@@ -1164,7 +1155,7 @@ enum MagicRoosterSpells
 {
     SPELL_MAGIC_ROOSTER_NORMAL          = 66122,
     SPELL_MAGIC_ROOSTER_DRAENEI_MALE    = 66123,
-    SPELL_MAGIC_ROOSTER_TAUREN_MALE     = 66124,
+    SPELL_MAGIC_ROOSTER_TAUREN_MALE     = 66124
 };
 
 class spell_gen_magic_rooster: public SpellScriptLoader
@@ -1297,7 +1288,7 @@ class spell_gen_launch: public SpellScriptLoader
 
 enum VehicleScaling
 {
-    SPELL_GEAR_SCALING      = 66668,
+    SPELL_GEAR_SCALING      = 66668
 };
 
 class spell_gen_vehicle_scaling: public SpellScriptLoader
@@ -1488,7 +1479,7 @@ class spell_gen_luck_of_the_draw: public SpellScriptLoader
 enum DummyTrigger
 {
     SPELL_PERSISTANT_SHIELD_TRIGGERED       = 26470,
-    SPELL_PERSISTANT_SHIELD                 = 26467,
+    SPELL_PERSISTANT_SHIELD                 = 26467
 };
 
 class spell_gen_dummy_trigger: public SpellScriptLoader
@@ -1573,7 +1564,7 @@ enum TransporterBackfires
 {
     SPELL_TRANSPORTER_MALFUNCTION_POLYMORPH     = 23444,
     SPELL_TRANSPORTER_EVIL_TWIN                 = 23445,
-    SPELL_TRANSPORTER_MALFUNCTION_MISS          = 36902,
+    SPELL_TRANSPORTER_MALFUNCTION_MISS          = 36902
 };
 
 class spell_gen_gadgetzan_transporter_backfire: public SpellScriptLoader
@@ -1620,7 +1611,7 @@ class spell_gen_gadgetzan_transporter_backfire: public SpellScriptLoader
 enum GnomishTransporter
 {
     SPELL_TRANSPORTER_SUCCESS                   = 23441,
-    SPELL_TRANSPORTER_FAILURE                   = 23446,
+    SPELL_TRANSPORTER_FAILURE                   = 23446
 };
 
 class spell_gen_gnomish_transporter: public SpellScriptLoader
@@ -1665,7 +1656,7 @@ enum DalaranDisguiseSpells
 
     SPELL_SILVER_COVENANT_DISGUISE_TRIGGER = 69673,
     SPELL_SILVER_COVENANT_DISGUISE_FEMALE  = 70971,
-    SPELL_SILVER_COVENANT_DISGUISE_MALE    = 70972,
+    SPELL_SILVER_COVENANT_DISGUISE_MALE    = 70972
 };
 
 class spell_gen_dalaran_disguise: public SpellScriptLoader
@@ -1757,7 +1748,7 @@ enum BreakShieldSpells
 
     SPELL_BREAK_SHIELD_TRIGGER_FACTION_MOUNTS    = 62575, // Also on ToC5 mounts
     SPELL_BREAK_SHIELD_TRIGGER_CAMPAING_WARHORSE = 64595,
-    SPELL_BREAK_SHIELD_TRIGGER_UNK               = 66480,
+    SPELL_BREAK_SHIELD_TRIGGER_UNK               = 66480
 };
 
 class spell_gen_break_shield: public SpellScriptLoader
@@ -1883,7 +1874,7 @@ enum ChargeSpells
     SPELL_CHARGE_TRIGGER_FACTION_MOUNTS = 62960,
     SPELL_CHARGE_TRIGGER_TRIAL_CHAMPION = 68282,
 
-    SPELL_CHARGE_MISS_EFFECT            = 62977,
+    SPELL_CHARGE_MISS_EFFECT            = 62977
 };
 
 class spell_gen_mounted_charge: public SpellScriptLoader
@@ -2003,7 +1994,7 @@ enum DefendVisuals
 {
     SPELL_VISUAL_SHIELD_1 = 63130,
     SPELL_VISUAL_SHIELD_2 = 63131,
-    SPELL_VISUAL_SHIELD_3 = 63132,
+    SPELL_VISUAL_SHIELD_3 = 63132
 };
 
 class spell_gen_defend: public SpellScriptLoader
@@ -2088,7 +2079,7 @@ class spell_gen_defend: public SpellScriptLoader
 enum MountedDuelSpells
 {
     SPELL_ON_TOURNAMENT_MOUNT = 63034,
-    SPELL_MOUNTED_DUEL        = 62875,
+    SPELL_MOUNTED_DUEL        = 62875
 };
 
 class spell_gen_tournament_duel: public SpellScriptLoader
@@ -2140,7 +2131,7 @@ class spell_gen_tournament_duel: public SpellScriptLoader
 
 enum TournamentMountsSpells
 {
-    SPELL_LANCE_EQUIPPED = 62853,
+    SPELL_LANCE_EQUIPPED = 62853
 };
 
 class spell_gen_summon_tournament_mount: public SpellScriptLoader
@@ -2222,7 +2213,7 @@ enum TournamentPennantSpells
     SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION = 63501,
     SPELL_PENNANT_EBON_BLADE_ASPIRANT     = 63607,
     SPELL_PENNANT_EBON_BLADE_VALIANT      = 63608,
-    SPELL_PENNANT_EBON_BLADE_CHAMPION     = 63609,
+    SPELL_PENNANT_EBON_BLADE_CHAMPION     = 63609
 };
 
 enum TournamentMounts
@@ -2239,7 +2230,7 @@ enum TournamentMounts
     NPC_FORSAKEN_WARHORSE           = 33324,
     NPC_ARGENT_WARHORSE             = 33782,
     NPC_ARGENT_STEED_ASPIRANT       = 33845,
-    NPC_ARGENT_HAWKSTRIDER_ASPIRANT = 33844,
+    NPC_ARGENT_HAWKSTRIDER_ASPIRANT = 33844
 };
 
 enum TournamentQuestsAchievements
@@ -2277,7 +2268,7 @@ enum TournamentQuestsAchievements
     QUEST_VALIANT_OF_UNDERCITY         = 13710,
     QUEST_A_VALIANT_OF_UNDERCITY       = 13695,
     QUEST_VALIANT_OF_SILVERMOON        = 13711,
-    QUEST_A_VALIANT_OF_SILVERMOON      = 13696,
+    QUEST_A_VALIANT_OF_SILVERMOON      = 13696
 };
 
 class spell_gen_on_tournament_mount: public SpellScriptLoader
@@ -2473,7 +2464,7 @@ class spell_gen_tournament_pennant: public SpellScriptLoader
 
 enum ChaosBlast
 {
-    SPELL_CHAOS_BLAST   = 37675,
+    SPELL_CHAOS_BLAST   = 37675
 };
 
 class spell_gen_chaos_blast: public SpellScriptLoader
@@ -2669,7 +2660,7 @@ public:
 
 enum GenericBandage
 {
-    SPELL_RECENTLY_BANDAGED = 11196,
+    SPELL_RECENTLY_BANDAGED = 11196
 };
 
 class spell_gen_bandage: public SpellScriptLoader
@@ -2723,7 +2714,7 @@ enum GenericLifebloom
     SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL              = 52552,
     SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL           = 53692,
     SPELL_TWISTED_VISAGE_LIFEBLOOM_FINAL_HEAL           = 57763,
-    SPELL_FACTION_CHAMPIONS_DRU_LIFEBLOOM_FINAL_HEAL    = 66094,
+    SPELL_FACTION_CHAMPIONS_DRU_LIFEBLOOM_FINAL_HEAL    = 66094
 };
 
 class spell_gen_lifebloom: public SpellScriptLoader
@@ -2924,7 +2915,7 @@ enum FoamSword
 
     SPELL_BONKED = 62991,
     SPELL_FOAM_SWORD_DEFEAT = 62994,
-    SPELL_ON_GUARD = 62972,
+    SPELL_ON_GUARD = 62972
 };
 
 class spell_gen_upper_deck_create_foam_sword: public SpellScriptLoader
@@ -3014,7 +3005,7 @@ class spell_gen_gift_of_the_naaru: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_gift_of_the_naaru_AuraScript);
 
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (!GetCaster())
                     return;
@@ -3038,7 +3029,7 @@ enum RunningWildMountIds
 {
     RUNNING_WILD_MODEL_MALE     = 29422,
     RUNNING_WILD_MODEL_FEMALE   = 29423,
-    SPELL_ALTERED_FORM          = 97709,
+    SPELL_ALTERED_FORM          = 97709
 };
 
 class spell_gen_running_wild: public SpellScriptLoader
@@ -3239,7 +3230,7 @@ class spell_gen_gobelin_gumbo: public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 diff, AuraEffect* aurEff)
+            void OnUpdate(uint32 diff, AuraEffect* /*aurEff*/)
             {
                 if (GetCaster())
                 {
@@ -3268,7 +3259,7 @@ class spell_gen_gobelin_gumbo: public SpellScriptLoader
 
 enum SilvermoonPolymorph
 {
-    NPC_AUROSALIA   = 18744,
+    NPC_AUROSALIA   = 18744
 };
 
 enum magePolymorphForms
@@ -3278,7 +3269,7 @@ enum magePolymorphForms
     SPELL_MAGE_SERPENT_FORM                      = 32817,
     SPELL_MAGE_DRAGONHAWK_FORM                   = 32818,
     SPELL_MAGE_WORGEN_FORM                       = 32819,
-    SPELL_MAGE_SHEEP_FORM                        = 32820,
+    SPELL_MAGE_SHEEP_FORM                        = 32820
 };
 
 // TODO: move out of here and rename - not a mage spell
@@ -3332,7 +3323,8 @@ const uint32 spell_mage_polymorph_cast_visual::spell_mage_polymorph_cast_visual_
     SPELL_MAGE_SHEEP_FORM
 };
 
-// Hardened Shell - 129787
+/// Last Update 6.2.3
+/// Hardened Shell - 129787
 class spell_gen_hardened_shell: public SpellScriptLoader
 {
     public:
@@ -3342,30 +3334,55 @@ class spell_gen_hardened_shell: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_hardened_shell_AuraScript);
 
-            void HandleOnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void HandleOnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->IsMounted())
                 {
-                    if (Unit* target = GetTarget())
-                    {
-                        if (target->IsMounted())
-                        {
-                            target->RemoveAurasByType(SPELL_AURA_MOUNTED);
-                            target->Dismount();
-                        }
-                    }
+                    l_Target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+                    l_Target->Dismount();
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_gen_hardened_shell_AuraScript::HandleOnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        class spell_gen_hardened_shell_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_hardened_shell_SpellScript);
+
+            SpellCastResult CheckLevel()
+            {
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr)
+                    return SpellCastResult::SPELL_FAILED_SUCCESS;
+
+                if (l_Target->getLevel() > 94)
+                    return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_hardened_shell_SpellScript::CheckLevel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
             return new spell_gen_hardened_shell_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_hardened_shell_SpellScript();
         }
 };
 
@@ -3498,7 +3515,7 @@ class spell_vote_buff: public SpellScriptLoader
         {
             PrepareAuraScript(spell_vote_buff_AuraScript);
 
-            void CalculateEffectAmount(AuraEffect const* p_AuraEffect, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateEffectAmount(AuraEffect const* /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (!GetUnitOwner())
                     return;
@@ -3532,7 +3549,7 @@ class PlayerScript_Touch_Of_Elune: public PlayerScript
             EventNight  = 25 // Id on game_event
         };
 
-        void OnUpdate(Player* p_Player, uint32 p_Diff)
+        void OnUpdate(Player* p_Player, uint32 /*p_Diff*/)
         {
             if (p_Player->getRace() != Races::RACE_NIGHTELF || !p_Player->HasSpell(TouchOfELuneSpell::Racial))
                 return;
@@ -3771,7 +3788,7 @@ namespace Resolve
         {
             PrepareAuraScript(spell_resolve_passive_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (l_Target == nullptr)
@@ -3844,7 +3861,7 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
                 Fatigued = 160455
             };
 
-            void HandleImmunity(SpellEffIndex p_EffIndex)
+            void HandleImmunity(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Target = GetHitUnit();
 
@@ -3900,7 +3917,7 @@ class spell_gen_selfie_camera : public SpellScriptLoader
                 VisualKit       = 54168
             };
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /* p_Mode */)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3928,8 +3945,8 @@ class spell_gen_selfie_camera : public SpellScriptLoader
                     }
                 }
             }
-
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /* p_Mode */)
             {
                 Creature* l_PhotoBomber = ObjectAccessor::FindCreature(m_PhotoBinberGUID);
 
@@ -4189,7 +4206,7 @@ class spell_taunt_flag_targeting : public SpellScriptLoader
                 return SpellCastResult::SPELL_CAST_OK;
             }
 
-            void HandleCast(SpellEffIndex p_Index)
+            void HandleCast(SpellEffIndex /*p_Index*/)
             {
                 if (Player* l_Caster = GetCaster()->ToPlayer())
                 {
@@ -4429,7 +4446,7 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
                 TouchoftheGraveEffect = 127802
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -4617,9 +4634,22 @@ class spell_gen_shadowmeld : public SpellScriptLoader
                 l_Player->getHostileRefManager().deleteReferences();
             }
 
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (InstanceScript* l_InstanceScript = l_Caster->GetInstanceScript())
+                    {
+                        if (l_InstanceScript->IsEncounterInProgress())
+                            l_Caster->SetInCombatState(false);
+                    }
+                }
+            }
+
             void Register()
             {
                 AfterEffectApply += AuraEffectRemoveFn(spell_gen_shadowmeld_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_TOTAL_THREAT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_shadowmeld_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_TOTAL_THREAT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -4663,7 +4693,7 @@ class spell_gen_draenic_philosophers : public SpellScriptLoader
 
             int32 m_Value = 1414;
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -4713,7 +4743,7 @@ class spell_gen_jards_peculiar_energy_source : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_jards_peculiar_energy_source_SpellScript);
 
-            enum eSpells 
+            enum eSpells
             {
                 SkyGolem                    = 139192,
                 RascalBot                   = 143714,
@@ -4859,8 +4889,11 @@ class spell_gen_power_handler : public PlayerScript
     public:
         spell_gen_power_handler() : PlayerScript("spell_gen_power_handler") {}
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/, bool p_After)
         {
+            if (p_After)
+                return;
+
             if (p_Player->isInCombat())
                 return;
 
@@ -5005,7 +5038,7 @@ class spell_gen_inge_trigger_enchant : public SpellScriptLoader
                 OglethorpesMissile      = 156055
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
                 
@@ -5067,6 +5100,15 @@ class spell_gen_mark_of_thunderlord : public SpellScriptLoader
 
             void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
+                AuraEffect* p_NotConstAurEff = p_AurEff->GetBase()->GetEffect(EFFECT_1);
+                if (!p_NotConstAurEff)
+                    return;
+
+                uint8 l_TimesIncreasedTime = p_AurEff->GetAmount();
+
+                if (l_TimesIncreasedTime > 2)
+                    return;
+
                 PreventDefaultAction();
 
                 if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
@@ -5076,6 +5118,8 @@ class spell_gen_mark_of_thunderlord : public SpellScriptLoader
                     return;
 
                 p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() + 2 * IN_MILLISECONDS);
+                l_TimesIncreasedTime++;
+                p_NotConstAurEff->SetAmount(l_TimesIncreasedTime);
             }
 
             void Register()
@@ -5145,7 +5189,7 @@ class spell_gen_kilroggs_dead_eye : public SpellScriptLoader
                 p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), l_Multiplier);
             }
 
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 amount = -1;
             }
@@ -5525,7 +5569,7 @@ class spell_gen_service_uniform : public SpellScriptLoader
                 l_Player->RestoreDisplayId();
             }
             
-            void Register()
+            void Register() override
             {
                 AfterEffectApply += AuraEffectRemoveFn(spell_gen_service_uniform_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_gen_service_uniform_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
@@ -5596,7 +5640,7 @@ public:
     {
         PrepareAuraScript(spell_legendary_cloaks_AuraScript);
 
-        void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+        void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
         {
             Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
             if (l_Attacker == nullptr)
@@ -5783,7 +5827,7 @@ class spell_gen_pvp_trinket : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_pvp_trinket_SpellScript);
 
-            enum eSpells 
+            enum eSpells
             {
                 AllianceTinketVisual    = 97403,
                 HordeTinketVisual       = 97404
@@ -5851,6 +5895,7 @@ class spell_gen_mass_resurrection : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_pvp_trinket();
@@ -5970,3 +6015,4 @@ void AddSC_generic_spell_scripts()
 
     new spell_gen_mass_resurrection();
 }
+#endif

@@ -1,13 +1,10 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
-
-/* ScriptData
-SDName: Npc_EscortAI
-SD%Complete: 100
-SDComment:
-SDCategory: Npc
-EndScriptData */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Group.h"
 #include "ScriptedEscortAI.h"
@@ -60,7 +57,7 @@ bool npc_escortAI::AssistPlayerInCombat(Unit* who)
         return false;
 
     //experimental (unknown) flag not present
-    if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_CAN_ASSIST))
+    if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_ASSIST))
         return false;
 
     //not a player

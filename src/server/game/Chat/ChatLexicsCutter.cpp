@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include <cctype>
 
 #include "Common.h"
@@ -126,7 +134,7 @@ bool LexicsCutter::ReadInnormativeWords(std::string& FileName)
 
         if (strlen(line) >= 2)
         {
-            if (line[0] == '/' && line[1] == '/') 
+            if (line[0] == '/' && line[1] == '/')
                 continue;
         }
 
@@ -203,7 +211,7 @@ bool LexicsCutter::CompareWord(std::string& str, unsigned int pos, LC_WordVector
     while (i != word.end())
     {
         // get letter from word, return false if the string is shorter
-        if (!ReadUTF8(str, lchar, pos)) 
+        if (!ReadUTF8(str, lchar, pos))
             return false;
 
         // check, if the letter is in the set
@@ -227,7 +235,7 @@ bool LexicsCutter::CompareWord(std::string& str, unsigned int pos, LC_WordVector
             i++;
         }
         // set previous string letter to compare if needed (this check can really conserve time)
-        if (IgnoreLetterRepeat) 
+        if (IgnoreLetterRepeat)
             lchar_prev = lchar;
     }
 
@@ -240,7 +248,7 @@ bool LexicsCutter::CheckLexics(std::string& Phrase)
     LC_WordMap::iterator i;
     std::pair< LC_WordMap::iterator, LC_WordMap::iterator > ii;
 
-    if (Phrase.size() == 0) 
+    if (Phrase.size() == 0)
         return false;
 
     // first, convert the string, adding spaces and removing invalid characters
@@ -260,7 +268,7 @@ bool LexicsCutter::CheckLexics(std::string& Phrase)
         for (i = ii.first; i != ii.second; i++)
         {
             // compare word at initial position
-            if (CompareWord(str, pos_prev, WordList[i->second])) 
+            if (CompareWord(str, pos_prev, WordList[i->second]))
                 return true;
         }
         // set initial position to the current position

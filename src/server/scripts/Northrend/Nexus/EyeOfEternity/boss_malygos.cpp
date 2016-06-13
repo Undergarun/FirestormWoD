@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* Script Data Start
 SDName: Boss Malygos
@@ -163,7 +154,7 @@ enum Movements
     POINT_FLY_OUT_OF_PLATFORM_P_TWO,
     POINT_SURGE_OF_POWER_P_TWO,
     POINT_DESTROY_PLATFORM_P_TWO,
-    POINT_IDLE_P_THREE,
+    POINT_IDLE_P_THREE
 };
 
 enum Seats
@@ -323,7 +314,7 @@ enum MiscData
     // DATA_THIRD_SURGE_TARGET_GUID  = 16,
     DATA_LAST_TARGET_BARRAGE_GUID    = 17,
 
-    NUM_MAX_SURGE_TARGETS            = 3,
+    NUM_MAX_SURGE_TARGETS            = 3
 };
 
 // Used to check if summons guids come from vehicles
@@ -1218,7 +1209,7 @@ public:
             _wpCount = 0;
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             damage = 0;
         }
@@ -1309,7 +1300,7 @@ public:
         {
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             damage = 0;
         }
@@ -2485,18 +2476,31 @@ class spell_alexstrasza_gift_beam_visual: public SpellScriptLoader
                 if (Creature* target = GetTarget()->ToCreature())
                 {
                     if (target->GetMap()->GetDifficultyID() == Difficulty::Difficulty10N)
-                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                    {
+                        if (GameObject* alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                            _alexstraszaGiftGuid = alexstraszaGift->GetGUID();
+                    }
                     else if (target->GetMap()->GetDifficultyID() == Difficulty::Difficulty25N)
-                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                    {
+                        if (GameObject* alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                            _alexstraszaGiftGuid = alexstraszaGift->GetGUID();
+                    }
                 }
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
-                    if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                {
+                    Unit* caster = GetCaster();
+                    if (!caster)
+                        return;
+
+                    if (InstanceScript* instance = caster->GetInstanceScript())
                     {
-                        _alexstraszaGift->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        if (GameObject* alexstraszaGift = GameObject::GetGameObject(*caster, _alexstraszaGiftGuid))
+                            alexstraszaGift->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
                         if (GameObject* heartMagic = target->GetMap()->GetGameObject(instance->GetData64(DATA_HEART_OF_MAGIC_GUID)))
                         {
                             heartMagic->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -2505,6 +2509,7 @@ class spell_alexstrasza_gift_beam_visual: public SpellScriptLoader
                             heartMagic->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                         }
                     }
+                }
             }
 
             void Register()
@@ -2513,7 +2518,8 @@ class spell_alexstrasza_gift_beam_visual: public SpellScriptLoader
                 AfterEffectRemove += AuraEffectRemoveFn(spell_alexstrasza_gift_beam_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
 
-            GameObject* _alexstraszaGift;
+            uint64 _alexstraszaGiftGuid;
+            //GameObject* _alexstraszaGift;
         };
 
         AuraScript* GetAuraScript() const
@@ -2538,6 +2544,7 @@ class achievement_denyin_the_scion : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_malygos()
 {
     new boss_malygos();
@@ -2569,3 +2576,4 @@ void AddSC_boss_malygos()
     new spell_alexstrasza_gift_beam_visual();
     new achievement_denyin_the_scion();
 }
+#endif

@@ -124,7 +124,7 @@ void WorldSession::SendBattlePetJournal()
     {
         uint64 l_Guid = 0;
 
-        bool l_IsLocked = false;
+        //bool l_IsLocked = false;
 
         //if (m_Player->HasBattlePetTraining() && (l_I + 1) <= l_UnlockedSlotCount)
         //    l_IsLocked = false;
@@ -306,7 +306,7 @@ void WorldSession::HandleBattlePetQueryName(WorldPacket& p_RecvData)
 }
 
 /// [INTERNAL]
-void WorldSession::HandleBattlePetsReconvert(WorldPacket& p_RecvData)
+void WorldSession::HandleBattlePetsReconvert(WorldPacket& /*p_RecvData*/)
 {
     /// Internal handler
 }
@@ -517,7 +517,7 @@ void WorldSession::HandleBattlePetSetQualityCheat(WorldPacket& /*p_RecvData*/)
     /// Internal handler
 }
 
-void WorldSession::HandleBattlePetCage(WorldPacket& p_RecvData)
+void WorldSession::HandleBattlePetCage(WorldPacket& /*p_RecvData*/)
 {
     /// @TODO
 }

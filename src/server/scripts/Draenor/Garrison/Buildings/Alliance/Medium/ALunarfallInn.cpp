@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 77368 - Madison Clark                                             ////
@@ -60,30 +60,73 @@ namespace MS { namespace Garrison
                     l_Creature->DespawnOrUnsummon();
             }
 
-            std::vector<uint32>& l_Entries = l_GarrisonMgr->GetGarrisonTavernDatas();
+            std::vector<uint32>& l_Entries = l_GarrisonMgr->GetGarrisonDailyTavernDatas();
 
-            if (l_Entries.size() == 1)
-                SummonRelativeCreature(l_Entries[0],
-                g_QuestGiverAlliancePositions[0].X,
-                g_QuestGiverAlliancePositions[0].Y,
-                g_QuestGiverAlliancePositions[0].Z,
-                g_QuestGiverAlliancePositions[0].O,
-                TEMPSUMMON_MANUAL_DESPAWN);
-            else if (l_Entries.size() > 1)
+            if (l_Entries.empty())
             {
-                SummonRelativeCreature(l_Entries[0],
-                    g_QuestGiverAlliancePositions[1].X,
-                    g_QuestGiverAlliancePositions[1].Y,
-                    g_QuestGiverAlliancePositions[1].Z,
-                    g_QuestGiverAlliancePositions[1].O,
-                    TEMPSUMMON_MANUAL_DESPAWN);
+                l_GarrisonMgr->ResetGarrisonDailyTavernData();
+                OnSetPlotInstanceID(p_PlotInstanceID);
+                return;
+            }
 
-                SummonRelativeCreature(l_Entries[1],
-                    g_QuestGiverAlliancePositions[2].X,
-                    g_QuestGiverAlliancePositions[2].Y,
-                    g_QuestGiverAlliancePositions[2].Z,
-                    g_QuestGiverAlliancePositions[2].O,
-                    TEMPSUMMON_MANUAL_DESPAWN);
+            switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(MS::Garrison::BuildingType::Inn)))
+            {
+                case 1:
+                {
+                    if (l_Entries.size() > 1)
+                    {
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[1], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[1], g_QuestGiverAlliancePositions[2], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+                    }
+                    else
+                    {
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[0], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+                    }
+
+                    break;
+                }
+                case 2:
+                {
+                    if (l_Entries.size() > 1)
+                    {
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[4], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[1], g_QuestGiverAlliancePositions[5], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+                    }
+                    else
+                    {
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[3], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+                    }
+
+                    break;
+                }
+                case 3:
+                {
+                    if (l_Entries.size() > 1)
+                    {
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[7], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[1], g_QuestGiverAlliancePositions[8], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+                    }
+                    else
+                    {
+                        if (Creature* l_Creature = SummonRelativeCreature(l_Entries[0], g_QuestGiverAlliancePositions[6], TEMPSUMMON_MANUAL_DESPAWN))
+                            AddSummonGUID(l_Creature->GetGUID());
+                    }
+
+                    break;
+                }
+                default:
+                    break;
             }
         }
     }
@@ -97,30 +140,84 @@ namespace MS { namespace Garrison
             if (l_GarrisonMgr == nullptr)
                 return;
 
-            l_GarrisonMgr->CleanGarrisonTavernData();
-
-            if (roll_chance_i(50))
-            {
-                uint32 l_Entry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
-
-                l_GarrisonMgr->AddGarrisonTavernData(l_Entry);
-            }
-            else
-            {
-                uint32 l_FirstEntry  = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
-                uint32 l_SecondEntry = 0;
-
-                do
-                    l_SecondEntry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
-                while (l_SecondEntry == l_FirstEntry);
-
-                l_GarrisonMgr->AddGarrisonTavernData(l_FirstEntry);
-                l_GarrisonMgr->AddGarrisonTavernData(l_SecondEntry);
-            }
-
             OnSetPlotInstanceID(GetPlotInstanceID());
             l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
         }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_lysa_serion_garr::npc_lysa_serion_garr()
+        : CreatureScript("npc_lysa_serion_garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a player opens a gossip dialog with the GameObject.
+    /// @p_Player     : Source player instance
+    /// @p_Creature   : Target GameObject instance
+    bool npc_lysa_serion_garr::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        Manager* l_GarrisonMgr = p_Player->GetGarrison();
+
+        if (l_GarrisonMgr == nullptr || l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(BuildingType::Inn)) < 2)
+            return true;
+
+        if (!p_Player->IsQuestRewarded(Quests::Alliance_TheHeadHunterHarverst))
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_TheHeadHunterHarverst, 4);
+
+        if (p_Player->GetQuestStatus(Quests::Alliance_TheHeadHunterHarverst) != QUEST_STATUS_NONE && !l_GarrisonMgr->GetGarrisonWeeklyTavernDatas().empty())
+            p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::FollowerRecruitment, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+
+        return true;
+    }
+
+    /// Called when a player selects a gossip item in the creature's gossip menu.
+    /// @p_Player   : Source player instance
+    /// @p_Creature : Target creature instance
+    /// @p_Sender   : Sender menu
+    /// @p_Action   : Action
+    bool npc_lysa_serion_garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
+    {
+        if (p_Action == GOSSIP_ACTION_INFO_DEF)
+        {
+            GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
+
+            if (l_AI == nullptr)
+                return true;
+
+            l_AI->SendFollowerRecruitmentUI(p_Player);
+        }
+
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_lysa_serion_garr::GetAI(Creature* p_Creature) const
+    {
+        return new npc_lysa_serion_garrAI(p_Creature);
+    }
+
+    /// Constructor
+    npc_lysa_serion_garr::npc_lysa_serion_garrAI::npc_lysa_serion_garrAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+        SetAIObstacleManagerEnabled(true);
+    }
+
+    void npc_lysa_serion_garr::npc_lysa_serion_garrAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    {
     }
 
 }   ///< namespace Garrison

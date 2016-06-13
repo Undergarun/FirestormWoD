@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -68,7 +59,7 @@ enum Texts
     // Terenas Menethil (Frostmourne)
     SAY_TERENAS_INTRO_1             = 0,
     SAY_TERENAS_INTRO_2             = 1,
-    SAY_TERENAS_INTRO_3             = 2,
+    SAY_TERENAS_INTRO_3             = 2
 };
 
 enum Spells
@@ -178,7 +169,7 @@ enum Spells
     // Shambling Horror
     SPELL_SHOCKWAVE                     = 72149,
     SPELL_ENRAGE                        = 72143,
-    SPELL_FRENZY                        = 28747,
+    SPELL_FRENZY                        = 28747
 };
 
 #define NECROTIC_PLAGUE_LK   RAID_MODE<uint32>(70337, 73912, 73913, 73914)
@@ -274,13 +265,13 @@ enum Events
     // Misc
     EVENT_REMOVE_TRAPS              = 64,
     EVENT_REMOVE_COLLISION          = 65,
-    EVENT_CHECK_PLAYER_POSITIONS    = 69,
+    EVENT_CHECK_PLAYER_POSITIONS    = 69
 };
 
 enum EventGroups
 {
     EVENT_GROUP_BERSERK         = 1,
-    EVENT_GROUP_VILE_SPIRITS    = 2,
+    EVENT_GROUP_VILE_SPIRITS    = 2
 };
 
 enum Phases
@@ -303,7 +294,7 @@ Position const LichKingIntro[3]   =
 {
     {432.0851f, -2123.673f, 864.6582f, 0.0f},
     {457.8351f, -2123.423f, 841.1582f, 0.0f},
-    {465.0730f, -2123.470f, 840.8569f, 0.0f},
+    {465.0730f, -2123.470f, 840.8569f, 0.0f}
 };
 Position const OutroPosition1     = {493.6286f, -2124.569f, 840.8569f, 0.0f};
 Position const OutroFlying        = {508.9897f, -2124.561f, 845.3565f, 0.0f};
@@ -358,7 +349,7 @@ enum MiscData
     EQUIP_ASHBRINGER_GLOWING    = 50442,
     EQUIP_BROKEN_FROSTMOURNE    = 50840,
 
-    MOVIE_FALL_OF_THE_LICH_KING = 16,
+    MOVIE_FALL_OF_THE_LICH_KING = 16
 };
 
 #define DATA_PLAGUE_STACK 70337
@@ -542,7 +533,7 @@ class boss_the_lich_king : public CreatureScript
                     frostmourne->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* target)
+            void EnterCombat(Unit* /*target*/)
             {
                 /// Needed until ships fight work with transport rewrite.
                 /*if (!instance->CheckRequiredBosses(DATA_THE_LICH_KING, target->ToPlayer()))
@@ -636,7 +627,7 @@ class boss_the_lich_king : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->IsPlayer() && !me->IsInEvadeMode() && !events.IsInPhase(PHASE_OUTRO)) 
+                if (victim->IsPlayer() && !me->IsInEvadeMode() && !events.IsInPhase(PHASE_OUTRO))
                     Talk(SAY_LK_KILL);
             }
 
@@ -714,7 +705,7 @@ class boss_the_lich_king : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(70))
                 {
@@ -1497,7 +1488,7 @@ class npc_shambling_horror_icc : public CreatureScript
                 _events.ScheduleEvent(EVENT_ATTACK_START, 5000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!_frenzied && IsHeroic() && me->HealthBelowPctDamaged(20, damage))
                 {
@@ -1688,7 +1679,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                 _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2500);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!IsHeroic())
                     return;
@@ -1812,7 +1803,6 @@ class npc_valkyr_shadowguard : public CreatureScript
             Position _dropPoint;
             uint64 _grabbedPlayer;
             InstanceScript* _instance;
-            float speedRate;
             bool _movementWasStopped;
         };
 
@@ -2072,7 +2062,7 @@ class npc_terenas_menethil : public CreatureScript
                 me->CombatStop(false);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -3158,8 +3148,6 @@ class spell_the_lich_king_vile_spirit_damage_target_search: public SpellScriptLo
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_the_lich_king_vile_spirit_damage_target_search_SpellScript::CheckTargetCount, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
-
-            Unit* _target;
         };
 
         SpellScript* GetSpellScript() const
@@ -3518,6 +3506,7 @@ class achievement_neck_deep_in_vile : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_the_lich_king()
 {
     new boss_the_lich_king();
@@ -3565,3 +3554,4 @@ void AddSC_boss_the_lich_king()
     new achievement_been_waiting_long_time();
     new achievement_neck_deep_in_vile();
 }
+#endif

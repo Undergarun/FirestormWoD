@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "TicketMgr.h"
@@ -32,7 +22,7 @@ inline float GetAge(uint64 p_T) { return float(time(NULL) - p_T) / DAY; }
 GmTicket::GmTicket() { }
 
 GmTicket::GmTicket(std::string p_PlayerName, uint64 p_PlayerGuid, uint32 p_MapID, WorldLocation p_Position, std::string p_Content) : m_CreateTime(time(NULL)), m_LastModifiedTime(time(NULL)), m_ClosedBy(0), m_AssignedTo(0), m_Completed(false),
-m_EscalatedStatus(TICKET_UNASSIGNED), m_NeedResponse(false), m_Viewed(false), m_HaveTicket(false)
+m_EscalatedStatus(TICKET_UNASSIGNED), m_Viewed(false), m_NeedResponse(false), m_HaveTicket(false)
 {
     m_ID            = sTicketMgr->GenerateTicketId();
     m_PlayerName    = p_PlayerName;

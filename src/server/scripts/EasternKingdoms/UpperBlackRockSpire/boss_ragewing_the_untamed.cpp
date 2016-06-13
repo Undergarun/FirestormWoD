@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "upper_blackrock_spire.hpp"
@@ -115,7 +115,7 @@ class boss_ragewing_the_untamed : public CreatureScript
             bool m_EngulfingFire;
             uint8 m_Waypoint;
 
-            float m_FlyPhaseHealthPct;
+            int32 m_FlyPhaseHealthPct;
             uint8 m_Phase;
 
             uint32 m_FireStormCount;
@@ -130,7 +130,7 @@ class boss_ragewing_the_untamed : public CreatureScript
                 m_MovedToBridge = false;
                 m_EngulfingFire = false;
                 m_Waypoint = 0;
-                m_FlyPhaseHealthPct = 70.0f;
+                m_FlyPhaseHealthPct = 70;
                 m_Phase = eBossDatas::PhaseOne;
                 m_FireStormCount = 6;
                 m_EngulfingTargetGuid = 0;
@@ -155,7 +155,7 @@ class boss_ragewing_the_untamed : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventRippingClaw, 6000);
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (m_Phase == eBossDatas::PhaseTwo)
                 {
@@ -167,16 +167,16 @@ class boss_ragewing_the_untamed : public CreatureScript
 
                 if (me->HealthBelowPctDamaged(m_FlyPhaseHealthPct, p_Damage))
                 {
-                    if (m_Phase == eBossDatas::PhaseOne && (m_FlyPhaseHealthPct == 70.0f || m_FlyPhaseHealthPct == 40.0f))
+                    if (m_Phase == eBossDatas::PhaseOne && (m_FlyPhaseHealthPct == 70 || m_FlyPhaseHealthPct == 40))
                     {
                         m_Phase = eBossDatas::PhaseTwo;
 
                         LaunchWhelpPhaseMoves();
 
-                        if (m_FlyPhaseHealthPct == 70.0f)
-                            m_FlyPhaseHealthPct = 40.0f;
+                        if (m_FlyPhaseHealthPct == 70)
+                            m_FlyPhaseHealthPct = 40;
                         else
-                            m_FlyPhaseHealthPct = 0.0f;
+                            m_FlyPhaseHealthPct = 0;
                     }
                 }
             }
@@ -419,7 +419,7 @@ class boss_ragewing_the_untamed : public CreatureScript
 
             void LaunchNormalPhaseMoves()
             {
-                if (m_FlyPhaseHealthPct == 0.0f)
+                if (m_FlyPhaseHealthPct == 0)
                 {
                     m_Phase = eBossDatas::PhaseThree;
                     m_Events.CancelEvent(eEvents::EventEngulfingFire);
@@ -472,7 +472,7 @@ class mob_fire_storm_stalker : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 p_Damage = 0;
             }
@@ -531,7 +531,7 @@ class mob_engulfing_fire_stalker_r_to_l : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 p_Damage = 0;
             }
@@ -609,7 +609,7 @@ class mob_engulfing_fire_stalker_l_to_r : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 p_Damage = 0;
             }
@@ -729,7 +729,7 @@ class spell_fire_storm_missile: public SpellScriptLoader
 
         class spell_fire_storm_missile_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_fire_storm_missile_SpellScript);
+            PrepareSpellScript(spell_fire_storm_missile_SpellScript)
 
             void HandleOnHit()
             {
@@ -753,6 +753,7 @@ class spell_fire_storm_missile: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ragewing_the_untamed()
 {
     new boss_ragewing_the_untamed();
@@ -763,3 +764,4 @@ void AddSC_boss_ragewing_the_untamed()
     new areatrigger_magma_spit();
     new spell_fire_storm_missile();
 }
+#endif

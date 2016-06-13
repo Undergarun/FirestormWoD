@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "SpellScript.h"
@@ -148,7 +139,7 @@ enum Events
     EVENT_TRIGGER_BERSERK       = 16,
     EVENT_TWILIGHT_MENDING      = 17,
     EVENT_PULSARS_SHOOT_TRIGGER = 18,
-    EVENT_CHECK_PLAYERS         = 19,
+    EVENT_CHECK_PLAYERS         = 19
 };
 
 enum Actions
@@ -382,7 +373,7 @@ class boss_halion : public CreatureScript
 
             Position const* GetMeteorStrikePosition() const { return &_meteorStrikePos; }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!me->IsInDist2d(3156.67f, 533.8108f, 60.0f))
                 {
@@ -553,7 +544,7 @@ class boss_twilight_halion : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!me->IsInDist2d(3156.67f, 533.8108f, 60.0f))
                 {
@@ -1028,8 +1019,6 @@ class npc_halion_controller : public CreatureScript
 
             uint32 inFightAggroCheck_Timer;
 
-            bool _corporealityCheck;
-
             uint32 _twilightDamageTaken;
             uint32 _materialDamageTaken;
             uint8 _materialCorporealityValue;
@@ -1422,7 +1411,7 @@ class npc_shadow_orb : public CreatureScript
 
             void UpdateAI(uint32 const /*diff*/) { }
 
-            void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
+            void FillCirclePath(Position const& centerPos, float radius, float /*z*/, Movement::PointsArray& path, bool clockwise)
             {
                 float step = clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
                 float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
@@ -1519,7 +1508,7 @@ class spell_halion_meteor_strike_marker: public SpellScriptLoader
 
         class spell_halion_meteor_strike_marker_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_meteor_strike_marker_AuraScript);
+            PrepareAuraScript(spell_halion_meteor_strike_marker_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1550,7 +1539,7 @@ class spell_halion_combustion_consumption: public SpellScriptLoader
 
         class spell_halion_combustion_consumption_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_combustion_consumption_AuraScript);
+            PrepareAuraScript(spell_halion_combustion_consumption_AuraScript)
 
         public:
             spell_halion_combustion_consumption_AuraScript(uint32 spellID) : AuraScript(), _markSpell(spellID) { }
@@ -1608,7 +1597,7 @@ class spell_halion_marks: public SpellScriptLoader
 
         class spell_halion_marks_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_marks_AuraScript);
+            PrepareAuraScript(spell_halion_marks_AuraScript)
 
         public:
             spell_halion_marks_AuraScript(uint32 summonSpell, uint32 removeSpell) : AuraScript(),
@@ -1668,7 +1657,7 @@ class spell_halion_damage_aoe_summon: public SpellScriptLoader
 
         class spell_halion_damage_aoe_summon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_damage_aoe_summon_SpellScript);
+            PrepareSpellScript(spell_halion_damage_aoe_summon_SpellScript)
 
             void HandleSummon(SpellEffIndex effIndex)
             {
@@ -1706,7 +1695,7 @@ class spell_halion_twilight_realm_handlers: public SpellScriptLoader
 
         class spell_halion_twilight_realm_handlers_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_twilight_realm_handlers_AuraScript);
+            PrepareAuraScript(spell_halion_twilight_realm_handlers_AuraScript)
 
         public:
             spell_halion_twilight_realm_handlers_AuraScript(uint32 beforeHitSpell, bool isApplyHandler) : AuraScript(),
@@ -1770,7 +1759,7 @@ class spell_halion_clear_debuffs: public SpellScriptLoader
 
         class spell_halion_clear_debuffs_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_clear_debuffs_SpellScript);
+            PrepareSpellScript(spell_halion_clear_debuffs_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -1821,7 +1810,7 @@ class spell_halion_twilight_cutter: public SpellScriptLoader
 
         class spell_halion_twilight_cutter_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_twilight_cutter_SpellScript);
+            PrepareSpellScript(spell_halion_twilight_cutter_SpellScript)
 
             void RemoveNotBetween(std::list<WorldObject*>& unitList)
             {
@@ -1861,7 +1850,7 @@ class spell_halion_twilight_phasing: public SpellScriptLoader
 
         class spell_halion_twilight_phasing_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_twilight_phasing_SpellScript);
+            PrepareSpellScript(spell_halion_twilight_phasing_SpellScript)
 
             void Phase()
             {
@@ -1909,7 +1898,7 @@ class spell_halion_summon_exit_portals: public SpellScriptLoader
 
         class spell_halion_summon_exit_portals_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_summon_exit_portals_SpellScript);
+            PrepareSpellScript(spell_halion_summon_exit_portals_SpellScript)
 
             void OnSummon(SpellEffIndex effIndex)
             {
@@ -1969,7 +1958,7 @@ class spell_halion_mark_damage_aura: public SpellScriptLoader
 
         class spell_halion_mark_damage_aura_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_mark_damage_aura_SpellScript);
+            PrepareSpellScript(spell_halion_mark_damage_aura_SpellScript)
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
@@ -1995,7 +1984,7 @@ class spell_halion_mark_damage_aura_heroic: public SpellScriptLoader
 
         class spell_halion_mark_damage_aura_heroic_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_mark_damage_aura_heroic_SpellScript);
+            PrepareSpellScript(spell_halion_mark_damage_aura_heroic_SpellScript)
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
@@ -2015,6 +2004,7 @@ class spell_halion_mark_damage_aura_heroic: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_halion()
 {
     new boss_halion();
@@ -2045,3 +2035,4 @@ void AddSC_boss_halion()
     new spell_halion_mark_damage_aura();
     new spell_halion_mark_damage_aura_heroic();
 }
+#endif

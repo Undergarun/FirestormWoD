@@ -1,21 +1,10 @@
-/*
-* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "BattlegroundDG.h"
 #include "Player.h"
@@ -278,7 +267,7 @@ void BattlegroundDG::FillInitialWorldStates(ByteBuffer& p_Data)
     p_Data << uint32(WORLDSTATE_DG_CART_STATE_HORDE) << uint32((_flagState[TEAM_HORDE] == BG_DG_CART_STATE_ON_PLAYER) ? 2 : 1);
 }
 
-void BattlegroundDG::UpdatePlayerScore(Player* p_Source, uint32 p_Type, uint32 p_Value, bool p_AddHonor)
+void BattlegroundDG::UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_AddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -303,7 +292,7 @@ void BattlegroundDG::UpdatePlayerScore(Player* p_Source, uint32 p_Type, uint32 p
             ((BattlegroundDGScore*)l_Iter->second)->m_DefendedMines += p_Value;
             break;
         default:
-            Battleground::UpdatePlayerScore(p_Source, NULL, p_Type, p_Value, p_AddHonor);
+            Battleground::UpdatePlayerScore(p_Source, p_Victim, p_Type, p_Value, p_AddHonor, p_RewardType);
             break;
     }
 }
@@ -479,7 +468,7 @@ bool BattlegroundDG::CanSeeSpellClick(Player const* p_Player, Unit const* p_Clic
     return false;
 }
 
-void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* p_Flag)
+void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* /*p_Flag*/)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -509,7 +498,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* p_Flag)
     // If node is neutral, change to contested
     if (m_Nodes[l_Node] == BG_DG_NODE_TYPE_NEUTRAL)
     {
-        UpdatePlayerScore(p_Source, SCORE_BASES_ASSAULTED, 1);
+        UpdatePlayerScore(p_Source, nullptr, SCORE_BASES_ASSAULTED, 1);
         m_prevNodes[l_Node] = m_Nodes[l_Node];
         m_Nodes[l_Node] = BG_DG_NODE_TYPE_CONTESTED + l_TeamIndex;
         // Create new contested banner
@@ -526,7 +515,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* p_Flag)
         // If last state is NOT occupied, change node to enemy-contested
         if (m_prevNodes[l_Node] < BG_DG_NODE_TYPE_OCCUPIED)
         {
-            UpdatePlayerScore(p_Source, SCORE_BASES_ASSAULTED, 1);
+            UpdatePlayerScore(p_Source, nullptr, SCORE_BASES_ASSAULTED, 1);
             m_prevNodes[l_Node] = m_Nodes[l_Node];
             m_Nodes[l_Node] = BG_DG_NODE_TYPE_CONTESTED + l_TeamIndex;
             // Create new contested banner
@@ -539,7 +528,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* p_Flag)
         // If contested, change back to occupied
         else
         {
-            UpdatePlayerScore(p_Source, SCORE_BASES_DEFENDED, 1);
+            UpdatePlayerScore(p_Source, nullptr, SCORE_BASES_DEFENDED, 1);
             m_prevNodes[l_Node] = m_Nodes[l_Node];
             m_Nodes[l_Node] = BG_DG_NODE_TYPE_OCCUPIED + l_TeamIndex;
             // Create new occupied banner
@@ -554,7 +543,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* p_Flag)
     // If node is occupied, change to enemy-contested
     else
     {
-        UpdatePlayerScore(p_Source, SCORE_BASES_ASSAULTED, 1);
+        UpdatePlayerScore(p_Source, nullptr, SCORE_BASES_ASSAULTED, 1);
         m_prevNodes[l_Node] = m_Nodes[l_Node];
         m_Nodes[l_Node] = l_TeamIndex + BG_DG_NODE_TYPE_CONTESTED;
         // Create new contested banner
@@ -719,7 +708,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Player, GameObject* p_Ga
             _flagState[TEAM_ALLIANCE] = BG_DG_CART_STATE_ON_BASE;
             SpawnBGObject(BG_DG_OBJECT_CART_ALLIANCE, RESPAWN_IMMEDIATELY);
             PlaySoundToAll(BG_DG_SOUND_CART_RETURNED);
-            UpdatePlayerScore(p_Player, SCORE_CART_RETURNS, 1);
+            UpdatePlayerScore(p_Player, nullptr, SCORE_CART_RETURNS, 1);
             _UpdateTeamScore(TEAM_ALLIANCE, _flagGold[TEAM_ALLIANCE]);
             _flagGold[TEAM_ALLIANCE] = 0;
         }
@@ -751,7 +740,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Player, GameObject* p_Ga
             _flagState[TEAM_HORDE] = BG_DG_CART_STATE_ON_BASE;
             SpawnBGObject(BG_DG_OBJECT_CART_HORDE, RESPAWN_IMMEDIATELY);
             PlaySoundToAll(BG_DG_SOUND_CART_RETURNED);
-            UpdatePlayerScore(p_Player, SCORE_CART_RETURNS, 1);
+            UpdatePlayerScore(p_Player, nullptr, SCORE_CART_RETURNS, 1);
             _UpdateTeamScore(TEAM_HORDE, _flagGold[TEAM_HORDE]);
             _flagGold[TEAM_HORDE] = 0;
         }
@@ -796,16 +785,16 @@ void BattlegroundDG::HandleAreaTrigger(Player* p_Player, uint32 p_TriggerID)
                     EventPlayerCapturedFlag(p_Player);
             }
             break;
-        case 9139: // http://puu.sh/7ncT2/4a77b468c8.jpg behind the wood on the spawn building alliance on the right
-        case 9140: // http://puu.sh/7ncS9/a10d5dc38a.jpg inside building
-        case 9159: // http://puu.sh/7ncBW/4b3db412e9.jpg buff location
-        case 9160: // http://puu.sh/7ncDJ/7bcc833a93.jpg buff location
-        case 9161: // http://puu.sh/7ncFq/737cfcd28a.jpg buff location
-        case 9162: // http://puu.sh/7ncHt/7ca1796256.jpg buff location
-        case 9299: // http://puu.sh/7ncJH/575a9957d7.jpg on the roof
-        case 9301: // http://puu.sh/7ncLP/f9dccc266c.jpg on the roof
-        case 9302: // http://puu.sh/7ncO3/439e7c485a.jpg flying => should tp outside the mine when triggered
-        case 9303: // http://puu.sh/7ncQJ/4bd31bff18.jpg flying => should tp outside the mine when triggered
+        case 9139: // behind the wood on the spawn building alliance on the right
+        case 9140: // inside building
+        case 9159: // buff location
+        case 9160: // buff location
+        case 9161: // buff location
+        case 9162: // buff location
+        case 9299: // on the roof
+        case 9301: // on the roof
+        case 9302: // flying => should tp outside the mine when triggered
+        case 9303: // flying => should tp outside the mine when triggered
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundDG : Handled AreaTrigger(ID : %u) have been activated by Player %s (ID : %u)",
                 p_TriggerID, p_Player->GetName(), GUID_LOPART(p_Player->GetGUID()));
             break;
@@ -911,7 +900,7 @@ void BattlegroundDG::EventPlayerCapturedFlag(Player* p_Player)
 
     UpdateCartState(p_Player->GetBGTeam(), 1);                  // Flag state none
     // Only flag capture should be updated
-    UpdatePlayerScore(p_Player, SCORE_CART_CAPTURES, 1);      // +1 flag captures
+    UpdatePlayerScore(p_Player, nullptr, SCORE_CART_CAPTURES, 1);      // +1 flag captures
 
     // Update last flag capture to be used if team score is equal
     SetLastFlagCapture(p_Player->GetBGTeam());
@@ -1026,7 +1015,7 @@ void BattlegroundDG::UpdateCartState(uint32 p_Team, uint32 p_Value)
 /************************************************************************/
 /*                        ENDING BATTLEGROUND                           */
 /************************************************************************/
-void BattlegroundDG::RemovePlayer(Player* p_Player, uint64 p_Guid, uint32 p_Team)
+void BattlegroundDG::RemovePlayer(Player* p_Player, uint64 p_Guid, uint32 /*p_Team*/)
 {
     // Sometimes flag aura not removed :(
     if (IsAllianceFlagPickedup() && m_FlagKeepers[TEAM_ALLIANCE] == p_Guid)
@@ -1078,9 +1067,9 @@ class spell_mine_cart : public SpellScriptLoader
 
         class spell_mine_cart_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mine_cart_AuraScript);
+            PrepareAuraScript(spell_mine_cart_AuraScript)
 
-            void HandleOnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void HandleOnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 uint32 l_Entry = 0;
                 if (GetSpellInfo()->Id == BG_DG_HORDE_MINE_CART)
@@ -1091,7 +1080,7 @@ class spell_mine_cart : public SpellScriptLoader
                 if (l_Entry != 0)
                 {
                     std::list<Creature*> l_Carts;
-                    GetCaster()->GetCreatureListWithEntryInGrid(l_Carts, l_Entry, 500.f);
+                    GetCaster()->GetCreatureListWithEntryInGrid(l_Carts, l_Entry, 500.0f);
                     for (std::list<Creature*>::iterator l_Iter = l_Carts.begin(); l_Iter != l_Carts.end(); ++l_Iter)
                     {
                         if (TempSummon* l_TempSummon = (*l_Iter)->ToTempSummon())
@@ -1138,11 +1127,11 @@ class npc_dg_cart : public CreatureScript
 
                 if (me->GetOwner())
                 {
-                    me->SetSpeed(MOVE_RUN, (me->GetOwner()->GetSpeed(MOVE_RUN) + 1.f) / playerBaseMoveSpeed[MOVE_RUN], true);
+                    me->SetSpeed(MOVE_RUN, (me->GetOwner()->GetSpeed(MOVE_RUN) + 1.0f) / playerBaseMoveSpeed[MOVE_RUN], true);
                     if (!me->IsMoving() && m_Events.Empty())
                         m_Events.ScheduleEvent(EVENT_NEW_WAYPOINT, 700);
                     if (m_Events.ExecuteEvent() == EVENT_NEW_WAYPOINT)
-                        me->GetMotionMaster()->MoveChase(me->GetOwner(), frand(0.5f, 1.f), frand(0.f, 2.f * M_PI));
+                        me->GetMotionMaster()->MoveChase(me->GetOwner(), frand(0.5f, 1.0f), frand(0.0f, 2.0f * M_PI));
                     if (!me->HasAura(52595))
                         me->GetOwner()->CastSpell(me, 52595, true);
                 }
@@ -1155,8 +1144,10 @@ class npc_dg_cart : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_BattlegroundDGScripts()
 {
     new spell_mine_cart();
     new npc_dg_cart();
 }
+#endif

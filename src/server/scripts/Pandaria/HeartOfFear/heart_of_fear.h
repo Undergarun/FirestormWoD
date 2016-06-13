@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2008-20XX JadeCore <http://www.pandashan.com>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef HEART_OF_FEAR_H_
 #define HEART_OF_FEAR_H_
@@ -102,7 +91,7 @@ enum eSpells
     SPELL_RESHAPE_LIFE          = 122370,
 
     // Generic enrage spell
-    SPELL_BERSERK               = 26662,
+    SPELL_BERSERK               = 26662
 };
 
 enum eActions
@@ -118,7 +107,7 @@ enum eActions
 
     // Trash
     ACTION_AMBER_VOLLEY         = 10,
-    ACTION_REACH_HOME           = 11,
+    ACTION_REACH_HOME           = 11
 };
 
 enum eCreatures
@@ -154,7 +143,7 @@ enum eCreatures
     NPC_SRATHIK_POOLTENDER          = 63570,
     NPC_ZARTHIK_AUGURER             = 64454,
     NPC_SETTHIK_WINDBLADE_TRASH     = 64453,
-    NPC_KORTHIK_WARSINGER           = 64458,
+    NPC_KORTHIK_WARSINGER           = 64458
 };
 
 enum eGameObjects
@@ -184,7 +173,7 @@ enum eGameObjects
 
     // Shek'zeer Gameobjects
     GOB_EMPRESS_CHAMBER             = 213277,
-    GOB_MANTID_QUEEN_CEIL           = 213276,
+    GOB_MANTID_QUEEN_CEIL           = 213276
 };
 
 enum eWeapons
@@ -203,7 +192,7 @@ enum eWeapons
     EQUIP_TRASH_6                   = 85399,
     EQUIP_TRASH_7                   = 82849,
     EQUIP_TRASH_8                   = 84676,
-    EQUIP_TRASH_9                   = 84769,
+    EQUIP_TRASH_9                   = 84769
 };
 
 enum eEvents

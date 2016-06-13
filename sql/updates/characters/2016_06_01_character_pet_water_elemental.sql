@@ -1,0 +1,1 @@
+UPDATE `character_pet` SET `name` = 'Water Elemental' WHERE `name` = "MT - Water Elemental";

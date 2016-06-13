@@ -1,26 +1,16 @@
-/*
-* Copyright (C) 2012-2015 Ashran <http://www.ashran.com>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef VIGNETTE_H
 #define VIGNETTE_H
 
 #include "Common.h"
+#include "Object.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
 
@@ -46,7 +36,7 @@ namespace Vignette
     * Work only for Creature and Gameobject
     * @param p_Target : WorldObject for which we wanna get the vignette entry
     */
-    static VignetteEntry const* GetVignetteEntryFromWorldObject(WorldObject const* p_Target) ///<  Unused function 'GetVignetteEntryFromWorldObject'
+    inline VignetteEntry const* GetVignetteEntryFromWorldObject(WorldObject const* p_Target) ///<  Unused function 'GetVignetteEntryFromWorldObject'
     {
         uint32 l_VignetteId = 0;
 
@@ -66,7 +56,7 @@ namespace Vignette
     * Work only for Creature and Gameobject
     * @param p_Target : WorldObject for which we wanna get the tracking quest
     */
-    static uint32 GetTrackingQuestIdFromWorldObject(WorldObject const* p_Target) ///<  Unused function 'GetTrackingQuestIdFromWorldObject'
+    inline uint32 GetTrackingQuestIdFromWorldObject(WorldObject const* p_Target) ///<  Unused function 'GetTrackingQuestIdFromWorldObject'
     {
         uint32 l_TrackingQuest = 0;
 
@@ -83,7 +73,7 @@ namespace Vignette
     * Work only for Creature and Gameobject
     * @param p_Target : WorldObject for which we wanna get the default vignette type
     */
-    static Vignette::Type GetDefaultVignetteTypeFromWorldObject(WorldObject const* p_Target) ///<  Unused function 'GetDefaultVignetteTypeFromWorldObject'
+    inline Vignette::Type GetDefaultVignetteTypeFromWorldObject(WorldObject const* p_Target) ///<  Unused function 'GetDefaultVignetteTypeFromWorldObject'
     {
         switch (p_Target->GetTypeId())
         {
@@ -102,7 +92,7 @@ namespace Vignette
     * Work only for Creature and Gameobject
     * @param p_Target : WorldObject for which we wanna get the tracking vignette type
     */
-    static Vignette::Type GetTrackingVignetteTypeFromWorldObject(WorldObject const* p_Target) ///< Unused function  GetTrackingVignetteTypeFromWorldObject
+    inline Vignette::Type GetTrackingVignetteTypeFromWorldObject(WorldObject const* p_Target) ///< Unused function  GetTrackingVignetteTypeFromWorldObject
     {
         switch (p_Target->GetTypeId())
         {

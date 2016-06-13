@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
+///  Copyright 2016 Millenium-studio SARL
 ///  All Rights Reserved.
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-# include "blackrock_foundry.hpp"
+# include "boss_operator_thogar.hpp"
 
 /// Iron Flame Binder - 87515
 class npc_foundry_iron_flame_binder : public CreatureScript
@@ -60,7 +60,7 @@ class npc_foundry_iron_flame_binder : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventCauterize, 6 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventLavaburst, 2 * TimeConstants::IN_MILLISECONDS);
@@ -182,7 +182,7 @@ class npc_foundry_workshop_guardian : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventGrievousMortalWounds, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventSpinningBlade, 8 * TimeConstants::IN_MILLISECONDS);
@@ -388,7 +388,7 @@ class npc_foundry_ironworker : public CreatureScript
                     me->CastSpell(me, eSpells::EmptySack, true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_ANIM_TIER, 0);
 
@@ -522,7 +522,7 @@ class npc_foundry_iron_slag_shaper : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventGrippingSlag, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventRainOfSlag, 10 * TimeConstants::IN_MILLISECONDS);
@@ -628,7 +628,7 @@ class npc_foundry_slagshop_worker : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 ClearDelayedOperations();
 
@@ -712,7 +712,7 @@ class npc_foundry_slagshop_brute : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetAIAnimKitId(0);
 
@@ -785,7 +785,7 @@ class npc_foundry_iron_journeyman : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_ANIM_TIER, 0);
 
@@ -858,7 +858,7 @@ class npc_foundry_gronnling_laborer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_ANIM_TIER, 0);
 
@@ -868,7 +868,7 @@ class npc_foundry_gronnling_laborer : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventHeadSmash, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HasAura(eSpells::Enrage))
                     return;
@@ -957,7 +957,7 @@ class npc_foundry_karnor_the_cruel : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventChainVolley, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventKillingSpree, 15 * TimeConstants::IN_MILLISECONDS);
@@ -1243,7 +1243,7 @@ class npc_foundry_darkshard_acidback : public CreatureScript
         {
             npc_foundry_darkshard_acidbackAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void OnVehicleExited(Unit* p_Vehicle) override
+            void OnVehicleExited(Unit* /*p_Vehicle*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -1251,7 +1251,7 @@ class npc_foundry_darkshard_acidback : public CreatureScript
                     AttackStart(l_Target);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
             }
@@ -1316,7 +1316,7 @@ class npc_foundry_darkshard_gnasher : public CreatureScript
                 m_FixateTarget = 0;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventShatteringCharge, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventInsatiableHunger, 10 * TimeConstants::IN_MILLISECONDS);
@@ -1505,7 +1505,7 @@ class npc_foundry_darkshard_crystalback : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventAcidMaw, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventShardVolley, 9 * TimeConstants::IN_MILLISECONDS);
@@ -1640,14 +1640,14 @@ class npc_foundry_slag_behemoth : public CreatureScript
                     l_GameObject->Delete();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventIgnite, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventVolcanicBomb, 11 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventBlastWave, 30 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (GameObject* l_FurnaceDoor = GameObject::GetGameObject(*me, m_EncounterDoor))
                     l_FurnaceDoor->SetGoState(GOState::GO_STATE_ACTIVE);
@@ -1771,14 +1771,14 @@ class npc_foundry_blackrock_enforcer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventClobberingStrike, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventFireBomb, 7 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventIntimidation, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (InstanceScript* l_Instance = me->GetInstanceScript())
                 {
@@ -1866,13 +1866,13 @@ class npc_foundry_blackrock_forge_specialist : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventRendingSlash, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventShreddingSpear, 8 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (InstanceScript* l_Instance = me->GetInstanceScript())
                 {
@@ -1964,7 +1964,7 @@ class npc_foundry_iron_taskmaster : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 if (InstanceScript* l_Instance = me->GetInstanceScript())
                 {
@@ -2099,14 +2099,14 @@ class npc_foundry_iron_flametwister : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 ClearDelayedOperations();
 
                 m_Events.ScheduleEvent(eEvent::EventLavaBlast, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HealthBelowPctDamaged(20, p_Damage) && !m_Exploded)
                 {
@@ -2198,7 +2198,7 @@ class npc_foundry_iron_smith : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventCrushingSlam, 10 * TimeConstants::IN_MILLISECONDS);
             }
@@ -2311,7 +2311,7 @@ class npc_foundry_enchanted_armament : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* /*p_Attacker*/, SpellInfo const* p_SpellInfo) override
             {
                 if (p_SpellInfo->Id == eSpells::ImbueWeapon)
                 {
@@ -2323,7 +2323,7 @@ class npc_foundry_enchanted_armament : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 p_Damage = 0;
             }
@@ -2405,7 +2405,7 @@ class npc_foundry_flame_vents : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 p_Damage = 0;
             }
@@ -2557,7 +2557,7 @@ class npc_foundry_moldana_two_blade : public CreatureScript
                 me->CastSpell(me, eSpells::AkathaCosmetics, true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
 
@@ -2681,7 +2681,7 @@ class npc_foundry_iron_assembly_warden : public CreatureScript
                 me->SetCanDualWield(false);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 Talk(eTalk::TalkAggro);
 
@@ -2790,7 +2790,7 @@ class npc_foundry_thunderlord_beast_tender : public CreatureScript
                 me->RemoveAllAreasTrigger();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventBestialWrath, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
                 m_Events.ScheduleEvent(eEvents::EventCallLightning, urand(4 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
@@ -2806,7 +2806,7 @@ class npc_foundry_thunderlord_beast_tender : public CreatureScript
                     me->CastSpell(p_Target, eSpells::ElectricalStormAT, true);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAllAreasTrigger();
             }
@@ -2896,7 +2896,7 @@ class npc_foundry_stubborn_ironhoof : public CreatureScript
                 me->CastSpell(me, eSpells::SpiritBond, true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventGoringSwipe, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                 m_Events.ScheduleEvent(eEvents::EventGroundSlam, urand(4 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
@@ -2981,7 +2981,7 @@ class npc_foundry_ornery_ironhoof : public CreatureScript
                 me->CastSpell(me, eSpells::SpiritBond, true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventGoringSwipe, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                 m_Events.ScheduleEvent(eEvents::EventGroundSlam, urand(4 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
@@ -3067,7 +3067,7 @@ class npc_foundry_iron_marksman : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventIceTrap, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                 m_Events.ScheduleEvent(eEvents::EventScatterShot, urand(10 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
@@ -3159,32 +3159,32 @@ class npc_foundry_markog_abadir : public CreatureScript
 
             EventMap m_Events;
 
-            float m_StacksResetPct;
+            int32 m_StacksResetPct;
 
             void Reset() override
             {
                 m_Events.Reset();
 
-                m_StacksResetPct = 70.0f;
+                m_StacksResetPct = 70;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventColossalRoar, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
                 m_Events.ScheduleEvent(eEvents::EventSlam, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
-                if (m_StacksResetPct <= 0.0f)
+                if (m_StacksResetPct <= 0)
                     return;
 
                 if (me->HealthBelowPctDamaged(m_StacksResetPct, p_Damage))
                 {
-                    if (m_StacksResetPct >= 70.0f)
-                        m_StacksResetPct = 40.0f;
+                    if (m_StacksResetPct >= 70)
+                        m_StacksResetPct = 40;
                     else
-                        m_StacksResetPct = 0.0f;
+                        m_StacksResetPct = 0;
 
                     me->RemoveAura(eSpells::ColossalRoar);
 
@@ -3234,6 +3234,457 @@ class npc_foundry_markog_abadir : public CreatureScript
         }
 };
 
+/// Grom'kar Man-at-Arms - 78832
+/// Grom'kar Man-at-Arms - 77687
+/// Grom'kar Man-at-Arms - 80791
+class npc_foundry_gromkar_man_at_arms : public CreatureScript
+{
+    public:
+        npc_foundry_gromkar_man_at_arms() : CreatureScript("npc_foundry_gromkar_man_at_arms") { }
+
+        enum eSpells
+        {
+            SpellIronBellow             = 163753,
+            SpellIronBellowDmg          = 163754,
+
+            SpellRecklessSlashCharge    = 163750,
+            SpellRecklessSlashDmg       = 163751
+        };
+
+        enum eEvents
+        {
+            EventIronBellow = 1,
+            EventRecklessSlash
+        };
+
+        struct npc_foundry_gromkar_man_at_armsAI : public ScriptedAI
+        {
+            npc_foundry_gromkar_man_at_armsAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+
+                if (p_Creature->IsNearPosition(&g_GromkarManAtArmsIntroLeftPos, 5.0f))
+                    m_IsThogarIntro = true;
+                else if (p_Creature->IsNearPosition(&g_GromkarManAtArmsIntroRightPos, 5.0f))
+                    m_IsThogarIntro = true;
+                else
+                    m_IsThogarIntro = false;
+
+                if (p_Creature->GetEntry() != eFoundryCreatures::GromkarManAtArms)
+                    m_IsThogarIntro = false;
+            }
+
+            EventMap m_Events;
+
+            InstanceScript* m_Instance;
+
+            bool m_IsThogarIntro;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                /// Wears a shield
+                me->SetCanDualWield(false);
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/) override
+            {
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
+                m_Events.ScheduleEvent(eEvents::EventIronBellow, 1);
+                m_Events.ScheduleEvent(eEvents::EventRecklessSlash, 3 * TimeConstants::IN_MILLISECONDS);
+
+                if (m_IsThogarIntro && m_Instance != nullptr)
+                {
+                    if (!m_Instance->GetData(eFoundryDatas::DataThogarIntroStarted))
+                    {
+                        m_Instance->SetData(eFoundryDatas::DataThogarIntroStarted, 0);
+
+                        /// Must be done for train spawning
+                        me->GetMap()->SetObjectVisibility(500.0f);
+
+                        SummonTrain(me, eThogarTrains::IntroTroopsTrain, eThogarActions::IntroBegin, false);
+                    }
+                    else if (Creature* l_Wheels = me->FindNearestCreature(eThogarCreatures::TrainWheels, 100.0f))
+                    {
+                        if (l_Wheels->IsAIEnabled)
+                        {
+                            l_Wheels->AI()->SetGUID(me->GetGUID());
+                            l_Wheels->AI()->DoAction(eThogarActions::IntroEnd);
+                        }
+                    }
+                }
+            }
+
+            void JustSummoned(Creature* p_Summon) override
+            {
+                CreatureAI::JustSummoned(p_Summon);
+
+                if (m_Instance == nullptr)
+                    return;
+
+                switch (p_Summon->GetEntry())
+                {
+                    case eFoundryCreatures::IronRaider:
+                    {
+                        if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                        {
+                            if (l_Thogar->IsAIEnabled)
+                                l_Thogar->AI()->SetGUID(p_Summon->GetGUID(), 0);
+                        }
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                if (m_Instance != nullptr && me->GetEntry() == eThogarCreatures::ManAtArmsIntro)
+                {
+                    if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                    {
+                        if (l_Thogar->IsAIEnabled)
+                            l_Thogar->AI()->SetGUID(me->GetGUID(), 1);
+                    }
+                }
+
+                if (me->GetEntry() == eThogarCreatures::ThogarManAtArms)
+                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::SpellIronBellow:
+                    {
+                        me->CastSpell(p_Target, eSpells::SpellIronBellowDmg, true);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_ID == eSpells::SpellRecklessSlashCharge)
+                    me->CastSpell(me, eSpells::SpellRecklessSlashDmg, true);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventIronBellow:
+                    {
+                        me->CastSpell(me, eSpells::SpellIronBellow, false);
+                        m_Events.ScheduleEvent(eEvents::EventIronBellow, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventRecklessSlash:
+                    {
+                        if (Player* l_Target = SelectMeleeTarget(true))
+                            me->CastSpell(*l_Target, eSpells::SpellRecklessSlashCharge, true);
+                        m_Events.ScheduleEvent(eEvents::EventRecklessSlash, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_gromkar_man_at_armsAI(p_Creature);
+        }
+};
+
+/// Iron Raider - 81197
+/// Iron Raider - 77394
+class npc_foundry_iron_raider : public CreatureScript
+{
+    public:
+        npc_foundry_iron_raider() : CreatureScript("npc_foundry_iron_raider") { }
+
+        enum eSpells
+        {
+            SpellThrowGrenade   = 156294,
+            SpellSerratedSlash  = 155701
+        };
+
+        enum eEvents
+        {
+            EventThrowGrenade = 1,
+            EventSerratedSlash
+        };
+
+        struct npc_foundry_iron_raiderAI : public ScriptedAI
+        {
+            npc_foundry_iron_raiderAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/) override
+            {
+                AddTimedDelayedOperation(100, [this]() -> void
+                {
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                });
+
+                m_Events.ScheduleEvent(eEvents::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
+                m_Events.ScheduleEvent(eEvents::EventSerratedSlash, 6 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                if (me->GetEntry() == eThogarCreatures::ThogarIronRaider)
+                {
+                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                    return;
+                }
+
+                if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
+                {
+                    if (Creature* l_Thogar = Creature::GetCreature(*me, l_InstanceScript->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                    {
+                        if (l_Thogar->IsAIEnabled)
+                            l_Thogar->AI()->SetGUID(me->GetGUID(), 1);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventThrowGrenade:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(*l_Target, eSpells::SpellThrowGrenade, false);
+                        m_Events.ScheduleEvent(eEvents::EventThrowGrenade, urand(5 * TimeConstants::IN_MILLISECONDS, 7 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    }
+                    case eEvents::EventSerratedSlash:
+                    {
+                        if (Unit* l_Target = me->getVictim())
+                            me->CastSpell(l_Target, eSpells::SpellSerratedSlash, true);
+                        m_Events.ScheduleEvent(eEvents::EventSerratedSlash, 12 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_raiderAI(p_Creature);
+        }
+};
+
+/// Iron Crack-Shot - 81315
+/// Iron Crack-Shot - 77476
+class npc_foundry_iron_crack_shot : public CreatureScript
+{
+    public:
+        npc_foundry_iron_crack_shot() : CreatureScript("npc_foundry_iron_crack_shot") { }
+
+        enum eSpells
+        {
+            SpellShootRifle     = 156270,
+
+            SpellThrowGrenade   = 156294
+        };
+
+        enum eEvent
+        {
+            EventThrowGrenade = 1
+        };
+
+        struct npc_foundry_iron_crack_shotAI : public ScriptedAI
+        {
+            npc_foundry_iron_crack_shotAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/) override
+            {
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
+                m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
+            }
+
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                if (me->GetEntry() == eThogarCreatures::ThogarIronCrackShot)
+                {
+                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                    return;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventThrowGrenade:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(*l_Target, eSpells::SpellThrowGrenade, false);
+                        m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(5 * TimeConstants::IN_MILLISECONDS, 7 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoSpellAttackIfReady(eSpells::SpellShootRifle);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_crack_shotAI(p_Creature);
+        }
+};
+
+/// Grom'kar Firemender - 87841
+/// Grom'kar Firemender - 77487
+class npc_foundry_gromkar_firemender : public CreatureScript
+{
+    public:
+        npc_foundry_gromkar_firemender() : CreatureScript("npc_foundry_gromkar_firemender") { }
+
+        enum eSpells
+        {
+            SpellCauterizingBoltSearcher    = 160177,
+            SpellCauterizingBoltAoE         = 160140
+        };
+
+        enum eEvent
+        {
+            EventCauterizingBolt = 1
+        };
+
+        struct npc_foundry_gromkar_firemenderAI : public ScriptedAI
+        {
+            npc_foundry_gromkar_firemenderAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                /// Wears a shield
+                me->SetCanDualWield(false);
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/) override
+            {
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
+                m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                if (me->GetEntry() == eThogarCreatures::ThogarFiremender)
+                {
+                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                    return;
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::SpellCauterizingBoltSearcher)
+                    me->CastSpell(*p_Target, eSpells::SpellCauterizingBoltAoE, false);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventCauterizingBolt:
+                    {
+                        me->CastSpell(me, eSpells::SpellCauterizingBoltSearcher, true);
+                        m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_gromkar_firemenderAI(p_Creature);
+        }
+};
+
 /// Grievous Mortal Wounds - 175624
 class spell_foundry_grievous_mortal_wounds : public SpellScriptLoader
 {
@@ -3242,7 +3693,7 @@ class spell_foundry_grievous_mortal_wounds : public SpellScriptLoader
 
         class spell_foundry_grievous_mortal_wounds_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_grievous_mortal_wounds_AuraScript);
+            PrepareAuraScript(spell_foundry_grievous_mortal_wounds_AuraScript)
 
             void OnTick(AuraEffect const* p_AurEff)
             {
@@ -3274,7 +3725,7 @@ class spell_foundry_spinning_blade : public SpellScriptLoader
 
         class spell_foundry_spinning_blade_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_spinning_blade_AuraScript);
+            PrepareAuraScript(spell_foundry_spinning_blade_AuraScript)
 
             enum eSpell
             {
@@ -3283,7 +3734,7 @@ class spell_foundry_spinning_blade : public SpellScriptLoader
 
             uint32 m_CheckTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_CheckTimer = 200;
                 return true;
@@ -3348,7 +3799,7 @@ class spell_foundry_slag_breath : public SpellScriptLoader
 
         class spell_foundry_slag_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_slag_breath_SpellScript);
+            PrepareSpellScript(spell_foundry_slag_breath_SpellScript)
 
             enum eSpell
             {
@@ -3401,7 +3852,7 @@ class spell_foundry_animate_slag : public SpellScriptLoader
 
         class spell_foundry_animate_slag_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_animate_slag_AuraScript);
+            PrepareAuraScript(spell_foundry_animate_slag_AuraScript)
 
             enum eSpell
             {
@@ -3413,7 +3864,7 @@ class spell_foundry_animate_slag : public SpellScriptLoader
                 ActionRescheduleSlag
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -3422,7 +3873,7 @@ class spell_foundry_animate_slag : public SpellScriptLoader
                 }
             }
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetCaster() == nullptr)
@@ -3458,14 +3909,14 @@ class spell_foundry_gronnling_smash : public SpellScriptLoader
 
         class spell_foundry_gronnling_smash_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_gronnling_smash_AuraScript);
+            PrepareAuraScript(spell_foundry_gronnling_smash_AuraScript)
 
             enum eSpell
             {
                 GronnlingSmashAoE = 169401
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::GronnlingSmashAoE, TriggerCastFlags::TRIGGERED_IGNORE_CAST_IN_PROGRESS);
@@ -3491,7 +3942,7 @@ class spell_foundry_shattering_charge : public SpellScriptLoader
 
         class spell_foundry_shattering_charge_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_shattering_charge_AuraScript);
+            PrepareAuraScript(spell_foundry_shattering_charge_AuraScript)
 
             enum eSpell
             {
@@ -3500,7 +3951,7 @@ class spell_foundry_shattering_charge : public SpellScriptLoader
 
             uint32 m_CheckTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_CheckTimer = 200;
                 return true;
@@ -3557,14 +4008,14 @@ class spell_foundry_ignite_aura : public SpellScriptLoader
 
         class spell_foundry_ignite_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_ignite_aura_AuraScript);
+            PrepareAuraScript(spell_foundry_ignite_aura_AuraScript)
 
             enum eSpell
             {
                 IgniteAoE = 156346
             };
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -3593,7 +4044,7 @@ class spell_foundry_blast_wave : public SpellScriptLoader
 
         class spell_foundry_blast_wave_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_blast_wave_SpellScript);
+            PrepareSpellScript(spell_foundry_blast_wave_SpellScript)
 
             enum eGameObjects
             {
@@ -3620,7 +4071,7 @@ class spell_foundry_blast_wave : public SpellScriptLoader
                 }
             }
 
-            void HandleActivateObject(SpellEffIndex p_EffIndex)
+            void HandleActivateObject(SpellEffIndex /*p_EffIndex*/)
             {
                 if (GameObject* l_GameObject = GetHitGObj())
                     l_GameObject->Delete();
@@ -3647,7 +4098,7 @@ class spell_foundry_rending_slash : public SpellScriptLoader
 
         class spell_foundry_rending_slash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_rending_slash_SpellScript);
+            PrepareSpellScript(spell_foundry_rending_slash_SpellScript)
 
             enum eSpell
             {
@@ -3700,7 +4151,7 @@ class spell_foundry_crushing_slam : public SpellScriptLoader
 
         class spell_foundry_crushing_slam_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_crushing_slam_SpellScript);
+            PrepareSpellScript(spell_foundry_crushing_slam_SpellScript)
 
             enum eSpell
             {
@@ -3753,7 +4204,7 @@ class spell_foundry_ember_in_the_wind_damage : public SpellScriptLoader
 
         class spell_foundry_ember_in_the_wind_damage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_ember_in_the_wind_damage_SpellScript);
+            PrepareSpellScript(spell_foundry_ember_in_the_wind_damage_SpellScript)
 
             void HandleDamage()
             {
@@ -3787,7 +4238,7 @@ class spell_foundry_electrical_storm : public SpellScriptLoader
 
         class spell_foundry_electrical_storm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_electrical_storm_SpellScript);
+            PrepareSpellScript(spell_foundry_electrical_storm_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -3819,6 +4270,98 @@ class spell_foundry_electrical_storm : public SpellScriptLoader
         }
 };
 
+/// Cauterizing Bolt (Searcher) - 160177
+class spell_foundry_cauterizing_bolt_searcher : public SpellScriptLoader
+{
+    public:
+        spell_foundry_cauterizing_bolt_searcher() : SpellScriptLoader("spell_foundry_cauterizing_bolt_searcher") { }
+
+        class spell_foundry_cauterizing_bolt_searcher_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_cauterizing_bolt_searcher_SpellScript)
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                p_Targets.remove_if([l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (p_Object->IsPlayer() || p_Object->ToUnit()->isCharmedOwnedByPlayerOrPlayer())
+                        return true;
+
+                    if (!l_Caster->IsValidAssistTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_cauterizing_bolt_searcher_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_cauterizing_bolt_searcher_SpellScript();
+        }
+};
+
+/// Cauterizing Bolt - 160140
+class spell_foundry_cauterizing_bolt : public SpellScriptLoader
+{
+    public:
+        spell_foundry_cauterizing_bolt() : SpellScriptLoader("spell_foundry_cauterizing_bolt") { }
+
+        class spell_foundry_cauterizing_bolt_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_cauterizing_bolt_AuraScript)
+
+            enum eSpell
+            {
+                CauterizingBoltHeal = 156323
+            };
+
+            enum eVisual
+            {
+                VisualKitID = 42432
+            };
+
+            void OnTick(AuraEffect const* /*p_AurEff*/)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    int32 l_Damage = l_Target->GetMap()->IsLFR() ? 5 : 20;
+
+                    /// Heal is 50% more powerful than damage
+                    AddPct(l_Damage, 50);
+
+                    /// 10 Tics, 10% per tic
+                    l_Damage /= 10;
+
+                    l_Target->SendPlaySpellVisualKit(eVisual::VisualKitID, 0);
+                    l_Target->CastCustomSpell(l_Target, eSpell::CauterizingBoltHeal, &l_Damage, nullptr, nullptr, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_cauterizing_bolt_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_cauterizing_bolt_AuraScript();
+        }
+};
+
 /// Acidback Puddle - 159121
 class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
 {
@@ -3830,7 +4373,7 @@ class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
             AcidbackPuddleDoT = 159686
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -3857,7 +4400,7 @@ class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -3914,7 +4457,7 @@ class areatrigger_foundry_fire_bomb : public AreaTriggerEntityScript
             FireBombDoT = 160260
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -3941,7 +4484,7 @@ class areatrigger_foundry_fire_bomb : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -3979,7 +4522,7 @@ class areatrigger_foundry_electrical_storm : public AreaTriggerEntityScript
 
         std::set<uint64> m_AffectedPlayers;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -4024,7 +4567,7 @@ class areatrigger_foundry_electrical_storm : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -4055,7 +4598,7 @@ class areatrigger_foundry_ice_trap : public AreaTriggerEntityScript
 
         std::set<uint64> m_AffectedPlayers;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -4100,7 +4643,7 @@ class areatrigger_foundry_ice_trap : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -4134,7 +4677,7 @@ class areatrigger_at_foundry_first_floor_trap : public AreaTriggerScript
             KromogsWrath = 87727
         };
 
-        void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) override
+        void OnEnter(Player* p_Player, AreaTriggerEntry const* /*p_AreaTrigger*/) override
         {
             float l_MaxZ = 308.45f;
             float l_MinZ = 274.45f;
@@ -4179,7 +4722,7 @@ class areatrigger_at_foundry_second_floor_trap : public AreaTriggerScript
             KromogsWrath = 87727
         };
 
-        void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) override
+        void OnEnter(Player* p_Player, AreaTriggerEntry const* /*p_AreaTrigger*/) override
         {
             float l_MaxZ = 266.06f;
             float l_MinZ = 227.40f;
@@ -4219,7 +4762,7 @@ class areatrigger_at_foundry_hansgar_and_franzok_entrance : public AreaTriggerSc
             ActionIntro
         };
 
-        void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) override
+        void OnEnter(Player* p_Player, AreaTriggerEntry const* /*p_AreaTrigger*/) override
         {
             if (InstanceScript* l_Instance = p_Player->GetInstanceScript())
             {
@@ -4259,7 +4802,7 @@ class areatrigger_at_foundry_hansgar_and_franzok_exit : public AreaTriggerScript
 
         bool m_Activated;
 
-        void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) override
+        void OnEnter(Player* p_Player, AreaTriggerEntry const* /*p_AreaTrigger*/) override
         {
             if (m_Activated)
                 return;
@@ -4274,6 +4817,7 @@ class areatrigger_at_foundry_hansgar_and_franzok_exit : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_blackrock_foundry()
 {
     /// NPCs
@@ -4310,6 +4854,10 @@ void AddSC_blackrock_foundry()
     new npc_foundry_ornery_ironhoof();
     new npc_foundry_iron_marksman();
     new npc_foundry_markog_abadir();
+    new npc_foundry_gromkar_man_at_arms();
+    new npc_foundry_iron_raider();
+    new npc_foundry_iron_crack_shot();
+    new npc_foundry_gromkar_firemender();
 
     /// Spells
     new spell_foundry_grievous_mortal_wounds();
@@ -4324,6 +4872,8 @@ void AddSC_blackrock_foundry()
     new spell_foundry_crushing_slam();
     new spell_foundry_ember_in_the_wind_damage();
     new spell_foundry_electrical_storm();
+    new spell_foundry_cauterizing_bolt_searcher();
+    new spell_foundry_cauterizing_bolt();
 
     /// GameObjects
 
@@ -4339,3 +4889,4 @@ void AddSC_blackrock_foundry()
     new areatrigger_at_foundry_hansgar_and_franzok_entrance();
     new areatrigger_at_foundry_hansgar_and_franzok_exit();
 }
+#endif

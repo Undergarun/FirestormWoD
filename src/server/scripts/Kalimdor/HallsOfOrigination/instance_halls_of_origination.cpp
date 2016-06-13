@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "halls_of_origination.h"
 
@@ -102,7 +110,7 @@ class instance_halls_of_origination : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go)
             {
-                switch (go->GetEntry()) 
+                switch (go->GetEntry())
                 {
                     case GO_ORIGINATION_ELEVATOR:
                         uiOriginationElevatorGUID = go->GetGUID();
@@ -110,7 +118,7 @@ class instance_halls_of_origination : public InstanceMapScript
                     case GO_ANHUUR_BRIDGE:
                     case GO_ANHUUR_ELEVATOR:
                     case GO_DOOR_ULDUM_14:
-                    case GO_DOOR_ULDUM_15:                                           
+                    case GO_DOOR_ULDUM_15:
                         AddDoor(go, true);
                         break;
                     case GO_VAULT_OF_LIGHTS_ENTR_DOOR:
@@ -196,7 +204,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "H O" << GetBossSaveData() << uiWardensDone << " "; 
+                saveStream << "H O" << GetBossSaveData() << uiWardensDone << " ";
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -258,7 +266,9 @@ class instance_halls_of_origination : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_halls_of_origination()
 {
     new instance_halls_of_origination();
 }
+#endif

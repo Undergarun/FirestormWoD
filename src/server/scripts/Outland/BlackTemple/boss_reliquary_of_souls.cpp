@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Reliquary_of_Souls
@@ -418,7 +408,7 @@ public:
             AuraTimer = 5000;
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage >= me->GetHealth())
             {
@@ -537,7 +527,7 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (done_by == me)
                 return;
@@ -716,6 +706,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_reliquary_of_souls()
 {
     new boss_reliquary_of_souls();
@@ -724,3 +715,4 @@ void AddSC_boss_reliquary_of_souls()
     new boss_essence_of_anger();
     new npc_enslaved_soul();
 }
+#endif

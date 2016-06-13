@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
@@ -41,7 +41,7 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
 
             uint64 m_Owner = 0;
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* p_Summoner) override
             {
                 m_Owner = p_Summoner->GetGUID();
 
@@ -69,7 +69,7 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
                 ///< No evade mode for Prismatic Crystal
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
                 if (p_Attacker->GetGUID() != m_Owner)
                 {
@@ -87,7 +87,7 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
                 }
             }
 
-            void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target)
+            void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target) override
             {
                 if (m_Owner == p_Target->GetGUID())
                     p_FactionID = eDatas::FactionHostile;
@@ -237,7 +237,7 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                     /// Frozen Orb slows down when it damages an enemy
                     if (!me->HasAura(Spells::SelfSnare90Pct))
                     {
-                        const float l_MaxRadius = 10.f; ///< Spell radius
+                        const float l_MaxRadius = 10.0f; ///< Spell radius
 
                         /// Find all the enemies in range
                         std::list<Unit*> l_Targets;
@@ -273,7 +273,6 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                     m_DamageTimer -= Constants::DamageDelay;
                 }
             }
-
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -332,7 +331,6 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
 
                 if (Unit* l_Owner = me->ToTempSummon()->GetOwner())
                 {
-                    Unit* l_OwnerTarget = nullptr;
                     if (Player* l_Player = l_Owner->ToPlayer())
                     {
                         if (l_Player->GetSelectedUnit())
@@ -1027,6 +1025,13 @@ class spell_npc_warl_wild_imp : public CreatureScript
             void Reset()
             {
                 me->SetReactState(REACT_HELPER);
+                if (Guardian* l_OwnerPet = me->GetOwner()->GetGuardianPet())
+                {
+                    if (l_OwnerPet->GetEntry() != 55659)
+                    {
+                        l_OwnerPet->UpdateAllStats();
+                    }
+                }
             }
 
             void DropCharge()
@@ -1060,13 +1065,6 @@ class spell_npc_warl_wild_imp : public CreatureScript
                     return;
 
                 me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
-
-                if (Unit* l_Owner = me->GetOwner())
-                {
-                    if (AuraEffect* l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
-                        if (roll_chance_i(l_MoltenCore->GetAmount()))
-                            l_Owner->CastSpell(l_Owner, eSpells::MoltenCoreAura, true);
-                }
             }
         };
 
@@ -1390,18 +1388,28 @@ class spell_npc_dru_force_of_nature_resto : public CreatureScript
 
         enum eSpells
         {
-            HealingTouch = 113828
+            Swiftmed        = 142421,
+            HealingTouch    = 113828
         };
 
         struct spell_npc_dru_force_of_nature_resto_impAI : public ScriptedAI
         {
-            spell_npc_dru_force_of_nature_resto_impAI(Creature *creature) : ScriptedAI(creature)
-            {
-            }
+            spell_npc_dru_force_of_nature_resto_impAI(Creature *creature) : ScriptedAI(creature) { }
+
+            bool m_FirstTarget = true;
 
             void Reset()
             {
                 me->SetReactState(REACT_HELPER);
+
+                Unit* l_Owner = me->ToTempSummon() ? me->ToTempSummon()->GetSummoner() : NULL;
+                Unit* l_Target = l_Owner ? (l_Owner->getVictim() ? l_Owner->getVictim() : (l_Owner->ToPlayer() ? l_Owner->ToPlayer()->GetSelectedUnit() : NULL)) : NULL;
+
+                if (!l_Owner || !l_Target)
+                    return;
+
+                if (me->IsValidAssistTarget(l_Target))
+                    me->CastSpell(l_Target, eSpells::Swiftmed, false); /// Heal
             }
 
             void UpdateAI(const uint32 /*p_Diff*/)
@@ -1411,16 +1419,24 @@ class spell_npc_dru_force_of_nature_resto : public CreatureScript
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                if (Unit* l_Owner = me->GetOwner())
+                if (m_FirstTarget)
                 {
-                    l_Target = l_Owner->getVictim();
-
-                    if (l_Target == nullptr)
+                    if (Unit* l_Owner = me->GetOwner())
                     {
-                        if (Player* l_Player = l_Owner->ToPlayer())
-                            l_Target = l_Player->GetSelectedUnit();
-                    }
+                        l_Target = l_Owner->getVictim();
 
+                        if (l_Target == nullptr)
+                        {
+                            if (Player* l_Player = l_Owner->ToPlayer())
+                                l_Target = l_Player->GetSelectedUnit();
+                        }
+                        if (l_Target == nullptr)
+                            return;
+
+                        if (!me->IsValidAssistTarget(l_Target))
+                            l_Target = l_Owner;
+                    }
+                    m_FirstTarget = false;
                 }
 
                 if (l_Target == nullptr)
@@ -1563,7 +1579,7 @@ class spell_npc_treant_balance : public CreatureScript
                 m_Rooted = false;
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
                 if (!UpdateVictim() && me->getVictim() == nullptr)
                 {
@@ -1609,6 +1625,7 @@ class spell_npc_treant_balance : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
@@ -1648,3 +1665,4 @@ void AddSC_npc_spell_scripts()
     /// Generic NPC
     new spell_npc_totem_of_harmony();
 }
+#endif

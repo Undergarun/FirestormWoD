@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /// \addtogroup world The World
 /// @{
@@ -25,7 +15,6 @@
 
 #include "Common.h"
 #include "Timer.h"
-#include <ace/Singleton.h>
 #include <ace/Atomic_Op.h>
 #include "SharedDefines.h"
 #include "QueryResult.h"
@@ -34,10 +23,6 @@
 #include "DatabaseWorkerPool.h"
 #include "InterRealmSession.h"
 
-#include <unordered_map>
-#include <map>
-#include <set>
-#include <list>
 #include <atomic>
 
 class Object;
@@ -221,6 +206,13 @@ enum WorldBoolConfigs
     CONFIG_INTERREALM_ENABLE,
     CONFIG_IGNORE_RESEARCH_SITE,
     CONFIG_ENABLE_MMAPS,
+    CONFIG_ENABLE_QUEST,
+    CONFIG_ENABLE_LOOTS,
+    CONFIG_ENABLE_LOCALES,
+    CONFIG_ENABLE_GAMEOBJECTS,
+    CONFIG_ENABLE_ONLY_SPECIFIC_MAP,
+    CONFIG_ENABLE_RESEARCH_SITE_LOAD,
+    CONFIG_ENABLE_ITEM_SPEC_LOAD,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -424,6 +416,7 @@ enum WorldIntConfigs
     CONFIG_ACCOUNT_BIND_GROUP_MASK,
     CONFIG_ACCOUNT_BIND_SHOP_GROUP_MASK,
     CONFIG_ACCOUNT_BIND_ALLOWED_GROUP_MASK,
+    CONFIG_ONLY_MAP,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -641,7 +634,7 @@ struct CliCommandHolder
     ~CliCommandHolder() { delete[] m_command; }
 };
 
-typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
+typedef std::unordered_map<uint32, WorldSession*> SessionMap;
 
 struct CharacterInfo
 {
@@ -702,12 +695,12 @@ class World
         /// Get the number of current active sessions
         void UpdateMaxSessionCounters();
         const SessionMap& GetAllSessions() const { return m_sessions; }
-        uint32 GetActiveAndQueuedSessionCount() const { return m_sessions.size() * getRate(RATE_ONLINE); }
-        uint32 GetActiveSessionCount() const { return (m_sessions.size() - m_QueuedPlayer.size()) * getRate(RATE_ONLINE); }
+        uint32 GetActiveAndQueuedSessionCount() const { return uint32(m_sessions.size() * getRate(RATE_ONLINE)); }
+        uint32 GetActiveSessionCount() const { return uint32((m_sessions.size() - m_QueuedPlayer.size()) * getRate(RATE_ONLINE)); }
         uint32 GetQueuedSessionCount() const { return m_QueuedPlayer.size(); }
         /// Get the maximum number of parallel sessions on the server since last reboot
         uint32 GetMaxQueuedSessionCount() const { return m_maxQueuedSessionCount; }
-        uint32 GetMaxActiveSessionCount() const { return m_maxActiveSessionCount * getRate(RATE_ONLINE); }
+        uint32 GetMaxActiveSessionCount() const { return uint32(m_maxActiveSessionCount * getRate(RATE_ONLINE)); }
         /// Get number of players
         inline uint32 GetPlayerCount() const { return m_PlayerCount; }
         inline uint32 GetMaxPlayerCount() const { return m_MaxPlayerCount; }
@@ -770,9 +763,9 @@ class World
         /// What time is it?
         time_t const& GetGameTime() const { return m_gameTime; }
         /// Get server region ID (used in wow time calculation)
-        uint32 const GetServerRegionID() const { return 1135753200; }
+        uint32 GetServerRegionID() const { return 1135753200; }
         /// Get server raid origin (used in wow time calculation)
-        uint32 const GetServerRaidOrigin() const { return 0; }
+        uint32 GetServerRaidOrigin() const { return 0; }
         /// Uptime (in secs)
         uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
         /// Update time
@@ -783,6 +776,8 @@ class World
         time_t GetNextDailyQuestsResetTime() const { return m_NextDailyQuestReset; }
         time_t GetNextWeeklyQuestsResetTime() const { return m_NextWeeklyQuestReset; }
         time_t GetNextRandomBGResetTime() const { return m_NextRandomBGReset; }
+
+        std::vector<uint32> GetMapsToLoad() const { return m_MapsToLoad; }
 
         /// Get the maximum skill level a player can reach
         uint16 GetConfigMaxSkillValue() const
@@ -884,6 +879,7 @@ class World
         void setWorldState(uint32 index, uint64 value);
         uint64 getWorldState(uint32 index) const;
         void LoadWorldStates();
+        void FillMapsToLoad();
 
         /// Are we on a "Player versus Player" server?
         bool IsPvPRealm() const { return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP); }
@@ -1034,7 +1030,7 @@ class World
         uint32 m_serverUpdateCount;
 
         SessionMap m_sessions;
-        typedef UNORDERED_MAP<uint32, time_t> DisconnectMap;
+        typedef std::unordered_map<uint32, time_t> DisconnectMap;
         DisconnectMap m_disconnects;
         uint32 m_maxActiveSessionCount;
         uint32 m_maxQueuedSessionCount;
@@ -1050,6 +1046,7 @@ class World
         float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
         typedef std::map<uint32, uint64> WorldStatesMap;
         WorldStatesMap m_worldstates;
+        std::vector<uint32> m_MapsToLoad;
         uint32 m_playerLimit;
         AccountTypes m_allowedSecurityLevel;
         LocaleConstant m_defaultDbcLocale;                     // from config for one from loaded DBC locales

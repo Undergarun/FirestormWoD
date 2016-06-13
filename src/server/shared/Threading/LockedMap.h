@@ -1,28 +1,21 @@
-/*
- * Copyright (C) 2011-2012 /dev/rsa for MangosR2 <http://github.com/MangosR2>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 /* written for use instead not locked std::map */
 
 #ifndef LOCKEDMAP_H
 #define LOCKEDMAP_H
 
-#include "Common.h"
 #include <map>
 #include <assert.h>
+#include <ace/Guard_T.h>
+
+#include "Common.h"
 
 namespace ACE_Based
 {
@@ -50,11 +43,11 @@ namespace ACE_Based
             explicit LockedMap(const Compare& comp = Compare(), const Allocator& alloc = Allocator()) : m_storage(comp, alloc)
             {}
 
-            template <class InputIterator> LockedMap(InputIterator first, InputIterator last, const Compare& comp = Compare(), const Allocator& alloc = Allocator()) 
-                : m_storage(first, last, comp, alloc) 
+            template <class InputIterator> LockedMap(InputIterator first, InputIterator last, const Compare& comp = Compare(), const Allocator& alloc = Allocator())
+                : m_storage(first, last, comp, alloc)
             {}
 
-            LockedMap(const LockedMap<Key, T, Compare, Allocator> & x ) : m_storage( x.m_storage ) 
+            LockedMap(const LockedMap<Key, T, Compare, Allocator> & x ) : m_storage( x.m_storage )
             {}
 
             // Destructor
@@ -64,7 +57,7 @@ namespace ACE_Based
             }
 
             // Copy
-            LockedMap<Key, Compare, Allocator>& operator= (const LockedMap<Key,Compare,Allocator>& x) 
+            LockedMap<Key, Compare, Allocator>& operator= (const LockedMap<Key,Compare,Allocator>& x)
             {
                 WriteGuard Guard(GetLock());
                 ReadGuard GuardX(x.GetLock());
@@ -125,7 +118,7 @@ namespace ACE_Based
             size_type size(void) const
             {
                 ReadGuard Guard(GetLock());
-                return m_storage.size(); 
+                return m_storage.size();
             }
 
             size_type max_size(void) const
@@ -141,7 +134,7 @@ namespace ACE_Based
             }
 
             // Access
-            T& operator[](const Key& x) 
+            T& operator[](const Key& x)
             {
                 if (find(x) == end())
                 {
@@ -162,43 +155,43 @@ namespace ACE_Based
             }
 
             // Modifiers
-            std::pair<iterator, bool> insert(const value_type& x) 
+            std::pair<iterator, bool> insert(const value_type& x)
             {
                 WriteGuard Guard(GetLock());
-                return m_storage.insert(x); 
+                return m_storage.insert(x);
             }
 
-            iterator insert(iterator position, const value_type& x) 
+            iterator insert(iterator position, const value_type& x)
             {
                 WriteGuard Guard(GetLock());
-                return m_storage.insert(position, x); 
+                return m_storage.insert(position, x);
             }
 
-            template <class InputIterator> void insert(InputIterator first, InputIterator last) 
+            template <class InputIterator> void insert(InputIterator first, InputIterator last)
             {
                 WriteGuard Guard(GetLock());
-                m_storage.insert(first, last); 
+                m_storage.insert(first, last);
             }
 
-            void erase(iterator pos) 
+            void erase(iterator pos)
             {
                 WriteGuard Guard(GetLock());
-                m_storage.erase(pos); 
+                m_storage.erase(pos);
             }
 
-            size_type erase(const Key& x) 
+            size_type erase(const Key& x)
             {
                 WriteGuard Guard(GetLock());
-                return m_storage.erase(x); 
+                return m_storage.erase(x);
             }
 
-            void erase(iterator begin, iterator end) 
+            void erase(iterator begin, iterator end)
             {
                 WriteGuard Guard(GetLock());
-                m_storage.erase(begin, end); 
+                m_storage.erase(begin, end);
             }
 
-            void swap(LockedMap<Key, T, Compare, Allocator>& x) 
+            void swap(LockedMap<Key, T, Compare, Allocator>& x)
             {
                 WriteGuard Guard(GetLock());
                 WriteGuard GuardX(x.GetLock());
@@ -212,13 +205,13 @@ namespace ACE_Based
             }
 
             // Observers
-            key_compare key_comp(void) const 
+            key_compare key_comp(void) const
             {
                 ReadGuard Guard(GetLock());
                 return m_storage.key_comp();
             }
 
-            value_compare value_comp(void) const 
+            value_compare value_comp(void) const
             {
                 ReadGuard Guard(GetLock());
                 return m_storage.value_comp();
@@ -231,7 +224,7 @@ namespace ACE_Based
                 return m_storage.find(x);
             }
 
-            iterator find(const Key& x) 
+            iterator find(const Key& x)
             {
                 ReadGuard Guard(GetLock());
                 return m_storage.find(x);
@@ -280,7 +273,7 @@ namespace ACE_Based
             }
 
             // Allocator
-            allocator_type get_allocator(void) const 
+            allocator_type get_allocator(void) const
             {
                 ReadGuard Guard(GetLock());
                 return m_storage.get_allocator();
@@ -324,11 +317,11 @@ namespace ACE_Based
             explicit LockedMultiMap(const Compare& comp = Compare(), const Allocator& alloc = Allocator()) : m_storage(comp, alloc)
             {}
 
-            template <class InputIterator> LockedMultiMap(InputIterator first, InputIterator last, const Compare& comp = Compare(), const Allocator& alloc = Allocator()) 
-                : m_storage(first, last, comp, alloc) 
+            template <class InputIterator> LockedMultiMap(InputIterator first, InputIterator last, const Compare& comp = Compare(), const Allocator& alloc = Allocator())
+                : m_storage(first, last, comp, alloc)
             {}
 
-            LockedMultiMap(const LockedMap<Key, T, Compare, Allocator> & x ) : m_storage( x.m_storage ) 
+            LockedMultiMap(const LockedMap<Key, T, Compare, Allocator> & x ) : m_storage( x.m_storage )
             {}
 
             // Destructor
@@ -338,7 +331,7 @@ namespace ACE_Based
             }
 
             // Copy
-            LockedMultiMap<Key, Compare, Allocator>& operator= (const LockedMultiMap<Key,Compare,Allocator>& x) 
+            LockedMultiMap<Key, Compare, Allocator>& operator= (const LockedMultiMap<Key,Compare,Allocator>& x)
             {
                 WriteGuard Guard(GetLock());
                 ReadGuard GuardX(x.GetLock());
@@ -415,63 +408,63 @@ namespace ACE_Based
             }
 
             // Modifiers
-            std::pair<iterator, bool> insert(const value_type& x) 
+            std::pair<iterator, bool> insert(const value_type& x)
             {
                 WriteGuard Guard(GetLock());
-                return m_storage.insert(x); 
+                return m_storage.insert(x);
             }
 
-            iterator insert(iterator position, const value_type& x) 
+            iterator insert(iterator position, const value_type& x)
             {
                 WriteGuard Guard(GetLock());
-                return m_storage.insert(position, x); 
+                return m_storage.insert(position, x);
             }
 
-            template <class InputIterator> void insert(InputIterator first, InputIterator last) 
+            template <class InputIterator> void insert(InputIterator first, InputIterator last)
             {
                 WriteGuard Guard(GetLock());
-                m_storage.insert(first, last); 
+                m_storage.insert(first, last);
             }
 
-            void erase(iterator pos) 
+            void erase(iterator pos)
             {
                 WriteGuard Guard(GetLock());
-                m_storage.erase(pos); 
+                m_storage.erase(pos);
             }
 
-            size_type erase(const Key& x) 
+            size_type erase(const Key& x)
             {
                 WriteGuard Guard(GetLock());
-                return m_storage.erase(x); 
+                return m_storage.erase(x);
             }
 
-            void erase(iterator begin, iterator end) 
+            void erase(iterator begin, iterator end)
             {
                 WriteGuard Guard(GetLock());
-                m_storage.erase(begin, end); 
+                m_storage.erase(begin, end);
             }
 
-            void swap(LockedMap<Key, T, Compare, Allocator>& x) 
+            void swap(LockedMap<Key, T, Compare, Allocator>& x)
             {
                 WriteGuard Guard(GetLock());
                 WriteGuard GuardX(x.GetLock());
                 m_storage.swap(x.storage);
             }
 
-            void clear(void) 
+            void clear(void)
             {
                 WriteGuard Guard(GetLock());
                 m_storage.clear();
             }
 
             // Observers
-            key_compare key_comp(void) const 
+            key_compare key_comp(void) const
             {
                 ReadGuard Guard(GetLock());
                 return m_storage.key_comp();
             }
 
-            value_compare value_comp(void) const 
+            value_compare value_comp(void) const
             {
                 ReadGuard Guard(GetLock());
                 return m_storage.value_comp();
@@ -484,7 +477,7 @@ namespace ACE_Based
                 return m_storage.find(x);
             }
 
-            iterator find(const Key& x) 
+            iterator find(const Key& x)
             {
                 ReadGuard Guard(GetLock());
                 return m_storage.find(x);
@@ -533,7 +526,7 @@ namespace ACE_Based
             }
 
             // Allocator
-            allocator_type get_allocator(void) const 
+            allocator_type get_allocator(void) const
             {
                 ReadGuard Guard(GetLock());
                 return m_storage.get_allocator();

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_GAMEEVENT_MGR_H
 #define TRINITY_GAMEEVENT_MGR_H
@@ -22,18 +12,17 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Define.h"
-#include <ace/Singleton.h>
 
 #define max_ge_check_delay DAY  // 1 day in seconds
 
 enum GameEventState
 {
-    GAMEEVENT_NORMAL = 0,   // standard game events
-    GAMEEVENT_WORLD_INACTIVE = 1,   // not yet started
-    GAMEEVENT_WORLD_CONDITIONS = 2,  // condition matching phase
-    GAMEEVENT_WORLD_NEXTPHASE = 3,   // conditions are met, now 'length' timer to start next event
-    GAMEEVENT_WORLD_FINISHED = 4,    // next events are started, unapply this one
-    GAMEEVENT_INTERNAL = 5, // never handled in update
+    GAMEEVENT_NORMAL            = 0,    // standard game events
+    GAMEEVENT_WORLD_INACTIVE    = 1,    // not yet started
+    GAMEEVENT_WORLD_CONDITIONS  = 2,    // condition matching phase
+    GAMEEVENT_WORLD_NEXTPHASE   = 3,    // conditions are met, now 'length' timer to start next event
+    GAMEEVENT_WORLD_FINISHED    = 4,    // next events are started, unapply this one
+    GAMEEVENT_INTERNAL          = 5     // never handled in update
 };
 
 struct GameEventFinishCondition
@@ -172,7 +161,7 @@ class GameEventMgr
         QuestIdToEventConditionMap mQuestToEventConditions;
         GameEventNPCFlagMap mGameEventNPCFlags;
         ActiveEvents m_ActiveEvents;
-        UNORDERED_MAP<uint32, uint16> _questToEventLinks;
+        std::unordered_map<uint32, uint16> _questToEventLinks;
         bool isSystemInit;
     public:
         GameEventGuidMap  mGameEventCreatureGuids;

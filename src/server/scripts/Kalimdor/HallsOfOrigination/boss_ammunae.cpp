@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "halls_of_origination.h"
 
@@ -6,7 +14,7 @@ enum ScriptTexts
     SAY_DEATH                = 0,
     SAY_AGGRO                = 1,
     SAY_GROWTH               = 2,
-    SAY_KILL                 = 3,
+    SAY_KILL                 = 3
 };
 
 enum Spells
@@ -38,7 +46,7 @@ enum Spells
     // Spore
     SPELL_SPORE_CLOUD                       = 75701,
     SPELL_NOXIOUS_SPORE                     = 75702,
-    SPELL_NOXIOUS_SPORE_H                   = 89889,
+    SPELL_NOXIOUS_SPORE_H                   = 89889
 };
 
 enum Events
@@ -48,7 +56,7 @@ enum Events
     EVENT_RAMPANT_GROWTH        = 3,
     EVENT_SUMMON_POD            = 4,
     EVENT_SUMMON_SPORE          = 5,
-    EVENT_ENERGIZE              = 6,
+    EVENT_ENERGIZE              = 6
 };
 
 enum Adds
@@ -242,7 +250,7 @@ class npc_ammunae_seedling_pod : public CreatureScript
                     DoCast(pAmmunae, SPELL_ENERGIZE);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
             }
 
@@ -288,7 +296,7 @@ class npc_ammunae_spore : public CreatureScript
                 me->GetMotionMaster()->MoveRandom(15.0f);
             }
             
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -298,19 +306,21 @@ class npc_ammunae_spore : public CreatureScript
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     me->SetHealth(me->GetMaxHealth());
                     me->RemoveAllAuras();
-                    DoCast(me, SPELL_SPORE_CLOUD); 
+                    DoCast(me, SPELL_SPORE_CLOUD);
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
             }
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ammunae()
 {
     new boss_ammunae();
     new npc_ammunae_seedling_pod();
     new npc_ammunae_spore();
 }
+#endif

@@ -1,9 +1,15 @@
-/// Copyright Ashran 2014-2015
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef BITSET_HPP_UTILITIES
-#define BITSET_HPP_UTILITIES
+# define BITSET_HPP_UTILITIES
 
-#include "Common.h"
+# include "Common.h"
 
 namespace MS { namespace Utilities
 {

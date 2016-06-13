@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Shadowmoon_Valley
@@ -639,7 +629,7 @@ enum Karynaku
 
     NPC_ZUHULED_THE_WACKED  = 11980,
 
-    TAXI_PATH_ID            = 649,
+    TAXI_PATH_ID            = 649
 };
 
 class npc_karynaku : public CreatureScript
@@ -692,7 +682,7 @@ enum eOverlordData
     LORD_ILLIDAN_SAY_6              = -1000619,
     LORD_ILLIDAN_SAY_7              = -1000620,
 
-    YARZILL_THE_MERC_SAY            = -1000621,
+    YARZILL_THE_MERC_SAY            = -1000621
 };
 
 class npc_overlord_morghor : public CreatureScript
@@ -1872,7 +1862,7 @@ public:
 enum ZuluhedChains
 {
     QUEST_ZULUHED   = 10866,
-    NPC_KARYNAKU    = 22112,
+    NPC_KARYNAKU    = 22112
 };
 
 class spell_unlocking_zuluheds_chains: public SpellScriptLoader
@@ -2076,8 +2066,57 @@ class mob_collidus_the_warp_watcher : public CreatureScript
         };
 };
 
+class playerScript_quests_greenfire_questline : public PlayerScript
+{
+public:
+    playerScript_quests_greenfire_questline() : PlayerScript("playerScript_quests_greenfire_questline") { }
+
+    enum eQuests {
+        AnUnusualTome = 32295,
+        ReaderForTheDeadTongue = 32307,
+        ATaleOfSixMasterA = 32310,
+        ATaleOfSixMasterH = 32309,
+        SeekingTheSoulstones = 32317,
+        SeekTheSignal = 32324,
+        InfiltratingTheBlackTemple = 32325
+    };
+
+    void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
+    {
+        if (p_Player && p_Quest)
+        {
+            switch (p_Quest->GetQuestId())
+            {
+                case eQuests::AnUnusualTome:
+                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(eQuests::ReaderForTheDeadTongue))
+                        p_Player->AddQuest(l_Quest, p_Player);
+                    break;
+                case eQuests::ATaleOfSixMasterA:
+                case eQuests::ATaleOfSixMasterH:
+                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(eQuests::SeekingTheSoulstones))
+                        p_Player->AddQuest(l_Quest, p_Player);
+                    break;
+                case eQuests::SeekingTheSoulstones:
+                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(eQuests::SeekTheSignal))
+                        p_Player->AddQuest(l_Quest, p_Player);
+                    break;
+                case eQuests::SeekTheSignal:
+                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(eQuests::InfiltratingTheBlackTemple))
+                        p_Player->AddQuest(l_Quest, p_Player);
+                    break;
+                case eQuests::InfiltratingTheBlackTemple:
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+};
+
+#ifndef __clang_analyzer__
 void AddSC_shadowmoon_valley()
 {
+    new playerScript_quests_greenfire_questline();
     new mob_mature_netherwing_drake();
     new mob_enslaved_netherwing_drake();
     new mob_dragonmaw_peon();
@@ -2097,3 +2136,4 @@ void AddSC_shadowmoon_valley()
     new npc_shadowmoon_tuber_node();
     new mob_collidus_the_warp_watcher();
 }
+#endif

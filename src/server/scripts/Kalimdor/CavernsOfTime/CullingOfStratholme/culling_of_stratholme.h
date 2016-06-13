@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef DEF_CULLING_OF_STRATHOLME_H
 #define DEF_CULLING_OF_STRATHOLME_H
@@ -29,7 +20,7 @@ enum Data
     DATA_CRATE_COUNT,
     DATA_TRANSFORM_CITIZENS,
     DATA_ZOMBIEFEST,
-    DATA_ARTHAS_STEP,
+    DATA_ARTHAS_STEP
 };
 
 enum Data64
@@ -45,7 +36,7 @@ enum Data64
     DATA_MAL_GANIS_GATE_1,
     DATA_MAL_GANIS_GATE_2,
     DATA_EXIT_GATE,
-    DATA_MAL_GANIS_CHEST,
+    DATA_MAL_GANIS_CHEST
 };
 
 enum Creatures
@@ -61,7 +52,7 @@ enum Creatures
     NPC_CHROMIE_2       = 27915,
     NPC_CHROMIE_3       = 30997,
     NPC_GENERIC_BUNNY   = 28960,
-    NPC_LORDAERON_CRIER = 27913,
+    NPC_LORDAERON_CRIER = 27913
 };
 
 enum Citizens
@@ -71,7 +62,7 @@ enum Citizens
     NPC_CITY_MAN3 = 31126,
     NPC_CITY_MAN4 = 31127,
 
-    NPC_ZOMBIE    = 27737,
+    NPC_ZOMBIE    = 27737
 };
 
 enum GameObjects
@@ -83,7 +74,7 @@ enum GameObjects
     GO_MALGANIS_CHEST_N = 190663,
     GO_MALGANIS_CHEST_H = 193597,
     GO_SUSPICIOUS_CRATE = 190094,
-    GO_PLAGUED_CRATE    = 190095,
+    GO_PLAGUED_CRATE    = 190095
 };
 
 enum WorldStatesCoT
@@ -92,7 +83,7 @@ enum WorldStatesCoT
     WORLDSTATE_CRATES_REVEALED      = 3480,
     WORLDSTATE_WAVE_COUNT           = 3504,
     WORLDSTATE_TIME_GUARDIAN        = 3931,
-    WORLDSTATE_TIME_GUARDIAN_SHOW   = 3932,
+    WORLDSTATE_TIME_GUARDIAN_SHOW   = 3932
 };
 
 enum ExtraInfo
@@ -102,7 +93,7 @@ enum ExtraInfo
     QUEST_DISPELLING_ILLUSIONS = 13149,
     QUEST_A_ROYAL_ESCORT       = 13151,
     ACHIEVEMENT_CULLING_TIME   = 1817,
-    ACHIEVEMENT_ZOMBIEFEST     = 1872,
+    ACHIEVEMENT_ZOMBIEFEST     = 1872
 };
 
 Position const ChromieEntranceSummonPos = {1813.29f, 1283.57f, 142.325f, 3.87816f};
@@ -113,7 +104,7 @@ Position const ArthasSpawnPositions[3] =
 {
     {2049.41f, 1287.57f, 142.746f, 0.0f},
     {2364.20f, 1194.66f, 131.575f, 0.226905f},
-    {2536.80f, 1130.81f, 130.928f, 0.152292f},
+    {2536.80f, 1130.81f, 130.928f, 0.152292f}
 };
 
 #endif

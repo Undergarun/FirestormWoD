@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "HFishingHut.hpp"
 #include "../../Sites/GarrisonSiteBase.hpp"
 #include "ScriptMgr.h"
@@ -14,7 +15,7 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 79892 - Mak'jin                                                   ////
@@ -32,7 +33,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    bool npc_MakJin_Garr::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_MakJin_Garr::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)p_Creature->GetInstanceScript();
 
@@ -48,7 +49,7 @@ namespace MS { namespace Garrison
         {
             if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
             {
-                GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+                GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
                 if (l_AI == nullptr)
                     return true;

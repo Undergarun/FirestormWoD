@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 #include "../GatheringBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Gather FMT : HerbSpawnType PrevSpawnTimeStamp NextSpawnTimeStamp BuildingLevel [for plot in plots]GobEntryOrHerbSpawnState[end_for]
 

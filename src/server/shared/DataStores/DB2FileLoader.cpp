@@ -1,25 +1,12 @@
-/*
- * Copyright (C) 2011 TrintiyCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "DB2FileLoader.h"
 
 DB2FileLoader::DB2FileLoader()
@@ -309,7 +296,7 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
     return dataTable;
 }
 
-char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* dataTable, uint32 p_Locale)
+char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* /*dataTable*/, uint32 /*p_Locale*/)
 {
     if (strlen(format) != fieldCount)
         return NULL;

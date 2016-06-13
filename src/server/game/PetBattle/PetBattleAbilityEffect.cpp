@@ -1,21 +1,10 @@
-/*
-* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "PetBattleAbilityEffect.h"
 #include "PetBattle.h"
@@ -679,7 +668,7 @@ bool PetBattleAbilityEffect::AddTarget(uint32 target)
     return true;
 }
 
-bool PetBattleAbilityEffect::AddTarget(PetBattleAbilityImplicitTarget target)
+bool PetBattleAbilityEffect::AddTarget(PetBattleAbilityImplicitTarget /*target*/)
 {
     PetBattleTeam* l_Team;
     switch (Handlers[EffectInfo->effect].ImplicitTarget)
@@ -968,7 +957,7 @@ bool PetBattleAbilityEffect::HandleHealLastHitTaken()
 
 bool PetBattleAbilityEffect::HandleRemoveAura()
 {
-    /// Data for this effect are unknown so we assume 100% unaura 
+    /// Data for this effect are unknown so we assume 100% unaura
     ///CalculateHit(EffectInfo->prop[0]);
     ///
     ///if (!(Flags & FailFlags))
@@ -1144,8 +1133,6 @@ bool PetBattleAbilityEffect::HandleWeatherAura()
 
 bool PetBattleAbilityEffect::HandleAuraCondAccuracyState()
 {
-    uint32 flags = 0;
-
     // Chain Failure
     if (EffectInfo->prop[4] && AbilityTurn->ChainFailure)
         return false;

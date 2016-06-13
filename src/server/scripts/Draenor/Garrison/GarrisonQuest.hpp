@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Misc script for some quest
     class GarrisonQuestPlayerScript : PlayerScript
@@ -36,7 +36,7 @@ namespace MS { namespace Garrison
 
             class spell_learning_blueprint_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_learning_blueprint_SpellScript);
+                PrepareSpellScript(spell_learning_blueprint_SpellScript)
 
                 /// After cast
                 void HandleAfterCast();
@@ -62,6 +62,8 @@ namespace MS { namespace Garrison
             void UpdateGarrisonPhaseMask(Player* p_Player);
 
             void UpdateDraenorPhaseMask(Player* p_Player);
+            
+            bool NeedsTradingPostReset(std::vector<uint32> p_Entries, uint64 p_WorldState);
 
             void OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId) override;
 

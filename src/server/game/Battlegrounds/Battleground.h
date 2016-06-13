@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __BATTLEGROUND_H
 #define __BATTLEGROUND_H
@@ -68,9 +58,9 @@ namespace MS
                 None                    = 0,
                 Kill                    = 7,
                 BattlegroundWin         = 8,
-                BarttlegroundRated      = 15,
+                BattlegroundRated       = 15,
                 BattlegroundObjectif    = 16,
-                ArenaSkyrmish           = 17
+                Arena                   = 17
             };
         }
 
@@ -128,28 +118,28 @@ namespace MS
 
             /// Check if the BattlegroundType given is a casual battleground.
             /// @p_Type : The type of the battleground.
-            static bool IsCasualBattleground(Type p_Type) ///< IsCasualBattleground is unused
+            inline bool IsCasualBattleground(Type p_Type) ///< IsCasualBattleground is unused
             {
                 return p_Type < BattlegroundType::NumBattlegrounds || p_Type == BattlegroundType::RandomBattleground;
             }
 
             /// Check if the BattlegroundType given is an instance of an arena.
             /// @p_Type : The type of the battleground.
-            static bool IsArena(Type p_Type) ///< IsArena is unused
+            inline bool IsArena(Type p_Type) ///< IsArena is unused
             {
                 return p_Type >= BeginArena && p_Type <= EndArena;
             }
 
             /// Check if the BattlegroundType given is a rated battleground.
             /// @p_Type : The type of the battleground.
-            static bool IsRated(Type p_Type) ///< IsRated is unused 22/02/16
+            inline bool IsRated(Type p_Type) ///< IsRated is unused 22/02/16
             {
                 return (p_Type == RatedBg10v10 || p_Type == RatedBg15v15 || p_Type == RatedBg25v25) || (p_Type >= Arena2v2 && p_Type <= Arena5v5);
             }
 
             /// Return the ArenaType of the battleground.
             /// @p_Type : The type of the battleground.
-            static ArenaType GetArenaType(Type p_Type) ///< GetArenaType is unused
+            inline ArenaType GetArenaType(Type p_Type) ///< GetArenaType is unused
             {
                 switch (p_Type)
                 {
@@ -166,7 +156,7 @@ namespace MS
             }
 
             /// Return true if the arena type is skirmish.
-            static bool IsSkirmish(Type p_Type) ///< IsSkirmish is unused
+            inline bool IsSkirmish(Type p_Type) ///< IsSkirmish is unused
             {
                 switch (p_Type)
                 {
@@ -231,7 +221,7 @@ namespace MS
 
         namespace Maps
         {
-            static BattlegroundType::Type FindAssociatedType(uint32 p_MapId) ///< FindAssociatedType is unused
+            inline BattlegroundType::Type FindAssociatedType(uint32 p_MapId) ///< FindAssociatedType is unused
             {
                 auto l_Itr = k_MapIdToBattlegroundType.find(p_MapId);
                 if (l_Itr != std::end(k_MapIdToBattlegroundType))
@@ -248,7 +238,7 @@ namespace MS
                 Count = sizeof (k_Brackets) / sizeof (k_Brackets[0])
             };
 
-            static Bracket const* FindForLevel(std::size_t p_Level) ///< FindForLevel is unused
+            inline Bracket const* FindForLevel(std::size_t p_Level) ///< FindForLevel is unused
             {
                 for (std::size_t i = 0; i < Count; i++)
                 {
@@ -259,13 +249,13 @@ namespace MS
                 return nullptr;
             }
 
-            static Bracket const* RetreiveFromId(Bracket::Id p_Id) ///< RetreiveFromId is unused
+            inline Bracket const* RetreiveFromId(Bracket::Id p_Id) ///< RetreiveFromId is unused
             {
                 return &k_Brackets[p_Id];
             }
         }
 
-        static BattlegroundTypeId GetIdFromType(BattlegroundType::Type p_Type) ///< GetIdFromType is unused
+        inline BattlegroundTypeId GetIdFromType(BattlegroundType::Type p_Type) ///< GetIdFromType is unused
         {
             switch (p_Type)
             {
@@ -322,7 +312,7 @@ namespace MS
             }
         }
 
-        static BattlegroundType::Type GetTypeFromId(BattlegroundTypeId p_BgTypeId, uint8 p_ArenaType, bool p_IsSkirmish = false) ///< GetTypeFromId is unused
+        inline BattlegroundType::Type GetTypeFromId(BattlegroundTypeId p_BgTypeId, uint8 p_ArenaType, bool p_IsSkirmish = false) ///< GetTypeFromId is unused
         {
             switch (p_BgTypeId)
             {
@@ -382,7 +372,7 @@ namespace MS
             }
         }
 
-        static BattlegroundType::Type GetSchedulerType(BattlegroundTypeId p_BgTypeId) ///< GetSchedulerType is unused
+        inline BattlegroundType::Type GetSchedulerType(BattlegroundTypeId p_BgTypeId) ///< GetSchedulerType is unused
         {
             switch (p_BgTypeId)
             {
@@ -439,7 +429,7 @@ namespace MS
             }
         }
 
-        static bool IsArenaType(BattlegroundType::Type p_BgType) ///< IsArenaType is unused
+        inline bool IsArenaType(BattlegroundType::Type p_BgType) ///< IsArenaType is unused
         {
             return (p_BgType == BattlegroundType::AllArenas ||
                 p_BgType == BattlegroundType::BladeEdgeArena ||
@@ -451,7 +441,7 @@ namespace MS
                 p_BgType == BattlegroundType::RuinsOfLordaeron);
         }
 
-        static uint8 BGArenaType(BattlegroundType::Type p_BgType) ///< BGArenaType is unused
+        inline uint8 BGArenaType(BattlegroundType::Type p_BgType) ///< BGArenaType is unused
         {
             switch (p_BgType)
             {
@@ -1040,7 +1030,7 @@ class Battleground
         Group* GetBgRaid(uint32 TeamID) const { return TeamID == ALLIANCE ? m_BgRaids[BG_TEAM_ALLIANCE] : m_BgRaids[BG_TEAM_HORDE]; }
         void SetBgRaid(uint32 TeamID, Group* bg_raid);
 
-        virtual void UpdatePlayerScore(Player* Source, Player* victim, uint32 type, uint32 value, bool doAddHonor = true, MS::Battlegrounds::RewardCurrencyType::Type = MS::Battlegrounds::RewardCurrencyType::Type::None);
+        virtual void UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor = true, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType = MS::Battlegrounds::RewardCurrencyType::Type::None);
 
         static BattlegroundTeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE; }
         uint32 GetPlayersCountByTeam(uint32 Team) const { return m_PlayersCount[GetTeamIndexByTeamId(Team)]; }
@@ -1203,7 +1193,7 @@ class Battleground
         BGHonorMode m_HonorMode;
 
         virtual uint32 GetMaxScore() const { return 0; }
-        virtual uint32 GetTeamScore(uint32 p_Team) const { return 0; } ///< p_Team is unused
+        virtual uint32 GetTeamScore(uint32 /*p_Team*/) const { return 0; }
         virtual bool IsScoreIncremental() const { return true; }
 
         void ApplyDampeningIfNeeded();

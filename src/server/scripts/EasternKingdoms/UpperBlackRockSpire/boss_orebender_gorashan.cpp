@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "upper_blackrock_spire.hpp"
@@ -134,7 +134,7 @@ class boss_orebender_gorashan : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (!m_Active)
                 {
@@ -160,7 +160,7 @@ class boss_orebender_gorashan : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 Talk(TALK_DEATH);
 
@@ -193,7 +193,7 @@ class boss_orebender_gorashan : public CreatureScript
                 Reset();
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+            void SpellHit(Unit* /*p_Caster*/, SpellInfo const* p_SpellInfo)
             {
                 if (p_SpellInfo->Id == SPELL_POWER_CONDUIT_VISUAL)
                 {
@@ -222,12 +222,12 @@ class boss_orebender_gorashan : public CreatureScript
                         if (m_ApprenticeEngaged)
                             break;
 
-                        if (Player* l_Player = me->FindNearestPlayer(30.f))
+                        if (Player* l_Player = me->FindNearestPlayer(30.0f))
                         {
                             m_ApprenticeEngaged = true;
 
                             std::list<Creature*> l_ApprenticeList;
-                            me->GetCreatureListWithEntryInGrid(l_ApprenticeList, NPC_BLACK_IRON_APPRENTICE, 150.f);
+                            me->GetCreatureListWithEntryInGrid(l_ApprenticeList, NPC_BLACK_IRON_APPRENTICE, 150.0f);
 
                             bool l_FirstTalk = false;
                             for (Creature* l_Apprentice : l_ApprenticeList)
@@ -338,7 +338,7 @@ class boss_orebender_gorashan : public CreatureScript
             bool CanActivate()
             {
                 std::list<Creature*> l_RunesOfPower;
-                me->GetCreatureListWithEntryInGrid(l_RunesOfPower, NPC_RUNE_OF_POWER, 50.f);
+                me->GetCreatureListWithEntryInGrid(l_RunesOfPower, NPC_RUNE_OF_POWER, 50.0f);
 
                 for (Creature* l_Rune : l_RunesOfPower)
                 {
@@ -359,7 +359,7 @@ class boss_orebender_gorashan : public CreatureScript
                     m_InitializeTimer = 0;
 
                     std::list<Creature*> l_RunesOfPower;
-                    me->GetCreatureListWithEntryInGrid(l_RunesOfPower, NPC_RUNE_OF_POWER, 50.f);
+                    me->GetCreatureListWithEntryInGrid(l_RunesOfPower, NPC_RUNE_OF_POWER, 50.0f);
 
                     for (Creature* l_Rune : l_RunesOfPower)
                         l_Rune->AI()->DoAction(ACTION_POWER_CONDUIT);
@@ -395,7 +395,7 @@ class mob_black_iron_apprentice : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (m_Instance)
                 {
@@ -447,13 +447,13 @@ class mob_ubrs_rune_of_power : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+            void SpellHit(Unit* /*p_Caster*/, SpellInfo const* p_SpellInfo)
             {
                 if (p_SpellInfo->Id == SPELL_DISRUPTING_CONDUCTOR)
                 {
                     if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
                     {
-                        if (GameObject* l_Conductor = me->FindNearestGameObject(GOB_RUNIC_CONDUIT, 5.f))
+                        if (GameObject* l_Conductor = me->FindNearestGameObject(GOB_RUNIC_CONDUIT, 5.0f))
                         {
                             if (Creature* l_Orebender = Creature::GetCreature(*l_Conductor, l_InstanceScript->GetData64(NPC_OREBENDER_GORASHAN)))
                             {
@@ -480,7 +480,7 @@ class mob_ubrs_rune_of_power : public CreatureScript
                 {
                     case EVENT_POWER_CONDUIT:
                     {
-                        if (GameObject* l_Conduit = me->FindNearestGameObject(GOB_RUNIC_CONDUIT, 5.f))
+                        if (GameObject* l_Conduit = me->FindNearestGameObject(GOB_RUNIC_CONDUIT, 5.0f))
                         {
                             l_Conduit->SetGoState(GO_STATE_ACTIVE);
                             l_Conduit->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NODESPAWN);
@@ -596,7 +596,7 @@ class spell_lodestone_spike: public SpellScriptLoader
 
         class spell_lodestone_spike_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_lodestone_spike_SpellScript);
+            PrepareSpellScript(spell_lodestone_spike_SpellScript)
 
             void HandleOnHit()
             {
@@ -627,7 +627,7 @@ class spell_power_conduit_hangover: public SpellScriptLoader
 
         class spell_power_conduit_hangover_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_power_conduit_hangover_AuraScript);
+            PrepareAuraScript(spell_power_conduit_hangover_AuraScript)
 
             void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -655,7 +655,7 @@ class spell_seal_conduit: public SpellScriptLoader
 
         class spell_seal_conduit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_seal_conduit_SpellScript);
+            PrepareSpellScript(spell_seal_conduit_SpellScript)
 
             void HandleOnHit()
             {
@@ -686,7 +686,7 @@ class spell_electric_pulse: public SpellScriptLoader
 
         class spell_electric_pulse_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_electric_pulse_SpellScript);
+            PrepareSpellScript(spell_electric_pulse_SpellScript)
 
             void CorrectRange(std::list<WorldObject*>& p_Targets)
             {
@@ -772,6 +772,7 @@ class go_runic_conduit : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_orebender_gorashan()
 {
     new boss_orebender_gorashan();
@@ -784,3 +785,4 @@ void AddSC_boss_orebender_gorashan()
     new spell_electric_pulse();
     new go_runic_conduit();
 }
+#endif

@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_MGR_HPP_GARRISON
 #define GARRISON_MGR_HPP_GARRISON
 
@@ -16,6 +17,7 @@
 #include "GarrisonWorkOrder.hpp"
 #include "GarrisonShipmentManager.hpp"
 #include "GarrisonBuildingManager.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
 #include "Interfaces/Interface_GarrisonSite.hpp"
 
@@ -24,7 +26,7 @@
     #define GARRISON_CHEST_FORMULA_DEBUG 1
 #endif
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Garrison manager class
     class Manager
@@ -109,7 +111,9 @@ namespace MS { namespace Garrison
             /// Get plot instance ID by activation game object
             uint32 GetPlotInstanceIDByActivationGameObject(uint64 p_Guid) const;
             /// Return Daily Tavern Datas
-            std::vector<uint32>& GetGarrisonTavernDatas() { return m_GarrisonDailyTavernData; };
+            std::vector<uint32>& GetGarrisonDailyTavernDatas() { return m_GarrisonDailyTavernData; };
+            /// Return Weekly Tavern Datas
+            std::vector<WeeklyTavernData>& GetGarrisonWeeklyTavernDatas() { return m_GarrisonWeeklyTavernData; };
 
         /// Mission section
         public:
@@ -152,14 +156,22 @@ namespace MS { namespace Garrison
 
         /// Follower section
         public:
+            /// Set Follower Recruit
+            bool CanRecruitFollower() const;
+            /// Set Follower Recruit
+            void SetCanRecruitFollower(bool p_Apply);
             /// Add follower
             bool AddFollower(uint32 p_FollowerID);
+            /// Add follower with initialized entity
+            bool AddFollower(GarrisonFollower p_Follower);
             /// Assign a follower to a building
             void AssignFollowerToBuilding(uint64 p_FollowerDBID, uint32 p_PlotInstanceID);
             /// Change follower activation state
             void ChangeFollowerActivationState(uint64 p_FollowerDBID, bool p_Active);
             /// Get followers
             std::vector<GarrisonFollower> GetFollowers() const;
+            /// Get followers with specific ability
+            std::list<GarrisonFollower> GetFollowersWithAbility(uint32 p_AbilityID, bool p_IsTrait);
             /// Get follower
             GarrisonFollower* GetFollower(uint32 p_FollowerID);
             /// Get follower with Database ID
@@ -222,6 +234,8 @@ namespace MS { namespace Garrison
             uint32 GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID) const;
             /// Get in progress work order count
             uint32 GetWorkOrderCount(uint32 p_PlotInstanceID) const;
+            /// Get in progress work order count
+            std::vector<GarrisonWorkOrder> GetBuildingWorkOrders(uint32 p_PlotInstanceID) const;
             /// Start new work order
             uint64 StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID);
             /// Delete work order
@@ -260,12 +274,22 @@ namespace MS { namespace Garrison
             bool CheckGarrisonStablesQuestsConditions(uint32 p_QuestID, Player* p_Player);
             /// Checks training mounts auras
             bool IsTrainingMount();
+            /// Add auras/flags depending on the building level
+            void HandleStablesAuraBonuses(bool p_Remove = false);
 
-        /// Tavern System
         public:
-            void AddGarrisonTavernData(uint32 p_Data);
-            void SetGarrisonTavernData(uint32 p_Data);
-            void CleanGarrisonTavernData();
+            /// Garrison Reset Systems
+            void AddGarrisonDailyTavernData(uint32 p_Data);
+            void SetGarrisonDailyTavernData(uint32 p_Data);
+            void CleanGarrisonDailyTavernData();
+            void ResetGarrisonDailyTavernData();
+            void AddGarrisonWeeklyTavernData(WeeklyTavernData p_Data);
+            void SetGarrisonWeeklyTavernData(WeeklyTavernData p_Data);
+            void CleanGarrisonWeeklyTavernData();
+            void ResetGarrisonWeeklyTavernData();
+            void ResetGarrisonWorkshopData(Player* p_Player);
+            void ResetGarrisonTradingPostData(Player* p_Player);
+            std::vector<GarrisonFollower> GetWeeklyFollowerRecruits(Player* p_Player);
 
             /// Get known specializations
             std::vector<int32> GetKnownSpecializations() const;
@@ -312,7 +336,7 @@ namespace MS { namespace Garrison
             /// Levelup follower
             bool LevelUpFollower(uint32 p_DatabaseID);
 
-            /// Returns all the  abilities with the same type
+            /// Returns amount of all the  abilities with the same type
             uint32 CountFollowerAbilitiesByType(uint32 p_FollowerID, uint32 p_Type) const;
 
             /// Returns error message of the attempt
@@ -320,6 +344,8 @@ namespace MS { namespace Garrison
 
             /// Learns the specific trait
             void LearnFollowerTrait(uint32 p_FollowerID, uint32 p_Slot, SpellInfo const* p_SpellInfo, uint32 p_EffIndex);
+
+            GarrisonFollower GenerateNewFollowerEntity(uint32 p_FollowerID);
 
             /// Returns the cap of the specified follower type
             uint32 GetFollowerSoftCap(uint32 p_FollowerType) const;
@@ -387,7 +413,7 @@ namespace MS { namespace Garrison
             Player*     m_Owner;            ///< Garrison owner
             uint32      m_ID;               ///< Garrison DB ID
             uint32      m_GarrisonLevel;    ///< Garrison level
-            uint32      m_GarrisonLevelID;  ///< Garrison level ID in 
+            uint32      m_GarrisonLevelID;  ///< Garrison level ID
             uint32      m_GarrisonSiteID;   ///< Garrison site ID
             uint32      m_NumFollowerActivation;
             uint32      m_NumFollowerActivationRegenTimestamp;
@@ -395,8 +421,8 @@ namespace MS { namespace Garrison
             uint32      m_MissionDistributionLastUpdate;
             uint64      m_LastUsedActivationGameObject;
             uint64      m_CacheGameObjectGUID;
-
             uint32      m_CacheLastTokenAmount;
+            bool        m_CanRecruitFollower;
 
             std::vector<GarrisonPlotInstanceInfoLocation>   m_Plots;
             std::vector<GarrisonMission>                    m_Missions;
@@ -406,6 +432,7 @@ namespace MS { namespace Garrison
             std::vector<int32>                              m_KnownBlueprints;
             std::vector<int32>                              m_KnownSpecializations;
             std::vector<uint32>                             m_GarrisonDailyTavernData;
+            std::vector<WeeklyTavernData>                   m_GarrisonWeeklyTavernData;
 
             std::map<uint32, uint64>                m_PlotsGob;
             std::map<uint32, uint64>                m_PlotsActivateGob;

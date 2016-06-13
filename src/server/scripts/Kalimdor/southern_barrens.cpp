@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -5,12 +13,12 @@
 
 enum eHighRoadScoutSpells
 {
-    SPELL_THROW        = 38557,
+    SPELL_THROW        = 38557
 };
 
 enum eHighRoadScoutEvents
 {
-    EVENT_THROW        = 1,
+    EVENT_THROW        = 1
 };
 
 class mob_high_road_scout : public CreatureScript
@@ -76,7 +84,7 @@ enum eSabersnoutSpells
     SPELL_FEAR                            = 70171,
     SPELL_IMPENETRABLE_SHIELD_WALL        = 70166,
     SPELL_QUILBOAR_RUSH                   = 82610,
-    SPELL_STRIKE                          = 11976,
+    SPELL_STRIKE                          = 11976
 };
 
 enum eSabersnoutEvents
@@ -85,7 +93,7 @@ enum eSabersnoutEvents
     EVENT_FEARW                           = 2,
     EVENT_IMPENETRABLE_SHIELD_WALL        = 3,
     EVENT_QUILBOAR_RUSH                   = 4,
-    EVENT_STRIKE                          = 5,
+    EVENT_STRIKE                          = 5
 };
 
 class mob_sabersnout : public CreatureScript
@@ -167,8 +175,10 @@ class mob_sabersnout : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_southern_barrens()
 {
     new mob_high_road_scout();
     new mob_sabersnout();
 }
+#endif

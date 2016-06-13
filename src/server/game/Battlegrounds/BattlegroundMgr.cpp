@@ -4,7 +4,7 @@
 //  Copyright 2014 Millenium-studio SARL
 //  All Rights Reserved.
 //
-//////////////////////////////////////////////////////////////////////////////// 
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "ObjectMgr.h"
@@ -702,4 +702,4 @@ namespace MS
             return IsHolidayActive(BGTypeToWeekendHolidayId(bgTypeId));
         }
     } ///< namespace Battlegrounds.
-} ///< namespace MS.
+} ///< namespace MS

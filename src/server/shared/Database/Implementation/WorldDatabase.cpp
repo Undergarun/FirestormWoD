@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "WorldDatabase.h"
 
@@ -83,7 +74,7 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(WORLD_INS_CREATURE_TRANSPORT, "INSERT INTO creature_transport (guid, npc_entry, transport_entry,  TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO) values (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(WORLD_UPD_CREATURE_TRANSPORT_EMOTE, "UPDATE creature_transport SET emote = ? WHERE transport_entry = ? AND guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(WORLD_SEL_COMMANDS, "SELECT name, security, help FROM command", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(WORLD_SEL_CREATURE_TEMPLATE, "SELECT KillCredit1, KillCredit2, modelid1, modelid2, modelid3, modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, speed_fly, scale, rank, dmgschool, dmg_multiplier, baseattacktime, rangeattacktime, baseVariance, rangeVariance, unit_class, unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID, family, trainer_type, trainer_spell, trainer_class, trainer_race, type, type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName FROM creature_template WHERE entry = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(WORLD_SEL_CREATURE_TEMPLATE, "SELECT KillCredit1, KillCredit2, modelid1, modelid2, modelid3, modelid4, name, femaleName, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_req, faction, npcflag, npcflag2, speed_walk, speed_run, speed_fly, scale, rank, dmgschool, dmg_multiplier, baseattacktime, rangeattacktime, baseVariance, rangeVariance, unit_class, unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID, family, trainer_type, trainer_spell, trainer_class, trainer_race, type, type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName FROM creature_template WHERE entry = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(WORLD_SEL_WAYPOINT_SCRIPT_BY_ID, "SELECT guid, delay, command, datalong, datalong2, dataint, x, y, z, o FROM waypoint_scripts WHERE id = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(WORLD_SEL_IP2NATION_COUNTRY, "SELECT c.country FROM ip2nationCountries c, ip2nation i WHERE i.ip < ? AND c.code = i.country ORDER BY i.ip DESC LIMIT 0,1", CONNECTION_SYNCH);
     PREPARE_STATEMENT(WORLD_SEL_CREATURE_BY_ID, "SELECT guid FROM creature WHERE id = ?", CONNECTION_SYNCH);

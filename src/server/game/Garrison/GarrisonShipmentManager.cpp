@@ -1,10 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+#include "Common.h"
 #include "GarrisonMgr.hpp"
 #include "GarrisonShipmentManager.hpp"
 #include "Player.h"
@@ -12,10 +14,7 @@
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
 
-#include <set>
-#include <vector>
-
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     ShipmentManager::ShipmentManager()
@@ -116,7 +115,7 @@ namespace MS { namespace Garrison
         l_BuildingType = l_Entry->Type;
 
         if (l_BuildingType == BuildingType::TradingPost)
-            return p_Target->GetCharacterWorldStateValue(CharWorldStateGarrisonTradingPostDailyRandomShipment);
+            return p_Target->GetCharacterWorldStateValue(GarrisonTradingPostDailyRandomShipment);
         else if (!p_ForStartWorkOrder)
             return m_ShipmentPerBuildingType[l_BuildingType];
         else
@@ -143,7 +142,7 @@ namespace MS { namespace Garrison
                     {
                         QuestObjective const* l_Objective = l_Quest->GetQuestObjectiveXIndex(l_QuestPair.second);
 
-                        uint32 l_Count = std::count_if(l_WorkOrders.begin(), l_WorkOrders.end(), [this, l_BuildingType](const GarrisonWorkOrder & p_Order) -> bool
+                        uint32 l_Count = (uint32)std::count_if(l_WorkOrders.begin(), l_WorkOrders.end(), [this, l_BuildingType](const GarrisonWorkOrder & p_Order) -> bool
                         {
                             return p_Order.ShipmentID == m_QuestShipmentPerBuildingType[l_BuildingType];
                         });

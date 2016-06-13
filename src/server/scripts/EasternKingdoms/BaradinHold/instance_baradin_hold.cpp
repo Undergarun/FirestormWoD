@@ -92,7 +92,9 @@ class instance_baradin_hold : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_baradin_hold()
 {
     new instance_baradin_hold();
 }
+#endif

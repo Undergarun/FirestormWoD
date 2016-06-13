@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -30,14 +21,14 @@ enum EventIds
 {
     EVENT_QUAKE                     = 23437,
     EVENT_SECOND_REMORSELESS_WINTER = 23507,
-    EVENT_TELEPORT_TO_FROSMOURNE    = 23617,
+    EVENT_TELEPORT_TO_FROSMOURNE    = 23617
 };
 
 enum TimedEvents
 {
     EVENT_UPDATE_EXECUTION_TIME = 1,
     EVENT_QUAKE_SHATTER         = 2,
-    EVENT_REBUILD_PLATFORM      = 3,
+    EVENT_REBUILD_PLATFORM      = 3
 };
 
 DoorData const doorData[] =
@@ -1335,7 +1326,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void PrepareGunshipEvent(Player* player)
+            void PrepareGunshipEvent(Player* /*player*/)
             {
                /* Transport* hammerShip;
                 Transport* skybreakerShip;
@@ -1539,7 +1530,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     }
                     isPrepared = true;
                 }
-                else   
+                else
                 {
                     sMapMgr->LoadTransportForPlayers(player);
                 }*/
@@ -1629,7 +1620,9 @@ class instance_icecrown_citadel : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_icecrown_citadel()
 {
     new instance_icecrown_citadel();
 }
+#endif

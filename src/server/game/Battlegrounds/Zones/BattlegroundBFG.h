@@ -1,22 +1,10 @@
-/*
- * Copyright (C) 2005-2011 MaNGOS <http://www.getmangos.com/>
- *
- * Copyright (C) 2008-2011 Trinity <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __BattlegroundBFG_H
 #define __BattlegroundBFG_H
@@ -36,7 +24,7 @@ enum GILNEAS_BG_WorldStates
     GILNEAS_BG_OP_RESOURCES_ALLY             = 1776,
     GILNEAS_BG_OP_RESOURCES_HORDE            = 1777,
     GILNEAS_BG_OP_RESOURCES_MAX              = 1780,
-    GILNEAS_BG_OP_RESOURCES_WARNING          = 1955,
+    GILNEAS_BG_OP_RESOURCES_WARNING          = 1955
 };
 
 const uint32 GILNEAS_BG_OP_NODESTATES[3] = { 1767, 1772, 1782 };
@@ -46,7 +34,7 @@ enum GILNEAS_BG_NodeObjectId
 {
     GILNEAS_BG_OBJECTID_NODE_BANNER_0    = 228050,       // Lighthouse banner
     GILNEAS_BG_OBJECTID_NODE_BANNER_1    = 228052,       // Waterworks banner
-    GILNEAS_BG_OBJECTID_NODE_BANNER_2    = 228053,       // Mines banner
+    GILNEAS_BG_OBJECTID_NODE_BANNER_2    = 228053        // Mines banner
 };
 
 enum GILNEAS_BG_ObjectType
@@ -66,7 +54,7 @@ enum GILNEAS_BG_ObjectType
     GILNEAS_BG_OBJECT_SPEEDBUFF_MINE          = 15,
     GILNEAS_BG_OBJECT_REGENBUFF_MINE          = 16,
     GILNEAS_BG_OBJECT_BERSERKBUFF_MINE        = 17,
-    GILNEAS_BG_OBJECT_MAX                     = 18,
+    GILNEAS_BG_OBJECT_MAX                     = 18
 };
 
 enum GILNEAS_BG_ObjectTypes
@@ -74,12 +62,12 @@ enum GILNEAS_BG_ObjectTypes
     GILNEAS_BG_OBJECTID_GATE_A_1             = 207177,
     GILNEAS_BG_OBJECTID_GATE_A_2             = 180322,
     GILNEAS_BG_OBJECTID_GATE_H_1             = 207178,
-    GILNEAS_BG_OBJECTID_GATE_H_2             = 180322,
+    GILNEAS_BG_OBJECTID_GATE_H_2             = 180322
 };
 
 enum GILNEAS_BG_Timers
 {
-    GILNEAS_BG_FLAG_CAPTURING_TIME           = 60000,
+    GILNEAS_BG_FLAG_CAPTURING_TIME           = 60000
 };
 
 enum GILNEAS_BG_Score
@@ -100,7 +88,7 @@ enum GILNEAS_BG_BattlegroundNodes
     GILNEAS_BG_SPIRIT_ALIANCE        = 3,
     GILNEAS_BG_SPIRIT_HORDE          = 4,
 
-    GILNEAS_BG_ALL_NODES_COUNT       = 5,                        // All nodes (dynamic and static)
+    GILNEAS_BG_ALL_NODES_COUNT       = 5                         // All nodes (dynamic and static)
 };
 
 enum GILNEAS_BG_NodeStatus
@@ -224,7 +212,7 @@ class BattlegroundBFG : public Battleground
         void EndBattleground(uint32 winner);
 
         /* Score-keeping */
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundRBG::UpdatePlayerScore' hides overloaded virtual function
+        void UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor = true, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         void FillInitialWorldStates(ByteBuffer& data);
 
         void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/);

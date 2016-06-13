@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "BuildingScripts.hpp"
 #include "GarrisonMgr.hpp"
 #include "../GarrisonScriptData.hpp"
@@ -21,7 +22,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    void GarrisonBuildingAuraPlayerScript::OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId)
+    void GarrisonBuildingAuraPlayerScript::OnUpdateZone(Player* p_Player, uint32 /*p_NewZoneId*/, uint32 /*p_OldZoneID*/, uint32 /*p_NewAreaId*/)
     {
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
 

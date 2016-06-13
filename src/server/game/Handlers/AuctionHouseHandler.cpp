@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -151,6 +141,16 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
     {
         p_RecvData.readPackGUID(l_ItemGuids[l_Iter]);
         p_RecvData >> l_CountOfItems[l_Iter];
+
+        for (uint32 l_J = 0; l_J < l_Iter; ++l_J)
+        {
+            if (l_ItemGuids[l_Iter] != 0 && l_ItemGuids[l_J] != 0 && l_ItemGuids[l_Iter] == l_ItemGuids[l_J])
+            {
+                // duplicate guid, cheating
+                SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_ITEM_NOT_FOUND);
+                return;
+            }
+        }
     }
 
     if (!l_Bid || !l_ETTime || l_Bid >= MAX_MONEY_AMOUNT || l_Buyout >= MAX_MONEY_AMOUNT)
@@ -221,6 +221,12 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
     if (!l_FinalCount)
     {
         SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+        return;
+    }
+
+    if (!m_Player->HasItemCount(l_TrueItemEntry, l_FinalCount))
+    {
+        SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_ITEM_NOT_FOUND);
         return;
     }
 

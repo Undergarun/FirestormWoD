@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef QUEST_H
 #define QUEST_H
@@ -24,9 +14,7 @@
 #include "DatabaseEnv.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
-
-#include <string>
-#include <vector>
+#include "Common.h"
 
 class Player;
 
@@ -176,7 +164,8 @@ enum QuestFlags2
     QUEST_FLAGS2_NO_GUILD_XP                          = 0x0200,
     QUEST_FLAGS2_RESET_CACHE_ON_ACCEPT                = 0x0400,
     QUEST_FLAGS2_NO_ABANDON_ON_ANY_OBJECTIVE_COMPLETE = 0x0800,
-    QUEST_FLAGS2_RECAST_ACCEPT_SPELL_ON_LOGIN         = 0x1000
+    QUEST_FLAGS2_RECAST_ACCEPT_SPELL_ON_LOGIN         = 0x1000,
+    QUEST_FLAGS2_UNK1                                 = 0x2000,
 };
 
 enum __QuestSpecialFlags
@@ -233,6 +222,14 @@ enum QuestObjectiveFlags
     QUEST_OBJECTIVE_FLAG_UNK_8 = 0x08,
 };
 
+enum QuestMethod
+{
+    QUEST_METHOD_AUTO_COMPLETE              = 0,
+    QUEST_METHOD_DISABLED                   = 1,
+    QUEST_METHOD_ENABLED_NO_AUTO_COMPLETE   = 2,
+    QUEST_METHOD_AUTO_SUBMITED              = 3
+};
+
 enum class QuestRewardItemBonus : uint32
 {
     UncommunToRare  = 171,
@@ -240,7 +237,7 @@ enum class QuestRewardItemBonus : uint32
     RareToEpic      = 545
 };
 
-const float gQuestRewardBonusRareChanceRange[2] = { 0.f,    10.f };    ///< Range 0-10
+const float gQuestRewardBonusRareChanceRange[2] = { 0.0f,    10.0f };    ///< Range 0-10
 const float gQuestRewardBonusEpicChanceRange[2] = { 10.01f, 20.0f};    ///< Range 10.01-20
 
 struct QuestLocale

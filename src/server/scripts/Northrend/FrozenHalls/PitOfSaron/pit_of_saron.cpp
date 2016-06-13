@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -35,7 +26,7 @@ enum eEvents
 {
     // Ymirjar Flamebearer
     EVENT_FIREBALL              = 1,
-    EVENT_TACTICAL_BLINK        = 2,
+    EVENT_TACTICAL_BLINK        = 2
 };
 
 class mob_ymirjar_flamebearer : public CreatureScript
@@ -212,7 +203,7 @@ class spell_trash_mob_glacial_strike: public SpellScriptLoader
 
         class spell_trash_mob_glacial_strike_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_trash_mob_glacial_strike_AuraScript);
+            PrepareAuraScript(spell_trash_mob_glacial_strike_AuraScript)
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -235,6 +226,7 @@ class spell_trash_mob_glacial_strike: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_pit_of_saron()
 {
     new mob_ymirjar_flamebearer();
@@ -242,3 +234,4 @@ void AddSC_pit_of_saron()
     new mob_geist_ambusher();
     new spell_trash_mob_glacial_strike();
 }
+#endif

@@ -7,7 +7,7 @@ enum ScriptTexts
     SAY_DEATH   = 1,
     SAY_KILL    = 3,
     SAY_WIPE    = 2,
-    SAY_SPELL   = 4,
+    SAY_SPELL   = 4
 };
 
 enum Spells
@@ -16,13 +16,12 @@ enum Spells
     SPELL_UNHOLY_SHOT                   = 101411,
     SPELL_BLACK_ARROW                   = 101404,
     SPELL_WRACKING_PAIN_ANY             = 100865,
-    //                                = 100862,
     SPELL_WRACKING_PAIN_AURA            = 101258,
     SPELL_WRACKING_PAIN_DMG             = 101257,
     SPELL_DEATH_GRIP_AOE                = 101397,
     SPELL_DEATH_GRIP                    = 101987,
     SPELL_SUMMON_GHOULS                 = 102603, // before combat
-    SPELL_TELEPORT                      = 101398, 
+    SPELL_TELEPORT                      = 101398,
     SPELL_CALL_OF_THE_HIGHBORNE         = 100686, // immune
     SPELL_CALL_OF_THE_HIGHBORNE_1       = 100867, // visual spawn ghouls
     SPELL_CALL_OF_THE_HIGHBORNE_2       = 105766, // visual back ghouls
@@ -36,7 +35,7 @@ enum Spells
     SPELL_JUMP_SCRIPT                   = 101527,
     SPELL_JUMP_VEHICLE                  = 101528,
     SPELL_PERMANENT_FEIGH_DEATH         = 96733,
-    SPELL_SHRINK                        = 101318,
+    SPELL_SHRINK                        = 101318
 };
 
 enum Events
@@ -50,7 +49,7 @@ enum Events
     EVENT_SPAWN_GHOUL               = 7,
     EVENT_MOVE_GHOUL                = 8,
     EVENT_FALL                      = 0,
-    EVENT_START                     = 10,
+    EVENT_START                     = 10
 };
 
 enum Adds
@@ -58,7 +57,7 @@ enum Adds
     NPC_GHOUL_1         = 54197,
     NPC_BRITTLE_GHOUL   = 54952,
     NPC_RISEN_GHOUL     = 54191,
-    NPC_JUMP            = 54385,
+    NPC_JUMP            = 54385
 };
 
 enum Others
@@ -66,7 +65,7 @@ enum Others
     DATA_GUID           = 1,
     POINT_GHOUL         = 2,
     ACTION_GHOUL        = 3,
-    ACTION_KILL_GHOUL   = 4,
+    ACTION_KILL_GHOUL   = 4
 };
 
 const Position centerPos = {3845.51f, 909.318f, 56.1463f, 1.309f};
@@ -134,7 +133,7 @@ class boss_echo_of_sylvanas : public CreatureScript
                 deadghouls = 0;
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -192,7 +191,7 @@ class boss_echo_of_sylvanas : public CreatureScript
 
             bool AllowAchieve()
             {
-                return deadghouls >= 2; 
+                return deadghouls >= 2;
             }
 
             void UpdateAI(const uint32 diff)
@@ -272,7 +271,7 @@ class boss_echo_of_sylvanas : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->GetMotionMaster()->MoveChase(me->getVictim());
                             events.ScheduleEvent(EVENT_UNHOLY_SHOT, urand(5000, 20000));
-                            events.ScheduleEvent(EVENT_SHRIEK_OF_THE_HIGHBORNE, urand(5000, 20000)); 
+                            events.ScheduleEvent(EVENT_SHRIEK_OF_THE_HIGHBORNE, urand(5000, 20000));
                             events.ScheduleEvent(EVENT_TELEPORT, 40000);
                             break;
                         default:
@@ -311,7 +310,7 @@ class npc_echo_of_sylvanas_ghoul : public CreatureScript
                 events.Reset();
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoCast(me, SPELL_CALL_OF_THE_HIGHBORNE_1, true);
             }
@@ -372,7 +371,7 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoCast(me, SPELL_SEEPING_SHADOWS_DUMMY, true); 
+                DoCast(me, SPELL_SEEPING_SHADOWS_DUMMY, true);
                 events.ScheduleEvent(EVENT_MOVE_GHOUL, 2000);
             }
             
@@ -429,7 +428,7 @@ class spell_echo_of_sylvanas_wracking_pain_dmg: public SpellScriptLoader
 
         class spell_echo_of_sylvanas_wracking_pain_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_echo_of_sylvanas_wracking_pain_dmg_SpellScript);
+            PrepareSpellScript(spell_echo_of_sylvanas_wracking_pain_dmg_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -494,7 +493,7 @@ class spell_echo_of_sylvanas_death_grip_aoe: public SpellScriptLoader
 
         class spell_echo_of_sylvanas_death_grip_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_echo_of_sylvanas_death_grip_aoe_SpellScript);
+            PrepareSpellScript(spell_echo_of_sylvanas_death_grip_aoe_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -523,7 +522,7 @@ class spell_echo_of_sylvanas_seeping_shadows: public SpellScriptLoader
 
         class spell_echo_of_sylvanas_seeping_shadows_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_echo_of_sylvanas_seeping_shadows_AuraScript);
+            PrepareAuraScript(spell_echo_of_sylvanas_seeping_shadows_AuraScript)
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -556,7 +555,7 @@ class achievement_several_ties : public AchievementCriteriaScript
     public:
         achievement_several_ties() : AchievementCriteriaScript("achievement_several_ties") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;
@@ -568,6 +567,7 @@ class achievement_several_ties : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_echo_of_sylvanas()
 {
     new boss_echo_of_sylvanas();
@@ -578,3 +578,4 @@ void AddSC_boss_echo_of_sylvanas()
     new spell_echo_of_sylvanas_seeping_shadows();
     new achievement_several_ties();
 }
+#endif

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -38,7 +29,7 @@ enum Texts
     SAY_VALITHRIA_DEATH         = 4,
     SAY_VALITHRIA_PLAYER_DEATH  = 5,
     SAY_VALITHRIA_BERSERK       = 6,
-    SAY_VALITHRIA_SUCCESS       = 7,
+    SAY_VALITHRIA_SUCCESS       = 7
 };
 
 enum Spells
@@ -96,7 +87,7 @@ enum Spells
     SPELL_EMERALD_VIGOR                 = 70873,
 
     // Nightmare Cloud
-    SPELL_TWISTED_NIGHTMARE             = 71941,
+    SPELL_TWISTED_NIGHTMARE             = 71941
 };
 
 #define SUMMON_PORTAL RAID_MODE<uint32>(SPELL_PRE_SUMMON_DREAM_PORTAL, SPELL_PRE_SUMMON_DREAM_PORTAL, \
@@ -138,14 +129,14 @@ enum Events
     // Dream Cloud
     // Nightmare Cloud
     EVENT_CHECK_PLAYER                      = 17,
-    EVENT_EXPLODE                           = 18,
+    EVENT_EXPLODE                           = 18
 };
 
 enum Actions
 {
     ACTION_ENTER_COMBAT = 1,
     MISSED_PORTALS      = 2,
-    ACTION_DEATH        = 3,
+    ACTION_DEATH        = 3
 };
 
 Position const ValithriaSpawnPos = {4210.813f, 2484.443f, 364.9558f, 0.01745329f};
@@ -176,7 +167,7 @@ struct ManaVoidSelector : public std::unary_function<Unit*, bool>
 class DelayedCastEvent : public BasicEvent
 {
     public:
-        DelayedCastEvent(Creature* trigger, uint32 spellId, uint64 originalCaster, uint32 despawnTime) : _trigger(trigger), _originalCaster(originalCaster), _spellId(spellId), _despawnTime(despawnTime), BasicEvent()
+        DelayedCastEvent(Creature* trigger, uint32 spellId, uint64 originalCaster, uint32 despawnTime) : BasicEvent(), _trigger(trigger), _originalCaster(originalCaster), _spellId(spellId), _despawnTime(despawnTime)
         {
         }
 
@@ -368,7 +359,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->HealthBelowPctDamaged(25, damage))
                 {
@@ -1464,6 +1455,7 @@ class achievement_portal_jockey : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_valithria_dreamwalker()
 {
     new boss_valithria_dreamwalker();
@@ -1487,3 +1479,4 @@ void AddSC_boss_valithria_dreamwalker()
     new spell_dreamwalker_twisted_nightmares();
     new achievement_portal_jockey();
 }
+#endif

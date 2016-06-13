@@ -1,7 +1,10 @@
-/*
-    Dungeon : Gate of the Setting Sun 90 Heroic
-    Instance General Script
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "gate_setting_sun.h"
 #include "ScriptMgr.h"
@@ -14,7 +17,7 @@ enum spells
     SPELL_EXPLOSE_GATE                  = 115456,
 
     SPELL_BOMB_CAST_VISUAL              = 106729,
-    SPELL_BOMB_AURA                     = 106875,
+    SPELL_BOMB_AURA                     = 106875
 };
 
 class mob_serpent_spine_defender : public CreatureScript
@@ -188,7 +191,7 @@ class vehicle_artillery_to_wall : public VehicleScript
                 launchEventTimer = 0;
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 const /*p_Action*/)
             {
                 launchEventTimer = 2500;
             }
@@ -243,6 +246,7 @@ class go_setting_sun_elevator : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_gate_setting_sun()
 {
     new mob_serpent_spine_defender();
@@ -253,3 +257,4 @@ void AddSC_gate_setting_sun()
     new vehicle_artillery_to_wall();
     new go_setting_sun_elevator();
 }
+#endif

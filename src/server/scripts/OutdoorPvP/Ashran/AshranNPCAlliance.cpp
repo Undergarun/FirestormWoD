@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "AshranMgr.hpp"
@@ -74,7 +74,7 @@ class npc_rylai_crestfall : public CreatureScript
                 m_FreezingFieldTimer = 10000;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 Talk(eTalk::TalkAggro);
 
@@ -91,12 +91,12 @@ class npc_rylai_crestfall : public CreatureScript
                     Talk(eTalk::TalkSlay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 Talk(eTalk::TalkDeath);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HealthBelowPctDamaged(20, p_Damage) && !me->HasAura(eSpells::Hypotermia))
                 {
@@ -221,7 +221,7 @@ class npc_rylai_crestfall : public CreatureScript
                     m_FreezingFieldTimer -= p_Diff;
             }
 
-            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_Sender*/, uint32 /*p_Action*/) override
             {
                 p_Player->PlayerTalkClass->SendCloseGossip();
                 me->CastSpell(p_Player, eSpells::ConjureRefreshment, false);
@@ -538,7 +538,7 @@ class npc_ashran_marketa : public CreatureScript
         {
             npc_ashran_marketaAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_Sender*/, uint32 p_Action) override
             {
                 /// "Take all of my Artifact Fragments" is always 0
                 if (p_Action)
@@ -599,7 +599,7 @@ class npc_ashran_ecilam : public CreatureScript
         {
             npc_ashran_ecilamAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_Sender*/, uint32 p_Action) override
             {
                 /// "Take all of my Artifact Fragments" is always 0
                 if (p_Action)
@@ -660,7 +660,7 @@ class npc_ashran_valant_brightsworn : public CreatureScript
         {
             npc_ashran_valant_brightswornAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_Sender*/, uint32 p_Action) override
             {
                 /// "Take all of my Artifact Fragments" is always 0
                 if (p_Action)
@@ -721,7 +721,7 @@ class npc_ashran_anenga : public CreatureScript
         {
             npc_ashran_anengaAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_Sender*/, uint32 p_Action) override
             {
                 /// "Take all of my Artifact Fragments" is always 0
                 if (p_Action)
@@ -782,7 +782,7 @@ class npc_ashran_kauper : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->CastSpell(me, eSpells::SpellMoltenArmor, true);
 
@@ -791,7 +791,7 @@ class npc_ashran_kauper : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventBlastWave, 9000);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
                 if (l_ZoneScript == nullptr)
@@ -880,7 +880,7 @@ class npc_ashran_alliance_gateway_guardian : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventRainOfFire, 6000);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
                 if (l_ZoneScript == nullptr)
@@ -999,7 +999,7 @@ class npc_ashran_fangraal : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 Position l_Pos;
                 me->GetPosition(&l_Pos);
@@ -1009,7 +1009,7 @@ class npc_ashran_fangraal : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventEntanglingRoots, 10000);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (p_Damage < me->GetHealth())
                     return;
@@ -1312,7 +1312,7 @@ class npc_ashran_wrynns_vanguard_battle_standard : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->DespawnOrUnsummon();
             }
@@ -1368,7 +1368,7 @@ class npc_ashran_stormshield_sentinel : public CreatureScript
                 m_CosmeticEvent.ScheduleEvent(eEvents::SearchTarget, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventShoot, 1 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventKillShot, 1 * TimeConstants::IN_MILLISECONDS);
@@ -1529,7 +1529,7 @@ class npc_ashran_avenger_turley : public CreatureScript
                 me->Mount(eData::MountID);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -1548,7 +1548,7 @@ class npc_ashran_avenger_turley : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 Talk(eTalks::Death);
 
@@ -1685,7 +1685,7 @@ class npc_ashran_jackson_bajheera : public CreatureScript
                 me->Mount(eData::MountID);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -1701,7 +1701,7 @@ class npc_ashran_jackson_bajheera : public CreatureScript
                 CreatureAI::EnterEvadeMode();
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 Talk(eTalks::Death);
 
@@ -1828,7 +1828,7 @@ class npc_ashran_john_swifty : public CreatureScript
                 me->Mount(eData::MountID);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -1844,7 +1844,7 @@ class npc_ashran_john_swifty : public CreatureScript
                 CreatureAI::EnterEvadeMode();
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 Talk(eTalks::Death);
 
@@ -1954,7 +1954,7 @@ class npc_ashran_tosan_galaxyfist : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -1964,7 +1964,7 @@ class npc_ashran_tosan_galaxyfist : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventSpinningCraneKick, 12 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
                     l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainTosanGalaxyfist);
@@ -2082,7 +2082,7 @@ class npc_ashran_brock_the_crazed : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -2096,7 +2096,7 @@ class npc_ashran_brock_the_crazed : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventShadowWordPain, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 Talk(eTalks::Death);
 
@@ -2244,7 +2244,7 @@ class npc_ashran_alune_windmane : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -2262,7 +2262,7 @@ class npc_ashran_alune_windmane : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
                     l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainAluneWindmane);
@@ -2396,7 +2396,7 @@ class npc_ashran_chani_malflame : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -2412,7 +2412,7 @@ class npc_ashran_chani_malflame : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 Talk(eTalks::Death);
 
@@ -2526,7 +2526,7 @@ class npc_ashran_hildie_hackerguard : public CreatureScript
                 me->Mount(eData::MountID);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -2547,7 +2547,7 @@ class npc_ashran_hildie_hackerguard : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 Talk(eTalks::Death);
 
@@ -2688,7 +2688,7 @@ class npc_ashran_taylor_dewland : public CreatureScript
                 me->SetCanDualWield(false);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -2705,7 +2705,7 @@ class npc_ashran_taylor_dewland : public CreatureScript
                 p_Summon->AddAura(eSpells::MagmaTotemAura, p_Summon);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
                     l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainTaylorDewland);
@@ -2816,7 +2816,7 @@ class npc_ashran_malda_brewbelly : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -2826,7 +2826,7 @@ class npc_ashran_malda_brewbelly : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventSerpentSting, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
                     l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainMaldaBrewbelly);
@@ -2927,7 +2927,7 @@ class npc_ashran_shani_freezewind : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -2939,7 +2939,7 @@ class npc_ashran_shani_freezewind : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventIceLance, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
                     l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainShaniFreezewind);
@@ -3049,7 +3049,7 @@ class npc_ashran_anne_otther : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -3065,7 +3065,7 @@ class npc_ashran_anne_otther : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 Talk(eTalks::Death);
 
@@ -3207,7 +3207,7 @@ class npc_ashran_mathias_zunn : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->SetHomePosition(*me);
 
@@ -3219,7 +3219,7 @@ class npc_ashran_mathias_zunn : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventShadowWordPain, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 Talk(eTalks::Death);
 
@@ -3320,13 +3320,13 @@ class npc_ashran_ex_alliance_racer : public CreatureScript
         {
             npc_ashran_ex_alliance_racerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
             {
-                m_CheckCooldown = time(nullptr) + 5;;
+                m_CheckCooldown = uint32(time(nullptr) + 5);
             }
 
             uint8 m_MoveIndex;
             uint32 m_CheckCooldown;
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 Reset();
             }
@@ -3350,7 +3350,7 @@ class npc_ashran_ex_alliance_racer : public CreatureScript
                 });
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 p_Type, uint32 /*p_ID*/) override
             {
                 if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
                     return;
@@ -3382,7 +3382,7 @@ class npc_ashran_ex_alliance_racer : public CreatureScript
             return new npc_ashran_ex_alliance_racerAI(p_Creature);
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_AshranNPCAlliance()
 {
     new npc_rylai_crestfall();
@@ -3418,3 +3418,4 @@ void AddSC_AshranNPCAlliance()
     new npc_ashran_mathias_zunn();
     new npc_ashran_ex_alliance_racer();
 }
+#endif

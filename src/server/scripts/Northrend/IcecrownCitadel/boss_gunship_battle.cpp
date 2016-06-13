@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "icecrown_citadel.h"
@@ -137,7 +127,7 @@ enum Spells
     SPELL_REMOVE_ROCKET_PACK          = 70713,
 
     // Achievements
-    SPELL_ACHIEVEMENT_CHECK           = 72959,
+    SPELL_ACHIEVEMENT_CHECK           = 72959
 };
 
 enum Events
@@ -237,7 +227,7 @@ enum Events
     EVENT_RESPAWN_AXES_RIFLEMEN,
     EVENT_RESPAWN_ROCKETEER,
 
-    EVENT_SEND_UPDATE,
+    EVENT_SEND_UPDATE
 };
 
 enum Texts
@@ -306,7 +296,7 @@ enum Texts
     SAY_HIGH_OVERLORD_SAURFANG_NOT_VISUAL = 0,
     SAY_BOARDING_SKYBREAKER_SAURFANG      = 1,
     SAY_MURADIN_BRONZEBEARD_NOT_VISUAL    = 0,
-    SAY_BOARDING_SKYBREAKER_MURADIN       = 1,
+    SAY_BOARDING_SKYBREAKER_MURADIN       = 1
 };
 
 Position const FrostWyrmPosH   = {-435.429f, 2077.556f, 219.1148f, 4.767166f};
@@ -343,7 +333,7 @@ Player* SelectRandomPlayerInTheMaps(Map* map)
 }
 
 //Function start motion of the ship
-void StartFlyShip(Transport* ship)
+void StartFlyShip(Transport* /*ship*/)
 {
     /*ship->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
     ship->SetGoState(GO_STATE_ACTIVE);
@@ -424,7 +414,7 @@ void RelocateTransport(Transport* transport)
 }
 
 //Function stop motion of the ship
-void StopFlyShip(Transport* ship)
+void StopFlyShip(Transport* /*ship*/)
 {
     /*Map* map = ship->GetMap();
     ship->m_WayPoints.clear();
@@ -481,7 +471,7 @@ void TeleportPlayers(Map* map, uint64 teamInInstance)
 }
 
 //Ship explosion
-void DoShipExplosion(Transport* ship)
+void DoShipExplosion(Transport* /*ship*/)
 {
     /*for (Transport::CreatureSet::iterator itr = ship->m_NPCPassengerSet.begin(); itr != ship->m_NPCPassengerSet.end();)
     {
@@ -495,7 +485,7 @@ void DoShipExplosion(Transport* ship)
 }
 
 //Wipe check
-bool DoWipeCheck(Transport* ship)
+bool DoWipeCheck(Transport* /*ship*/)
 {
    /* for (Transport::PlayerSet::const_iterator itr = ship->GetPassengers().begin(); itr != ship->GetPassengers().end();)
     {
@@ -530,7 +520,7 @@ void DoCheckFallingPlayer(Creature* me)
 }
 
 // Restart event
-void RestartEvent(Transport* firstShip, Transport* secondShip, Map* instance, uint64 teamInInstance)
+void RestartEvent(Transport* /*firstShip*/, Transport* /*secondShip*/, Map* /*instance*/, uint64 /*teamInInstance*/)
 {
     /*sMapMgr->UnLoadTransportFromMap(firstShip);
     sMapMgr->UnLoadTransportFromMap(secondShip);
@@ -735,7 +725,7 @@ void RestartEvent(Transport* firstShip, Transport* secondShip, Map* instance, ui
 }
 
 //Stop Fight
-void StopFight(Transport* t1, Transport* t2)
+void StopFight(Transport* /*t1*/, Transport* /*t2*/)
 {
    /* Map* map = t1->GetMap();
 
@@ -979,7 +969,7 @@ class npc_muradin_gunship : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->GetHealthPct() < 2.0f)
                 {
@@ -995,7 +985,7 @@ class npc_muradin_gunship : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                if ((pointId == 1))
+                if (pointId == 1)
                     me->DespawnOrUnsummon(1000);
             }
 
@@ -1237,7 +1227,7 @@ class npc_gunship_skybreaker : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (Transport* t = me->GetTransport())
                     DoShipExplosion(t);
@@ -1294,7 +1284,7 @@ class npc_gunship_orgrimmar : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (Transport* t = me->GetTransport())
                     DoShipExplosion(t);
@@ -1354,7 +1344,7 @@ class npc_korkron_axethrower_rifleman : public CreatureScript
                     SetEquipmentSlots(false, 49691, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE && me->GetHealthPct() < 20.0f && !desperated)
                 {
@@ -1363,7 +1353,7 @@ class npc_korkron_axethrower_rifleman : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                 {
@@ -1461,7 +1451,7 @@ class npc_sergeant : public CreatureScript
                     events.ScheduleEvent(EVENT_ELITE, urand(59000, 61000));       // ~60 sec
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->GetHealthPct() < 20.0f && !desperated)
                 {
@@ -1593,7 +1583,7 @@ class npc_marine_or_reaver : public CreatureScript
                 events.ScheduleEvent(EVENT_BURNING_PITCH, urand(60000, 62000));// ~61 sec
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->GetHealthPct() < 20.0f && !desperated)
                 {
@@ -1722,7 +1712,7 @@ class npc_gunship_mage : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                 {
@@ -1799,7 +1789,7 @@ class npc_gunship_cannon : public CreatureScript
                     me->GetVehicleKit()->RemoveAllPassengers();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if(me->GetEntry() == NPC_GB_ALLIANCE_CANON)
                 {
@@ -1814,7 +1804,7 @@ class npc_gunship_cannon : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if(me->HasAura(SPELL_BELOW_ZERO))
                 {
@@ -1862,7 +1852,7 @@ class npc_mortar_soldier_or_rocketeer : public CreatureScript
                 events.ScheduleEvent(EVENT_ROCKET_ART, urand(10000, 15000));   // ~12 sec
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                 {
@@ -2185,7 +2175,7 @@ class npc_saurfang_gunship : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->GetHealthPct() < 2.0f)
                 {
@@ -2201,7 +2191,7 @@ class npc_saurfang_gunship : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                if ((pointId == 1))
+                if (pointId == 1)
                     me->DespawnOrUnsummon(1000);
             }
 
@@ -2407,7 +2397,6 @@ class npc_saurfang_gunship : public CreatureScript
                 Map* map;
                 EventMap events;
                 InstanceScript* _instance;
-                uint32 shipUpdateTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -2434,7 +2423,7 @@ class npc_gunship_portal : public CreatureScript
                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->RemoveFromWorld();
             }
@@ -2494,12 +2483,12 @@ class npc_gunship_trigger : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 damage = 0;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
 
             }
@@ -3075,7 +3064,7 @@ class at_icc_land_frostwyrm : public AreaTriggerScript
     public:
         at_icc_land_frostwyrm() : AreaTriggerScript("at_icc_land_frostwyrm") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
             if (InstanceScript* instance = player->GetInstanceScript())
             {
@@ -3100,7 +3089,7 @@ class transport_gunship : public TransportScript
     public:
         transport_gunship() : TransportScript("transport_gunship") { }
 
-        void OnRelocate(Transport* transport, uint32 waypointId, uint32 mapId, float x, float y, float z)
+        void OnRelocate(Transport* /*transport*/, uint32 /*waypointId*/, uint32 /*mapId*/, float /*x*/, float /*y*/, float /*z*/)
         {
         }
 
@@ -3140,7 +3129,7 @@ class spell_icc_remove_rocket_pack: public SpellScriptLoader
 
         class spell_icc_remove_rocket_pack_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_icc_remove_rocket_pack_SpellScript);
+            PrepareSpellScript(spell_icc_remove_rocket_pack_SpellScript)
 
             void HandleEffect(SpellEffIndex /*effIndex*/)
             {
@@ -3173,7 +3162,7 @@ class spell_gb_heat_drain: public SpellScriptLoader
 
         class spell_gb_heat_drain_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gb_heat_drain_SpellScript);
+            PrepareSpellScript(spell_gb_heat_drain_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -3206,7 +3195,7 @@ class spell_gb_overheat_drain: public SpellScriptLoader
 
         class spell_gb_overheat_drain_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gb_overheat_drain_SpellScript);
+            PrepareSpellScript(spell_gb_overheat_drain_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -3236,7 +3225,7 @@ class spell_gb_incinerating_blast: public SpellScriptLoader
 
         class spell_gb_incinerating_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gb_incinerating_blast_SpellScript);
+            PrepareSpellScript(spell_gb_incinerating_blast_SpellScript)
 
             void AddExtraDamage()
             {
@@ -3268,7 +3257,7 @@ class spell_gb_burning_pitch: public SpellScriptLoader
 
         class spell_gb_burning_pitch_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gb_burning_pitch_SpellScript);
+            PrepareSpellScript(spell_gb_burning_pitch_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/)
             {
@@ -3317,7 +3306,7 @@ class spell_rocket_pack: public SpellScriptLoader
 
         class spell_rocket_pack_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rocket_pack_AuraScript);
+            PrepareAuraScript(spell_rocket_pack_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -3342,6 +3331,7 @@ class spell_rocket_pack: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gunship_battle()
 {
     new npc_muradin_gunship();
@@ -3371,3 +3361,4 @@ void AddSC_boss_gunship_battle()
     new spell_gb_burning_pitch();
     new spell_rocket_pack();
 }
+#endif

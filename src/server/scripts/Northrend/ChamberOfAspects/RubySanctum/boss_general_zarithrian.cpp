@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -37,7 +28,7 @@ enum Spells
     SPELL_SUMMON_FLAMECALLER    = 74398,
     // Onyx Flamecaller
     SPELL_BLAST_NOVA            = 74392,
-    SPELL_LAVA_GOUT             = 74394,
+    SPELL_LAVA_GOUT             = 74394
 };
 
 enum Events
@@ -49,7 +40,7 @@ enum Events
     EVENT_SUMMON_ADDS_25_MAN        = 4,
     // Onyx Flamecaller
     EVENT_BLAST_NOVA                = 5,
-    EVENT_LAVA_GOUT                 = 6,
+    EVENT_LAVA_GOUT                 = 6
 };
 
 uint32 const MAX_PATH_FLAMECALLER_WAYPOINTS = 12;
@@ -81,7 +72,7 @@ Position const FlamecallerWaypoints[MAX_PATH_FLAMECALLER_WAYPOINTS*2] =
     {3043.958f, 593.4001f, 87.64581f, 0.0f},
     {3040.458f, 589.9001f, 88.39581f, 0.0f},
     {3034.458f, 583.1501f, 88.89581f, 0.0f},
-    {3014.970f, 561.8073f, 88.83527f, 0.0f},
+    {3014.970f, 561.8073f, 88.83527f, 0.0f}
 };
 
 class boss_general_zarithrian : public CreatureScript
@@ -318,8 +309,10 @@ class npc_onyx_flamecaller : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_general_zarithrian()
 {
     new boss_general_zarithrian();
     new npc_onyx_flamecaller();
 }
+#endif
