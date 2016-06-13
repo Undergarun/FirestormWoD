@@ -7,7 +7,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "HStables.hpp"
-#include "ScriptMgr.h"
 #include "GarrisonMgr.hpp"
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../Sites/GarrisonSiteBase.hpp"
@@ -206,17 +205,17 @@ namespace MS { namespace Garrison
 
         switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(BuildingType::Stable)))
         {
-        case 1:
-            ProcessSummonPlotCreatures(-1);
-            break;
-        case 2:
-            ProcessSummonPlotCreatures(4);
-            break;
-        case 3:
-            ProcessSummonPlotCreatures(9);
-            break;
-        default:
-            break;
+            case 1:
+                ProcessSummonPlotCreatures(-1);
+                break;
+            case 2:
+                ProcessSummonPlotCreatures(4);
+                break;
+            case 3:
+                ProcessSummonPlotCreatures(9);
+                break;
+            default:
+                break;
         }
     }
 
@@ -244,31 +243,31 @@ namespace MS { namespace Garrison
             }
         }
 
-        if (l_MountEntries.empty())
-            return;
-
-        uint32 l_MountEntry = l_MountEntries[urand(0, l_MountEntries.size() - 1)];
-
         using namespace StablesData::Horde;
 
-        if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
-        {
-            m_SummonsEntries.push_back(l_Creature->GetEntry());
-            l_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        }
-
-        l_MountEntries.erase(std::remove(l_MountEntries.begin(), l_MountEntries.end(), l_MountEntry), l_MountEntries.end());
-        l_MountEntry = 0;
-
         if (!l_MountEntries.empty())
-            l_MountEntry = l_MountEntries[urand(0, l_MountEntries.size() - 1)];
-
-        if (l_MountEntry)
         {
+            uint32 l_MountEntry = l_MountEntries[urand(0, l_MountEntries.size() - 1)];
+
             if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
             {
                 m_SummonsEntries.push_back(l_Creature->GetEntry());
                 l_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
+
+            l_MountEntries.erase(std::remove(l_MountEntries.begin(), l_MountEntries.end(), l_MountEntry), l_MountEntries.end());
+            l_MountEntry = 0;
+
+            if (!l_MountEntries.empty())
+                l_MountEntry = l_MountEntries[urand(0, l_MountEntries.size() - 1)];
+
+            if (l_MountEntry)
+            {
+                if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[++l_Index], TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    m_SummonsEntries.push_back(l_Creature->GetEntry());
+                    l_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                }
             }
         }
 
@@ -344,19 +343,17 @@ namespace MS { namespace Garrison
                 if (l_CreatureScript == nullptr)
                     return;
 
-                l_PalunaNextQuestID = static_cast<npc_Tormak*>(l_CreatureScript)->ProceedQuestSelection(l_Owner, me, g_BoarQuests, 0, BoarQuests::QuestBestingABoar);
+                l_PalunaNextQuestID = static_cast<npc_Tormak*>(l_CreatureScript)->ProceedQuestSelection(l_Owner, me, g_BoarQuests, 0, WolfQuests::QuestWanglingAWolf);
 
                 if (!l_PalunaNextQuestID)
-                    l_PalunaNextQuestID = static_cast<npc_Tormak*>(l_CreatureScript)->ProceedQuestSelection(l_Owner, me, g_ElekkQuests, BoarQuests::QuestBestingABoar, ElekkQuests::QuestEntanglingAnElekk);
+                    l_PalunaNextQuestID = static_cast<npc_Tormak*>(l_CreatureScript)->ProceedQuestSelection(l_Owner, me, g_ElekkQuests, WolfQuests::QuestWanglingAWolf, TalbukQuests::QuestTamingATalbuk);
 
                 if (!l_PalunaNextQuestID)
-                    l_PalunaNextQuestID = static_cast<npc_Tormak*>(l_CreatureScript)->ProceedQuestSelection(l_Owner, me, g_ClefthoofQuests, ElekkQuests::QuestEntanglingAnElekk, ClefthoofQuests::QuestCapturingAClefthoof);
+                    l_PalunaNextQuestID = static_cast<npc_Tormak*>(l_CreatureScript)->ProceedQuestSelection(l_Owner, me, g_ClefthoofQuests, TalbukQuests::QuestTamingATalbuk, RiverbeastQuests::QuestRequisitionARiverbeast);
 
                 l_Owner->PlayerTalkClass->GetQuestMenu().ClearMenu();
 
-
-                if (!l_PalunaNextQuestID || (l_Owner->GetQuestStatus(l_PalunaNextQuestID) == QUEST_STATUS_INCOMPLETE &&
-                                             (l_Owner->IsQuestRewarded(ClefthoofQuests::QuestCapturingAClefthoof) && l_Owner->IsQuestRewarded(RiverbeastQuests::QuestRequisitionARiverbeast))))
+                if (!l_PalunaNextQuestID || l_Owner->GetQuestStatus(l_PalunaNextQuestID) == QUEST_STATUS_INCOMPLETE)
                     l_Creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                 else
                     l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -378,19 +375,6 @@ namespace MS { namespace Garrison
         : CreatureScript("npc_SagePaluna_Garr")
     {
 
-    }
-
-    /// Constructor
-    npc_SagePalunaAI::npc_SagePalunaAI(Creature* p_Creature)
-        : GarrisonNPCAI(p_Creature)
-    {
-    }
-
-    /// Called when a CreatureAI object is needed for the creature.
-    /// @p_Creature : Target creature instance
-    CreatureAI* npc_SagePaluna::GetAI(Creature* p_Creature) const
-    {
-        return new npc_SagePalunaAI(p_Creature);
     }
 
     bool npc_SagePaluna::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
