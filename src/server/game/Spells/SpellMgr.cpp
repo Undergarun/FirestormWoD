@@ -7418,6 +7418,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetB = 0;
                 break;
+            case 170494:    ///< Flask of Conquest
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].MiscValue = CURRENCY_TYPE_CONQUEST_META_ARENA_BG;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].MiscValue = CURRENCY_TYPE_CONQUEST_META_ARENA_BG;
+                break;
+            case 127250:    ///< Ancient Knowledge
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
+                break;
             default:
                 break;
         }

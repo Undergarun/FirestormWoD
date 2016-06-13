@@ -1415,11 +1415,6 @@ class spell_foundry_berated : public SpellScriptLoader
         {
             PrepareSpellScript(spell_foundry_berated_SpellScript)
 
-            enum eSpell
-            {
-                TargetRestrict = 24223
-            };
-
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
                 if (p_Targets.empty())
@@ -1540,13 +1535,24 @@ class areatrigger_foundry_prototype_pulse_grenade : public AreaTriggerEntityScri
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 5.0f;
+                float l_Radius = 2.5f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
                 std::set<uint64> l_Targets;
+
+                if (!l_TargetList.empty())
+                {
+                    l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                    {
+                        if (!p_Unit->IsPlayer() && !p_Unit->ToUnit()->isCharmedOwnedByPlayerOrPlayer())
+                            return true;
+
+                        return false;
+                    });
+                }
 
                 for (Unit* l_Iter : l_TargetList)
                 {
