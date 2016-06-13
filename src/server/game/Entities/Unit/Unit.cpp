@@ -21343,7 +21343,9 @@ void Unit::ExitVehicle(Position const* exitPosition)
     if (!m_vehicle)
         return;
 
-    GetVehicleBase()->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, GetGUID());
+    Unit* l_VerhiculeBase = GetVehicleBase();
+    if (l_VerhiculeBase != nullptr)
+        l_VerhiculeBase->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, GetGUID());
 
     if (m_vehicle)
         if (m_vehicle->ArePassengersSpawnedByAI())
