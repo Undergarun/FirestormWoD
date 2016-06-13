@@ -163,6 +163,58 @@ Player* UnitAI::SelectMeleeTarget(bool p_AllowTank /*= false*/) const
     return l_TargetList.front();
 }
 
+Player* UnitAI::SelectMainTank() const
+{
+    std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+    if (l_ThreatList.empty())
+        return nullptr;
+
+    l_ThreatList.remove_if([this](HostileReference* p_HostileRef) -> bool
+    {
+        Player* l_Player = p_HostileRef->getTarget()->ToPlayer();
+        if (l_Player == nullptr)
+            return true;
+
+        if (l_Player->GetRoleForGroup() != Roles::ROLE_TANK)
+            return true;
+
+        return false;
+    });
+
+    if (l_ThreatList.empty())
+        return nullptr;
+
+    l_ThreatList.sort(JadeCore::ThreatOrderPred());
+
+    return l_ThreatList.front()->getTarget()->ToPlayer();
+}
+
+Player* UnitAI::SelectOffTank() const
+{
+    std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+    if (l_ThreatList.empty())
+        return nullptr;
+
+    l_ThreatList.remove_if([this](HostileReference* p_HostileRef) -> bool
+    {
+        Player* l_Player = p_HostileRef->getTarget()->ToPlayer();
+        if (l_Player == nullptr)
+            return true;
+
+        if (l_Player->GetRoleForGroup() != Roles::ROLE_TANK)
+            return true;
+
+        return false;
+    });
+
+    if (l_ThreatList.empty())
+        return nullptr;
+
+    l_ThreatList.sort(JadeCore::ThreatOrderPred());
+
+    return l_ThreatList.back()->getTarget()->ToPlayer();
+}
+
 float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
