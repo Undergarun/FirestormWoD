@@ -744,6 +744,7 @@ class npc_foundry_train_controller : public CreatureScript
                                 {
                                     if (Creature* l_ManAtArms = Creature::GetCreature(*me, l_Guid))
                                     {
+                                        l_ManAtArms->SetHomePosition(g_ManAtArmsExitPos);
                                         l_ManAtArms->GetMotionMaster()->MoveJump(g_ManAtArmsExitPos, 30.0f, 20.0f);
 
                                         l_ManAtArms->SetReactState(ReactStates::REACT_AGGRESSIVE);
@@ -1038,7 +1039,12 @@ class npc_foundry_train_controller : public CreatureScript
                                 AddTimedDelayedOperation(100, [this, l_Guid, l_IsLeft, l_I]() -> void
                                 {
                                     if (Creature* l_Passenger = Creature::GetCreature(*me, l_Guid))
-                                        l_Passenger->GetMotionMaster()->MoveJump(l_IsLeft ? g_IronRaiderLeftExitPos[l_I] : g_IronRaiderRightExitPos[l_I], 30.0f, 10.0f);
+                                    {
+                                        Position l_Pos = l_IsLeft ? g_IronRaiderLeftExitPos[l_I] : g_IronRaiderRightExitPos[l_I];
+
+                                        l_Passenger->GetMotionMaster()->MoveJump(l_Pos, 30.0f, 10.0f);
+                                        l_Passenger->SetHomePosition(l_Pos);
+                                    }
                                 });
 
                                 AddTimedDelayedOperation(500, [this, l_Guid]() -> void
@@ -1535,7 +1541,7 @@ class areatrigger_foundry_prototype_pulse_grenade : public AreaTriggerEntityScri
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 2.0f;
+                float l_Radius = 2.5f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
@@ -1543,16 +1549,16 @@ class areatrigger_foundry_prototype_pulse_grenade : public AreaTriggerEntityScri
 
                 std::set<uint64> l_Targets;
 
-                if (l_TargetList.empty())
-                    return;
-
-                l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                if (!l_TargetList.empty())
                 {
-                    if (!p_Unit->IsPlayer() && !p_Unit->ToUnit()->isCharmedOwnedByPlayerOrPlayer())
-                        return true;
+                    l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                    {
+                        if (!p_Unit->IsPlayer() && !p_Unit->ToUnit()->isCharmedOwnedByPlayerOrPlayer())
+                            return true;
 
-                    return false;
-                });
+                        return false;
+                    });
+                }
 
                 for (Unit* l_Iter : l_TargetList)
                 {

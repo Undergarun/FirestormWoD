@@ -164,7 +164,8 @@ enum QuestFlags2
     QUEST_FLAGS2_NO_GUILD_XP                          = 0x0200,
     QUEST_FLAGS2_RESET_CACHE_ON_ACCEPT                = 0x0400,
     QUEST_FLAGS2_NO_ABANDON_ON_ANY_OBJECTIVE_COMPLETE = 0x0800,
-    QUEST_FLAGS2_RECAST_ACCEPT_SPELL_ON_LOGIN         = 0x1000
+    QUEST_FLAGS2_RECAST_ACCEPT_SPELL_ON_LOGIN         = 0x1000,
+    QUEST_FLAGS2_UNK1                                 = 0x2000,
 };
 
 enum __QuestSpecialFlags
