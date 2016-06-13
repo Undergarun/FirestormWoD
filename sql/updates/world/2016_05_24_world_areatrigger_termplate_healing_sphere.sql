@@ -1,0 +1,1 @@
+UPDATE `areatrigger_template` SET ScriptName = 'at_monk_sphere_chi_explosion' WHERE spell_id IN(157682, 157683, 157684, 157685, 157686, 157687, 157688, 157689);

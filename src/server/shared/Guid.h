@@ -176,9 +176,9 @@ enum Guid128Type
     GUID_TYPE_UNIQUE_USER_CLIENT    = 0x2A, ///< 6.0.1 18663
     GUID_TYPE_BATTLE_PET            = 0x2B, ///< 6.0.1 18663
 
-    GUID_TYPE_TRANSPORT         = 0x2C, ///< unk
-    GUID_TYPE_BATTLEGROUND      = 0x2D, ///< unk
-    GUID_TYPE_INSTANCE_SAVE     = 0x2E, ///< unk
+    GUID_TYPE_TRANSPORT             = 0x2C, ///< unk
+    GUID_TYPE_BATTLEGROUND          = 0x2D, ///< unk
+    GUID_TYPE_INSTANCE_SAVE         = 0x2E  ///< unk
 };
 
 struct Guid128

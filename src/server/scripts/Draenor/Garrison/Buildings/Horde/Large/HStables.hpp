@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
     class npc_TormakAI : public GarrisonNPCAI
@@ -58,6 +58,8 @@ namespace MS { namespace Garrison
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
 
             virtual void OnPlotInstanceUnload() override;
+
+            void ProcessSummonPlotCreatures(int l_Index);
     };
 
     //////////////////////////////////////////////////////////////////////////
@@ -85,7 +87,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
     class npc_SagePalunaAI : public GarrisonNPCAI

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "ObjectAccessor.h"
@@ -217,7 +207,7 @@ void WorldSession::HandleBfExitQueueRequest(WorldPacket & p_Packet)
         l_Battlefield->AskToLeaveQueue(m_Player);
 }
 
-void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)
+void WorldSession::HandleBfExitRequest(WorldPacket& /*recv_data*/)
 {
     sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitRequest");
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId());
@@ -242,7 +232,7 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
     l_ReportedPlayer->ReportedAfkBy(m_Player);
 }
 
-void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
+void WorldSession::HandleRequestPvpOptions(WorldPacket& /*recvData*/)
 {
     /// @Todo: perfome research in this case
     WorldPacket data(SMSG_PVP_OPTIONS_ENABLED, 1);
@@ -255,14 +245,14 @@ void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleRequestPvpReward(WorldPacket& recvData)
+void WorldSession::HandleRequestPvpReward(WorldPacket& /*recvData*/)
 {
     m_Player->SendPvpRewards();
 }
 
-void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
+void WorldSession::HandleRequestRatedBgStats(WorldPacket& /*recvData*/)
 {
-    WorldPacket l_Data(SMSG_RATED_BATTLEFIELD_INFO, MAX_PVP_SLOT * (4+4+4+4+4+4+4+4));
+    WorldPacket l_Data(SMSG_RATED_BATTLEFIELD_INFO, MAX_PVP_SLOT * (4 + 4 + 4 + 4 + 4 + 4 + 4 + 4));
 
     for (int i = 0; i < MAX_PVP_SLOT; i++)
     {
@@ -279,7 +269,7 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleRequestConquestFormulaConstants(WorldPacket& p_RecvData)
+void WorldSession::HandleRequestConquestFormulaConstants(WorldPacket& /*p_RecvData*/)
 {
     WorldPacket l_Data(SMSG_CONQUEST_FORMULA_CONSTANTS, 5 * 4);
     l_Data << uint32(Arena::g_PvpMinCPPerWeek);

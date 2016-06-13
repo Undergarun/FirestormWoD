@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2008-20XX JadeCore <http://www.pandashan.com>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef MOGUSHAN_VAULT_H_
 #define MOGUSHAN_VAULT_H_
@@ -98,7 +87,7 @@ enum eActions
 
     ACTION_CHECK_SPIRITKINGS                = 41,
     ACTION_STOP_PETRIFY                     = 42,
-    ACTION_EVENT_WIPE                       = 43,
+    ACTION_EVENT_WIPE                       = 43
 };
 
 enum eCreatures
@@ -229,7 +218,7 @@ enum eGameObjects
     GOB_MOGU_RUNE_END               = 213955,
 
     // Will of Emperor
-    GOB_ANCIENT_CONTROL_CONSOLE     = 211584,
+    GOB_ANCIENT_CONTROL_CONSOLE     = 211584
 };
 
 enum ePhases
@@ -243,12 +232,12 @@ enum ePhases
 enum eAchievementData
 {
     // Dummy spells
-    ACHIEVEMENT_STONE_GUARD_KILL    = 128288,
+    ACHIEVEMENT_STONE_GUARD_KILL    = 128288
 };
 
 enum sharedSpells
 {
-    SPELL_BERSERK   = 26662,
+    SPELL_BERSERK   = 26662
 };
 
 #endif // MOGUSHAN_VAULT_H_

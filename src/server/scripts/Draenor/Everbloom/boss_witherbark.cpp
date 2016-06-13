@@ -398,7 +398,7 @@ public:
 /// Everbloom Naturalist - 81819
 class the_everbloom_witherbark_mob_naturalist : public CreatureScript
 {
-public:
+	public:
 
     the_everbloom_witherbark_mob_naturalist() : CreatureScript("the_everbloom_witherbark_mob_naturalist") { }
 
@@ -511,7 +511,7 @@ public:
 /// Agitated Waters - 88862
 class the_everbloom_witherbark_mob_agitated_water : public CreatureScript
 {
-public:
+	public:
 
     the_everbloom_witherbark_mob_agitated_water() : CreatureScript("the_everbloom_witherbark_mob_agitated_water") {}
 
@@ -542,8 +542,9 @@ public:
             events.Reset();
             me->SetInCombatWithZone();
             me->setFaction(HostileFaction);
+			me->SetDisplayId(InvisibleDisplay);
             m_Interval = 20 * TimeConstants::IN_MILLISECONDS;
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);      
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);      
             events.ScheduleEvent(eAgitatedWatersEvents::EventShootWater, urand(4 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
         }
 
@@ -603,7 +604,7 @@ public:
 /// Aqueous Globue  - 81821
 class the_everbloom_witherbark_mob_aqueous_globule : public CreatureScript
 {
-public:
+	public:
 
     the_everbloom_witherbark_mob_aqueous_globule() : CreatureScript("the_everbloom_witherbark_mob_aqueous_globule") {}
 
@@ -665,9 +666,7 @@ public:
                     if (l_Witherbark->isInCombat() && l_Witherbark->HasAura(eAqueousGlobuleSpells::SpellBrittleBarkAura))
                     {
                         if (!me->IsMoving()) /// Automatically forces the aqueous globule to get to Witherbark location.
-                        {
                             me->GetMotionMaster()->MovePoint(0, *l_Witherbark);
-                        }
 
                         if (m_DiffCheckup <= p_Diff && !m_Caught) // Checks radius between Witherbark and current globule and increases water power incase of contact.
                         {
@@ -676,10 +675,10 @@ public:
                                 if (l_Witherbark->IsAIEnabled)
                                 {
                                     int32 l_Val = l_Witherbark->GetPower(Powers::POWER_MANA);
-                                    l_Val += 10;
+                                    l_Val += 25;
                                     m_Caught = true;
                                     l_Witherbark->AI()->DoAction(eWitherbarkActions::ActionEnergyPower);
-                                    l_Witherbark->SetInt32Value(UNIT_FIELD_POWER, l_Val);
+                                    l_Witherbark->SetInt32Value(EUnitFields::UNIT_FIELD_POWER, l_Val);
                                     me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
                                 }
                             }
@@ -703,7 +702,7 @@ public:
 /// Unchecked Growth - 81737
 class the_everbloom_witherbark_mob_unchecked_growth : public CreatureScript
 {
-public:
+	public:
 
     the_everbloom_witherbark_mob_unchecked_growth() : CreatureScript("the_everbloom_witherbark_mob_unchecked_growth") {}
 
@@ -800,7 +799,7 @@ public:
 /// Living Leaves - 324266
 class the_everbloom_witherbark_mob_living_leaves : public CreatureScript
 {
-public:
+	public:
 
     the_everbloom_witherbark_mob_living_leaves() : CreatureScript("the_everbloom_witherbark_mob_living_leaves") { }
 
@@ -870,7 +869,7 @@ public:
     {
         PrepareAuraScript(the_everbloom_witherbark_aura_brittle_bark_AuraScript);
 
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/) 
         { 
             if (Unit* l_Caster = GetCaster())
             {
@@ -879,7 +878,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const*/*p_aurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {

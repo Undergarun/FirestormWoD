@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -92,7 +83,7 @@ enum ThaddiusSpells
     SPELL_NEGATIVE_CHARGE       = 28085,
     SPELL_NEGATIVE_CHARGE_STACK = 29660,
     SPELL_POSITIVE_POLARITY     = 28059,
-    SPELL_NEGATIVE_POLARITY     = 28084,
+    SPELL_NEGATIVE_POLARITY     = 28084
 };
 
 enum Events
@@ -100,12 +91,12 @@ enum Events
     EVENT_NONE,
     EVENT_SHIFT,
     EVENT_CHAIN,
-    EVENT_BERSERK,
+    EVENT_BERSERK
 };
 
 enum Achievement
 {
-    DATA_POLARITY_SWITCH    = 76047605,
+    DATA_POLARITY_SWITCH    = 76047605
 };
 
 class boss_thaddius : public CreatureScript
@@ -204,7 +195,7 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 360000);
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 & /*uiDamage*/, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 & /*uiDamage*/, SpellInfo const*  /*p_SpellInfo*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
         }
@@ -554,6 +545,7 @@ class achievement_polarity_switch : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_thaddius()
 {
     new boss_thaddius();
@@ -563,3 +555,4 @@ void AddSC_boss_thaddius()
     new spell_thaddius_polarity_shift();
     new achievement_polarity_switch();
 }
+#endif

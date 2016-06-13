@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Netherstorm
@@ -373,7 +363,7 @@ enum eCommanderDawnforgeData
     SAY_COMMANDER_DAWNFORGE_5       = -1000137,
 
     QUEST_INFO_GATHERING            = 10198,
-    SPELL_SUNFURY_DISGUISE          = 34603,
+    SPELL_SUNFURY_DISGUISE          = 34603
 };
 
 // Entries of Arcanist Ardonis, Commander Dawnforge, Pathaleon the Curators Image
@@ -669,7 +659,7 @@ enum eProfessorDabiriData
     WHISPER_DABIRI          = -1000522,
 
     QUEST_DIMENSIUS         = 10439,
-    QUEST_ON_NETHERY_WINGS  = 10438,
+    QUEST_ON_NETHERY_WINGS  = 10438
 };
 
 #define GOSSIP_ITEM "I need a new phase distruptor, Professor"
@@ -731,7 +721,7 @@ enum ePhaseHunterData
     SPELL_PHASE_SLIP                = 36574,
     SPELL_MANA_BURN                 = 13321,
     SPELL_MATERIALIZE               = 34804,
-    SPELL_DE_MATERIALIZE            = 34814,
+    SPELL_DE_MATERIALIZE            = 34814
 };
 
 class mob_phase_hunter : public CreatureScript
@@ -857,7 +847,7 @@ enum eBessyData
     SPAWN_FIRST     = 20512,
     SPAWN_SECOND    = 19881,
     SAY_THADELL_1   = -1000524,
-    SAY_THADELL_2   = -1000525,
+    SAY_THADELL_2   = -1000525
 };
 
 class npc_bessy : public CreatureScript
@@ -1042,7 +1032,7 @@ public:
 enum CaptainTyralius
 {
     NPC_CAPTAIN_TYRALIUS    = 20787,
-    SAY_FREE                = 0,
+    SAY_FREE                = 0
 };
 
 class go_captain_tyralius_prison : public GameObjectScript
@@ -1065,6 +1055,7 @@ class go_captain_tyralius_prison : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_netherstorm()
 {
     new go_manaforge_control_console();
@@ -1077,3 +1068,4 @@ void AddSC_netherstorm()
     new npc_maxx_a_million_escort();
     new go_captain_tyralius_prison();
 }
+#endif

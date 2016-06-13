@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Scripts for spells with SPELLFAMILY_GENERIC spells used by items.
@@ -79,7 +70,7 @@ enum DeviateFishSpells
     SPELL_INVIGORATE        = 8065,
     SPELL_SHRINK            = 8066,
     SPELL_PARTY_TIME        = 8067,
-    SPELL_HEALTHY_SPIRIT    = 8068,
+    SPELL_HEALTHY_SPIRIT    = 8068
 };
 
 class spell_item_deviate_fish: public SpellScriptLoader
@@ -129,7 +120,7 @@ enum FlaskOfTheNorthSpells
 {
     SPELL_FLASK_OF_THE_NORTH_SP = 67016,
     SPELL_FLASK_OF_THE_NORTH_AP = 67017,
-    SPELL_FLASK_OF_THE_NORTH_STR = 67018,
+    SPELL_FLASK_OF_THE_NORTH_STR = 67018
 };
 
 class spell_item_flask_of_the_north: public SpellScriptLoader
@@ -198,7 +189,7 @@ class spell_item_flask_of_the_north: public SpellScriptLoader
 enum GnomishDeathRay
 {
     SPELL_GNOMISH_DEATH_RAY_SELF = 13493,
-    SPELL_GNOMISH_DEATH_RAY_TARGET = 13279,
+    SPELL_GNOMISH_DEATH_RAY_TARGET = 13279
 };
 
 class spell_item_gnomish_death_ray: public SpellScriptLoader
@@ -249,7 +240,7 @@ enum MakeAWish
     SPELL_SUMMON_MIGHTY_MR_PINCHY   = 33057,
     SPELL_SUMMON_FURIOUS_MR_PINCHY  = 33059,
     SPELL_TINY_MAGICAL_CRAWDAD      = 33062,
-    SPELL_MR_PINCHYS_GIFT           = 33064,
+    SPELL_MR_PINCHYS_GIFT           = 33064
 };
 
 class spell_item_make_a_wish: public SpellScriptLoader
@@ -361,7 +352,7 @@ enum NetOMaticSpells
 {
     SPELL_NET_O_MATIC_TRIGGERED1 = 16566,
     SPELL_NET_O_MATIC_TRIGGERED2 = 13119,
-    SPELL_NET_O_MATIC_TRIGGERED3 = 13099,
+    SPELL_NET_O_MATIC_TRIGGERED3 = 13099
 };
 
 class spell_item_net_o_matic: public SpellScriptLoader
@@ -413,7 +404,7 @@ enum NoggenfoggerElixirSpells
 {
     SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1 = 16595,
     SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED2 = 16593,
-    SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED3 = 16591,
+    SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED3 = 16591
 };
 
 class spell_item_noggenfogger_elixir: public SpellScriptLoader
@@ -469,7 +460,7 @@ enum SavoryDeviateDelight
     SPELL_FLIP_OUT_MALE     = 8219,
     SPELL_FLIP_OUT_FEMALE   = 8220,
     SPELL_YAAARRRR_MALE     = 8221,
-    SPELL_YAAARRRR_FEMALE   = 8222,
+    SPELL_YAAARRRR_FEMALE   = 8222
 };
 
 class spell_item_savory_deviate_delight: public SpellScriptLoader
@@ -529,7 +520,7 @@ enum SixDemonBagSpells
     SPELL_SUMMON_FELHOUND_MINION    = 14642,
     SPELL_FIREBALL                  = 15662,
     SPELL_CHAIN_LIGHTNING           = 21179,
-    SPELL_ENVELOPING_WINDS          = 25189,
+    SPELL_ENVELOPING_WINDS          = 25189
 };
 
 class spell_item_six_demon_bag: public SpellScriptLoader
@@ -597,7 +588,7 @@ enum UnderbellyElixirSpells
 {
     SPELL_UNDERBELLY_ELIXIR_TRIGGERED1 = 59645,
     SPELL_UNDERBELLY_ELIXIR_TRIGGERED2 = 59831,
-    SPELL_UNDERBELLY_ELIXIR_TRIGGERED3 = 59843,
+    SPELL_UNDERBELLY_ELIXIR_TRIGGERED3 = 59843
 };
 
 class spell_item_underbelly_elixir: public SpellScriptLoader
@@ -648,7 +639,7 @@ enum eShadowmourneVisuals
 {
     SPELL_SHADOWMOURNE_VISUAL_LOW       = 72521,
     SPELL_SHADOWMOURNE_VISUAL_HIGH      = 72523,
-    SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF  = 73422,
+    SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF  = 73422
 };
 
 class spell_item_shadowmourne: public SpellScriptLoader
@@ -712,7 +703,7 @@ enum AirRifleSpells
 {
     SPELL_AIR_RIFLE_HOLD_VISUAL = 65582,
     SPELL_AIR_RIFLE_SHOOT       = 67532,
-    SPELL_AIR_RIFLE_SHOOT_SELF  = 65577,
+    SPELL_AIR_RIFLE_SHOOT_SELF  = 65577
 };
 
 class spell_item_red_rider_air_rifle: public SpellScriptLoader
@@ -765,7 +756,7 @@ enum GenericData
     SPELL_ARCANITE_DRAGONLING           = 19804,
     SPELL_BATTLE_CHICKEN                = 13166,
     SPELL_MECHANICAL_DRAGONLING         = 4073,
-    SPELL_MITHRIL_MECHANICAL_DRAGONLING = 12749,
+    SPELL_MITHRIL_MECHANICAL_DRAGONLING = 12749
 };
 
 enum CreateHeartCandy
@@ -777,7 +768,7 @@ enum CreateHeartCandy
     ITEM_HEART_CANDY_5 = 21816,
     ITEM_HEART_CANDY_6 = 21823,
     ITEM_HEART_CANDY_7 = 21822,
-    ITEM_HEART_CANDY_8 = 21820,
+    ITEM_HEART_CANDY_8 = 21820
 };
 
 class spell_item_create_heart_candy: public SpellScriptLoader
@@ -852,7 +843,7 @@ class spell_item_book_of_glyph_mastery: public SpellScriptLoader
 enum GiftOfTheHarvester
 {
     NPC_GHOUL   = 28845,
-    MAX_GHOULS  = 5,
+    MAX_GHOULS  = 5
 };
 
 class spell_item_gift_of_the_harvester: public SpellScriptLoader
@@ -893,7 +884,7 @@ enum Sinkholes
 {
     NPC_SOUTH_SINKHOLE      = 25664,
     NPC_NORTHEAST_SINKHOLE  = 25665,
-    NPC_NORTHWEST_SINKHOLE  = 25666,
+    NPC_NORTHWEST_SINKHOLE  = 25666
 };
 
 class spell_item_map_of_the_geyser_fields: public SpellScriptLoader
@@ -933,7 +924,7 @@ enum VanquishedClutchesSpells
 {
     SPELL_CRUSHER       = 64982,
     SPELL_CONSTRICTOR   = 64983,
-    SPELL_CORRUPTOR     = 64984,
+    SPELL_CORRUPTOR     = 64984
 };
 
 class spell_item_vanquished_clutches: public SpellScriptLoader
@@ -978,7 +969,7 @@ enum MagicEater
     SPELL_WELL_FED_2                             = 57139,
     SPELL_WELL_FED_3                             = 57111,
     SPELL_WELL_FED_4                             = 57286,
-    SPELL_WELL_FED_5                             = 57291,
+    SPELL_WELL_FED_5                             = 57291
 };
 
 class spell_magic_eater_food: public SpellScriptLoader
@@ -1060,7 +1051,7 @@ enum PurifyHelboarMeat
 {
     SPELL_SUMMON_PURIFIED_HELBOAR_MEAT      = 29277,
     SPELL_SUMMON_TOXIC_HELBOAR_MEAT         = 29278,
-    ITEM_PURIFIED_HELBOAR_MEAT              = 23248,
+    ITEM_PURIFIED_HELBOAR_MEAT              = 23248
 };
 
 class spell_item_purify_helboar_meat: public SpellScriptLoader
@@ -1108,7 +1099,7 @@ class spell_item_purify_helboar_meat: public SpellScriptLoader
 
 enum CrystalPrison
 {
-    OBJECT_IMPRISONED_DOOMGUARD     = 179644,
+    OBJECT_IMPRISONED_DOOMGUARD     = 179644
 };
 
 class spell_item_crystal_prison_dummy_dnd: public SpellScriptLoader
@@ -1155,7 +1146,7 @@ enum ReindeerTransformation
     SPELL_FLYING_REINDEER_280                   = 44825,
     SPELL_FLYING_REINDEER_60                    = 44824,
     SPELL_REINDEER_100                          = 25859,
-    SPELL_REINDEER_60                           = 25858,
+    SPELL_REINDEER_60                           = 25858
 };
 
 class spell_item_reindeer_transformation: public SpellScriptLoader
@@ -1220,7 +1211,7 @@ class spell_item_reindeer_transformation: public SpellScriptLoader
 enum NighInvulnerability
 {
     SPELL_NIGH_INVULNERABILITY                  = 30456,
-    SPELL_COMPLETE_VULNERABILITY                = 30457,
+    SPELL_COMPLETE_VULNERABILITY                = 30457
 };
 
 class spell_item_nigh_invulnerability: public SpellScriptLoader
@@ -1266,7 +1257,7 @@ class spell_item_nigh_invulnerability: public SpellScriptLoader
 enum Poultryzer
 {
     SPELL_POULTRYIZER_SUCCESS    = 30501,
-    SPELL_POULTRYIZER_BACKFIRE   = 30504,
+    SPELL_POULTRYIZER_BACKFIRE   = 30504
 };
 
 class spell_item_poultryizer: public SpellScriptLoader
@@ -1306,7 +1297,7 @@ class spell_item_poultryizer: public SpellScriptLoader
 enum SocretharsStone
 {
     SPELL_SOCRETHAR_TO_SEAT     = 35743,
-    SPELL_SOCRETHAR_FROM_SEAT   = 35744,
+    SPELL_SOCRETHAR_FROM_SEAT   = 35744
 };
 
 class spell_item_socrethars_stone: public SpellScriptLoader
@@ -1361,7 +1352,7 @@ enum DemonBroiledSurprise
 {
     QUEST_SUPER_HOT_STEW                    = 11379,
     SPELL_CREATE_DEMON_BROILED_SURPRISE     = 43753,
-    NPC_ABYSSAL_FLAMEBRINGER                = 19973,
+    NPC_ABYSSAL_FLAMEBRINGER                = 19973
 };
 
 class spell_item_demon_broiled_surprise: public SpellScriptLoader
@@ -1418,7 +1409,7 @@ class spell_item_demon_broiled_surprise: public SpellScriptLoader
 
 enum CompleteRaptorCapture
 {
-    SPELL_RAPTOR_CAPTURE_CREDIT     = 42337,
+    SPELL_RAPTOR_CAPTURE_CREDIT     = 42337
 };
 
 class spell_item_complete_raptor_capture: public SpellScriptLoader
@@ -1464,7 +1455,7 @@ class spell_item_complete_raptor_capture: public SpellScriptLoader
 enum ImpaleLeviroth
 {
     NPC_LEVIROTH                = 26452,
-    SPELL_LEVIROTH_SELF_IMPALE  = 49882,
+    SPELL_LEVIROTH_SELF_IMPALE  = 49882
 };
 
 class spell_item_impale_leviroth: public SpellScriptLoader
@@ -1509,7 +1500,7 @@ enum BrewfestMountTransformation
     SPELL_MOUNT_KODO_100                        = 49379,
     SPELL_MOUNT_KODO_60                         = 49378,
     SPELL_BREWFEST_MOUNT_TRANSFORM              = 49357,
-    SPELL_BREWFEST_MOUNT_TRANSFORM_REVERSE      = 52845,
+    SPELL_BREWFEST_MOUNT_TRANSFORM_REVERSE      = 52845
 };
 
 class spell_item_brewfest_mount_transformation: public SpellScriptLoader
@@ -1572,7 +1563,7 @@ class spell_item_brewfest_mount_transformation: public SpellScriptLoader
 enum NitroBoots
 {
     SPELL_NITRO_BOOTS_SUCCESS       = 54861,
-    SPELL_NITRO_BOOTS_BACKFIRE      = 46014,
+    SPELL_NITRO_BOOTS_BACKFIRE      = 46014
 };
 
 class spell_item_nitro_boots: public SpellScriptLoader
@@ -1619,7 +1610,7 @@ class spell_item_nitro_boots: public SpellScriptLoader
 enum TeachLanguage
 {
     SPELL_LEARN_GNOMISH_BINARY      = 50242,
-    SPELL_LEARN_GOBLIN_BINARY       = 50246,
+    SPELL_LEARN_GOBLIN_BINARY       = 50246
 };
 
 class spell_item_teach_language: public SpellScriptLoader
@@ -1665,7 +1656,7 @@ class spell_item_teach_language: public SpellScriptLoader
 
 enum RocketBoots
 {
-    SPELL_ROCKET_BOOTS_PROC      = 30452,
+    SPELL_ROCKET_BOOTS_PROC      = 30452
 };
 
 class spell_item_rocket_boots: public SpellScriptLoader
@@ -1725,7 +1716,7 @@ class spell_item_rocket_boots: public SpellScriptLoader
 enum PygmyOil
 {
     SPELL_PYGMY_OIL_PYGMY_AURA      = 53806,
-    SPELL_PYGMY_OIL_SMALLER_AURA    = 53805,
+    SPELL_PYGMY_OIL_SMALLER_AURA    = 53805
 };
 
 class spell_item_pygmy_oil: public SpellScriptLoader
@@ -1806,7 +1797,7 @@ enum ChickenCover
     SPELL_CHICKEN_NET               = 51959,
     SPELL_CAPTURE_CHICKEN_ESCAPE    = 51037,
     QUEST_CHICKEN_PARTY             = 12702,
-    QUEST_FLOWN_THE_COOP            = 12532,
+    QUEST_FLOWN_THE_COOP            = 12532
 };
 
 class spell_item_chicken_cover: public SpellScriptLoader
@@ -1858,7 +1849,7 @@ class spell_item_chicken_cover: public SpellScriptLoader
 enum Refocus
 {
     SPELL_AIMED_SHOT    = 19434,
-    SPELL_MULTISHOT     = 2643,
+    SPELL_MULTISHOT     = 2643
 };
 
 class spell_item_refocus: public SpellScriptLoader
@@ -1926,7 +1917,7 @@ class spell_item_muisek_vessel: public SpellScriptLoader
 
 enum GreatmothersSoulcather
 {
-    SPELL_FORCE_CAST_SUMMON_GNOME_SOUL = 46486,
+    SPELL_FORCE_CAST_SUMMON_GNOME_SOUL = 46486
 };
 
 class spell_item_greatmothers_soulcatcher: public SpellScriptLoader
@@ -1966,7 +1957,7 @@ class spell_item_enohar_explosive_arrows: public SpellScriptLoader
         {
             PrepareSpellScript(spell_item_enohar_explosive_arrows_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
                 Unit* target = GetHitUnit();
@@ -1989,7 +1980,7 @@ class spell_item_enohar_explosive_arrows: public SpellScriptLoader
 
 enum HolyThurible
 {
-    NPC_WITHDRAWN_SOUL           = 45166,
+    NPC_WITHDRAWN_SOUL = 45166
 };
 
 class spell_item_holy_thurible: public SpellScriptLoader
@@ -2033,7 +2024,7 @@ class spell_item_holy_thurible: public SpellScriptLoader
 
 enum bandage
 {
-    NPC_WOUNDED_DEFENDER      = 38805,
+    NPC_WOUNDED_DEFENDER = 38805
 };
 
 class spell_item_bandage_q24944: public SpellScriptLoader
@@ -2347,7 +2338,7 @@ class spell_item_pot_of_fire: public SpellScriptLoader
         {
             PrepareAuraScript(spell_item_pot_of_fire_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
                 Unit* caster = GetCaster();
@@ -2573,7 +2564,7 @@ class spell_item_ancient_knowledge : public SpellScriptLoader
         {
             PrepareAuraScript(spell_item_ancient_knowledge_AuraScript);
 
-            void OnUpdate(uint32 p_Diff)
+            void OnUpdate(uint32 /*p_Diff*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -2604,20 +2595,20 @@ class spell_item_sky_golem : public SpellScriptLoader
         {
             PrepareAuraScript(spell_item_sky_golem_AuraScript);
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    if (l_Target->IsPlayer() && !l_Target->GetMap()->IsBattlegroundOrArena())
                         l_Target->ToPlayer()->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, true);
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    if (l_Target->IsPlayer())
                         l_Target->ToPlayer()->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, false);
                 }
             }
@@ -2708,7 +2699,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
                 AllianceChauffeur   = 89715
             };
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2726,7 +2717,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
                 }
             }
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2735,7 +2726,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2792,7 +2783,7 @@ class spell_item_forgemasters_vigor : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::HammerBlows);
@@ -2826,7 +2817,7 @@ class spell_item_hammer_blows : public SpellScriptLoader
                 ForgemastersVigor = 177096
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -2881,7 +2872,7 @@ class spell_item_detonation : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::Detonating);
@@ -2915,7 +2906,7 @@ class spell_item_detonating : public SpellScriptLoader
                 Detonation = 177067
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -2970,7 +2961,7 @@ class spell_item_battering : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::Cracks);
@@ -3004,7 +2995,7 @@ class spell_item_cracks : public SpellScriptLoader
                 Battering = 177102
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -3059,7 +3050,7 @@ class spell_item_sanatizing : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::CleansingSteam);
@@ -3093,7 +3084,7 @@ class spell_item_cleansing_steam : public SpellScriptLoader
                 Sanitizing = 177086
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -3148,7 +3139,7 @@ class spell_item_molten_metal : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::PouringSlag);
@@ -3182,7 +3173,7 @@ class spell_item_pouring_slag : public SpellScriptLoader
                 MoltenMetal = 177081
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -3248,7 +3239,7 @@ class spell_item_legs_of_iron : public SpellScriptLoader
                 MythicQuestToken    = 178228
             };
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
@@ -3404,7 +3395,7 @@ class spell_item_chest_of_iron : public SpellScriptLoader
                 MythicQuestToken    = 178227
             };
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
@@ -3560,7 +3551,7 @@ class spell_item_helm_of_iron : public SpellScriptLoader
                 MythicQuestToken    = 178226
             };
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
@@ -3716,7 +3707,7 @@ class spell_item_shoulders_of_iron : public SpellScriptLoader
                 MythicQuestToken    = 178230
             };
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
@@ -3872,7 +3863,7 @@ class spell_item_gauntlets_of_iron : public SpellScriptLoader
                 MythicQuestToken    = 178229
             };
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {

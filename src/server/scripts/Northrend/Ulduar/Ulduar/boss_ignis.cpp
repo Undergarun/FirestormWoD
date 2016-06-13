@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -32,7 +23,7 @@ enum Yells
     SAY_SCORCH      = 5,
     SAY_BERSERK     = 6,
 
-    EMOTE_JETS      = 7,
+    EMOTE_JETS      = 7
 };
 
 enum Spells
@@ -56,7 +47,7 @@ enum Spells
     SPELL_BRITTLE_N             = 62382,
     SPELL_BRITTLE_H             = 67114,
     SPELL_SHATTER               = 62383,
-    SPELL_GROUND                = 62548,
+    SPELL_GROUND                = 62548
 };
 
 #define SPELL_BRITTLE   RAID_MODE(SPELL_BRITTLE_N, SPELL_BRITTLE_H)
@@ -70,19 +61,19 @@ enum Events
     EVENT_CHANGE_POT    = 5,
     EVENT_END_POT       = 6,
     EVENT_CONSTRUCT     = 7,
-    EVENT_BERSERK       = 8,
+    EVENT_BERSERK       = 8
 };
 
 enum Actions
 {
-    ACTION_REMOVE_BUFF  = 20,
+    ACTION_REMOVE_BUFF  = 20
 };
 
 enum AchievementData
 {
     DATA_SHATTERED                  = 29252926,
 
-    ACHIEVEMENT_IGNIS_START_EVENT   = 20951,
+    ACHIEVEMENT_IGNIS_START_EVENT   = 20951
 };
 
 #define CONSTRUCT_SPAWN_POINTS 20
@@ -108,7 +99,7 @@ Position const ConstructSpawnPosition[CONSTRUCT_SPAWN_POINTS] =
     {543.316f, 337.468f, 360.886f, 6.195920f},
     {543.280f, 239.674f, 360.890f, 6.265730f},
     {543.265f, 217.147f, 360.891f, 0.174533f},
-    {543.256f, 224.831f, 360.891f, 0.122173f},
+    {543.256f, 224.831f, 360.891f, 0.122173f}
 };
 
 class boss_ignis : public CreatureScript
@@ -176,7 +167,7 @@ class boss_ignis : public CreatureScript
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
             }
 
-            void JustDied(Unit* victim)
+            void JustDied(Unit* /*victim*/)
             {
                 if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, _slagPotGUID))
                 {
@@ -352,7 +343,7 @@ class npc_iron_construct : public CreatureScript
                 _brittled = false;
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->HasAura(SPELL_BRITTLE) && damage >= needDamage && !shattered)
                 {
@@ -557,6 +548,7 @@ class achievement_ignis_hot_pocket : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ignis()
 {
     new boss_ignis();
@@ -569,5 +561,5 @@ void AddSC_boss_ignis()
     if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(3206)))
         vehSeat->m_flags |= 0x400;
 }
-
+#endif
 #undef SPELL_BRITTLE

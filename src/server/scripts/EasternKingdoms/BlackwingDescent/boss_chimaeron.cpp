@@ -2,7 +2,6 @@
 #include"Spell.h"
 #include"blackwing_descent.h"
 
-//todo: реализовать reroure power, low health, корректный double attack
 enum ScriptTexts
 {
     SAY_AGGRO       = 0,

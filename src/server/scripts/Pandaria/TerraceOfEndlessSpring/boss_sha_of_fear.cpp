@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
@@ -119,7 +108,7 @@ enum eShaOfFearEvents
     EVENT_TO_DREAD_EXPANSE  = 21,
     EVENT_CLEAR_AURA_PLAYER = 22,
     EVENT_VISIBLE_EXPANSE   = 23,
-    EVENT_CHECK_CHAMPION    = 24,
+    EVENT_CHECK_CHAMPION    = 24
 };
 
 enum eShaOfFearActions
@@ -138,7 +127,7 @@ enum eShaOfFearActions
     ACTION_ACTIVATE_RETURN,
     ACTION_ARRIVE_IN_DREAD_EXPANSE,
     ACTION_TELEPORT_SHA,
-    ACTION_GET_PLAYERS_BACK,
+    ACTION_GET_PLAYERS_BACK
 };
 
 enum eShaOfFearSays
@@ -306,7 +295,7 @@ class boss_sha_of_fear : public CreatureScript
                         pInstance->SetBossState(DATA_SHA_OF_FEAR, FAIL);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (pInstance)
                 {
@@ -390,7 +379,7 @@ class boss_sha_of_fear : public CreatureScript
                 _EnterEvadeMode();
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 events.Reset();
                 if (pInstance)
@@ -585,7 +574,7 @@ class boss_sha_of_fear : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (!IsHeroic() || isInSecondPhase)
                     return;
@@ -1012,13 +1001,13 @@ class mob_pure_light_terrace : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 damage = 0;
                 return;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
@@ -1446,7 +1435,7 @@ class mob_shrine_guardian : public CreatureScript
                 Talk(GUARDIAN_SAY_AGGRO);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (nextGlobePct < 5)
                     return;
@@ -1811,7 +1800,7 @@ class spell_penetrating_bolt : public SpellScriptLoader
                         targetGuid = itr->GetGUID();
             }
 
-            void HandleDummy(SpellEffIndex index)
+            void HandleDummy(SpellEffIndex /*index*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -2338,6 +2327,7 @@ class spell_implacable_strike : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_sha_of_fear()
 {
     new boss_sha_of_fear();             // 60999
@@ -2363,3 +2353,4 @@ void AddSC_boss_sha_of_fear()
     new spell_transfer_light();         // 120285
     new spell_implacable_strike();      // 120672
 }
+#endif

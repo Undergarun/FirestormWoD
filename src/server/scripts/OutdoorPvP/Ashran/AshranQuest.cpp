@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "AshranMgr.hpp"
@@ -19,7 +19,7 @@ class npc_ashran_commander_anne_dunworthy : public CreatureScript
             WelcomeToAshran = 36119
         };
 
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        bool OnGossipHello(Player* p_Player, Creature* /*p_Creature*/) override
         {
             if (p_Player->GetQuestStatus(eQuest::WelcomeToAshran) == QuestStatus::QUEST_STATUS_INCOMPLETE)
                 p_Player->CompleteQuest(eQuest::WelcomeToAshran);
@@ -39,7 +39,7 @@ class npc_ashran_general_ushet_wolfbarger : public CreatureScript
             WelcomeToAshran = 36196
         };
 
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        bool OnGossipHello(Player* p_Player, Creature* /*p_Creature*/) override
         {
             if (p_Player->GetQuestStatus(eDatas::WelcomeToAshran) == QuestStatus::QUEST_STATUS_INCOMPLETE)
                 p_Player->CompleteQuest(eDatas::WelcomeToAshran);
@@ -60,7 +60,7 @@ class npc_ashran_farseer_kylanda : public CreatureScript
             FarseerKylanda      = 84256
         };
 
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        bool OnGossipHello(Player* p_Player, Creature* /*p_Creature*/) override
         {
             if (p_Player->GetQuestStatus(eDatas::ReportingForDuty) == QuestStatus::QUEST_STATUS_INCOMPLETE)
                 p_Player->KilledMonsterCredit(eDatas::FarseerKylanda);
@@ -81,7 +81,7 @@ class npc_ashran_chris_clarkie : public CreatureScript
             ChrisClarkie        = 84257
         };
 
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        bool OnGossipHello(Player* p_Player, Creature* /*p_Creature*/) override
         {
             if (p_Player->GetQuestStatus(eDatas::ReportingForDuty) == QuestStatus::QUEST_STATUS_INCOMPLETE)
                 p_Player->KilledMonsterCredit(eDatas::ChrisClarkie);
@@ -102,7 +102,7 @@ class npc_ashran_harrison_jones : public CreatureScript
             HarrisonJones       = 84226
         };
 
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        bool OnGossipHello(Player* p_Player, Creature* /*p_Creature*/) override
         {
             if (p_Player->GetQuestStatus(eDatas::ReportingForDuty) == QuestStatus::QUEST_STATUS_INCOMPLETE)
                 p_Player->KilledMonsterCredit(eDatas::HarrisonJones);
@@ -114,7 +114,7 @@ class npc_ashran_harrison_jones : public CreatureScript
         {
             npc_ashran_harrison_jonesAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_Sender*/, uint32 p_Action) override
             {
                 /// "Take all of my Artifact Fragments" is always 0
                 if (p_Action)
@@ -164,7 +164,7 @@ class npc_ashran_belloc_brightblade : public CreatureScript
             BellocBrightblade   = 84474
         };
 
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        bool OnGossipHello(Player* p_Player, Creature* /*p_Creature*/) override
         {
             if (p_Player->GetQuestStatus(eDatas::ReportingForDuty) == QuestStatus::QUEST_STATUS_INCOMPLETE)
                 p_Player->KilledMonsterCredit(eDatas::BellocBrightblade);
@@ -176,7 +176,7 @@ class npc_ashran_belloc_brightblade : public CreatureScript
         {
             npc_ashran_belloc_brightbladeAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_Sender*/, uint32 p_Action) override
             {
                 /// "Take all of my Artifact Fragments" is always 0
                 if (p_Action)
@@ -226,7 +226,7 @@ class npc_ashran_angry_zurge : public CreatureScript
             AngryZurge          = 84659
         };
 
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        bool OnGossipHello(Player* p_Player, Creature* /*p_Creature*/) override
         {
             if (p_Player->GetQuestStatus(eDatas::ReportingForDuty) == QuestStatus::QUEST_STATUS_INCOMPLETE)
                 p_Player->KilledMonsterCredit(eDatas::AngryZurge);
@@ -247,7 +247,7 @@ class npc_ashran_mare_wildrunner : public CreatureScript
             MareWildrunner      = 84661
         };
 
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        bool OnGossipHello(Player* p_Player, Creature* /*p_Creature*/) override
         {
             if (p_Player->GetQuestStatus(eDatas::ReportingForDuty) == QuestStatus::QUEST_STATUS_INCOMPLETE)
                 p_Player->KilledMonsterCredit(eDatas::MareWildrunner);
@@ -256,6 +256,7 @@ class npc_ashran_mare_wildrunner : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_AshranQuest()
 {
     new npc_ashran_commander_anne_dunworthy();
@@ -267,3 +268,4 @@ void AddSC_AshranQuest()
     new npc_ashran_angry_zurge();
     new npc_ashran_mare_wildrunner();
 }
+#endif

@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -66,7 +74,7 @@ public:
             summons.DespawnAll();
         }
         
-        void EnterCombat(Unit* attacker)
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             events.ScheduleEvent(EVENT_SHOCKWAVE, 16000);
             events.ScheduleEvent(EVENT_FURY_OF_THE_SANDS, 9000);
@@ -273,7 +281,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
 
             std::list<Player*> playerList;
@@ -314,7 +322,7 @@ public:
     {
     }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == 27431)
             creature->AI()->DoAction(ACTION_FIRST_MOVE);
@@ -363,7 +371,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
             std::list<Creature*> uldumWatcherList;
             me->GetCreatureListWithEntryInGrid(uldumWatcherList, NPC_ULDUM_WATCHER, 100.0f);
@@ -462,6 +470,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_uldum()
 {
     new mob_harrison_jones();
@@ -470,3 +479,4 @@ void AddSC_uldum()
     new npc_akmahat_fury_of_the_sands();
     new mob_lurking_tempest();
 }
+#endif

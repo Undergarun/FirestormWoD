@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "GameObjectAI.h"
 #include "ScriptMgr.h"
@@ -96,7 +85,7 @@ enum eSpells
 
     // Soul Fragment
     SPELL_SOUL_DISPLAY                  = 32395,
-    SPELL_ICE_TRAP                      = 135382,
+    SPELL_ICE_TRAP                      = 135382
 };
 
 enum eEvents
@@ -124,7 +113,7 @@ enum eEvents
     EVENT_SHIELD_DESTROY        = 16,
     EVENT_SOUL_WALK             = 17,
     EVENT_SOUL_GROW             = 18,
-    EVENT_SHIELD_BARRIER        = 19,
+    EVENT_SHIELD_BARRIER        = 19
 };
 
 enum eFengPhases
@@ -144,7 +133,7 @@ enum eTalk
     TALK_PHASE_3    = 3,
     TALK_PHASE_4    = 4,
     TALK_DEATH      = 5,
-    TALK_SLAY       = 6,
+    TALK_SLAY       = 6
 };
 
 enum EquipId
@@ -169,7 +158,7 @@ enum eSoulActions
 {
     ACTION_SOUL_HOME    = 20,
     ACTION_SOUL_KILLED  = 21,
-    ACTION_SOUL_REMOVE  = 22,
+    ACTION_SOUL_REMOVE  = 22
 };
 
 #define SHIELD_ON_FENG 5
@@ -200,7 +189,7 @@ uint32 inversionMatching[MAX_INVERSION_SPELLS][2] =
     {SPELL_SHADOWBURN,       SPELL_SHADOWBURN_INVERSION},
     {SPELL_LIGHTNING_LASH,   SPELL_LIGHTNING_LASH_INVERSION},
     {SPELL_ARCANE_SHOCK,     SPELL_ARCANE_SHOCK_INVERSION},
-    {SPELL_SIPHONING_SHIELD, SPELL_SIPHONING_SHIELD_INVERSION},
+    {SPELL_SIPHONING_SHIELD, SPELL_SIPHONING_SHIELD_INVERSION}
 };
 
 #define MAX_DIST    60.0f
@@ -211,7 +200,7 @@ Position shieldPositions[3] =
 {
     {4067.59f, 1326.71f, 466.30f, 2.579275f},
     {4020.77f, 1363.22f, 466.30f, 5.500957f},
-    {4036.06f, 1362.29f, 466.30f, 4.253744f},
+    {4036.06f, 1362.29f, 466.30f, 4.253744f}
 };
 
 #define SHIELD_POSITIONS_COUNT 3;
@@ -283,7 +272,7 @@ class boss_feng : public CreatureScript
                     cancelGob->Respawn();
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 _JustDied();
                 Talk(TALK_DEATH);
@@ -519,7 +508,7 @@ class boss_feng : public CreatureScript
                     fThreat = 0;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!pInstance->CheckRequiredBosses(DATA_FENG) || attacker->GetPositionX() < 4009.0f || attacker->GetPositionX() > 4076.0f)
                 {
@@ -1147,7 +1136,7 @@ class mob_wild_spark : public CreatureScript
                         }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_FENG) != IN_PROGRESS)
@@ -1596,7 +1585,7 @@ class go_inversion : public GameObjectScript
         {
             go_inversionAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player)
+            bool GossipHello(Player* /*player*/)
             {
                 return false;
             }
@@ -1618,7 +1607,7 @@ class go_cancel : public GameObjectScript
         {
             go_cancelAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player)
+            bool GossipHello(Player* /*player*/)
             {
                 return false;
             }
@@ -1636,7 +1625,7 @@ class at_nullification_barrier : public AreaTriggerEntityScript
     public:
         at_nullification_barrier() : AreaTriggerEntityScript("at_nullification_barrier") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 6.0f;
@@ -1654,7 +1643,7 @@ class at_nullification_barrier : public AreaTriggerEntityScript
                 l_Target->CastSpell(l_Target, SPELL_NULLIFICATION_BARRIER, true);
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 60.0f;
@@ -1680,6 +1669,7 @@ class at_nullification_barrier : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_feng()
 {
     new boss_feng();                        ///< 60009
@@ -1702,3 +1692,4 @@ void AddSC_boss_feng()
     new go_cancel;                          ///< 211626
     new at_nullification_barrier();         ///< 115817
 }
+#endif

@@ -61,7 +61,7 @@ enum Spells
 
     // Time-Twisted Sorceress
     SPELL_BLINK             = 101812,
-    SPELL_ARCANE_BLAST      = 101816,
+    SPELL_ARCANE_BLAST      = 101816
 };
 
 enum Events
@@ -76,7 +76,7 @@ enum Events
     
     // Infinite Suppressor
     EVENT_ARCANE_WAVE       = 5,
-    EVENT_TEMPORAL_VORTEX   = 6,
+    EVENT_TEMPORAL_VORTEX   = 6
 };
 
 enum Adds
@@ -98,7 +98,7 @@ enum Adds
     NPC_TIME_TWISTED_SORCERESS  = 54691,
 
     NPC_TIME_TWISTED_SCOURGE    = 54507,
-    NPC_TIME_TWISTED_GEIST      = 54511,
+    NPC_TIME_TWISTED_GEIST      = 54511
 };
 
 class npc_end_time_image_of_nozdormu : public CreatureScript
@@ -315,9 +315,11 @@ class npc_end_time_infinite_suppressor : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_end_time()
 {
     new npc_end_time_image_of_nozdormu();
     new npc_end_time_infinite_warden();
     new npc_end_time_infinite_suppressor();
 }
+#endif

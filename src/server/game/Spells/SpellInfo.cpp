@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
@@ -463,7 +454,7 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_ON_PET;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit const* p_Target, Item const* p_Item, bool p_Log) const
+int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit const* p_Target, int32 p_ItemLevel /*= -1*/, bool p_Log /*= false*/) const
 {
     float l_BasePointsPerLevel = RealPointsPerLevel;
     int32 l_BasePoints = p_Bp ? *p_Bp : BasePoints;
@@ -505,16 +496,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
                 }
                 else
                 {
-                    uint32 l_ItemLevel = l_Level;
-                    if (p_Item != nullptr && p_Item->GetTemplate() != nullptr)
-                    {
-                        if (Player* l_Owner = p_Item->GetOwner())
-                            l_ItemLevel = l_Owner->GetEquipItemLevelFor(p_Item->GetTemplate(), p_Item);
-                        else
-                            l_ItemLevel = p_Item->GetTemplate()->ItemLevel;
-                    }
-
-                    RandomPropertiesPointsEntry const* l_RandomPropertiesPoints = sRandomPropertiesPointsStore.LookupEntry(l_ItemLevel);
+                    RandomPropertiesPointsEntry const* l_RandomPropertiesPoints = sRandomPropertiesPointsStore.LookupEntry(p_ItemLevel);
                     if (l_RandomPropertiesPoints)
                         l_Multiplier = l_RandomPropertiesPoints->RarePropertiesPoints[0];
                 }
@@ -629,16 +611,16 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
             float l_SpellPower = p_Caster->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
 
             {
-                if (l_AttackPower == 0.f)
+                if (l_AttackPower == 0.0f)
                     l_AttackPower = p_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-                if (l_AttackPower == 0.f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
+                if (l_AttackPower == 0.0f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
                     l_AttackPower = p_Caster->GetOwner()->GetTotalAttackPowerValue(l_AttType);
             }
 
             {
-                if (l_SpellPower == 0.f)
+                if (l_SpellPower == 0.0f)
                     l_SpellPower = p_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
-                if (l_SpellPower == 0.f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
+                if (l_SpellPower == 0.0f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
                     l_SpellPower = p_Caster->GetOwner()->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
             }
 
@@ -938,7 +920,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 176 SPELL_EFFECT_BECOME_UNTARGETTABLE
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_AREATRIGGER},   //< 177 SPELL_EFFECT_DESPAWN_AREA_TRIGGER
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 178 SPELL_EFFECT_178
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 179 SPELL_EFFECT_CREATE_AREATRIGGER
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE},          //< 179 SPELL_EFFECT_CREATE_AREATRIGGER
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 180 SPELL_EFFECT_180
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 181 SPELL_EFFECT_UNLEARN_TALENT
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_AREATRIGGER},   //< 182 SPELL_EFFECT_DESPAWN_AREA_TRIGGER_2
@@ -1051,15 +1033,15 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty, SpellV
 
     // SpellAuraOptionsEntry
     SpellAuraOptionsEntry const* _options = GetSpellAuraOptions();
+    SpellProcsPerMinuteEntry const* _ppm = _options ? sSpellProcsPerMinuteStore.LookupEntry(_options->ProcsPerMinuteEntry) : nullptr;
     ProcFlags = _options ? _options->procFlags : 0;
     ProcChance = _options ? _options->procChance : 0;
     ProcCharges = _options ? _options->procCharges : 0;
-    StackAmount = _options ? _options->StackAmount : 0;
     InternalCooldown = _options ? _options->InternalCooldown : 0;
-    if (SpellProcsPerMinuteEntry const* procs = sSpellProcsPerMinuteStore.LookupEntry(_options ? _options->ProcsPerMinuteEntry : 0))
-        ProcsPerMinute = procs->ProcsPerMinute;
-    else
-        ProcsPerMinute = 0;
+    ProcBasePPM = _ppm ? _ppm->BaseProcRate : 0.0f;
+    if (_options)
+        ProcPPMMods = GetSpellProcsPerMinuteMods(_options->ProcsPerMinuteEntry);
+    StackAmount = _options ? _options->StackAmount : 0;
 
     // SpellAuraRestrictionsEntry
     SpellAuraRestrictionsEntry const* _aura = GetSpellAuraRestrictions();
@@ -2355,9 +2337,6 @@ bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
         else
             return true;
     }
-    /// Hackfix : Potent Murloc Pheromones and Release Ebon Gargoyle on Player
-    if ((Id == 82799 || Id == 84009) && target->IsPlayer())
-        return false;
 
     uint32 creatureType = target->GetCreatureTypeMask();
     return !TargetCreatureType || !creatureType || (creatureType & TargetCreatureType);
@@ -3058,6 +3037,125 @@ void SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, in
 
         m_powerCost[POWER_TO_INDEX(PowerType)] += powerCost;
     }
+}
+
+inline float CalcPPMHasteMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster)
+{
+    float haste = caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+    float rangedHaste = caster->GetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE);
+    float spellHaste = caster->GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE);
+    float regenHaste = caster->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+
+    switch (mod->Param)
+    {
+        case 1:
+            return (1.0f / haste - 1.0f) * mod->Coeff;
+        case 2:
+            return (1.0f / rangedHaste - 1.0f) * mod->Coeff;
+        case 3:
+            return (1.0f / spellHaste - 1.0f) * mod->Coeff;
+        case 4:
+            return (1.0f / regenHaste - 1.0f) * mod->Coeff;
+        case 5:
+            return (1.0f / std::min(std::min(std::min(haste, rangedHaste), spellHaste), regenHaste) - 1.0f) * mod->Coeff;
+        default:
+            break;
+    }
+
+    return 0.0f;
+}
+
+inline float CalcPPMCritMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster)
+{
+    if (caster->GetTypeId() != TYPEID_PLAYER)
+        return 0.0f;
+
+    float crit = caster->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
+    float rangedCrit = caster->GetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE);
+    float spellCrit = caster->GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE);
+
+    switch (mod->Param)
+    {
+        case 1:
+            return crit * mod->Coeff * 0.01f;
+        case 2:
+            return rangedCrit * mod->Coeff * 0.01f;
+        case 3:
+            return spellCrit * mod->Coeff * 0.01f;
+        case 4:
+            return std::min(std::min(crit, rangedCrit), spellCrit) * mod->Coeff * 0.01f;
+        default:
+            break;
+    }
+
+    return 0.0f;
+}
+
+inline float CalcPPMItemLevelMod(SpellProcsPerMinuteModEntry const* mod, int32 itemLevel)
+{
+    if (uint32(itemLevel) == mod->Param)
+        return 0.0f;
+
+    float itemLevelPoints = GetRandomPropertyPoints(itemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+    float basePoints = GetRandomPropertyPoints(mod->Param, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+    if (itemLevelPoints == basePoints)
+        return 0.0f;
+
+    return ((itemLevelPoints / basePoints) - 1.0f) * mod->Coeff;
+}
+
+float SpellInfo::CalcProcPPM(float ppm, Unit* caster, int32 itemLevel) const
+{
+    for (SpellProcsPerMinuteModEntry const* mod : ProcPPMMods)
+    {
+        switch (mod->Type)
+        {
+            case SPELL_PPM_MOD_HASTE:
+            {
+                ppm *= 1.0f + CalcPPMHasteMod(mod, caster);
+                break;
+            }
+            case SPELL_PPM_MOD_CRIT:
+            {
+                ppm *= 1.0f + CalcPPMCritMod(mod, caster);
+                break;
+            }
+            case SPELL_PPM_MOD_CLASS:
+            {
+                if (caster->getClassMask() & mod->Param)
+                    ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            case SPELL_PPM_MOD_SPEC:
+            {
+                if (Player* plrCaster = caster->ToPlayer())
+                    if (plrCaster->GetSpecializationId() == mod->Param)
+                        ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            case SPELL_PPM_MOD_RACE:
+            {
+                if (caster->getRaceMask() & mod->Param)
+                    ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            case SPELL_PPM_MOD_ITEM_LEVEL:
+            {
+                ppm *= 1.0f + CalcPPMItemLevelMod(mod, itemLevel);
+                break;
+            }
+            case SPELL_PPM_MOD_BATTLEGROUND:
+            {
+                if (caster->GetMap()->IsBattlegroundOrArena())
+                    ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    return ppm;
 }
 
 bool SpellInfo::IsRanked() const
@@ -3967,7 +4065,7 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
 
 float SpellInfo::GetCastTimeReduction() const
 {
-    return 1.f;
+    return 1.0f;
 }
 
 bool SpellInfo::CanTriggerBladeFlurry() const
@@ -4144,6 +4242,54 @@ bool SpellInfo::IsBattleResurrection() const
     return AttributesEx8 & SpellAttr8::SPELL_ATTR8_BATTLE_RESURRECTION;
 }
 
+bool SpellInfo::IsFinishingMove() const
+{
+    switch (Id)
+    {
+        case 5171: ///< slice  and dice
+        case 73651: ///< recuperate
+            return true;
+        default:
+            break;
+    }
+
+    return IsOffensiveFinishingMove();
+}
+
+bool SpellInfo::IsOffensiveFinishingMove() const
+{
+    switch (Id)
+    {
+        case 408: ///< kidney shot
+        case 1943: ///< rupture
+        case 2098: ///< eviscerate
+        case 26679: ///< deadly throw
+        case 32645: ///< envenom
+        case 121411: ///< crimson tempest
+        case 152150: ///< death from above
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool SpellInfo::IsArcaneTorrent() const
+{
+    switch (Id)
+    {
+        case 25046: ///< Energy
+        case 28730: ///< Mana
+        case 50613: ///< Runic Power
+        case 69179: ///< Rage
+        case 80483: ///< Focus
+        case 129597: ///< Chi
+        case 155145: ///< Holy Power
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool SpellInfo::IsCanBeStolen() const
 {
     /// Special rules, some aren't using mana but can be stolen
@@ -4268,6 +4414,8 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
         case SpellSpecificType::SpellSpecificFoodAndDrink:
         case SpellSpecificType::SpellSpecificWellFed:
             return true;
+        default:
+            break;
     }
 
     bool callSubterfuge = true;
@@ -4707,7 +4855,7 @@ bool SpellInfo::IsAuraNeedPandemicEffect() const
     switch (Id)
     {
         case 5171:   ///< Slice and Dice
-        case 84617:  ///< Revealing Strike 
+        case 84617:  ///< Revealing Strike
         case 125359: ///< Tiger Power
             return true;
         default:

@@ -28,7 +28,7 @@ enum eSpells
     // Fragment of Hatred
     //SPELL_ICE_TRAP              = 135382,
     SPELL_SINISTER_STRIKE       = 112931,
-    SPELL_VOLLEY_OF_HATRED      = 112911,
+    SPELL_VOLLEY_OF_HATRED      = 112911
 };
 
 enum eEvents
@@ -47,7 +47,7 @@ enum eEvents
     // Fragment of Hatred
     //EVENT_ICE_TRAP              = 8,
     EVENT_SINISTER_STRIKE       = 9,
-    EVENT_VOLLEY_OF_HATRED      = 10,
+    EVENT_VOLLEY_OF_HATRED      = 10
 };
 
 class npc_shadopan_ambusher : public CreatureScript
@@ -227,7 +227,7 @@ class npc_shadopan_hatred : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->HasAura(SPELL_APPARITIONS_AURA))
                     damage = 0;
@@ -363,7 +363,7 @@ class spell_shadopan_apparitions: public SpellScriptLoader
         {
             PrepareAuraScript(spell_shadopan_apparitions_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 PreventDefaultAction();
 
@@ -404,7 +404,7 @@ enum areaTrigger
     AREATRIGGER_ARCHERY_FIRST_BEGIN     = 8271,
     AREATRIGGER_ARCHERY_FIRST_END       = 8272,
     AREATRIGGER_ARCHERY_SECOND_FIRST    = 7121,
-    AREATRIGGER_ARCHERY_SECOND_END      = 7126,
+    AREATRIGGER_ARCHERY_SECOND_END      = 7126
 };
 
 class areatrigger_at_shadopan_archery : public AreaTriggerScript
@@ -440,6 +440,7 @@ class areatrigger_at_shadopan_archery : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_shadopan_monastery()
 {
     new npc_shadopan_ambusher();
@@ -449,3 +450,4 @@ void AddSC_shadopan_monastery()
     new spell_shadopan_apparitions();
     new areatrigger_at_shadopan_archery();
 }
+#endif

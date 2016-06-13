@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptedCreature.h"
 #include "heart_of_fear.h"
@@ -52,7 +41,7 @@ class mob_kor_thik_slicer : public CreatureScript
                 me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_4);
             }
 
-            void DamageTaken(Unit* killer, uint32& damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Killer*/, uint32& damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if(!eventScheduled)
                 {
@@ -179,7 +168,7 @@ class mob_sra_thik_shield_master : public CreatureScript
         struct mob_sra_thik_shield_masterAI : public ScriptedAI
         {
             mob_sra_thik_shield_masterAI(Creature* creature) : ScriptedAI(creature)
-            {            
+            {
             }
 
             EventMap events;
@@ -1355,8 +1344,8 @@ class mob_zephyr : public CreatureScript
 
                 if (m_Events.ExecuteEvent() == EVENT_ZEPHYR_MOVE)
                 {
-                    float l_PosX = me->GetPositionX() + 100.f * cos(me->GetOrientation());
-                    float l_PosY = me->GetPositionY() + 100.f * sin(me->GetOrientation());
+                    float l_PosX = me->GetPositionX() + 100.0f * cos(me->GetOrientation());
+                    float l_PosY = me->GetPositionY() + 100.0f * sin(me->GetOrientation());
                     Position targetPoint = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
                     me->GetMotionMaster()->MovePoint(0, targetPoint);
                 }
@@ -1372,7 +1361,7 @@ class mob_zephyr : public CreatureScript
 enum eSwarmGuardType
 {
     TYPE_SWARM_LOWGUID = 1,
-    TYPE_AMBER_USED,
+    TYPE_AMBER_USED
 };
 
 // 64916 - Kor'thik Swarmguard
@@ -1412,13 +1401,13 @@ public:
             inCombat = false;
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (!inCombat)
                 EnterCombat(p_Attacker);
         }
 
-        void EnterCombat(Unit* attacker)
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             if (!inCombat)
             {
@@ -1600,7 +1589,7 @@ Position atriumPath[9] =
     { -2504.65f, 534.39f, 554.52f, 0.0f },
     { -2538.70f, 508.50f, 554.52f, 0.0f },
     { -2543.00f, 454.06f, 554.52f, 0.0f },
-    { -2528.75f, 432.90f, 554.52f, 0.0f },
+    { -2528.75f, 432.90f, 554.52f, 0.0f }
 };
 
 // 64902 - Kor'thik Fleshrender
@@ -2178,7 +2167,7 @@ class spell_vital_strikes : public SpellScriptLoader
         {
             PrepareAuraScript(spell_vital_strikes_AuraScript);
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -2206,6 +2195,7 @@ class spell_vital_strikes : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_heart_of_fear()
 {
     // Trashes
@@ -2240,3 +2230,4 @@ void AddSC_heart_of_fear()
     new mob_korthik_warsinger();        // 64458 - Kor'thik Warsinger
     new spell_vital_strikes();          // 123421 - Vital Strikes
 }
+#endif

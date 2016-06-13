@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "HTradingPost.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -13,7 +14,7 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 87112 - Fayla Fairfeather                                          ///
@@ -52,9 +53,9 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_FaylaFairfeather::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_FaylaFairfeather::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
-        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_AI == nullptr)
             return true;
@@ -62,21 +63,24 @@ namespace MS { namespace Garrison
         p_Player->PlayerTalkClass->ClearMenus();
 
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
-            l_AI->SendShipmentCrafterUI(p_Player);
+            l_AI->SendShipmentCrafterUI(p_Player, p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment));
 
         return true;
     }
 
-    bool npc_FaylaFairfeather::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_FaylaFairfeather::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         if (p_Quest->GetQuestId() == Quests::Horde_TricksOfTheTrade)
         {
             if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
             {
-                GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+                GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
                 if (l_AI == nullptr)
                     return true;
+
+                std::vector<uint32> l_TradingPostShipments = { 138, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 196 };
+                p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
 
                 l_GarrisonMgr->ActivateBuilding(l_AI->GetPlotInstanceID());
             }
@@ -148,7 +152,7 @@ namespace MS { namespace Garrison
                 break;
         }
 
-        uint32 l_NpcID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader);
+        uint32 l_NpcID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTradingPostDailyRandomTrader);
 
         if (!l_NpcID) ///< Quest or daily refill not done
             return;
@@ -158,7 +162,7 @@ namespace MS { namespace Garrison
 
         SummonRelativeCreature(l_NpcID, l_NpcVendorPos, TEMPSUMMON_MANUAL_DESPAWN);
 
-        l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_NpcID);
+        l_Owner->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomTrader, l_NpcID);
         l_Owner->SaveToDB();
     }
 
@@ -171,12 +175,7 @@ namespace MS { namespace Garrison
             if (l_GarrisonMgr == nullptr)
                 return;
 
-            std::vector<uint32> l_TradersEntries = { 86778, 86777, 86779, 86776, 86683 };
-            uint32 l_Entry = l_TradersEntries[urand(0, l_TradersEntries.size() - 1)];
-
-            GetOwner()->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_Entry);
-            GetOwner()->SaveToDB();
-
+            OnSetPlotInstanceID(GetPlotInstanceID());
             l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
         }
     }

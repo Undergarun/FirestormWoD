@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Scripts for spells with MASTERY.
@@ -400,7 +391,7 @@ class spell_mastery_icicles_proc : public SpellScriptLoader
                 FrostfireBolt   = 44614
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
 
@@ -568,12 +559,12 @@ class spell_mastery_icicles_periodic : public SpellScriptLoader
                 }
             }
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (AuraEffect* l_Aura = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
-                    {                        
+                    {
                         // Maybe not the good target selection ...
                         if (Unit* l_Target = ObjectAccessor::FindUnit(l_Caster->GetIciclesTarget()))
                         {
@@ -779,8 +770,8 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
                 if (l_SpellInfo == nullptr)
                     return;
 
-                if (l_SpellInfo->Id != eSpells::CrusaderStrike && l_SpellInfo->Id != eSpells::HammeroftheRighteous 
-                    && l_SpellInfo->Id != eSpells::HammerofWrath && l_SpellInfo->Id != eSpells::TemplarsVerdict 
+                if (l_SpellInfo->Id != eSpells::CrusaderStrike && l_SpellInfo->Id != eSpells::HammeroftheRighteous
+                    && l_SpellInfo->Id != eSpells::HammerofWrath && l_SpellInfo->Id != eSpells::TemplarsVerdict
                     && l_SpellInfo->Id != eSpells::DivineStorm && l_SpellInfo->Id != eSpells::FinalVerdict &&
                     l_SpellInfo->Id != eSpells::EmpoweredHammerofWrath)
                     return;
@@ -820,103 +811,6 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
         }
 };
 
-// Called by 403 - Lightning Bolt, 421 - Chain Lightning, 51505 - Lava Burst and 117014 - Elemental Blast
-// 77222 - Mastery : Elemental Overload
-class spell_mastery_elemental_overload: public SpellScriptLoader
-{
-    public:
-        spell_mastery_elemental_overload() : SpellScriptLoader("spell_mastery_elemental_overload") { }
-
-        class spell_mastery_elemental_overload_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mastery_elemental_overload_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(403) || !sSpellMgr->GetSpellInfo(421) || !sSpellMgr->GetSpellInfo(51505) || !sSpellMgr->GetSpellInfo(117014))
-                    return false;
-                return true;
-            }
-
-            void HandleOnHit()
-            {
-                SpellInfo const* procSpell = GetSpellInfo();
-
-                if (procSpell)
-                {
-                    if (Unit* caster = GetCaster())
-                    {
-                        if (Unit* unitTarget = GetHitUnit())
-                        {
-                            if (caster->IsPlayer() && caster->HasAura(77222))
-                            {
-                                // Every Lightning Bolt, Chain Lightning and Lava Burst spells have duplicate vs 75% damage and no cost
-                                switch (procSpell->Id)
-                                {
-                                    // Lava Burst
-                                    case 51505:
-                                    {
-                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-
-                                        if (roll_chance_f(Mastery))
-                                            caster->CastSpell(unitTarget, MASTERY_SPELL_LAVA_BURST, true);
-
-                                        break;
-                                    }
-                                    // Lightning Bolt
-                                    case 403:
-                                    {
-                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-
-                                        if (roll_chance_f(Mastery))
-                                            caster->CastSpell(unitTarget, MASTERY_SPELL_LIGHTNING_BOLT, true);
-
-                                        break;
-                                    }
-                                    // Chain Lightning
-                                    case 421:
-                                    {
-                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-
-                                        if (roll_chance_f(Mastery))
-                                            caster->CastSpell(unitTarget, MASTERY_SPELL_CHAIN_LIGHTNING, true);
-
-                                        break;
-                                    }
-                                    // Elemental Blast
-                                    case 117014:
-                                    {
-                                        float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-
-                                        if (roll_chance_f(Mastery))
-                                        {
-                                            caster->CastSpell(unitTarget, MASTERY_SPELL_ELEMENTAL_BLAST, true);
-                                            caster->CastSpell(unitTarget, 118517, true); // Nature visual
-                                            caster->CastSpell(unitTarget, 118515, true); // Frost visual
-                                        }
-
-                                        break;
-                                    }
-                                    default: break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_mastery_elemental_overload_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mastery_elemental_overload_SpellScript();
-        }
-};
-
 /// Mastrey: Primal Tenacity - 159195
 class spell_mastery_primal_tenacity : public SpellScriptLoader
 {
@@ -932,7 +826,7 @@ public:
             SPELL_DRU_PRIMAL_TENACITY = 155784
         };
 
-        void OnUpdate(uint32 /*diff*/, AuraEffect* aurEff)
+        void OnUpdate(uint32 /*diff*/, AuraEffect* /*p_AurEff*/)
         {
             if (!GetCaster())
                 return;
@@ -971,6 +865,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_mastery_spell_scripts()
 {
     new spell_mastery_icicles_proc();
@@ -986,6 +881,6 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_blood_shield();
     new spell_mastery_ignite();
     new spell_mastery_hand_of_light();
-    new spell_mastery_elemental_overload();
     new spell_mastery_primal_tenacity();
 }
+#endif

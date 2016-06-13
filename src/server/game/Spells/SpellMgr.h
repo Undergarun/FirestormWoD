@@ -1,27 +1,16 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SPELLMGR_H
 #define _SPELLMGR_H
 
 // For static or at-server-startup loaded spell data
 
-#include <ace/Singleton.h>
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Unit.h"
@@ -282,7 +271,7 @@ struct SpellProcEventEntry
     uint32      cooldown;                                   // hidden cooldown used for some spell proc events, applied to _triggered_spell_
 };
 
-typedef UNORDERED_MAP<uint32, SpellProcEventEntry> SpellProcEventMap;
+typedef std::unordered_map<uint32, SpellProcEventEntry> SpellProcEventMap;
 
 struct SpellProcEntry
 {
@@ -300,7 +289,7 @@ struct SpellProcEntry
     uint32      charges;                                    // if nonzero - owerwrite procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite
 };
 
-typedef UNORDERED_MAP<uint32, SpellProcEntry> SpellProcMap;
+typedef std::unordered_map<uint32, SpellProcEntry> SpellProcMap;
 
 struct SpellEnchantProcEntry
 {
@@ -309,7 +298,7 @@ struct SpellEnchantProcEntry
     uint32      procEx;
 };
 
-typedef UNORDERED_MAP<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
+typedef std::unordered_map<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
 
 struct SpellBonusEntry
 {
@@ -319,7 +308,7 @@ struct SpellBonusEntry
     float  ap_dot_bonus;
 };
 
-typedef UNORDERED_MAP<uint32, SpellBonusEntry>     SpellBonusMap;
+typedef std::unordered_map<uint32, SpellBonusEntry>     SpellBonusMap;
 
 enum SpellGroup
 {
@@ -439,7 +428,7 @@ enum EffectRadiusIndex
 class PetAura
 {
     private:
-        typedef UNORDERED_MAP<uint32, uint32> PetAuraMap;
+        typedef std::unordered_map<uint32, uint32> PetAuraMap;
 
     public:
         PetAura() : removeOnChangePet(false), damage(0)
@@ -522,7 +511,7 @@ struct SpellChainNode
     uint8  rank;
 };
 
-typedef UNORDERED_MAP<uint32, SpellChainNode> SpellChainMap;
+typedef std::unordered_map<uint32, SpellChainNode> SpellChainMap;
 
 //                   spell_id  req_spell
 typedef std::multimap<uint32, uint32> SpellRequiredMap;
@@ -596,7 +585,7 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 
 // spell diminishing returns
-DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto);
+DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, Unit* p_Caster);
 DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
 DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
 int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto);
@@ -763,6 +752,29 @@ class SpellMgr
         std::vector<SpellUpgradeItemStage> const& GetSpellUpgradeItemStage(uint32 p_ItemBonusTreeCategory)
         {
             return m_SpellUpgradeItemStages[p_ItemBonusTreeCategory];
+        }
+
+        std::unordered_map<uint32, SpellVisualMap> VisualsBySpellMap;
+
+        uint32 GetSpellXVisualForSpellID(uint32 p_SpellId, uint32 p_Difficulty, uint32 p_Fallback)
+        {
+            auto l_It = VisualsBySpellMap.find(p_SpellId);
+            if (l_It != VisualsBySpellMap.end())
+            {
+                auto l_SecondIt = l_It->second.find(p_Difficulty);
+
+                if (l_SecondIt != l_It->second.end())
+                    return l_SecondIt->second.at(0)->Id;
+                else
+                {
+                    p_Difficulty = 0;
+                    l_SecondIt = l_It->second.find(p_Difficulty);
+                    if (l_SecondIt != l_It->second.end())
+                        return l_SecondIt->second.at(0)->Id;
+                }
+            }
+
+            return p_Fallback;
         }
 
     // Modifiers

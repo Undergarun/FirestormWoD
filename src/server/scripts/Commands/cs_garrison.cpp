@@ -10,9 +10,9 @@ class garrison_commandscript: public CommandScript
 {
     public:
         /// Constructor
-        garrison_commandscript() 
+        garrison_commandscript()
             : CommandScript("garrison_commandscript")
-        { 
+        {
 
         }
 
@@ -26,7 +26,7 @@ class garrison_commandscript: public CommandScript
             };
 
             static ChatCommand plotCommandTable[] =
-            {                                                                
+            {
                 { "info",    SEC_ADMINISTRATOR, true,  &HandlePlotInfoCommand,   "", NULL },
                 { "add",     SEC_ADMINISTRATOR, true,  &HandlePlotAddCommand,    "", NULL },
                 { "del",     SEC_ADMINISTRATOR, true,  &HandlePlotDelCommand,    "", NULL },
@@ -96,7 +96,7 @@ class garrison_commandscript: public CommandScript
             return commandTable;
         }
 
-        static bool HandleGarrisonInfo(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleGarrisonInfo(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -148,7 +148,7 @@ class garrison_commandscript: public CommandScript
         }
 
         /// This is a debug command, only devs should use it
-        static bool HandleGarrisonPrepare(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleGarrisonPrepare(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_Target = p_Handler->getSelectedPlayer();
             if (!l_Target)
@@ -171,11 +171,6 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            p_Handler->PSendSysMessage(LANG_YOU_CHANGE_ASPEED, "5.0", targetNameLink.c_str());
-
-            if (p_Handler->needReportToTarget(l_Target))
-                (ChatHandler(l_Target)).PSendSysMessage(LANG_YOURS_ASPEED_CHANGED, p_Handler->GetNameLink().c_str(), 5.0f);
-
             /// Set higher speed
             l_Target->SetSpeed(MOVE_WALK, 5.0f, true);
             l_Target->SetSpeed(MOVE_RUN, 5.0f, true);
@@ -184,7 +179,6 @@ class garrison_commandscript: public CommandScript
 
             /// Set fly
             l_Target->SetCanFly(true);
-            p_Handler->PSendSysMessage(LANG_COMMAND_FLYMODE_STATUS, p_Handler->GetNameLink(l_Target).c_str(), "ON");
 
             /// Set Garrison resources + money at high values
             l_Target->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_GARRISON_RESSOURCES, 10000, true, true);
@@ -200,7 +194,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGarrisonCreate(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleGarrisonCreate(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -224,9 +218,9 @@ class garrison_commandscript: public CommandScript
             uint32 l_MapID   = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
             uint32 l_TeamID  = l_TargetPlayer->GetTeamId();
 
-            l_TargetPlayer->AddMovieDelayedTeleport(l_MovieID, l_MapID, MS::Garrison::gGarrisonCreationCoords[l_TeamID][0], 
-                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][1], 
-                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][2], 
+            l_TargetPlayer->AddMovieDelayedTeleport(l_MovieID, l_MapID, MS::Garrison::gGarrisonCreationCoords[l_TeamID][0],
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][1],
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][2],
                                                                         MS::Garrison::gGarrisonCreationCoords[l_TeamID][3]);
 
             l_TargetPlayer->SendMovieStart(l_MovieID);
@@ -250,7 +244,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGarrisonDelete(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleGarrisonDelete(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -276,7 +270,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGarrisonResetDatas(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleGarrisonResetDatas(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -340,7 +334,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandlePlotInfoCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandlePlotInfoCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->GetSession()->GetPlayer();
 
@@ -507,7 +501,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandlePlotDelCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandlePlotDelCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_Player     = p_Handler->GetSession()->GetPlayer();
             WorldObject* l_Target = nullptr;
@@ -881,7 +875,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleMissionCompleteAllCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleMissionCompleteAllCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -913,7 +907,7 @@ class garrison_commandscript: public CommandScript
             return true;
          }
 
-        static bool HandleBuildingCompleteCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleBuildingCompleteCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -938,7 +932,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleShipmentCompleteCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleShipmentCompleteCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -969,7 +963,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleShipyardOpen(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleShipyardOpen(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -984,7 +978,9 @@ class garrison_commandscript: public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_garrison_commandscript()
 {
     new garrison_commandscript();
 }
+#endif

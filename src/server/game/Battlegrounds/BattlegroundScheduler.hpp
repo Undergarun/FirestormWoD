@@ -4,7 +4,7 @@
 //  Copyright 2014 Millenium-studio SARL
 //  All Rights Reserved.
 //
-//////////////////////////////////////////////////////////////////////////////// 
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef BATTLEGROUND_SCHEDULER_HPP
 # define BATTLEGROUND_SCHEDULER_HPP
@@ -121,7 +121,6 @@ namespace MS
 
         private:
             std::list<GroupQueueInfo*> m_QueuedGroups[Brackets::Count][2];                                  ///< The queue of groups.
-            std::size_t m_NumInstances;                                                                     ///< The number of instances launched during the whole runtime. ///< m_NumInstances is unused
             std::pair<float, std::size_t> m_BattlegroundOccurences[Brackets::Count][BattlegroundType::Max]; ///< The occurrences of battlegrounds during runtime.
             std::size_t m_TotalOccurences[Brackets::Count];                                                 ///< The total number of occurences during runtime.
             QueuedPlayersMap m_QueuedPlayers;                                                               ///< The queue of players that are in the groups.

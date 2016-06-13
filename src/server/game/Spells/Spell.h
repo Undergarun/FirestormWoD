@@ -1,20 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SPELL_H
 #define __SPELL_H
@@ -107,8 +97,8 @@ enum PredictionType
 enum SpellRangeFlag
 {
     SPELL_RANGE_DEFAULT = 0,
-    SPELL_RANGE_MELEE = 1,     //melee
-    SPELL_RANGE_RANGED = 2,     //hunter range and ranged weapon
+    SPELL_RANGE_MELEE   = 1,     ///< Melee
+    SPELL_RANGE_RANGED  = 2      ///< Hunter range and ranged weapon
 };
 
 struct SpellDestination
@@ -346,12 +336,12 @@ struct SpellValue
 
 enum SpellState
 {
-    SPELL_STATE_NULL = 0,
-    SPELL_STATE_PREPARING = 1,
-    SPELL_STATE_CASTING = 2,
-    SPELL_STATE_FINISHED = 3,
-    SPELL_STATE_IDLE = 4,
-    SPELL_STATE_DELAYED = 5
+    SPELL_STATE_NULL        = 0,
+    SPELL_STATE_PREPARING   = 1,
+    SPELL_STATE_CASTING     = 2,
+    SPELL_STATE_FINISHED    = 3,
+    SPELL_STATE_IDLE        = 4,
+    SPELL_STATE_DELAYED     = 5
 };
 
 enum SpellEffectHandleMode
@@ -359,7 +349,7 @@ enum SpellEffectHandleMode
     SPELL_EFFECT_HANDLE_LAUNCH,
     SPELL_EFFECT_HANDLE_LAUNCH_TARGET,
     SPELL_EFFECT_HANDLE_HIT,
-    SPELL_EFFECT_HANDLE_HIT_TARGET,
+    SPELL_EFFECT_HANDLE_HIT_TARGET
 };
 
 #define MAX_POWERS_COST MAX_POWERS + 1
@@ -531,6 +521,7 @@ public:
     void EffectUpgradeHeirloom(SpellEffIndex p_EffIndex);
     void EffectFinishGarrisonMission(SpellEffIndex p_EffIndex);
     void EffectChangeItemBonus(SpellEffIndex p_EffIndex);
+    void EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex);
 
     typedef std::set<Aura*> UsedSpellMods;
 
@@ -597,7 +588,7 @@ public:
     int32 CalculateDamage(uint8 i, Unit const* target, bool p_Log = false) const
     {
         Unit* l_Caster = m_originalCaster ? m_originalCaster : m_caster;
-        return l_Caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_CastItem, p_Log);
+        return l_Caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_castItemLevel, p_Log);
     }
 
     bool HaveTargetsForEffect(uint8 effect) const;
@@ -645,6 +636,7 @@ public:
     SpellInfo const* const m_spellInfo;
     Item* m_CastItem;
     uint64 m_castItemGUID;
+    int32 m_castItemLevel;
     uint8 m_cast_count;
     uint32 m_CastItemEntry;
     uint32 m_Misc[2];
@@ -922,6 +914,7 @@ protected:
     LogHelperMap m_effectExecuteData;
 
     bool m_redirected;
+    uint32 m_SpellVisualID;
 #ifdef MAP_BASED_RAND_GEN
     int32 irand(int32 min, int32 max)       { return int32(m_caster->GetMap()->mtRand.randInt(max - min)) + min; }
     uint32 urand(uint32 min, uint32 max)    { return m_caster->GetMap()->mtRand.randInt(max - min) + min; }

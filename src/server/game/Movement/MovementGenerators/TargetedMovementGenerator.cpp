@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ByteBuffer.h"
 #include "TargetedMovementGenerator.h"
@@ -94,7 +84,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             ///    auto l_FNIsWithinLOS = [=](float p_OutX, float p_OutY, float p_OutZ) -> bool
             ///    {
             ///        if (i_target->IsInWorld())
-            ///            return i_target->GetMap()->isInLineOfSight(l_InterpolatedPosition.GetPositionX(), l_InterpolatedPosition.GetPositionY(), l_InterpolatedPosition.GetPositionZ() + 2.f, p_OutX, p_OutY, p_OutZ + 2.f, i_target->GetPhaseMask());
+            ///            return i_target->GetMap()->isInLineOfSight(l_InterpolatedPosition.GetPositionX(), l_InterpolatedPosition.GetPositionY(), l_InterpolatedPosition.GetPositionZ() + 2.0f, p_OutX, p_OutY, p_OutZ + 2.0f, i_target->GetPhaseMask());
             ///
             ///        return true;
             ///    };
@@ -183,7 +173,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     init.SetWalk(((D*)this)->EnableWalking());
     // Using the same condition for facing target as the one that is used for SetInFront on movement end
     // - applies to ChaseMovementGenerator mostly
-    if (i_angle == 0.f)
+    if (i_angle == 0.0f)
         init.SetFacing(i_target.getTarget());
 
     init.Launch();
@@ -266,7 +256,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     if (owner->movespline->Finalized())
     {
         static_cast<D*>(this)->MovementInform(owner);
-        if (i_angle == 0.f && !owner->HasInArc(0.01f, i_target.getTarget()))
+        if (i_angle == 0.0f && !owner->HasInArc(0.01f, i_target.getTarget()))
             owner->SetInFront(i_target.getTarget());
 
         if (!i_targetReached)

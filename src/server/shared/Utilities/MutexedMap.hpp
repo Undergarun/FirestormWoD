@@ -1,16 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 #ifndef MUTEXEDMAP_HPP_INCLUDED
-#define MUTEXEDMAP_HPP_INCLUDED
+# define MUTEXEDMAP_HPP_INCLUDED
 
-#include <ace/Thread_Mutex.h>
-#include <map>
+#include "Common.h"
 
 namespace MS { namespace Utilities
 {
@@ -25,7 +25,7 @@ namespace MS { namespace Utilities
 
         public:
             /// Constructor
-            MutextedMap() 
+            MutextedMap()
             {
 
             }
@@ -55,13 +55,13 @@ namespace MS { namespace Utilities
             }
 
             /// Get container
-            MapType& GetContainer() 
+            MapType& GetContainer()
             {
                 return m_ObjectMap;
             }
             /// Get lock object
-            LockType* GetLock() 
-            { 
+            LockType* GetLock()
+            {
                 return &m_Lock;
             }
 

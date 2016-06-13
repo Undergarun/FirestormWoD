@@ -1,7 +1,15 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "zulgurub.h"
 
-static const DoorData doordata[] = 
+static const DoorData doordata[] =
 {
     {GO_VENOXIS_EXIT,           DATA_VENOXIS,            DOOR_TYPE_ROOM,     BOUNDARY_NONE},
     {GO_MANDOKIR_EXIT1,         DATA_MANDOKIR,           DOOR_TYPE_ROOM,     BOUNDARY_NONE},
@@ -11,7 +19,7 @@ static const DoorData doordata[] =
     {GO_MANDOKIR_EXIT5,         DATA_MANDOKIR,           DOOR_TYPE_ROOM,     BOUNDARY_NONE},
     {GO_ZANZIL_EXIT,            DATA_ZANZIL,             DOOR_TYPE_ROOM,     BOUNDARY_NONE},
     {GO_KILNARA_EXIT,           DATA_KILNARA,            DOOR_TYPE_ROOM,     BOUNDARY_NONE},
-    {0,                         0,                       DOOR_TYPE_ROOM,     BOUNDARY_NONE},
+    {0,                         0,                       DOOR_TYPE_ROOM,     BOUNDARY_NONE}
 };
 
 class instance_zulgurub : public InstanceMapScript
@@ -202,11 +210,13 @@ class instance_zulgurub : public InstanceMapScript
              uint64 renatakiGUID;
              uint64 wushoolayGUID;
              uint64 grilekGUID;
-             uint32 uiBosses; 
+             uint32 uiBosses;
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_zulgurub()
 {
     new instance_zulgurub();
 }
+#endif

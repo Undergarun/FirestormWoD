@@ -11,7 +11,7 @@ enum ScriptTexts
     SAY_AGGRO   = 0,
     SAY_SUMMON  = 1,
     SAY_KILL    = 2,
-    SAY_DEATH   = 3,
+    SAY_DEATH   = 3
 };
 
 enum Spells
@@ -21,13 +21,13 @@ enum Spells
     SPELL_ELECTRICAL_STORM  = 43648,
     SPELL_ELECTRICAL_SAFE   = 44007,
     SPELL_PLUCKED           = 97318,
-    SPELL_EAGLE_SWOOP       = 44732,
+    SPELL_EAGLE_SWOOP       = 44732
 };
 
 enum Adds
 {
     NPC_SOARING_EAGLE   = 24858,
-    NPC_AMANI_KIDNAPPER = 52638,
+    NPC_AMANI_KIDNAPPER = 52638
 };
 
 enum Events
@@ -39,12 +39,12 @@ enum Events
     EVENT_EAGLE_SWOOP       = 5,
     EVENT_GO_BACK           = 6,
     EVENT_SUMMON_EAGLE      = 7,
-    EVENT_SUMMON_KIDNAPPER  = 8,
+    EVENT_SUMMON_KIDNAPPER  = 8
 };
 
 enum Points
 {
-    POINT_HOME  = 1,
+    POINT_HOME  = 1
 };
 
 class boss_akilzon : public CreatureScript
@@ -202,7 +202,7 @@ class npc_akilzon_soaring_eagle : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_EAGLE_SWOOP, urand(100, 6000));
             }
@@ -277,7 +277,7 @@ class spell_akilzon_electrical_storm: public SpellScriptLoader
 
         class spell_akilzon_electrical_storm_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_akilzon_electrical_storm_AuraScript);
+            PrepareAuraScript(spell_akilzon_electrical_storm_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -294,7 +294,7 @@ class spell_akilzon_electrical_storm: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -338,7 +338,7 @@ class spell_akilzon_electrical_storm_dmg: public SpellScriptLoader
 
         class spell_akilzon_electrical_storm_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_akilzon_electrical_storm_dmg_SpellScript);
+            PrepareSpellScript(spell_akilzon_electrical_storm_dmg_SpellScript)
 
             void CheckTarget(std::list<WorldObject*>& unitList)
             {
@@ -358,7 +358,7 @@ class spell_akilzon_electrical_storm_dmg: public SpellScriptLoader
         }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_boss_akilzon()
 {
     new boss_akilzon();
@@ -367,4 +367,4 @@ void AddSC_boss_akilzon()
     new spell_akilzon_electrical_storm();
     new spell_akilzon_electrical_storm_dmg();
 }
-
+#endif

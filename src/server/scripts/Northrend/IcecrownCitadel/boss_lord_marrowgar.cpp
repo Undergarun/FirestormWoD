@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -33,7 +24,7 @@ enum ScriptTexts
     SAY_KILL                    = 4,
     SAY_DEATH                   = 5,
     SAY_BERSERK                 = 6,
-    EMOTE_BONE_STORM            = 7,
+    EMOTE_BONE_STORM            = 7
 };
 
 enum Spells
@@ -52,7 +43,7 @@ enum Spells
 
     // Coldflame
     SPELL_COLDFLAME_PASSIVE     = 69145,
-    SPELL_COLDFLAME_SUMMON      = 69147,
+    SPELL_COLDFLAME_SUMMON      = 69147
 };
 
 uint32 const BoneSpikeSummonId[3] = {69062, 72669, 72670};
@@ -73,13 +64,13 @@ enum Events
     EVENT_CHECK_PLAYERS                 = 11,
     EVENT_PREPARE_BONE_SPIKE_GRAVEYARD  = 12,
 
-    EVENT_GROUP_SPECIAL                 = 1,
+    EVENT_GROUP_SPECIAL                 = 1
 };
 
 enum MovementPoints
 {
     POINT_TARGET_BONESTORM_PLAYER   = 36612631,
-    POINT_TARGET_COLDFLAME          = 36672631,
+    POINT_TARGET_COLDFLAME          = 36672631
 };
 
 #define DATA_COLDFLAME_GUID 0
@@ -228,7 +219,7 @@ class boss_lord_marrowgar : public CreatureScript
                             if (unit)
                                 if (unit->isPet() || unit->isTotem() || !me->IsWithinLOSInMap(unit))
                                     unit = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                                else 
+                                else
                                     me->GetMotionMaster()->MovePoint(POINT_TARGET_BONESTORM_PLAYER, unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ());
                             break;
                         }
@@ -466,7 +457,7 @@ class spell_marrowgar_coldflame: public SpellScriptLoader
 
         class spell_marrowgar_coldflame_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_marrowgar_coldflame_SpellScript);
+            PrepareSpellScript(spell_marrowgar_coldflame_SpellScript)
 
             void SelectTarget(std::list<WorldObject*>& targets)
             {
@@ -508,7 +499,7 @@ class spell_marrowgar_coldflame_bonestorm: public SpellScriptLoader
 
         class spell_marrowgar_coldflame_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_marrowgar_coldflame_SpellScript);
+            PrepareSpellScript(spell_marrowgar_coldflame_SpellScript)
 
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
@@ -536,7 +527,7 @@ class spell_marrowgar_coldflame_damage: public SpellScriptLoader
 
         class spell_marrowgar_coldflame_damage_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_marrowgar_coldflame_damage_AuraScript);
+            PrepareAuraScript(spell_marrowgar_coldflame_damage_AuraScript)
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
@@ -566,7 +557,7 @@ class spell_marrowgar_bone_spike_graveyard: public SpellScriptLoader
 
         class spell_marrowgar_bone_spike_graveyard_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_marrowgar_bone_spike_graveyard_SpellScript);
+            PrepareSpellScript(spell_marrowgar_bone_spike_graveyard_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -639,7 +630,7 @@ class spell_marrowgar_bone_storm: public SpellScriptLoader
 
         class spell_marrowgar_bone_storm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_marrowgar_bone_storm_SpellScript);
+            PrepareSpellScript(spell_marrowgar_bone_storm_SpellScript)
 
             void RecalculateDamage()
             {
@@ -658,6 +649,7 @@ class spell_marrowgar_bone_storm: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lord_marrowgar()
 {
     new boss_lord_marrowgar();
@@ -669,3 +661,4 @@ void AddSC_boss_lord_marrowgar()
     new spell_marrowgar_bone_spike_graveyard();
     new spell_marrowgar_bone_storm();
 }
+#endif

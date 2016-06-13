@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonSpell.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -13,7 +14,7 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     spell_garrison_hearthstone::spell_garrison_hearthstone()
@@ -29,7 +30,7 @@ namespace MS { namespace Garrison
 
     /// Function called on server startup, if returns false script won't be used in core
     /// use for: dbc/template data presence/correctness checks
-    bool spell_garrison_hearthstone::spell_garrison_hearthstone_SpellScript::Validate(SpellInfo const* p_SpellEntry)
+    bool spell_garrison_hearthstone::spell_garrison_hearthstone_SpellScript::Validate(SpellInfo const* /*p_SpellEntry*/)
     {
         if (!sSpellMgr->GetSpellInfo(Spells::SPELL_GARRISON_HEARTHSTONE))
             return false;
@@ -62,7 +63,7 @@ namespace MS { namespace Garrison
 
     /// On spell EFFECT_0 dummy proc
     /// @p_EffectIndex : Effect index
-    void spell_garrison_hearthstone::spell_garrison_hearthstone_SpellScript::HandleDummy(SpellEffIndex p_EffectIndex)
+    void spell_garrison_hearthstone::spell_garrison_hearthstone_SpellScript::HandleDummy(SpellEffIndex /*p_EffectIndex*/)
     {
         Player * l_Player = GetCaster()->ToPlayer();
 
@@ -119,7 +120,7 @@ namespace MS { namespace Garrison
 
     /// Function called on server startup, if returns false script won't be used in core
     /// use for: dbc/template data presence/correctness checks
-    bool spell_garrison_portal::spell_garrison_portal_SpellScript::Validate(SpellInfo const* p_SpellEntry)
+    bool spell_garrison_portal::spell_garrison_portal_SpellScript::Validate(SpellInfo const* /*p_SpellEntry*/)
     {
         if (!sSpellMgr->GetSpellInfo(Spells::SpellGarrisonPortal))
             return false;
@@ -177,7 +178,7 @@ namespace MS { namespace Garrison
 
     /// On spell EFFECT_0 dummy proc
     /// @p_EffectIndex : Effect index
-    void spell_garrison_portal::spell_garrison_portal_SpellScript::HandleDummy(SpellEffIndex p_EffectIndex)
+    void spell_garrison_portal::spell_garrison_portal_SpellScript::HandleDummy(SpellEffIndex /*p_EffectIndex*/)
     {
         if (!GetCaster())
             return;
@@ -236,7 +237,7 @@ namespace MS { namespace Garrison
         return new spell_garrison_portal_SpellScript();
     }
 
-    void spell_garrison_shipyard::spell_garrison_shipyard_SpellScript::HandleDummy(SpellEffIndex p_EffectIndex)
+    void spell_garrison_shipyard::spell_garrison_shipyard_SpellScript::HandleDummy(SpellEffIndex /*p_EffectIndex*/)
     {
         Player * l_Player = GetCaster()->ToPlayer();
 
@@ -272,9 +273,9 @@ namespace MS { namespace Garrison
 
             class spell_garrison_stables_lasso_AuraScript : public AuraScript
             {
-                PrepareAuraScript(spell_garrison_stables_lasso_AuraScript);
+                PrepareAuraScript(spell_garrison_stables_lasso_AuraScript)
 
-                void OnTick(AuraEffect const* p_AurEff)
+                void OnTick(AuraEffect const* /*p_AurEff*/)
                 {
                     Unit* l_Caster = GetCaster();
                     WorldObject* l_Target = GetOwner();
@@ -289,7 +290,7 @@ namespace MS { namespace Garrison
                     }
                 }
 
-                void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+                void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
                 {
                     WorldObject* l_Target = GetOwner();
 
@@ -314,7 +315,7 @@ namespace MS { namespace Garrison
 
             class spell_garrison_stables_lasso_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_garrison_stables_lasso_SpellScript);
+                PrepareSpellScript(spell_garrison_stables_lasso_SpellScript)
 
                 enum eEntries
                 {
@@ -370,7 +371,7 @@ namespace MS { namespace Garrison
 
             class spell_aura_sticky_grenade_AuraScript : public AuraScript
             {
-                PrepareAuraScript(spell_aura_sticky_grenade_AuraScript);
+                PrepareAuraScript(spell_aura_sticky_grenade_AuraScript)
 
                 enum eDatas
                 {
@@ -403,7 +404,7 @@ namespace MS { namespace Garrison
 
             class spell_pneumatic_power_gauntlet_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_pneumatic_power_gauntlet_SpellScript);
+                PrepareSpellScript(spell_pneumatic_power_gauntlet_SpellScript)
 
                 void OnSpellHit(SpellEffIndex)
                 {
@@ -435,7 +436,7 @@ namespace MS { namespace Garrison
 
             class spell_GarrisonRouseTrader_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_GarrisonRouseTrader_SpellScript);
+                PrepareSpellScript(spell_GarrisonRouseTrader_SpellScript)
 
                 SpellCastResult CheckCast()
                 {
@@ -481,14 +482,14 @@ namespace MS { namespace Garrison
 
             class spell_garrison_well_rested_AuraScript : public AuraScript
             {
-                PrepareAuraScript(spell_garrison_well_rested_AuraScript);
+                PrepareAuraScript(spell_garrison_well_rested_AuraScript)
 
                 enum eSpells
                 {
                     SpellWellRestedTrackingAura = 172424
                 };
 
-                void OnAuraApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+                void OnAuraApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
                 {
                     Unit* l_Owner = GetUnitOwner();
 
@@ -518,7 +519,7 @@ namespace MS { namespace Garrison
 
             class spell_garrison_tent_spawn_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_garrison_tent_spawn_SpellScript);
+                PrepareSpellScript(spell_garrison_tent_spawn_SpellScript)
 
                 SpellCastResult CheckCast()
                 {
@@ -551,9 +552,9 @@ namespace MS { namespace Garrison
 
             class spell_aura_garrison_skyterror_falling_AuraScript : public AuraScript
             {
-                PrepareAuraScript(spell_aura_garrison_skyterror_falling_AuraScript);
+                PrepareAuraScript(spell_aura_garrison_skyterror_falling_AuraScript)
 
-                void OnUpdate(uint32 p_Diff)
+                void OnUpdate(uint32 /*p_Diff*/)
                 {
                     Unit* l_Owner = GetUnitOwner();
 
@@ -577,7 +578,6 @@ namespace MS { namespace Garrison
             }
     };
 
-    /// Pneumatic Power Gauntlet - 168555
     class spell_garrison_combine_scribe_items : public SpellScriptLoader
     {
         public:
@@ -585,13 +585,18 @@ namespace MS { namespace Garrison
 
             class spell_garrison_combine_scribe_items_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_garrison_combine_scribe_items_SpellScript);
+                PrepareSpellScript(spell_garrison_combine_scribe_items_SpellScript)
 
                 void OnSpellHit(SpellEffIndex)
                 {
                     Unit* l_Caster = GetCaster();
 
-                    if (l_Caster == nullptr || l_Caster->GetTypeId() != TYPEID_PLAYER)
+                    if (l_Caster == nullptr)
+                        return;
+
+                    Player* l_Player = l_Caster->ToPlayer();
+
+                    if (l_Player == nullptr)
                         return;
 
                     uint32 l_RewardID = 119027;
@@ -606,15 +611,15 @@ namespace MS { namespace Garrison
                     uint32 l_NoSpaceForCount = 0;
                     ItemPosCountVec l_Destination;
 
-                    InventoryResult l_Message = l_Caster->ToPlayer()->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardID, 1, &l_NoSpaceForCount);
+                    InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardID, 1, &l_NoSpaceForCount);
 
                     if (l_Message == EQUIP_ERR_OK)
                     {
-                        if (Item* l_Item = l_Caster->ToPlayer()->StoreNewItem(l_Destination, l_RewardID, true, Item::GenerateItemRandomPropertyId(l_RewardID)))
-                            l_Caster->ToPlayer()->SendNewItem(l_Item, 1, true, false, false);
+                        if (Item* l_Item = l_Player->StoreNewItem(l_Destination, l_RewardID, true, Item::GenerateItemRandomPropertyId(l_RewardID)))
+                            l_Player->SendNewItem(l_Item, 1, true, false, false);
                     }
                     else
-                        l_Caster->ToPlayer()->SendEquipError(l_Message, nullptr, nullptr, l_RewardID);
+                        l_Player->SendEquipError(l_Message, nullptr, nullptr, l_RewardID);
                 }
 
                 void Register()
@@ -629,11 +634,56 @@ namespace MS { namespace Garrison
             }
     };
 
+    class spell_garrison_rush_order : public SpellScriptLoader
+    {
+        public:
+            spell_garrison_rush_order() : SpellScriptLoader("spell_garrison_rush_order") { }
+
+            class spell_garrison_rush_order_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_garrison_rush_order_SpellScript)
+
+                void HandleCast(SpellEffIndex p_EffIndex)
+                {
+                    Unit* l_Caster = GetCaster();
+
+                    if (l_Caster == nullptr)
+                        return;
+
+                    Player* l_Player = l_Caster->ToPlayer();
+
+                    if (l_Player == nullptr)
+                        return;
+
+                    SpellInfo const* l_SpellInfo = GetSpellInfo();
+
+                    if (l_SpellInfo == nullptr)
+                        return;
+
+                    if (l_Player->GetTeamId() != l_SpellInfo->Effects[p_EffIndex].BasePoints)
+                        PreventHitEffect(p_EffIndex);
+                }
+
+                void Register() override
+                {
+                    OnEffectLaunch += SpellEffectFn(spell_garrison_rush_order_SpellScript::HandleCast, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_TRIGGER_SPELL);
+                    OnEffectLaunch += SpellEffectFn(spell_garrison_rush_order_SpellScript::HandleCast, SpellEffIndex::EFFECT_1, SpellEffects::SPELL_EFFECT_TRIGGER_SPELL);
+                }
+            };
+
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_garrison_rush_order_SpellScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison()
 {
+    new MS::Garrison::spell_garrison_rush_order();
     new MS::Garrison::spell_garrison_combine_scribe_items();
     new MS::Garrison::spell_aura_garrison_skyterror_falling();
     new MS::Garrison::spell_garrison_stables_lasso();
@@ -646,3 +696,4 @@ void AddSC_Garrison()
     new MS::Garrison::spell_garrison_well_rested();
     new MS::Garrison::spell_garrison_tent_spawn();
 }
+#endif

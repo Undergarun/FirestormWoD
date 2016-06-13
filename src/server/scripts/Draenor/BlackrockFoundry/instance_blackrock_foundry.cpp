@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
+///  Copyright 2016 Millenium-studio SARL
 ///  All Rights Reserved.
 ///
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,6 +83,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_ThunderlordPackPens       = 0;
                 m_BeastsEnclosureDoor       = 0;
 
+                m_ThogarIntroStarted        = false;
+                m_IronGateDoorGuid          = 0;
+                m_OperatorThogarGuid        = 0;
+
                 m_SpikeGateGuid             = 0;
                 m_CrucibleEntrance          = 0;
             }
@@ -140,6 +144,18 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_ThunderlordPackPens;
             uint64 m_BeastsEnclosureDoor;
 
+            /// After Beastlord Darmac fight
+            std::set<uint64> m_GromkarMenAtArms;
+            std::set<uint64> m_IronRaiders;
+            std::set<uint64> m_IronCracksShot;
+            std::set<uint64> m_GromkarFiremenders;
+
+            /// Foundry Terminus
+            bool m_ThogarIntroStarted;
+            uint64 m_IronGateDoorGuid;
+            uint64 m_OperatorThogarGuid;
+            std::map<uint32, uint64> m_TrackDoorsGuids;
+
             /// Blackhand's Crucible
             uint64 m_SpikeGateGuid;
             uint64 m_CrucibleEntrance;
@@ -158,56 +174,177 @@ class instance_blackrock_foundry : public InstanceMapScript
                 switch (p_Creature->GetEntry())
                 {
                     case eFoundryCreatures::BossGruul:
+                    {
                         m_GruulGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossOregorger:
+                    {
                         m_OregorgerGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::HeartOfTheMountain:
+                    {
                         m_HeartOfTheMountain = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::ForemanFeldspar:
+                    {
                         m_ForemanFeldspar = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BlackhandCosmetic:
+                    {
                         m_CosmeticBlackhand = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossHansgar:
+                    {
                         m_HansgarGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossFranzok:
+                    {
                         m_FranzokGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossFlamebenderKagraz:
+                    {
                         m_FlamebenderKagrazGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::AknorSteelbringer:
+                    {
                         m_AknorSteelbringerGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::LavaStalker:
+                    {
                         m_LavaStalkerGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::MoltenTorrentStalker:
+                    {
                         m_MoltenTorrentStalkerGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossKromog:
+                    {
                         m_KromogGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossBeastlordDarmac:
+                    {
                         m_BeastlordDarmacGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossCruelfang:
+                    {
                         m_CruelfangGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossDreadwing:
+                    {
                         m_DreadwingGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::BossIroncrusher:
+                    {
                         m_IroncrusherGuid = p_Creature->GetGUID();
                         break;
+                    }
                     case eFoundryCreatures::ThunderlordPackPens:
+                    {
                         m_ThunderlordPackPens = p_Creature->GetGUID();
                         break;
+                    }
+                    case eFoundryCreatures::GromkarManAtArms:
+                    {
+                        Position const l_DarmacOuttro = { 409.889f, 3318.73f, 303.685f, 3.12171f };
+
+                        if (p_Creature->IsNearPosition(&l_DarmacOuttro, 1.0f))
+                            m_GromkarMenAtArms.insert(p_Creature->GetGUID());
+                        else
+                        {
+                            Position l_ThogarIntro = { 502.17f, 3275.37f, 305.984f, 0.538223f };
+
+                            if (p_Creature->IsNearPosition(&l_ThogarIntro, 1.0f))
+                                break;
+
+                            l_ThogarIntro = { 501.031f, 3348.45f, 306.277f, 5.37476f };
+
+                            if (p_Creature->IsNearPosition(&l_ThogarIntro, 1.0f))
+                                break;
+                        }
+
+                        p_Creature->DespawnOrUnsummon();
+                        break;
+                    }
+                    case eFoundryCreatures::IronRaider:
+                    {
+                        Position l_Pos = { 415.89f, 3316.49f, 303.685f, 3.38996f };
+
+                        if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                            m_IronRaiders.insert(p_Creature->GetGUID());
+                        else
+                        {
+                            l_Pos = { 425.729f, 3316.56f, 303.658f, 3.03271f };
+
+                            if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                                m_IronRaiders.insert(p_Creature->GetGUID());
+                        }
+
+                        if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
+                            break;
+
+                        p_Creature->DespawnOrUnsummon();
+                        break;
+                    }
+                    case eFoundryCreatures::IronCrackShot:
+                    {
+                        Position l_Pos = { 415.781f, 3316.689941f, 303.685f, 3.3621f };
+
+                        if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                            m_IronCracksShot.insert(p_Creature->GetGUID());
+                        else
+                        {
+                            l_Pos = { 417.047f, 3318.0f, 303.685f, 3.18233f };
+
+                            if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                                m_IronCracksShot.insert(p_Creature->GetGUID());
+                        }
+
+                        if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
+                            break;
+
+                        p_Creature->DespawnOrUnsummon();
+                        break;
+                    }
+                    case eFoundryCreatures::GromkarFiremender:
+                    {
+                        Position l_Pos = { 415.056f, 3321.31006f, 303.685f, 3.54152f };
+
+                        if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                            m_GromkarFiremenders.insert(p_Creature->GetGUID());
+                        else
+                        {
+                            l_Pos = { 425.788f, 3316.83f, 303.66f, 2.9753f };
+
+                            if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                                m_GromkarFiremenders.insert(p_Creature->GetGUID());
+                        }
+
+                        if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
+                            break;
+
+                        p_Creature->DespawnOrUnsummon();
+                        break;
+                    }
+                    case eFoundryCreatures::BossOperatorThogar:
+                    {
+                        m_OperatorThogarGuid = p_Creature->GetGUID();
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -277,6 +414,19 @@ class instance_blackrock_foundry : public InstanceMapScript
                         break;
                     case eFoundryGameObjects::BeastsEnclosureDoor:
                         m_BeastsEnclosureDoor = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::MassiveDoorTrack4Right:
+                    case eFoundryGameObjects::MassiveDoorTrack3Right:
+                    case eFoundryGameObjects::MassiveDoorTrack2Right:
+                    case eFoundryGameObjects::MassiveDoorTrack1Right:
+                    case eFoundryGameObjects::MassiveDoorTrack4Left:
+                    case eFoundryGameObjects::MassiveDoorTrack3Left:
+                    case eFoundryGameObjects::MassiveDoorTrack2Left:
+                    case eFoundryGameObjects::MassiveDoorTrack1Left:
+                        m_TrackDoorsGuids[p_GameObject->GetEntry()] = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::IronGate:
+                        m_IronGateDoorGuid = p_GameObject->GetGUID();
                         break;
                     default:
                         break;
@@ -510,6 +660,133 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 if (CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(l_Criterias[m_DarmacBeastMountedFirst - 1]))
                                     SetCriteriaProgressOnPlayers(l_Criteria, 1, ProgressType::PROGRESS_ACCUMULATE);
 
+                                if (m_GromkarMenAtArms.size() < eFoundryDatas::DataGromkarManAtArms ||
+                                    m_IronRaiders.size() < eFoundryDatas::DataIronRaider ||
+                                    m_IronCracksShot.size() < eFoundryDatas::DataIronCrackShot ||
+                                    m_GromkarFiremenders.size() < eFoundryDatas::DataGromkarFiremender)
+                                    break;
+
+                                for (uint8 l_I = 0; l_I < eFoundryDatas::DataGromkarManAtArms; ++l_I)
+                                {
+                                    uint64 l_Guid = (*m_GromkarMenAtArms.begin());
+
+                                    if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                    {
+                                        l_Creature->Respawn(true);
+
+                                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                                        {
+                                            if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                            {
+                                                l_Creature->SetHomePosition(g_GromkarManAtArmsMovePos);
+                                                l_Creature->GetMotionMaster()->Clear();
+                                                l_Creature->GetMotionMaster()->MoveTargetedHome();
+                                            }
+                                        });
+                                    }
+
+                                    m_GromkarMenAtArms.erase(l_Guid);
+                                }
+
+                                for (uint8 l_I = 0; l_I < eFoundryDatas::DataIronRaider; ++l_I)
+                                {
+                                    uint64 l_Guid = (*m_IronRaiders.begin());
+
+                                    if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                    {
+                                        l_Creature->Respawn(true);
+
+                                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_I]() -> void
+                                        {
+                                            if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                            {
+                                                l_Creature->SetHomePosition(g_IronRaiderMovePos[l_I]);
+                                                l_Creature->GetMotionMaster()->Clear();
+                                                l_Creature->GetMotionMaster()->MoveTargetedHome();
+                                            }
+                                        });
+                                    }
+
+                                    m_IronRaiders.erase(l_Guid);
+                                }
+
+                                for (uint8 l_I = 0; l_I < eFoundryDatas::DataIronCrackShot; ++l_I)
+                                {
+                                    uint64 l_Guid = (*m_IronCracksShot.begin());
+
+                                    if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                    {
+                                        l_Creature->Respawn(true);
+
+                                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_I]() -> void
+                                        {
+                                            if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                            {
+                                                l_Creature->SetHomePosition(g_IronCrackShotMovePos[l_I]);
+                                                l_Creature->GetMotionMaster()->Clear();
+                                                l_Creature->GetMotionMaster()->MoveTargetedHome();
+                                            }
+                                        });
+                                    }
+
+                                    m_IronCracksShot.erase(l_Guid);
+                                }
+
+                                for (uint8 l_I = 0; l_I < eFoundryDatas::DataGromkarFiremender; ++l_I)
+                                {
+                                    uint64 l_Guid = (*m_GromkarFiremenders.begin());
+
+                                    if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                    {
+                                        l_Creature->Respawn(true);
+
+                                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_I]() -> void
+                                        {
+                                            if (Creature* l_Creature = instance->GetCreature(l_Guid))
+                                            {
+                                                l_Creature->SetHomePosition(g_GromkarFiremenderMovePos[l_I]);
+                                                l_Creature->GetMotionMaster()->Clear();
+                                                l_Creature->GetMotionMaster()->MoveTargetedHome();
+                                            }
+                                        });
+                                    }
+
+                                    m_GromkarFiremenders.erase(l_Guid);
+                                }
+
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
+                    case eFoundryDatas::DataOperatorThogar:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::DONE:
+                            {
+                                instance->SetObjectVisibility(150.0f);
+
+                                if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
+                                    l_IronGate->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                                break;
+                            }
+                            case EncounterState::FAIL:
+                            {
+                                if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
+                                    l_IronGate->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                                break;
+                            }
+                            case EncounterState::IN_PROGRESS:
+                            {
+                                if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
+                                    l_IronGate->SetGoState(GOState::GO_STATE_READY);
+
                                 break;
                             }
                             default:
@@ -620,6 +897,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                         SendUpdateWorldState(eFoundryWorldState::WorldStateDarmacAchievement, p_Data);
                         break;
                     }
+                    case eFoundryDatas::DataThogarIntroStarted:
+                    {
+                        m_ThogarIntroStarted = true;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -631,6 +913,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                 {
                     case eFoundryDatas::IronTaskmasterAggro:
                         return (uint32)m_IronTaskmasterAggro;
+                    case eFoundryDatas::DataThogarIntroStarted:
+                        return (uint32)m_ThogarIntroStarted;
                     default:
                         break;
                 }
@@ -682,6 +966,19 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_ThunderlordPackPens;
                     case eFoundryGameObjects::BeastsEnclosureDoor:
                         return m_BeastsEnclosureDoor;
+                    case eFoundryGameObjects::MassiveDoorTrack4Right:
+                    case eFoundryGameObjects::MassiveDoorTrack3Right:
+                    case eFoundryGameObjects::MassiveDoorTrack2Right:
+                    case eFoundryGameObjects::MassiveDoorTrack1Right:
+                    case eFoundryGameObjects::MassiveDoorTrack1Left:
+                    case eFoundryGameObjects::MassiveDoorTrack2Left:
+                    case eFoundryGameObjects::MassiveDoorTrack3Left:
+                    case eFoundryGameObjects::MassiveDoorTrack4Left:
+                        return m_TrackDoorsGuids[p_Type];
+                    case eFoundryCreatures::BossOperatorThogar:
+                        return m_OperatorThogarGuid;
+                    case eFoundryGameObjects::IronGate:
+                        return m_IronGateDoorGuid;
                     default:
                         break;
                 }
@@ -874,7 +1171,9 @@ class instance_blackrock_foundry : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_blackrock_foundry()
 {
     new instance_blackrock_foundry();
 }
+#endif

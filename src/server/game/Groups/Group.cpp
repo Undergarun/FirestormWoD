@@ -1,20 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "Opcodes.h"
@@ -652,7 +642,7 @@ bool Group::RemoveMember(uint64 p_Guid, RemoveMethod const& p_Method /*= GROUP_R
             uint64 l_LeaderGUID = GetLeaderGUID();
 
             uint32 l_MemberCount = 0;
- 
+
             bool l_HasJamCliPartyLFGInfo = isLFGGroup(); ///< l_HasJamCliPartyLFGInfo is never read 01/18/16
 
             l_Data.Initialize(SMSG_PARTY_UPDATE, 200);
@@ -741,7 +731,7 @@ bool Group::RemoveMember(uint64 p_Guid, RemoveMethod const& p_Method /*= GROUP_R
         if (isLFGGroup() && GetMembersCount() == 1)
         {
             Player* l_Leader = ObjectAccessor::FindPlayer(GetLeaderGUID());
-            const LFGDungeonEntry * l_Dungeon = sLFGDungeonStore.LookupEntry(sLFGMgr->GetDungeon(GetGUID()));
+            const LFGDungeonEntry* l_Dungeon = sLFGDungeonStore.LookupEntry(sLFGMgr->GetDungeon(GetGUID()));
 
             if ((l_Leader && l_Dungeon && l_Leader->isAlive() && l_Leader->GetMapId() != uint32(l_Dungeon->map)) || !l_Dungeon)
             {
@@ -991,7 +981,7 @@ void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, Roll const& p_
     }
 }
 
-void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player* p_Player, bool p_CanNeed, Roll const& p_Roll) ///< p_CanNeed is unused
+void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player* p_Player, bool /*p_CanNeed*/, Roll const& p_Roll) ///< p_CanNeed is unused
 {
     if (!p_Player || !p_Player->GetSession())
         return;
@@ -1017,7 +1007,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     p_Player->GetSession()->SendPacket(&l_Data);
 }
 
-void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll) ///< p_TargetGUID is unused
+void Group::SendLootRoll(uint64 /*p_TargetGUID*/, uint64 targetGuid, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll) ///< p_TargetGUID is unused
 {
     WorldPacket l_Data(SMSG_LOOT_ROLL, 200);
     l_Data.appendPackGUID(p_Roll.lootedGUID);
@@ -1049,7 +1039,7 @@ void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNum
     }
 }
 
-void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll) ///< p_SourceGUID is unused
+void Group::SendLootRollWon(uint64 /*p_SourceGUID*/, uint64 p_TargetGUID, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll)
 {
     WorldPacket l_Data(SMSG_LOOT_ROLL_WON, 200);
 

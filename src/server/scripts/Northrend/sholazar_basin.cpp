@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Sholazar_Basin
@@ -475,7 +466,7 @@ enum utils
     NPC_HADRIUS = 28047,
     NPC_TAMARA  = 28568,
     SPELL_OFFER = 51962,
-    QUEST_ENTRY = 12645,
+    QUEST_ENTRY = 12645
 };
 
 class npc_jungle_punch_target : public CreatureScript
@@ -665,7 +656,7 @@ enum MiscLifewarden
     SPELL_LIFEFORCE = 51395,
     SPELL_FREYA_DUMMY_TRIGGER = 51335,
     SPELL_LASHER_EMERGE = 48195,
-    SPELL_WILD_GROWTH = 52948,
+    SPELL_WILD_GROWTH = 52948
 };
 
 class spell_q12620_the_lifewarden_wrath: public SpellScriptLoader
@@ -753,7 +744,7 @@ enum KickWhatKick
 
     SAY_WILHELM_MISS = 0,
     SAY_WILHELM_HIT = 1,
-    SAY_DROSTAN_REPLY_MISS = 0,
+    SAY_DROSTAN_REPLY_MISS = 0
 };
 
 class spell_q12589_shoot_rjr: public SpellScriptLoader
@@ -853,6 +844,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_sholazar_basin()
 {
     new npc_injured_rainspeaker_oracle();
@@ -865,3 +857,4 @@ void AddSC_sholazar_basin()
     new spell_q12620_the_lifewarden_wrath();
     new spell_q12589_shoot_rjr();
 }
+#endif

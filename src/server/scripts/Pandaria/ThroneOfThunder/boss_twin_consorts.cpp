@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -121,7 +110,7 @@ enum eTwinSpells
     SPELL_SUNNY_SKY             = 137183,
     SPELL_LIGHT_OF_DAY_CTRL     = 137738,
     SPELL_INACTIVE_PLATFORM     = 139767,
-    SPELL_TWIN_BERSERK          =  26662,
+    SPELL_TWIN_BERSERK          =  26662
 };
 
 enum eTwinEvents
@@ -161,7 +150,7 @@ enum eTwinEvents
     EVENT_SUMMON_RED_CRANE,
     EVENT_CRANE_MOVE,
     // Misc
-    EVENT_TALK_LAST_PHASE,
+    EVENT_TALK_LAST_PHASE
 };
 
 enum eSuenTalks
@@ -173,7 +162,7 @@ enum eSuenTalks
     TALK_SUEN_WIPE,
     TALK_SUEN_DEATH,
     TALK_SUEN_FINAL_PHASE,
-    TALK_SUEN_BREAK_OF_DUSK,
+    TALK_SUEN_BREAK_OF_DUSK
 };
 
 enum eLulinTalks
@@ -184,12 +173,12 @@ enum eLulinTalks
     TALK_LULIN_SLAY,
     TALK_LULIN_WIPE,
     TALK_LULIN_FINAL_PHASE,
-    TALK_LULIN_DEATH,
+    TALK_LULIN_DEATH
 };
 
 enum eCelestialTalk
 {
-    TALK_CELESTIAL,
+    TALK_CELESTIAL
 };
 
 enum eTwinPhases
@@ -215,7 +204,7 @@ enum eTwinAdds
     NPC_DEEP_SUBMERGE           = 69629,
     NPC_STAR                    = 69365,
     NPC_ASTRAL_STAR             = 64677,
-    NPC_IMAGE_OF_CHI_JI         = 71441,
+    NPC_IMAGE_OF_CHI_JI         = 71441
 };
 
 enum eTwinEquip
@@ -223,7 +212,7 @@ enum eTwinEquip
     EQUIP_SUEN_MAIN             = 93774,
     EQUIP_LULIN_MAIN            = 93776,
     EQUIP_SUEN_OFF              = 93778,
-    EQUIP_LULIN_OFF             = 93780,
+    EQUIP_LULIN_OFF             = 93780
 };
 
 enum eTwinTypes
@@ -235,13 +224,13 @@ enum eTwinTypes
     TYPE_GET_STAR_ID,
     TYPE_SET_DRAW,
     TYPE_ADD_STAR,
-    TYPE_TOGGLE_CELESTIALS,
+    TYPE_TOGGLE_CELESTIALS
 };
 
 enum eTwinValues
 {
     VALUE_ENABLED   = 1,
-    VALUE_DISABLED,
+    VALUE_DISABLED
 };
 
 enum eTwinActions
@@ -258,7 +247,7 @@ enum eTwinActions
     ACTION_ACTIVATE_COMET,
     ACTION_COMET_IN_PLACE,
     ACTION_ACTIVATE_NEXT_STAR,
-    ACTION_CELESTIAL_BUFF,
+    ACTION_CELESTIAL_BUFF
 };
 
 enum eTwinDisplays
@@ -268,7 +257,7 @@ enum eTwinDisplays
     DISPLAY_XUEN                    = 47672,
     DISPLAY_CHI_JI                  = 47674,
     DISPLAY_NIUZAO                  = 47675,
-    DISPLAY_YULON                   = 47676,
+    DISPLAY_YULON                   = 47676
 };
 
 uint32 const g_ConsortsBossEntries[2] = { NPC_SUEN, NPC_LU_LIN };
@@ -596,7 +585,7 @@ class boss_lulin : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!m_Instance)
                     return;
@@ -640,7 +629,7 @@ class boss_lulin : public CreatureScript
                     Talk(TALK_LULIN_SLAY);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 Talk(TALK_LULIN_DEATH);
 
@@ -677,7 +666,7 @@ class boss_lulin : public CreatureScript
                 }
             }
 
-            void CheckHitResult(MeleeHitOutcome &p_MeleeHitResult, SpellMissInfo &p_SpellResult, Unit* p_Attacker)
+            void CheckHitResult(MeleeHitOutcome &p_MeleeHitResult, SpellMissInfo &p_SpellResult, Unit* /*p_Attacker*/)
             {
                 if (me->HasAura(SPELL_TIDAL_FORCE))
                 {
@@ -946,7 +935,7 @@ class boss_suen : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!m_Instance)
                     return;
@@ -990,7 +979,7 @@ class boss_suen : public CreatureScript
                     Talk(TALK_SUEN_SLAY);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 Talk(TALK_SUEN_DEATH);
 
@@ -2204,7 +2193,7 @@ class spell_cosmic_barrage : public SpellScriptLoader
                     GetCreatureListWithEntryInGrid(l_StarList, l_Caster, NPC_STAR, 10.0f);
 
                     std::list<Player*> l_PlayerList;
-                    GetPlayerListInGrid(l_PlayerList, l_Caster, 100.f);
+                    GetPlayerListInGrid(l_PlayerList, l_Caster, 100.0f);
 
                     for (Creature* l_Star : l_StarList)
                     {
@@ -2608,14 +2597,14 @@ class at_flames_of_passion : public AreaTriggerEntityScript
     public:
         at_flames_of_passion() : AreaTriggerEntityScript("at_flames_of_passion") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
                 return;
 
             std::list<Player*> l_TargetList;
-            GetPlayerListInGrid(l_TargetList, p_AreaTrigger, 10.f);
+            GetPlayerListInGrid(l_TargetList, p_AreaTrigger, 10.0f);
 
             for (Player* l_Player : l_TargetList)
             {
@@ -2634,7 +2623,7 @@ class at_flames_of_passion : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
@@ -2660,14 +2649,14 @@ class at_icy_shadows : public AreaTriggerEntityScript
     public:
         at_icy_shadows() : AreaTriggerEntityScript("at_icy_shadows") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
                 return;
 
             std::list<Unit*> l_TargetList;
-            float l_Radius = 10.f;
+            float l_Radius = 10.0f;
 
             JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
@@ -2697,6 +2686,7 @@ class at_icy_shadows : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_twin_consorts()
 {
     new boss_suen();                        ///< 68904
@@ -2724,3 +2714,4 @@ void AddSC_boss_twin_consorts()
     new at_flames_of_passion();             ///< 137416
     new at_icy_shadows();                   ///< 137439
 }
+#endif

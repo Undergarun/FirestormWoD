@@ -1,12 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2014-2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
-# include "ArchaeologyMgr.hpp"
+#include "ObjectMgr.h"
+#include "ArchaeologyMgr.hpp"
+#include "Player.h"
 
 const static int q_patt[2][2] = { { 0, 1 }, { 3, 2 } };
 
@@ -396,7 +398,6 @@ namespace MS { namespace Skill { namespace Archaeology
             return;
 
         uint8 l_Count = 0;
-        uint32 l_NewValue = 0;
 
         ResearchSiteSet l_TempSet;
         for (ResearchSitesMap::const_iterator l_Iterator = m_ResearchSites.begin(); l_Iterator != m_ResearchSites.end(); ++l_Iterator)

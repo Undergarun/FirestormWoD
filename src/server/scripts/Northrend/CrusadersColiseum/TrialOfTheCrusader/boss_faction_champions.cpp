@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "trial_of_the_crusader.h"
@@ -175,7 +165,7 @@ enum AIs
     AI_MELEE    = 0,
     AI_RANGED   = 1,
     AI_HEALER   = 2,
-    AI_PET      = 3,
+    AI_PET      = 3
 };
 
 enum Spells
@@ -2229,7 +2219,7 @@ class spell_faction_champion_death_grip: public SpellScriptLoader
 
         class spell_faction_champion_death_grip_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_faction_champion_death_grip_SpellScript);
+            PrepareSpellScript(spell_faction_champion_death_grip_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -2267,7 +2257,7 @@ class spell_toc_bloodlust: public SpellScriptLoader
 
         class spell_toc_bloodlust_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_toc_bloodlust_SpellScript);
+            PrepareSpellScript(spell_toc_bloodlust_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
@@ -2308,7 +2298,7 @@ class spell_toc_heroism: public SpellScriptLoader
 
         class spell_toc_heroism_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_toc_heroism_SpellScript);
+            PrepareSpellScript(spell_toc_heroism_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
@@ -2342,6 +2332,7 @@ class spell_toc_heroism: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_faction_champions()
 {
     new boss_toc_champion_controller();
@@ -2366,3 +2357,4 @@ void AddSC_boss_faction_champions()
     new spell_toc_bloodlust();
     new spell_toc_heroism();
 }
+#endif

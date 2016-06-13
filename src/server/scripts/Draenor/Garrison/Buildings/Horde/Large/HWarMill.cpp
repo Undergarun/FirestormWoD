@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "HWarMill.hpp"
 #include "HWarMill_Level1Data.hpp"
 #include "ScriptMgr.h"
@@ -14,7 +15,7 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 82436 - Grun Lek                                                  ////
@@ -67,12 +68,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -116,7 +117,7 @@ namespace MS { namespace Garrison
 
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_FrostWallGrunt::npc_FrostWallGruntAI::UpdateAI(const uint32 p_Diff)
+    void npc_FrostWallGrunt::npc_FrostWallGruntAI::UpdateAI(const uint32 /*p_Diff*/)
     {
 
     }
@@ -169,7 +170,7 @@ namespace MS { namespace Garrison
 
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_FrostWallSmith::npc_FrostWallSmithAI::UpdateAI(const uint32 p_Diff)
+    void npc_FrostWallSmith::npc_FrostWallSmithAI::UpdateAI(const uint32 /*p_Diff*/)
     {
 
     }
@@ -226,13 +227,13 @@ namespace MS { namespace Garrison
     bool npc_Magrish_Garr::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         Manager* l_GarrisonMgr = p_Player->GetGarrison();
-        CreatureAI* l_AI = p_Creature->AI();
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_GarrisonMgr && l_AI)
         {
-            if (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuilding(static_cast<GarrisonNPCAI*>(l_AI)->GetPlotInstanceID())) >= 2)
+            if (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuilding(l_AI->GetPlotInstanceID())) >= 2)
             {
-                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain))
+                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain))
                     p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::ArmoryWeeklySeal, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             }
         }
@@ -246,17 +247,17 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    bool npc_Magrish_Garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_Magrish_Garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         if (p_Action == GOSSIP_ACTION_INFO_DEF)
         {
-            if (p_Creature->AI())
-                static_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+            if (p_Creature->ToGarrisonNPCAI())
+                p_Creature->ToGarrisonNPCAI()->SendShipmentCrafterUI(p_Player);
         }
         else if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_SEAL_OF_TEMPERED_FATE, 1, 1);
-            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain, 1);
+            p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain, 1);
             p_Creature->SendPlaySpellVisualKit(179, 0); /// 53 SpellCastDirected
             p_Player->SendPlaySpellVisualKit(362, 1);   /// 113 EmoteSalute
         }

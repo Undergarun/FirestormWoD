@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __BATTLEGROUNDDS_H
 #define __BATTLEGROUNDDS_H
@@ -52,7 +42,7 @@ enum BattlegroundDSCreatureTypes
 
 enum BattlegroundDSCreatures
 {
-    BG_DS_NPC_TYPE_WATER_SPOUT    = 28567,
+    BG_DS_NPC_TYPE_WATER_SPOUT    = 28567
 };
 
 enum BattlegroundDSSpells
@@ -76,15 +66,14 @@ enum BattlegroundDSData
 
     BG_DS_WATERFALL_STATUS_WARNING               = 1, // Water starting to fall, but no LoS Blocking nor movement blocking
     BG_DS_WATERFALL_STATUS_ON                    = 2, // LoS and Movement blocking active
-    BG_DS_WATERFALL_STATUS_OFF                   = 3,
+    BG_DS_WATERFALL_STATUS_OFF                   = 3
 };
 
 class BattlegroundDSScore : public BattlegroundScore
 {
     public:
-        BattlegroundDSScore() {};
-        virtual ~BattlegroundDSScore() {};
-        //TODO fix me
+        BattlegroundDSScore() {}
+        virtual ~BattlegroundDSScore() {}
 };
 
 class BattlegroundDS : public Battleground

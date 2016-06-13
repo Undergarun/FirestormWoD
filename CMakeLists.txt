@@ -1,23 +1,18 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-# Copyright (C) 2012-2013 Pandashan <http://www.pandashan.com/>
 #
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
+#  MILLENIUM-STUDIO
+#  Copyright 2016 Millenium-studio SARL
+#  All Rights Reserved.
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-# CMake policies (can not be handled elsewhere)
-cmake_minimum_required(VERSION 2.6)
-cmake_policy(SET CMP0005 OLD)
-if(POLICY CMP0053)
-    cmake_policy(SET CMP0053 OLD)
-endif()
 
 # Set projectname (must be done AFTER setting configurationtypes)
 project(WoDCore)
+
+# CMake policies (can not be handled elsewhere)
+ cmake_minimum_required(VERSION 2.8.9)
+ cmake_policy(SET CMP0005 OLD)
+ if(POLICY CMP0043)
+   cmake_policy(SET CMP0043 OLD) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
+ endif(POLICY CMP0043)
 
 # Set RPATH-handing (CMake parameters)
 set(CMAKE_SKIP_BUILD_RPATH 0)
@@ -52,6 +47,8 @@ endif()
 
 include(CheckPlatform)
 
+include(GroupSources)
+
 # basic packagesearching and setup (further support will be needed, this is a preliminary release!)
 find_package(PCHSupport)
 find_package(ACE REQUIRED)
@@ -60,7 +57,6 @@ find_package(curl REQUIRED)
 find_package(EasyJSon REQUIRED)
 # FIND_PACKAGE(msFramework REQUIRED)
 find_package(MySQL REQUIRED)
-
 
 if( UNIX )
   find_package(Readline)

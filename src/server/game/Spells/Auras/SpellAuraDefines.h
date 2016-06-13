@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 #ifndef TRINITY_SPELLAURADEFINES_H
 #define TRINITY_SPELLAURADEFINES_H
 
@@ -347,7 +337,7 @@ enum AuraType
     SPELL_AURA_ABILITY_PERIODIC_CRIT                        = 286,
     SPELL_AURA_DEFLECT_SPELLS                               = 287,
     SPELL_AURA_IGNORE_HIT_DIRECTION                         = 288,
-    SPELL_AURA_289                                          = 289,
+    SPELL_AURA_PREVENT_DURABILITY_LOSS                      = 289,
     SPELL_AURA_MOD_CRIT_PCT                                 = 290,
     SPELL_AURA_MOD_XP_QUEST_PCT                             = 291,
     SPELL_AURA_OPEN_STABLE                                  = 292,
@@ -434,7 +424,7 @@ enum AuraType
     SPELL_AURA_INCREASE_MIN_SWIM_SPEED                      = 373,  // Not sure if increase only swim, but in Roll (Monk), blizz send only update swim speed packet
     SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT                   = 374,  // SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT
     SPELL_AURA_375                                          = 375,  // 5.0.5 unk aura
-    SPELL_AURA_MOD_CURRENCY_GAIN_2                          = 376,  // SPELL_AURA_MOD_CURRENCY_GAIN_2 
+    SPELL_AURA_MOD_CURRENCY_GAIN_2                          = 376,  // SPELL_AURA_MOD_CURRENCY_GAIN_2
     SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING                = 377,  // SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING
     SPELL_AURA_378                                          = 378,  // 5.0.5 unk aura
     SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT              = 379,  // SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT
@@ -505,7 +495,7 @@ enum AuraType
     SPELL_AURA_444                                          = 444,  // 6.0.X
     SPELL_AURA_445                                          = 445,  // 6.0.X
     SPELL_AURA_446                                          = 446,  // 6.0.X Can use opening abilities without being stealthed.(?)
-    SPELL_AURA_MOD_XP_PCT_FROM_KILLING_UNIT_TYPE            = 447,  // 6.0.X
+    SPELL_AURA_MOD_XP_FROM_CREATURE_TYPE                    = 447,  // 6.0.X SPELL_AURA_MOD_XP_FROM_CREATURE_TYPE implemented in KillRewarder::_RewardXP
     SPELL_AURA_448                                          = 448,  // 6.0.X Battle fatigue (unused)
     SPELL_AURA_449                                          = 449,  // 6.0.X
     SPELL_AURA_450                                          = 450,  // 6.0.X Character upgrade system
@@ -531,15 +521,15 @@ enum AuraType
     SPELL_AURA_470                                          = 470,  // 6.0.X
     SPELL_AURA_MOD_VERSATILITY_PCT                          = 471,  // 6.0.X
     SPELL_AURA_472                                          = 472,  // 6.0.X 174627 Fixate
-    SPELL_AURA_DONT_LOOSE_DURABILITY                        = 473,  // 6.0.X
+    SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT          = 473,  // 6.0.X Prevents durability loss from dealing/taking damage
     SPELL_AURA_474                                          = 474,  // 6.0.X Upgrade (170733) used on bonus loot item in quest
-    SPELL_AURA_475                                          = 475,  // 6.0.X used for garr ability check comments http://fr.wowhead.com/spell=169606#english-comments
+    SPELL_AURA_ALLOW_USING_GAMEOBJECTS_WHILE_MOUNTED        = 475,  // 6.0.X
     SPELL_AURA_MOD_CURRENCY_GAIN_PCT                        = 476,  // 6.0.X
     SPELL_AURA_477                                          = 477,  // 6.0.X Draenor Scaling (used in beta test) Scale player level
     SPELL_AURA_478                                          = 478,  // 6.0.X Gladiator stance (new warrior stance in WoD)
     SPELL_AURA_479                                          = 479,  // 6.1.2 unused
     SPELL_AURA_480                                          = 480,  // 6.1.2 unused
-    SPELL_AURA_481                                          = 481,  // 6.1.2 Deathknight rune of death generation related (SpellID in value)
+    SPELL_AURA_CONVERT_CONSUMED_RUNE                        = 481,  // 6.1.2 Deathknight rune of death generation related (SpellID in value)
     SPELL_AURA_482                                          = 482,  // 6.1.2 S.E.L.F.I.E. Camera
     SPELL_AURA_483                                          = 483,  // 6.1.2 Rated PvP Transform Suppression
     SPELL_AURA_484                                          = 484,  // 6.2.0 Value is SpellID

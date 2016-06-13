@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "halls_of_origination.h"
 
@@ -6,7 +14,7 @@ enum ScriptTexts
     SAY_DEATH       = 0,
     SAY_AGGRO       = 1,
     SAY_SUPERNOVA   = 2,
-    SAY_KILL        = 3, 
+    SAY_KILL        = 3
 };
 
 enum Spells
@@ -35,7 +43,7 @@ enum Events
     EVENT_CELESTIAL_CALL    = 3,
     EVENT_VEIL_OF_SKY       = 4,
     EVENT_ENTER_COMBAT      = 5, // for images
-    EVENT_ARCANE_BARRAGE    = 7,
+    EVENT_ARCANE_BARRAGE    = 7
 };
 
 enum Adds
@@ -45,7 +53,7 @@ enum Adds
     NPC_VEIL_OF_SKY             = 39722,
     NPC_ASTRAL_FAMILIAR         = 39795,
     NPC_SPATIAL_FLUX            = 48707, // spawnmask=0
-    NPC_ISISET_ADD_CONTROLLER   = 42382,
+    NPC_ISISET_ADD_CONTROLLER   = 42382
 };
 
 class boss_isiset : public CreatureScript
@@ -102,7 +110,7 @@ class boss_isiset : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
-            void EnterCombat(Unit *who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 Talk(SAY_AGGRO);
 
@@ -114,12 +122,12 @@ class boss_isiset : public CreatureScript
                 instance->SetBossState(DATA_ISISET, IN_PROGRESS);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -189,7 +197,7 @@ class boss_isiset : public CreatureScript
                     me->SetReactState(REACT_PASSIVE);
                     if (CelestialCall)
                          DoCast(me, SPELL_MIRROR_IMAGE_CC);
-                    if (AstralRain)    
+                    if (AstralRain)
                         DoCast(me, SPELL_MIRROR_IMAGE_AR);
                     if (VeilOfSky)
                         DoCast(me, SPELL_MIRROR_IMAGE_VS);
@@ -282,13 +290,13 @@ class npc_isiset_astral_rain : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_ASTRAL_RAIN, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_ENTER_COMBAT, 2000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -360,13 +368,13 @@ class npc_isiset_celestial_call : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_CELESTIAL_CALL, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_ENTER_COMBAT, 2000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -438,13 +446,13 @@ class npc_isiset_veil_of_sky : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_VEIL_OF_SKY, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_ENTER_COMBAT, 2000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -514,12 +522,12 @@ class npc_isiset_astral_familiar : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3000, 7000));
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -567,7 +575,7 @@ class spell_isiset_supernova_dis: public SpellScriptLoader
         spell_isiset_supernova_dis() : SpellScriptLoader("spell_isiset_supernova_dis") { }
         class spell_isiset_supernova_dis_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_isiset_supernova_dis_SpellScript);
+            PrepareSpellScript(spell_isiset_supernova_dis_SpellScript)
             
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
@@ -592,7 +600,7 @@ class spell_isiset_supernova_dmg: public SpellScriptLoader
         spell_isiset_supernova_dmg() : SpellScriptLoader("spell_isiset_supernova_dmg") { }
         class spell_isiset_supernova_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_isiset_supernova_dmg_SpellScript);
+            PrepareSpellScript(spell_isiset_supernova_dmg_SpellScript)
             
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
@@ -611,6 +619,7 @@ class spell_isiset_supernova_dmg: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_isiset()
 {
     new boss_isiset();
@@ -621,3 +630,4 @@ void AddSC_boss_isiset()
     new spell_isiset_supernova_dis();
     new spell_isiset_supernova_dmg();
 }
+#endif

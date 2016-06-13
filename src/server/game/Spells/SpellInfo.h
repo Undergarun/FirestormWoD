@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SPELLINFO_H
 #define _SPELLINFO_H
@@ -302,7 +293,7 @@ public:
     bool IsPeriodicEffect() const;
     bool CanScale() const;
 
-    int32 CalcValue(Unit const* p_Caster = nullptr, int32 const* p_BasePoints = nullptr, Unit const* p_Target = nullptr, Item const* p_Item = nullptr, bool p_Log = false) const;
+    int32 CalcValue(Unit const* p_Caster = nullptr, int32 const* p_BasePoints = nullptr, Unit const* p_Target = nullptr, int32 p_ItemLevel = -1, bool p_Log = false) const;
     int32 CalcBaseValue(int32 value) const;
     float CalcValueMultiplier(Unit* caster, Spell* spell = nullptr) const;
     float CalcDamageMultiplier(Unit* caster, Spell* spell = nullptr) const;
@@ -378,6 +369,9 @@ public:
     uint32 ProcFlags;
     uint32 ProcChance;
     uint32 ProcCharges;
+    uint32 ProcCooldown;
+    float ProcBasePPM;
+    std::vector<SpellProcsPerMinuteModEntry const*> ProcPPMMods;
     uint32 MaxLevel;
     uint32 BaseLevel;
     uint32 SpellLevel;
@@ -391,7 +385,6 @@ public:
     float  Speed;
     uint32 StackAmount;
     uint32 InternalCooldown;
-    float ProcsPerMinute;
     uint32 Totem[2];
     int32  Reagent[MAX_SPELL_REAGENTS];
     uint32 ReagentCount[MAX_SPELL_REAGENTS];
@@ -596,6 +589,8 @@ public:
         return POWER_MANA;
     }
 
+    float CalcProcPPM(float ppm, Unit* caster, int32 itemLevel) const;
+
     bool IsRanked() const;
     uint8 GetRank() const;
     SpellInfo const* GetFirstRankSpell() const;
@@ -638,6 +633,13 @@ public:
     bool IsCustomArchaeologySpell() const;
     bool IsCustomChecked() const;
     bool IsBattleResurrection() const;
+
+    // helpers for Rogue finishing moves
+    bool IsFinishingMove() const;
+    bool IsOffensiveFinishingMove() const;
+
+    // helper for Arcane Torrent passive
+    bool IsArcaneTorrent() const;
 
     // loading helpers
     uint32 _GetExplicitTargetMask() const;

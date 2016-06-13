@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_STABLES_ALLIANCE_HPP_GARRISON
 #define GARRISON_STABLES_ALLIANCE_HPP_GARRISON
 
@@ -42,7 +43,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
     class npc_FannyFirebeardAI : public GarrisonNPCAI
@@ -56,6 +57,8 @@ namespace MS { namespace Garrison
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
 
             virtual void OnPlotInstanceUnload() override;
+
+            void ProcessSummonPlotCreatures(int l_Index);
     };
 
     //////////////////////////////////////////////////////////////////////////

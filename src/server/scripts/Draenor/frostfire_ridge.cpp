@@ -1,22 +1,10 @@
-/*
-* Copyright (C) 2014-20xx AshranCore <http://www.ashran.com/>
-* Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -46,7 +34,7 @@ class npc_groog : public CreatureScript
                 me->setFaction(14);
             }
 
-            void EnterCombat(Unit* p_Victim)
+            void EnterCombat(Unit* /*p_Victim*/)
             {
                 m_Events.Reset();
 
@@ -86,9 +74,9 @@ class spell_groog_rampage : public SpellScriptLoader
 
         class spell_groog_rampage_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_groog_rampage_AuraScript);
+            PrepareAuraScript(spell_groog_rampage_AuraScript)
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -128,8 +116,89 @@ class spell_groog_rampage : public SpellScriptLoader
         }
 };
 
+/// Thaw - 159348
+class spell_quest_frostfire_ridge_thaw : public SpellScriptLoader
+{
+    enum
+    {
+        KillCredit = 78870
+    };
+
+    public:
+        /// Constructor
+        spell_quest_frostfire_ridge_thaw() : SpellScriptLoader("spell_quest_frostfire_ridge_thaw") { }
+
+        class spell_quest_frostfire_ridge_thaw_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_frostfire_ridge_thaw_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (l_Target->GetEntry() == FrostfireRidgeCreatures::FrostWolfHowler)
+                    {
+                        l_Caster->ToPlayer()->KilledMonsterCredit(KillCredit);
+                        l_Target->ToCreature()->DespawnOrUnsummon(0);
+                    }
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_frostfire_ridge_thaw_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_frostfire_ridge_thaw_SpellScript();
+        }
+};
+
+/// Captured Frost Wolf - 73284
+class npc_frostfire_ridge_captured_frost_wolf : public CreatureScript
+{
+    enum
+    {
+        BonusObjectiveGrimfrostHill = 33145,
+        CapturedFrostWolf = 73284
+    };
+
+    public:
+        npc_frostfire_ridge_captured_frost_wolf() : CreatureScript("npc_frostfire_ridge_captured_frost_wolf") { }
+
+        struct npc_frostfire_ridge_captured_frost_wolfAI : public ScriptedAI
+        {
+            npc_frostfire_ridge_captured_frost_wolfAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void OnSpellClick(Unit* p_Unit) override
+            {
+                if (p_Unit->IsPlayer() && p_Unit->ToPlayer()->HasQuest(BonusObjectiveGrimfrostHill))
+                {
+                    p_Unit->ToPlayer()->KilledMonsterCredit(CapturedFrostWolf);
+                    me->DespawnOrUnsummon(0);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_frostfire_ridge_captured_frost_wolfAI(p_Creature);
+        }
+};
+
+#ifndef __clang_analyzer__
 void AddSC_frostfire_ridge()
 {
     new npc_groog();
     new spell_groog_rampage();
+    new spell_quest_frostfire_ridge_thaw();
+    new npc_frostfire_ridge_captured_frost_wolf();
 }
+#endif

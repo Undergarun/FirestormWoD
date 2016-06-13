@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 #include "SharedDefines.h"
 #include "../Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     namespace GatheringSpawnState
     {
@@ -51,7 +51,7 @@ namespace MS { namespace Garrison
 
             /// On AI Update
             /// @p_Diff : Time since last update
-            virtual void UpdateAI(const uint32 p_Diff)
+            virtual void UpdateAI(const uint32 p_Diff) override
             {
                 m_NextUpdate -= p_Diff;
 
@@ -361,10 +361,10 @@ namespace MS { namespace Garrison
             /// @p_Creature : Target creature instance
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/) override
             {
-                if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName() && p_Player->IsQuestRewarded(t_QuestID))
-                    static_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+                if (p_Player && p_Creature && p_Creature->ToGarrisonNPCAI() && p_Creature->GetScriptName() == CreatureScript::GetName() && p_Player->IsQuestRewarded(t_QuestID))
+                    p_Creature->ToGarrisonNPCAI()->SendShipmentCrafterUI(p_Player);
 
                 return true;
             }

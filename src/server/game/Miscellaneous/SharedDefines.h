@@ -1,20 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_SHAREDDEFINES_H
 #define TRINITY_SHAREDDEFINES_H
@@ -61,14 +51,14 @@ enum SpellEffIndex
     EFFECT_29,
     EFFECT_30,
     EFFECT_31,
-    MAX_EFFECTS,
+    MAX_EFFECTS
 };
 
 enum Roles
 {
     ROLE_TANK      = 0,
     ROLE_HEALER    = 1,
-    ROLE_DAMAGE    = 2,
+    ROLE_DAMAGE    = 2
 };
 
 enum MoneyConstants
@@ -983,7 +973,7 @@ enum SpellClickCastFlags
 {
     NPC_CLICK_CAST_CASTER_CLICKER      = 0x01,
     NPC_CLICK_CAST_TARGET_CLICKER      = 0x02,
-    NPC_CLICK_CAST_ORIG_CASTER_OWNER   = 0x04,
+    NPC_CLICK_CAST_ORIG_CASTER_OWNER   = 0x04
 };
 
 enum SheathTypes
@@ -3824,6 +3814,7 @@ uint32 const CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CREATURE_TYPE_ME
 ///< CreatureFamily.db2
 enum CreatureFamily
 {
+    CREATURE_FAMILY_NONE                = 0,
     CREATURE_FAMILY_WOLF                = 1,
     CREATURE_FAMILY_CAT                 = 2,
     CREATURE_FAMILY_SPIDER              = 3,
@@ -3900,38 +3891,38 @@ enum CreatureFamily
 
 enum CreatureTypeFlags
 {
-    CREATURE_TYPEFLAGS_TAMEABLE                          = 0x00000001, // Tameable by any hunter
-    CREATURE_TYPEFLAGS_GHOST                             = 0x00000002, // Creature are also visible for not alive player. Allow gossip interaction if npcflag allow?
-    CREATURE_TYPEFLAGS_BOSS                              = 0x00000004,
-    CREATURE_TYPEFLAGS_DO_NOT_PLAY_WOUND_PARRY_ANIMATION = 0x00000008,
-    CREATURE_TYPEFLAGS_HIDE_FACTION_TOOLTIP              = 0x00000010,
-    CREATURE_TYPEFLAGS_UNK5                              = 0x00000020,
-    CREATURE_TYPEFLAGS_SPELL_ATTACKABLE                  = 0x00000040,
-    CREATURE_TYPEFLAGS_DEAD_INTERACT                     = 0x00000080, // Player can interact with the creature if its dead (not player dead)
-    CREATURE_TYPEFLAGS_HERBLOOT                          = 0x00000100, // Can be looted by herbalist
-    CREATURE_TYPEFLAGS_MININGLOOT                        = 0x00000200, // Can be looted by miner
-    CREATURE_TYPEFLAGS_DONT_LOG_DEATH                    = 0x00000400, // Death event will not show up in combat log
-    CREATURE_TYPEFLAGS_MOUNTED_COMBAT                    = 0x00000800, // Creature can remain mounted when entering combat
-    CREATURE_TYPEFLAGS_CAN_ASSIST                        = 0x00001000,
-    CREATURE_TYPEFLAGS_IS_PET_BAR_USED                   = 0x00002000,
-    CREATURE_TYPEFLAGS_MASK_UID                          = 0x00004000,
-    CREATURE_TYPEFLAGS_ENGINEERLOOT                      = 0x00008000, // Can be looted by engineer
-    CREATURE_TYPEFLAGS_EXOTIC                            = 0x00010000, // Can be tamed by hunter as exotic pet
-    CREATURE_TYPEFLAGS_USE_DEFAULT_COLLISION_BOX         = 0x00020000,
-    CREATURE_TYPEFLAGS_IS_SIEGE_WEAPON                   = 0x00040000,
-    CREATURE_TYPEFLAGS_PROJECTILE_COLLISION              = 0x00080000, // Projectiles can collide with this creature - interacts with TARGET_DEST_TRAJ
-    CREATURE_TYPEFLAGS_HIDE_NAMEPLATE                    = 0x00100000,
-    CREATURE_TYPEFLAGS_DO_NOT_PLAY_MOUNTED_ANIMATIONS    = 0x00200000,
-    CREATURE_TYPEFLAGS_IS_LINK_ALL                       = 0x00400000,
-    CREATURE_TYPEFLAGS_INTERACT_ONLY_WITH_CREATOR        = 0x00800000,
-    CREATURE_TYPEFLAGS_DO_NOT_PLAY_UNIT_EVENT_SOUNDS     = 0x01000000,
-    CREATURE_TYPEFLAGS_HAS_NO_SHADOW_BLOB                = 0x02000000,
-    CREATURE_TYPEFLAGS_TREAT_AS_RAID_UNIT                = 0x04000000, //! Creature can be targeted by spells that require target to be in caster's party/raid
-    CREATURE_TYPEFLAGS_FORCE_GOSSIP                      = 0x08000000,
-    CREATURE_TYPEFLAGS_DO_NOT_SHEATHE                    = 0x10000000,
-    CREATURE_TYPEFLAGS_DO_NOT_TARGET_ON_INTERACTION      = 0x20000000,
-    CREATURE_TYPEFLAGS_DO_NOT_RENDER_OBJECT_NAME         = 0x40000000,
-    CREATURE_TYPEFLAGS_UNIT_IS_QUEST_BOSS                = 0x80000000  // Not verified
+    CREATURE_TYPE_FLAG_TAMEABLE_PET                         = 0x00000001,   ///< Makes the mob tameable (must also be a beast and have family set)
+    CREATURE_TYPE_FLAG_GHOST_VISIBLE                        = 0x00000002,   ///< Creature are also visible for not alive player. Allow gossip interaction if npcflag allow?
+    CREATURE_TYPE_FLAG_BOSS_MOB                             = 0x00000004,   ///< Changes creature's visible level to "??" in the creature's portrait - Immune Knockback.
+    CREATURE_TYPE_FLAG_DO_NOT_PLAY_WOUND_PARRY_ANIMATION    = 0x00000008,   ///<
+    CREATURE_TYPE_FLAG_HIDE_FACTION_TOOLTIP                 = 0x00000010,   ///<
+    CREATURE_TYPE_FLAG_UNK5                                 = 0x00000020,   ///< Sound related
+    CREATURE_TYPE_FLAG_SPELL_ATTACKABLE                     = 0x00000040,   ///<
+    CREATURE_TYPE_FLAG_CAN_INTERACT_WHILE_DEAD              = 0x00000080,   ///< Player can interact with the creature if its dead (not player dead)
+    CREATURE_TYPE_FLAG_HERB_SKINNING_SKILL                  = 0x00000100,   ///< Can be looted by herbalist
+    CREATURE_TYPE_FLAG_MINING_SKINNING_SKILL                = 0x00000200,   ///< Can be looted by miner
+    CREATURE_TYPE_FLAG_DO_NOT_LOG_DEATH                     = 0x00000400,   ///< Death event will not show up in combat log
+    CREATURE_TYPE_FLAG_MOUNTED_COMBAT_ALLOWED               = 0x00000800,   ///< Creature can remain mounted when entering combat
+    CREATURE_TYPE_FLAG_CAN_ASSIST                           = 0x00001000,   ///< Can aid any player in combat if in range
+    CREATURE_TYPE_FLAG_IS_PET_BAR_USED                      = 0x00002000,   ///<
+    CREATURE_TYPE_FLAG_MASK_UID                             = 0x00004000,   ///<
+    CREATURE_TYPE_FLAG_ENGINEERING_SKINNING_SKILL           = 0x00008000,   ///< Can be looted by engineer
+    CREATURE_TYPE_FLAG_EXOTIC_PET                           = 0x00010000,   ///< Can be tamed by hunter as exotic pet
+    CREATURE_TYPE_FLAG_USE_DEFAULT_COLLISION_BOX            = 0x00020000,   ///< Collision related. (always using default collision box?)
+    CREATURE_TYPE_FLAG_IS_SIEGE_WEAPON                      = 0x00040000,   ///<
+    CREATURE_TYPE_FLAG_CAN_COLLIDE_WITH_MISSILES            = 0x00080000,   ///< Projectiles can collide with this creature - interacts with TARGET_DEST_TRAJ
+    CREATURE_TYPE_FLAG_HIDE_NAME_PLATE                      = 0x00100000,   ///<
+    CREATURE_TYPE_FLAG_DO_NOT_PLAY_MOUNTED_ANIMATIONS       = 0x00200000,   ///<
+    CREATURE_TYPE_FLAG_IS_LINK_ALL                          = 0x00400000,   ///<
+    CREATURE_TYPE_FLAG_INTERACT_ONLY_WITH_CREATOR           = 0x00800000,   ///<
+    CREATURE_TYPE_FLAG_DO_NOT_PLAY_UNIT_EVENT_SOUNDS        = 0x01000000,   ///<
+    CREATURE_TYPE_FLAG_HAS_NO_SHADOW_BLOB                   = 0x02000000,   ///<
+    CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT                   = 0x04000000,   ///< ! Creature can be targeted by spells that require target to be in caster's party/raid
+    CREATURE_TYPE_FLAG_FORCE_GOSSIP                         = 0x08000000,   ///< Allows the creature to display a single gossip option.
+    CREATURE_TYPE_FLAG_DO_NOT_SHEATHE                       = 0x10000000,   ///<
+    CREATURE_TYPE_FLAG_DO_NOT_TARGET_ON_INTERACTION         = 0x20000000,   ///<
+    CREATURE_TYPE_FLAG_DO_NOT_RENDER_OBJECT_NAME            = 0x40000000,   ///<
+    CREATURE_TYPE_FLAG_UNIT_IS_QUEST_BOSS                   = 0x80000000    ///<
 };
 
 enum CreatureTypeFlags2
@@ -4950,7 +4941,7 @@ enum SpellFamilyNames
     SPELLFAMILY_UNK8        = 71,                           // 2 Only
     SPELLFAMILY_UNK9        = 78,
     SPELLFAMILY_UNK10       = 91,
-    SPELLFAMILY_UNK11       = 100,
+    SPELLFAMILY_UNK11       = 100
 };
 
 // stored in character_pet.slot
@@ -5003,7 +4994,7 @@ enum TradeStatus
     TRADE_STATUS_COMPLETE              = 28,
     TRADE_STATUS_PLAYER_BUSY           = 29,
     TRADE_STATUS_TOO_FAR_AWAY          = 30,
-    TRADE_STATUS_NO_TARGET             = 31,
+    TRADE_STATUS_NO_TARGET             = 31
 };
 
 enum eUpdateCollisionReasons
@@ -5094,7 +5085,7 @@ enum MountResult
     ERROR_YOU_CANT_RIDE_WHILE_LOOTING         = 6,
     ERROR_YOUR_RACE_CANT_RIDE                 = 7,
     ERROR_YOU_CANT_RIDE_WHILE_IN_ANOTHER_FORM = 8,
-    ERROR_YOU_CANT_CONTINUE                   = 9,
+    ERROR_YOU_CANT_CONTINUE                   = 9
 };
 
 #define CURRENCY_PRECISION 100
@@ -6053,7 +6044,7 @@ namespace GameError
         ERR_SET_LOOT_PERSONAL = 0x3A5,
         ERR_SET_LOOT_METHOD_FAILED_COMBAT = 0x3A6,
         ERR_REAGENT_BANK_FULL = 0x3A7,
-        ERR_REAGENT_BANK_LOCKED = 0x3A8,
+        ERR_REAGENT_BANK_LOCKED = 0x3A8
     };
 }
 

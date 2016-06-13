@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2008-20XX JadeCore <http://www.pandashan.com>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -69,7 +58,7 @@ enum eSpells
     SPELL_LIVING_AMETHYST               = 116322,
     SPELL_LIVING_COBALT                 = 116199,
     SPELL_LIVING_JADE                   = 116301,
-    SPELL_LIVING_JASPER                 = 116304,
+    SPELL_LIVING_JASPER                 = 116304
 };
 
 enum eEvents
@@ -89,7 +78,7 @@ enum eEvents
     EVENT_TILING                        = 8,
 
     // Check petrification
-    EVENT_CHECK_PETRIFICATION           = 9,
+    EVENT_CHECK_PETRIFICATION           = 9
 };
 
 uint32 guardiansEntry[4] =
@@ -611,7 +600,7 @@ class boss_generic_guardian : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_STONE_GUARD) != IN_PROGRESS)
@@ -647,7 +636,7 @@ class boss_generic_guardian : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers power, int32& value)
+            void RegeneratePower(Powers /*power*/, int32& value)
             {
                 if (!me->isInCombat())
                 {
@@ -661,7 +650,7 @@ class boss_generic_guardian : public CreatureScript
                     value = 0;
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->RemoveAllAreasTrigger();
 
@@ -1259,7 +1248,7 @@ class spell_petrification : public SpellScriptLoader
         {
             PrepareAuraScript(spell_petrification_AuraScript);
 
-            void HandleTriggerSpell(AuraEffect const* aurEff)
+            void HandleTriggerSpell(AuraEffect const* /*p_AurEff*/)
             {
                 PreventDefaultAction();
 
@@ -1327,12 +1316,12 @@ class spell_jasper_chains : public SpellScriptLoader
                 return true;
             }
 
-            void SetGuid(uint32 type, uint64 guid)
+            void SetGuid(uint32 /*type*/, uint64 guid)
             {
                 playerLinkedGuid = guid;
             }
 
-            void HandlePeriodic(AuraEffect const* aurEff)
+            void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 Unit* caster = GetCaster();
                 Unit* target = GetTarget();
@@ -1489,7 +1478,7 @@ class at_amethyst_pool : public AreaTriggerEntityScript
     public:
         at_amethyst_pool() : AreaTriggerEntityScript("at_amethyst_pool") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 5.0f;
@@ -1512,7 +1501,7 @@ class at_amethyst_pool : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 5.0f;
@@ -1538,6 +1527,7 @@ class at_amethyst_pool : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_stone_guard()
 {
     new boss_stone_guard_controler();   // 60089
@@ -1551,3 +1541,4 @@ void AddSC_boss_stone_guard()
     new spell_energized_tiles();        // 116541
     new at_amethyst_pool();             ///< 116235
 }
+#endif

@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include"ScriptPCH.h"
 #include"shadowfang_keep.h"
 
@@ -29,7 +37,7 @@ enum Spells
     SPELL_TOXIC_COAGULANT_DMG           = 93617,
 
     SPELL_TOXIC_CATALYST_AURA           = 93573,
-    SPELL_TOXIC_CATALYST_DMG            = 93689,
+    SPELL_TOXIC_CATALYST_DMG            = 93689
 };
 
 enum Events
@@ -37,13 +45,13 @@ enum Events
     EVENT_ICE_SHARDS                = 1,
     EVENT_CONJURE_MYSTERY_TOXIN     = 2,
     EVENT_CONJURE_POISONOUS_MIXTURE = 3,
-    EVENT_CONJURE_FROST_MIXTURE     = 4,
+    EVENT_CONJURE_FROST_MIXTURE     = 4
 };
 
 enum Adds
 {
     NPC_MYSTERY_TOXIN_1 = 50522,
-    NPC_MYSTERY_TOXIN_2 = 50439,
+    NPC_MYSTERY_TOXIN_2 = 50439
 };
 
 class boss_lord_valden : public CreatureScript
@@ -82,7 +90,7 @@ class boss_lord_valden : public CreatureScript
                 bRed = false;
             }
             
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 if (IsHeroic())
                 {
@@ -96,14 +104,14 @@ class boss_lord_valden : public CreatureScript
                 DoZoneInCombat();
             }
             
-            void JustDied(Unit* who)
+            void JustDied(Unit* /*pWho*/)
             {
                 _JustDied();
 
                 me->MonsterYell(SAY_DEATH, 0, 0);
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*pWho*/)
             {
                 me->MonsterYell(urand(0, 1)? SAY_KILL1: SAY_KILL2, 0, 0);
             }
@@ -192,9 +200,9 @@ class spell_valden_toxic_coagulant: public SpellScriptLoader
 
         class spell_valden_toxic_coagulant_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valden_toxic_coagulant_AuraScript);
+            PrepareAuraScript(spell_valden_toxic_coagulant_AuraScript)
             
-            void HandleTick(AuraEffect const* aurEff)
+            void HandleTick(AuraEffect const* /*aurEff*/)
             {
                 if (!GetTarget())
                     return;
@@ -215,9 +223,11 @@ class spell_valden_toxic_coagulant: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lord_valden()
 {
     new boss_lord_valden();
     new npc_valden_mystery_toxin();
     new spell_valden_toxic_coagulant();
 }
+#endif

@@ -32,6 +32,7 @@
   </PRE>
  */
 
+#ifndef __clang_analyzer__
 #include "G3D/platform.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/Array.h"
@@ -651,4 +652,4 @@ IMPLEMENT_READER(Float64, float64)
 #undef IMPLEMENT_READER
 
 } // namespace G3D
-
+#endif

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -404,7 +404,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
             class spell_roltall_scorching_aura_AuraScript : public AuraScript
             {
-                PrepareAuraScript(spell_roltall_scorching_aura_AuraScript);
+                PrepareAuraScript(spell_roltall_scorching_aura_AuraScript)
 
                 enum eSpells
                 {
@@ -538,6 +538,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 }
 } } ///< namespace MS::Instances
 
+#ifndef __clang_analyzer__
 void AddSC_boss_roltall()
 {
     new MS::Instances::Bloodmaul::boss_roltall();
@@ -546,3 +547,4 @@ void AddSC_boss_roltall()
     new MS::Instances::Bloodmaul::areatrigger_roltall_heat_wave();
     new MS::Instances::Bloodmaul::areatrigger_roltall_burning_slag();
 }
+#endif

@@ -23,6 +23,8 @@ static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
 #define HostileFaction 16
 #define AttackableYetNotHostileFaction 7
 
+Position const g_PositionGrimrailTrainTeleport = { 1645.683f, 1537.129f, 106.950f, 1.517012f };
+
 enum eGrimrailDepotSpells
 {
     /// Assault Cannon: 79548
@@ -84,48 +86,100 @@ enum eGrimrailDepotSpells
 
 enum GrimrailDepotActions
 {
-
+    ActionActivate = 1,
+    ActionCount,
 };
 
 enum GrimrailDepotCreatures
 {
-    CreatureAssaultCannon       = 79548,
-    CreatureGrimrailBombadier   = 81407,
-    CreatureGrimrailLaborer     = 81235,
-    CreatureGrimrailOverseer    = 81212,
-    CreatureGrimrailScout       = 82590,
-    CreatureGrimrailTechnician  = 81236,
-    CreatureGromkarBoomer       = 79720,
-    CreatureGromkarCapitan      = 82597,
-    CreatureGromkarCinderseer   = 88163,
-    CreatureGromkarFarSeer      = 82579,
-    CreatureGromkarGrenadier    = 79739,
-    CreatureGromkarGunner       = 77483,
-    CreatureGromkarHulk         = 80938,
-    CreatureIronInfantry        = 79888
+    CreatureAssaultCannon = 79548,
+    CreatureGrimrailBombadier = 81407,
+    CreatureGrimrailLaborer = 81235,
+    CreatureGrimrailOverseer = 81212,
+    CreatureGrimrailScout = 82590,
+    CreatureGrimrailTechnician = 81236,
+    CreatureGromkarBoomer = 79720,
+    CreatureGromkarCapitan = 82597,
+    CreatureGromkarCinderseer = 88163,
+    CreatureGromkarFarSeer = 82579,
+    CreatureGromkarGrenadier = 79739,
+    CreatureGromkarGunner = 77483,
+    CreatureGromkarHulk = 80938,
+    CreatureIronInfantry = 79888,
+    CreatureStarMkIII = 81293,
+    CreatureBetterPosition = 80518,
+    CreatureJumpToLocation = 80333,
+    CreatureBlackrockBombsTriggers = 324256,
+    CreatureIronTurret = 82721,
+    CreatureIronTurret01 = 78843,
+    CreatureIronTurretNitrogg = 79548,
+    CreatureNitroggPushBackTrigger = 877895,
+    CreatureTurretMovement = 877896,
+    CreatureSkylordTovraDragon = 80004
 };
 
 enum GrimrailDepotBosses
 {
-    BossSkylordTovra        = 80005,
-    BossBorkatheBrute       = 86226,
-    BossRocketSpark         = 77803,
+    BossSkylordTovra = 80005,
+    BossBorkatheBrute = 86226,
+    BossRocketSpark = 77803,
     BossNitroggThundertower = 79545
 };
 
 enum GrimrailDepotGobjects
 {
-
+    GameObjectSpikedGate = 237441,
+    GameObjectIronWroughtGate = 237442,
+    GameObjectIronWroughtGate01OnTrain = 237444,
+    GameObjectIronWroughtGate02OnTrain = 237449,
+    GameObjectIronWroughtGate03OnTrain = 237448,
+    GameObjectIronWroughtGate04OnTrain = 237451,
+    GameObjectIronWroughtGate05OnTrain = 237450,
+    GameObjectIronWroughtGate06OnTrain = 237446,
+    GameObjectAssaultFlaps = 231980,
+    GameObjectInvisibleDoor = 232131,
+    GameObjectSpikedGateSkylordTovra = 237445
 };
 
 enum GrimrailDepotData
 {
-    DataSkyLordTovra = 1,
-    DataRocketspark,
+    DataRocketspark = 1,
     DataBorka,
-    DataTovra,
-    DataNitroggThundertower
+    DataRocketsparkEncounter,
+    DataNitroggThundertower,
+    DataNitroggTurret,
+    DataSpikedGateBoss1,
+    DataIronWroughtGate,
+    DataSkyLordTovra,
+    DataSkyLordTovraDragon,
+    DataIronWroughtGateOnTrainCount,
+    DataIronWroughtGateOnTrainDoorNumber,
+    DataIronWroughtGate01OnTrain,
+    DataIronWroughtGate02OnTrain,
+    DataIronWroughtGate03OnTrain,
+    DataIronWroughtGate04OnTrain,
+    DataIronWroughtGate05OnTrain,
+    DataIronWroughtGate06OnTrain,
+    DataAssaultFlaps,
+    DataInvisibleDoor,
+    DataSpikedGateSkylordTovraDoor
 };
+
+enum GrimrailDepotScenes
+{
+    SceneBoardToGrimrail = 1344,
+    SceneEscapeTheTrain  = 1345
+};
+
+/*
+enum eGrimrailDepotScenarios
+{
+    ScenarioGrimrailDepotChallengeID = ,
+    ScenarioBossRocketsparkAndBorka = ,
+    ScenarioBossNitroggThundertower,
+    ScenariosBossSkylordTovra = 
+};
+*/
 
 enum GrimrailDepotAchivement
 {

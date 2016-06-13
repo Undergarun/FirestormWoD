@@ -1,9 +1,17 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "lost_city_of_the_tolvir.h"
 #include "ScriptPCH.h"
 
 enum eScriptText
 {
-    YELL_FREE                    = -1877010,
+    YELL_FREE                    = -1877010
 };
 
 class instance_lost_city_of_the_tolvir : public InstanceMapScript
@@ -239,7 +247,9 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_lost_city_of_the_tolvir()
 {
     new instance_lost_city_of_the_tolvir();
 }
+#endif

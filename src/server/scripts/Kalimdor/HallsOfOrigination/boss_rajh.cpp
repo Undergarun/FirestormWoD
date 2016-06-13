@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "halls_of_origination.h"
 
@@ -7,7 +15,7 @@
 enum Spells
 {
     //Rajh
-    SPELL_SUN_STRIKE                    = 73872, 
+    SPELL_SUN_STRIKE                    = 73872,
     SPELL_SUN_STRIKE_H                  = 89887,
     SPELL_SUN_STRIKE_DMG                = 73874,
     SPELL_SUN_STRIKE_DMG_H              = 90009,
@@ -26,7 +34,7 @@ enum Spells
     SPELL_SOLAR_WINDS_VISUAL            = 74109,
     SPELL_SOLAR_FIRE                    = 89131,
     SPELL_SOLAR_FIRE_DMG                = 89133,
-    SPELL_SOLAR_FIRE_DMG_H              = 89878,
+    SPELL_SOLAR_FIRE_DMG_H              = 89878
 };
 
 enum Texts
@@ -34,7 +42,7 @@ enum Texts
     SAY_DEATH    = 0,
     SAY_AGGRO    = 1,
     SAY_ENERGIZE = 2,
-    SAY_KILL     = 3, 
+    SAY_KILL     = 3
 };
 
 const Position pointcenter = {-319.68f, 193.42f, 343.94f, 4.76f};
@@ -42,7 +50,7 @@ const Position pointcenter = {-319.68f, 193.42f, 343.94f, 4.76f};
 enum Events
 {
     EVENT_SUN_STRIKE           = 1,
-    EVENT_SUMMON_SOLAR_WINDS   = 2,
+    EVENT_SUMMON_SOLAR_WINDS   = 2
 };
 
 enum Adds
@@ -54,7 +62,7 @@ enum Adds
     NPC_SUN_TOUCHED_SPRITE      = 39369, // 76158,
     NPC_ORB_OF_SUN              = 40835, // 73658
     NPC_INFERNO_LEAP            = 47040,
-    NPC_BLAZING_INFERNO         = 40927,
+    NPC_BLAZING_INFERNO         = 40927
 };
 
 class boss_rajh : public CreatureScript
@@ -243,7 +251,7 @@ class achievement_sun_of_a : public AchievementCriteriaScript
     public:
         achievement_sun_of_a() : AchievementCriteriaScript("achievement_sun_of_a") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;
@@ -254,9 +262,11 @@ class achievement_sun_of_a : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_rajh()
 {
     new boss_rajh();
     new npc_rajh_solar_wind();
     new achievement_sun_of_a();
 }
+#endif

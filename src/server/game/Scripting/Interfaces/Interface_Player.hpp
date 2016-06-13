@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ class FormulaScript : public ScriptObjectImpl<false>
         }
 
         /// Called after calculating zero difference.
-        /// @p_Diff        : Level difference 
+        /// @p_Diff        : Level difference
         /// @p_PlayerLevel : Player level
         virtual void OnZeroDifferenceCalculation(uint8& p_Diff, uint8 p_PlayerLevel)
         {
@@ -191,13 +191,15 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_OldValue  : Old value
         /// @p_NewValue  : New value
         /// @p_Regen  : If it's a regen modification
-        virtual void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        /// @p_After : If it's after modification
+        virtual void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen, bool p_After)
         {
             UNUSED(p_Player);
             UNUSED(p_Power);
             UNUSED(p_OldValue);
             UNUSED(p_NewValue);
             UNUSED(p_Regen);
+            UNUSED(p_After);
         }
 
         /// Called when the player switch from indoors to outdoors or from outdoors to indoors
@@ -591,6 +593,18 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Player);
         }
 
+        virtual void OnMount(Player* p_Player, uint32 p_CreatureID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_CreatureID);
+        }
+
+        virtual void OnDismount(Player* p_Player, uint32 p_CreatureID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_CreatureID);
+        }
+
         /// Called when a player leave combat status
         /// @p_Player : Player instance
         virtual void OnLeaveCombat(Player* p_Player)
@@ -633,11 +647,12 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_DamageEffectTyp : Damage type
         /// @p_Damage          : Amount of damage taken
         /// @p_SchoolMask      : school mask of the damage
-        virtual void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage) ///< p_SchoolMask is unused
+        virtual void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage)
         {
             UNUSED(p_Player);
             UNUSED(p_DamageEffectType);
             UNUSED(p_Damage);
+            UNUSED(p_SchoolMask);
             UNUSED(p_CleanDamage);
         }
 

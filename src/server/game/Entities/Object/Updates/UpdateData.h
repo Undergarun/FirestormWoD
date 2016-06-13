@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __UPDATEDATA_H
 #define __UPDATEDATA_H
@@ -27,7 +17,7 @@ enum OBJECT_UPDATE_TYPE
     UPDATETYPE_VALUES               = 0,
     UPDATETYPE_CREATE_OBJECT        = 1,
     UPDATETYPE_CREATE_OBJECT2       = 2,
-    UPDATETYPE_OUT_OF_RANGE_OBJECTS = 3,
+    UPDATETYPE_OUT_OF_RANGE_OBJECTS = 3
 };
 
 enum OBJECT_UPDATE_FLAGS
@@ -50,7 +40,7 @@ enum OBJECT_UPDATE_FLAGS
     UPDATEFLAG_THIS_IS_YOU              = 0x00004000,
     UPDATEFLAG_REPLACE_YOU              = 0x00008000,
     UPDATEFLAG_SCENE_OBJECT             = 0x00010000,
-    UPDATEFLAG_SCENE_PENDING_INSTANCES  = 0x00020000,
+    UPDATEFLAG_SCENE_PENDING_INSTANCES  = 0x00020000
 };
 
 class UpdateData

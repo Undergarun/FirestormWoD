@@ -1,147 +1,25 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_NPC_HPP_GARRISON
-#define GARRISON_NPC_HPP_GARRISON
+# define GARRISON_NPC_HPP_GARRISON
 
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../../game/AI/ScriptedAI/ScriptedEscortAI.h"
-#include <map>
+#include "Common.h"
 #include "ScriptedCosmeticAI.hpp"
+#include "GarrisonNPCAI.hpp"
 #include "Vehicle.h"
 #include "CombatAI.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
-    /// Sequence position structure
-    struct SequencePosition
-    {
-        /// Position
-        float X, Y, Z, O;
-    };
-
-    class GarrisonNPCAI : public AI::CosmeticAI
-    {
-        public:
-            /// Constructor
-            GarrisonNPCAI(Creature* p_Creature);
-
-            /// Set to relative position from building
-            /// @p_X : Relative X
-            /// @p_Y : Relative Y
-            /// @p_Z : Relative Z
-            void MoveBuildingRelative(uint32 p_PointID, float p_X, float p_Y, float p_Z);
-            /// Set facing to relative angle from the building
-            /// @p_O : Relative angle
-            void SetFacingBuildingRelative(float p_O);
-
-            /// Set NPC recipes
-            /// @p_Recipes          : Recipes
-            /// @p_RecipesSkillID   : Skill line ID
-            void SetRecipes(std::vector<RecipesConditions> p_Recipes, uint32 p_RecipesSkillID);
-
-            /// Show shipment crafter UI
-            void SendShipmentCrafterUI(Player* p_Player, uint32 p_ShipmentID = 0);
-            /// Show trade skill crafter UI
-            void SendTradeSkillUI(Player* p_Player);
-
-            /// Get building ID
-            uint32 GetBuildingID();
-            /// Get plot instance ID
-            uint32 GetPlotInstanceID();
-
-            /// Setup action sequence
-            /// @p_CoordTable       : Coordinates table
-            /// @p_SequenceTable    : Sequence table
-            /// @p_SequenceSize     : Size of sequence table,
-            /// @p_FirstMovePointID : First move point ID
-            void SetupActionSequence(SequencePosition* p_CoordTable, uint8* p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID);
-
-            void AddSummonGUID(uint64 p_GUID) { m_Summons.push_back(p_GUID); }
-            /// Do next sequence element
-            virtual void DoNextSequenceAction();
-
-            /// Spawn a creature with building relative coords
-            /// @p_Entry      : Creature entry
-            /// @p_RelX       : X Relative coord
-            /// @p_RelY       : Y Relative coord
-            /// @p_RelZ       : Z Relative coord
-            /// @p_RelO       : Relative orientation coord
-            /// @p_SummonType : Summon type
-            Creature* SummonRelativeCreature(uint32 p_Entry, float p_RelX, float p_RelY, float p_RelZ, float p_RelO, TempSummonType p_SummonType);
-            /// Spawn a creature with building relative coords
-            /// @p_Entry      : Creature entry
-            /// @p_Position   : Relative position of the creature
-            /// @p_SummonType : Summon type
-            Creature* SummonRelativeCreature(uint32 p_Entry, SequencePosition p_Position, TempSummonType p_SummonType);
-            /// Spawn a gameobject with building relative coords
-            /// @p_Entry      : GameObject entry
-            /// @p_RelX       : X Relative coord
-            /// @p_RelY       : Y Relative coord
-            /// @p_RelZ       : Z Relative coord
-            /// @p_RelO       : Relative orientation coord
-            GameObject* SummonRelativeGameObject(uint32 p_Entry, float p_RelX, float p_RelY, float p_RelZ, float p_RelO);
-            /// Spawn a gameobject with building relative coords
-            /// @p_Entry      : GameObject entry
-            /// @p_Position   : Relative coords
-            GameObject* SummonRelativeGameObject(uint32 p_Entry, const Position p_Position);
-
-            /// Transform coord
-            /// @p_X : X coord
-            /// @p_Y : Y coord
-            /// @p_Z : Z coord
-            void TransformCoord(float& p_X, float &p_Y, float &p_Z);
-
-            Player* GetOwner() { return m_Owner; };
-
-        public:
-            /// When the building ID is set
-            /// @p_BuildingID : Set building ID
-            virtual void OnSetBuildingID(uint32 p_BuildingID);
-            /// When the PlotInstance ID is set
-            /// @p_BuildingID : Set plot instance ID
-            virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID);
-            /// When the daily garrison datas are reset
-            virtual void OnDailyDataReset();
-            ///
-            virtual void OnPlotInstanceUnload();
-
-        public:
-            /// Set UInt32 value
-            /// @p_ID    : Value ID
-            /// @p_Value : Value
-            virtual void SetData(uint32 p_ID, uint32 p_Value) override;
-            /// Get UInt32 value
-            /// @p_ID    : Value ID
-            virtual uint32 GetData(uint32 p_ID) override;
-
-            virtual void SetGUID(uint64 p_Guid, int32 p_Id) override;
-
-        protected:
-            GarrisonPlotInstanceInfoLocation const* m_PlotInstanceLocation; ///< This creature plot
-            G3D::Vector3 m_NonRotatedPlotPosition;                          ///< Cache for coord transformation
-            uint32 m_BuildingID;                                            ///< This creature building ID
-
-        private:
-            Player* m_Owner;
-            SequencePosition* m_CoordTable;
-            uint8* m_SequenceTable;
-            uint32 m_SequenceSize;
-            uint32 m_FirstMovePointID;
-            uint8 m_SequencePosition;
-
-        private:
-            std::vector<uint64> m_Summons;
-            std::vector<RecipesConditions> m_Recipes;
-            uint32 m_RecipesSkillID;
-
-    };
-
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -478,7 +356,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const; ///< 'GetAI' overrides a member function but is not marked 'override'
+            CreatureAI* GetAI(Creature* p_Creature) const override;
 
             /// Creature AI
             struct npc_SeniorPeonIIAI : public CreatureAI
@@ -611,7 +489,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const; ///< 'GetAI' overrides a member function but is not marked 'override'
+            CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
     class npc_garrison_atheeru_palestarAI : public GarrisonNPCAI
@@ -929,7 +807,15 @@ namespace MS { namespace Garrison
 
                 enum eSpells
                 {
-                    SpellAuraRideVehicle = 178807
+                    SpellAuraRideVehicle       = 178807,
+                    SpellAuraBlackClawOfSethe  = 174822,
+                    SpellAuraGarnToothNecklace = 174823
+                };
+
+                enum eItems
+                {
+                    ItemGarnToothNecklace = 118470,
+                    ItemBlackClawOfSethe  = 118469
                 };
 
                 uint64 m_SummonerGUID;
@@ -939,7 +825,7 @@ namespace MS { namespace Garrison
                 virtual void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override;
 
                 virtual void JustDied(Unit* p_Killer) override;
-            };            
+            };
 
     };
 
@@ -982,7 +868,7 @@ namespace MS { namespace Garrison
                 virtual void EnterEvadeMode() override;
 
                 virtual void UpdateAI(uint32 const p_Diff) override;
-            };            
+            };
 
     };
 
@@ -1016,7 +902,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const override;
 
             /// Creature AI
             struct npc_GarrisonWalterAI : public VehicleAI
@@ -1032,7 +918,51 @@ namespace MS { namespace Garrison
                 virtual void IsSummonedBy(Unit* p_Summoner) override;
 
                 virtual uint64 GetGUID(int32 p_ID) override;
-            };            
+            };
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    class npc_GearshopWorkshopTurret_Garr : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_GearshopWorkshopTurret_Garr() : CreatureScript("npc_GearshopWorkshopTurret_Garr")
+            {
+            }
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const override;
+
+            /// Creature AI
+            struct npc_GearshopWorkshopTurret_GarrAI : public VehicleAI
+            {
+                /// Constructor
+                npc_GearshopWorkshopTurret_GarrAI(Creature* creature) : VehicleAI(creature)
+                {
+                    m_SummonerGUID = 0;
+                    m_AttackTimer  = 0;
+                }
+
+                enum eSpells
+                {
+                    SpellTurretFire = 168517
+                };
+
+                uint64 m_SummonerGUID;
+                uint32 m_AttackTimer;
+
+                virtual void Reset() override;
+
+                virtual void EnterCombat(Unit* p_Attacker) override;
+
+                virtual void IsSummonedBy(Unit* p_Summoner) override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+            };
 
     };
 

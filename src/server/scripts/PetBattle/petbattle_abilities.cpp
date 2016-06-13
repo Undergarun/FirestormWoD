@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "PetBattle.h"
 #include "PetBattleAbilityEffect.h"
@@ -30,7 +38,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_petbattle_abilities()
 {
     new PlayerScript_Battle_Pet_Training_Spell();
 }
+#endif

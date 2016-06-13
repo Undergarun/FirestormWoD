@@ -179,3 +179,20 @@ enum eEverbloomAchievements
     AchivementWeedWhacker         = 9223,
     AchivementWaterManagement     = 9017
 };
+
+/*
+enum eEverbloomScenarios
+{
+    ScenarioEverbloomChallengerId = ,
+    ScenarioEverbloomWitherbark = ,
+    ScenarioEverbloomAncientProtectors = ,
+    ScenarioEverbloomXeritac = ,
+    ScenarioEverbloomArchmageSol = ,
+    ScenarioEverbloomYalnu = ,
+};
+*/
+
+enum eEverbloomScenes
+{
+
+};

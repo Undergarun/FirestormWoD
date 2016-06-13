@@ -210,7 +210,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_blackrock_caverns()
 {
     new instance_blackrock_caverns();
 }
+#endif

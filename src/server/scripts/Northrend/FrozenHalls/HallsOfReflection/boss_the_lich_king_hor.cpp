@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "halls_of_reflection.h"
@@ -45,7 +36,7 @@ enum Spells
     //Lumbering Abomination
     SPELL_ABON_STRIKE                  = 40505,
     SPELL_VOMIT_SPRAY                  = 70176,
-    H_SPELL_VOMIT_SPRAY                = 70181,
+    H_SPELL_VOMIT_SPRAY                = 70181
 };
 
 enum Yells
@@ -58,7 +49,7 @@ enum Yells
     SAY_LICH_KING_ABON                 = 7,
     SAY_LICH_KING_WINTER               = 8,
     SAY_LICH_KING_END_DUN              = 9,
-    SAY_LICH_KING_WIN                  = 10,
+    SAY_LICH_KING_WIN                  = 10
 };
 
 class boss_lich_king_hor : public CreatureScript
@@ -95,7 +86,7 @@ class boss_lich_king_hor : public CreatureScript
                 uiWall = 0;
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 damage = 0;
             }
@@ -412,8 +403,8 @@ class npc_raging_gnoul : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-                DoCast(me, SPELL_EMERGE_VISUAL); 
-                DoZoneInCombat(me, 100.00f); 
+                DoCast(me, SPELL_EMERGE_VISUAL);
+                DoZoneInCombat(me, 100.00f);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -447,7 +438,7 @@ class npc_raging_gnoul : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* victim = me->SelectVictim())
                             {
-                                DoResetThreat(); 
+                                DoResetThreat();
                                 AttackStart(victim);
                             }
                         }
@@ -509,8 +500,8 @@ class npc_risen_witch_doctor : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-                DoCast(me, SPELL_EMERGE_VISUAL); 
-                DoZoneInCombat(me, 100.00f); 
+                DoCast(me, SPELL_EMERGE_VISUAL);
+                DoZoneInCombat(me, 100.00f);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -544,7 +535,7 @@ class npc_risen_witch_doctor : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* victim = me->SelectVictim())
                             {
-                                DoResetThreat(); 
+                                DoResetThreat();
                                 AttackStart(victim);
                             }
                         }
@@ -606,7 +597,7 @@ class npc_abon : public CreatureScript
             }
 
             InstanceScript* _instance;
-            bool _doWalk; 
+            bool _doWalk;
             uint32 _strikeTimer;
             uint32 _vomitTimer;
 
@@ -631,7 +622,7 @@ class npc_abon : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* victim = me->SelectVictim())
                         {
-                            DoResetThreat(); 
+                            DoResetThreat();
                             AttackStart(victim);
                         }
                     }
@@ -673,6 +664,7 @@ class npc_abon : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lich_king_hr()
 {
     new boss_lich_king_hor();
@@ -680,3 +672,4 @@ void AddSC_boss_lich_king_hr()
     new npc_risen_witch_doctor();
     new npc_abon();
 }
+#endif

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 Name: modify_commandscript
@@ -25,7 +16,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "Chat.h"
-#include <stdlib.h>
+#include "Common.h"
 
 class modify_commandscript: public CommandScript
 {
@@ -1203,14 +1194,9 @@ public:
 
         int64 addmoney = 0;
 
-// strtoull doesn't exist on WIN
-#if PLATFORM == PLATFORM_WINDOWS
-        addmoney = _strtoui64((char*)args, NULL, 10);
-#else
         addmoney = strtoull((char*)args, NULL, 10);
-#endif
 
-        uint64 moneyuser = target->GetMoney();
+        int64 moneyuser = target->GetMoney();
 
         if (addmoney < 0)
         {
@@ -1230,9 +1216,9 @@ public:
                 if (newmoney > MAX_MONEY_AMOUNT)
                     newmoney = MAX_MONEY_AMOUNT;
 
-                handler->PSendSysMessage(LANG_YOU_TAKE_MONEY, abs(addmoney), handler->GetNameLink(target).c_str());
+                handler->PSendSysMessage(LANG_YOU_TAKE_MONEY, llabs(addmoney), handler->GetNameLink(target).c_str());
                 if (handler->needReportToTarget(target))
-                    (ChatHandler(target)).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, handler->GetNameLink().c_str(), abs(addmoney));
+                    (ChatHandler(target)).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, handler->GetNameLink().c_str(), llabs(addmoney));
                 target->SetMoney(newmoney);
             }
         }
@@ -1245,7 +1231,7 @@ public:
             if (addmoney >=MAX_MONEY_AMOUNT)
                 target->SetMoney(MAX_MONEY_AMOUNT);
             else
-                target->ModifyMoney(int64(addmoney));
+                target->ModifyMoney(uint64(addmoney));
         }
 
         sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_NEW_MONEY), moneyuser, uint32(addmoney), target->GetMoney());
@@ -1637,7 +1623,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_modify_commandscript()
 {
     new modify_commandscript();
 }
+#endif

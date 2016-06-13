@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -567,6 +557,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
 
     m_CastItem = NULL;
     m_castItemGUID = 0;
+    m_castItemLevel = -1;
 
     /// Target used in SpellEffect
     unitTarget    = nullptr;
@@ -582,7 +573,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_spellAura = nullptr;
     isStolen = false;
 
-    m_CustomCritChance = -1.f;
+    m_CustomCritChance = -1.0f;
 
     //Auto Shot & Shoot (wand)
     m_autoRepeat = m_spellInfo->IsAutoRepeatRangedSpell();
@@ -611,6 +602,19 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
 
     for (uint8 i = 0; i < m_spellInfo->EffectCount; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
+
+    std::list<AuraEffect*>const& l_VisualModifiers = m_caster->GetAuraEffectsByType(SPELL_AURA_CHANGE_VISUAL_EFFECT);
+    m_SpellVisualID = m_spellInfo->FirstSpellXSpellVisualID;
+
+    for (AuraEffect* l_Effect : l_VisualModifiers)
+    {
+        if (l_Effect->GetMiscValue() == m_spellInfo->Id
+            && l_Effect->GetMiscValueB())
+        {
+            m_SpellVisualID = sSpellMgr->GetSpellXVisualForSpellID(l_Effect->GetMiscValueB(), caster->GetMap()->GetDifficultyID(), m_SpellVisualID);
+            break;
+        }
+    }
 }
 
 Spell::~Spell()
@@ -2942,10 +2946,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             m_caster->ToCreature()->AI()->SpellMissTarget(unit, m_spellInfo, missInfo);
     }
 
-    /// Custom WoD Script - Shadowmeld
-    if (unitTarget->HasAura(58984) && !m_caster->IsFriendlyTo(unitTarget))
-        return;
-
     /// Custom WoD Script - Death from Above should give immunity to all spells while rogue is in jump effect
     if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150, unitTarget->GetGUID()))
         return;
@@ -3166,8 +3166,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     if ((m_spellInfo->Id == 105771 || m_spellInfo->Id == 7922) && unit->HasAura(19263))
         return SPELL_MISS_MISS;
 
-    /// Hack fix for Cloak of Shadows (just Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
-    if (!m_spellInfo->IsPositive() &&(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803 && m_spellInfo->Id != 157695)
+    /// Hack fix for Cloak of Shadows (just chaos damage, Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
+    if (!m_spellInfo->IsPositive() &&(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && m_spellInfo->GetSchoolMask() != SPELL_SCHOOL_MASK_ALL &&unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803 && m_spellInfo->Id != 157695)
         return SPELL_MISS_MISS;
 
     // disable effects to which unit is immune
@@ -3245,7 +3245,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     }
 
     // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
-    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo);
+    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo, m_originalCaster);
     if (m_diminishGroup)
     {
         m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
@@ -3256,6 +3256,10 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
             type == DRTYPE_ALL)
         {
             unit->IncrDiminishing(m_diminishGroup);
+
+            /// Frostjaw triggers both Root and Silence DR
+            if (m_spellInfo->Id == 102051)
+                unit->IncrDiminishing(DIMINISHING_SILENCE);
 
             /// Hack Fix Wod - Hunter WoD PvP Beast Mastery 4P Bonus
             /// Pet and owner are sharing same diminishing return
@@ -3302,7 +3306,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         {
             bool refresh = false;
             m_spellAura = Aura::TryRefreshStackOrCreate(aurSpellInfo, effectMask, unit,
-                m_originalCaster, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, 0, &refresh);
+                m_originalCaster, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, 0, &refresh, m_castItemLevel);
             if (m_spellAura)
             {
                 // Set aura stack amount to desired value
@@ -3596,7 +3600,20 @@ bool Spell::UpdateChanneledTargetList()
 void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura)
 {
     if (m_CastItem)
+    {
         m_castItemGUID = m_CastItem->GetGUID();
+
+        if (m_CastItem->GetOwnerGUID() == m_caster->GetGUID())
+            m_castItemLevel = m_caster->ToPlayer()->GetEquipItemLevelFor(m_CastItem->GetTemplate(), m_CastItem);
+        else if (Player* owner = m_CastItem->GetOwner())
+            m_castItemLevel = owner->GetEquipItemLevelFor(m_CastItem->GetTemplate(), m_CastItem);
+        else
+        {
+            SendCastResult(SPELL_FAILED_EQUIPPED_ITEM);
+            finish(false);
+            return;
+        }
+    }
     else
         m_castItemGUID = 0;
 
@@ -3626,7 +3643,10 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     m_spellState = SPELL_STATE_PREPARING;
 
     if (triggeredByAura)
-        m_triggeredByAuraSpell  = triggeredByAura->GetSpellInfo();
+    {
+        m_triggeredByAuraSpell = triggeredByAura->GetSpellInfo();
+        m_castItemLevel = triggeredByAura->GetBase()->GetCastItemLevel();
+    }
 
     // create and add update event for this spell
     SpellEvent* Event = new SpellEvent(this);
@@ -4105,7 +4125,7 @@ void Spell::cast(bool skipCheck)
             m_caster->SetSoulSwapRefreshDuration(true);
     }
 
-    // Kil'Jaeden's Cunning - 10% speed less for each cast while moving (up to 2 charges) ///< @todo Kil'Jaeden's Cunning  is removed 
+    // Kil'Jaeden's Cunning - 10% speed less for each cast while moving (up to 2 charges) ///< @todo Kil'Jaeden's Cunning  is removed
     if (m_caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && m_caster->IsMoving() && !m_caster->HasAura(119048) && m_spellInfo->CalcCastTime(m_caster) > 0)
         m_caster->CastSpell(m_caster, 119050, true);
 
@@ -4312,8 +4332,8 @@ void Spell::_handle_finish_phase()
         {
             m_caster->ClearComboPoints();
 
-            /// Anticipation
-            if (m_caster->HasAura(115189) && (m_spellInfo->Id == 2098 || m_spellInfo->Id == 32645 || m_spellInfo->Id == 152150))
+            /// Anticipation for                  Kidney Shot -- 408     &&     Rupture -- 1943    &&   Eviscerate -- 2098     &&     Envenom -- 32645 && Crimson Tempest -- 121411 && Death from Above-- 152150
+            if (m_caster->HasAura(115189) && (m_spellInfo->IsOffensiveFinishingMove()))
             {
                 int32 basepoints0 = m_caster->GetAura(115189)->GetStackAmount();
                 m_caster->CastCustomSpell(m_caster->getVictim(), 115190, &basepoints0, NULL, NULL, true);
@@ -4839,17 +4859,11 @@ void Spell::SendSpellStart()
 
     WorldPacket data(SMSG_SPELL_START);
 
-    uint32 unkStringLength = 0;
-    uint32 powerCount = 0;
-    uint32 unkCounter1 = 0;
-    uint32 unkCounter2 = 0;
     uint32 l_ExtraTargetsCount = m_targets.GetExtraTargetsCount();
 
     uint64 l_PredicOverrideTarget = 0;
     uint32 l_PredictAmount = 0;
     uint8 l_PredicType = 0;
-
-    uint32 unkCounter4 = 0;
 
     uint64 l_CasterGuid1    = m_CastItem ? m_CastItem->GetGUID() : m_caster->GetGUID();
     uint64 l_CasterGuid2    = m_caster->GetGUID();
@@ -4876,7 +4890,7 @@ void Spell::SendSpellStart()
     data.appendPackGUID(l_CasterGuid2);
     data << uint8(m_cast_count);
     data << uint32(m_spellInfo->Id);
-    data << uint32(m_spellInfo->FirstSpellXSpellVisualID);
+    data << uint32(m_SpellVisualID);
     data << uint32(l_CastFlags);
     data << uint32(m_casttime);
     data << uint32(0);                      ///< Hitted target count
@@ -5094,7 +5108,7 @@ void Spell::SendSpellGo()
     l_Data.appendPackGUID(l_CasterGuid2);
     l_Data << uint8(m_cast_count);
     l_Data << uint32(m_spellInfo->Id);
-    l_Data << uint32(m_spellInfo->FirstSpellXSpellVisualID);
+    l_Data << uint32(m_SpellVisualID);
     l_Data << uint32(l_CastFlags);
     l_Data << uint32(getMSTime());
     l_Data << uint32(l_HitCount);
@@ -5363,7 +5377,7 @@ void Spell::ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit* victim, uint32 at
     m_effectExecuteData[effIndex].AddExtraAttack(victim->GetGUID(), attCount);
 }
 
-void Spell::ExecuteLogEffectInterruptCast(uint8 effIndex, Unit* victim, uint32 spellId)
+void Spell::ExecuteLogEffectInterruptCast(uint8 /*effIndex*/, Unit* /*victim*/, uint32 /*spellId*/)
 {
     /// Why is commented ?
     /*InitEffectExecuteData(effIndex);
@@ -5795,8 +5809,13 @@ void Spell::TakeRunePower(bool didHit)
             if (runeCost[i] < 0)
                 runeCost[i] = 0;
         }
-        sScriptMgr->OnModifyPower(player, POWER_RUNES, 0, runeCost[i], false);
+        sScriptMgr->OnModifyPower(player, POWER_RUNES, 0, runeCost[i], false, false);
     }
+
+    bool l_ConvertUsedRunes = false;
+    for (AuraEffect const* l_ConvertConsumedRuneAuras : m_caster->GetAuraEffectsByType(SPELL_AURA_CONVERT_CONSUMED_RUNE))
+        if (l_ConvertConsumedRuneAuras->IsAffectingSpell(m_spellInfo))
+            l_ConvertUsedRunes = true;
 
     /* In MOP there is a some spell, that use death rune, so don't reset it*/
     //runeCost[RUNE_DEATH] = 0;                               // calculated later
@@ -5828,6 +5847,8 @@ void Spell::TakeRunePower(bool didHit)
         }
 
         runeCost[rune]--;
+        if (l_ConvertUsedRunes)
+            player->ConvertRune(i, RUNE_DEATH);
         gain_runic = true;
     }
 
@@ -5854,7 +5875,7 @@ void Spell::TakeRunePower(bool didHit)
                     takePower = false;
 
                 // keep Death Rune type if missed or player has Blood of the North or rune is permanently converted
-                if (takePower)
+                if (takePower && !l_ConvertUsedRunes)
                 {
                     player->RestoreBaseRune(i);
                     player->SetDeathRuneUsed(i, true);
@@ -6048,11 +6069,6 @@ void Spell::HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_
 
     uint8 l_Effect = m_spellInfo->Effects[p_I].Effect;
     damage = CalculateDamage(p_I, unitTarget);
-
-    /// Prevent recalculating base damage for every posible target in case of AoE spells 
-    /// @TODO_SOVAK: Rewrite this shit! :P
-    /*if (p_Mode == SPELL_EFFECT_HANDLE_HIT || p_Mode == SPELL_EFFECT_HANDLE_LAUNCH)
-        damage = CalculateDamage(p_I, unitTarget, p_Mode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET);*/
 
     bool l_PreventDefault = CallScriptEffectHandlers((SpellEffIndex)p_I, p_Mode);
     if (!l_PreventDefault && l_Effect < TOTAL_SPELL_EFFECTS)
@@ -6653,7 +6669,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
                 if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
-                    return SPELL_FAILED_OUT_OF_RANGE; 
+                    return SPELL_FAILED_OUT_OF_RANGE;
                 else if (!result)
                     return SPELL_FAILED_NOPATH;
 
@@ -7182,7 +7198,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     /// Fix a bug when spells can be casted in fear
     if (m_caster->HasAuraType(SPELL_AURA_MOD_FEAR) || m_caster->HasAuraType(SPELL_AURA_MOD_FEAR_2))
     {
-        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear() && m_spellInfo->Id != 1022) ///< Specific case of Hand of Protection
+        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear() && m_spellInfo->Id != 1022 && m_spellInfo->Id != 5857) ///< Specific case of Hand of Protection & Hellfire damage (Immolation aura tick)
             return SPELL_FAILED_FLEEING;
     }
 
@@ -8251,7 +8267,19 @@ void Spell::UpdatePointers()
     }
 
     if (m_castItemGUID && m_caster->IsPlayer())
+    {
         m_CastItem = m_caster->ToPlayer()->GetItemByGuid(m_castItemGUID);
+        m_castItemLevel = -1;
+
+        // cast item not found, somehow the item is no longer where we expected
+        if (m_CastItem)
+        {
+            if (m_CastItem->GetOwnerGUID() == m_caster->GetGUID())
+                m_castItemLevel = m_caster->ToPlayer()->GetEquipItemLevelFor(m_CastItem->GetTemplate(), m_CastItem);
+            else if (Player* owner = m_CastItem->GetOwner())
+                m_castItemLevel = owner->GetEquipItemLevelFor(m_CastItem->GetTemplate(), m_CastItem);
+        }
+    }
 
     m_targets.Update(m_caster);
 
@@ -8663,7 +8691,7 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         }
     }
     
-    if (m_CustomCritChance < 0.f)
+    if (m_CustomCritChance < 0.0f)
         targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
     else
         targetInfo.crit = roll_chance_f(m_CustomCritChance);
@@ -8802,7 +8830,7 @@ void Spell::FinishTargetProcessing()
     SendLogExecute();
 }
 
-void Spell::InitEffectExecuteData(uint8 effIndex)
+void Spell::InitEffectExecuteData(uint8 /*effIndex*/)
 {
 }
 
@@ -9163,7 +9191,7 @@ void Spell::PrepareTriggersExecutedOnHit()
         {
              // Permafrost
              if (m_spellInfo->SpellFamilyFlags[1] & 0x00001000 ||  m_spellInfo->SpellFamilyFlags[0] & 0x00100220)
-                 m_preCastSpell = 68391; ///< @todo SpellID removed 
+                 m_preCastSpell = 68391; ///< @todo SpellID removed
              break;
         }
     }

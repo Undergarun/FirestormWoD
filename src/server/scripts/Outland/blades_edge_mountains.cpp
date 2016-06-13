@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Blades_Edge_Mountains
@@ -33,6 +23,7 @@ go_legion_obelisk
 go_thunderspike
 EndContentData */
 
+#include "SpellScript.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -335,7 +326,7 @@ class spell_quest_lashhan_channeling : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void Register() override
+            void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_quest_lashhan_channeling_SpellScript::CheckCast);
             }
@@ -478,7 +469,7 @@ enum eBloodmaul
     NPC_QUEST_CREDIT                            = 21241,
     GO_KEG                                      = 184315,
     QUEST_GETTING_THE_BLADESPIRE_TANKED         = 10512,
-    QUEST_BLADESPIRE_KEGGER                     = 10545,
+    QUEST_BLADESPIRE_KEGGER                     = 10545
 };
 
 class npc_bloodmaul_brutebane : public CreatureScript
@@ -585,7 +576,7 @@ public:
 enum TheThunderspike
 {
     NPC_GOR_GRIMGUT     = 21319,
-    QUEST_THUNDERSPIKE  = 10526,
+    QUEST_THUNDERSPIKE  = 10526
 };
 
 class go_thunderspike : public GameObjectScript
@@ -647,7 +638,7 @@ enum SimonGame
     SPELL_BAD_PRESS_DAMAGE          = 40065,
     SPELL_REWARD_BUFF_1             = 40310,
     SPELL_REWARD_BUFF_2             = 40311,
-    SPELL_REWARD_BUFF_3             = 40312,
+    SPELL_REWARD_BUFF_3             = 40312
 };
 
 enum SimonEvents
@@ -662,7 +653,7 @@ enum SimonEvents
 
     ACTION_SIMON_CORRECT_FULL_SEQUENCE = 8,
     ACTION_SIMON_WRONG_SEQUENCE        = 9,
-    ACTION_SIMON_ROUND_FINISHED        = 10,
+    ACTION_SIMON_ROUND_FINISHED        = 10
 };
 
 enum SimonColors
@@ -671,7 +662,7 @@ enum SimonColors
     SIMON_RED           = 1,
     SIMON_GREEN         = 2,
     SIMON_YELLOW        = 3,
-    SIMON_MAX_COLORS    = 4,
+    SIMON_MAX_COLORS    = 4
 };
 
 class npc_simon_bunny : public CreatureScript
@@ -1149,7 +1140,7 @@ enum ApexisRelic
 
     ITEM_APEXIS_SHARD         = 32569,
     SPELL_TAKE_REAGENTS_SOLO  = 41145,
-    SPELL_TAKE_REAGENTS_GROUP = 41146,
+    SPELL_TAKE_REAGENTS_GROUP = 41146
 };
 
 class go_apexis_relic : public GameObjectScript
@@ -1181,6 +1172,7 @@ class go_apexis_relic : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_blades_edge_mountains()
 {
     new mobs_bladespire_ogre();
@@ -1197,3 +1189,4 @@ void AddSC_blades_edge_mountains()
     new go_simon_cluster();
     new go_apexis_relic();
 }
+#endif

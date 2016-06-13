@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Razorfen_Downs
@@ -43,7 +33,7 @@ enum eEnums
     SPELL_MIGHT_TROLLS_BLOOD_POTION             = 3451,
     SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION   = 13030,
     GOSSIP_TEXT_TEA_ANSWER                      = 2114,
-    GOSSIP_TEXT_POTION_ANSWER                   = 2115,
+    GOSSIP_TEXT_POTION_ANSWER                   = 2115
 };
 
 #define GOSSIP_ITEM_TEA     "Teach me the cooking recipe"
@@ -168,9 +158,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_razorfen_downs()
 {
     new npc_henry_stern();
     new go_gong();
     new npc_tomb_creature();
 }
+#endif

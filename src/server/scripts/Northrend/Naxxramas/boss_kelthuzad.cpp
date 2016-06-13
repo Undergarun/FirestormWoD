@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_KelThuzad
@@ -77,7 +67,7 @@ enum Event
     EVENT_TRIGGER,
 
     EVENT_PHASE,
-    EVENT_MORTAL_WOUND,
+    EVENT_MORTAL_WOUND
 };
 
 enum Spells
@@ -129,7 +119,7 @@ enum Spells
 
     // Abomination spells
     SPELL_FRENZY                                           = 28468,
-    SPELL_MORTAL_WOUND                                     = 28467,
+    SPELL_MORTAL_WOUND                                     = 28467
 };
 
 enum Creatures
@@ -181,7 +171,7 @@ const Position PosAbominations[MAX_ABOMINATIONS] =
     {3669.74f, -5149.63f, 143.678f, 0.528643f},
     {3695.53f, -5169.53f, 143.671f, 2.11908f},
     {3701.98f, -5166.51f, 143.395f, 1.24257f},
-    {3709.62f, -5169.15f, 143.576f, 5.97695f},
+    {3709.62f, -5169.15f, 143.576f, 5.97695f}
 };
 
 //Soldiers of the Frozen Wastes
@@ -236,7 +226,7 @@ const Position PosWastes[MAX_WASTES] =
     {3708.53f, -5172.19f, 143.573f, 3.26575f},
     {3712.49f, -5167.62f, 143.657f, 5.63295f},
     {3704.89f, -5161.84f, 143.239f, 5.63295f},
-    {3695.66f, -5164.63f, 143.674f, 1.54416f},
+    {3695.66f, -5164.63f, 143.674f, 1.54416f}
 };
 
 //Soul Weavers
@@ -249,7 +239,7 @@ const Position PosWeavers[MAX_WEAVERS] =
     {3689.05f, -5055.7f, 143.172f, 6.09554f},
     {3649.45f, -5093.17f, 143.299f, 2.51805f},
     {3659.7f, -5144.49f, 143.363f, 4.08806f},
-    {3704.71f, -5175.96f, 143.597f, 3.36549f},
+    {3704.71f, -5175.96f, 143.597f, 3.36549f}
 };
 
 // predicate function to select not charmed target
@@ -835,6 +825,7 @@ class achievement_just_cant_get_enough : public AchievementCriteriaScript
        }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kelthuzad()
 {
     new boss_kelthuzad();
@@ -843,3 +834,4 @@ void AddSC_boss_kelthuzad()
     new spell_kelthuzad_detonate_mana();
     new achievement_just_cant_get_enough();
 }
+#endif

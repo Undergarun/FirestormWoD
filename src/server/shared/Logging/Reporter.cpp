@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2014-2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Reporter.hpp"
@@ -16,8 +16,6 @@ void Reporter::ScheduleNextReport()
     std::string l_ReportDatas;
 
     m_ReportQueue.next(l_ReportDatas);
-
-    size_t l_Size = l_ReportDatas.size(); ///< l_Size is never read 01/18/16
 
     CURL* l_Curl = curl_easy_init();
     CURLcode l_Res = CURLcode::CURLE_OK;

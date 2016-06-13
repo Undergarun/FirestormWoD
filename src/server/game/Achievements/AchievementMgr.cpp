@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "DBCStructure.h"
 #include "ObjectMgr.h"
@@ -406,7 +396,7 @@ AchievementMgr<T>::~AchievementMgr()
 }
 
 template<class T>
-void AchievementMgr<T>::SendPacket(WorldPacket* data) const
+void AchievementMgr<T>::SendPacket(WorldPacket* /*data*/) const
 {
 }
 
@@ -458,7 +448,7 @@ void AchievementMgr<Guild>::RemoveCriteriaProgress(CriteriaEntry const* p_Entry)
 }
 
 template<class T>
-void AchievementMgr<T>::ResetAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1, uint64 p_MiscValue2, bool p_EvenIfCriteriaComplete)
+void AchievementMgr<T>::ResetAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 /*p_MiscValue1*/, uint64 /*p_MiscValue2*/, bool /*p_EvenIfCriteriaComplete*/)
 {
     // Disable for game masters with GM-mode enabled
     if (GetOwner()->isGameMaster())
@@ -487,7 +477,7 @@ void AchievementMgr<T>::DeleteFromDB(uint32 /*lowguid*/, uint32 /*accountId*/)
 }
 
 template<>
-void AchievementMgr<Player>::DeleteFromDB(uint32 p_LowGUID, uint32 p_AccountID)
+void AchievementMgr<Player>::DeleteFromDB(uint32 p_LowGUID, uint32 /*p_AccountID*/)
 {
     SQLTransaction l_Trans = CharacterDatabase.BeginTransaction();
 
@@ -499,7 +489,7 @@ void AchievementMgr<Player>::DeleteFromDB(uint32 p_LowGUID, uint32 p_AccountID)
 }
 
 template<>
-void AchievementMgr<Guild>::DeleteFromDB(uint32 p_LowGUID, uint32 p_AccountID)
+void AchievementMgr<Guild>::DeleteFromDB(uint32 p_LowGUID, uint32 /*p_AccountID*/)
 {
     SQLTransaction l_Trans = CharacterDatabase.BeginTransaction();
 
@@ -832,12 +822,12 @@ void AchievementMgr<Guild>::SaveToDB(SQLTransaction& trans)
 }
 
 template<class T>
-void AchievementMgr<T>::LoadFromDB(Player* p_Player, Guild* p_Guild, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult, PreparedQueryResult criteriaAccountResult)
+void AchievementMgr<T>::LoadFromDB(Player* /*p_Player*/, Guild* /*p_Guild*/, PreparedQueryResult /*achievementResult*/, PreparedQueryResult /*criteriaResult*/, PreparedQueryResult /*achievementAccountResult*/, PreparedQueryResult /*criteriaAccountResult*/)
 {
 }
 
 template<>
-void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult, PreparedQueryResult criteriaAccountResult)
+void AchievementMgr<Player>::LoadFromDB(Player* /*p_Player*/, Guild* /*p_Guild*/, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult, PreparedQueryResult criteriaAccountResult)
 {
     if (achievementAccountResult)
     {
@@ -958,6 +948,10 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
                     if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
                         GetOwner()->SetTitle(titleEntry);
                 }
+
+                /// Spell
+                if (reward->SpellID)
+                    GetOwner()->learnSpell(reward->SpellID, false, false);
             }
 
         }
@@ -996,7 +990,7 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
 }
 
 template<>
-void AchievementMgr<Guild>::LoadFromDB(Player* /*p_Player*/, Guild* p_Guild, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult, PreparedQueryResult criteriaAccountResult)
+void AchievementMgr<Guild>::LoadFromDB(Player* /*p_Player*/, Guild* /*p_Guild*/, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult /*achievementAccountResult*/, PreparedQueryResult /*criteriaAccountResult*/)
 {
     if (achievementResult)
     {
@@ -1300,7 +1294,7 @@ void AchievementMgr<T>::CheckAllAchievementCriteria(Player* p_ReferencePlayer)
         AchievementCriteriaUpdateTask l_Task;
         l_Task.PlayerGUID = p_ReferencePlayer->GetGUID();
         l_Task.UnitGUID   = 0;
-        l_Task.Task = [l_AchievementCriteriaType](uint64 const& p_PlayerGuid, uint64 const& p_UnitGUID) -> void
+        l_Task.Task = [l_AchievementCriteriaType](uint64 const& p_PlayerGuid, uint64 const& /*p_UnitGUID*/) -> void
         {
             /// Task will be executed async
             /// We need to ensure the player still exist
@@ -1314,18 +1308,6 @@ void AchievementMgr<T>::CheckAllAchievementCriteria(Player* p_ReferencePlayer)
         sAchievementMgr->AddCriteriaUpdateTask(l_Task);
     }
 }
-
-static const uint32 achievIdByArenaSlot[MAX_ARENA_SLOT] = {1057, 1107, 1108};
-static const uint32 achievIdForDungeon[][4] =
-{
-    // ach_cr_id, is_dungeon, is_raid, is_heroic_dungeon
-    { 321,       true,      true,   true  },
-    { 916,       false,     true,   false },
-    { 917,       false,     true,   false },
-    { 918,       true,      false,  false },
-    { 2219,      false,     false,  true  },
-    { 0,         false,     false,  false }
-};
 
 // Helper function to avoid having to specialize template for a 800 line long function
 template <typename T> static bool IsGuild() { return false; }
@@ -1685,14 +1667,16 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:
                 break;                                   // Not implemented yet :(
+            default:
+                break;
         }
-
+        
         SetCompletedAchievementsIfNeeded(l_AchievementCriteria, p_ReferencePlayer, p_LoginCheck);
     }
 }
 
 template<class T>
-bool AchievementMgr<T>::CanCompleteCriteria(CriteriaEntry const* achievementCriteria, AchievementEntry const* achievement)
+bool AchievementMgr<T>::CanCompleteCriteria(CriteriaEntry const* /*achievementCriteria*/, AchievementEntry const* /*achievement*/)
 {
     return true;
 }
@@ -1706,7 +1690,7 @@ template<>
 uint32 GetInstanceId(Player* player) { return player->GetInstanceId(); }
 
 template<>
-bool AchievementMgr<Player>::CanCompleteCriteria(CriteriaEntry const* achievementCriteria, AchievementEntry const* achievement)
+bool AchievementMgr<Player>::CanCompleteCriteria(CriteriaEntry const* /*achievementCriteria*/, AchievementEntry const* achievement)
 {
     if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
     {
@@ -2230,9 +2214,11 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
     if (p_Achievement->Flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(p_Achievement->ID))
         return;
 
-    /*if (achievement->flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_NEWS)
-        if (Guild* guild = sGuildMgr->GetGuildById(referencePlayer->GetGuildId()))
-            guild->GetNewsLog().AddNewEvent(GUILD_NEWS_PLAYER_ACHIEVEMENT, time(NULL), referencePlayer->GetGUID(), achievement->flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_HEADER, achievement->ID);*/
+    if (p_Achievement->Flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_NEWS)
+    {
+        if (Guild* l_Guild = sGuildMgr->GetGuildById(p_ReferencePlayer->GetGuildId()))
+            l_Guild->GetNewsLog().AddNewEvent(GUILD_NEWS_PLAYER_ACHIEVEMENT, time(NULL), p_ReferencePlayer->GetGUID(), p_Achievement->Flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_HEADER, p_Achievement->ID);
+    }
 
     switch (p_Achievement->ID)
     {
@@ -2258,10 +2244,14 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
         l_Data.completedByThisCharacter = true;
         l_Data.changed = true;
         m_CompletedAchievementsLock.release();
+
+        /// Rewards must be handled too in this case
+        RewardAchievement(p_Achievement);
+
         return;
     }
 
-    m_CompletedAchievementsLock.acquire();        
+    m_CompletedAchievementsLock.acquire();
     CompletedAchievementData& l_Data = m_completedAchievements[p_Achievement->ID];
     l_Data.completedByThisCharacter = true;
     l_Data.date = time(NULL);
@@ -2280,56 +2270,7 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, 0, 0, 0, NULL, p_ReferencePlayer);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, p_Achievement->Points, 0, 0, NULL, p_ReferencePlayer);
 
-    // Reward items and titles if any
-    AchievementReward const* l_Reward = sAchievementMgr->GetAchievementReward(p_Achievement);
-
-    // No rewards
-    if (!l_Reward)
-        return;
-
-    // Titles
-    //! Currently there's only one achievement that deals with gender-specific titles.
-    //! Since no common attributes were found, (not even in titleRewardFlags field)
-    //! we explicitly check by ID. Maybe in the future we could move the achievement_reward
-    //! condition fields to the condition system.
-    if (uint32 l_TitleID = l_Reward->titleId[p_Achievement->ID == 1793 ? GetOwner()->getGender() : (GetOwner()->GetTeam() == ALLIANCE ? 0 : 1)])
-        if (CharTitlesEntry const* l_TitleEntry = sCharTitlesStore.LookupEntry(l_TitleID))
-            GetOwner()->SetTitle(l_TitleEntry);
-
-    // Mail
-    if (l_Reward->sender)
-    {
-        Item* l_Item = l_Reward->itemId ? Item::CreateItem(l_Reward->itemId, 1, GetOwner()) : NULL;
-
-        int l_LocIDX = GetOwner()->GetSession()->GetSessionDbLocaleIndex();
-
-        // Subject and text
-        std::string l_Subject = l_Reward->subject;
-        std::string l_Text = l_Reward->text;
-        if (l_LocIDX >= 0)
-        {
-            if (AchievementRewardLocale const* l_Locale = sAchievementMgr->GetAchievementRewardLocale(p_Achievement))
-            {
-                ObjectMgr::GetLocaleString(l_Locale->subject, l_LocIDX, l_Subject);
-                ObjectMgr::GetLocaleString(l_Locale->text, l_LocIDX, l_Text);
-            }
-        }
-
-        MailDraft l_Draft(l_Subject, l_Text);
-
-        SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
-        if (l_Item)
-        {
-            // Save new item before send
-            l_Item->SaveToDB(l_Transaction);                               // Save for prevent lost at next mail load, if send fail then item will deleted
-
-            // Item
-            l_Draft.AddItem(l_Item);
-        }
-
-        l_Draft.SendMailTo(l_Transaction, GetOwner(), MailSender(MAIL_CREATURE, l_Reward->sender));
-        CharacterDatabase.CommitTransaction(l_Transaction);
-    }
+    RewardAchievement(p_Achievement);
 }
 
 template<>
@@ -2368,6 +2309,70 @@ void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achieve
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS, achievement->Points, 0, 0, NULL, referencePlayer);
 
     m_NeedDBSync = true;
+}
+
+template<class T>
+void AchievementMgr<T>::RewardAchievement(AchievementEntry const* p_Achievement)
+{
+    /// Reward items and titles if any
+    AchievementReward const* l_Reward = sAchievementMgr->GetAchievementReward(p_Achievement);
+
+    /// No rewards
+    if (!l_Reward)
+        return;
+
+    /// Titles
+    /// Currently there's only one achievement that deals with gender-specific titles.
+    /// Since no common attributes were found, (not even in titleRewardFlags field)
+    /// we explicitly check by ID. Maybe in the future we could move the achievement_reward
+    /// condition fields to the condition system.
+    if (uint32 l_TitleID = l_Reward->titleId[p_Achievement->ID == 1793 ? GetOwner()->getGender() : (GetOwner()->GetTeam() == ALLIANCE ? 0 : 1)])
+        if (CharTitlesEntry const* l_TitleEntry = sCharTitlesStore.LookupEntry(l_TitleID))
+            GetOwner()->SetTitle(l_TitleEntry);
+
+    /// Mail
+    if (l_Reward->sender)
+    {
+        Item* l_Item = l_Reward->itemId ? Item::CreateItem(l_Reward->itemId, 1, GetOwner()) : NULL;
+
+        int l_LocIDX = GetOwner()->GetSession()->GetSessionDbLocaleIndex();
+
+        /// Subject and text
+        std::string l_Subject = l_Reward->subject;
+        std::string l_Text = l_Reward->text;
+        if (l_LocIDX >= 0)
+        {
+            if (AchievementRewardLocale const* l_Locale = sAchievementMgr->GetAchievementRewardLocale(p_Achievement))
+            {
+                ObjectMgr::GetLocaleString(l_Locale->subject, l_LocIDX, l_Subject);
+                ObjectMgr::GetLocaleString(l_Locale->text, l_LocIDX, l_Text);
+            }
+        }
+
+        MailDraft l_Draft(l_Subject, l_Text);
+
+        SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+        if (l_Item)
+        {
+            /// Save new item before send
+            l_Item->SaveToDB(l_Transaction);                               ///< Save for prevent lost at next mail load, if send fail then item will deleted
+
+                                                                           ///< Item
+            l_Draft.AddItem(l_Item);
+        }
+
+        l_Draft.SendMailTo(l_Transaction, GetOwner(), MailSender(MAIL_CREATURE, l_Reward->sender));
+        CharacterDatabase.CommitTransaction(l_Transaction);
+    }
+
+    /// Spell
+    if (l_Reward->SpellID)
+        GetOwner()->learnSpell(l_Reward->SpellID, false, false);
+}
+
+template<>
+void AchievementMgr<Guild>::RewardAchievement(AchievementEntry const* p_Achievement)
+{
 }
 
 struct VisibleAchievementPred
@@ -2445,7 +2450,7 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
 }
 
 template<class T>
-void AchievementMgr<T>::SendAchievementInfo(Player* p_Receiver, uint32 p_AchievementID /*= 0*/)
+void AchievementMgr<T>::SendAchievementInfo(Player* /*p_Receiver*/, uint32 /*p_AchievementID*/ /*= 0*/)
 {
 }
 
@@ -2561,7 +2566,7 @@ bool AchievementMgr<Player>::HasAchieved(uint32 achievementId) const
     {
         m_CompletedAchievementsLock.release();
         return false;
-    } 
+    }
     m_CompletedAchievementsLock.release();
 
     return (*itr).second.completedByThisCharacter;
@@ -2663,28 +2668,8 @@ bool AchievementMgr<T>::CanUpdateCriteria(CriteriaEntry const* p_Criteria, Achie
 }
 
 template<class T>
-bool AchievementMgr<T>::ConditionsSatisfied(CriteriaEntry const* p_Criteria, Player* p_ReferencePlayer) const
+bool AchievementMgr<T>::ConditionsSatisfied(CriteriaEntry const* /*p_Criteria*/, Player* /*p_ReferencePlayer*/) const
 {
-    /*for (uint32 i = 0; i < MAX_CRITERIA_REQUIREMENTS; ++i)
-    {
-        if (!p_Criteria->additionalRequirements[i].additionalRequirement_type)
-            continue;
-
-        switch (p_Criteria->additionalRequirements[i].additionalRequirement_type)
-        {
-            case ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP:
-                if (p_ReferencePlayer->GetMapId() != p_Criteria->additionalRequirements[i].additionalRequirement_value)
-                    return false;
-                break;
-            case ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP:
-                if (p_ReferencePlayer->GetGroup())
-                    return false;
-                break;
-            default:
-                break;
-        }
-    }*/
-
     return true;
 }
 
@@ -2791,71 +2776,12 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
         {
             if (!p_MiscValue1)
                 return false;
-            /*if (!referencePlayer)
-                return false;
-            // skip wrong arena achievements, if not achievIdByArenaSlot then normal total death counter
-            bool notfit = false;
-            for (int j = 0; j < MAX_ARENA_SLOT; ++j)
-            {
-                if (achievIdByArenaSlot[j] == achievementCriteria->achievement)
-                {
-                    Battleground* bg = referencePlayer->GetBattleground();
-                    if (!bg || !bg->isArena() || Arena::GetSlotByType(bg->GetArenaType()) != j)
-                        notfit = true;
-                    break;
-                }
-            }
-            if (notfit)
-                return false;*/
             break;
         }
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
         {
             if (!p_MiscValue1)
                 return false;
-
-            /*if (!referencePlayer)
-                return false;
-
-            Map const* map = referencePlayer->IsInWorld() ? referencePlayer->GetMap() : sMapMgr->FindMap(referencePlayer->GetMapId(), referencePlayer->GetInstanceId());
-            if (!map || !map->IsDungeon())
-                return false;
-
-            // search case
-            bool found = false;
-            for (int j = 0; achievIdForDungeon[j][0]; ++j)
-            {
-                if (achievIdForDungeon[j][0] == achievementCriteria->achievement)
-                {
-                    if (map->IsRaid())
-                    {
-                        // if raid accepted (ignore difficulty)
-                        if (!achievIdForDungeon[j][2])
-                            break;                      // for
-                    }
-                    else if (referencePlayer->GetDungeonDifficulty() == REGULAR_DIFFICULTY)
-                    {
-                        // dungeon in normal mode accepted
-                        if (!achievIdForDungeon[j][1])
-                            break;                      // for
-                    }
-                    else
-                    {
-                        // dungeon in heroic mode accepted
-                        if (!achievIdForDungeon[j][3])
-                            break;                      // for
-                    }
-
-                    found = true;
-                    break;                              // for
-                }
-            }
-            if (!found)
-                return false;
-
-            //FIXME: work only for instances where max == min for players
-            if (((InstanceMap*)map)->GetMaxPlayers() != achievementCriteria->death_in_dungeon.manLimit)
-                return false;*/
 
             break;
         }
@@ -3182,7 +3108,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                 Battleground* l_UnitBattleground = p_Unit->ToPlayer()->GetBattleground();
                 if (!l_PlrBattleground || !l_PlrBattleground->isArena() || !l_UnitBattleground || !l_UnitBattleground->isArena())
                     return false;
-                if (!l_PlrBattleground->GetArenaType() != l_ReqValue || !l_UnitBattleground->GetArenaType() != l_ReqValue)
+                if ((!l_PlrBattleground->GetArenaType()) != l_ReqValue || !l_UnitBattleground->GetArenaType() != l_ReqValue)
                     return false;
                 break;
             }
@@ -3705,6 +3631,8 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(uint32 p_Type)
             return "GUILD_CHALLENGE";
         case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
             return "COLLECT_TOYS";
+        default:
+            break;
     }
     return "MISSING_TYPE";
 }
@@ -3973,8 +3901,8 @@ void AchievementGlobalMgr::LoadRewards()
 
     m_achievementRewards.clear();                           // Need for reload case
 
-    //                                               0      1        2        3     4       5        6
-    QueryResult l_Result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, sender, subject, text FROM achievement_reward");
+    //                                                   0      1        2        3     4       5        6        7
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, SpellID, sender, subject, text FROM achievement_reward");
 
     if (!l_Result)
     {
@@ -3986,8 +3914,10 @@ void AchievementGlobalMgr::LoadRewards()
 
     do
     {
+        uint8 l_Index   = 0;
         Field* l_Fields = l_Result->Fetch();
-        uint32 l_Entry = l_Fields[0].GetUInt32();
+        uint32 l_Entry  = l_Fields[l_Index++].GetUInt32();
+
         AchievementEntry const* l_Achievement = GetAchievement(l_Entry);
         if (!l_Achievement)
         {
@@ -3996,17 +3926,18 @@ void AchievementGlobalMgr::LoadRewards()
         }
 
         AchievementReward l_Reward;
-        l_Reward.titleId[0] = l_Fields[1].GetUInt32();
-        l_Reward.titleId[1] = l_Fields[2].GetUInt32();
-        l_Reward.itemId     = l_Fields[3].GetUInt32();
-        l_Reward.sender     = l_Fields[4].GetUInt32();
-        l_Reward.subject    = l_Fields[5].GetString();
-        l_Reward.text       = l_Fields[6].GetString();
+        l_Reward.titleId[0] = l_Fields[l_Index++].GetUInt32();
+        l_Reward.titleId[1] = l_Fields[l_Index++].GetUInt32();
+        l_Reward.itemId     = l_Fields[l_Index++].GetUInt32();
+        l_Reward.SpellID    = l_Fields[l_Index++].GetUInt32();
+        l_Reward.sender     = l_Fields[l_Index++].GetUInt32();
+        l_Reward.subject    = l_Fields[l_Index++].GetString();
+        l_Reward.text       = l_Fields[l_Index++].GetString();
 
-        // Must be title or mail at least
-        if (!l_Reward.titleId[0] && !l_Reward.titleId[1] && !l_Reward.sender)
+        // Must be title, spell or mail at least
+        if (!l_Reward.titleId[0] && !l_Reward.titleId[1] && !l_Reward.sender && !l_Reward.SpellID)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `achievement_reward` (Entry: %u) does not have title or item reward data, ignored.", l_Entry);
+            sLog->outError(LOG_FILTER_SQL, "Table `achievement_reward` (Entry: %u) does not have title, spell or item reward data, ignored.", l_Entry);
             continue;
         }
 
@@ -4065,6 +3996,16 @@ void AchievementGlobalMgr::LoadRewards()
             }
 
             const_cast<ItemTemplate*>(l_ItemTemplate)->FlagsCu |= ItemFlagsCustom::ITEM_FLAGS_CU_CANT_BE_SELL;
+        }
+
+        if (l_Reward.SpellID)
+        {
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Reward.SpellID);
+            if (l_SpellInfo == nullptr)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Table `achievement_reward` (Entry: %u) has invalid SpellID %u", l_Entry, l_Reward.SpellID);
+                l_Reward.SpellID = 0;
+            }
         }
 
         m_achievementRewards[l_Entry] = l_Reward;

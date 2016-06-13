@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Generic has building player condition script
     template<uint32 t_ConditionID, uint32 t_BuildingID> class GarrisonHasBuildingPlayerCondition : PlayerConditionScript
@@ -28,7 +28,7 @@ namespace MS { namespace Garrison
             /// @p_ConditionID : Player condition ID
             /// @p_Condition   : Player condition instance
             /// @p_SourceInfo  : Player
-            virtual bool OnConditionCheck(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player* p_Player) override
+            virtual bool OnConditionCheck(uint32 /*p_ConditionID*/, PlayerConditionEntry const* /*p_Condition*/, Player* p_Player) override
             {
                 if (!p_Player || !p_Player->GetGarrison() || !p_Player->GetGarrison()->HasActiveBuilding(t_BuildingID))
                     return false;
@@ -53,7 +53,7 @@ namespace MS { namespace Garrison
         /// @p_ConditionID : Player condition ID
         /// @p_Condition   : Player condition instance
         /// @p_SourceInfo  : Player
-        virtual bool OnConditionCheck(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player* p_Player) override
+        virtual bool OnConditionCheck(uint32 /*p_ConditionID*/, PlayerConditionEntry const* /*p_Condition*/, Player* p_Player) override
         {
             if (!p_Player || !p_Player->GetGarrison() || !p_Player->GetGarrison()->HasBuildingType((BuildingType::Type)t_BuildingTypeID))
                 return false;
@@ -77,7 +77,7 @@ namespace MS { namespace Garrison
             /// @p_ConditionID : Player condition ID
             /// @p_Condition   : Player condition instance
             /// @p_SourceInfo  : Player
-            virtual bool OnConditionCheck(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player* p_Player) override
+            virtual bool OnConditionCheck(uint32 /*p_ConditionID*/, PlayerConditionEntry const* /*p_Condition*/, Player* p_Player) override
             {
                 if (!p_Player || !p_Player->GetGarrison() || !p_Player->GetGarrison()->HasBuildingType((BuildingType::Type)t_BuildingID))
                     return false;

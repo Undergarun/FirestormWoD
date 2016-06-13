@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Map.h"
 #include "GridStates.h"
@@ -699,7 +689,7 @@ void Map::Update(const uint32 t_diff)
 
     sScriptMgr->OnMapUpdate(this, t_diff);
 
-    uint32 l_TimeElapsed = getMSTime() - l_Time; ///< l_TimeElapsed is never read 01/18/16
+    //uint32 l_TimeElapsed = getMSTime() - l_Time; ///< l_TimeElapsed is never read 01/18/16
     //if (l_TimeElapsed > 10)
     //    sMapMgr->RegisterMapDelay(GetId(), l_TimeElapsed);
 }
@@ -2917,7 +2907,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
     SendInstanceGroupSizeChanged();
 
     /// Set raid difficulty worldstate for following world state expressions
-    /// 10010, 10011, 12298, 12360, 4177, 4314, 4352, 5362, 5431, 5432, 5911, 5912, 5913, 624, 
+    /// 10010, 10011, 12298, 12360, 4177, 4314, 4352, 5362, 5431, 5432, 5911, 5912, 5913, 624,
     ///  6279,  6280,  6315,  6316, 6317, 6623, 6624, 6625, 6626, 6627, 6628, 6645, 6646, 6672,
     ///  6673,  6674,  6675,  6681, 6682, 6726, 6727, 6728, 6741, 6748, 6751, 6752, 6754, 6790,
     ///  6791,  6792,  6793,  6794, 6869, 6870, 6871, 6872, 7198, 7199, 7276, 7277, 7278, 7279,
@@ -2960,7 +2950,7 @@ void InstanceMap::Update(const uint32 t_diff)
 void InstanceMap::RemovePlayerFromMap(Player* p_Player, bool p_Remove)
 {
     /// unset raid difficulty worldstate for following world state expressions
-    /// 10010, 10011, 12298, 12360, 4177, 4314, 4352, 5362, 5431, 5432, 5911, 5912, 5913, 624, 
+    /// 10010, 10011, 12298, 12360, 4177, 4314, 4352, 5362, 5431, 5432, 5911, 5912, 5913, 624,
     ///  6279,  6280,  6315,  6316, 6317, 6623, 6624, 6625, 6626, 6627, 6628, 6645, 6646, 6672,
     ///  6673,  6674,  6675,  6681, 6682, 6726, 6727, 6728, 6741, 6748, 6751, 6752, 6754, 6790,
     ///  6791,  6792,  6793,  6794, 6869, 6870, 6871, 6872, 7198, 7199, 7276, 7277, 7278, 7279,
@@ -3275,7 +3265,7 @@ bool BattlegroundMap::CanEnter(Player* player)
     return Map::CanEnter(player);
 }
 
-bool BattlegroundMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
+bool BattlegroundMap::AddPlayerToMap(Player* player, bool /*p_Switched*/ /*= false*/)
 {
     {
         TRINITY_GUARD(ACE_Thread_Mutex, Lock);

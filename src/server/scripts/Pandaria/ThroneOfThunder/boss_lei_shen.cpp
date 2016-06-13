@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -368,34 +357,34 @@ uint32 const g_WindFX[4] =
 uint32 const g_DespawnEntries[2] =
 {
     NPC_OVERWHELMING_POWER,
-    NPC_UNHARNESSED_POWER,
+    NPC_UNHARNESSED_POWER
 };
 
-#define MIN_DIST_TO_CONDUIT 30.f
+#define MIN_DIST_TO_CONDUIT 30.0f
 
 Position const g_OverwhelmingPowerSpawnPos[21] =
 {
-    { 5756.424f, 4051.331f, 139.0409f, 0.f },
-    { 5754.281f, 4138.183f, 138.6690f, 0.f },
-    { 5663.266f, 4136.861f, 139.0478f, 0.f },
-    { 5644.216f, 4055.576f, 139.5109f, 0.f },
-    { 5676.894f, 4023.767f, 140.5970f, 0.f },
-    { 5778.203f, 4130.346f, 140.7002f, 0.f },
-    { 5743.726f, 4023.006f, 140.0055f, 0.f },
-    { 5782.804f, 4062.145f, 140.0808f, 0.f },
-    { 5637.465f, 4125.247f, 140.5260f, 0.f },
-    { 5742.257f, 4166.458f, 140.4937f, 0.f },
-    { 5685.958f, 4174.120f, 140.0497f, 0.f },
-    { 5729.863f, 4008.781f, 139.5508f, 0.f },
-    { 5795.587f, 4113.360f, 140.2041f, 0.f },
-    { 5624.827f, 4075.135f, 139.7232f, 0.f },
-    { 5797.854f, 4077.292f, 140.2016f, 0.f },
-    { 5724.964f, 4183.833f, 140.3905f, 0.f },
-    { 5698.932f, 4001.160f, 139.8845f, 0.f },
-    { 5697.327f, 4185.682f, 139.8094f, 0.f },
-    { 5812.788f, 4092.969f, 141.1292f, 0.f },
-    { 5719.229f, 4079.484f, 279.6558f, 0.f },
-    { 5696.360f, 4085.275f, 279.6558f, 0.f }
+    { 5756.424f, 4051.331f, 139.0409f, 0.0f },
+    { 5754.281f, 4138.183f, 138.6690f, 0.0f },
+    { 5663.266f, 4136.861f, 139.0478f, 0.0f },
+    { 5644.216f, 4055.576f, 139.5109f, 0.0f },
+    { 5676.894f, 4023.767f, 140.5970f, 0.0f },
+    { 5778.203f, 4130.346f, 140.7002f, 0.0f },
+    { 5743.726f, 4023.006f, 140.0055f, 0.0f },
+    { 5782.804f, 4062.145f, 140.0808f, 0.0f },
+    { 5637.465f, 4125.247f, 140.5260f, 0.0f },
+    { 5742.257f, 4166.458f, 140.4937f, 0.0f },
+    { 5685.958f, 4174.120f, 140.0497f, 0.0f },
+    { 5729.863f, 4008.781f, 139.5508f, 0.0f },
+    { 5795.587f, 4113.360f, 140.2041f, 0.0f },
+    { 5624.827f, 4075.135f, 139.7232f, 0.0f },
+    { 5797.854f, 4077.292f, 140.2016f, 0.0f },
+    { 5724.964f, 4183.833f, 140.3905f, 0.0f },
+    { 5698.932f, 4001.160f, 139.8845f, 0.0f },
+    { 5697.327f, 4185.682f, 139.8094f, 0.0f },
+    { 5812.788f, 4092.969f, 141.1292f, 0.0f },
+    { 5719.229f, 4079.484f, 279.6558f, 0.0f },
+    { 5696.360f, 4085.275f, 279.6558f, 0.0f }
 };
 
 Position const g_QuadrantStalkerPositions[4] =
@@ -435,20 +424,20 @@ struct Line
 };
 
 /// Descending lines
-Line const m_LineA1 = { 1.f, -1709.64f }; ///< NE edge for North and East squares (at the vertex of the main area)
-Line const m_LineA2 = { 1.f, -1697.25f }; ///< NE edge for Main Area square
-Line const m_LineA3 = { 1.f, -1649.31f }; ///< SW edge for North and East squares
-Line const m_LineA4 = { 1.f, -1589.05f }; ///< NE edge for South and West squares
-Line const m_LineA5 = { 1.f, -1541.40f }; ///< SW edge for Main Area square
-Line const m_LineA6 = { 1.f, -1528.71f }; ///< SW edge for South and West squares
+Line const m_LineA1 = { 1.0f, -1709.64f }; ///< NE edge for North and East squares (at the vertex of the main area)
+Line const m_LineA2 = { 1.0f, -1697.25f }; ///< NE edge for Main Area square
+Line const m_LineA3 = { 1.0f, -1649.31f }; ///< SW edge for North and East squares
+Line const m_LineA4 = { 1.0f, -1589.05f }; ///< NE edge for South and West squares
+Line const m_LineA5 = { 1.0f, -1541.40f }; ///< SW edge for Main Area square
+Line const m_LineA6 = { 1.0f, -1528.71f }; ///< SW edge for South and West squares
 
 /// Ascending lines
-Line const m_LineB1 = { -1.f, 9898.32f }; ///< NW edge for North and West squares
-Line const m_LineB2 = { -1.f, 9885.93f }; ///< NW edge for the Main Area square
-Line const m_LineB3 = { -1.f, 9837.99f }; ///< SE edge for the North and West squares
-Line const m_LineB4 = { -1.f, 9777.73f }; ///< NW edge for the South and East squares
-Line const m_LineB5 = { -1.f, 9730.08f }; ///< SE edge for the Main Area square
-Line const m_LineB6 = { -1.f, 9717.39f }; ///< SE edge for South and East squares
+Line const m_LineB1 = { -1.0f, 9898.32f }; ///< NW edge for North and West squares
+Line const m_LineB2 = { -1.0f, 9885.93f }; ///< NW edge for the Main Area square
+Line const m_LineB3 = { -1.0f, 9837.99f }; ///< SE edge for the North and West squares
+Line const m_LineB4 = { -1.0f, 9777.73f }; ///< NW edge for the South and East squares
+Line const m_LineB5 = { -1.0f, 9730.08f }; ///< SE edge for the Main Area square
+Line const m_LineB6 = { -1.0f, 9717.39f }; ///< SE edge for South and East squares
 
 class OnPlatform
 {
@@ -502,7 +491,7 @@ class OnPlatform
     public:
         bool static IsOnPlatform(Unit* p_Unit)
         {
-            if (p_Unit->GetPositionZ() < 156.f)
+            if (p_Unit->GetPositionZ() < 156.0f)
                 return false;
 
             float l_PosX = p_Unit->GetPositionX();
@@ -558,7 +547,7 @@ class boss_lei_shen : public CreatureScript
                 m_ActivePillar    = 0;
                 m_Phase           = PHASE_INTRO;
                 m_InactivePillars = PILLAR_NONE;
-                m_NextHealthPct   = 65.f;
+                m_NextHealthPct   = 65.0f;
                 m_HasConduit      = false;
                 m_OpenedWindow    = WINDOW_NO;
 
@@ -580,7 +569,7 @@ class boss_lei_shen : public CreatureScript
                 Talk(TALK_SLAY);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (m_Instance)
                 {
@@ -602,19 +591,19 @@ class boss_lei_shen : public CreatureScript
 
                 if (m_Phase == PHASE_1 && me->HealthBelowPctDamaged(m_NextHealthPct, p_Damage))
                 {
-                    m_NextHealthPct = 30.f;
+                    m_NextHealthPct = 30.0f;
                     m_Phase = PHASE_1_TO_2;
                     DoAction(ACTION_SET_TO_TRANSITION_PHASE);
                 }
                 else if (m_Phase == PHASE_2 && me->HealthBelowPctDamaged(m_NextHealthPct, p_Damage))
                 {
-                    m_NextHealthPct = 0.f;
+                    m_NextHealthPct = 0.0f;
                     m_Phase = PHASE_2_TO_3;
                     DoAction(ACTION_SET_TO_TRANSITION_PHASE);
                 }
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType)
+            void DamageDealt(Unit* p_Victim, uint32& /*p_Damage*/, DamageEffectType p_DamageType)
             {
                 if (m_Phase != PHASE_3 || p_DamageType != DIRECT_DAMAGE)
                     return;
@@ -719,7 +708,7 @@ class boss_lei_shen : public CreatureScript
                 Reset();
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
                 m_Events.Reset();
@@ -861,7 +850,7 @@ class boss_lei_shen : public CreatureScript
                         uint32 l_PillarLevel = GetPillarLevel(DATA_STATE_WEST);
 
                         std::list<Creature*> l_QuadrantList;
-                        GetCreatureListWithEntryInGrid(l_QuadrantList, me, NPC_QUADRANT_STALKER, 100.f);
+                        GetCreatureListWithEntryInGrid(l_QuadrantList, me, NPC_QUADRANT_STALKER, 100.0f);
 
                         if (l_QuadrantList.size() > l_PillarLevel)
                             JadeCore::RandomResizeList(l_QuadrantList, l_PillarLevel);
@@ -1062,7 +1051,7 @@ class boss_lei_shen : public CreatureScript
                         if (!l_PillarToDeactivate)
                             break;
 
-                        /// Deactivating pillar and floor associated to 
+                        /// Deactivating pillar and floor associated to
                         l_PillarToDeactivate->AI()->DoAction(ACTION_DEACTIVATE_PILLAR);
                         DisableFloors(l_Data);
                         m_InactivePillars |= g_PillarState[l_Data];
@@ -1432,8 +1421,8 @@ class mob_pillar_controler : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK6 | UNIT_FLAG2_REGENERATE_POWER);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
 
-                me->SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, -10.f);
-                me->SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, -10.f);
+                me->SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, -10.0f);
+                me->SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, -10.0f);
                 me->SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 50331648);
 
                 me->SetReactState(REACT_PASSIVE);
@@ -1668,7 +1657,7 @@ class mob_thunderous_throw : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 if (!m_Instance)
                     return;
@@ -1678,7 +1667,7 @@ class mob_thunderous_throw : public CreatureScript
                     Position l_Position;
                     me->GetPosition(&l_Position);
 
-                    l_LeiShen->SendPlaySpellVisual(29519, me, 4.f, me->GetOrientation(), l_Position, false, true);
+                    l_LeiShen->SendPlaySpellVisual(29519, me, 4.0f, me->GetOrientation(), l_Position, false, true);
                     l_LeiShen->CastSpell(me, SPELL_THUNDERSTRUCK_MISSILE, false);
                 }
             }
@@ -1705,7 +1694,7 @@ class mob_lesser_diffused_lightning : public CreatureScript
                 me->CastSpell(me, SPELL_CHAIN_LIGHTNING_SUMMON_1, true);
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType)
+            void DamageDealt(Unit* p_Victim, uint32& /*p_Damage*/, DamageEffectType p_DamageType)
             {
                 if (p_DamageType != DIRECT_DAMAGE)
                     return;
@@ -1735,7 +1724,7 @@ class mob_diffused_lightning : public CreatureScript
                 me->CastSpell(me, SPELL_CHAIN_LIGHTNING_SUMMON_2, true);
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType)
+            void DamageDealt(Unit* p_Victim, uint32& /*p_Damage*/, DamageEffectType p_DamageType)
             {
                 if (p_DamageType != DIRECT_DAMAGE)
                     return;
@@ -1765,7 +1754,7 @@ class mob_greater_diffused_lightning : public CreatureScript
                 me->CastSpell(me, SPELL_CHAIN_LIGHTNING_SUMMON_3, true);
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType)
+            void DamageDealt(Unit* p_Victim, uint32& /*p_Damage*/, DamageEffectType p_DamageType)
             {
                 if (p_DamageType != DIRECT_DAMAGE)
                     return;
@@ -1860,12 +1849,12 @@ class spell_discharged_energy : public SpellScriptLoader
         {
             PrepareAuraScript(spell_discharged_energy_AuraScript);
 
-            void OnUpdate(uint32 p_Diff, AuraEffect* p_AurEff)
+            void OnUpdate(uint32 /*p_Diff*/, AuraEffect* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     std::list<Player*> l_PlayerList;
-                    l_Caster->GetPlayerListInGrid(l_PlayerList, 200.f);
+                    l_Caster->GetPlayerListInGrid(l_PlayerList, 200.0f);
 
                     for (Player* l_Player : l_PlayerList)
                         l_Player->CastSpell(l_Player, SPELL_DISCHARGED_ENERGY, true);
@@ -1894,7 +1883,7 @@ class spell_decapitate : public SpellScriptLoader
         {
             PrepareAuraScript(spell_decapitate_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1929,7 +1918,7 @@ class spell_damage_by_distance : public SpellScriptLoader
         {
             PrepareSpellScript(spell_damage_by_distance_SpellScript);
 
-            void HandleOnHit(SpellEffIndex p_EffIndex)
+            void HandleOnHit(SpellEffIndex /*p_EffIndex*/)
             {
                 if (GetSpellInfo()->Id == SPELL_DECAPITATE_DAMAGE)
                 {
@@ -1939,7 +1928,7 @@ class spell_damage_by_distance : public SpellScriptLoader
 
                         if (Unit* l_Target = GetHitUnit())
                         {
-                            float l_Dist = std::max(1.f, l_LeiShen->GetDistance(l_Target));
+                            float l_Dist = std::max(1.0f, l_LeiShen->GetDistance(l_Target));
                             SetHitDamage(int32(ceil(GetHitDamage() / l_Dist)));
                         }
                     }
@@ -1948,9 +1937,9 @@ class spell_damage_by_distance : public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (Creature* l_ThunderousThrow = l_Target->FindNearestCreature(NPC_THUNDEROUS_THROW, 100.f))
+                        if (Creature* l_ThunderousThrow = l_Target->FindNearestCreature(NPC_THUNDEROUS_THROW, 100.0f))
                         {
-                            float l_Dist = std::max(1.f, l_ThunderousThrow->GetDistance(l_Target));
+                            float l_Dist = std::max(1.0f, l_ThunderousThrow->GetDistance(l_Target));
                             SetHitDamage(int32(ceil(GetHitDamage() / l_Dist)));
                         }
                     }
@@ -1979,7 +1968,7 @@ class spell_crashing_thunder_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_crashing_thunder_periodic_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2013,7 +2002,7 @@ class spell_diffusion_chain : public SpellScriptLoader
         {
             PrepareSpellScript(spell_diffusion_chain_SpellScript);
 
-            void HandleOnHit(SpellEffIndex p_EffIndex)
+            void HandleOnHit(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2054,7 +2043,7 @@ class spell_overcharged_dummy : public SpellScriptLoader
         {
             PrepareSpellScript(spell_overcharged_dummy_SpellScript);
 
-            void HandleOnHit(SpellEffIndex p_EffIndex)
+            void HandleOnHit(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2095,7 +2084,7 @@ class spell_bouncing_bolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_bouncing_bolt_SpellScript);
 
-            void HandleMissile(SpellEffIndex p_EffIndex)
+            void HandleMissile(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Position const* l_Pos = GetExplTargetDest())
                 {
@@ -2105,9 +2094,9 @@ class spell_bouncing_bolt : public SpellScriptLoader
                             return;
 
                         std::list<WorldObject*> l_TargetList;
-                        JadeCore::WorldObjectSpellAreaTargetCheck l_Checker(6.f, l_Pos, l_Caster, l_Caster, GetSpellInfo(), TARGET_CHECK_DEFAULT, NULL);
+                        JadeCore::WorldObjectSpellAreaTargetCheck l_Checker(6.0f, l_Pos, l_Caster, l_Caster, GetSpellInfo(), TARGET_CHECK_DEFAULT, NULL);
                         JadeCore::WorldObjectListSearcher<JadeCore::WorldObjectSpellAreaTargetCheck> l_Searcher(l_Caster, l_TargetList, l_Checker);
-                        l_Caster->GetMap()->VisitAll(l_Pos->m_positionX, l_Pos->m_positionY, 6.f, l_Searcher);
+                        l_Caster->GetMap()->VisitAll(l_Pos->m_positionX, l_Pos->m_positionY, 6.0f, l_Searcher);
 
                         if (!l_TargetList.empty())
                         {
@@ -2233,7 +2222,7 @@ class areatrigger_thunder_trap_activator : public AreaTriggerScript
     public:
         areatrigger_thunder_trap_activator() : AreaTriggerScript("areatrigger_thunder_trap_activator") { }
 
-        bool OnTrigger(Player* p_Player, AreaTriggerEntry const* p_Trigger, bool p_Enter)
+        bool OnTrigger(Player* p_Player, AreaTriggerEntry const* /*p_Trigger*/, bool /*p_Enter*/)
         {
             if (!p_Player)
                 return false;
@@ -2246,7 +2235,7 @@ class areatrigger_thunder_trap_activator : public AreaTriggerScript
                 l_Instance->SetData(DATA_THUNDER_CLAP, true);
 
                 std::list<Creature*> l_ThunderTraps;
-                p_Player->GetCreatureListWithEntryInGrid(l_ThunderTraps, NPC_THUNDER_TRAP, 200.f);
+                p_Player->GetCreatureListWithEntryInGrid(l_ThunderTraps, NPC_THUNDER_TRAP, 200.0f);
 
                 for (Creature* l_ThunderTrap : l_ThunderTraps)
                     l_ThunderTrap->AI()->DoAction(ACTION_ACTIVATE_TRAP);
@@ -2409,7 +2398,7 @@ class areatrigger_violent_gale_winds : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Map::PlayerList const& l_PlayerList = p_AreaTrigger->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
@@ -2453,7 +2442,7 @@ class go_displacement_pad : public GameObjectScript
     public:
         go_displacement_pad() : GameObjectScript("go_displacement_pad") { }
 
-        bool OnGossipHello(Player* p_Player, GameObject* p_GameObject)
+        bool OnGossipHello(Player* p_Player, GameObject* /*p_GameObject*/)
         {
             if (p_Player)
             {
@@ -2473,14 +2462,14 @@ class at_crashing_thunder : public AreaTriggerEntityScript
     public:
         at_crashing_thunder() : AreaTriggerEntityScript("at_crashing_thunder") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
                 return;
 
             std::list<Unit*> l_TargetList;
-            float l_Radius = 4.f;
+            float l_Radius = 4.0f;
 
             JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
@@ -2513,7 +2502,7 @@ class at_lightning_whip : public AreaTriggerEntityScript
     public:
         at_lightning_whip() : AreaTriggerEntityScript("at_lightning_whip") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
@@ -2523,7 +2512,7 @@ class at_lightning_whip : public AreaTriggerEntityScript
             std::vector<G3D::Vector2> l_CheckPoints;
 
             std::list<Unit*> l_TargetList;
-            float l_Radius = 20.f;
+            float l_Radius = 20.0f;
 
             JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
@@ -2588,6 +2577,7 @@ class at_lightning_whip : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lei_shen()
 {
     new boss_lei_shen();                        ///< 68397
@@ -2615,3 +2605,4 @@ void AddSC_boss_lei_shen()
     new at_crashing_thunder();                  ///< 135150
     new at_lightning_whip();                    ///< 137499
 }
+#endif

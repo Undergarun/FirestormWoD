@@ -1,0 +1,1561 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cppcheck - HTML report - [project name]</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+.highlight .hll { background-color: #ffffcc }
+.highlight  { background: #ffffff; }
+.highlight .c { color: #888888 } /* Comment */
+.highlight .err { color: #FF0000; background-color: #FFAAAA } /* Error */
+.highlight .k { color: #008800; font-weight: bold } /* Keyword */
+.highlight .o { color: #333333 } /* Operator */
+.highlight .ch { color: #888888 } /* Comment.Hashbang */
+.highlight .cm { color: #888888 } /* Comment.Multiline */
+.highlight .cp { color: #557799 } /* Comment.Preproc */
+.highlight .cpf { color: #888888 } /* Comment.PreprocFile */
+.highlight .c1 { color: #888888 } /* Comment.Single */
+.highlight .cs { color: #cc0000; font-weight: bold } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .gr { color: #FF0000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #00A000 } /* Generic.Inserted */
+.highlight .go { color: #888888 } /* Generic.Output */
+.highlight .gp { color: #c65d09; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #0044DD } /* Generic.Traceback */
+.highlight .kc { color: #008800; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008800; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008800; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #003388; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #008800; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #333399; font-weight: bold } /* Keyword.Type */
+.highlight .m { color: #6600EE; font-weight: bold } /* Literal.Number */
+.highlight .s { background-color: #fff0f0 } /* Literal.String */
+.highlight .na { color: #0000CC } /* Name.Attribute */
+.highlight .nb { color: #007020 } /* Name.Builtin */
+.highlight .nc { color: #BB0066; font-weight: bold } /* Name.Class */
+.highlight .no { color: #003366; font-weight: bold } /* Name.Constant */
+.highlight .nd { color: #555555; font-weight: bold } /* Name.Decorator */
+.highlight .ni { color: #880000; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #FF0000; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #0066BB; font-weight: bold } /* Name.Function */
+.highlight .nl { color: #997700; font-weight: bold } /* Name.Label */
+.highlight .nn { color: #0e84b5; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #007700 } /* Name.Tag */
+.highlight .nv { color: #996633 } /* Name.Variable */
+.highlight .ow { color: #000000; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #bbbbbb } /* Text.Whitespace */
+.highlight .mb { color: #6600EE; font-weight: bold } /* Literal.Number.Bin */
+.highlight .mf { color: #6600EE; font-weight: bold } /* Literal.Number.Float */
+.highlight .mh { color: #005588; font-weight: bold } /* Literal.Number.Hex */
+.highlight .mi { color: #0000DD; font-weight: bold } /* Literal.Number.Integer */
+.highlight .mo { color: #4400EE; font-weight: bold } /* Literal.Number.Oct */
+.highlight .sb { background-color: #fff0f0 } /* Literal.String.Backtick */
+.highlight .sc { color: #0044DD } /* Literal.String.Char */
+.highlight .sd { color: #DD4422 } /* Literal.String.Doc */
+.highlight .s2 { background-color: #fff0f0 } /* Literal.String.Double */
+.highlight .se { color: #666666; font-weight: bold; background-color: #fff0f0 } /* Literal.String.Escape */
+.highlight .sh { background-color: #fff0f0 } /* Literal.String.Heredoc */
+.highlight .si { background-color: #eeeeee } /* Literal.String.Interpol */
+.highlight .sx { color: #DD2200; background-color: #fff0f0 } /* Literal.String.Other */
+.highlight .sr { color: #000000; background-color: #fff0ff } /* Literal.String.Regex */
+.highlight .s1 { background-color: #fff0f0 } /* Literal.String.Single */
+.highlight .ss { color: #AA6600 } /* Literal.String.Symbol */
+.highlight .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.highlight .vc { color: #336699 } /* Name.Variable.Class */
+.highlight .vg { color: #dd7700; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #3333BB } /* Name.Variable.Instance */
+.highlight .il { color: #0000DD; font-weight: bold } /* Literal.Number.Integer.Long */
+    </style>
+    <script language="javascript">
+      function getStyle(el,styleProp) {
+        if (el.currentStyle)
+          var y = el.currentStyle[styleProp];
+        else if (window.getComputedStyle)
+          var y = document.defaultView.getComputedStyle(el,null).getPropertyValue(styleProp);
+        return y;
+      }
+      function toggle() {
+        var el = this.expandable_content;
+        var mark = this.expandable_marker;
+        if (el.style.display == "block") {
+          el.style.display = "none";
+          mark.innerHTML = "[+]";
+        } else {
+          el.style.display = "block";
+          mark.innerHTML = "[-]";
+        }
+      }
+      function init_expandables() {
+        var elts = document.getElementsByClassName("expandable");
+        for (var i = 0; i < elts.length; i++) {
+          var el = elts[i];
+          var clickable = el.getElementsByTagName("span")[0];
+          var marker = clickable.getElementsByClassName("marker")[0];
+          var content = el.getElementsByClassName("content")[0];
+          var width = clickable.clientWidth - parseInt(getStyle(content, "padding-left")) - parseInt(getStyle(content, "padding-right"));
+          content.style.width = width + "px";
+          clickable.expandable_content = content;
+          clickable.expandable_marker = marker;
+          clickable.onclick = toggle;
+        }
+      }
+      function set_class_display(c, st) {
+        var elements = document.querySelectorAll('.' + c),
+            len = elements.length;
+        for (i = 0; i < len; i++) {
+            elements[i].style.display = st;
+        }
+      }
+      function toggle_class_visibility(id) {
+        var box = document.getElementById(id);
+        set_class_display(id, box.checked ? '' : 'none');
+      }
+    </script>
+  </head>
+  <body onload="init_expandables()">
+      <div id="header">
+        <h1>Cppcheck report - [project name]: /Users/MilleniumStudio/Git/wod/src/server/shared/Database/Implementation/CharacterDatabase.h </h1>
+      </div>
+      <div id="menu" dir="rtl">
+       <p id="filename"><a href="index.html">Defects:</a> CharacterDatabase.h</p>
+<a href='1101.html#line-701'> noExplicitConstructor 701</a><a href='1101.html#line-701'> noExplicitConstructor 701</a><a href='1101.html#line-701'> noExplicitConstructor 701</a><a href='1101.html#line-701'> noExplicitConstructor 701</a>
+      </div>
+      <div id="content">
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ 47
+ 48
+ 49
+ 50
+ 51
+ 52
+ 53
+ 54
+ 55
+ 56
+ 57
+ 58
+ 59
+ 60
+ 61
+ 62
+ 63
+ 64
+ 65
+ 66
+ 67
+ 68
+ 69
+ 70
+ 71
+ 72
+ 73
+ 74
+ 75
+ 76
+ 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709
+710</pre></div></td><td class="code"><div class="highlight"><pre><span></span><a name="line-1"></a><span class="c1">////////////////////////////////////////////////////////////////////////////////</span>
+<a name="line-2"></a><span class="c1">//</span>
+<a name="line-3"></a><span class="c1">//  MILLENIUM-STUDIO</span>
+<a name="line-4"></a><span class="c1">//  Copyright 2016 Millenium-studio SARL</span>
+<a name="line-5"></a><span class="c1">//  All Rights Reserved.</span>
+<a name="line-6"></a><span class="c1">//</span>
+<a name="line-7"></a><span class="c1">////////////////////////////////////////////////////////////////////////////////</span>
+<a name="line-8"></a>
+<a name="line-9"></a><span class="cp">#ifndef _CHARACTERDATABASE_H</span>
+<a name="line-10"></a><span class="cp">#define _CHARACTERDATABASE_H</span>
+<a name="line-11"></a>
+<a name="line-12"></a><span class="cp">#include</span> <span class="cpf">&quot;DatabaseWorkerPool.h&quot;</span><span class="cp"></span>
+<a name="line-13"></a><span class="cp">#include</span> <span class="cpf">&quot;MySQLConnection.h&quot;</span><span class="cp"></span>
+<a name="line-14"></a>
+<a name="line-15"></a><span class="k">enum</span> <span class="n">CharacterDatabaseStatements</span>
+<a name="line-16"></a><span class="p">{</span>
+<a name="line-17"></a>    <span class="cm">/*  Naming standard for defines:</span>
+<a name="line-18"></a><span class="cm">        {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}</span>
+<a name="line-19"></a><span class="cm">        When updating more than one field, consider looking at the calling function</span>
+<a name="line-20"></a><span class="cm">        name for a suiting suffix.</span>
+<a name="line-21"></a><span class="cm">    */</span>
+<a name="line-22"></a>
+<a name="line-23"></a>    <span class="n">CHAR_DEL_QUEST_POOL_SAVE</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<a name="line-24"></a>    <span class="n">CHAR_INS_QUEST_POOL_SAVE</span><span class="p">,</span>
+<a name="line-25"></a>    <span class="n">CHAR_DEL_NONEXISTENT_GUILD_BANK_ITEM</span><span class="p">,</span>
+<a name="line-26"></a>    <span class="n">CHAR_DEL_EXPIRED_BANS</span><span class="p">,</span>
+<a name="line-27"></a>    <span class="n">CHAR_SEL_GUID_BY_NAME</span><span class="p">,</span>
+<a name="line-28"></a>    <span class="n">CHAR_SEL_CHECK_NAME</span><span class="p">,</span>
+<a name="line-29"></a>    <span class="n">CHAR_SEL_CHECK_GUID</span><span class="p">,</span>
+<a name="line-30"></a>    <span class="n">CHAR_SEL_SUM_CHARS</span><span class="p">,</span>
+<a name="line-31"></a>    <span class="n">CHAR_SEL_CHAR_CREATE_INFO</span><span class="p">,</span>
+<a name="line-32"></a>    <span class="n">CHAR_INS_CHARACTER_BAN</span><span class="p">,</span>
+<a name="line-33"></a>    <span class="n">CHAR_UPD_CHARACTER_BAN</span><span class="p">,</span>
+<a name="line-34"></a>    <span class="n">CHAR_DEL_CHARACTER_BAN</span><span class="p">,</span>
+<a name="line-35"></a>    <span class="n">CHAR_SEL_BANINFO</span><span class="p">,</span>
+<a name="line-36"></a>    <span class="n">CHAR_SEL_GUID_BY_NAME_FILTER</span><span class="p">,</span>
+<a name="line-37"></a>    <span class="n">CHAR_SEL_BANINFO_LIST</span><span class="p">,</span>
+<a name="line-38"></a>    <span class="n">CHAR_SEL_BANNED_NAME</span><span class="p">,</span>
+<a name="line-39"></a>    <span class="n">CHAR_SEL_MAIL_LIST_COUNT</span><span class="p">,</span>
+<a name="line-40"></a>    <span class="n">CHAR_SEL_MAIL_LIST_INFO</span><span class="p">,</span>
+<a name="line-41"></a>    <span class="n">CHAR_SEL_MAIL_LIST_ITEMS</span><span class="p">,</span>
+<a name="line-42"></a>    <span class="n">CHAR_SEL_ENUM</span><span class="p">,</span>
+<a name="line-43"></a>    <span class="n">CHAR_SEL_ENUM_DECLINED_NAME</span><span class="p">,</span>
+<a name="line-44"></a>
+<a name="line-45"></a>    <span class="c1">// Pet</span>
+<a name="line-46"></a>    <span class="n">CHAR_SEL_PET_SLOTS</span><span class="p">,</span>
+<a name="line-47"></a>    <span class="n">CHAR_SEL_PET_SLOTS_DETAIL</span><span class="p">,</span>
+<a name="line-48"></a>    <span class="n">CHAR_SEL_PET_SLOT_BY_ID</span><span class="p">,</span>
+<a name="line-49"></a>    <span class="n">CHAR_UDP_CHAR_PET_SLOT_BY_SLOT</span><span class="p">,</span>
+<a name="line-50"></a>    <span class="n">CHAR_DEL_CHAR_PET_BY_SLOT</span><span class="p">,</span>
+<a name="line-51"></a>    <span class="n">CHAR_DEL_CHAR_PET_BY_ID</span><span class="p">,</span>
+<a name="line-52"></a>    <span class="n">CHAR_DEL_INVALID_PET_SPELL</span><span class="p">,</span>
+<a name="line-53"></a>
+<a name="line-54"></a>    <span class="n">CHAR_SEL_FREE_NAME</span><span class="p">,</span>
+<a name="line-55"></a>    <span class="n">CHAR_SEL_GUID_RACE_ACC_BY_NAME</span><span class="p">,</span>
+<a name="line-56"></a>    <span class="n">CHAR_SEL_CHAR_RACE</span><span class="p">,</span>
+<a name="line-57"></a>    <span class="n">CHAR_SEL_CHAR_LEVEL</span><span class="p">,</span>
+<a name="line-58"></a>    <span class="n">CHAR_SEL_CHAR_ZONE</span><span class="p">,</span>
+<a name="line-59"></a>    <span class="n">CHAR_SEL_CHARACTER_NAME_DATA</span><span class="p">,</span>
+<a name="line-60"></a>    <span class="n">CHAR_SEL_CHAR_POSITION_XYZ</span><span class="p">,</span>
+<a name="line-61"></a>    <span class="n">CHAR_SEL_CHAR_POSITION</span><span class="p">,</span>
+<a name="line-62"></a>    <span class="n">CHAR_DEL_QUEST_STATUS_DAILY</span><span class="p">,</span>
+<a name="line-63"></a>    <span class="n">CHAR_DEL_QUEST_STATUS_WEEKLY</span><span class="p">,</span>
+<a name="line-64"></a>    <span class="n">CHAR_DEL_QUEST_STATUS_MONTHLY</span><span class="p">,</span>
+<a name="line-65"></a>    <span class="n">CHAR_DEL_QUEST_STATUS_SEASONAL</span><span class="p">,</span>
+<a name="line-66"></a>    <span class="n">CHAR_DEL_QUEST_STATUS_DAILY_CHAR</span><span class="p">,</span>
+<a name="line-67"></a>    <span class="n">CHAR_DEL_QUEST_STATUS_WEEKLY_CHAR</span><span class="p">,</span>
+<a name="line-68"></a>    <span class="n">CHAR_DEL_QUEST_STATUS_MONTHLY_CHAR</span><span class="p">,</span>
+<a name="line-69"></a>    <span class="n">CHAR_DEL_QUEST_STATUS_SEASONAL_CHAR</span><span class="p">,</span>
+<a name="line-70"></a>    <span class="n">CHAR_DEL_BATTLEGROUND_RANDOM</span><span class="p">,</span>
+<a name="line-71"></a>    <span class="n">CHAR_INS_BATTLEGROUND_RANDOM</span><span class="p">,</span>
+<a name="line-72"></a>
+<a name="line-73"></a>    <span class="n">CHAR_SEL_CHARACTER</span><span class="p">,</span>
+<a name="line-74"></a>    <span class="n">CHAR_SEL_GROUP_MEMBER</span><span class="p">,</span>
+<a name="line-75"></a>    <span class="n">CHAR_SEL_CHARACTER_INSTANCE</span><span class="p">,</span>
+<a name="line-76"></a>    <span class="n">CHAR_SEL_CHARACTER_AURAS</span><span class="p">,</span>
+<a name="line-77"></a>    <span class="n">CHAR_SEL_CHARACTER_AURAS_EFFECTS</span><span class="p">,</span>
+<a name="line-78"></a>    <span class="n">CHAR_SEL_CHARACTER_SPELL</span><span class="p">,</span>
+<a name="line-79"></a>    <span class="n">CHAR_SEL_CHARACTER_QUESTSTATUS</span><span class="p">,</span>
+<a name="line-80"></a>    <span class="n">CHAR_SEL_CHARACTER_QUEST_OBJECTIVE_STATUS</span><span class="p">,</span>
+<a name="line-81"></a>    <span class="n">CHAR_SEL_CHARACTER_DAILYQUESTSTATUS</span><span class="p">,</span>
+<a name="line-82"></a>    <span class="n">CHAR_SEL_CHARACTER_WEEKLYQUESTSTATUS</span><span class="p">,</span>
+<a name="line-83"></a>    <span class="n">CHAR_SEL_CHARACTER_MONTHLYQUESTSTATUS</span><span class="p">,</span>
+<a name="line-84"></a>    <span class="n">CHAR_SEL_CHARACTER_SEASONALQUESTSTATUS</span><span class="p">,</span>
+<a name="line-85"></a>    <span class="n">CHAR_INS_CHARACTER_DAILYQUESTSTATUS</span><span class="p">,</span>
+<a name="line-86"></a>    <span class="n">CHAR_INS_CHARACTER_WEEKLYQUESTSTATUS</span><span class="p">,</span>
+<a name="line-87"></a>    <span class="n">CHAR_INS_CHARACTER_MONTHLYQUESTSTATUS</span><span class="p">,</span>
+<a name="line-88"></a>    <span class="n">CHAR_INS_CHARACTER_SEASONALQUESTSTATUS</span><span class="p">,</span>
+<a name="line-89"></a>    <span class="n">CHAR_SEL_CHARACTER_REPUTATION</span><span class="p">,</span>
+<a name="line-90"></a>    <span class="n">CHAR_SEL_CHARACTER_INVENTORY</span><span class="p">,</span>
+<a name="line-91"></a>    <span class="n">CHAR_SEL_CHARACTER_ACTIONS</span><span class="p">,</span>
+<a name="line-92"></a>    <span class="n">CHAR_SEL_CHARACTER_ACTIONS_SPEC</span><span class="p">,</span>
+<a name="line-93"></a>    <span class="n">CHAR_SEL_CHARACTER_MAILCOUNT</span><span class="p">,</span>
+<a name="line-94"></a>    <span class="n">CHAR_SEL_CHARACTER_MAILDATE</span><span class="p">,</span>
+<a name="line-95"></a>    <span class="n">CHAR_SEL_MAIL_COUNT</span><span class="p">,</span>
+<a name="line-96"></a>    <span class="n">CHAR_SEL_CHARACTER_SOCIALLIST</span><span class="p">,</span>
+<a name="line-97"></a>    <span class="n">CHAR_SEL_CHARACTER_HOMEBIND</span><span class="p">,</span>
+<a name="line-98"></a>    <span class="n">CHAR_SEL_CHARACTER_SPELLCOOLDOWNS</span><span class="p">,</span>
+<a name="line-99"></a>    <span class="n">CHAR_SEL_CHARACTER_DECLINEDNAMES</span><span class="p">,</span>
+<a name="line-100"></a>    <span class="n">CHAR_SEL_GUILD</span><span class="p">,</span>
+<a name="line-101"></a>    <span class="n">CHAR_SEL_GUILD_MEMBER</span><span class="p">,</span>
+<a name="line-102"></a>    <span class="n">CHAR_SEL_CHARACTER_ACHIEVEMENTS</span><span class="p">,</span>
+<a name="line-103"></a>    <span class="n">CHAR_SEL_ACCOUNT_ACHIEVEMENTS</span><span class="p">,</span>
+<a name="line-104"></a>    <span class="n">CHAR_SEL_CHARACTER_CRITERIAPROGRESS</span><span class="p">,</span>
+<a name="line-105"></a>    <span class="n">CHAR_SEL_ACCOUNT_CRITERIAPROGRESS</span><span class="p">,</span>
+<a name="line-106"></a>    <span class="n">CHAR_SEL_CHARACTER_EQUIPMENTSETS</span><span class="p">,</span>
+<a name="line-107"></a>    <span class="n">CHAR_SEL_CHARACTER_ARENA_DATA</span><span class="p">,</span>
+<a name="line-108"></a>    <span class="n">CHAR_SEL_CHARACTER_BGDATA</span><span class="p">,</span>
+<a name="line-109"></a>    <span class="n">CHAR_SEL_CHARACTER_GLYPHS</span><span class="p">,</span>
+<a name="line-110"></a>    <span class="n">CHAR_SEL_CHARACTER_TALENTS</span><span class="p">,</span>
+<a name="line-111"></a>    <span class="n">CHAR_SEL_CHARACTER_SKILLS</span><span class="p">,</span>
+<a name="line-112"></a>    <span class="n">CHAR_SEL_CHARACTER_RANDOMBG</span><span class="p">,</span>
+<a name="line-113"></a>    <span class="n">CHAR_SEL_CHARACTER_BANNED</span><span class="p">,</span>
+<a name="line-114"></a>    <span class="n">CHAR_SEL_CHARACTER_BANNED_DURATION</span><span class="p">,</span>
+<a name="line-115"></a>    <span class="n">CHAR_SEL_CHARACTER_QUESTSTATUSREW</span><span class="p">,</span>
+<a name="line-116"></a>    <span class="n">CHAR_SEL_ACCOUNT_INSTANCELOCKTIMES</span><span class="p">,</span>
+<a name="line-117"></a>    <span class="n">CHAR_SEL_CHARACTER_MAILITEMS</span><span class="p">,</span>
+<a name="line-118"></a>    <span class="n">CHAR_SEL_MAILITEMS</span><span class="p">,</span>
+<a name="line-119"></a>    <span class="n">CHAR_SEL_AUCTION_ITEMS</span><span class="p">,</span>
+<a name="line-120"></a>    <span class="n">CHAR_INS_AUCTION</span><span class="p">,</span>
+<a name="line-121"></a>    <span class="n">CHAR_DEL_AUCTION</span><span class="p">,</span>
+<a name="line-122"></a>    <span class="n">CHAR_SEL_AUCTION_BY_TIME</span><span class="p">,</span>
+<a name="line-123"></a>    <span class="n">CHAR_UPD_AUCTION_BID</span><span class="p">,</span>
+<a name="line-124"></a>    <span class="n">CHAR_SEL_AUCTIONS</span><span class="p">,</span>
+<a name="line-125"></a>    <span class="n">CHAR_INS_MAIL</span><span class="p">,</span>
+<a name="line-126"></a>    <span class="n">CHAR_INS_MAIL_LOG</span><span class="p">,</span>
+<a name="line-127"></a>    <span class="n">CHAR_DEL_MAIL_BY_ID</span><span class="p">,</span>
+<a name="line-128"></a>    <span class="n">CHAR_INS_MAIL_ITEM</span><span class="p">,</span>
+<a name="line-129"></a>    <span class="n">CHAR_DEL_MAIL_ITEM</span><span class="p">,</span>
+<a name="line-130"></a>    <span class="n">CHAR_DEL_INVALID_MAIL_ITEM</span><span class="p">,</span>
+<a name="line-131"></a>    <span class="n">CHAR_DEL_EMPTY_EXPIRED_MAIL</span><span class="p">,</span>
+<a name="line-132"></a>    <span class="n">CHAR_SEL_EXPIRED_MAIL</span><span class="p">,</span>
+<a name="line-133"></a>    <span class="n">CHAR_SEL_EXPIRED_MAIL_ITEMS</span><span class="p">,</span>
+<a name="line-134"></a>    <span class="n">CHAR_UPD_MAIL_RETURNED</span><span class="p">,</span>
+<a name="line-135"></a>    <span class="n">CHAR_UPD_MAIL_ITEM_RECEIVER</span><span class="p">,</span>
+<a name="line-136"></a>    <span class="n">CHAR_UPD_ITEM_OWNER</span><span class="p">,</span>
+<a name="line-137"></a>    <span class="n">CHAR_SEL_ITEM_REFUNDS</span><span class="p">,</span>
+<a name="line-138"></a>    <span class="n">CHAR_SEL_ITEM_BOP_TRADE</span><span class="p">,</span>
+<a name="line-139"></a>    <span class="n">CHAR_DEL_ITEM_BOP_TRADE</span><span class="p">,</span>
+<a name="line-140"></a>    <span class="n">CHAR_INS_ITEM_BOP_TRADE</span><span class="p">,</span>
+<a name="line-141"></a>    <span class="n">CHAR_REP_INVENTORY_ITEM</span><span class="p">,</span>
+<a name="line-142"></a>    <span class="n">CHAR_REP_ITEM_INSTANCE</span><span class="p">,</span>
+<a name="line-143"></a>    <span class="n">CHAR_UPD_ITEM_INSTANCE</span><span class="p">,</span>
+<a name="line-144"></a>    <span class="n">CHAR_UPD_ITEM_INSTANCE_ON_LOAD</span><span class="p">,</span>
+<a name="line-145"></a>    <span class="n">CHAR_DEL_ITEM_INSTANCE</span><span class="p">,</span>
+<a name="line-146"></a>    <span class="n">CHAR_UPD_GIFT_OWNER</span><span class="p">,</span>
+<a name="line-147"></a>    <span class="n">CHAR_DEL_GIFT</span><span class="p">,</span>
+<a name="line-148"></a>    <span class="n">CHAR_SEL_CHARACTER_GIFT_BY_ITEM</span><span class="p">,</span>
+<a name="line-149"></a>    <span class="n">CHAR_SEL_ACCOUNT_BY_NAME</span><span class="p">,</span>
+<a name="line-150"></a>    <span class="n">CHAR_SEL_ACCOUNT_BY_GUID</span><span class="p">,</span>
+<a name="line-151"></a>    <span class="n">CHAR_DEL_ACCOUNT_INSTANCE_LOCK_TIMES</span><span class="p">,</span>
+<a name="line-152"></a>    <span class="n">CHAR_INS_ACCOUNT_INSTANCE_LOCK_TIMES</span><span class="p">,</span>
+<a name="line-153"></a>    <span class="n">CHAR_SEL_CHARACTER_NAME_CLASS</span><span class="p">,</span>
+<a name="line-154"></a>    <span class="n">CHAR_SEL_CHARACTER_NAME</span><span class="p">,</span>
+<a name="line-155"></a>    <span class="n">CHAR_SEL_CHARACTER_COUNT</span><span class="p">,</span>
+<a name="line-156"></a>    <span class="n">CHAR_UPD_NAME</span><span class="p">,</span>
+<a name="line-157"></a>    <span class="n">CHAR_UPD_NAME_LOG</span><span class="p">,</span>
+<a name="line-158"></a>    <span class="n">CHAR_DEL_DECLINED_NAME</span><span class="p">,</span>
+<a name="line-159"></a>    <span class="n">CHAR_SEL_ACCOUNT_NAME_BY_GUID</span><span class="p">,</span>
+<a name="line-160"></a>
+<a name="line-161"></a>    <span class="n">CHAR_INS_GUILD</span><span class="p">,</span>
+<a name="line-162"></a>    <span class="n">CHAR_DEL_GUILD</span><span class="p">,</span>
+<a name="line-163"></a>    <span class="n">CHAR_UPD_GUILD_NAME</span><span class="p">,</span>
+<a name="line-164"></a>    <span class="n">CHAR_INS_GUILD_MEMBER</span><span class="p">,</span>
+<a name="line-165"></a>    <span class="n">CHAR_DEL_GUILD_MEMBER</span><span class="p">,</span>
+<a name="line-166"></a>    <span class="n">CHAR_DEL_GUILD_MEMBERS</span><span class="p">,</span>
+<a name="line-167"></a>    <span class="n">CHAR_UPD_GUILD_MEMBERS_RANK</span><span class="p">,</span>
+<a name="line-168"></a>    <span class="n">CHAR_INS_GUILD_RANK</span><span class="p">,</span>
+<a name="line-169"></a>    <span class="n">CHAR_DEL_GUILD_RANKS</span><span class="p">,</span>
+<a name="line-170"></a>    <span class="n">CHAR_DEL_GUILD_RANK</span><span class="p">,</span>
+<a name="line-171"></a>    <span class="n">CHAR_UPD_GUILD_RANK_ID</span><span class="p">,</span>
+<a name="line-172"></a>    <span class="n">CHAR_INS_GUILD_BANK_TAB</span><span class="p">,</span>
+<a name="line-173"></a>    <span class="n">CHAR_DEL_GUILD_BANK_TAB</span><span class="p">,</span>
+<a name="line-174"></a>    <span class="n">CHAR_DEL_GUILD_BANK_TABS</span><span class="p">,</span>
+<a name="line-175"></a>    <span class="n">CHAR_INS_GUILD_BANK_ITEM</span><span class="p">,</span>
+<a name="line-176"></a>    <span class="n">CHAR_DEL_GUILD_BANK_ITEM</span><span class="p">,</span>
+<a name="line-177"></a>    <span class="n">CHAR_DEL_GUILD_BANK_ITEMS</span><span class="p">,</span>
+<a name="line-178"></a>    <span class="n">CHAR_INS_GUILD_BANK_RIGHT_DEFAULT</span><span class="p">,</span>
+<a name="line-179"></a>    <span class="n">CHAR_INS_GUILD_BANK_RIGHT</span><span class="p">,</span>
+<a name="line-180"></a>    <span class="n">CHAR_DEL_GUILD_BANK_RIGHT</span><span class="p">,</span>
+<a name="line-181"></a>    <span class="n">CHAR_DEL_GUILD_BANK_RIGHTS</span><span class="p">,</span>
+<a name="line-182"></a>    <span class="n">CHAR_DEL_GUILD_BANK_RIGHTS_FOR_RANK</span><span class="p">,</span>
+<a name="line-183"></a>    <span class="n">CHAR_UPD_GUILD_BANK_RIGHTS_ID</span><span class="p">,</span>
+<a name="line-184"></a>    <span class="n">CHAR_INS_GUILD_BANK_EVENTLOG</span><span class="p">,</span>
+<a name="line-185"></a>    <span class="n">CHAR_DEL_GUILD_BANK_EVENTLOG</span><span class="p">,</span>
+<a name="line-186"></a>    <span class="n">CHAR_DEL_GUILD_BANK_EVENTLOGS</span><span class="p">,</span>
+<a name="line-187"></a>    <span class="n">CHAR_INS_GUILD_EVENTLOG</span><span class="p">,</span>
+<a name="line-188"></a>    <span class="n">CHAR_DEL_GUILD_EVENTLOG</span><span class="p">,</span>
+<a name="line-189"></a>    <span class="n">CHAR_DEL_GUILD_EVENTLOGS</span><span class="p">,</span>
+<a name="line-190"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_PNOTE</span><span class="p">,</span>
+<a name="line-191"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_OFFNOTE</span><span class="p">,</span>
+<a name="line-192"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_RANK</span><span class="p">,</span>
+<a name="line-193"></a>    <span class="n">CHAR_UPD_GUILD_MOTD</span><span class="p">,</span>
+<a name="line-194"></a>    <span class="n">CHAR_UPD_GUILD_INFO</span><span class="p">,</span>
+<a name="line-195"></a>    <span class="n">CHAR_UPD_GUILD_LEADER</span><span class="p">,</span>
+<a name="line-196"></a>    <span class="n">CHAR_UPD_GUILD_RANK_NAME</span><span class="p">,</span>
+<a name="line-197"></a>    <span class="n">CHAR_UPD_GUILD_RANK_RIGHTS</span><span class="p">,</span>
+<a name="line-198"></a>    <span class="n">CHAR_UPD_GUILD_EMBLEM_INFO</span><span class="p">,</span>
+<a name="line-199"></a>    <span class="n">CHAR_UPD_GUILD_BANK_TAB_INFO</span><span class="p">,</span>
+<a name="line-200"></a>    <span class="n">CHAR_UPD_GUILD_BANK_MONEY</span><span class="p">,</span>
+<a name="line-201"></a>    <span class="n">CHAR_UPD_GUILD_BANK_EVENTLOG_TAB</span><span class="p">,</span>
+<a name="line-202"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_REM_MONEY</span><span class="p">,</span>
+<a name="line-203"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_TIME_MONEY</span><span class="p">,</span>
+<a name="line-204"></a>    <span class="n">CHAR_UPD_GUILD_RANK_BANK_RESET_TIME</span><span class="p">,</span>
+<a name="line-205"></a>    <span class="n">CHAR_UPD_GUILD_RANK_BANK_MONEY</span><span class="p">,</span>
+<a name="line-206"></a>    <span class="n">CHAR_UPD_GUILD_BANK_TAB_TEXT</span><span class="p">,</span>
+<a name="line-207"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_TIME_REM_SLOTS0</span><span class="p">,</span>
+<a name="line-208"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_TIME_REM_SLOTS1</span><span class="p">,</span>
+<a name="line-209"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_TIME_REM_SLOTS2</span><span class="p">,</span>
+<a name="line-210"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_TIME_REM_SLOTS3</span><span class="p">,</span>
+<a name="line-211"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_TIME_REM_SLOTS4</span><span class="p">,</span>
+<a name="line-212"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_TIME_REM_SLOTS5</span><span class="p">,</span>
+<a name="line-213"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_TIME_REM_SLOTS6</span><span class="p">,</span>
+<a name="line-214"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_TIME_REM_SLOTS7</span><span class="p">,</span>
+<a name="line-215"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_REM_SLOTS0</span><span class="p">,</span>
+<a name="line-216"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_REM_SLOTS1</span><span class="p">,</span>
+<a name="line-217"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_REM_SLOTS2</span><span class="p">,</span>
+<a name="line-218"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_REM_SLOTS3</span><span class="p">,</span>
+<a name="line-219"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_REM_SLOTS4</span><span class="p">,</span>
+<a name="line-220"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_REM_SLOTS5</span><span class="p">,</span>
+<a name="line-221"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_REM_SLOTS6</span><span class="p">,</span>
+<a name="line-222"></a>    <span class="n">CHAR_UPD_GUILD_MEMBER_BANK_REM_SLOTS7</span><span class="p">,</span>
+<a name="line-223"></a>    <span class="n">CHAR_UPD_GUILD_RANK_BANK_TIME0</span><span class="p">,</span>
+<a name="line-224"></a>    <span class="n">CHAR_UPD_GUILD_RANK_BANK_TIME1</span><span class="p">,</span>
+<a name="line-225"></a>    <span class="n">CHAR_UPD_GUILD_RANK_BANK_TIME2</span><span class="p">,</span>
+<a name="line-226"></a>    <span class="n">CHAR_UPD_GUILD_RANK_BANK_TIME3</span><span class="p">,</span>
+<a name="line-227"></a>    <span class="n">CHAR_UPD_GUILD_RANK_BANK_TIME4</span><span class="p">,</span>
+<a name="line-228"></a>    <span class="n">CHAR_UPD_GUILD_RANK_BANK_TIME5</span><span class="p">,</span>
+<a name="line-229"></a>    <span class="n">CHAR_UPD_GUILD_RANK_BANK_TIME6</span><span class="p">,</span>
+<a name="line-230"></a>    <span class="n">CHAR_UPD_GUILD_RANK_BANK_TIME7</span><span class="p">,</span>
+<a name="line-231"></a>    <span class="n">CHAR_SEL_CHAR_DATA_FOR_GUILD</span><span class="p">,</span>
+<a name="line-232"></a>    <span class="n">CHAR_DEL_GUILD_ACHIEVEMENT</span><span class="p">,</span>
+<a name="line-233"></a>    <span class="n">CHAR_INS_GUILD_ACHIEVEMENT</span><span class="p">,</span>
+<a name="line-234"></a>    <span class="n">CHAR_DEL_GUILD_ACHIEVEMENT_CRITERIA</span><span class="p">,</span>
+<a name="line-235"></a>    <span class="n">CHAR_INS_GUILD_ACHIEVEMENT_CRITERIA</span><span class="p">,</span>
+<a name="line-236"></a>    <span class="n">CHAR_DEL_ALL_GUILD_ACHIEVEMENTS</span><span class="p">,</span>
+<a name="line-237"></a>    <span class="n">CHAR_DEL_ALL_GUILD_ACHIEVEMENT_CRITERIA</span><span class="p">,</span>
+<a name="line-238"></a>    <span class="n">CHAR_SEL_GUILD_ACHIEVEMENT</span><span class="p">,</span>
+<a name="line-239"></a>    <span class="n">CHAR_SEL_GUILD_ACHIEVEMENT_CRITERIA</span><span class="p">,</span>
+<a name="line-240"></a>    <span class="n">CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD</span><span class="p">,</span>
+<a name="line-241"></a>    <span class="n">CHAR_LOAD_GUILD_NEWS</span><span class="p">,</span>
+<a name="line-242"></a>    <span class="n">CHAR_SAVE_GUILD_NEWS</span><span class="p">,</span>
+<a name="line-243"></a>    <span class="n">CHAR_LOAD_GUILD_CHALLENGES</span><span class="p">,</span>
+<a name="line-244"></a>    <span class="n">CHAR_COMPLETE_GUILD_CHALLENGE</span><span class="p">,</span>
+<a name="line-245"></a>    <span class="n">CHAR_REMOVE_GUILD_CHALLENGES</span><span class="p">,</span>
+<a name="line-246"></a>    <span class="n">CHAR_INIT_GUILD_CHALLENGES</span><span class="p">,</span>
+<a name="line-247"></a>
+<a name="line-248"></a>    <span class="n">CHAR_SEL_CHANNEL</span><span class="p">,</span>
+<a name="line-249"></a>    <span class="n">CHAR_INS_CHANNEL</span><span class="p">,</span>
+<a name="line-250"></a>    <span class="n">CHAR_UPD_CHANNEL</span><span class="p">,</span>
+<a name="line-251"></a>    <span class="n">CHAR_UPD_CHANNEL_USAGE</span><span class="p">,</span>
+<a name="line-252"></a>    <span class="n">CHAR_UPD_CHANNEL_OWNERSHIP</span><span class="p">,</span>
+<a name="line-253"></a>    <span class="n">CHAR_DEL_OLD_CHANNELS</span><span class="p">,</span>
+<a name="line-254"></a>
+<a name="line-255"></a>    <span class="n">CHAR_UPD_EQUIP_SET</span><span class="p">,</span>
+<a name="line-256"></a>    <span class="n">CHAR_INS_EQUIP_SET</span><span class="p">,</span>
+<a name="line-257"></a>    <span class="n">CHAR_DEL_EQUIP_SET</span><span class="p">,</span>
+<a name="line-258"></a>
+<a name="line-259"></a>    <span class="n">CHAR_INS_AURA</span><span class="p">,</span>
+<a name="line-260"></a>    <span class="n">CHAR_INS_AURA_EFFECT</span><span class="p">,</span>
+<a name="line-261"></a>
+<a name="line-262"></a>    <span class="n">CHAR_SEL_PLAYER_CURRENCY</span><span class="p">,</span>
+<a name="line-263"></a>    <span class="n">CHAR_UPD_PLAYER_CURRENCY</span><span class="p">,</span>
+<a name="line-264"></a>    <span class="n">CHAR_REP_PLAYER_CURRENCY</span><span class="p">,</span>
+<a name="line-265"></a>
+<a name="line-266"></a>    <span class="n">CHAR_DEL_PLAYER_ARCHAEOLOGY</span><span class="p">,</span>
+<a name="line-267"></a>    <span class="n">CHAR_INS_PLAYER_ARCHAEOLOGY</span><span class="p">,</span>
+<a name="line-268"></a>    <span class="n">CHAR_DEL_PLAYER_ARCHAEOLOGY_SITES</span><span class="p">,</span>
+<a name="line-269"></a>    <span class="n">CHAR_INS_PLAYER_ARCHAEOLOGY_SITES</span><span class="p">,</span>
+<a name="line-270"></a>    <span class="n">CHAR_DEL_PLAYER_ARCHAEOLOGY_PROJECTS</span><span class="p">,</span>
+<a name="line-271"></a>    <span class="n">CHAR_INS_PLAYER_ARCHAEOLOGY_PROJECTS</span><span class="p">,</span>
+<a name="line-272"></a>
+<a name="line-273"></a>    <span class="n">CHAR_SEL_ACCOUNT_DATA</span><span class="p">,</span>
+<a name="line-274"></a>    <span class="n">CHAR_REP_ACCOUNT_DATA</span><span class="p">,</span>
+<a name="line-275"></a>    <span class="n">CHAR_DEL_ACCOUNT_DATA</span><span class="p">,</span>
+<a name="line-276"></a>    <span class="n">CHAR_SEL_PLAYER_ACCOUNT_DATA</span><span class="p">,</span>
+<a name="line-277"></a>    <span class="n">CHAR_REP_PLAYER_ACCOUNT_DATA</span><span class="p">,</span>
+<a name="line-278"></a>    <span class="n">CHAR_DEL_PLAYER_ACCOUNT_DATA</span><span class="p">,</span>
+<a name="line-279"></a>
+<a name="line-280"></a>    <span class="n">CHAR_SEL_TUTORIALS</span><span class="p">,</span>
+<a name="line-281"></a>    <span class="n">CHAR_SEL_HAS_TUTORIALS</span><span class="p">,</span>
+<a name="line-282"></a>    <span class="n">CHAR_INS_TUTORIALS</span><span class="p">,</span>
+<a name="line-283"></a>    <span class="n">CHAR_UPD_TUTORIALS</span><span class="p">,</span>
+<a name="line-284"></a>    <span class="n">CHAR_DEL_TUTORIALS</span><span class="p">,</span>
+<a name="line-285"></a>
+<a name="line-286"></a>    <span class="n">CHAR_INS_INSTANCE_SAVE</span><span class="p">,</span>
+<a name="line-287"></a>    <span class="n">CHAR_UPD_INSTANCE_DATA</span><span class="p">,</span>
+<a name="line-288"></a>
+<a name="line-289"></a>    <span class="n">CHAR_DEL_GAME_EVENT_SAVE</span><span class="p">,</span>
+<a name="line-290"></a>    <span class="n">CHAR_INS_GAME_EVENT_SAVE</span><span class="p">,</span>
+<a name="line-291"></a>
+<a name="line-292"></a>    <span class="n">CHAR_DEL_ALL_GAME_EVENT_CONDITION_SAVE</span><span class="p">,</span>
+<a name="line-293"></a>    <span class="n">CHAR_DEL_GAME_EVENT_CONDITION_SAVE</span><span class="p">,</span>
+<a name="line-294"></a>    <span class="n">CHAR_INS_GAME_EVENT_CONDITION_SAVE</span><span class="p">,</span>
+<a name="line-295"></a>
+<a name="line-296"></a>    <span class="n">CHAR_INS_CHARACTER_ARENA_DATA</span><span class="p">,</span>
+<a name="line-297"></a>    <span class="n">CHAR_DEL_CHARACTER_ARENA_DATA</span><span class="p">,</span>
+<a name="line-298"></a>
+<a name="line-299"></a>    <span class="n">CHAR_SEL_PETITION</span><span class="p">,</span>
+<a name="line-300"></a>    <span class="n">CHAR_SEL_PETITION_SIGNATURE</span><span class="p">,</span>
+<a name="line-301"></a>    <span class="n">CHAR_DEL_ALL_PETITION_SIGNATURES</span><span class="p">,</span>
+<a name="line-302"></a>    <span class="n">CHAR_DEL_PETITION_SIGNATURE</span><span class="p">,</span>
+<a name="line-303"></a>    <span class="n">CHAR_SEL_PETITION_BY_OWNER</span><span class="p">,</span>
+<a name="line-304"></a>    <span class="n">CHAR_SEL_PETITION_TYPE</span><span class="p">,</span>
+<a name="line-305"></a>    <span class="n">CHAR_SEL_PETITION_SIGNATURES</span><span class="p">,</span>
+<a name="line-306"></a>    <span class="n">CHAR_SEL_PETITION_SIG_BY_ACCOUNT</span><span class="p">,</span>
+<a name="line-307"></a>    <span class="n">CHAR_SEL_PETITION_OWNER_BY_GUID</span><span class="p">,</span>
+<a name="line-308"></a>    <span class="n">CHAR_SEL_PETITION_SIG_BY_GUID</span><span class="p">,</span>
+<a name="line-309"></a>    <span class="n">CHAR_SEL_PETITION_SIG_BY_GUID_TYPE</span><span class="p">,</span>
+<a name="line-310"></a>
+<a name="line-311"></a>    <span class="n">CHAR_INS_PLAYER_BGDATA</span><span class="p">,</span>
+<a name="line-312"></a>    <span class="n">CHAR_DEL_PLAYER_BGDATA</span><span class="p">,</span>
+<a name="line-313"></a>
+<a name="line-314"></a>    <span class="n">CHAR_INS_PLAYER_HOMEBIND</span><span class="p">,</span>
+<a name="line-315"></a>    <span class="n">CHAR_UPD_PLAYER_HOMEBIND</span><span class="p">,</span>
+<a name="line-316"></a>    <span class="n">CHAR_DEL_PLAYER_HOMEBIND</span><span class="p">,</span>
+<a name="line-317"></a>
+<a name="line-318"></a>    <span class="n">CHAR_SEL_CORPSES</span><span class="p">,</span>
+<a name="line-319"></a>    <span class="n">CHAR_INS_CORPSE</span><span class="p">,</span>
+<a name="line-320"></a>    <span class="n">CHAR_DEL_CORPSE</span><span class="p">,</span>
+<a name="line-321"></a>    <span class="n">CHAR_DEL_PLAYER_CORPSES</span><span class="p">,</span>
+<a name="line-322"></a>    <span class="n">CHAR_DEL_OLD_CORPSES</span><span class="p">,</span>
+<a name="line-323"></a>
+<a name="line-324"></a>    <span class="n">CHAR_SEL_CREATURE_RESPAWNS</span><span class="p">,</span>
+<a name="line-325"></a>    <span class="n">CHAR_REP_CREATURE_RESPAWN</span><span class="p">,</span>
+<a name="line-326"></a>    <span class="n">CHAR_DEL_CREATURE_RESPAWN</span><span class="p">,</span>
+<a name="line-327"></a>    <span class="n">CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE</span><span class="p">,</span>
+<a name="line-328"></a>    <span class="n">CHAR_SEL_MAX_CREATURE_RESPAWNS</span><span class="p">,</span>
+<a name="line-329"></a>
+<a name="line-330"></a>    <span class="n">CHAR_SEL_GO_RESPAWNS</span><span class="p">,</span>
+<a name="line-331"></a>    <span class="n">CHAR_REP_GO_RESPAWN</span><span class="p">,</span>
+<a name="line-332"></a>    <span class="n">CHAR_DEL_GO_RESPAWN</span><span class="p">,</span>
+<a name="line-333"></a>    <span class="n">CHAR_DEL_GO_RESPAWN_BY_INSTANCE</span><span class="p">,</span>
+<a name="line-334"></a>
+<a name="line-335"></a>    <span class="n">CHAR_SEL_GM_TICKETS</span><span class="p">,</span>
+<a name="line-336"></a>    <span class="n">CHAR_REP_GM_TICKET</span><span class="p">,</span>
+<a name="line-337"></a>    <span class="n">CHAR_DEL_GM_TICKET</span><span class="p">,</span>
+<a name="line-338"></a>    <span class="n">CHAR_DEL_ALL_GM_TICKETS</span><span class="p">,</span>
+<a name="line-339"></a>    <span class="n">CHAR_DEL_PLAYER_GM_TICKETS</span><span class="p">,</span>
+<a name="line-340"></a>
+<a name="line-341"></a>    <span class="n">CHAR_INS_GM_SURVEY</span><span class="p">,</span>
+<a name="line-342"></a>    <span class="n">CHAR_INS_GM_SUBSURVEY</span><span class="p">,</span>
+<a name="line-343"></a>    <span class="n">CHAR_INS_LAG_REPORT</span><span class="p">,</span>
+<a name="line-344"></a>
+<a name="line-345"></a>    <span class="n">CHAR_SEL_EXPIRED_AUCTIONS</span><span class="p">,</span>
+<a name="line-346"></a>
+<a name="line-347"></a>    <span class="n">CHAR_INS_CHARACTER</span><span class="p">,</span>
+<a name="line-348"></a>    <span class="n">CHAR_UPD_CHARACTER</span><span class="p">,</span>
+<a name="line-349"></a>
+<a name="line-350"></a>    <span class="n">CHAR_UPD_ADD_AT_LOGIN_FLAG</span><span class="p">,</span>
+<a name="line-351"></a>    <span class="n">CHAR_UPD_REM_AT_LOGIN_FLAG</span><span class="p">,</span>
+<a name="line-352"></a>    <span class="n">CHAR_UPD_ALL_AT_LOGIN_FLAGS</span><span class="p">,</span>
+<a name="line-353"></a>    <span class="n">CHAR_INS_BUG_REPORT</span><span class="p">,</span>
+<a name="line-354"></a>    <span class="n">CHAR_UPD_PETITION_NAME</span><span class="p">,</span>
+<a name="line-355"></a>    <span class="n">CHAR_INS_PETITION_SIGNATURE</span><span class="p">,</span>
+<a name="line-356"></a>    <span class="n">CHAR_UPD_ACCOUNT_ONLINE</span><span class="p">,</span>
+<a name="line-357"></a>    <span class="n">CHAR_INS_GROUP</span><span class="p">,</span>
+<a name="line-358"></a>    <span class="n">CHAR_INS_GROUP_MEMBER</span><span class="p">,</span>
+<a name="line-359"></a>    <span class="n">CHAR_DEL_GROUP_MEMBER</span><span class="p">,</span>
+<a name="line-360"></a>    <span class="n">CHAR_DEL_GROUP_INSTANCE_PERM_BINDING</span><span class="p">,</span>
+<a name="line-361"></a>    <span class="n">CHAR_UPD_GROUP_LEADER</span><span class="p">,</span>
+<a name="line-362"></a>    <span class="n">CHAR_UPD_GROUP_TYPE</span><span class="p">,</span>
+<a name="line-363"></a>    <span class="n">CHAR_UPD_GROUP_MEMBER_SUBGROUP</span><span class="p">,</span>
+<a name="line-364"></a>    <span class="n">CHAR_UPD_GROUP_MEMBER_FLAG</span><span class="p">,</span>
+<a name="line-365"></a>    <span class="n">CHAR_UPD_GROUP_MEMBER_ROLE</span><span class="p">,</span>
+<a name="line-366"></a>    <span class="n">CHAR_UPD_GROUP_MEMBER_SPEC</span><span class="p">,</span>
+<a name="line-367"></a>    <span class="n">CHAR_UPD_GROUP_DIFFICULTY</span><span class="p">,</span>
+<a name="line-368"></a>    <span class="n">CHAR_UPD_GROUP_RAID_DIFFICULTY</span><span class="p">,</span>
+<a name="line-369"></a>    <span class="n">CHAR_DEL_INVALID_SPELL</span><span class="p">,</span>
+<a name="line-370"></a>    <span class="n">CHAR_UPD_DELETE_INFO</span><span class="p">,</span>
+<a name="line-371"></a>    <span class="n">CHAR_UDP_RESTORE_DELETE_INFO</span><span class="p">,</span>
+<a name="line-372"></a>    <span class="n">CHAR_UPD_ZONE</span><span class="p">,</span>
+<a name="line-373"></a>    <span class="n">CHAR_UPD_LEVEL</span><span class="p">,</span>
+<a name="line-374"></a>    <span class="n">CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA</span><span class="p">,</span>
+<a name="line-375"></a>    <span class="n">CHAR_DEL_INVALID_ACCOUNT_ACHIEV_PROGRESS_CRITERIA</span><span class="p">,</span>
+<a name="line-376"></a>    <span class="n">CHAR_DEL_INVALID_ACHIEVMENT</span><span class="p">,</span>
+<a name="line-377"></a>    <span class="n">CHAR_INS_ADDON</span><span class="p">,</span>
+<a name="line-378"></a>    <span class="n">CHAR_DEL_GROUP_INSTANCE_BY_INSTANCE</span><span class="p">,</span>
+<a name="line-379"></a>    <span class="n">CHAR_DEL_GROUP_INSTANCE_BY_GUID</span><span class="p">,</span>
+<a name="line-380"></a>    <span class="n">CHAR_REP_GROUP_INSTANCE</span><span class="p">,</span>
+<a name="line-381"></a>    <span class="n">CHAR_UPD_INSTANCE_RESETTIME</span><span class="p">,</span>
+<a name="line-382"></a>    <span class="n">CHAR_UPD_GLOBAL_INSTANCE_RESETTIME</span><span class="p">,</span>
+<a name="line-383"></a>    <span class="n">CHAR_UPD_CHAR_ONLINE</span><span class="p">,</span>
+<a name="line-384"></a>    <span class="n">CHAR_UPD_CHAR_NAME_AT_LOGIN</span><span class="p">,</span>
+<a name="line-385"></a>    <span class="n">CHAR_UPD_WORLDSTATE</span><span class="p">,</span>
+<a name="line-386"></a>    <span class="n">CHAR_INS_WORLDSTATE</span><span class="p">,</span>
+<a name="line-387"></a>    <span class="n">CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE_GUID</span><span class="p">,</span>
+<a name="line-388"></a>    <span class="n">CHAR_UPD_CHAR_INSTANCE</span><span class="p">,</span>
+<a name="line-389"></a>    <span class="n">CHAR_INS_CHAR_INSTANCE</span><span class="p">,</span>
+<a name="line-390"></a>    <span class="n">CHAR_UPD_GENDER_PLAYERBYTES</span><span class="p">,</span>
+<a name="line-391"></a>    <span class="n">CHAR_DEL_CHARACTER_SKILL</span><span class="p">,</span>
+<a name="line-392"></a>    <span class="n">CHAR_UPD_ADD_CHARACTER_SOCIAL_FLAGS</span><span class="p">,</span>
+<a name="line-393"></a>    <span class="n">CHAR_UPD_REM_CHARACTER_SOCIAL_FLAGS</span><span class="p">,</span>
+<a name="line-394"></a>    <span class="n">CHAR_INS_CHARACTER_SOCIAL</span><span class="p">,</span>
+<a name="line-395"></a>    <span class="n">CHAR_DEL_CHARACTER_SOCIAL</span><span class="p">,</span>
+<a name="line-396"></a>    <span class="n">CHAR_UPD_CHARACTER_SOCIAL_NOTE</span><span class="p">,</span>
+<a name="line-397"></a>    <span class="n">CHAR_UPD_CHARACTER_POSITION</span><span class="p">,</span>
+<a name="line-398"></a>
+<a name="line-399"></a>    <span class="n">CHAR_INS_LFG_DATA</span><span class="p">,</span>
+<a name="line-400"></a>    <span class="n">CHAR_DEL_LFG_DATA</span><span class="p">,</span>
+<a name="line-401"></a>
+<a name="line-402"></a>    <span class="n">CHAR_SEL_CHARACTER_AURA_FROZEN</span><span class="p">,</span>
+<a name="line-403"></a>    <span class="n">CHAR_SEL_CHARACTER_ONLINE</span><span class="p">,</span>
+<a name="line-404"></a>
+<a name="line-405"></a>    <span class="n">CHAR_SEL_CHAR_DEL_INFO_BY_GUID</span><span class="p">,</span>
+<a name="line-406"></a>    <span class="n">CHAR_SEL_CHAR_DEL_INFO_BY_NAME</span><span class="p">,</span>
+<a name="line-407"></a>    <span class="n">CHAR_SEL_CHAR_DEL_INFO</span><span class="p">,</span>
+<a name="line-408"></a>
+<a name="line-409"></a>    <span class="n">CHAR_SEL_CHARS_BY_ACCOUNT_ID</span><span class="p">,</span>
+<a name="line-410"></a>    <span class="n">CHAR_SEL_CHAR_PINFO</span><span class="p">,</span>
+<a name="line-411"></a>    <span class="n">CHAR_SEL_PINFO_BANS</span><span class="p">,</span>
+<a name="line-412"></a>    <span class="n">CHAR_SEL_CHAR_HOMEBIND</span><span class="p">,</span>
+<a name="line-413"></a>    <span class="n">CHAR_SEL_CHAR_GUID_NAME_BY_ACC</span><span class="p">,</span>
+<a name="line-414"></a>    <span class="n">CHAR_SEL_POOL_QUEST_SAVE</span><span class="p">,</span>
+<a name="line-415"></a>    <span class="n">CHAR_SEL_CHARACTER_AT_LOGIN</span><span class="p">,</span>
+<a name="line-416"></a>    <span class="n">CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN</span><span class="p">,</span>
+<a name="line-417"></a>    <span class="n">CHAR_SEL_CHAR_TITLES</span><span class="p">,</span>
+<a name="line-418"></a>    <span class="n">CHAR_SEL_INSTANCE</span><span class="p">,</span>
+<a name="line-419"></a>    <span class="n">CHAR_SEL_PET_SPELL_LIST</span><span class="p">,</span>
+<a name="line-420"></a>    <span class="n">CHAR_SEL_CHAR_PET</span><span class="p">,</span>
+<a name="line-421"></a>    <span class="n">CHAR_SEL_CHAR_PETS</span><span class="p">,</span>
+<a name="line-422"></a>    <span class="n">CHAR_SEL_CHAR_COD_ITEM_MAIL</span><span class="p">,</span>
+<a name="line-423"></a>    <span class="n">CHAR_SEL_CHAR_SOCIAL</span><span class="p">,</span>
+<a name="line-424"></a>    <span class="n">CHAR_SEL_PET_AURA</span><span class="p">,</span>
+<a name="line-425"></a>    <span class="n">CHAR_SEL_PET_AURA_EFFECT</span><span class="p">,</span>
+<a name="line-426"></a>    <span class="n">CHAR_SEL_CHAR_OLD_CHARS</span><span class="p">,</span>
+<a name="line-427"></a>    <span class="n">CHAR_SEL_MAIL</span><span class="p">,</span>
+<a name="line-428"></a>    <span class="n">CHAR_SEL_CHAR_PLAYERBYTES2</span><span class="p">,</span>
+<a name="line-429"></a>    <span class="n">CHAR_SEL_PET_SPELL</span><span class="p">,</span>
+<a name="line-430"></a>    <span class="n">CHAR_SEL_PET_SPELL_COOLDOWN</span><span class="p">,</span>
+<a name="line-431"></a>    <span class="n">CHAR_SEL_PET_DECLINED_NAME</span><span class="p">,</span>
+<a name="line-432"></a>    <span class="n">CHAR_SEL_CHAR_GUID_BY_NAME</span><span class="p">,</span>
+<a name="line-433"></a>    <span class="n">CHAR_DEL_CHAR_AURA_FROZEN</span><span class="p">,</span>
+<a name="line-434"></a>    <span class="n">CHAR_SEL_CHAR_INVENTORY_COUNT_ITEM</span><span class="p">,</span>
+<a name="line-435"></a>    <span class="n">CHAR_SEL_MAIL_COUNT_ITEM</span><span class="p">,</span>
+<a name="line-436"></a>    <span class="n">CHAR_SEL_AUCTIONHOUSE_COUNT_ITEM</span><span class="p">,</span>
+<a name="line-437"></a>    <span class="n">CHAR_SEL_GUILD_BANK_COUNT_ITEM</span><span class="p">,</span>
+<a name="line-438"></a>    <span class="n">CHAR_SEL_CHAR_INVENTORY_ITEM_BY_ENTRY</span><span class="p">,</span>
+<a name="line-439"></a>    <span class="n">CHAR_SEL_MAIL_ITEMS_BY_ENTRY</span><span class="p">,</span>
+<a name="line-440"></a>    <span class="n">CHAR_SEL_AUCTIONHOUSE_ITEM_BY_ENTRY</span><span class="p">,</span>
+<a name="line-441"></a>    <span class="n">CHAR_SEL_GUILD_BANK_ITEM_BY_ENTRY</span><span class="p">,</span>
+<a name="line-442"></a>    <span class="n">CHAR_SEL_CHAR_PET_BY_ENTRY</span><span class="p">,</span>
+<a name="line-443"></a>    <span class="n">CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT_2</span><span class="p">,</span>
+<a name="line-444"></a>    <span class="n">CHAR_SEL_CHAR_PET_BY_SLOT</span><span class="p">,</span>
+<a name="line-445"></a>    <span class="n">CHAR_DEL_ACCOUNT_ACHIEVEMENT</span><span class="p">,</span>
+<a name="line-446"></a>    <span class="n">CHAR_DEL_CHAR_ACHIEVEMENT</span><span class="p">,</span>
+<a name="line-447"></a>    <span class="n">CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS</span><span class="p">,</span>
+<a name="line-448"></a>    <span class="n">CHAR_DEL_CHAR_REPUTATION_BY_FACTION</span><span class="p">,</span>
+<a name="line-449"></a>    <span class="n">CHAR_INS_CHAR_REPUTATION_BY_FACTION</span><span class="p">,</span>
+<a name="line-450"></a>    <span class="n">CHAR_DEL_ITEM_REFUND_INSTANCE</span><span class="p">,</span>
+<a name="line-451"></a>    <span class="n">CHAR_INS_ITEM_REFUND_INSTANCE</span><span class="p">,</span>
+<a name="line-452"></a>    <span class="n">CHAR_DEL_GROUP</span><span class="p">,</span>
+<a name="line-453"></a>    <span class="n">CHAR_DEL_GROUP_MEMBER_ALL</span><span class="p">,</span>
+<a name="line-454"></a>    <span class="n">CHAR_INS_CHAR_GIFT</span><span class="p">,</span>
+<a name="line-455"></a>    <span class="n">CHAR_DEL_INSTANCE_BY_INSTANCE</span><span class="p">,</span>
+<a name="line-456"></a>    <span class="n">CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE</span><span class="p">,</span>
+<a name="line-457"></a>    <span class="n">CHAR_DEL_CHAR_INSTANCE_BY_MAP_DIFF</span><span class="p">,</span>
+<a name="line-458"></a>    <span class="n">CHAR_DEL_GROUP_INSTANCE_BY_MAP_DIFF</span><span class="p">,</span>
+<a name="line-459"></a>    <span class="n">CHAR_DEL_INSTANCE_BY_MAP_DIFF</span><span class="p">,</span>
+<a name="line-460"></a>    <span class="n">CHAR_DEL_MAIL_ITEM_BY_ID</span><span class="p">,</span>
+<a name="line-461"></a>    <span class="n">CHAR_DEL_CHAR_PET_DECLINEDNAME</span><span class="p">,</span>
+<a name="line-462"></a>    <span class="n">CHAR_ADD_CHAR_PET_DECLINEDNAME</span><span class="p">,</span>
+<a name="line-463"></a>    <span class="n">CHAR_UPD_CHAR_PET_NAME</span><span class="p">,</span>
+<a name="line-464"></a>    <span class="n">CHAR_INS_PETITION</span><span class="p">,</span>
+<a name="line-465"></a>    <span class="n">CHAR_DEL_PETITION_BY_GUID</span><span class="p">,</span>
+<a name="line-466"></a>    <span class="n">CHAR_DEL_PETITION_SIGNATURE_BY_GUID</span><span class="p">,</span>
+<a name="line-467"></a>    <span class="n">CHAR_UDP_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID</span><span class="p">,</span>
+<a name="line-468"></a>    <span class="n">CHAR_UPD_CHAR_PET_SLOT_BY_ID</span><span class="p">,</span>
+<a name="line-469"></a>    <span class="n">CHAR_DEL_PET_AURAS</span><span class="p">,</span>
+<a name="line-470"></a>    <span class="n">CHAR_DEL_PET_AURAS_EFFECTS</span><span class="p">,</span>
+<a name="line-471"></a>    <span class="n">CHAR_DEL_PET_SPELLS</span><span class="p">,</span>
+<a name="line-472"></a>    <span class="n">CHAR_DEL_PET_SPELL_COOLDOWNS</span><span class="p">,</span>
+<a name="line-473"></a>    <span class="n">CHAR_INS_PET_SPELL_COOLDOWN</span><span class="p">,</span>
+<a name="line-474"></a>    <span class="n">CHAR_DEL_PET_SPELL_BY_SPELL</span><span class="p">,</span>
+<a name="line-475"></a>    <span class="n">CHAR_INS_PET_SPELL</span><span class="p">,</span>
+<a name="line-476"></a>    <span class="n">CHAR_INS_PET_AURA</span><span class="p">,</span>
+<a name="line-477"></a>    <span class="n">CHAR_INS_PET_AURA_EFFECT</span><span class="p">,</span>
+<a name="line-478"></a>    <span class="n">CHAR_DEL_CHAR_DECLINED_NAME</span><span class="p">,</span>
+<a name="line-479"></a>    <span class="n">CHAR_INS_CHAR_DECLINED_NAME</span><span class="p">,</span>
+<a name="line-480"></a>    <span class="n">CHAR_UPD_FACTION_OR_RACE</span><span class="p">,</span>
+<a name="line-481"></a>    <span class="n">CHAR_UPD_FACTION_OR_RACE_LOG</span><span class="p">,</span>
+<a name="line-482"></a>    <span class="n">CHAR_DEL_CHAR_SKILL_LANGUAGES</span><span class="p">,</span>
+<a name="line-483"></a>    <span class="n">CHAR_INS_CHAR_SKILL_LANGUAGE</span><span class="p">,</span>
+<a name="line-484"></a>    <span class="n">CHAR_UPD_CHAR_TAXI_PATH</span><span class="p">,</span>
+<a name="line-485"></a>    <span class="n">CHAR_UPD_CHAR_TAXIMASK</span><span class="p">,</span>
+<a name="line-486"></a>    <span class="n">CHAR_DEL_CHAR_QUESTSTATUS</span><span class="p">,</span>
+<a name="line-487"></a>    <span class="n">CHAR_DEL_CHAR_SOCIAL_BY_ACCOUNT_ID</span><span class="p">,</span>
+<a name="line-488"></a>    <span class="n">CHAR_DEL_CHAR_SOCIAL_BY_FRIEND</span><span class="p">,</span>
+<a name="line-489"></a>    <span class="n">CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT</span><span class="p">,</span>
+<a name="line-490"></a>    <span class="n">CHAR_UPD_CHAR_ACHIEVEMENT</span><span class="p">,</span>
+<a name="line-491"></a>    <span class="n">CHAR_UPD_CHAR_INVENTORY_FACTION_CHANGE</span><span class="p">,</span>
+<a name="line-492"></a>    <span class="n">CHAR_DEL_CHAR_SPELL_BY_SPELL</span><span class="p">,</span>
+<a name="line-493"></a>    <span class="n">CHAR_UPD_CHAR_SPELL_FACTION_CHANGE</span><span class="p">,</span>
+<a name="line-494"></a>    <span class="n">CHAR_DEL_CHAR_REP_BY_FACTION</span><span class="p">,</span>
+<a name="line-495"></a>    <span class="n">CHAR_UPD_CHAR_REP_FACTION_CHANGE</span><span class="p">,</span>
+<a name="line-496"></a>    <span class="n">CHAR_UPD_CHAR_TITLES_FACTION_CHANGE</span><span class="p">,</span>
+<a name="line-497"></a>    <span class="n">CHAR_RES_CHAR_TITLES_FACTION_CHANGE</span><span class="p">,</span>
+<a name="line-498"></a>    <span class="n">CHAR_DEL_CHAR_SPELL_COOLDOWN</span><span class="p">,</span>
+<a name="line-499"></a>    <span class="n">CHAR_DEL_CHARACTER</span><span class="p">,</span>
+<a name="line-500"></a>    <span class="n">CHAR_DEL_CHAR_ACTION</span><span class="p">,</span>
+<a name="line-501"></a>    <span class="n">CHAR_DEL_CHAR_AURA</span><span class="p">,</span>
+<a name="line-502"></a>    <span class="n">CHAR_DEL_CHAR_AURA_EFFECT</span><span class="p">,</span>
+<a name="line-503"></a>    <span class="n">CHAR_DEL_CHAR_GIFT</span><span class="p">,</span>
+<a name="line-504"></a>    <span class="n">CHAR_DEL_CHAR_INSTANCE</span><span class="p">,</span>
+<a name="line-505"></a>    <span class="n">CHAR_DEL_CHAR_INVENTORY</span><span class="p">,</span>
+<a name="line-506"></a>    <span class="n">CHAR_DEL_CHAR_QUESTSTATUS_REWARDED</span><span class="p">,</span>
+<a name="line-507"></a>    <span class="n">CHAR_DEL_CHAR_REPUTATION</span><span class="p">,</span>
+<a name="line-508"></a>    <span class="n">CHAR_DEL_CHAR_SPELL</span><span class="p">,</span>
+<a name="line-509"></a>    <span class="n">CHAR_DEL_MAIL</span><span class="p">,</span>
+<a name="line-510"></a>    <span class="n">CHAR_DEL_MAIL_ITEMS</span><span class="p">,</span>
+<a name="line-511"></a>    <span class="n">CHAR_DEL_CHAR_PET_BY_OWNER</span><span class="p">,</span>
+<a name="line-512"></a>    <span class="n">CHAR_DEL_CHAR_PET_DECLINEDNAME_BY_OWNER</span><span class="p">,</span>
+<a name="line-513"></a>    <span class="n">CHAR_DEL_CHAR_ACHIEVEMENTS</span><span class="p">,</span>
+<a name="line-514"></a>    <span class="n">CHAR_DEL_CHAR_EQUIPMENTSETS</span><span class="p">,</span>
+<a name="line-515"></a>    <span class="n">CHAR_DEL_GUILD_EVENTLOG_BY_PLAYER</span><span class="p">,</span>
+<a name="line-516"></a>    <span class="n">CHAR_DEL_GUILD_BANK_EVENTLOG_BY_PLAYER</span><span class="p">,</span>
+<a name="line-517"></a>    <span class="n">CHAR_DEL_CHAR_GLYPHS</span><span class="p">,</span>
+<a name="line-518"></a>    <span class="n">CHAR_DEL_CHAR_QUESTSTATUS_DAILY</span><span class="p">,</span>
+<a name="line-519"></a>    <span class="n">CHAR_DEL_CHAR_TALENT</span><span class="p">,</span>
+<a name="line-520"></a>    <span class="n">CHAR_DEL_CHAR_SKILLS</span><span class="p">,</span>
+<a name="line-521"></a>    <span class="n">CHAR_UDP_CHAR_MONEY</span><span class="p">,</span>
+<a name="line-522"></a>    <span class="n">CHAR_INS_CHAR_ACTION</span><span class="p">,</span>
+<a name="line-523"></a>    <span class="n">CHAR_UPD_CHAR_ACTION</span><span class="p">,</span>
+<a name="line-524"></a>    <span class="n">CHAR_DEL_CHAR_ACTION_BY_BUTTON_SPEC</span><span class="p">,</span>
+<a name="line-525"></a>    <span class="n">CHAR_DEL_CHAR_INVENTORY_BY_ITEM</span><span class="p">,</span>
+<a name="line-526"></a>    <span class="n">CHAR_DEL_CHAR_INVENTORY_BY_BAG_SLOT</span><span class="p">,</span>
+<a name="line-527"></a>    <span class="n">CHAR_UPD_MAIL</span><span class="p">,</span>
+<a name="line-528"></a>    <span class="n">CHAR_REP_CHAR_QUESTSTATUS</span><span class="p">,</span>
+<a name="line-529"></a>    <span class="n">CHAR_DEL_CHAR_QUESTSTATUS_BY_QUEST</span><span class="p">,</span>
+<a name="line-530"></a>    <span class="n">CHAR_REP_CHAR_QUESTSTATUS_OBJECTIVE</span><span class="p">,</span>
+<a name="line-531"></a>    <span class="n">CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVE</span><span class="p">,</span>
+<a name="line-532"></a>    <span class="n">CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVE_ALL</span><span class="p">,</span>
+<a name="line-533"></a>    <span class="n">CHAR_INS_CHAR_QUESTSTATUS</span><span class="p">,</span>
+<a name="line-534"></a>    <span class="n">CHAR_DEL_CHAR_QUESTSTATUS_REWARDED_BY_QUEST</span><span class="p">,</span>
+<a name="line-535"></a>    <span class="n">CHAR_DEL_CHAR_SKILL_BY_SKILL</span><span class="p">,</span>
+<a name="line-536"></a>    <span class="n">CHAR_INS_CHAR_SKILLS</span><span class="p">,</span>
+<a name="line-537"></a>    <span class="n">CHAR_UDP_CHAR_SKILLS</span><span class="p">,</span>
+<a name="line-538"></a>    <span class="n">CHAR_INS_CHAR_SPELL</span><span class="p">,</span>
+<a name="line-539"></a>    <span class="n">CHAR_DEL_CHAR_STATS</span><span class="p">,</span>
+<a name="line-540"></a>    <span class="n">CHAR_INS_CHAR_STATS</span><span class="p">,</span>
+<a name="line-541"></a>    <span class="n">CHAR_DEL_PETITION_BY_OWNER</span><span class="p">,</span>
+<a name="line-542"></a>    <span class="n">CHAR_DEL_PETITION_SIGNATURE_BY_OWNER</span><span class="p">,</span>
+<a name="line-543"></a>    <span class="n">CHAR_DEL_PETITION_BY_OWNER_AND_TYPE</span><span class="p">,</span>
+<a name="line-544"></a>    <span class="n">CHAR_DEL_PETITION_SIGNATURE_BY_OWNER_AND_TYPE</span><span class="p">,</span>
+<a name="line-545"></a>    <span class="n">CHAR_INS_CHAR_GLYPHS</span><span class="p">,</span>
+<a name="line-546"></a>    <span class="n">CHAR_DEL_CHAR_TALENT_BY_SPELL_SPEC</span><span class="p">,</span>
+<a name="line-547"></a>    <span class="n">CHAR_INS_CHAR_TALENT</span><span class="p">,</span>
+<a name="line-548"></a>    <span class="n">CHAR_DEL_CHAR_ACTION_EXCEPT_SPEC</span><span class="p">,</span>
+<a name="line-549"></a>    <span class="n">CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT</span><span class="p">,</span>
+<a name="line-550"></a>    <span class="n">CHAR_UPD_CHAR_LIST_SLOT</span><span class="p">,</span>
+<a name="line-551"></a>
+<a name="line-552"></a>    <span class="n">CHAR_SEL_CHAR_VOID_STORAGE</span><span class="p">,</span>
+<a name="line-553"></a>    <span class="n">CHAR_REP_CHAR_VOID_STORAGE_ITEM</span><span class="p">,</span>
+<a name="line-554"></a>    <span class="n">CHAR_DEL_CHAR_VOID_STORAGE_ITEM_BY_SLOT</span><span class="p">,</span>
+<a name="line-555"></a>
+<a name="line-556"></a>    <span class="n">CHAR_REP_GUILD_FINDER_APPLICANT</span><span class="p">,</span>
+<a name="line-557"></a>    <span class="n">CHAR_DEL_GUILD_FINDER_APPLICANT</span><span class="p">,</span>
+<a name="line-558"></a>    <span class="n">CHAR_REP_GUILD_FINDER_GUILD_SETTINGS</span><span class="p">,</span>
+<a name="line-559"></a>    <span class="n">CHAR_DEL_GUILD_FINDER_GUILD_SETTINGS</span><span class="p">,</span>
+<a name="line-560"></a>
+<a name="line-561"></a>    <span class="n">CHAR_LOAD_BOUTIQUE_ITEM</span><span class="p">,</span>
+<a name="line-562"></a>    <span class="n">CHAR_DEL_BOUTIQUE_ITEM</span><span class="p">,</span>
+<a name="line-563"></a>    <span class="n">CHAR_UPD_BOUTIQUE_ITEM</span><span class="p">,</span>
+<a name="line-564"></a>    <span class="n">CHAR_INS_BOUTIQUE_ITEM_LOG</span><span class="p">,</span>
+<a name="line-565"></a>
+<a name="line-566"></a>    <span class="n">CHAR_LOAD_BOUTIQUE_LEVEL</span><span class="p">,</span>
+<a name="line-567"></a>    <span class="n">CHAR_DEL_BOUTIQUE_LEVEL</span><span class="p">,</span>
+<a name="line-568"></a>
+<a name="line-569"></a>    <span class="n">CHAR_LOAD_BOUTIQUE_GOLD</span><span class="p">,</span>
+<a name="line-570"></a>    <span class="n">CHAR_DEL_BOUTIQUE_GOLD</span><span class="p">,</span>
+<a name="line-571"></a>    <span class="n">CHAR_INS_BOUTIQUE_GOLD_LOG</span><span class="p">,</span>
+<a name="line-572"></a>
+<a name="line-573"></a>    <span class="n">CHAR_LOAD_BOUTIQUE_TITLE</span><span class="p">,</span>
+<a name="line-574"></a>    <span class="n">CHAR_DEL_BOUTIQUE_TITLE</span><span class="p">,</span>
+<a name="line-575"></a>    <span class="n">CHAR_INS_BOUTIQUE_TITLE_LOG</span><span class="p">,</span>
+<a name="line-576"></a>
+<a name="line-577"></a>    <span class="n">CHAR_LOAD_STORE_PROFESSION</span><span class="p">,</span>
+<a name="line-578"></a>    <span class="n">CHAR_DEL_STORE_PROFESSION</span><span class="p">,</span>
+<a name="line-579"></a>
+<a name="line-580"></a>    <span class="n">CHAR_SEL_CHAR_ARCHAEOLOGY</span><span class="p">,</span>
+<a name="line-581"></a>    <span class="n">CHAR_SEL_CHAR_ARCHAEOLOGY_PROJECTS</span><span class="p">,</span>
+<a name="line-582"></a>    <span class="n">CHAR_SEL_CHAR_ARCHAEOLOGY_SITES</span><span class="p">,</span>
+<a name="line-583"></a>    
+<a name="line-584"></a>    <span class="n">CHAR_DEL_CUF_PROFILE</span><span class="p">,</span>
+<a name="line-585"></a>    <span class="n">CHAR_INS_CUF_PROFILE</span><span class="p">,</span>
+<a name="line-586"></a>    <span class="n">CHAR_SEL_CUF_PROFILE</span><span class="p">,</span>
+<a name="line-587"></a>
+<a name="line-588"></a>    <span class="n">CHAR_UPD_PET_DATA_OWNER</span><span class="p">,</span>
+<a name="line-589"></a>    <span class="n">CHAR_UPD_PET_DATA_OWNER_ID</span><span class="p">,</span>
+<a name="line-590"></a>
+<a name="line-591"></a>    <span class="n">CHAR_INS_BLACKMARKET_AUCTION</span><span class="p">,</span>
+<a name="line-592"></a>    <span class="n">CHAR_DEL_BLACKMARKET_AUCTION</span><span class="p">,</span>
+<a name="line-593"></a>    <span class="n">CHAR_UPD_BLACKMARKET_AUCTION</span><span class="p">,</span>
+<a name="line-594"></a>    <span class="n">CHAR_SEL_BLACKMARKET_AUCTIONS</span><span class="p">,</span>
+<a name="line-595"></a>    <span class="n">CHAR_SEL_BLACKMARKET_EXPIRED_AUCTIONS</span><span class="p">,</span>
+<a name="line-596"></a>
+<a name="line-597"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-598"></a>    <span class="c1">/// Garrison</span>
+<a name="line-599"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-600"></a>    <span class="n">CHAR_INS_GARRISON</span><span class="p">,</span>
+<a name="line-601"></a>    <span class="n">CHAR_SEL_GARRISON</span><span class="p">,</span>
+<a name="line-602"></a>    <span class="n">CHAR_UPD_GARRISON</span><span class="p">,</span>
+<a name="line-603"></a>    <span class="n">CHAR_DEL_GARRISON</span><span class="p">,</span>
+<a name="line-604"></a>
+<a name="line-605"></a>    <span class="n">CHAR_INS_GARRISON_BUILDING</span><span class="p">,</span>
+<a name="line-606"></a>    <span class="n">CHAR_SEL_GARRISON_BUILDING</span><span class="p">,</span>
+<a name="line-607"></a>    <span class="n">CHAR_UPD_GARRISON_BUILDING</span><span class="p">,</span>
+<a name="line-608"></a>    <span class="n">CHAR_DEL_GARRISON_BUILDING</span><span class="p">,</span>
+<a name="line-609"></a>    <span class="n">CHAR_DEL_GARRISON_BUILDINGS</span><span class="p">,</span>
+<a name="line-610"></a>
+<a name="line-611"></a>    <span class="n">CHAR_INS_GARRISON_MISSION</span><span class="p">,</span>
+<a name="line-612"></a>    <span class="n">CHAR_SEL_GARRISON_MISSION</span><span class="p">,</span>
+<a name="line-613"></a>    <span class="n">CHAR_UPD_GARRISON_MISSION</span><span class="p">,</span>
+<a name="line-614"></a>    <span class="n">CHAR_DEL_GARRISON_MISSION</span><span class="p">,</span>
+<a name="line-615"></a>    <span class="n">CHAR_DEL_GARRISON_MISSIONS</span><span class="p">,</span>
+<a name="line-616"></a>
+<a name="line-617"></a>    <span class="n">CHAR_INS_GARRISON_FOLLOWER</span><span class="p">,</span>
+<a name="line-618"></a>    <span class="n">CHAR_SEL_GARRISON_FOLLOWER</span><span class="p">,</span>
+<a name="line-619"></a>    <span class="n">CHAR_UPD_GARRISON_FOLLOWER</span><span class="p">,</span>
+<a name="line-620"></a>    <span class="n">CHAR_DEL_GARRISON_FOLLOWER</span><span class="p">,</span>
+<a name="line-621"></a>    <span class="n">CHAR_DEL_GARRISON_FOLLOWERS</span><span class="p">,</span>
+<a name="line-622"></a>
+<a name="line-623"></a>    <span class="n">CHAR_INS_GARRISON_WORKORDER</span><span class="p">,</span>
+<a name="line-624"></a>    <span class="n">CHAR_SEL_GARRISON_WORKORDER</span><span class="p">,</span>
+<a name="line-625"></a>    <span class="n">CHAR_DEL_GARRISON_WORKORDER</span><span class="p">,</span>
+<a name="line-626"></a>    <span class="n">CHAR_DEL_GARRISON_WORKORDERS</span><span class="p">,</span>
+<a name="line-627"></a>
+<a name="line-628"></a>    <span class="n">CHAR_DEL_GARRISON_DAILY_TAVERN_DATA</span><span class="p">,</span>
+<a name="line-629"></a>    <span class="n">CHAR_DEL_GARRISON_DAILY_TAVERN_DATA_CHAR</span><span class="p">,</span>
+<a name="line-630"></a>    <span class="n">CHAR_SEL_GARRISON_DAILY_TAVERN_DATA_CHAR</span><span class="p">,</span>
+<a name="line-631"></a>    <span class="n">CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR</span><span class="p">,</span>
+<a name="line-632"></a>
+<a name="line-633"></a>    <span class="n">CHAR_UPD_LAST_BATTLEPET</span><span class="p">,</span>
+<a name="line-634"></a>    <span class="n">CHAR_SEL_LAST_BATTLEPET</span><span class="p">,</span>
+<a name="line-635"></a>
+<a name="line-636"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-637"></a>    <span class="c1">/// Calendar</span>
+<a name="line-638"></a>    <span class="n">CHAR_REP_CALENDAR_EVENT</span><span class="p">,</span>
+<a name="line-639"></a>    <span class="n">CHAR_DEL_CALENDAR_EVENT</span><span class="p">,</span>
+<a name="line-640"></a>    <span class="n">CHAR_REP_CALENDAR_INVITE</span><span class="p">,</span>
+<a name="line-641"></a>    <span class="n">CHAR_DEL_CALENDAR_INVITE</span><span class="p">,</span>
+<a name="line-642"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-643"></a>
+<a name="line-644"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-645"></a>    <span class="c1">/// SpellCharges</span>
+<a name="line-646"></a>    <span class="n">CHAR_SEL_CHARGES_COOLDOWN</span><span class="p">,</span>
+<a name="line-647"></a>    <span class="n">CHAR_INS_CHARGES_COOLDOWN</span><span class="p">,</span>
+<a name="line-648"></a>    <span class="n">CHAR_DEL_CHARGES_COOLDOWN</span><span class="p">,</span>
+<a name="line-649"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-650"></a>
+<a name="line-651"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-652"></a>    <span class="c1">/// ChallengesMode</span>
+<a name="line-653"></a>    <span class="n">CHAR_SEL_COMPLETED_CHALLENGES</span><span class="p">,</span>
+<a name="line-654"></a>    <span class="n">CHAR_INS_COMPLETED_CHALLENGE</span><span class="p">,</span>
+<a name="line-655"></a>    <span class="n">CHAR_UPD_COMPLETED_CHALLENGE</span><span class="p">,</span>
+<a name="line-656"></a>    <span class="n">CHAR_INS_GROUP_CHALLENGE</span><span class="p">,</span>
+<a name="line-657"></a>    <span class="n">CHAR_INS_GUILD_CHALLENGE</span><span class="p">,</span>
+<a name="line-658"></a>    <span class="n">CHAR_DEL_GROUP_CHALLENGE</span><span class="p">,</span>
+<a name="line-659"></a>    <span class="n">CHAR_DEL_GUILD_CHALLENGE</span><span class="p">,</span>
+<a name="line-660"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-661"></a>
+<a name="line-662"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-663"></a>    <span class="c1">/// Premades</span>
+<a name="line-664"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-665"></a>    <span class="n">CHAR_SEL_PREMADES</span><span class="p">,</span>
+<a name="line-666"></a>    <span class="n">CHAR_UPD_PREMADE_SUCESS</span><span class="p">,</span>
+<a name="line-667"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-668"></a>
+<a name="line-669"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-670"></a>    <span class="c1">/// Encounter logs</span>
+<a name="line-671"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-672"></a>    <span class="n">CHAR_INS_ENCOUNTER_DAMAGE_LOG</span><span class="p">,</span>
+<a name="line-673"></a>    <span class="n">CHAR_INS_ENCOUNTER_GROUP_DUMP</span><span class="p">,</span>
+<a name="line-674"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-675"></a>
+<a name="line-676"></a>    <span class="n">CHAR_SEL_DAILY_LOOT_COOLDOWNS</span><span class="p">,</span>
+<a name="line-677"></a>    <span class="n">CHAR_INS_DAILY_LOOT_COOLDOWNS</span><span class="p">,</span>
+<a name="line-678"></a>
+<a name="line-679"></a>    <span class="n">CHAR_SEL_BOSS_LOOTED</span><span class="p">,</span>
+<a name="line-680"></a>    <span class="n">CHAR_INS_BOSS_LOOTED</span><span class="p">,</span>
+<a name="line-681"></a>
+<a name="line-682"></a>    <span class="n">CHAR_SEL_WORLD_STATES</span><span class="p">,</span>
+<a name="line-683"></a>    <span class="n">CHAR_REP_WORLD_STATES</span><span class="p">,</span>
+<a name="line-684"></a>    <span class="n">CHAR_UPD_WORLD_STATE</span><span class="p">,</span>
+<a name="line-685"></a>    <span class="n">CHAR_DEL_WORLD_STATE_DATA</span><span class="p">,</span>
+<a name="line-686"></a>
+<a name="line-687"></a>    <span class="n">CHAR_UPD_XP_RATE</span><span class="p">,</span>
+<a name="line-688"></a>
+<a name="line-689"></a>    <span class="c1">/// Armory stats</span>
+<a name="line-690"></a>    <span class="n">CHAR_REP_STATS</span><span class="p">,</span>
+<a name="line-691"></a>
+<a name="line-692"></a>    <span class="n">MAX_CHARACTERDATABASE_STATEMENTS</span>
+<a name="line-693"></a><span class="p">};</span>
+<a name="line-694"></a>
+<a name="line-695"></a><span class="n">class</span> <span class="nl">CharacterDatabaseConnection</span> <span class="p">:</span> <span class="n">public</span> <span class="n">MySQLConnection</span>
+<a name="line-696"></a><span class="p">{</span>
+<a name="line-697"></a><span class="nl">public</span><span class="p">:</span>
+<a name="line-698"></a>    <span class="k">typedef</span> <span class="n">CharacterDatabaseStatements</span> <span class="n">Statements</span><span class="p">;</span>
+<a name="line-699"></a>
+<a name="line-700"></a>    <span class="c1">//- Constructors for sync and async connections</span>
+<a name="line-701"></a><span class="hll">    <span class="n">CharacterDatabaseConnection</span><span class="p">(</span><span class="n">MySQLConnectionInfo</span><span class="o">&amp;</span> <span class="n">connInfo</span><span class="p">)</span> <span class="o">:</span> <span class="n">MySQLConnection</span><span class="p">(</span><span class="n">connInfo</span><span class="p">)</span> <span class="p">{}</span><div class='verbose expandable'><span class='error2'>&lt;--- Class 'CharacterDatabaseConnection' has a constructor with 1 argument that is not explicit. <span class='marker'>[+]</span></span><div class='content'>Class &apos;CharacterDatabaseConnection&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided.</div></div><div class='verbose expandable'><span class='error2'>&lt;--- Class 'CharacterDatabaseConnection' has a constructor with 1 argument that is not explicit. <span class='marker'>[+]</span></span><div class='content'>Class &apos;CharacterDatabaseConnection&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided.</div></div><div class='verbose expandable'><span class='error2'>&lt;--- Class 'CharacterDatabaseConnection' has a constructor with 1 argument that is not explicit. <span class='marker'>[+]</span></span><div class='content'>Class &apos;CharacterDatabaseConnection&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided.</div></div><div class='verbose expandable'><span class='error2'>&lt;--- Class 'CharacterDatabaseConnection' has a constructor with 1 argument that is not explicit. <span class='marker'>[+]</span></span><div class='content'>Class &apos;CharacterDatabaseConnection&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided.</div></div>
+</span><a name="line-702"></a>    <span class="n">CharacterDatabaseConnection</span><span class="p">(</span><span class="n">ACE_Activation_Queue</span><span class="o">*</span> <span class="n">q</span><span class="p">,</span> <span class="n">MySQLConnectionInfo</span><span class="o">&amp;</span> <span class="n">connInfo</span><span class="p">)</span> <span class="o">:</span> <span class="n">MySQLConnection</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">connInfo</span><span class="p">)</span> <span class="p">{}</span>
+<a name="line-703"></a>
+<a name="line-704"></a>    <span class="c1">//- Loads database type specific prepared statements</span>
+<a name="line-705"></a>    <span class="kt">void</span> <span class="n">DoPrepareStatements</span><span class="p">()</span> <span class="n">override</span><span class="p">;</span>
+<a name="line-706"></a><span class="p">};</span>
+<a name="line-707"></a>
+<a name="line-708"></a><span class="k">typedef</span> <span class="n">DatabaseWorkerPool</span><span class="o">&lt;</span><span class="n">CharacterDatabaseConnection</span><span class="o">&gt;</span> <span class="n">CharacterDatabaseWorkerPool</span><span class="p">;</span>
+<a name="line-709"></a>
+<a name="line-710"></a><span class="cp">#endif</span>
+</pre></div>
+</td></tr></table>
+      </div>
+      <div id="footer">
+        <p>
+         Cppcheck 1.73 - a tool for static C/C++ code analysis</br>
+         </br>
+         Internet: <a href="http://cppcheck.sourceforge.net">http://cppcheck.sourceforge.net</a></br>
+         IRC: <a href="irc://irc.freenode.net/cppcheck">irc://irc.freenode.net/cppcheck</a></br>
+        <p>
+      </div>
+  </body>
+</html>

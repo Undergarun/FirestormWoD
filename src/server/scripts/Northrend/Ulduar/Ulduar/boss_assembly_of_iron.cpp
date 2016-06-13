@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -73,7 +64,7 @@ enum AssemblySpells
     SPELL_LIGHTNING_TENDRILS_10        = 61887,
     SPELL_LIGHTNING_TENDRILS_25        = 63486,
     SPELL_LIGHTNING_TENDRILS_VISUAL    = 61883,
-    SPELL_STORMSHIELD                  = 64187,
+    SPELL_STORMSHIELD                  = 64187
 };
 
 // Steelbreaker
@@ -123,13 +114,13 @@ enum AssemblyEvents
     EVENT_LIGHTNING_TENDRILS_ENDFLIGHT,
     EVENT_LIGHTNING_TENDRILS_GROUND,
     EVENT_LIGHTNING_TENDRILS_LAND,
-    EVENT_MOVE_POSITION,
+    EVENT_MOVE_POSITION
 };
 
 enum AssemblyActions
 {
     ACTION_ADD_CHARGE           = 3,
-    ACTION_UPDATEPHASE          = 4,
+    ACTION_UPDATEPHASE          = 4
 };
 
 enum SteelBreakerYells
@@ -138,7 +129,7 @@ enum SteelBreakerYells
     SAY_STEELBREAKER_SLAY       = 1,
     SAY_STEELBREAKER_POWER      = 2,
     SAY_STEELBREAKER_DEATH      = 3,
-    SAY_STEELBREAKER_BERSERK    = 4,
+    SAY_STEELBREAKER_BERSERK    = 4
 };
 
 enum MolgeimYells
@@ -148,7 +139,7 @@ enum MolgeimYells
     SAY_MOLGEIM_RUNE_DEATH      = 2,
     SAY_MOLGEIM_SUMMON          = 3,
     SAY_MOLGEIM_DEATH           = 4,
-    SAY_MOLGEIM_BERSERK         = 5,
+    SAY_MOLGEIM_BERSERK         = 5
 };
 
 enum BrundirYells
@@ -164,7 +155,7 @@ enum BrundirYells
 
 enum AssemblyNPCs
 {
-    NPC_WORLD_TRIGGER = 22515,
+    NPC_WORLD_TRIGGER = 22515
 };
 
 enum MovePoints
@@ -337,7 +328,7 @@ class boss_steelbreaker : public CreatureScript
                 isInEnterCombat = false;
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 if (isInEnterCombat)
                     return;
@@ -640,7 +631,7 @@ class boss_runemaster_molgeim : public CreatureScript
                 isInEnterCombat = false;
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 if (isInEnterCombat)
                     return;
@@ -1284,7 +1275,7 @@ const uint32 AssemblyMembers[] =
 {
     32867, // NPC_STEELBREAKER,
     32927, // NPC_RUNEMASTER_MOLGEIM,
-    32857, // NPC_STORMCALLER_BRUNDIR,
+    32857, // NPC_STORMCALLER_BRUNDIR
 };
 
 struct IsNoAssemblyMember
@@ -1400,6 +1391,7 @@ class achievement_cant_do_that_while_stunned : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_assembly_of_iron()
 {
     new boss_steelbreaker();
@@ -1420,6 +1412,7 @@ void AddSC_boss_assembly_of_iron()
     new achievement_cant_do_that_while_stunned("achievement_cant_do_that_while_stunned");
     new achievement_cant_do_that_while_stunned("achievement_cant_do_that_while_stunned_25");
 }
+#endif
 
 // Steelbreaker
 #undef SPELL_HIGH_VOLTAGE

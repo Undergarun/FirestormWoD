@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -49,7 +39,7 @@ enum eSpells
 enum ePhases
 {
     PHASE_WEAK_SPOT     = 1,
-    PHASE_VULNERABILITY = 2,
+    PHASE_VULNERABILITY = 2
 };
 
 enum eActions
@@ -191,7 +181,7 @@ class boss_raigonn : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 if (Phase != PHASE_VULNERABILITY)
                     return;
@@ -448,7 +438,7 @@ class npc_raigonn_weak_spot : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                     if (pInstance)
@@ -489,7 +479,7 @@ class npc_krikthik_protectorat : public CreatureScript
                 hasCastHiveMind = false;
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!hasCastHiveMind && me->HealthBelowPctDamaged(20, damage))
                     me->CastSpell(me, SPELL_HIVE_MIND, true);
@@ -615,7 +605,7 @@ class vehicle_artillery : public VehicleScript
                 launchEventTimer = 0;
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 const /*p_Action*/)
             {
                 launchEventTimer = 2500;
             }
@@ -657,8 +647,7 @@ class vehicle_artillery : public VehicleScript
         }
 };
 
-
-
+#ifndef __clang_analyzer__
 void AddSC_boss_raigonn()
 {
     new boss_raigonn();
@@ -668,3 +657,4 @@ void AddSC_boss_raigonn()
     new npc_krikthik_swarm_bringer();
     new vehicle_artillery();
 }
+#endif

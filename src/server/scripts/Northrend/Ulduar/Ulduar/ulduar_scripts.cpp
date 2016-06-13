@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
  
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -23,7 +14,7 @@
 enum Events
 {
     // Ironwork Cannon
-    EVENT_FLAME_CANNON      = 1,
+    EVENT_FLAME_CANNON      = 1
 };
 
 enum Spells
@@ -106,7 +97,9 @@ class npc_ironwork_cannon : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_ulduar_scripts()
 {
     new npc_ironwork_cannon();
 }
+#endif

@@ -1,19 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Chat.h"
 #include "ScriptMgr.h"
@@ -137,7 +128,7 @@ class misc_commandscript: public CommandScript
             return commandTable;
         }
 
-        static bool HandleInitializeLFGCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleInitializeLFGCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_Player = p_Handler->getSelectedPlayer();
 
@@ -149,7 +140,7 @@ class misc_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleToggleChatFiltering(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleToggleChatFiltering(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             WorldSession* l_PlayerSession = p_Handler->GetSession();
 
@@ -2752,10 +2743,10 @@ class misc_commandscript: public CommandScript
             }
 
             CreatureTemplate const* creatrueTemplate = sObjectMgr->GetCreatureTemplate(creatureTarget->GetEntry());
-            // Creatures with family 0 crashes the server
-            if (!creatrueTemplate->family)
+            // Creatures with family CREATURE_FAMILY_NONE crashes the server
+            if (creatrueTemplate->family == CREATURE_FAMILY_NONE)
             {
-                handler->PSendSysMessage("This creature cannot be tamed. (family id: 0).");
+                handler->PSendSysMessage("This creature cannot be tamed. family id: 0 (CREATURE_FAMILY_NONE).");
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -3142,7 +3133,9 @@ class misc_commandscript: public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_misc_commandscript()
 {
     new misc_commandscript();
 }
+#endif
