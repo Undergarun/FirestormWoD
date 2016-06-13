@@ -6420,6 +6420,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 117895:///< Eminence (statue)
                 spellInfo->SpellLevel = 100;
                 break;
+            case 189999:///< Grove Warden
+            case 171828:///< Solar Spikehawk
+                spellInfo->Effects[0].MiscValue = 74410;
+                spellInfo->Effects[0].MiscValueB = 248;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
