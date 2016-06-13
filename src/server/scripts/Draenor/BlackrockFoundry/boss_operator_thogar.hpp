@@ -900,7 +900,7 @@ static std::array<TrainDatas, (eThogarTrains::MaxTrains - 1)> const g_TrainDatas
         },
         /// Thirty fifth fight train: Adds train on track 3, right to left
         {
-            eThogarCreatures::TrainEngine, 0, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::AddsTrain, true,
+            eThogarCreatures::TrainEngine, 462, eThogarMiscDatas::ThirdTrack, eThogarMiscDatas::AddsTrain, true,
             {
                 {
                     eThogarCreatures::TroopTransport3, eThogarSpells::TroopTransportAura2,

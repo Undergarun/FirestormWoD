@@ -12430,6 +12430,26 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE
                     crit_chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
                 }
+                // scripted (increase crit chance ... against ... target by x%
+                AuraEffectList const& mOverrideClassScript = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+                for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
+                {
+                    if (!((*i)->IsAffectingSpell(spellProto)))
+                        continue;
+
+                    switch ((*i)->GetMiscValue())
+                    {
+                            // Shatter
+                        case  911:
+                            if (!victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
+                                break;
+                            crit_chance *= 2; // double the critical chance against frozen targets
+                            crit_chance += 50.0f; // plus an additional 50%
+                            break;
+                        default:
+                            break;
+                    }
+                }
                 /// Custom crit
                 switch (spellProto->Id)
                 {
@@ -12782,6 +12802,24 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         return healamount;
 
     int32 DoneTotal = 0;
+
+    // done scripted mod (take it from owner)
+    Unit* owner = GetOwner() ? GetOwner() : this;
+    AuraEffectList const& mOverrideClassScript= owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+    for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
+    {
+        if (!(*i)->IsAffectingSpell(spellProto))
+            continue;
+
+        switch ((*i)->GetMiscValue())
+        {
+            case 3736: // Hateful Totem of the Third Wind / Increased Lesser Healing Wave / LK Arena (4/5/6) Totem of the Third Wind / Savage Totem of the Third Wind
+                DoneTotal += (*i)->GetAmount();
+                break;
+            default:
+                break;
+        }
+    }
 
     // Apply Power PvP healing bonus
     if (healamount > 0 && IsPlayer() && (victim->IsPlayer() || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
