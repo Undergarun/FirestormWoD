@@ -13,8 +13,7 @@
 #include "DBCStore.h"
 #include "DBCStructure.h"
 
-typedef std::list<uint32> SimpleFactionsList;
-SimpleFactionsList const* GetFactionTeamList(uint32 faction);
+std::vector<uint32> const* GetFactionTeamList(uint32 faction);
 
 char const* GetPetName(uint32 petfamily, uint32 dbclang);
 SpellEffectEntry const* GetSpellEffectEntry(uint32 spellId, uint32 effect, uint32 difficulty);
