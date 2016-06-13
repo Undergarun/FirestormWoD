@@ -2113,7 +2113,7 @@ void Guild::LoadBank()
     }
 
     //                                                     0        1      2        3        4
-    QueryResult result = CharacterDatabase.PQuery("SELECT guildid, TabId, TabName, TabIcon, TabText FROM guild_bank_tab WHERE guildid = %u ORDER BY TabId ASC", m_id);
+    result = CharacterDatabase.PQuery("SELECT guildid, TabId, TabName, TabIcon, TabText FROM guild_bank_tab WHERE guildid = %u ORDER BY TabId ASC", m_id);
     if (result)
     {
         do
@@ -2125,7 +2125,7 @@ void Guild::LoadBank()
     }
 
     //                                                      0            1                2      3         4        5      6                  7                 8           9      10
-    QueryResult result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, bonuses, upgradeId, "
+    result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, bonuses, upgradeId, "
                                                     //   11       12           13      14          15                   16      17       18        19    20
                                                     "durability, playedTime, text, custom_flags, enchantIllusionId, guildid, TabId, SlotId, item_guid, itemEntry FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.guildid = %u AND gbi.item_guid = ii.guid", m_id);
     if (result)
