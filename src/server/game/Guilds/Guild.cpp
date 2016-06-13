@@ -2115,96 +2115,43 @@ void Guild::LoadBank()
     if (m_BankLoaded)
         return;
 
-    /// 1. Load all bank event logs
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading guild bank event logs...");
+    //                                                      0        1      2        3          4           5            6               7          8
+    QueryResult result = CharacterDatabase.Query("SELECT guildid, TabId, LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog WHERE guildid = %u ORDER BY TimeStamp DESC, LogGuid DESC", m_id);
+
+    if (result)
     {
-        uint32 oldMSTime = getMSTime();
-                             //          0        1      2        3          4           5            6               7          8
-        QueryResult result = CharacterDatabase.Query("SELECT guildid, TabId, LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
-
-        if (!result)
+        do
         {
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild bank event logs. DB table `guild_bank_eventlog` is empty.");
+            Field* fields = result->Fetch();
+            LoadBankEventLogFromDB(fields);
         }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
-
-                if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                    guild->LoadBankEventLogFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild bank event logs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-        }
+        while (result->NextRow());
     }
 
-    // 2. Load all guild bank tabs
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading guild bank tabs...");
+    //                                                     0        1      2        3        4
+    QueryResult result = CharacterDatabase.Query("SELECT guildid, TabId, TabName, TabIcon, TabText FROM guild_bank_tab WHERE guildid = %u ORDER BY TabId ASC", m_id);
+    if (result)
     {
-        uint32 oldMSTime = getMSTime();
-                                         //         0        1      2        3        4
-        QueryResult result = CharacterDatabase.Query("SELECT guildid, TabId, TabName, TabIcon, TabText FROM guild_bank_tab ORDER BY guildid ASC, TabId ASC");
-
-        if (!result)
+        do
         {
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild bank tabs. DB table `guild_bank_tab` is empty.");
+            Field* fields = result->Fetch();
+            LoadBankTabFromDB(fields);
         }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
-
-                if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                    guild->LoadBankTabFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild bank tabs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-        }
+        while (result->NextRow());
     }
 
-    // 9. Fill all guild bank tabs
-    sLog->outInfo(LOG_FILTER_GUILD, "Filling bank tabs with items...");
+    //                                                      0            1                2      3         4        5      6                  7                 8           9      10
+    QueryResult result = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, bonuses, upgradeId, "
+                                                    //   11       12           13      14          15                   16      17       18        19    20
+                                                    "durability, playedTime, text, custom_flags, enchantIllusionId, guildid, TabId, SlotId, item_guid, itemEntry FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.guildid = %u AND gbi.item_guid = ii.guid", m_id);
+    if (result)
     {
-        uint32 oldMSTime = getMSTime();
-                                       //          0            1                2      3         4        5      6                  7                 8           9      10
-        QueryResult result = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, bonuses, upgradeId, "
-                                                     //   11       12           13      14          15                   16      17       18        19    20
-                                                     "durability, playedTime, text, custom_flags, enchantIllusionId, guildid, TabId, SlotId, item_guid, itemEntry FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid");
-
-        if (!result)
+        do
         {
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild bank tab items. DB table `guild_bank_item` or `item_instance` is empty.");
+            Field* fields = result->Fetch();
+            LoadBankItemFromDB(fields);
         }
-        else
-        {
-            uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
-                uint32 guildId = fields[16].GetUInt32();
-
-                if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                    guild->LoadBankItemFromDB(fields);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild bank tab items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-        }
+        while (result->NextRow());
     }
 
     m_BankLoaded = true;
