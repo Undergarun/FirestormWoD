@@ -16,6 +16,8 @@
 typedef std::list<uint32> SimpleFactionsList;
 SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 
+EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 p_Emote, uint32 p_Race, uint32 p_Gender);
+
 char const* GetPetName(uint32 petfamily, uint32 dbclang);
 SpellEffectEntry const* GetSpellEffectEntry(uint32 spellId, uint32 effect, uint32 difficulty);
 SpellEffectScalingEntry const* GetSpellEffectScalingEntry(uint32 effectId);
