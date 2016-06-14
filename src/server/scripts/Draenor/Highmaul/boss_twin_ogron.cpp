@@ -905,6 +905,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                             DoFirstMove();
                         else
                             m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPlayer, 1 * TimeConstants::IN_MILLISECONDS);
+
                         break;
                     }
                     case eEvents::EventSpawnFirstBlaze:
