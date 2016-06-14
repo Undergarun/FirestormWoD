@@ -8087,7 +8087,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 case 31801: /// Seal of Truth (damage calc on apply aura)
                 {
-                    if (effIndex != 0 || procSpell->Id == 53385)                       // effect 2 used by seal unleashing code
+                    if (effIndex != 0 || (procSpell && procSpell->Id == 53385))                       // effect 2 used by seal unleashing code
                         return false;
 
                     triggered_spell_id = 31803;
