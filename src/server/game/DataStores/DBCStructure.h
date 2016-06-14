@@ -413,6 +413,15 @@ struct EmotesTextEntry
     //uint32    m_EmoteText[16];                            // 3-18     m_EmoteText
 };
 
+struct EmotesTextSoundEntry
+{
+    uint32 ID;                                              // 0
+    uint32 EmotesTextID;                                    // 1
+    uint32 RaceID;                                          // 2
+    uint32 Gender;                                          // 3, 0 male / 1 female
+    uint32 SoundID;                                         // 4
+};
+
 struct FactionEntry
 {
     uint32  ID;                                             // 0        m_ID
