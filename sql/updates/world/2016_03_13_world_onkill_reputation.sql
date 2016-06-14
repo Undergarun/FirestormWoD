@@ -5,18 +5,7 @@ MySQL - 5.7.9
 */
 /*!40101 SET NAMES utf8 */;
 
-create table `creature_onkill_reputation` (
-	`creature_id` mediumint (8),
-	`RewOnKillRepFaction1` smallint (6),
-	`RewOnKillRepFaction2` smallint (6),
-	`MaxStanding1` tinyint (4),
-	`IsTeamAward1` tinyint (4),
-	`RewOnKillRepValue1` mediumint (8),
-	`MaxStanding2` tinyint (4),
-	`IsTeamAward2` tinyint (4),
-	`RewOnKillRepValue2` mediumint (9),
-	`TeamDependent` tinyint (3)
-); 
+DELETE FROM `creature_onkill_reputation`;
 insert into `creature_onkill_reputation` (`creature_id`, `RewOnKillRepFaction1`, `RewOnKillRepFaction2`, `MaxStanding1`, `IsTeamAward1`, `RewOnKillRepValue1`, `MaxStanding2`, `IsTeamAward2`, `RewOnKillRepValue2`, `TeamDependent`) values('674','21','0','5','0','25','0','0','0','0');
 insert into `creature_onkill_reputation` (`creature_id`, `RewOnKillRepFaction1`, `RewOnKillRepFaction2`, `MaxStanding1`, `IsTeamAward1`, `RewOnKillRepValue1`, `MaxStanding2`, `IsTeamAward2`, `RewOnKillRepValue2`, `TeamDependent`) values('675','21','0','5','0','25','0','0','0','0');
 insert into `creature_onkill_reputation` (`creature_id`, `RewOnKillRepFaction1`, `RewOnKillRepFaction2`, `MaxStanding1`, `IsTeamAward1`, `RewOnKillRepValue1`, `MaxStanding2`, `IsTeamAward2`, `RewOnKillRepValue2`, `TeamDependent`) values('677','21','0','5','0','25','0','0','0','0');
