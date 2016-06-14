@@ -2715,7 +2715,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
         {
             if (isPet() && GetOwner())
                 if (GetOwner()->ToPlayer())
-                    l_ExpertisePercentage -= int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
+                    l_ExpertisePercentage = int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
         }
 
         if (victim->getLevel() >= getLevel())
