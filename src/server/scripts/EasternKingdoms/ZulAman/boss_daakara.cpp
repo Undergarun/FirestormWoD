@@ -10,7 +10,7 @@ enum Scripttexts
     SAY_FIRE        = 4,
     SAY_KILL        = 5,
     SAY_LYNX        = 6,
-    SAY_AGGRO       = 7,
+    SAY_AGGRO       = 7
 };
 
 enum Spells
@@ -53,7 +53,7 @@ enum Spells
 
     SPELL_BERSERK                   = 45078,
 
-    SPELL_FERAL_SWIPE               = 43357,
+    SPELL_FERAL_SWIPE               = 43357
 };
 
 enum Events
@@ -73,19 +73,19 @@ enum Events
     EVENT_CONTINUE              = 13,
     EVENT_FERAL_SWIPE           = 14,
     EVENT_LIGHTNING_TOTEM       = 15,
-    EVENT_CHECK_PLAYERS         = 16,
+    EVENT_CHECK_PLAYERS         = 16
 };
 
 enum Adds
 {
     NPC_PILLAR_OF_FLAME     = 24187,
     NPC_AMANI_LYNX          = 52839,
-    NPC_FEATHER_VORTEX      = 24136,
+    NPC_FEATHER_VORTEX      = 24136
 };
 
 enum Actions
 {
-    ACTION_MOVE_TO_PLAYER   = 1,
+    ACTION_MOVE_TO_PLAYER   = 1
 };
 
 #define CENTER_X 120.148811f
@@ -168,7 +168,7 @@ class boss_daakara : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHit(Unit* attacker, const SpellInfo* spellInfo)
+            void SpellHit(Unit* /*p_Attacker*/, const SpellInfo* spellInfo)
             {
                 if (spellInfo->HasEffect(SPELL_EFFECT_ATTACK_ME) ||
                     spellInfo->HasAura(SPELL_AURA_MOD_TAUNT))
@@ -247,7 +247,7 @@ class boss_daakara : public CreatureScript
                 if (me->HealthBelowPct(80) && phase == 0)
                 {
                     phase++;
-                    events.CancelEvent(EVENT_WHIRLWIND); 
+                    events.CancelEvent(EVENT_WHIRLWIND);
                     events.CancelEvent(EVENT_GRIEVOUS_THROW);
                     EnterPhase(urand(0, 1));
                     return;
@@ -260,7 +260,7 @@ class boss_daakara : public CreatureScript
                     events.CancelEvent(EVENT_OVERPOWER);
                     events.CancelEvent(EVENT_LYNX_RUSH);
                     events.CancelEvent(EVENT_CLAW_RAGE);
-                    EnterPhase(urand(2, 3));                    
+                    EnterPhase(urand(2, 3));
                     return;
                 }
 
@@ -374,7 +374,7 @@ class npc_daakara_vortex : public CreatureScript
 
         struct npc_daakara_vortexAI : public Scripted_NoMovementAI
         {
-            npc_daakara_vortexAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_daakara_vortexAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 DoCast(me, SPELL_FEATHER_VORTEX_VISUAL, true);
                 me->SetReactState(REACT_PASSIVE);
@@ -391,7 +391,7 @@ class npc_daakara_vortex : public CreatureScript
             {
             }
             
-            void SetGUID(uint64 guid, int32 data)
+            void SetGUID(uint64 guid, int32 /*p_Data*/)
             {
                 victimGUID = guid;
             }
@@ -430,7 +430,7 @@ class npc_daakara_pillar_of_flame : public CreatureScript
 
         struct npc_daakara_pillar_of_flameAI : public Scripted_NoMovementAI
         {
-            npc_daakara_pillar_of_flameAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
+            npc_daakara_pillar_of_flameAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
                 DoCast(me, SPELL_PILLAR_OF_FLAME_VISUAL, true);
@@ -472,7 +472,7 @@ class npc_daakara_amani_lynx : public CreatureScript
 
         struct npc_daakara_amani_lynxAI : public ScriptedAI
         {
-            npc_daakara_amani_lynxAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_daakara_amani_lynxAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
             }
             
@@ -483,7 +483,7 @@ class npc_daakara_amani_lynx : public CreatureScript
                 events.Reset();
             }
             
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_FERAL_SWIPE, urand(6000, 9000));
             }
@@ -519,9 +519,9 @@ class spell_daakara_claw_rage_charge: public SpellScriptLoader
 
         class spell_daakara_claw_rage_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_daakara_claw_rage_charge_SpellScript);
+            PrepareSpellScript(spell_daakara_claw_rage_charge_SpellScript)
 
-            void HandleCharge(SpellEffIndex effIndex)
+            void HandleCharge(SpellEffIndex /*effIndex*/)
             {
                 if (GetCaster() && GetHitUnit())
                 {
@@ -550,9 +550,9 @@ class spell_daakara_sweeping_winds: public SpellScriptLoader
 
         class spell_daakara_sweeping_winds_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_daakara_sweeping_winds_SpellScript);
+            PrepareSpellScript(spell_daakara_sweeping_winds_SpellScript)
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (GetHitUnit() && GetHitUnit()->GetEntry() == NPC_FEATHER_VORTEX)
                     GetHitUnit()->GetAI()->DoAction(ACTION_MOVE_TO_PLAYER);
@@ -577,7 +577,7 @@ class achievement_ring_out : public AchievementCriteriaScript
     public:
         achievement_ring_out() : AchievementCriteriaScript("achievement_ring_out") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;
@@ -589,6 +589,7 @@ class achievement_ring_out : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_daakara()
 {
     new boss_daakara();
@@ -599,4 +600,4 @@ void AddSC_boss_daakara()
     new spell_daakara_sweeping_winds();
     new achievement_ring_out();
 }
-
+#endif

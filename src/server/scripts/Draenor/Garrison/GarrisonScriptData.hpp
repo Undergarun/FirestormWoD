@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -13,10 +13,15 @@
 #include "ScriptedGossip.h"
 #include "GameObjectAI.h"
 #include "Spell.h"
-#include "GarrisonNPC.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
+    /// Sequence position structure
+    struct SequencePosition
+    {
+        /// Position
+        float X, Y, Z, O;
+    };
 
     /// Garrison map ids
     enum MapIDs
@@ -61,7 +66,8 @@ namespace MS { namespace Garrison
             GarrisonCreation              = 18,
             ShellyQuestGossip1            = 19,
             ShellyQuestGossip2            = 20,
-            GazloweQuestGossip1           = 21
+            GazloweQuestGossip1           = 21,
+            FollowerRecruitment           = 22
         };
 
     }
@@ -130,6 +136,7 @@ namespace MS { namespace Garrison
             Alliance_BiggerIsBetter                     = 36592,
             Alliance_AshranAppearance                   = 36624,
             Alliance_QianaMoonshadow                    = 34646,
+            Alliance_TheHeadHunterHarverst              = 37119,
 
             /// Small profession building quests
             Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
@@ -171,6 +178,7 @@ namespace MS { namespace Garrison
             Horde_BiggerIsBetter                        = 36567,
             Horde_MissionProbable                       = 34775,
             Horde_AshranAppearance                      = 36706,
+            Horde_TheHeadHunterHarverst                 = 37046,
             /// Small profession building quests
             Horde_YourFirstBlacksmithingWorkOrder       = 37569,
             Horde_YourFirstTailoringWorkOrder           = 37575,
@@ -293,12 +301,12 @@ namespace MS { namespace Garrison
             ItemGG117MicroJetpack             = 114244,
             ItemSentryTurretDispenser         = 114744,
 
-            /// Level 3
-            ItemOverchargedSiegeEngine        = 119436,
-            ItemOverchargedDemolkisher        = 119437
+            /// Level 3 (shipments, not daily loot)
+            ItemOverchargedSiegeEngine        = 119436, ///< Alliance
+            ItemOverchargedDemolkisher        = 119437  ///< Horde
         };
 
-        static std::vector<uint32> const g_FirstLevelInventions =
+        static std::vector<uint32> g_FirstLevelInventions =
         {
             GobStickyGrenades,
             GobRoboBooster,
@@ -306,7 +314,7 @@ namespace MS { namespace Garrison
             GobSkyTerrorPersonnalDeliverySystem
         };
 
-        static std::vector<uint32> const g_SecondLevelInventions =
+        static std::vector<uint32> g_SecondLevelInventions =
         {
             GobPrototypeMechanoHog,
             GobPrototypeMekgineersChopper,
@@ -318,7 +326,7 @@ namespace MS { namespace Garrison
 
         static uint32 const g_ThirdLevelInvention = GobWorkshopWorkorder;
         
-        static std::map<uint32, uint32> g_GobItemRelations = 
+        static std::map<uint32, uint32> g_GobItemRelations =
         {
             /// Level 1
             { InventionsGobIDs::GobStickyGrenades,                   InventionItemIDs::ItemStickyGrenades },
@@ -383,13 +391,6 @@ namespace MS { namespace Garrison
 
     namespace StablesData
     {
-        /// Sequence position structure
-        struct SequencePosition
-        {
-            /// Position
-            float X, Y, Z, O;
-        };
-
         std::vector<G3D::Vector3> const g_CreaturesJumps =
         {
             /// meadowstomper - 86852
@@ -412,6 +413,13 @@ namespace MS { namespace Garrison
         static const uint64 g_PendingQuestFlag  = 0x40000000;
         static const uint32 g_LassoAllianceAura = 173686;
         static const uint32 g_LassoHordeAura    = 174070;
+
+        enum BonusAuras
+        {
+            StablesAuraLevel1 = 169605,
+            StablesAuraLevel2 = 169606,
+            StablesAuraLevel3 = 169607
+        };
 
         enum TrainingMountsAuras
         {
@@ -448,11 +456,26 @@ namespace MS { namespace Garrison
         {
             static const std::vector<SequencePosition> g_AllianceCreaturesPos =
             {
-                { 12.5372f,  5.8878f, 0.6798f, 1.5558f },
-                {  6.3883f,  6.2564f, 0.6798f, 1.5715f },
-                {  5.5064f, -6.1384f, 0.6720f, 4.6228f },
-                { 16.4277f, -6.5664f, 0.6734f, 1.8818f },
-                { -6.6953f,  2.0611f, 0.6462f, 0.3447f } ///< This one is for second QuestGiver, else is for mounts
+                /// Level 1
+                { 12.5372f,  5.8878f, 0.6798f, 1.5558f }, ///< First Mount from spellbook
+                {  6.3883f,  6.2564f, 0.6798f, 1.5715f }, ///< Second Mount from spellbook
+                {  5.5064f, -6.1384f, 0.6720f, 4.6228f }, ///< First Mount in training
+                { 16.4277f, -6.5664f, 0.6734f, 1.8818f }, ///< Second Mount in training
+                { -6.6953f,  2.0611f, 0.6462f, 0.3447f }, ///< Second QuestGiver
+                
+                /// Level 2
+                { 10.5691f, 5.2344f, 0.0905f, 1.6148f  }, ///< First Mount from spellbook
+                { 0.4318f, 4.6344f, 0.0849f, 1.5637f   }, ///< Second Mount from spellbook
+                { 4.6486f, -7.1033f, 0.0872f, 1.5284f  }, ///< First Mount in training
+                { 10.8380f, -7.3660f, 0.0931f, 1.5284f }, ///< Second Mount in training
+                { -5.4332f, 3.1585f, 0.0106f, 6.0719f  }, ///< Second QuestGiver
+
+                /// Level 3
+                { 16.2822f, 16.3610f, 0.1327f, 4.8467f  }, ///< First Mount from spellbook
+                { 7.3848f, 17.7451f, 0.2598f, 4.7446f   }, ///< Second Mount from spellbook
+                { 11.6410f, -18.5553f, 0.2767f, 1.6973f }, ///< First Mount in training
+                { -2.0329f, -19.1035f, 0.2359f, 1.6109f }, ///< Second Mount in training
+                { -12.7107f, -8.0214f, 0.4587f, 6.2565f }, ///< Second QuestGiver
             };
 
             namespace FannyQuestGiver
@@ -648,11 +671,26 @@ namespace MS { namespace Garrison
         {
             static const std::vector<SequencePosition> g_HordeCreaturesPos =
             {
-                { 10.8978f,  6.2676f, 0.4298f, 2.1677f },
-                {  6.9427f,  4.4816f, 0.4298f, 1.8300f },
-                {  7.3520f, -6.3004f, 0.4294f, 4.4899f },
-                { 15.7939f, -5.6128f, 0.4465f, 1.7449f },
-                { -3.5501f, -0.0913f, 0.4295f, 0.0799f } ///< This one is for second QuestGiver, else is for mounts
+                /// Level 1
+                { 10.8978f,  6.2676f, 0.4298f, 2.1677f }, ///< First Mount from spellbook
+                {  6.9427f,  4.4816f, 0.4298f, 1.8300f }, ///< Second Mount from spellbook
+                {  7.3520f, -6.3004f, 0.4294f, 4.4899f }, ///< First Mount in training
+                { 15.7939f, -5.6128f, 0.4465f, 1.7449f }, ///< Second Mount in training
+                { -3.5501f, -0.0913f, 0.4295f, 0.0799f }, ///< Second QuestGiver
+                
+                /// Level 2
+                { 8.4927f, 9.8405f, 0.2139f, 1.4275f   }, ///< First Mount from spellbook
+                { 1.2528f, 10.8851f, 0.2077f, 1.4275f  }, ///< Second Mount from spellbook
+                { 1.1784f, -12.7750f, 0.2393f, 1.5155f }, ///< First Mount in training
+                { 7.7486f, -11.7724f, 0.2714f, 1.5194f }, ///< Second Mount in training
+                { -3.0227f, 2.5846f, 0.1670f, 0.1944f  }, ///< Second QuestGiver
+
+                /// Level 3
+                { 7.8584f, 14.2116f, 0.6680f, 1.6189f   }, ///< First Mount from spellbook
+                { 14.2914f, 15.2063f, 0.6681f, 1.6032f  }, ///< Second Mount from spellbook
+                { 17.2089f, -15.8898f, 0.6771f, 1.7407f }, ///< First Mount in training
+                { 9.4654f, -19.1903f, 0.6674f, 1.7407f  }, ///< Second Mount in training
+                { -1.9750f, 2.5123f, 0.6682f, 5.6323f   }  ///< Second QuestGiver
             };
 
             namespace SagePalunaQuestGiver
@@ -987,6 +1025,224 @@ namespace MS { namespace Garrison
         };
     }
 
+    namespace GarrisonAbilities
+    {
+        std::vector<uint32> const g_FollowerAbilities =
+        {
+            253,
+            54,
+            67,
+            63,
+            326,
+            65,
+            69,
+            29,
+            76,
+            244,
+            58,
+            256,
+            303,
+            49,
+            61,
+            68,
+            232,
+            62,
+            75,
+            74,
+            56,
+            66,
+            80,
+            325,
+            201,
+            71,
+            79,
+            55,
+            231,
+            46,
+            9,
+            53,
+            64,
+            57,
+            59,
+            78,
+            47,
+            48,
+            314,
+            248,
+            52,
+            7,
+            221,
+            44,
+            254,
+            227,
+            252,
+            324,
+            236,
+            70,
+            8,
+            255,
+            77,
+            257,
+            72,
+            60,
+            45,
+            43,
+            38,
+            4,
+            37,
+            36,
+            41,
+            40,
+            39,
+            42,
+            228,
+            250,
+            73
+        };
+
+
+        std::vector<uint32> const g_FollowerTraits =
+        {
+            139,
+            158,
+            104,
+            138,
+            5,
+            168,
+            102,
+            153,
+            115,
+            124,
+            176,
+            119,
+            182,
+            154,
+            155,
+            171,
+            105,
+            131,
+            135,
+            165,
+            162,
+            145,
+            148,
+            164,
+            173,
+            175,
+            132,
+            151,
+            120,
+            125,
+            159,
+            161,
+            249,
+            163,
+            101,
+            141,
+            117,
+            108,
+            150,
+            152,
+            183,
+            133,
+            181,
+            169,
+            156,
+            157,
+            177,
+            172,
+            116,
+            149,
+            142,
+            137,
+            144,
+            6,
+            140,
+            180,
+            167,
+            147,
+            178,
+            11 ,
+            100,
+            107,
+            128,
+            118,
+            127,
+            126,
+            174,
+            123,
+            143,
+            106,
+            134,
+            10,
+            136,
+            114,
+            160,
+            129,
+            122,
+            130,
+            146,
+            166,
+            103,
+            170,
+            179,
+            121
+        };
+
+
+        std::vector<uint32> const g_ShipAbilities =
+        { 260,
+            261,
+            262,
+            263,
+            264,
+            265,
+            266,
+            267,
+            268,
+            269,
+            270,
+            271,
+            272,
+            273,
+            274,
+            275,
+            276,
+            277,
+            278,
+            279,
+            280,
+            281,
+            282,
+            283,
+            284,
+            285,
+            286,
+            287,
+            288,
+            289,
+            290,
+            291,
+            292,
+            293,
+            294,
+            299,
+            300,
+            304,
+            305,
+            306,
+            315,
+            317,
+            318,
+            319,
+            320,
+            321,
+            322,
+            323,
+            327
+        };
+    }
+
     enum GameObjects
     {
         GobStump                = 234568,
@@ -1102,7 +1358,7 @@ namespace MS { namespace Garrison
         /// Alliance
         { 1850.71f,   254.430f,  78.08300f, 1.76f    }, ///< Alliance Level 1
         { 1947.08f,   324.883f,  90.28076f, 0.00f    }, ///< Alliance Level 2
-        {    0.f,       0.f,      0.f,      0.00f    }  ///< Alliance Level 3
+        {    0.0f,       0.0f,      0.0f,      0.00f    }  ///< Alliance Level 3
     };
 
     /// Creature that follow garrison owner level
@@ -1217,7 +1473,7 @@ namespace MS { namespace Garrison
         };
     }
 
-    namespace HordePeonData 
+    namespace HordePeonData
     {
         enum
         {

@@ -12,7 +12,7 @@ enum Data
     DATA_MAIN_GATE          = 6,
     DATA_TEMPEST            = 7,
     DATA_VENDOR_1           = 8,
-    DATA_VENDOR_2           = 9,
+    DATA_VENDOR_2           = 9
 };
 
 enum CreaturesIds
@@ -53,7 +53,7 @@ enum CreaturesIds
     NPC_AMANISHI_TEMPEST    = 24549,
     NPC_AMANISHI_WARRIOR    = 24225,
     NPC_AMANI_EAGLE         = 24159,
-    NPC_AMANISHI_LOOKOUT    = 24175,
+    NPC_AMANISHI_LOOKOUT    = 24175
 };
 
 enum GameObjectsIds
@@ -66,7 +66,7 @@ enum GameObjectsIds
     GO_MALACRASS_ENTRANCE   = 186305,
     GO_MALACRASS_EXIT       = 186306,
     GO_DAAKARA_EXIT         = 186859,
-    
+
     GO_HAZLEK_CAGE          = 187377,
     GO_HAZLEK_TRUNK         = 186648,
 
@@ -75,12 +75,12 @@ enum GameObjectsIds
 
     GO_KASHA_CAGE           = 187380,
     GO_KASHA_BAG            = 186672,
-    GO_KASHA_VASE           = 186671,
+    GO_KASHA_VASE           = 186671
 };
 
 enum SharedSpells
 {
-    SPELL_ZULAMAN_ACHIEVEMENT = 100938,
+    SPELL_ZULAMAN_ACHIEVEMENT = 100938
 };
 
 #endif

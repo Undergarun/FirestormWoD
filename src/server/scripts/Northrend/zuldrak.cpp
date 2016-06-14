@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -33,7 +24,7 @@ enum eDrakuruShackles
     SPELL_FREE_RAGECLAW        = 55223,
 
     NPC_RAGECLAW               = 29686,
-    QUEST_TROLLS_IS_GONE_CRAZY = 12861,
+    QUEST_TROLLS_IS_GONE_CRAZY = 12861
 };
 
 class npc_drakuru_shackles : public CreatureScript
@@ -297,7 +288,7 @@ static BossAndAdd Boss[]=
     {NPC_GARGORAL, NPC_FIEND_WATER, SPELL_CRASHING_WAVE, SPELL_ORB_OF_WATER},
     {NPC_AZ_BARIN, NPC_FIEND_AIR, SPELL_BLAST_OF_AIR, SPELL_ORB_OF_STORMS},
     {NPC_DUKE_SINGEN, NPC_FIEND_FIRE, SPELL_MAGMA_WAVE, SPELL_ORB_OF_FLAME},
-    {NPC_ERATHIUS, NPC_FIEND_EARTH, SPELL_SHOCKWAVE, SPELL_BOULDER},
+    {NPC_ERATHIUS, NPC_FIEND_EARTH, SPELL_SHOCKWAVE, SPELL_BOULDER}
 };
 
 const Position SpawnPosition[] =
@@ -1500,7 +1491,7 @@ class npc_storm_cloud : public CreatureScript
         }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_zuldrak()
 {
     new npc_drakuru_shackles;
@@ -1518,3 +1509,4 @@ void AddSC_zuldrak()
     new go_scourge_enclosure;
     new npc_storm_cloud();
 }
+#endif

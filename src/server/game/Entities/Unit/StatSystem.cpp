@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Unit.h"
 #include "Player.h"
@@ -502,7 +492,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
             break;
     }
 
-    float att_speed = (l_UsedWeapon ? l_UsedWeapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.f;
+    float att_speed = (l_UsedWeapon ? l_UsedWeapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.0f;
     float attackPower = GetTotalAttackPowerValue(attType);
 
     /// If player doesn't have weapons we should calculate damage with this values: min damage = 1 and max damage = 2
@@ -513,7 +503,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     ///float dualWieldModifier = dualWield ? 0.81f : 1.0f; // Dual Wield Penalty: 19%
     float dualWieldModifier = 1.0f; ///< I don't know about reducing for 19%. We have checked it on PTR, and damage is the same with dual wield - like without it.
     if (dualWield && HasAuraType(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE))
-        dualWieldModifier += (float)GetTotalAuraModifier(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE) / 100.f;
+        dualWieldModifier += (float)GetTotalAuraModifier(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE) / 100.0f;
 
     float weapon_normalized_min = weapon_mindamage + attackPower / 3.5f * att_speed * dualWieldModifier;
     float weapon_normalized_max = weapon_maxdamage + attackPower / 3.5f * att_speed * dualWieldModifier;
@@ -566,7 +556,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     }
 }
 
-void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon) ///< attType is unused
+void Player::CalculateNormalizedWeaponDamage(WeaponAttackType /*attType*/, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon)
 {
     float l_NormalizedSpeedCoef = 1.0f;
 
@@ -779,7 +769,6 @@ static float k_constantVHorizontalShift[MAX_CLASSES] =
 void Player::UpdateParryPercentage()
 {
     /// No parry
-    float value = 0.0f;
     float l_Total = 0.0f;
     uint32 pClass = getClass() - 1;
 
@@ -804,23 +793,9 @@ void Player::UpdateParryPercentage()
 
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
             l_Total = l_Total > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : l_Total;
-        /// Parry from strength, just for paladin/dk/warrior        
+        /// Parry from strength, just for paladin/dk/warrior
         /*1% parry before diminishing returns = 176.3760684 strength
         1 strength gives 1 / 176.3760684 = 0,0056697034301282*/
-       /* if (getClass() == CLASS_PALADIN || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR)
-            diminishing += (1.0f / 176.3760684f) / 100.0f) * GetTotalStatValue(STAT_STRENGTH, false); ///< Level 100 rating
-
-        // apply diminishing formula to diminishing parry chance
-        value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + (parryCap[pClass] * k_constant[pClass]));
-
-        /// Apply parry from pct of critical strike from gear
-        value += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING));
-
-        if (value < 0.0f)
-            value = 0.0f;
-
-        if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
-            value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : value;*/
     }
 
     SetStatFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE, l_Total);
@@ -1004,11 +979,11 @@ void Player::UpdateAllSpellCritChances()
 void Player::UpdateMultistrikePercentage()
 {
     float value = GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_PCT);
-    float effect = 30.f; // Default value
+    float effect = 30.0f; // Default value
     value += GetRatingBonusValue(CR_MULTISTRIKE);
     AddPct(effect, GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT));
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE, value);
-    SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, effect / 100.f);
+    SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, effect / 100.0f);
 }
 
 void Player::UpdateLeechPercentage()
@@ -1036,14 +1011,14 @@ void Player::UpdateVersatilityPercentage()
 
 void Player::UpdateAvoidancePercentage()
 {
-    float value = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    float value = 0.0f;//GetTotalAuraModifier(SPELL_AURA);
     value += GetRatingBonusValue(CR_AVOIDANCE);
     SetFloatValue(PLAYER_FIELD_AVOIDANCE, value);
 }
 
 void Player::UpdateSpeedPercentage()
 {
-    float value = 0.f;
+    float value = 0.0f;
     value += GetRatingBonusValue(CR_SPEED);
     SetFloatValue(PLAYER_FIELD_SPEED, value);
 }
@@ -1068,6 +1043,7 @@ void Player::UpdateManaRegen()
 
     uint8 l_PercentOfMana = 2;
     float l_SpiritRegenIncrease = OCTRegenMPPerSpirit();   ///< Mana regen increase from spirit - per-point calculation * player stat.
+    l_SpiritRegenIncrease *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
 
     float l_CombatRegenFromSpirit = 0;
     float l_CombatRegenFromAurPct = 0;
@@ -1099,7 +1075,7 @@ void Player::UpdateManaRegen()
     }
 
     /// Warlocks and Mages have 5% of maximum mana in base mana regen - blizzlike
-    if (getClass() == CLASS_WARLOCK || getClass() == CLASS_MAGE)
+    if (getClass() == CLASS_WARLOCK)
         l_PercentOfMana = 5;
 
     /// 2% of base mana each 5 seconds.
@@ -1125,7 +1101,6 @@ void Player::UpdateManaRegen()
         l_CombatRegenFromSpirit += (float(l_PercentAllowCombatRegenBySpirit) / 100) * l_SpiritRegenIncrease; ///< Allows you mana regeneration from Spirit to continue while in combat.
 
     /// Increase mana regen.
-    int32 l_PercentIncreaseManaRegen = 0;
     int32 l_IncreaseManaRegen = l_Combat_regen;
 
     /// Increase mana from SPELL_AURA_MOD_POWER_REGEN_PERCENT
@@ -1360,9 +1335,9 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields) ///< l_NoLongerDualWields is unused
+void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool /*l_NoLongerDualWields*/)
 {
-    float l_Variance = 1.f;
+    float l_Variance = 1.0f;
     UnitMods l_UnitMod;
     switch (p_AttType)
     {
@@ -1697,7 +1672,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 
     float l_BaseAttackPower       = l_BaseValue;
     float l_SpellPower            = l_BaseValue;
-    float l_AttackPowerMultiplier = 1.f;
+    float l_AttackPowerMultiplier = 1.0f;
 
     PetStatInfo const* l_PetStat = GetPetStat();
     if (l_PetStat != nullptr)
@@ -1744,7 +1719,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 }
 
 /// WoD updated
-void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields) ///< l_NoLongerDualWields is unused
+void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool /*l_NoLongerDualWields*/)
 {
     UnitMods l_UnitMod;
     switch (p_AttType)

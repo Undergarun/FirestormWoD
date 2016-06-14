@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#ifndef __clang_analyzer__
 #include <float.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -1410,3 +1411,4 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 	
 	return true;
 }
+#endif

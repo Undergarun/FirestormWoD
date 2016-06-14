@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -31,7 +22,7 @@ enum Events
     // Flame Warder
     EVENT_FW_LAVA_BIRST     = 6,
     EVENT_FW_METEOR_FISTS_A = 7,
-    EVENT_FW_METEOR_FISTS_B = 8,
+    EVENT_FW_METEOR_FISTS_B = 8
 };
 
 enum Spells
@@ -47,7 +38,7 @@ enum Spells
     // Spells Flame Warder
     SPELL_FW_LAVA_BIRST                         = 66813,
     SPELL_FW_METEOR_FISTS_A                     = 66808,
-    SPELL_FW_METEOR_FISTS_B                     = 67331,
+    SPELL_FW_METEOR_FISTS_B                     = 67331
 };
 
 class boss_koralon : public CreatureScript
@@ -190,8 +181,10 @@ class mob_flame_warder : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_koralon()
 {
     new boss_koralon();
     new mob_flame_warder();
 }
+#endif

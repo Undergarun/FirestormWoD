@@ -2,13 +2,12 @@
 #include "Spell.h"
 #include "blackrock_caverns.h"
 
-//todo: реализовать нормальное превращение
 enum ScriptTexts
 {
     SAY_AGGRO       = 0,
     SAY_KILL        = 1,
     SAY_TRANSFORM   = 2,
-    SAY_DEATH       = 3,
+    SAY_DEATH       = 3
 };
 
 enum Spells
@@ -21,20 +20,20 @@ enum Spells
     SPELL_TWILIGHT_EVOLUTION                     = 75732,
     SPELL_EVOLUTION_0                            = 75697,
     SPELL_EVOLUTION                              = 75610,
-    SPELL_KNEELING_IN_SUPPLICATION               = 75608,
+    SPELL_KNEELING_IN_SUPPLICATION               = 75608
 };
 
 enum Adds
 {
-    NPC_CORLA_TWILIGHT_ZEALOT	= 50284,
+    NPC_CORLA_TWILIGHT_ZEALOT   = 50284
 };
 
 enum Events
 {
-    EVENT_DARK_COMMAND	= 1,
+    EVENT_DARK_COMMAND  = 1
 };
 
-const Position twilightzealotPos[3] = 
+const Position twilightzealotPos[3] =
 {
     {574.16f, 974.27f, 155.35f, 4.74f},
     {563.06f, 982.78f, 155.35f, 4.63f},
@@ -83,7 +82,7 @@ class boss_corla_herald_of_twilight : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     if ((me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_DARK_COMMAND) ||
@@ -93,7 +92,7 @@ class boss_corla_herald_of_twilight : public CreatureScript
                                 me->InterruptSpell(CURRENT_GENERIC_SPELL);
             }
 
-            void EnterCombat(Unit* /*who*/) 
+            void EnterCombat(Unit* /*who*/)
             {
                 DoCast(SPELL_AURA_ACELERATION);
                 events.ScheduleEvent(EVENT_DARK_COMMAND, urand(6000, 10000));
@@ -142,7 +141,7 @@ class boss_corla_herald_of_twilight : public CreatureScript
                     pInstance->SetData(DATA_CORLA, DONE);
             }
      
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit * /*victim*/)
             {
                 Talk(SAY_KILL);
             }
@@ -165,8 +164,10 @@ class boss_corla_herald_of_twilight : public CreatureScript
             }
         };
 };
- 
+
+#ifndef __clang_analyzer__
 void AddSC_boss_corla_herald_of_twilight()
 {
     new boss_corla_herald_of_twilight();
 }
+#endif

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2011-2013 Project SkyFire <http://www.projectskyfire.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 3 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "Unit.h"
@@ -167,7 +158,7 @@ public:
             tSeek      = urand(1000, 2000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -214,7 +205,7 @@ class npc_prince_liam_greymane_phase2 : public CreatureScript
 public:
     npc_prince_liam_greymane_phase2() : CreatureScript("npc_prince_liam_greymane_phase2") {}
 
-    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
+    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
     {
         if (quest->GetQuestId() == QUEST_SOMETHINGS_AMISS || quest->GetQuestId() == QUEST_ALL_HELL_BREAKS_LOOSE || quest->GetQuestId() == QUEST_EVAC_MERC_SQUA)
         {
@@ -248,7 +239,7 @@ public:
         }
 
         //There is NO phase shift here!!!!
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -321,7 +312,7 @@ class npc_gwen_armstead_p2 : public CreatureScript
 public:
     npc_gwen_armstead_p2() : CreatureScript("npc_gwen_armstead_p2") {}
 
-    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
+    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
     {
         if (quest->GetQuestId() == QUEST_ROYAL_ORDERS)
         {
@@ -363,7 +354,7 @@ public:
             willCastEnrage = urand(0, 1);
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -774,7 +765,7 @@ public:
             tSeek             = 100; // On initial loading, we should find our target rather quickly
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -846,7 +837,7 @@ public:
             tSeek      = urand(1000, 2000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -909,7 +900,7 @@ public:
             tSeek      = urand(1000, 2000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -972,7 +963,7 @@ public:
             tSeek = urand(1000, 2000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (me->HealthBelowPct(AI_MIN_HP) && who->GetEntry() == NPC_BLOODFANG_WORGEN)
                 damage = 0;
@@ -1795,7 +1786,7 @@ class npc_josiah_avery_p2 : public CreatureScript
 public:
     npc_josiah_avery_p2() : CreatureScript("npc_josiah_avery_p2") {}
 
-    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
+    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
     {
         if (quest->GetQuestId() == QUEST_THE_REBEL_LORDS_ARSENAL)
         {
@@ -2109,7 +2100,7 @@ public:
             tYell       = urand(10000, 20000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->GetEntry() == NPC_AFFLICTED_GILNEAN_P8 && me->GetHealthPct() <= AI_MIN_HP)
             {
@@ -2165,7 +2156,7 @@ public:
             tSeek             = 100; // On initial loading, we should find our target rather quickly
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -2547,7 +2538,7 @@ class npc_lord_godfrey_p4_8 : public CreatureScript
 public:
     npc_lord_godfrey_p4_8() : CreatureScript("npc_lord_godfrey_p4_8") { }
 
-    bool OnQuestReward(Player* player, Creature* godfrey, Quest const* quest, uint32 opt)
+    bool OnQuestReward(Player* player, Creature* godfrey, Quest const* quest, uint32 /*opt*/)
     {
         if (quest->GetQuestId() == QUEST_SAVE_KRENNAN_ARANAS)
         {
@@ -2573,7 +2564,7 @@ class spell_keg_placed: public SpellScriptLoader
 
         class spell_keg_placed_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_keg_placed_AuraScript);
+            PrepareAuraScript(spell_keg_placed_AuraScript)
 
             uint32 tick, tickcount;
 
@@ -2921,6 +2912,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_gilneas()
 {
     new npc_gilneas_city_guard_phase1();
@@ -2961,3 +2953,4 @@ void AddSC_gilneas()
     new npc_bloodfang_stalker_c1();
     new npc_gilnean_crow();
 }
+#endif

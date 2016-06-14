@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -30,7 +21,7 @@ static DoorData const doorData[] =
     {GO_DOODAD_UL_UNIVERSEFLOOR_02,     BOSS_ALGALON,   DOOR_TYPE_SPAWN_HOLE,   BOUNDARY_NONE   },
     {GO_DOODAD_UL_UNIVERSEGLOBE01,      BOSS_ALGALON,   DOOR_TYPE_SPAWN_HOLE,   BOUNDARY_NONE   },
     {GO_DOODAD_UL_ULDUAR_TRAPDOOR_03,   BOSS_ALGALON,   DOOR_TYPE_SPAWN_HOLE,   BOUNDARY_NONE   },
-    {0,                                 0,              DOOR_TYPE_ROOM,         BOUNDARY_NONE   },
+    {0,                                 0,              DOOR_TYPE_ROOM,         BOUNDARY_NONE   }
 };
 
 class instance_ulduar : public InstanceMapScript
@@ -146,7 +137,7 @@ class instance_ulduar : public InstanceMapScript
             uint64 TeleporterDescentGUID;
 
             // Miscellaneous
-            uint32 TeamInInstance;            
+            uint32 TeamInInstance;
 
             void Initialize()
             {
@@ -242,7 +233,7 @@ class instance_ulduar : public InstanceMapScript
                     TeamInInstance = player->GetTeam();
             }
 
-            void OnPlayerEnter(Player* player)
+            void OnPlayerEnter(Player* /*player*/)
             {
                 if (_summonAlgalon)
                 {
@@ -1005,11 +996,11 @@ class instance_ulduar : public InstanceMapScript
                         return AuriayaGUID;
                     case BOSS_MIMIRON:
                         return MimironGUID;
-                    case DATA_LEVIATHAN_MK_II: 
+                    case DATA_LEVIATHAN_MK_II:
                         return LeviathanMKIIGUID;
-                    case DATA_VX_001: 
+                    case DATA_VX_001:
                         return VX001GUID;
-                    case DATA_AERIAL_UNIT: 
+                    case DATA_AERIAL_UNIT:
                         return AerialUnitGUID;
                     case BOSS_HODIR:
                         return HodirGUID;
@@ -1132,7 +1123,7 @@ class instance_ulduar : public InstanceMapScript
                 return false;
             }
             
-            bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
+            bool CheckRequiredBosses(uint32 bossId, Player const* /*player*/ = NULL) const
             {
                 switch (bossId)
                 {
@@ -1157,7 +1148,7 @@ class instance_ulduar : public InstanceMapScript
                             return false;
                         break;
                     /*case BOSS_VEZAX:
-                        if (GetBossState(BOSS_HODIR) != DONE || GetBossState(BOSS_THORIM) != DONE 
+                        if (GetBossState(BOSS_HODIR) != DONE || GetBossState(BOSS_THORIM) != DONE
                             || GetBossState(BOSS_FREYA) != DONE || GetBossState(BOSS_MIMIRON) != DONE)
                             return false;
                         break;*/
@@ -1313,8 +1304,10 @@ class go_call_tram : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_ulduar()
 {
     new instance_ulduar();
     new go_call_tram();
 }
+#endif

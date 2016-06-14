@@ -11,7 +11,7 @@ enum Spells
     SPELL_FLAMEBREAK_H          = 93583,
     SPELL_MAGMA_SPLIT           = 76031,
     SPELL_TERRIFYING_ROAR       = 76028,
-    SPELL_TERRIFYING_ROAR_H     = 93586,
+    SPELL_TERRIFYING_ROAR_H     = 93586
 };
 
 enum events
@@ -19,7 +19,7 @@ enum events
     EVENT_MAGMA_SPLIT       = 1,
     EVENT_TERRIFYING_ROAR   = 2,
     EVENT_FLAMEBREAK        = 3,
-    EVENT_BERSERKER_CHARGE  = 4,
+    EVENT_BERSERKER_CHARGE  = 4
 };
 
 enum Adds
@@ -27,13 +27,7 @@ enum Adds
     NPC_SPOT    = 40011,
     NPC_BUSTER  = 40013,
     NPC_LUCKY   = 40008,
-    NPC_RUNTY   = 40015,
-};
-
-const Position pupsPos[2] =
-{
-    {116.70f, 572.05f, 76.45f, 0.04f},
-    {119.81f, 588.90f, 76.35f, 6.22f}
+    NPC_RUNTY   = 40015
 };
 
 class boss_beauty : public CreatureScript
@@ -71,7 +65,7 @@ public:
         }
  
 
-        void EnterCombat(Unit* /*who*/) 
+        void EnterCombat(Unit* /*who*/)
         {
             events.ScheduleEvent(EVENT_BERSERKER_CHARGE, 1000);
             events.ScheduleEvent(EVENT_FLAMEBREAK, 15000);
@@ -145,8 +139,10 @@ public:
     };
  
 };
- 
+
+#ifndef __clang_analyzer__
 void AddSC_boss_beauty()
 {
     new boss_beauty();
 }
+#endif

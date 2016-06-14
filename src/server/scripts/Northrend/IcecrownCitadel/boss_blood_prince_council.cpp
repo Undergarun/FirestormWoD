@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -51,7 +42,7 @@ enum Texts
     EMOTE_VALANAR_SHOCK_VORTEX  = 3,
     SAY_VALANAR_KILL            = 4,
     SAY_VALANAR_BERSERK         = 5,
-    SAY_VALANAR_DEATH           = 6,
+    SAY_VALANAR_DEATH           = 6
 };
 
 enum Spells
@@ -107,7 +98,7 @@ enum Spells
 
     // Shock Vortex
     SPELL_SHOCK_VORTEX_PERIODIC         = 71945,
-    SPELL_SHOCK_VORTEX_DUMMY            = 72633,
+    SPELL_SHOCK_VORTEX_DUMMY            = 72633
 };
 
 enum Events
@@ -130,7 +121,7 @@ enum Events
     EVENT_KINETIC_BOMB          = 9,
     EVENT_SHOCK_VORTEX          = 10,
     EVENT_BOMB_DESPAWN          = 11,
-    EVENT_CONTINUE_FALLING      = 12,
+    EVENT_CONTINUE_FALLING      = 12
 };
 
 enum Actions
@@ -139,18 +130,18 @@ enum Actions
     ACTION_CAST_INVOCATION      = 2,
     ACTION_REMOVE_INVOCATION    = 3,
     ACTION_KINETIC_BOMB_JUMP    = 4,
-    ACTION_FLAME_BALL_CHASE     = 5,
+    ACTION_FLAME_BALL_CHASE     = 5
 };
 
 enum Points
 {
     POINT_INTRO_DESPAWN         = 380040,
-    POINT_KINETIC_BOMB_IMPACT   = 384540,
+    POINT_KINETIC_BOMB_IMPACT   = 384540
 };
 
 enum Displays
 {
-    DISPLAY_KINETIC_BOMB        = 31095,
+    DISPLAY_KINETIC_BOMB        = 31095
 };
 
 class StandUpEvent : public BasicEvent
@@ -470,7 +461,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                     instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(false));
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!_isEmpowered)
                 {
@@ -688,7 +679,7 @@ class boss_prince_taldaram_icc : public CreatureScript
                     instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(false));
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!_isEmpowered)
                 {
@@ -929,7 +920,7 @@ class boss_prince_valanar_icc : public CreatureScript
                     instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(false));
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!_isEmpowered)
                 {
@@ -1332,7 +1323,7 @@ class npc_dark_nucleus : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void DamageTaken(Unit* attacker, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (attacker == me)
                     return;
@@ -1399,7 +1390,7 @@ class spell_taldaram_glittering_sparks: public SpellScriptLoader
 
         class spell_taldaram_glittering_sparks_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_taldaram_glittering_sparks_SpellScript);
+            PrepareSpellScript(spell_taldaram_glittering_sparks_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1426,7 +1417,7 @@ class spell_taldaram_summon_flame_ball: public SpellScriptLoader
 
         class spell_taldaram_summon_flame_ball_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_taldaram_summon_flame_ball_SpellScript);
+            PrepareSpellScript(spell_taldaram_summon_flame_ball_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -1453,7 +1444,7 @@ class spell_taldaram_flame_ball_visual: public SpellScriptLoader
 
         class spell_flame_ball_visual_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_flame_ball_visual_AuraScript);
+            PrepareAuraScript(spell_flame_ball_visual_AuraScript)
 
             bool Load()
             {
@@ -1497,7 +1488,7 @@ class spell_taldaram_ball_of_inferno_flame: public SpellScriptLoader
 
         class spell_taldaram_ball_of_inferno_flame_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_taldaram_ball_of_inferno_flame_SpellScript);
+            PrepareSpellScript(spell_taldaram_ball_of_inferno_flame_SpellScript)
 
             void ModAuraStack()
             {
@@ -1524,7 +1515,7 @@ class spell_valanar_kinetic_bomb: public SpellScriptLoader
 
         class spell_valanar_kinetic_bomb_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valanar_kinetic_bomb_SpellScript);
+            PrepareSpellScript(spell_valanar_kinetic_bomb_SpellScript)
 
             void ChangeSummonPos(SpellEffIndex /*effIndex*/)
             {
@@ -1543,7 +1534,7 @@ class spell_valanar_kinetic_bomb: public SpellScriptLoader
 
         class spell_valanar_kinetic_bomb_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valanar_kinetic_bomb_AuraScript);
+            PrepareAuraScript(spell_valanar_kinetic_bomb_AuraScript)
 
             void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {
@@ -1584,7 +1575,7 @@ class spell_valanar_kinetic_bomb_knockback: public SpellScriptLoader
 
         class spell_valanar_kinetic_bomb_knockback_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valanar_kinetic_bomb_knockback_SpellScript);
+            PrepareSpellScript(spell_valanar_kinetic_bomb_knockback_SpellScript)
 
             void KnockIntoAir()
             {
@@ -1611,7 +1602,7 @@ class spell_valanar_kinetic_bomb_absorb: public SpellScriptLoader
 
         class spell_valanar_kinetic_bomb_absorb_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valanar_kinetic_bomb_absorb_AuraScript);
+            PrepareAuraScript(spell_valanar_kinetic_bomb_absorb_AuraScript)
 
             void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
@@ -1639,7 +1630,7 @@ class spell_blood_council_shadow_prison: public SpellScriptLoader
 
         class spell_blood_council_shadow_prison_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_blood_council_shadow_prison_AuraScript);
+            PrepareAuraScript(spell_blood_council_shadow_prison_AuraScript)
 
             void HandleDummyTick(AuraEffect const* aurEff)
             {
@@ -1666,7 +1657,7 @@ class spell_blood_council_shadow_prison_damage: public SpellScriptLoader
 
         class spell_blood_council_shadow_prison_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_blood_council_shadow_prison_SpellScript);
+            PrepareSpellScript(spell_blood_council_shadow_prison_SpellScript)
 
             void AddExtraDamage()
             {
@@ -1687,6 +1678,7 @@ class spell_blood_council_shadow_prison_damage: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_blood_prince_council()
 {
     new boss_blood_council_controller();
@@ -1707,3 +1699,4 @@ void AddSC_boss_blood_prince_council()
     new spell_blood_council_shadow_prison();
     new spell_blood_council_shadow_prison_damage();
 }
+#endif

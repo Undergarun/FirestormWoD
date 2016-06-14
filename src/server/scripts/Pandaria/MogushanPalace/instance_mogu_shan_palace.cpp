@@ -159,7 +159,7 @@ public:
             SetData_xin_the_weaponmaster(type, data);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 /*type*/)
         {
             return 0;
         }
@@ -625,8 +625,10 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_mogu_shan_palace()
 {
     new instance_mogu_shan_palace();
     new go_mogushan_palace_temp_portal();
 }
+#endif

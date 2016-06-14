@@ -1,20 +1,12 @@
-/*
- * Copyright (C) 2011 TrintiyCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
+#include "AchievementMgr.h"
 #include "DB2Stores.h"
 #include "DBCStores.h"
 #include "Log.h"
@@ -22,8 +14,7 @@
 #include "SpellMgr.h"
 #include "DB2fmt.h"
 #include "Item.h"
-
-#include <map>
+#include "Common.h"
 
 std::map<uint32, DB2StorageBase*> sDB2PerHash;
 
@@ -55,6 +46,8 @@ DB2Storage <ItemSparseEntry>                sItemSparseStore(ItemSparsefmt);
 DB2Storage <ItemEffectEntry>                sItemEffectStore(ItemEffectFmt);
 DB2Storage <HeirloomEntry>                  sHeirloomStore(HeirloomFmt);
 DB2Storage <PvpItemEntry>                   sPvpItemStore(PvpItemfmt);
+DB2Storage <QuestV2CliTaskEntry>            sQuestV2CliTaskStore(QuestV2CliTaskFmt);
+DB2Storage <QuestPOIPointCliTaskEntry>      sQuestPOIPointCliTaskStore(QuestPOIPointCliTaskfmt);
 DB2Storage <ItemModifiedAppearanceEntry>    sItemModifiedAppearanceStore(ItemModifiedAppearanceFmt);
 DB2Storage <ItemAppearanceEntry>            sItemAppearanceStore(ItemAppearanceFmt);
 DB2Storage <SpellReagentsEntry>             sSpellReagentsStore(SpellReagentsEntryfmt);
@@ -172,6 +165,7 @@ DB2Storage <ScalingStatDistributionEntry> sScalingStatDistributionStore(ScalingS
 DB2Storage <ScenarioEntry>                sScenarioStore(ScenarioEntryfmt);
 DB2Storage <SpellItemEnchantmentConditionEntry> sSpellItemEnchantmentConditionStore(SpellItemEnchantmentConditionfmt);
 DB2Storage <SpellProcsPerMinuteEntry>     sSpellProcsPerMinuteStore(SpellProcsPerMinuteEntryfmt);
+DB2Storage <SpellProcsPerMinuteModEntry>  sSpellProcsPerMinuteModStore(SpellProcsPerMinuteModfmt);
 DB2Storage <SpellCastTimesEntry>          sSpellCastTimesStore(SpellCastTimefmt);
 DB2Storage <SpellDurationEntry>           sSpellDurationStore(SpellDurationfmt);
 DB2Storage <SpellRadiusEntry>             sSpellRadiusStore(SpellRadiusfmt);
@@ -200,6 +194,7 @@ std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
 std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
 std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
+std::unordered_map<uint32, std::vector<SpellProcsPerMinuteModEntry const*>> sSpellProcsPerMinuteMods;
 std::map<uint32, uint32> g_PvPItemStoreLevels;
 
 AreaGroupMemebersByID sAreaGroupMemebersByIDStore;
@@ -331,7 +326,9 @@ void LoadDB2Stores(const std::string& dataPath)
     /// Quest DB2
     //////////////////////////////////////////////////////////////////////////
     LoadDB2(bad_db2_files, sQuestPackageItemStore,          db2Path, "QuestPackageItem.db2",            "quest_package_item",           "ID");
-
+    LoadDB2(bad_db2_files, sQuestV2CliTaskStore,            db2Path, "QuestV2CliTask.db2"                                                   );
+    LoadDB2(bad_db2_files, sQuestPOIPointCliTaskStore,      db2Path, "QuestPOIPointCliTask.db2"                                             );
+  
     //////////////////////////////////////////////////////////////////////////
     /// Scene Script DB2
     //////////////////////////////////////////////////////////////////////////
@@ -464,7 +461,8 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files,  sResearchSiteStore,           db2Path, "ResearchSite.db2");
     LoadDB2(bad_db2_files,  sScalingStatDistributionStore,db2Path, "ScalingStatDistribution.db2");                                      // 17399
     LoadDB2(bad_db2_files,  sScenarioStore,               db2Path, "Scenario.db2");                                                     // 19027
-    LoadDB2(bad_db2_files,  sSpellProcsPerMinuteStore,    db2Path,"SpellProcsPerMinute.db2");
+    LoadDB2(bad_db2_files,  sSpellProcsPerMinuteStore,    db2Path,"SpellProcsPerMinute.db2", "spell_procs_per_minute", "ID");
+    LoadDB2(bad_db2_files,  sSpellProcsPerMinuteModStore, db2Path,"SpellProcsPerMinuteMod.db2", "spell_procs_per_minute_mod", "ID");
     LoadDB2(bad_db2_files,  sSpellCastTimesStore,         db2Path, "SpellCastTimes.db2");                                               // 17399
     LoadDB2(bad_db2_files,  sSpellDurationStore,          db2Path, "SpellDuration.db2");                                                // 17399
     LoadDB2(bad_db2_files,  sSpellItemEnchantmentConditionStore, db2Path, "SpellItemEnchantmentCondition.db2");                         // 17399
@@ -511,6 +509,12 @@ void LoadDB2Stores(const std::string& dataPath)
 
         assert("MAX_MOUNT_CAPABILITIES too small, needs increase" && l_Entry->Index < MAX_MOUNT_CAPABILITIES);
         sMountCapabilitiesMap[l_Entry->MountTypeID].Capabilities[l_Entry->Index] = l_Entry->CapabilityID;
+    }
+
+    for (uint32 i = 0; i < sSpellProcsPerMinuteModStore.GetNumRows(); ++i)
+    {
+        if (SpellProcsPerMinuteModEntry const* ppmMod = sSpellProcsPerMinuteModStore.LookupEntry(i))
+            sSpellProcsPerMinuteMods[ppmMod->SpellProcsPerMinuteID].push_back(ppmMod);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -649,7 +653,7 @@ void LoadDB2Stores(const std::string& dataPath)
         if (sTaxiNodesStore.GetNumRows())
         {
             WPError(TaxiMaskSize >= ((sTaxiNodesStore.GetNumRows() - 1) / 8) + 1,
-                "TaxiMaskSize is not large enough to contain all taxi nodes! (current value %d, required %d)"   );
+                "TaxiMaskSize is not large enough to contain all taxi nodes!"   );
         }
 
         sTaxiNodesMask.fill(0);
@@ -822,4 +826,13 @@ uint8 GetPowerIndexByClass(uint8 p_Class, uint8 p_Power)
     }
 
     return Powers::MAX_POWERS;
+}
+
+std::vector<SpellProcsPerMinuteModEntry const*> GetSpellProcsPerMinuteMods(uint32 spellprocsPerMinuteId)
+{
+    auto itr = sSpellProcsPerMinuteMods.find(spellprocsPerMinuteId);
+    if (itr != sSpellProcsPerMinuteMods.end())
+        return itr->second;
+
+    return std::vector<SpellProcsPerMinuteModEntry const*>();
 }

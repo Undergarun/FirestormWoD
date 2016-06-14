@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 
 #include "ScriptMgr.h"
@@ -32,7 +22,7 @@ enum eSpells
 
     // Gripping Hatred
     SPELL_GRIP_OF_HATE              = 115010,
-    SPELL_POOL_OF_SHADOWS           = 112929,
+    SPELL_POOL_OF_SHADOWS           = 112929
 };
 
 enum eEvents
@@ -42,7 +32,7 @@ enum eEvents
     EVENT_SHA_BLAST                 = 3,
     EVENT_SUMMON_GRIPPING_HATRED    = 4,
 
-    EVENT_GRIP_OF_HATE              = 5,
+    EVENT_GRIP_OF_HATE              = 5
 };
 
 class boss_taran_zhu : public CreatureScript
@@ -76,7 +66,7 @@ class boss_taran_zhu : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DamageDealt(Unit* target, uint32& damage, DamageEffectType damageType)
+            void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
             {
                 if (Player* player = target->ToPlayer())
                 {
@@ -85,7 +75,7 @@ class boss_taran_zhu : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -155,7 +145,7 @@ public:
             me->CastSpell(me, SPELL_POOL_OF_SHADOWS, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
             if (!me->HasUnitState(UNIT_STATE_CASTING))
                 me->CastSpell(me, SPELL_GRIP_OF_HATE, false);
@@ -260,6 +250,7 @@ class spell_taran_zhu_grip_of_hate: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_taran_zhu()
 {
     new boss_taran_zhu();
@@ -268,3 +259,4 @@ void AddSC_boss_taran_zhu()
     new spell_taran_zhu_meditation();
     new spell_taran_zhu_grip_of_hate();
 }
+#endif

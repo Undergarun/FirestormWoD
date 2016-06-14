@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "halls_of_origination.h"
 
@@ -8,21 +16,21 @@ enum ScriptTexts
     SAY_KILL                   = 2,
     SAY_ALPHA                  = 3,
     SAY_OMEGA                  = 4,
-    SAY_AGGRO                  = 5,
+    SAY_AGGRO                  = 5
 };
 
 enum Spells
 {
     SPELL_ALPHA_BEAMS           = 76184,
-    SPELL_ALPHA_BEAMS_AOE       = 76904, 
+    SPELL_ALPHA_BEAMS_AOE       = 76904,
     SPELL_ALPHA_BEAM            = 76912,
-    SPELL_ALPHA_BEAM_DMG        = 76956, 
+    SPELL_ALPHA_BEAM_DMG        = 76956,
     SPELL_ALPHA_BEAM_DMG_H      = 91177,
-    SPELL_CRUMBLING_RUIN        = 75609, 
-    SPELL_CRUMBLING_RUIN_H      = 91206, 
+    SPELL_CRUMBLING_RUIN        = 75609,
+    SPELL_CRUMBLING_RUIN_H      = 91206,
     SPELL_DESTRUCTION_PROTOCOL  = 77437,
     SPELL_NEMESIS_STRIKE        = 75604,
-    SPELL_OMEGA_STANCE          = 75622,
+    SPELL_OMEGA_STANCE          = 75622
 };
 
 enum Events
@@ -31,13 +39,13 @@ enum Events
     EVENT_CRUMBLING_RUIN       = 2,
     EVENT_DESTRUCTION_PROTOCOL = 3,
     EVENT_NEMESIS_STRIKE       = 4,
-    EVENT_INTRO                = 5,
+    EVENT_INTRO                = 5
 };
 
 enum Adds
 {
     NPC_ALPHA_BEAM      = 41133,
-    NPC_OMEGA_STANCE    = 41194, // 77137 77117 
+    NPC_OMEGA_STANCE    = 41194, // 77137 77117
 };
 
 class boss_anraphet : public CreatureScript
@@ -86,7 +94,7 @@ class boss_anraphet : public CreatureScript
                 spells = 0;
             }
 
-            void EnterCombat(Unit * who)
+            void EnterCombat(Unit * /*p_Who*/)
             {
                 Talk(SAY_AGGRO);
 
@@ -104,7 +112,7 @@ class boss_anraphet : public CreatureScript
                 Talk(SAY_DEATH);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
                 Talk(SAY_KILL);
             }
@@ -190,14 +198,16 @@ class npc_alpha_beam : public CreatureScript
                 DoCast(me, SPELL_ALPHA_BEAM);
             }
             
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_anraphet()
 {
     new boss_anraphet();
     new npc_alpha_beam();
 }
+#endif

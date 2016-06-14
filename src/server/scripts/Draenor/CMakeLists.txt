@@ -1,12 +1,8 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
 #
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
+#  MILLENIUM-STUDIO
+#  Copyright 2016 Millenium-studio SARL
+#  All Rights Reserved.
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 file(GLOB_RECURSE sources_Garrison Draenor/Garrison/*.hpp Draenor/Garrison/*.cpp Draenor/Garrison/*.hxx)
 file(GLOB_RECURSE sources_Highmaul Draenor/Highmaul/*.hpp Draenor/Highmaul/*.cpp Draenor/Highmaul/*.hxx)
@@ -44,6 +40,7 @@ set(scripts_STAT_SRCS
   Draenor/spires_of_arak.h
   Draenor/gorgrond.cpp
   Draenor/item_strongboxes.cpp
+  Draenor/talador.cpp
 )
 
 message("  -> Prepared: Draenor")

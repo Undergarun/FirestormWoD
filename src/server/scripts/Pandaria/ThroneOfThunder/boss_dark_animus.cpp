@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -225,36 +214,36 @@ Position const g_LargeGolemPos[8] =
     { 5758.92f, 4858.97f, 77.6523f, 4.71239f },
     { 5706.99f, 4754.17f, 77.6523f, 1.5708f },
     { 5715.76f, 4753.81f, 77.6523f, 1.5708f },
-    { 5705.67f, 4859.f, 77.6523f, 4.71239f }
+    { 5705.67f, 4859.0f, 77.6523f, 4.71239f }
 };
 
 Position const g_AnimaGolemPos[25] =
 {
-    { 5763.82f, 4765.f, 77.6523f, 1.5708f },
-    { 5756.32f, 4765.f, 77.6523f, 1.5708f },
-    { 5707.95f, 4848.f, 77.6523f, 4.71239f },
-    { 5715.45f, 4848.f, 77.6523f, 4.71239f },
+    { 5763.82f, 4765.0f, 77.6523f, 1.5708f },
+    { 5756.32f, 4765.0f, 77.6523f, 1.5708f },
+    { 5707.95f, 4848.0f, 77.6523f, 4.71239f },
+    { 5715.45f, 4848.0f, 77.6523f, 4.71239f },
     { 5724.62f, 4837.5f, 75.3576f, 4.71239f },
     { 5732.12f, 4837.5f, 75.3577f, 4.71239f },
-    { 5748.82f, 4848.f, 77.6523f, 4.71239f },
+    { 5748.82f, 4848.0f, 77.6523f, 4.71239f },
     { 5739.62f, 4837.5f, 75.3576f, 4.71239f },
-    { 5756.32f, 4848.f, 77.6523f, 4.71239f },
-    { 5763.82f, 4848.f, 77.6523f, 4.71239f },
-    { 5700.45f, 4765.f, 77.6523f, 1.5708f },
-    { 5707.95f, 4765.f, 77.6523f, 1.5708f },
-    { 5777.f, 4828.23f, 77.6523f, 3.14159f },
-    { 5765.f, 4813.98f, 75.3576f, 3.14159f },
+    { 5756.32f, 4848.0f, 77.6523f, 4.71239f },
+    { 5763.82f, 4848.0f, 77.6523f, 4.71239f },
+    { 5700.45f, 4765.0f, 77.6523f, 1.5708f },
+    { 5707.95f, 4765.0f, 77.6523f, 1.5708f },
+    { 5777.0f, 4828.23f, 77.6523f, 3.14159f },
+    { 5765.0f, 4813.98f, 75.3576f, 3.14159f },
     { 5724.62f, 4775.5f, 75.3576f, 1.5708f },
-    { 5715.45f, 4765.f, 77.6523f, 1.5708f },
-    { 5777.f, 4820.73f, 77.6523f, 3.14159f },
-    { 5765.f, 4806.48f, 75.3576f, 3.14159f },
+    { 5715.45f, 4765.0f, 77.6523f, 1.5708f },
+    { 5777.0f, 4820.73f, 77.6523f, 3.14159f },
+    { 5765.0f, 4806.48f, 75.3576f, 3.14159f },
     { 5732.12f, 4775.5f, 75.3577f, 1.5708f },
     { 5739.62f, 4775.5f, 75.3576f, 1.5708f },
-    { 5765.f, 4798.98f, 75.3577f, 3.14159f },
-    { 5777.f, 4792.23f, 77.6523f, 3.14159f },
-    { 5748.82f, 4765.f, 77.6523f, 1.5708f },
-    { 5777.f, 4784.73f, 77.6523f, 3.14159f },
-    { 5700.45f, 4848.f, 77.6523f, 4.71239f }
+    { 5765.0f, 4798.98f, 75.3577f, 3.14159f },
+    { 5777.0f, 4792.23f, 77.6523f, 3.14159f },
+    { 5748.82f, 4765.0f, 77.6523f, 1.5708f },
+    { 5777.0f, 4784.73f, 77.6523f, 3.14159f },
+    { 5700.45f, 4848.0f, 77.6523f, 4.71239f }
 };
 
 enum eNumGolems
@@ -342,7 +331,7 @@ class boss_dark_animus : public CreatureScript
                     return;
 
                 /// Check if golems are already here or not
-                if (GetClosestCreatureWithEntry(me, NPC_ANIMA_GOLEM, 200.f))
+                if (GetClosestCreatureWithEntry(me, NPC_ANIMA_GOLEM, 200.0f))
                     return;
 
                 std::list<Creature*> l_AnimaGolemList;
@@ -403,11 +392,11 @@ class boss_dark_animus : public CreatureScript
                 me->CastSpell(me, SPELL_TURNED_OFF, true);
             }
 
-            void KilledUnit(Unit* p_Who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
 
-            void CheckHitResult(MeleeHitOutcome& p_MeleeHit, SpellMissInfo& p_SpellMissInfo, Unit* p_Attacker, SpellInfo const* const p_SpellInfo)
+            void CheckHitResult(MeleeHitOutcome& p_MeleeHit, SpellMissInfo& p_SpellMissInfo, Unit* /*p_Attacker*/, SpellInfo const* const p_SpellInfo)
             {
                 if (!p_SpellInfo)
                     return;
@@ -424,7 +413,7 @@ class boss_dark_animus : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (m_Instance)
                 {
@@ -439,7 +428,7 @@ class boss_dark_animus : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (!m_Instance)
                     return;
@@ -499,7 +488,7 @@ class boss_dark_animus : public CreatureScript
                 SummonGolems();
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -548,7 +537,7 @@ class boss_dark_animus : public CreatureScript
                     {
                         m_CheckPowerTimer = 0;
 
-                        if (Player* l_Target = me->FindNearestPlayer(50.f))
+                        if (Player* l_Target = me->FindNearestPlayer(50.0f))
                             EnterCombat(l_Target);
                         break;
                     }
@@ -595,7 +584,7 @@ class boss_dark_animus : public CreatureScript
                         {
                             m_CheckPowerTimer = 0;
 
-                            if (Player* l_Target = me->FindNearestPlayer(100.f))
+                            if (Player* l_Target = me->FindNearestPlayer(100.0f))
                                 AttackStart(l_Target);
                         }
                     }
@@ -752,7 +741,7 @@ class mob_anima_orb : public CreatureScript
                 if (p_Who->GetTypeId() != TYPEID_PLAYER || m_IntroDone || !m_Instance)
                     return;
 
-                if (p_Who->GetDistance(me) >= 50.f)
+                if (p_Who->GetDistance(me) >= 50.0f)
                     return;
 
                 m_IntroDone = true;
@@ -760,7 +749,7 @@ class mob_anima_orb : public CreatureScript
                 if (Creature* l_DarkAnimus = Creature::GetCreature(*me, m_Instance->GetData64(NPC_DARK_ANIMUS)))
                     l_DarkAnimus->AI()->DoAction(ACTION_SUMMON_GOLEMS);
 
-                if (Creature* l_DarkRitualist = me->FindNearestCreature(NPC_DARK_RITUALIST, 20.f))
+                if (Creature* l_DarkRitualist = me->FindNearestCreature(NPC_DARK_RITUALIST, 20.0f))
                 {
                     m_LinkedDarkRitualist = l_DarkRitualist->GetGUID();
                     l_DarkRitualist->AI()->Talk(TALK_INTRO);
@@ -798,14 +787,14 @@ class mob_anima_orb : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 p_Damage = 0;
 
                 if (!m_Instance)
                     return;
 
-                if (!m_Instance->CheckRequiredBosses(DATA_DARK_ANIMUS) || p_Attacker->GetPositionX() < 5655.f)
+                if (!m_Instance->CheckRequiredBosses(DATA_DARK_ANIMUS) || p_Attacker->GetPositionX() < 5655.0f)
                     return;
 
                 if (m_Instance->GetBossState(DATA_DARK_ANIMUS) != DONE)
@@ -880,7 +869,7 @@ class mob_dark_ritualist : public CreatureScript
                     me->AddAura(SPELL_FIERY_HANDS, me);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (m_Instance)
                 {
@@ -896,7 +885,7 @@ class mob_dark_ritualist : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_RITUAL_LIGHTNING, urand(5000, 10000));
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (m_Instance)
                 {
@@ -993,7 +982,7 @@ class mob_anima_golem : public CreatureScript
                 m_Events.Reset();
             }
 
-            void SetData(uint32 p_Data, uint32 p_Value)
+            void SetData(uint32 p_Data, uint32 /*p_Value*/)
             {
                 if (p_Data == DATA_GOLEM_DAMAGED)
                 {
@@ -1002,7 +991,7 @@ class mob_anima_golem : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 me->RemoveAura(SPELL_TURNED_OFF);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -1010,7 +999,7 @@ class mob_anima_golem : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_CHECK_NEAR_GOLEM, 1000);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 // Disabled golems cannot be killed
                 if (me->HasAura(SPELL_CRITICALLY_DAMAGED_1))
@@ -1020,7 +1009,7 @@ class mob_anima_golem : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_ENERGIZE_SEARCHER, true);
             }
@@ -1039,7 +1028,7 @@ class mob_anima_golem : public CreatureScript
 
                         me->SetReactState(REACT_AGGRESSIVE);
 
-                        if (Player* l_Target = me->FindNearestPlayer(150.f))
+                        if (Player* l_Target = me->FindNearestPlayer(150.0f))
                             AttackStart(l_Target);
 
                         m_Activated = true;
@@ -1109,7 +1098,7 @@ class mob_anima_golem : public CreatureScript
                     case EVENT_CHECK_NEAR_GOLEM:
                     {
                         std::list<Creature*> l_GolemList;
-                        me->GetCreatureListWithEntryInGrid(l_GolemList, NPC_ANIMA_GOLEM, 2.f);
+                        me->GetCreatureListWithEntryInGrid(l_GolemList, NPC_ANIMA_GOLEM, 2.0f);
 
                         // Remove before reapply to prevent overstacking
                         me->RemoveAura(SPELL_ACCELERATION_LINK);
@@ -1221,7 +1210,7 @@ class mob_large_anima_golem : public CreatureScript
                 p_Value = 0;
             }
 
-            void PowerModified(Powers p_Power, int32 p_Value)
+            void PowerModified(Powers p_Power, int32 /*p_Value*/)
             {
                 if (p_Power != POWER_ENERGY)
                     return;
@@ -1242,7 +1231,7 @@ class mob_large_anima_golem : public CreatureScript
                 return 0;
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 // Disabled golems cannot be killed
                 if (me->HasAura(SPELL_CRITICALLY_DAMAGED_1))
@@ -1252,7 +1241,7 @@ class mob_large_anima_golem : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_ENERGIZE_SEARCHER, true);
             }
@@ -1271,7 +1260,7 @@ class mob_large_anima_golem : public CreatureScript
 
                         me->SetReactState(REACT_AGGRESSIVE);
 
-                        if (Player* l_Target = me->FindNearestPlayer(150.f))
+                        if (Player* l_Target = me->FindNearestPlayer(150.0f))
                             AttackStart(l_Target);
                         break;
                     }
@@ -1346,7 +1335,7 @@ class mob_large_anima_golem : public CreatureScript
             void DespawnCrimsonWakes()
             {
                 std::list<Creature*> l_CrimsonWakesList;
-                me->GetCreatureListWithEntryInGrid(l_CrimsonWakesList, NPC_CRIMSON_WAKE, 150.f);
+                me->GetCreatureListWithEntryInGrid(l_CrimsonWakesList, NPC_CRIMSON_WAKE, 150.0f);
 
                 for (Creature* l_CrimsonWake : l_CrimsonWakesList)
                     l_CrimsonWake->DespawnOrUnsummon();
@@ -1463,7 +1452,7 @@ class mob_massive_anima_golem : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_ENERGIZE_SEARCHER, true);
             }
@@ -1482,7 +1471,7 @@ class mob_massive_anima_golem : public CreatureScript
                         {
                             m_CheckPowerTimer = 0;
 
-                            if (Player* l_Target = me->FindNearestPlayer(50.f))
+                            if (Player* l_Target = me->FindNearestPlayer(50.0f))
                                 AttackStart(l_Target);
                         }
                     }
@@ -1550,7 +1539,7 @@ class mob_crimson_wake : public CreatureScript
                 if (!p_Summoner || !p_Summoner->ToCreature() || !p_Summoner->ToCreature()->AI())
                     return;
 
-                if (Unit* l_Target = p_Summoner->ToCreature()->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true, -SPELL_FIXATED))
+                if (Unit* l_Target = p_Summoner->ToCreature()->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, -SPELL_FIXATED))
                 {
                     m_FollowedPlayerGUID = l_Target->GetGUID();
                     AttackStart(l_Target);
@@ -1560,7 +1549,7 @@ class mob_crimson_wake : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 p_Diff) { }
+            void UpdateAI(const uint32 /*p_Diff*/) { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const
@@ -1589,7 +1578,7 @@ class spell_long_ritual_lightning : public SpellScriptLoader
                     if (!p_Object)
                         return true;
 
-                    if (p_Object->GetDistance(GetCaster()) > 30.f)
+                    if (p_Object->GetDistance(GetCaster()) > 30.0f)
                         return false;
 
                     return true;
@@ -1813,7 +1802,7 @@ class spell_crimson_wake_slow : public SpellScriptLoader
         {
             PrepareAuraScript(spell_crimson_wake_slow_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, SPELL_CRIMSON_WAKE_MEDIUM, true);
@@ -1841,7 +1830,7 @@ class spell_crimson_wake_medium : public SpellScriptLoader
         {
             PrepareAuraScript(spell_crimson_wake_medium_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, SPELL_CRIMSON_WAKE_FAST, true);
@@ -1869,7 +1858,7 @@ class spell_fixated : public SpellScriptLoader
         {
             PrepareAuraScript(spell_fixated_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->ToCreature()->DespawnOrUnsummon();
@@ -1925,7 +1914,7 @@ class spell_matter_swap : public SpellScriptLoader
         {
             PrepareAuraScript(spell_matter_swap_AuraScript);
 
-            void HandleEffectUpdate(uint32 p_Diff, AuraEffect* p_AurEff)
+            void HandleEffectUpdate(uint32 /*p_Diff*/, AuraEffect* p_AurEff)
             {
                 if (Aura* l_MatterSwap = p_AurEff->GetBase())
                 {
@@ -1961,14 +1950,14 @@ class spell_matter_swap : public SpellScriptLoader
                 }
             }
 
-            void HandleDispel(DispelInfo* p_DispelData)
+            void HandleDispel(DispelInfo* /*p_DispelData*/)
             {
                 if (Unit* l_MassiveGolem = GetCaster())
                 {
                     if (Unit* l_Target = GetTarget())
                     {
                         std::list<Player*> l_PlayerList;
-                        l_Target->GetPlayerListInGrid(l_PlayerList, 100.f);
+                        l_Target->GetPlayerListInGrid(l_PlayerList, 100.0f);
 
                         if (l_PlayerList.empty())
                             return;
@@ -2009,7 +1998,7 @@ class spell_matter_swap : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
@@ -2020,7 +2009,7 @@ class spell_matter_swap : public SpellScriptLoader
                     if (Unit* l_Target = GetTarget())
                     {
                         std::list<Player*> l_PlayerList;
-                        l_Target->GetPlayerListInGrid(l_PlayerList, 100.f);
+                        l_Target->GetPlayerListInGrid(l_PlayerList, 100.0f);
 
                         if (l_PlayerList.empty())
                             return;
@@ -2120,7 +2109,7 @@ class spell_anima_ring : public SpellScriptLoader
 
             bool Load()
             {
-                m_Angle = 0.f;
+                m_Angle = 0.0f;
                 return true;
             }
 
@@ -2130,12 +2119,12 @@ class spell_anima_ring : public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        float l_X = l_Target->GetPositionX() + ((6.f) * cos(m_Angle));
-                        float l_Y = l_Target->GetPositionY() + ((6.f) * sin(m_Angle));
+                        float l_X = l_Target->GetPositionX() + ((6.0f) * cos(m_Angle));
+                        float l_Y = l_Target->GetPositionY() + ((6.0f) * sin(m_Angle));
 
                         l_Target->CastSpell(l_X, l_Y, l_Target->GetPositionZ(), g_AnimaRingSpells[p_EffIndex], true, NULL, nullptr, l_Caster->GetGUID());
 
-                        m_Angle += (M_PI * 2.f) / 12.f;
+                        m_Angle += (M_PI * 2.0f) / 12.0f;
                     }
                 }
             }
@@ -2173,7 +2162,7 @@ class spell_activation_sequence : public SpellScriptLoader
         {
             PrepareAuraScript(spell_activation_sequence_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Creature* l_DarkAnimus = GetTarget()->ToCreature())
                     l_DarkAnimus->AI()->DoAction(ACTION_ACTIVATE_GOLEM);
@@ -2327,7 +2316,7 @@ class spell_anima_font_dummy : public SpellScriptLoader
                 JadeCore::RandomResizeList(p_Targets, 1);
             }
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2359,7 +2348,7 @@ class spell_full_power : public SpellScriptLoader
         {
             PrepareSpellScript(spell_full_power_SpellScript);
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2444,7 +2433,7 @@ class at_anima_ring : public AreaTriggerEntityScript
     public:
         at_anima_ring() : AreaTriggerEntityScript("at_anima_ring") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             std::list<Unit*> l_TargetList;
@@ -2471,6 +2460,7 @@ class at_anima_ring : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_dark_animus()
 {
     new boss_dark_animus();             ///< 69427
@@ -2499,3 +2489,4 @@ void AddSC_boss_dark_animus()
     new spell_empower_golem();          ///< 138780
     new at_anima_ring();                ///< from 136955 to 136960 and from 138671 to 138675
 }
+#endif

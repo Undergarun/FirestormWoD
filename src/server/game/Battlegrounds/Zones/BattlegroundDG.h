@@ -1,21 +1,10 @@
-/*
-* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __BATTLEGROUND_DG_H
 #define __BATTLEGROUND_DG_H
@@ -46,11 +35,11 @@ enum BG_DG_Sound
 
 const float BG_DG_DoorPositions[4][8] =
 {
-    //      x,          y,          z,          o,     rot0, rot1, rot2, rot3
-    { -263.434998f, 218.514999f, 132.054993f, 4.683630f, 0.f, 0.f, 0.f, 0.f },
-    { -213.848007f, 201.164001f, 132.382004f, 3.978350f, 0.f, 0.f, 0.f, 0.f },
-    { -119.559998f, 799.192993f, 132.414001f, 0.793560f, 0.f, 0.f, 0.f, 0.f },
-    { -70.1034010f, 781.851013f, 132.164993f, 1.594670f, 0.f, 0.f, 0.f, 0.f }
+    //      x,          y,          z,          o,        rot0, rot1, rot2, rot3
+    { -263.434998f, 218.514999f, 132.054993f, 4.683630f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { -213.848007f, 201.164001f, 132.382004f, 3.978350f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { -119.559998f, 799.192993f, 132.414001f, 0.793560f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { -70.1034010f, 781.851013f, 132.164993f, 1.594670f, 0.0f, 0.0f, 0.0f, 0.0f }
 };
 
 enum BG_DG_NodeObjectId
@@ -118,26 +107,26 @@ struct WorldStateIcon
 
 const WorldStateIcon BG_DG_NodesWs[BG_DG_ALL_NODES_COUNT][5] =
 {
-    { 
-        WorldStateIcon(WORLDSTATE_DG_GOBLIN_NEUTRAL,        1), 
-        WorldStateIcon(WORLDSTATE_DG_GOBLIN_ALLY_CONTEST,   1), 
-        WorldStateIcon(WORLDSTATE_DG_GOBLIN_HORDE_CONTEST,  1), 
-        WorldStateIcon(WORLDSTATE_DG_GOBLIN_ALLY_CONTROL,   2), 
-        WorldStateIcon(WORLDSTATE_DG_GOBLIN_HORDE_CONTROL,  1) 
+    {
+        WorldStateIcon(WORLDSTATE_DG_GOBLIN_NEUTRAL,        1),
+        WorldStateIcon(WORLDSTATE_DG_GOBLIN_ALLY_CONTEST,   1),
+        WorldStateIcon(WORLDSTATE_DG_GOBLIN_HORDE_CONTEST,  1),
+        WorldStateIcon(WORLDSTATE_DG_GOBLIN_ALLY_CONTROL,   2),
+        WorldStateIcon(WORLDSTATE_DG_GOBLIN_HORDE_CONTROL,  1)
     },
-    { 
-        WorldStateIcon(WORLDSTATE_DG_CENTER_NEUTRAL,        1), 
-        WorldStateIcon(WORLDSTATE_DG_CENTER_ALLY_CONTEST,   1), 
-        WorldStateIcon(WORLDSTATE_DG_CENTER_HORDE_CONTEST,  1), 
-        WorldStateIcon(WORLDSTATE_DG_CENTER_ALLY_CONTROL,   2), 
-        WorldStateIcon(WORLDSTATE_DG_CENTER_HORDE_CONTROL,  1) 
+    {
+        WorldStateIcon(WORLDSTATE_DG_CENTER_NEUTRAL,        1),
+        WorldStateIcon(WORLDSTATE_DG_CENTER_ALLY_CONTEST,   1),
+        WorldStateIcon(WORLDSTATE_DG_CENTER_HORDE_CONTEST,  1),
+        WorldStateIcon(WORLDSTATE_DG_CENTER_ALLY_CONTROL,   2),
+        WorldStateIcon(WORLDSTATE_DG_CENTER_HORDE_CONTROL,  1)
     },
-    { 
-        WorldStateIcon(WORLDSTATE_DG_PANDA_NEUTRAL,         1), 
-        WorldStateIcon(WORLDSTATE_DG_PANDA_ALLY_CONTEST,    1), 
-        WorldStateIcon(WORLDSTATE_DG_PANDA_HORDE_CONTEST,   1), 
-        WorldStateIcon(WORLDSTATE_DG_PANDA_ALLY_CONTROL,    2), 
-        WorldStateIcon(WORLDSTATE_DG_PANDA_HORDE_CONTROL,   1) 
+    {
+        WorldStateIcon(WORLDSTATE_DG_PANDA_NEUTRAL,         1),
+        WorldStateIcon(WORLDSTATE_DG_PANDA_ALLY_CONTEST,    1),
+        WorldStateIcon(WORLDSTATE_DG_PANDA_HORDE_CONTEST,   1),
+        WorldStateIcon(WORLDSTATE_DG_PANDA_ALLY_CONTROL,    2),
+        WorldStateIcon(WORLDSTATE_DG_PANDA_HORDE_CONTROL,   1)
     }
 };
 
@@ -246,9 +235,9 @@ const float BG_DG_CartPositions[2][4] =
 
 const float BG_DG_CollisionPJPositions[BG_DG_ALL_NODES_COUNT][4] =
 {
-    { -398.1615f, 574.5243f, 111.5271f, 0.f },          // Goblin mine
-    { -167.3698f, 499.1858f, 92.83675f, 0.f },          // Central mine
-    { 68.421880f, 431.1945f, 111.7609f, 0.f }           // Pandaren mine
+    { -398.1615f, 574.5243f, 111.5271f, 0.0f },          // Goblin mine
+    { -167.3698f, 499.1858f, 92.83675f, 0.0f },          // Central mine
+    { 68.421880f, 431.1945f, 111.7609f, 0.0f }           // Pandaren mine
 };
 
 const float BG_DG_NodePositions[BG_DG_ALL_NODES_COUNT][4] =
@@ -310,7 +299,7 @@ class BattlegroundDG : public Battleground
         bool CanSeeSpellClick(Player const* player, Unit const* clicked);
         void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
         void EventPlayerClickedOnFlag(Player* source, Unit* target);
-        void UpdatePlayerScore(Player* source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundDG::UpdatePlayerScore' hides overloaded virtual function
+        void UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor = true, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         void AddPlayer(Player* player);
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
@@ -368,7 +357,7 @@ class BattlegroundDG : public Battleground
         /*                      2: horde contested                              */
         /*                      3: ally occupied                                */
         /*                      4: horde occupied                               */
-        /************************************************************************/  
+        /************************************************************************/
         uint8               m_Nodes[BG_DG_ALL_NODES_COUNT];
         uint8               m_prevNodes[BG_DG_ALL_NODES_COUNT];
         uint32              m_NodeTimers[BG_DG_ALL_NODES_COUNT];

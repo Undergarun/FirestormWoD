@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "highmaul.hpp"
@@ -350,7 +350,7 @@ class boss_kargath_bladefist : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 _EnterCombat();
 
@@ -381,7 +381,7 @@ class boss_kargath_bladefist : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (m_NearDeath || m_Instance == nullptr)
                     return;
@@ -395,7 +395,7 @@ class boss_kargath_bladefist : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 _JustDied();
 
@@ -902,7 +902,7 @@ class boss_kargath_bladefist : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            void PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply) override
             {
                 if (p_Apply || p_Passenger == nullptr || p_Passenger->GetEntry() != eCreatures::BladefistTarget)
                     return;
@@ -1126,7 +1126,7 @@ class npc_highmaul_vulgor : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 Talk(eTalks::Aggro);
 
@@ -1211,7 +1211,7 @@ class npc_highmaul_vulgor : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (m_IntroContinued || m_Instance == nullptr)
                     return;
@@ -1260,7 +1260,7 @@ class npc_highmaul_vulgor : public CreatureScript
                 m_IntroContinued = false;
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 m_Summons.DespawnAll();
 
@@ -1383,7 +1383,7 @@ class npc_highmaul_bladespire_sorcerer : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventMoltenBomb, 5000);
                 m_Events.ScheduleEvent(eEvents::EventFlameBolt, 2000);
@@ -1412,7 +1412,7 @@ class npc_highmaul_bladespire_sorcerer : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAllAreasTrigger();
             }
@@ -1487,7 +1487,7 @@ class npc_highmaul_somldering_stoneguard : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventCleave, 2000);
             }
@@ -1808,7 +1808,7 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 p_Type, uint32 /*p_ID*/) override
             {
                 if (p_Type != MovementGeneratorType::CHASE_MOTION_TYPE)
                     return;
@@ -1821,7 +1821,7 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* p_Killed) override
+            void KilledUnit(Unit* /*p_Killed*/) override
             {
                 if (!IsMythic())
                     return;
@@ -1999,7 +1999,7 @@ class npc_highmaul_drunken_bileslinger : public CreatureScript
                 m_FightEvent.Reset();
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& /*p_Damage*/, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HasReactState(ReactStates::REACT_PASSIVE))
                 {
@@ -2021,7 +2021,7 @@ class npc_highmaul_drunken_bileslinger : public CreatureScript
                     me->CastSpell(p_Target, eSpells::MaulingBrew, true);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAllAreasTrigger();
                 me->DespawnOrUnsummon(5000);
@@ -2131,7 +2131,7 @@ class npc_highmaul_iron_bomber : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventIronBomb, urand(3000, 6000));
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HasReactState(ReactStates::REACT_PASSIVE))
                 {
@@ -2159,7 +2159,7 @@ class npc_highmaul_iron_bomber : public CreatureScript
                 }
             }
 
-            void PassengerBoarded(Unit* p_Passenger, int8 p_Seat, bool p_Apply) override
+            void PassengerBoarded(Unit* p_Passenger, int8 /*p_Seat*/, bool p_Apply) override
             {
                 if (p_Apply || p_Passenger->ToCreature() == nullptr)
                     return;
@@ -2168,7 +2168,7 @@ class npc_highmaul_iron_bomber : public CreatureScript
                 p_Passenger->ToCreature()->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->SetDisplayId(eDatas::MorphDead);
                 me->DespawnOrUnsummon(5000);
@@ -2280,7 +2280,7 @@ class npc_highmaul_iron_grunt_second : public CreatureScript
                 m_Events.Reset();
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& /*p_Damage*/, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HasReactState(ReactStates::REACT_PASSIVE))
                 {
@@ -2292,7 +2292,7 @@ class npc_highmaul_iron_grunt_second : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 /// In Mythic difficulty, killing Iron Grunts grants favor for Roar of the Crowd.
                 if (Map* l_Map = me->GetMap())
@@ -2354,13 +2354,13 @@ class npc_highmaul_ogre_grunt : public CreatureScript
                 AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 7)]); });
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& /*p_Damage*/, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HasReactState(ReactStates::REACT_PASSIVE))
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 /// In Mythic difficulty, killing Iron Grunts grants favor for Roar of the Crowd.
             }
@@ -2408,13 +2408,13 @@ class npc_highmaul_ogre_grunt_second : public CreatureScript
                 AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 7)]); });
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& /*p_Damage*/, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HasReactState(ReactStates::REACT_PASSIVE))
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 /// In Mythic difficulty, killing Iron Grunts grants favor for Roar of the Crowd.
             }
@@ -2505,7 +2505,7 @@ class npc_highmaul_highmaul_sweeper : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 p_Type, uint32 /*p_ID*/) override
             {
                 if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
                     return;
@@ -2558,9 +2558,9 @@ class npc_highmaul_highmaul_sweeper : public CreatureScript
                     Position l_SecondPos = g_SweeperJumpPos[m_SweeperType][1];
 
                     if (me->GetDistance(l_FirstPos) > me->GetDistance(l_SecondPos))
-                        p_Target->GetMotionMaster()->MoveJump(l_SecondPos, 15.0f, 25.0f, p_Target->GetOrientation());
+                        p_Target->GetMotionMaster()->MoveJump(l_SecondPos, 15.0f, 25.0f);
                     else
-                        p_Target->GetMotionMaster()->MoveJump(l_FirstPos, 15.0f, 25.0f, p_Target->GetOrientation());
+                        p_Target->GetMotionMaster()->MoveJump(l_FirstPos, 15.0f, 25.0f);
                 }
             }
         };
@@ -2608,7 +2608,7 @@ class npc_highmaul_chain_hurl_vehicle : public CreatureScript
                 m_Rotate = false;
             }
 
-            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            void PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply) override
             {
                 if (p_Apply || p_Passenger == nullptr || p_Passenger->GetTypeId() != TypeID::TYPEID_PLAYER)
                 {
@@ -2816,7 +2816,7 @@ class spell_highmaul_earth_breaker : public SpellScriptLoader
 
         class spell_highmaul_earth_breaker_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_earth_breaker_SpellScript);
+            PrepareSpellScript(spell_highmaul_earth_breaker_SpellScript)
 
             enum eDatas
             {
@@ -2897,7 +2897,7 @@ class spell_highmaul_impale : public SpellScriptLoader
 
         class spell_highmaul_impale_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_impale_AuraScript);
+            PrepareAuraScript(spell_highmaul_impale_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -2953,7 +2953,7 @@ class spell_highmaul_fire_pillar_steam_timer : public SpellScriptLoader
 
         class spell_highmaul_fire_pillar_steam_timer_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_fire_pillar_steam_timer_AuraScript);
+            PrepareAuraScript(spell_highmaul_fire_pillar_steam_timer_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -2984,7 +2984,7 @@ class spell_highmaul_fire_pillar_activated : public SpellScriptLoader
 
         class spell_highmaul_fire_pillar_activated_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_fire_pillar_activated_AuraScript);
+            PrepareAuraScript(spell_highmaul_fire_pillar_activated_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -3029,7 +3029,7 @@ class spell_highmaul_berserker_rush : public SpellScriptLoader
 
         class spell_highmaul_berserker_rush_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_berserker_rush_AuraScript);
+            PrepareAuraScript(spell_highmaul_berserker_rush_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -3086,7 +3086,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
 
         class spell_highmaul_chain_hurl_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_chain_hurl_SpellScript);
+            PrepareSpellScript(spell_highmaul_chain_hurl_SpellScript)
 
             uint8 m_Count;
             uint64 m_Targets[eDatas::MaxAffectedTargets];
@@ -3293,7 +3293,7 @@ class spell_highmaul_vile_breath : public SpellScriptLoader
 
         class spell_highmaul_vile_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_vile_breath_SpellScript);
+            PrepareSpellScript(spell_highmaul_vile_breath_SpellScript)
 
             enum eSpell
             {
@@ -3346,7 +3346,7 @@ class spell_highmaul_obscured : public SpellScriptLoader
 
         class spell_highmaul_obscured_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_obscured_AuraScript);
+            PrepareAuraScript(spell_highmaul_obscured_AuraScript)
 
             uint32 m_UpdateTimer;
 
@@ -3397,9 +3397,9 @@ class spell_highmaul_crowd_minion_killed : public SpellScriptLoader
 
         class spell_highmaul_crowd_minion_killed_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_crowd_minion_killed_SpellScript);
+            PrepareSpellScript(spell_highmaul_crowd_minion_killed_SpellScript)
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, 1, Powers::POWER_ALTERNATE_POWER);
@@ -3441,9 +3441,9 @@ class spell_highmaul_roar_of_the_crowd : public SpellScriptLoader
 
         class spell_highmaul_roar_of_the_crowd_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_roar_of_the_crowd_AuraScript);
+            PrepareAuraScript(spell_highmaul_roar_of_the_crowd_AuraScript)
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -3497,7 +3497,7 @@ class spell_highmaul_inflamed : public SpellScriptLoader
 
         class spell_highmaul_inflamed_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_inflamed_AuraScript);
+            PrepareAuraScript(spell_highmaul_inflamed_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -3532,9 +3532,9 @@ class spell_highmaul_heckle : public SpellScriptLoader
 
         class spell_highmaul_heckle_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_heckle_SpellScript);
+            PrepareSpellScript(spell_highmaul_heckle_SpellScript)
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Creature* l_Caster = GetCaster()->ToCreature())
                     GrantFavorToAllPlayers(l_Caster, -2, GetSpellInfo()->Id);
@@ -3560,7 +3560,7 @@ class spell_highmaul_berserker_rush_periodic : public SpellScriptLoader
 
         class spell_highmaul_berserker_rush_periodic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_berserker_rush_periodic_AuraScript);
+            PrepareAuraScript(spell_highmaul_berserker_rush_periodic_AuraScript)
 
             void OnTick(AuraEffect const* p_AurEff)
             {
@@ -3600,7 +3600,7 @@ class spell_highmaul_blade_dance : public SpellScriptLoader
 
         class spell_highmaul_blade_dance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_blade_dance_SpellScript);
+            PrepareSpellScript(spell_highmaul_blade_dance_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -3679,7 +3679,7 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
 
         class spell_highmaul_correct_searchers_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_correct_searchers_SpellScript);
+            PrepareSpellScript(spell_highmaul_correct_searchers_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -3759,7 +3759,7 @@ class areatrigger_highmaul_molten_bomb : public AreaTriggerEntityScript
 
         std::set<uint64> m_AffectedPlayers;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -3804,7 +3804,7 @@ class areatrigger_highmaul_molten_bomb : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -3853,7 +3853,7 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
 
         bool m_GoingToBeDestroyed;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -3922,7 +3922,7 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -3951,7 +3951,7 @@ class areatrigger_highmaul_mauling_brew : public AreaTriggerEntityScript
             MaulingBrew = 159413
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -3978,6 +3978,7 @@ class areatrigger_highmaul_mauling_brew : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kargath_bladefist()
 {
     /// Boss
@@ -4022,3 +4023,4 @@ void AddSC_boss_kargath_bladefist()
     new areatrigger_highmaul_flame_jet();
     new areatrigger_highmaul_mauling_brew();
 }
+#endif

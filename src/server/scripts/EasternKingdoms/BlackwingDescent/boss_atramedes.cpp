@@ -87,7 +87,7 @@ enum Adds
     NPC_ROARING_FLAME            = 41807,
     NPC_ROARING_FLAME_TARGET    = 42121,
     NPC_ABNOXIOUS_FIEND            = 49740,
-    NPC_LORD_VICTOR_NEFARIUS_A    = 43396, // не уверен
+    NPC_LORD_VICTOR_NEFARIUS_A    = 43396,
 
     NPC_IMP_PORTAL_STALKER  = 49801,
     NPC_BLIND_DRAGON_TAIL   = 42356,
@@ -153,16 +153,13 @@ const Position dwarvenshieldsPos[8] =
 
 const Position atramedesnefariusspawnPos = {96.54f, -220.32f, 94.90f, 0.06f};
 
-Unit* atramedesTarget; // цель луча атрамеда
-Creature* atramedesShield; // последний использованный щит
+Unit* atramedesTarget;
+Creature* atramedesShield;
 Creature* roaringsummon;
 Creature* _shields[8];
 
-//
-// ротация заклинаний при наземной фазе:
 // pulse, breath, pulse, breath, flame, pulse, breath, pulse
-// фаза 80сек, значит примерно каждые 13 секунд что-то должно кастоваться, позже настрою таймеры точнее
-//
+
 class boss_atramedes : public CreatureScript
 {
 public:
@@ -270,7 +267,6 @@ public:
             switch (summon->GetEntry())
             {
             case NPC_TRACKING_FLAMES:
-                //todo: реализовать передвижение
                 DoCast(summon, SPELL_SONIC_BREATH);
                 break;
             case NPC_ROARING_FLAME_TARGET:
@@ -363,7 +359,6 @@ public:
                     me->GetMotionMaster()->MovePoint(2, groundPos);
                     break;
                 case EVENT_NEXT_SPELL:
-                    //За одну фазу будет скастовано 7 скиллов
                     if (nextspell > 7)
                         break;
                     switch (nextspell)
@@ -512,7 +507,6 @@ public:
         {
             if (type == POINT_MOTION_TYPE)
             {
-                // Если нпц достиг конечной точки, то деспавн
                 if (id == 1)
                 {
                     me->DespawnOrUnsummon();
@@ -530,7 +524,6 @@ public:
             {
                 switch (eventId)
                 {
-                // Через 1сек нпц начинает движение
                 case EVENT_SONAR_PULSE_MOVE:
                     if (target)
                         me->GetNearPosition(pos, 50.0f, me->GetAngle(target->GetPositionX(), target->GetPositionY()));

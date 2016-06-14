@@ -1,19 +1,27 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "well_of_eternity.h"
 #include "GameObjectAI.h"
 
 enum Spells
 {
-    SPELL_TELEPORT_TO_START                 = 107934, 
-    SPELL_TELEPORT_TO_AZSHARA_PALACE        = 107979, 
-    SPELL_TELEPORT_TO_WELL_OF_ETERNITY      = 107691,
+    SPELL_TELEPORT_TO_START                 = 107934,
+    SPELL_TELEPORT_TO_AZSHARA_PALACE        = 107979,
+    SPELL_TELEPORT_TO_WELL_OF_ETERNITY      = 107691
 };
 
 enum InstanceTeleporter
 {
     START_TELEPORT          = 1,
     AZSHARA_TELEPORT        = 2,
-    WOE_TELEPORT            = 3,
+    WOE_TELEPORT            = 3
 };
 
 class go_well_of_eternity_teleport : public GameObjectScript
@@ -43,13 +51,13 @@ class go_well_of_eternity_teleport : public GameObjectScript
                         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Well of Eternity.", GOSSIP_SENDER_MAIN, WOE_TELEPORT);
                 }
             }
-        
+
             pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pGo), pGo->GetGUID());
             return true;
         }
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) 
-		{
+        bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 /*p_Sender*/, uint32 action)
+        {
             //player->PlayerTalkClass->ClearMenus();
             if (player->isInCombat())
                 return true;
@@ -57,9 +65,9 @@ class go_well_of_eternity_teleport : public GameObjectScript
             InstanceScript* pInstance = player->GetInstanceScript();
             if (!pInstance)
                 return true;
-            
-            switch (action) 
-		    {
+
+            switch (action)
+            {
                 case START_TELEPORT:
                     player->CastSpell(player, SPELL_TELEPORT_TO_START, true);
                     player->CLOSE_GOSSIP_MENU();
@@ -73,12 +81,14 @@ class go_well_of_eternity_teleport : public GameObjectScript
                     player->CLOSE_GOSSIP_MENU();
                     break;
             }
-            
+
             return true;
-        }    
+        }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_well_of_eternity_teleport()
 {
     new go_well_of_eternity_teleport();
 }
+#endif

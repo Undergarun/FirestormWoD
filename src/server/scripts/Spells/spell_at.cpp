@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
@@ -284,7 +284,7 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
             solarBeamSilence = 81261
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             float l_Radius = 5.0f;
             Unit* l_Caster = p_AreaTrigger->GetCaster();
@@ -303,12 +303,10 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
                 {
                     m_TargetList.push_back(l_Target->GetGUID());
                     l_Caster->CastSpell(l_Target, eSpells::solarBeamSilence, true);
-                    if (Aura* l_SolarBeamSilence = l_Caster->GetAura(eSpells::solarBeamSilence))
-                        l_SolarBeamSilence->SetDuration(p_AreaTrigger->GetDuration());
                 }
             }
 
-            for (auto l_It = m_TargetList.begin(); l_It != m_TargetList.end(); )
+            for (auto l_It = m_TargetList.begin(); l_It != m_TargetList.end(); ++l_It)
             {
                 Unit* l_Target = ObjectAccessor::FindUnit(*l_It);
                 if (!l_Target || (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), l_Target) == l_NewTargetList.end()))
@@ -316,22 +314,11 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
                     if (l_Target)
                         l_Target->RemoveAura(eSpells::solarBeamSilence);
 
-                    l_It = m_TargetList.erase(l_It);
-                }
-                else
-                {
-                    if (!l_Target->HasAura(eSpells::solarBeamSilence, l_Caster->GetGUID()))
-                    {
-                        l_Caster->CastSpell(l_Target, eSpells::solarBeamSilence, true);
-                        if (Aura* l_SolarBeamSilence = l_Caster->GetAura(eSpells::solarBeamSilence))
-                            l_SolarBeamSilence->SetDuration(p_AreaTrigger->GetDuration());
-                    }
-                    ++l_It;
                 }
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+        void OnRemove(AreaTrigger* /*p_AreaTrigger*/, uint32 /*p_Time*/)
         {
             for (uint64 l_TargetGUID : m_TargetList)
             {
@@ -426,7 +413,7 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
             SpellEntrapmentRoot = 64803
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
             Unit* l_Caster = p_AreaTrigger->GetCaster();
@@ -478,7 +465,7 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
             SpellEntrapmentRoot = 64803
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
             Unit* l_Caster = p_AreaTrigger->GetCaster();
@@ -529,7 +516,7 @@ class spell_at_hun_ice_trap_effect : public AreaTriggerEntityScript
             IceTrapEffect = 135299
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> targetList;
             float l_Radius = 10.0f;
@@ -585,7 +572,7 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
             HunterWodPvp2PBonusEffect = 166009
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             auto l_CreateSpell       = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
             auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
@@ -637,7 +624,7 @@ class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
             SpellExplosiveEffect = 13812
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             auto l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
             auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
@@ -680,7 +667,7 @@ class spell_at_mage_wod_frost_2p_bonus : public AreaTriggerEntityScript
             SlickIce = 180724
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> targetList;
             float l_Radius = 20.0f;
@@ -748,10 +735,10 @@ class spell_at_mage_arcane_orb : public AreaTriggerEntityScript
                 l_Caster->CastSpell(l_Caster, eArcaneOrbSpell::ArcaneChrage, true);
         }
 
-        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+        void OnSetCreatePosition(AreaTrigger* /*p_AreaTrigger*/, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
         {
             Position l_Position;
-            float l_Dist = 40.f;
+            float l_Dist = 40.0f;
 
             l_Position.m_positionX = p_SourcePosition.m_positionX + (l_Dist * cos(p_Caster->GetOrientation()));
             l_Position.m_positionY = p_SourcePosition.m_positionY + (l_Dist * sin(p_Caster->GetOrientation()));
@@ -797,10 +784,9 @@ class spell_at_mage_rune_of_power : public AreaTriggerEntityScript
     public:
         spell_at_mage_rune_of_power() : AreaTriggerEntityScript("at_rune_of_power") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> targetList;
-            float l_Radius = 5.0f;
             Unit* l_Caster = p_AreaTrigger->GetCaster();
 
             if (l_Caster->IsWithinDistInMap(p_AreaTrigger, 5.0f))
@@ -815,7 +801,7 @@ class spell_at_mage_rune_of_power : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32(/*p_Time*/))
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (l_Caster && l_Caster->HasAura(116014))
@@ -846,7 +832,7 @@ class spell_at_mage_meteor_burn : public AreaTriggerEntityScript
             p_AreaTrigger->SetUInt32Value(EAreaTriggerFields::AREATRIGGER_FIELD_SPELL_VISUAL_ID, eMeteorSpell::VisualID);
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -921,7 +907,7 @@ class spell_at_monk_afterlife_healing_sphere : public AreaTriggerEntityScript
             SpellHealingSphere = 125355
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
             Unit* l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
@@ -962,7 +948,7 @@ class spell_at_monk_healing_sphere : public AreaTriggerEntityScript
             SpellHealingSphere = 124041
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
             Unit* l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
@@ -1022,13 +1008,42 @@ class spell_at_monk_healing_sphere : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update 6.2.3
+/// Chi explosion spheres - 157682, 157683, 157684, 157685, 157686, 157687, 157688, 157689
+class spell_at_monk_sphere_chi_explosion : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_monk_sphere_chi_explosion() : AreaTriggerEntityScript("at_monk_sphere_chi_explosion") { }
+
+        enum eSpells
+        {
+            ExplodeSphere = 135920
+        };
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+
+            if (l_AreaTriggerCaster == nullptr)
+                return;
+
+            if ((uint32)p_AreaTrigger->GetDuration() < p_Time)
+                l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::ExplodeSphere, true);
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_monk_sphere_chi_explosion();
+        }
+};
+
 /// Chi Sphere - 121286
 class spell_at_monk_chi_sphere_afterlife : public AreaTriggerEntityScript
 {
     public:
         spell_at_monk_chi_sphere_afterlife() : AreaTriggerEntityScript("at_chi_sphere_afterlife") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> targetList;
             float l_Radius = 1.0f;
@@ -1064,7 +1079,7 @@ class spell_at_monk_gift_of_the_ox : public AreaTriggerEntityScript
     public:
         spell_at_monk_gift_of_the_ox()  : AreaTriggerEntityScript("at_gift_of_the_ox") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> targetList;
             float l_Radius = 1.0f;
@@ -1105,10 +1120,10 @@ class spell_at_pri_divine_star : public AreaTriggerEntityScript
 
         std::map<uint64, uint32> m_Cooldows;
 
-        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+        void OnSetCreatePosition(AreaTrigger* /*p_AreaTrigger*/, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
         {
             Position l_Position;
-            float l_Dist = 24.f; // Hardcoded in the tooltip;
+            float l_Dist = 24.0f; // Hardcoded in the tooltip;
 
             l_Position.m_positionX = p_SourcePosition.m_positionX + (l_Dist * cos(p_Caster->GetOrientation()));
             l_Position.m_positionY = p_SourcePosition.m_positionY + (l_Dist * sin(p_Caster->GetOrientation()));
@@ -1194,7 +1209,7 @@ class spell_at_pri_power_word_barrier : public AreaTriggerEntityScript
             PowerWordBarrierAura = 81782
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1228,7 +1243,7 @@ class spell_at_pri_angelic_feather : public AreaTriggerEntityScript
     public:
         spell_at_pri_angelic_feather() : AreaTriggerEntityScript("at_angelic_feather") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> targetList;
             float l_Radius = 1.0f;
@@ -1269,7 +1284,7 @@ class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
             SmokeBombAura = 88611
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             float l_Radius = 4.0f;
             Unit* l_Caster = p_AreaTrigger->GetCaster();
@@ -1306,7 +1321,7 @@ class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+        void OnRemove(AreaTrigger* /*p_AreaTrigger*/, uint32 /*p_Time*/)
         {
             for (uint64 l_TargetGUID : m_TargetList)
             {
@@ -1339,7 +1354,7 @@ class spell_at_monk_chi_burst : public AreaTriggerEntityScript
 
         std::list<uint64> m_UnitGUIDList;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
 
@@ -1405,10 +1420,10 @@ class spell_at_monk_charging_ox_wave : public AreaTriggerEntityScript
             Stun = 123687
         };
 
-        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+        void OnSetCreatePosition(AreaTrigger* /*p_AreaTrigger*/, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
         {
             Position l_Position;
-            float l_Dist = 30.f;
+            float l_Dist = 30.0f;
 
             l_Position.m_positionX = p_SourcePosition.m_positionX + (l_Dist * cos(p_Caster->GetOrientation()));
             l_Position.m_positionY = p_SourcePosition.m_positionY + (l_Dist * sin(p_Caster->GetOrientation()));
@@ -1418,7 +1433,7 @@ class spell_at_monk_charging_ox_wave : public AreaTriggerEntityScript
             p_DestinationPosition = l_Position;
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
 
@@ -1462,7 +1477,7 @@ class spell_at_dk_anti_magic_zone : public AreaTriggerEntityScript
             antiMagicAura = 145629
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             float l_Radius = 6.50f;
             Unit* l_Caster = p_AreaTrigger->GetCaster();
@@ -1501,7 +1516,7 @@ class spell_at_dk_anti_magic_zone : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+        void OnRemove(AreaTrigger* /*p_AreaTrigger*/, uint32 /*p_Time*/)
         {
             for (uint64 l_TargetGUID : m_TargetList)
             {
@@ -1511,7 +1526,7 @@ class spell_at_dk_anti_magic_zone : public AreaTriggerEntityScript
             }
         }
 
-        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+        void OnSetCreatePosition(AreaTrigger* /*p_AreaTrigger*/, Unit* /*p_Caster*/, Position& /*p_SourcePosition*/, Position& /*p_DestinationPosition*/, std::list<Position>& /*p_PathToLinearDestination*/)
         {
             ;
         }
@@ -1522,6 +1537,7 @@ class spell_at_dk_anti_magic_zone : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_areatrigger_spell_scripts()
 {
     /// Deathknight Area Trigger
@@ -1551,6 +1567,7 @@ void AddSC_areatrigger_spell_scripts()
     /// Monk Area Trigger
     new spell_at_monk_healing_sphere();
     new spell_at_monk_afterlife_healing_sphere();
+    new spell_at_monk_sphere_chi_explosion();
     new spell_at_monk_chi_sphere_afterlife();
     new spell_at_monk_gift_of_the_ox();
     new spell_at_monk_chi_burst();
@@ -1564,3 +1581,4 @@ void AddSC_areatrigger_spell_scripts()
     /// Rogue Area Trigger
     new spell_at_rogue_smoke_bomb();
 }
+#endif

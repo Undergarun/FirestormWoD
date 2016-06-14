@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -32,7 +23,7 @@ enum ScriptTexts
     EMOTE_PUNGENT_BLIGHT        = 6,
     SAY_KILL                    = 7,
     SAY_BERSERK                 = 8,
-    SAY_DEATH                   = 9,
+    SAY_DEATH                   = 9
 };
 
 enum Spells
@@ -49,7 +40,7 @@ enum Spells
     // Stinky
     SPELL_MORTAL_WOUND          = 71127,
     SPELL_DECIMATE              = 71123,
-    SPELL_PLAGUE_STENCH         = 71805,
+    SPELL_PLAGUE_STENCH         = 71805
 };
 
 // Used for HasAura checks
@@ -68,7 +59,7 @@ enum Events
     EVENT_GASTRIC_BLOAT = 5,
 
     EVENT_DECIMATE      = 6,
-    EVENT_MORTAL_WOUND  = 7,
+    EVENT_MORTAL_WOUND  = 7
 };
 
 #define DATA_INOCULATED_STACK 69291
@@ -354,7 +345,7 @@ class spell_festergut_pungent_blight: public SpellScriptLoader
 
         class spell_festergut_pungent_blight_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_festergut_pungent_blight_SpellScript);
+            PrepareSpellScript(spell_festergut_pungent_blight_SpellScript)
 
             bool Load()
             {
@@ -387,7 +378,7 @@ class spell_festergut_gastric_bloat: public SpellScriptLoader
 
         class spell_festergut_gastric_bloat_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_festergut_gastric_bloat_SpellScript);
+            PrepareSpellScript(spell_festergut_gastric_bloat_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -425,7 +416,7 @@ class spell_festergut_blighted_spores: public SpellScriptLoader
 
         class spell_festergut_blighted_spores_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_festergut_blighted_spores_AuraScript);
+            PrepareAuraScript(spell_festergut_blighted_spores_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -472,6 +463,7 @@ class achievement_flu_shot_shortage : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_festergut()
 {
     new boss_festergut();
@@ -481,3 +473,4 @@ void AddSC_boss_festergut()
     new spell_festergut_blighted_spores();
     new achievement_flu_shot_shortage();
 }
+#endif

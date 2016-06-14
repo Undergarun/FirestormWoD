@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by therate
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Opcodes.h"
 #include "WorldSession.h"
@@ -287,6 +277,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_CHAR_RENAME,                                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_CHAR_CUSTOMIZE_RESULT,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_CHAR_CUSTOMIZE,                                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT,           STATUS_AUTHED,        PROCESS_THREADUNSAFE, &WorldSession::Handle_ServerSide);
 
         /// Account data
         DEFINE_OPCODE_HANDLER(SMSG_ACCOUNT_DATA_TIMES,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -1022,6 +1013,8 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_DELETE_RESULT,                                    STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_OPEN_ARCHITECT,                                   STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_OPEN_MISSION_NPC,                                 STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_OPEN_RECRUITMENT_NPC,                             STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_RECRUITMENT_FOLLOWERS_GENERATED,                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT,                       STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_OPEN_TRADESKILL_NPC,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_SET_MISSION_NPC,                                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -1069,16 +1062,19 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REMOVE_FOLLOWER_CHEAT,                      STATUS_UNHANDLED,   PROCESS_THREADSAFE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_LIST_FOLLOWERS_CHEAT,                       STATUS_UNHANDLED,   PROCESS_THREADSAFE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_ADD_MISSION_CHEAT,                          STATUS_UNHANDLED,   PROCESS_THREADSAFE,        &WorldSession::Handle_NULL                      );
-    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_START_MISSION,                              STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonStartMissionOpcode );
-    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_COMPLETE_MISSION,                           STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonCompleteMissionOpcode);
-    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_MISSION_BONUS_ROLL,                         STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonMissionBonusRollOpcode);
-    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REQUEST_UPGRADEABLE,                        STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleRequestGarrisonUpgradeableOpcode);
-    DEFINE_OPCODE_HANDLER(CMSG_UPGRADE_GARRISON,                                    STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleUpgradeGarrisonOpcode);
-    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO,         STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleRequestLandingPageShipmentInfoOpcode);
-    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_MISSION_NPC_HELLO,                          STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonMissionNPCHelloOpcode);
-    DEFINE_OPCODE_HANDLER(CMSG_GET_SHIPMENT_INFO,                                   STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonGetShipmentInfoOpcode);
-    DEFINE_OPCODE_HANDLER(CMSG_CREATE_SHIPMENT,                                     STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonCreateShipmentOpcode);
-    DEFINE_OPCODE_HANDLER(CMSG_GET_SHIPMENTS,                                       STATUS_AUTHED,      PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonGetShipmentsOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_START_MISSION,                              STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonStartMissionOpcode );
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_COMPLETE_MISSION,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonCompleteMissionOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_MISSION_BONUS_ROLL,                         STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonMissionBonusRollOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_GENERATE_RECRUITS,                          STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonGenerateRecruitsOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_SET_RECRUITMENT_PREFERENCES,                STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonSetRecruitmentPreferencesOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_RECRUIT_FOLLOWER,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonRecruitFollower);
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REQUEST_UPGRADEABLE,                        STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleRequestGarrisonUpgradeableOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_UPGRADE_GARRISON,                                    STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleUpgradeGarrisonOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO,         STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleRequestLandingPageShipmentInfoOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_GARRISON_MISSION_NPC_HELLO,                          STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonMissionNPCHelloOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_GET_SHIPMENT_INFO,                                   STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonGetShipmentInfoOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_CREATE_SHIPMENT,                                     STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonCreateShipmentOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_GET_SHIPMENTS,                                       STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonGetShipmentsOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_SET_MISSION_NPC,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonRequestSetMissionNPC);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_FOLLOWER_RENAME,                            STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonFollowerRename);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_DECOMISSION_SHIP,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonDecommisionShip);
@@ -1104,6 +1100,7 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     DEFINE_OPCODE_HANDLER(CMSG_ENUM_CHARACTERS,                                 STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharEnumOpcode             );
     DEFINE_OPCODE_HANDLER(CMSG_CREATE_CHARACTER,                                STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharCreateOpcode           );
+    DEFINE_OPCODE_HANDLER(CMSG_GENERATE_RANDOM_CHARACTER_NAME,                  STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleRandomizeCharNameOpcode    );
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_DELETE,                                     STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharDeleteOpcode           );
     DEFINE_OPCODE_HANDLER(CMSG_REORDER_CHARACTERS,                              STATUS_AUTHED,      PROCESS_INPLACE,        &WorldSession::HandleReorderCharacters          );
     DEFINE_OPCODE_HANDLER(CMSG_PLAYER_LOGIN,                                    STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandlePlayerLoginOpcode          );
@@ -1610,7 +1607,6 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet opcodes
     //////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////// 
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_BATTLE_PET_NAME,                           STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBattlePetQueryName);
 
     DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PETS_RECONVERT,                           STATUS_NEVER,       PROCESS_INPLACE,        &WorldSession::HandleBattlePetsReconvert);
@@ -1820,7 +1816,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_QUERY_BATTLEFIELD_STATE,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_QUERY_TIME,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQueryTimeOpcode           );
     //DEFINE_OPCODE_HANDLER(CMSG_QUEST_NPC_QUERY,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(CMSG_RANDOMIZE_CHAR_NAME,                     STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleRandomizeCharNameOpcode   );
     //DEFINE_OPCODE_HANDLER(CMSG_REALM_SPLIT,                             STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleRealmSplitOpcode          );
     //DEFINE_OPCODE_HANDLER(CMSG_REDIRECTION_AUTH_PROOF,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_REQUEST_BATTLEPET_JOURNAL,               STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestBattlePetJournal   );
@@ -2172,7 +2167,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(SMSG_PLAY_TIME_WARNING,                       STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_PROPOSE_LEVEL_GRANT,                     STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_SUMMON_RAID_MEMBER_VALIDATE_FAILED,      STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT,   STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_REALM_SPLIT,                             STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_REFER_A_FRIEND_EXPIRED,                  STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_REFER_A_FRIEND_FAILURE,                  STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );

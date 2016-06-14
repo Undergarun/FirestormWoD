@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_UNITAI_H
 #define TRINITY_UNITAI_H
@@ -22,7 +12,7 @@
 #include "Define.h"
 #include "Unit.h"
 #include "Containers.h"
-#include <list>
+#include "Common.h"
 
 class Unit;
 class Player;
@@ -133,27 +123,31 @@ class UnitAI
         explicit UnitAI(Unit* unit) : me(unit) {}
         virtual ~UnitAI() {}
 
-        virtual bool CanAIAttack(Unit const* target) const { return true; } ///< target is unused
+        virtual bool CanAIAttack(Unit const* p_Target) const
+        {
+            UNUSED(p_Target);
+            return true;
+        }
         virtual void AttackStart(Unit* target);
         virtual void UpdateAI(uint32 const p_Diff) = 0;
 
         virtual void InitializeAI() { if (!me->isDead()) Reset(); }
 
-        virtual void Reset() {};
+        virtual void Reset() {}
 
         // Called when unit is charmed
         virtual void OnCharmed(bool apply) = 0;
 
         // Pass parameters between AI
-        virtual void DoAction(int32 const p_Param) 
+        virtual void DoAction(int32 const p_Action)
         {
-            UNUSED(p_Param);
+            UNUSED(p_Action);
         }
 
-        virtual uint32 GetData(uint32 id = 0) 
+        virtual uint32 GetData(uint32 p_ID = 0)
         {
-            UNUSED(id);
-            return 0; 
+            UNUSED(p_ID);
+            return 0;
         }
 
         virtual float GetFData(uint32 p_ID = 0) const
@@ -162,10 +156,10 @@ class UnitAI
             return 0.0f;
         }
 
-        virtual void SetData(uint32 id, uint32 value) 
+        virtual void SetData(uint32 p_ID, uint32 p_Value)
         {
-            UNUSED(id);
-            UNUSED(value);
+            UNUSED(p_ID);
+            UNUSED(p_Value);
         }
 
         virtual void SetFData(uint32 p_ID, float p_Value)
@@ -174,25 +168,29 @@ class UnitAI
             UNUSED(p_Value);
         }
 
-        virtual void SetGUID(uint64 guid, int32 id = 0)
+        virtual void SetGUID(uint64 p_Guid, int32 p_ID = 0)
         {
-            UNUSED(guid);
-            UNUSED(id);
+            UNUSED(p_Guid);
+            UNUSED(p_ID);
         }
 
-        virtual void AddHitQueue(uint32 *p_Data, int32 id = 0)
+        virtual void AddHitQueue(uint32* p_Data, int32 p_ID = 0)
         {
             UNUSED(p_Data);
-            UNUSED(id);
+            UNUSED(p_ID);
         }
 
         virtual void DropCharge() {}
 
-        virtual uint64 GetGUID(int32 id = 0) { return 0; } ///< id is unused
-
-        virtual void SetDestTarget(WorldLocation const* dest) 
+        virtual uint64 GetGUID(int32 p_ID = 0)
         {
-            UNUSED(dest);
+            UNUSED(p_ID);
+            return 0;
+        }
+
+        virtual void SetDestTarget(WorldLocation const* p_Dest)
+        {
+            UNUSED(p_Dest);
         }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
@@ -279,30 +277,62 @@ class UnitAI
         Player* SelectMeleeTarget(bool p_AllowTank = false) const;
 
         // Called at any Damage to any victim (before damage apply)
-        virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }
+        virtual void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType)
+        {
+            UNUSED(p_Victim);
+            UNUSED(p_Damage);
+            UNUSED(p_DamageType);
+        }
 
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage
         // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
-        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo) { } ///< p_SpellInfo is unused
+        virtual void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+        {
+            UNUSED(p_Attacker);
+            UNUSED(p_Damage);
+            UNUSED(p_SpellInfo);
+        }
 
         // Called when we calculate hit result of a spell or a melee attack
         // Note: it allows to put some conditions to change the result of melee/spell attacks on the Unit
-        virtual void CheckHitResult(MeleeHitOutcome& /*p_MeleeResult*/, SpellMissInfo& /*p_SpellResult*/, Unit* /*p_Attacker*/, SpellInfo const* const p_SpellInfo = nullptr) { } ///< p_SpellInfo is unused
+        virtual void CheckHitResult(MeleeHitOutcome& p_MeleeResult, SpellMissInfo& p_SpellResult, Unit* p_Attacker, SpellInfo const* const p_SpellInfo = nullptr)
+        {
+            UNUSED(p_MeleeResult);
+            UNUSED(p_SpellResult);
+            UNUSED(p_Attacker);
+            UNUSED(p_SpellInfo);
+        }
 
         /// Called when Unit::BuildValuesUpdate is called
         /// Used for send differents factions for players for a same unit
-        virtual void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target) { } ///< p_FactionID is unused
+        virtual void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target)
+        {
+            UNUSED(p_FactionID);
+            UNUSED(p_Target);
+        }
 
         // Called when the creature receives heal
-        virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) { }
+        virtual void HealReceived(Unit* p_DoneBy, uint32& p_AddHealth)
+        {
+            UNUSED(p_DoneBy);
+            UNUSED(p_AddHealth);
+        }
 
         // Called when the unit heals
-        virtual void HealDone(Unit* /*done_to*/, uint32& /*addhealth*/) { }
+        virtual void HealDone(Unit* p_DoneTo, uint32& p_AddHealth)
+        {
+            UNUSED(p_DoneTo);
+            UNUSED(p_AddHealth);
+        }
 
         /// Called when a spell is interrupted by Spell::EffectInterruptCast
         /// Use to reschedule next planned cast of spell.
-        virtual void SpellInterrupted(uint32 /*spellId*/, uint32 /*unTimeMs*/) { }
+        virtual void SpellInterrupted(uint32 p_SpellID, uint32 p_UnTimeMS)
+        {
+            UNUSED(p_SpellID);
+            UNUSED(p_UnTimeMS);
+        }
 
         void AttackStartCaster(Unit* victim, float dist);
 
@@ -321,15 +351,56 @@ class UnitAI
         static AISpellInfoType* AISpellInfo;
         static void FillAISpellInfo();
 
-        virtual void sGossipHello(Player* /*player*/) {}
-        virtual void sGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) {}
-        virtual void sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/) {}
-        virtual void sQuestAccept(Player* /*player*/, Quest const* /*quest*/) {}
-        virtual void sQuestSelect(Player* /*player*/, Quest const* /*quest*/) {}
-        virtual void sQuestComplete(Player* /*player*/, Quest const* /*quest*/) {}
-        virtual void sQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) {}
-        virtual bool sOnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) { return false; }
-        virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
+        virtual void sGossipHello(Player* p_Player)
+        {
+            UNUSED(p_Player);
+        }
+        virtual void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Sender);
+            UNUSED(p_Action);
+        }
+        virtual void sGossipSelectCode(Player* p_Player, uint32 p_Sender, uint32 p_Action, char const* p_Code)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Sender);
+            UNUSED(p_Action);
+            UNUSED(p_Code);
+        }
+        virtual void sQuestAccept(Player* p_Player, Quest const* p_Quest)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Quest);
+        }
+        virtual void sQuestSelect(Player* p_Player, Quest const* p_Quest)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Quest);
+        }
+        virtual void sQuestComplete(Player* p_Player, Quest const* p_Quest)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Quest);
+        }
+        virtual void sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Option)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Quest);
+            UNUSED(p_Option);
+        }
+        virtual bool sOnDummyEffect(Unit* p_Caster, uint32 p_SpellID, SpellEffIndex p_EffIndex)
+        {
+            UNUSED(p_Caster);
+            UNUSED(p_SpellID);
+            UNUSED(p_EffIndex);
+            return false;
+        }
+        virtual void sOnGameEvent(bool p_Start, uint16 p_EventID)
+        {
+            UNUSED(p_Start);
+            UNUSED(p_EventID);
+        }
 };
 
 class PlayerAI : public UnitAI

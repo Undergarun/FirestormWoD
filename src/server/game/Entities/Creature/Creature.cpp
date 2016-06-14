@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -52,6 +42,7 @@
 #include "MoveSpline.h"
 #include "WildBattlePet.h"
 #include "Transport.h"
+#include "GarrisonNPCAI.hpp"
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -146,7 +137,7 @@ m_PlayerDamageReq(0), m_lootRecipient(0), m_lootRecipientGroup(0), m_corpseRemov
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_OriginalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_creatureInfo(NULL), m_NativeCreatureInfo(nullptr), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_CreatureScript(nullptr)
+m_creatureInfo(NULL), m_NativeCreatureInfo(nullptr), m_creatureData(NULL), m_CreatureScript(nullptr), m_path_id(0), m_formation(NULL)
 {
     m_NeedRespawn = false;
     m_RespawnFrameDelay = 0;
@@ -1116,6 +1107,11 @@ void Creature::AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint3
         m_moveTime = time;*/
     float speed = GetDistance(x, y, z) / ((float)time * 0.001f);
     MonsterMoveWithSpeed(x, y, z, speed);
+}
+
+GarrisonNPCAI* Creature::ToGarrisonNPCAI() const
+{
+    return static_cast<GarrisonNPCAI*>(i_AI);
 }
 
 Player* Creature::GetLootRecipient() const
@@ -2969,7 +2965,9 @@ const char* Creature::GetNameForLocaleIdx(LocaleConstant loc_idx) const
 //Do not if this works or not, moving creature to another map is very dangerous
 void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
 {
-    CleanupBeforeRemoveFromMap(false);
+    if (GetMapSwitchDestination() == -1)
+        CleanupBeforeRemoveFromMap(false);
+
     GetMap()->RemoveFromMap(this, false);
     Relocate(X, Y, Z, O);
     SetMap(map);

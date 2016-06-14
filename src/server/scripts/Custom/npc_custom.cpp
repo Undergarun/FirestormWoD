@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
@@ -14,7 +14,7 @@
 #include "NPCHandler.h"
 #include "Vehicle.h"
 #include "PhaseMgr.h"
-#include <random>
+#include "Common.h"
 #include "ObjectMgr.h"
 #include "World.h"
 #include "PetAI.h"
@@ -34,11 +34,11 @@
 /// 300007 - World Boss Teleporter
 /// No SQL commit with this script, must stay on PTR.
 /*
-REPLACE INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `femaleName`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `exp_unk`, `faction`, `npcflag`, `npcflag2`, `speed_walk`, `speed_run`, `speed_fly`, `scale`, `rank`, `dmgschool`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `baseVariance`, `rangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Mana_mod_extra`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `TrackingQuestID`, `VignetteID`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `BuildVerified`) VALUES('300007','0','0','35231','0','0','0','World Boss Teleporter','','','','0','100','100','6','0','35','1','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','1','518','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','0','0','1','0','0','0','npc_world_boss_gossip','1');
+REPLACE INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `femaleName`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `exp_req`, `faction`, `npcflag`, `npcflag2`, `speed_walk`, `speed_run`, `speed_fly`, `scale`, `rank`, `dmgschool`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `baseVariance`, `rangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Mana_mod_extra`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `TrackingQuestID`, `VignetteID`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `BuildVerified`) VALUES('300007','0','0','35231','0','0','0','World Boss Teleporter','','','','0','100','100','6','0','35','1','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','1','518','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','0','0','1','0','0','0','npc_world_boss_gossip','1');
 DELETE FROM creature WHERE id = 300007;
 INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES('300007','0','12','7486','1','4294967295','0','0','-9083.16','396.379','93.6052','2.18698','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL);
 INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES('300007','1','14','4982','1','4294967295','0','0','1366.45','-4355.5','26.5794','4.62173','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL);
-REPLACE INTO `trinity_string` (`entry`, `content_default`, `content_loc2`) VALUE ('14097','Hey, great adventurer, come to me in your faction capital, to access fastly our last testable content ! Newest raids, bosses, get directly teleported to the destination you are looking for.',NULL,'Hey, cher aventurier, venez me voir dans la capitale de votre faction, pour accéder rapidement à notre dernier contenu testable ! Derniers raids, boss, soyez directement téléporté à la destination de votre choix.');
+REPLACE INTO `trinity_string` (`entry`, `content_default`, `content_loc2`) VALUE ('14097','Hey, great adventurer, come to me in your faction capital, to access fastly our last testable content ! Newest raids, bosses, get directly teleported to the destination you are looking for.',NULL,'Hey, cher aventurier, venez me voir dans la capitale de votre faction, pour acceder rapidement a notre dernier contenu testable ! Derniers raids, boss, soyez directement teleporte a la destination de votre choix.');
 */
 class npc_world_boss_gossip : public CreatureScript
 {
@@ -212,7 +212,7 @@ class npc_world_boss_gossip : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_world_boss_gossipAI(creature);
         }
@@ -250,10 +250,10 @@ class HighmaulTestEnable : public BasicEvent
     };
 
     public:
-        HighmaulTestEnable(uint64 p_Guid) : m_Guid(p_Guid), BasicEvent() { }
+        HighmaulTestEnable(uint64 p_Guid) : BasicEvent(), m_Guid(p_Guid) { }
         virtual ~HighmaulTestEnable() {}
 
-        virtual bool Execute(uint64 p_EndTime, uint32 p_Time)
+        virtual bool Execute(uint64 /*p_EndTime*/, uint32 /*p_Time*/)
         {
             if (Player* l_Player = HashMapHolder<Player>::Find(m_Guid))
             {
@@ -269,22 +269,12 @@ class HighmaulTestEnable : public BasicEvent
             return true;
         }
 
-        virtual void Abort(uint64 p_EndTime) { }
+        virtual void Abort(uint64 /*p_EndTime*/) { }
 
     private:
         uint64 m_Guid;
 };
 
-/// 300008 - Highmaul Tests Manager
-/// No SQL commit with this script, must stay on PTR.
-/// REPLACE INTO creature_template VALUE ('300008','0','0','35231','0','0','0','PvE Tests Manager','','','','0','103','103','6','0','35','1','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','1','518','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','0','0','1','0','0','0','npc_pve_tests_manager','1');
-/// DELETE FROM creature WHERE id = 300008;
-/// INSERT INTO creature (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES
-/// ('300008','0','12','7486','1','4294967295','0','0','-8932.997','537.873413','94.678825','0.676821','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
-/// ('300008','1','1637','5170','1','4294967295','0','0','1606.946167','-4384.196289','20.702406','3.469189','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
-/// ('300008','1116','6755','7367','1','4294967295','0','0','3477.581543','7437.905762','31.542486','4.521338','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
-/// ('300008','1228','6996','7395','1','4294967295','0','0','3486.217041','7592.922852','10.485300','1.551457','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL);
-/// REPLACE INTO `trinity_string` (`entry`, `content_default`, `content_loc2`) VALUE ('20000','Hey, great adventurer, come to me in your faction capital, to access fastly our last testable content! Newest raids, bosses, get directly teleported to the destination you are looking for.','Hé, cher aventurier, venez me voir dans la capitale de votre faction, pour accéder rapidement à notre dernier contenu testable ! Derniers raids, boss, soyez directement téléporté à la destination de votre choix.');
 class npc_pve_tests_manager : public CreatureScript
 {
     public:
@@ -579,7 +569,7 @@ class npc_season_2_premade_master : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
-            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_MenuID*/, uint32 /*p_Action*/) override
             {
                 if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Gold))
                 {
@@ -744,6 +734,7 @@ class npc_fun_gold_vendor : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_npc_custom()
 {
 ///    new npc_world_boss_gossip();
@@ -751,3 +742,4 @@ void AddSC_npc_custom()
     new npc_season_2_premade_master();
     new npc_fun_gold_vendor();
 }
+#endif

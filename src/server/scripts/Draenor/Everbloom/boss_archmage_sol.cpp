@@ -138,7 +138,7 @@ public:
                 me->RemoveAura(l_Entries[l_I]);       
         }
 
-        void MoveInLineOfSight(Unit* p_Who) override
+        void MoveInLineOfSight(Unit* p_Who) override /// Motherfucker..
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 30.0f) && !m_CanEvent && m_Initial)
             {
@@ -552,7 +552,7 @@ public:
             me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->CastSpell(me, eNoxiousExplosionSpells::SpellNoxiusEruption, false);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);        
         }
     };
 

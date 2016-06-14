@@ -24,7 +24,7 @@ enum Yells
     SAY_LIGHT_4     = 18,
     SAY_LIGHT_5     = 19,
     SAY_LIGHT_6     = 20,
-    SAY_LIGHT_LEFT  = 21,
+    SAY_LIGHT_LEFT  = 21
 };
 
 enum Spells
@@ -55,7 +55,7 @@ enum Spells
 
     SPELL_ACHIEVEMENT_CHECK             = 102491,
     SPELL_ACHIEVEMENT_FAIL              = 102539,
-    SPELL_ACHIEVEMENT                   = 102542,
+    SPELL_ACHIEVEMENT                   = 102542
 };
 
 enum Events
@@ -70,7 +70,7 @@ enum Events
     EVENT_SUMMON_ADDS       = 7,
     EVENT_SUMMON_POOL       = 8,
     EVENT_STOP_EVENT        = 9,
-    EVENT_STOP_EVENT_1      = 10,
+    EVENT_STOP_EVENT_1      = 10
 };
 
 enum Adds
@@ -93,16 +93,16 @@ enum Adds
     NPC_TIME_TWISTED_HUNTRESS       = 54701,
     NPC_TIME_TWISTED_NIGHTSABER_1   = 54688,
     NPC_TIME_TWISTED_NIGHTSABER_2   = 54699,
-    NPC_TIME_TWISTED_NIGHTSABER_3   = 54700,
+    NPC_TIME_TWISTED_NIGHTSABER_3   = 54700
 };
 
 enum Other
 {
     POINT_MOONLANCE     = 1,
-    ACTION_START_EVENT  = 2,
+    ACTION_START_EVENT  = 2
 };
 
-const Position poolPos[5] = 
+const Position poolPos[5] =
 {
     {2903.26f, 63.1788f, 3.2449f, 0.0f},
     {2862.83f, 131.462f, 3.18436f, 0.0f},
@@ -174,7 +174,7 @@ class boss_echo_of_tyrande : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -206,7 +206,7 @@ class boss_echo_of_tyrande : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
@@ -424,7 +424,7 @@ class boss_echo_of_tyrande : public CreatureScript
                 }
             }
         private:
-            uint8 phase; 
+            uint8 phase;
             uint64 moonlanceGUID;
             uint8 eventphase;
             Unit* curPool;
@@ -462,10 +462,10 @@ class npc_echo_of_tyrande_moonlance : public CreatureScript
                     {
                         Position pos1_1, pos1_2, pos2_1, pos2_2, pos3_1, pos3_2;
                         me->GetNearPosition(pos1_1, 3.0f, -(M_PI / 4.0f));
-                        me->GetNearPosition(pos1_2, 30.0f, -(M_PI / 4.0f)); 
-                        me->GetNearPosition(pos2_1, 3.0f, 0.0f); 
-                        me->GetNearPosition(pos2_2, 30.0f, 0.0f); 
-                        me->GetNearPosition(pos3_1, 3.0f, (M_PI / 4.0f)); 
+                        me->GetNearPosition(pos1_2, 30.0f, -(M_PI / 4.0f));
+                        me->GetNearPosition(pos2_1, 3.0f, 0.0f);
+                        me->GetNearPosition(pos2_2, 30.0f, 0.0f);
+                        me->GetNearPosition(pos3_1, 3.0f, (M_PI / 4.0f));
                         me->GetNearPosition(pos3_2, 30.0f, (M_PI / 4.0f));
                         if (Creature* pLance1 = me->SummonCreature(NPC_MOONLANCE_2_1, pos1_1, TEMPSUMMON_TIMED_DESPAWN, 30000))
                             pLance1->GetMotionMaster()->MovePoint(POINT_MOONLANCE, pos1_2);
@@ -535,7 +535,7 @@ class spell_echo_of_tyrande_tears_of_elune_script: public SpellScriptLoader
 
         class spell_echo_of_tyrande_tears_of_elune_script_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_echo_of_tyrande_tears_of_elune_script_SpellScript);
+            PrepareSpellScript(spell_echo_of_tyrande_tears_of_elune_script_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -573,7 +573,7 @@ class at_et_tyrande : public AreaTriggerScript
 
             if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
             {
-                if (pInstance->GetData(DATA_TYRANDE_EVENT) != IN_PROGRESS && 
+                if (pInstance->GetData(DATA_TYRANDE_EVENT) != IN_PROGRESS &&
                     pInstance->GetData(DATA_TYRANDE_EVENT) != DONE)
                 {
                     if (Creature* pTyrande = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetData64(DATA_ECHO_OF_TYRANDE)))
@@ -589,6 +589,7 @@ class at_et_tyrande : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_echo_of_tyrande()
 {
     new boss_echo_of_tyrande();
@@ -597,3 +598,4 @@ void AddSC_boss_echo_of_tyrande()
     new spell_echo_of_tyrande_tears_of_elune_script();
     new at_et_tyrande();
 }
+#endif

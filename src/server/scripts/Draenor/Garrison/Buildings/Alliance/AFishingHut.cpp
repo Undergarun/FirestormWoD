@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "AFishingHut.hpp"
 #include "AFishingHut_Level1Data.hpp"
 #include "../../Sites/GarrisonSiteBase.hpp"
@@ -15,7 +16,7 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 82436 - Tharis Strongcast                                         ////
@@ -79,12 +80,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -170,12 +171,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -276,12 +277,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -305,7 +306,7 @@ namespace MS { namespace Garrison
         return new npc_RonAshtonAI(p_Creature);
     }
 
-    bool npc_RonAshton::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_RonAshton::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)p_Creature->GetInstanceScript();
 
@@ -321,7 +322,7 @@ namespace MS { namespace Garrison
         {
             if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
             {
-                GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+                GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
                 if (l_AI == nullptr)
                     return true;

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -33,7 +24,7 @@ enum Spells
     SPELL_FLAME_BEACON          = 74453,
     SPELL_CONFLAGRATION_2       = 74454, // Unknown dummy effect
     SPELL_ENRAGE                = 78722,
-    SPELL_FLAME_BREATH          = 74403,
+    SPELL_FLAME_BREATH          = 74403
 };
 
 enum Events
@@ -46,7 +37,7 @@ enum Events
     EVENT_AIR_MOVEMENT          = 6,
 
     // Event group
-    EVENT_GROUP_LAND_PHASE      = 1,
+    EVENT_GROUP_LAND_PHASE      = 1
 };
 
 enum MovementPoints
@@ -59,7 +50,7 @@ enum MovementPoints
 
 enum Misc
 {
-    SOUND_ID_DEATH              = 17531,
+    SOUND_ID_DEATH              = 17531
 };
 
 Position const SavianaRagefireFlyOutPos  = {3155.51f, 683.844f, 95.0f,   4.69f};
@@ -221,7 +212,7 @@ class spell_saviana_conflagration_init: public SpellScriptLoader
 
         class spell_saviana_conflagration_init_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_saviana_conflagration_init_SpellScript);
+            PrepareSpellScript(spell_saviana_conflagration_init_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -258,7 +249,7 @@ class spell_saviana_conflagration_throwback: public SpellScriptLoader
 
         class spell_saviana_conflagration_throwback_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_saviana_conflagration_throwback_SpellScript);
+            PrepareSpellScript(spell_saviana_conflagration_throwback_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -279,9 +270,11 @@ class spell_saviana_conflagration_throwback: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_saviana_ragefire()
 {
     new boss_saviana_ragefire();
     new spell_saviana_conflagration_init();
     new spell_saviana_conflagration_throwback();
 }
+#endif

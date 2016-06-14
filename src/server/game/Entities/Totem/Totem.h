@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TOTEM_H
 #define TOTEM_H
@@ -53,7 +43,7 @@ class Totem : public Minion
         void UpdateMaxHealth() {}
         void UpdateMaxPower(Powers /*power*/) {}
         void UpdateAttackPowerAndDamage(bool /*ranged*/) {}
-        void UpdateDamagePhysical(WeaponAttackType /*attType*/, bool l_IsNoLongerDualWielding = false) {} ///< l_IsNoLongerDualWielding is unused
+        void UpdateDamagePhysical(WeaponAttackType /*attType*/, bool /*l_IsNoLongerDualWielding = false*/) { }
 
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const;
 

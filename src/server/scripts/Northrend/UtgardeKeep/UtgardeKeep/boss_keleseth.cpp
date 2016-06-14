@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Prince_Keleseth
@@ -68,7 +59,7 @@ enum KelsethEncounter
 
 float const SkeletonSpawnPoint[1][2] =
 {
-    {156.2559f, 259.2093f},
+    {156.2559f, 259.2093f}
 };
 
 float AttackLoc[3]= {197.636f, 194.046f, 40.8164f};
@@ -265,7 +256,7 @@ public:
 
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage >= me->GetHealth())
             {
@@ -379,6 +370,7 @@ class achievement_on_the_rocks : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_keleseth()
 {
     new boss_keleseth();
@@ -387,3 +379,4 @@ void AddSC_boss_keleseth()
     new spell_frost_tomb();
     new achievement_on_the_rocks();
 }
+#endif

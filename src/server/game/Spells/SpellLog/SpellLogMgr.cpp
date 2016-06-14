@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ void SpellLogMgr::RemoveSpellFromListener(Player* p_Player, uint32 p_SpellID)
     }
 }
 
-void SpellLogMgr::LogSpell(Unit const* p_Caster, uint32 p_SpellID, char* p_String, ...)
+void SpellLogMgr::LogSpell(Unit const* p_Caster, uint32 p_SpellID, const char* p_String, ...)
 {
     if (m_Listeners.empty())
         return;
@@ -102,7 +102,7 @@ void SpellLogMgr::LogSpell(Unit const* p_Caster, uint32 p_SpellID, char* p_Strin
     }
 }
 
-void SpellLogMgr::LogSpell(Unit const* p_Caster, uint32 p_SpellID, uint32 p_SpellID2, char* p_String, ...)
+void SpellLogMgr::LogSpell(Unit const* p_Caster, uint32 p_SpellID, uint32 p_SpellID2, const char* p_String, ...)
 {
     if (m_Listeners.empty())
         return;

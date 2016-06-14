@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonAllianceLevel3.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -15,7 +16,7 @@
 
 enum
 {
-    GARRISON_PHASE_BASE = 0x0001,
+    GARRISON_PHASE_BASE = 0x0001
 };
 
 namespace MS { namespace Garrison { namespace Sites
@@ -61,7 +62,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// When instance script is updated
     /// @p_Diff : Time since last update
-    void InstanceScript_GarrisonAllianceLevel3::Update(uint32 p_Diff)
+    void InstanceScript_GarrisonAllianceLevel3::Update(uint32 /*p_Diff*/)
     {
 
     }
@@ -84,21 +85,21 @@ namespace MS { namespace Garrison { namespace Sites
     /// When the garrison owner started a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Started quest
-    void InstanceScript_GarrisonAllianceLevel3::OnQuestStarted(Player* p_Owner, const Quest* p_Quest)
+    void InstanceScript_GarrisonAllianceLevel3::OnQuestStarted(Player* /*p_Owner*/, const Quest* /*p_Quest*/)
     {
 
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Rewarded quest
-    void InstanceScript_GarrisonAllianceLevel3::OnQuestReward(Player * p_Owner, const Quest * p_Quest)
+    void InstanceScript_GarrisonAllianceLevel3::OnQuestReward(Player * /*p_Owner*/, const Quest * /*p_Quest*/)
     {
 
     }
     /// When the garrison owner abandon a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Abandoned quest
-    void InstanceScript_GarrisonAllianceLevel3::OnQuestAbandon(Player* p_Owner, const Quest* p_Quest)
+    void InstanceScript_GarrisonAllianceLevel3::OnQuestAbandon(Player* /*p_Owner*/, const Quest* /*p_Quest*/)
     {
 
     }
@@ -140,7 +141,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// Owner can use the garrison cache ?
     /// @p_Owner : Garrison owner
-    bool InstanceScript_GarrisonAllianceLevel3::CanUseGarrisonCache(Player* p_Owner)
+    bool InstanceScript_GarrisonAllianceLevel3::CanUseGarrisonCache(Player* /*p_Owner*/)
     {
         return true;
     }
@@ -151,7 +152,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// Can upgrade the garrison
     /// @p_Owner                : Garrison owner
     /// @p_CurrentGarrisonLevel : Current garrison level
-    bool InstanceScript_GarrisonAllianceLevel3::CanUpgrade(Player* p_Owner, uint32 p_CurrentGarrisonLevel)
+    bool InstanceScript_GarrisonAllianceLevel3::CanUpgrade(Player* /*p_Owner*/, uint32 p_CurrentGarrisonLevel)
     {
         if (p_CurrentGarrisonLevel != 3)
             return false;
@@ -161,7 +162,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// On upgrade the garrison
     /// @p_Owner : Garrison owner
-    void InstanceScript_GarrisonAllianceLevel3::OnUpgrade(Player* p_Owner)
+    void InstanceScript_GarrisonAllianceLevel3::OnUpgrade(Player* /*p_Owner*/)
     {
 
     }
@@ -173,7 +174,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID
     /// @p_Followers : Followers on the mission
-    void InstanceScript_GarrisonAllianceLevel3::OnMissionStart(Player* p_Owner, uint32 p_MissionID, std::vector<uint32> p_Followers)
+    void InstanceScript_GarrisonAllianceLevel3::OnMissionStart(Player* /*p_Owner*/, uint32 /*p_MissionID*/, std::vector<uint32> /*p_Followers*/)
     {
 
     }
@@ -181,7 +182,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner      : Garrison owner
     /// @p_BuildingID : Purchased building ID
     /// @p_BaseTime   : Default build time
-    uint32 InstanceScript_GarrisonAllianceLevel3::OnPrePurchaseBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
+    uint32 InstanceScript_GarrisonAllianceLevel3::OnPrePurchaseBuilding(Player* /*p_Owner*/, uint32 /*p_BuildingID*/, uint32 p_BaseTime)
     {
         return p_BaseTime;
     }
@@ -286,7 +287,7 @@ namespace MS { namespace Garrison { namespace Sites
         }
     }
 
-    void InstanceScript_GarrisonAllianceLevel3::OnDeleteBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BuildingType, bool p_RemoveForUpgrade)
+    void InstanceScript_GarrisonAllianceLevel3::OnDeleteBuilding(Player* p_Owner, uint32 /*p_BuildingID*/, uint32 p_BuildingType, bool p_RemoveForUpgrade)
     {
         if (p_RemoveForUpgrade)
             return;
@@ -313,7 +314,9 @@ namespace MS { namespace Garrison { namespace Sites
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_A3()
 {
     new MS::Garrison::Sites::InstanceMapScript_GarrisonAllianceLevel3();
 }
+#endif

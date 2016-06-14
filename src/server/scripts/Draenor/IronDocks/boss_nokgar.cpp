@@ -43,6 +43,8 @@ enum eMovementInformed
 enum eActions
 {
     ActionDismountHeroic    = 1,
+    ActionBarbedArrow       = 2,
+    ActionStop
 };
 
 enum eCreatures
@@ -132,7 +134,10 @@ public:
             EventFireArrows = 1,
             EventBarbedArrows,
             EventRecklessProvocation,
-            EventDismount
+            EventDismount,
+            EventLaunchArchers,
+            EventStopArchers,
+            EventBarbedArrowArchers
         };
 
         int8 m_Phase;
@@ -200,9 +205,7 @@ public:
                 }
 
                 if (me->HasAura(eNokgarSpells::SpellRecklessProvocation))
-                {
                     me->AddAura(eNokgarSpells::SpellIntimidated, p_Attacker);
-                }
             }
         }
 
@@ -210,7 +213,7 @@ public:
         {
             _EnterCombat();
             StopArchers();
-            LaunchArchers();
+            events.ScheduleEvent(eNokgarEvents::EventLaunchArchers, 10 * TimeConstants::IN_MILLISECONDS);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
             if (!IsHeroic())
                 events.ScheduleEvent(eNokgarEvents::EventDismount, 29 * TimeConstants::IN_MILLISECONDS);
@@ -287,6 +290,26 @@ public:
 
             switch (events.ExecuteEvent())
             {
+                case eNokgarEvents::EventLaunchArchers:
+                    LaunchArchers();
+                    events.ScheduleEvent(eNokgarEvents::EventStopArchers, 15 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                case eNokgarEvents::EventStopArchers:
+                {
+                    std::list<Creature*> l_Flameslingers;
+                    me->GetCreatureListWithEntryInGrid(l_Flameslingers, eIronDocksCreatures::CreatureGromkarFlameslinger, 200.0f);
+                    if (l_Flameslingers.empty())
+                        return;
+
+                    for (auto l_Itr : l_Flameslingers)
+                    {
+                        if (l_Itr->IsAIEnabled)
+                            l_Itr->GetAI()->DoAction(eActions::ActionStop);
+                    }
+
+                    events.ScheduleEvent(eNokgarEvents::EventLaunchArchers, 20 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                }
                 case eNokgarEvents::EventDismount:
                 {
                     if (m_Instance != nullptr)
@@ -301,27 +324,28 @@ public:
                     }
 
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                    {
                         me->Attack(l_Target, true);
-             
-                    m_Dismounted = true;
-                    events.SetPhase(1);
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                    events.ScheduleEvent(eNokgarEvents::EventRecklessProvocation, 10 * TimeConstants::IN_MILLISECONDS);
-                    break;
+                        me->GetMotionMaster()->MoveChase(l_Target);
+
+                        m_Dismounted = true;
+                        events.SetPhase(1);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        events.ScheduleEvent(eNokgarEvents::EventRecklessProvocation, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
                 }
                 case eNokgarEvents::EventRecklessProvocation:
                 {
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
-                        me->Attack(l_Target, true);
-
                     Talk(eTalks::SaySpell03);
                     me->MonsterTextEmote("Fleshrender Nok'gar casts |cffff0000[Reckless Provocation]|cfffaeb00!", me->GetGUID());
                     me->CastSpell(me, eNokgarSpells::SpellRecklessProvocation);
-                    events.ScheduleEvent(eNokgarEvents::EventRecklessProvocation, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                    events.CancelEvent(eNokgarEvents::EventRecklessProvocation);
+                    events.ScheduleEvent(eNokgarEvents::EventRecklessProvocation, 20 * TimeConstants::IN_MILLISECONDS);
                 }
                 default:
                     break;
-            }
+                }
 
             DoMeleeAttackIfReady();
         }
@@ -344,6 +368,7 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
             iron_docks_nokgar_mob_dreadfangAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_Vehicle(p_Creature->GetVehicleKit())
             {
                 m_First = false;
+                m_Instance = me->GetInstanceScript();
             }
 
             enum eDreadfangSpells
@@ -366,8 +391,12 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
             };
 
             Vehicle* m_Vehicle;
-            InstanceScript* m_Instance = me->GetInstanceScript();
+            InstanceScript* m_Instance;
             uint32 m_ShreddingStrikeTimer;
+            EventMap m_Events;
+            uint32 m_ShreddingAttackDiff;
+            uint32 m_BloodlettingHowlDiff;
+            uint32 m_SavageMaullingDiff;
             bool m_First;
             bool m_Dismounted;
             bool m_ShreddingStrikes;
@@ -379,6 +408,9 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                 m_Dead = false;
                 m_Dismounted = false;
                 m_ShreddingStrikes = false;      
+                m_ShreddingAttackDiff = 0;
+                m_BloodlettingHowlDiff = 0;
+                m_SavageMaullingDiff = 0;
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                 m_ShreddingStrikeTimer = 1 * TimeConstants::IN_MILLISECONDS;
                 me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
@@ -389,14 +421,14 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                 me->GetCreatureListWithEntryInGrid(l_ListFlameSlingers, eIronDocksCreatures::CreatureGromkarFlameslinger, 200.0f);
                 if (!l_ListFlameSlingers.empty())
                 {
-                    for (auto l_Itr : l_ListFlameSlingers)
+                    for (Creature* l_Itr : l_ListFlameSlingers)
                     {
                         if (l_Itr->IsAIEnabled)
                             l_Itr->GetAI()->Reset();
                     }
                 }
                 DespawnCreaturesInArea(eIronDocksCreatures::CreatureFleshrenderNokgar, me);
-                events.ScheduleEvent(eDreadfangEvents::EventInstallAccessories, 3 * TimeConstants::IN_MILLISECONDS);
+             
                 if (Creature* l_Nokgar = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataNokgar)))
                 {
                     if (l_Nokgar->IsAIEnabled)
@@ -404,14 +436,19 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                 }            
             }
 
+            void JustReachedHome() override
+            {
+                events.ScheduleEvent(eDreadfangEvents::EventInstallAccessories, 3 * TimeConstants::IN_MILLISECONDS);
+            }
+
             void EnterCombat(Unit* p_Who) override
             {
                 if (Creature* l_Nokgar = me->FindNearestCreature(eIronDocksCreatures::CreatureFleshrenderNokgar, 100.0f, true))
-                    l_Nokgar->Attack(p_Who, true);
-
-                events.ScheduleEvent(eDreadfangEvents::EventSavageMauling, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eDreadfangEvents::EventBloodlettingHowl, 20 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eDreadfangEvents::EventShreddingSwipes,  30 * TimeConstants::IN_MILLISECONDS);
+                    l_Nokgar->Attack(p_Who, true);                  
+  
+                m_ShreddingAttackDiff = 50 * TimeConstants::IN_MILLISECONDS;
+                m_BloodlettingHowlDiff = urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS);
+                m_SavageMaullingDiff = 20 * TimeConstants::IN_MILLISECONDS;            
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -473,17 +510,22 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                 if (p_Id == eMovementInformed::MovementInformDreadfangShreddingStrikes)
                 {
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                    {
                         me->Attack(l_Target, true);
+                    }
 
                     m_ShreddingStrikes = false;
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                     me->RemoveAura(eDreadfangSpells::SpellShreddingSwipesAuraRemove); // Visual
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
                 }
+
                 if (p_Id == eMovementInformed::MovementInformDreadfangFranticMauling)
                 {
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                    {
                         me->Attack(l_Target, true);
+                    }
                 }
             }
 
@@ -508,13 +550,13 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                         JadeCore::AnyPlayerInObjectRangeCheck l_Check(me, 2.0f);
                         JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> l_Searcher(me, l_PlayerList, l_Check);
                         me->VisitNearbyObject(2.0f, l_Searcher);
-                        if (l_PlayerList.empty())
-                            return;
-
-                        for (auto l_Itr : l_PlayerList)
+                        if (!l_PlayerList.empty())
                         {
-                            if (me->isInFront(l_Itr, M_PI))
-                                l_Itr->AddAura(eDreadfangSpells::SpellShreddingSwipesDot, l_Itr);
+                            for (Player* l_Itr : l_PlayerList)
+                            {
+                                if (me->isInFront(l_Itr, M_PI))
+                                    l_Itr->AddAura(eDreadfangSpells::SpellShreddingSwipesDot, l_Itr);
+                            }
                         }
 
                         m_ShreddingStrikeTimer = 1 * TimeConstants::IN_MILLISECONDS;
@@ -522,27 +564,68 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                     else
                         m_ShreddingStrikeTimer -= p_Diff;
                 }
+  
+               // if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || m_ShreddingStrikes)
+                  //  return;
 
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                    return;
-
-                if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                if (m_SavageMaullingDiff <= p_Diff)
                 {
-                    if (!me->IsWithinMeleeRange(l_Victim))
-                        me->GetMotionMaster()->MoveChase(l_Victim);
-                }
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 50.0f, true))
+                    {
+                        me->Attack(l_Target, true);
+                        me->GetMotionMaster()->MoveChase(l_Target);
 
+                        me->CastSpell(l_Target, eDreadfangSpells::SpellSavageMauling);
+                        me->GetMotionMaster()->MoveJump(*l_Target, 8.0, 4.0f, eMovementInformed::MovementInformDreadfangFranticMauling);
+                    }
+
+                    m_SavageMaullingDiff = urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS);
+                }
+                else
+                    m_SavageMaullingDiff -= p_Diff;
+
+
+                if (m_BloodlettingHowlDiff <= p_Diff)
+                {
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 50.0f, true))
+                        me->CastSpell(me, eDreadfangSpells::SpellBloodlettingHowl);
+
+                    m_BloodlettingHowlDiff = 25 * TimeConstants::IN_MILLISECONDS;
+                }
+                else
+                    m_BloodlettingHowlDiff -= p_Diff;
+
+
+                if (m_ShreddingAttackDiff <= p_Diff)
+                {
+                    m_ShreddingStrikes = true;
+                    m_ShreddingStrikeTimer = 1 * TimeConstants::IN_MILLISECONDS;
+                    me->SetReactState(ReactStates::REACT_PASSIVE);
+                    me->AddAura(eDreadfangSpells::SpellShreddingSwipesAuraRemove, me);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 50.0f, true))
+                        me->GetMotionMaster()->MovePoint(eMovementInformed::MovementInformDreadfangShreddingStrikes, l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ());
+
+                    m_ShreddingAttackDiff = 50 * TimeConstants::IN_MILLISECONDS;
+                }
+                else
+                    m_ShreddingAttackDiff -= p_Diff;
+
+
+                /*
                 switch (events.ExecuteEvent())
                 {
                     case eDreadfangEvents::EventSavageMauling:
                         {
-                            if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 50.0f, true))
                             {
-                                me->GetMotionMaster()->MoveJump(*l_Target, 8.0, 4.0f, eMovementInformed::MovementInformDreadfangFranticMauling);
                                 me->Attack(l_Target, true);
+
                                 me->CastSpell(l_Target, eDreadfangSpells::SpellSavageMauling);
-                                events.ScheduleEvent(eDreadfangEvents::EventSavageMauling, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                                me->GetMotionMaster()->MoveJump(*l_Target, 8.0, 4.0f, eMovementInformed::MovementInformDreadfangFranticMauling);                                                                
                             }
+
+                            events.ScheduleEvent(eDreadfangEvents::EventSavageMauling, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
                             break;
                         }
                     case eDreadfangEvents::EventBloodlettingHowl:
@@ -566,6 +649,7 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                         default:
                             break;
                 }
+                */
 
                 DoMeleeAttackIfReady();
             }
@@ -611,28 +695,29 @@ class iron_docks_nokgar_mob_flameslinger : public CreatureScript
             };
 
             InstanceScript* m_Instance;
-            uint8 m_Shots01;
-            uint8 m_Shots02;
 
             void Reset() override
             {          
-                m_Shots01 = 0;
-                m_Shots02 = 0;
-                events.Reset();
-                me->SetDisableGravity(true);
+                events.Reset();                 
                 me->SetHover(true);
+                me->SetCanFly(true);
                 me->RemoveAllAuras();
+                me->SetDisableGravity(true);
                 me->setFaction(HostileFaction);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);            
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);            
             }
 
             void DoAction(int32 const p_Action) override
             {
                 switch (p_Action)
                 {
+                    case eActions::ActionStop:
+                        events.Reset();
+                        me->CombatStop();
+                        break;
                     case eIronDocksActions::ActionFireArrows:
-                        events.ScheduleEvent(eFlameslingerEvents::EventBurningArrow, 2 * TimeConstants::IN_MILLISECONDS);
-                        events.ScheduleEvent(eFlameslingerEvents::EventBarbedArrows, 6 * TimeConstants::IN_MILLISECONDS);
+                        me->SetInCombatWithZone();
+                        events.ScheduleEvent(eFlameslingerEvents::EventBurningArrow, 5 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eIronDocksActions::ActionBurningArrowSingle:
                         if (Player* l_Target = me->FindNearestPlayer(200.0f, true))
@@ -653,55 +738,25 @@ class iron_docks_nokgar_mob_flameslinger : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eFlameslingerEvents::EventBurningArrow:
-                            {
-                                if (Player* l_Target = me->FindNearestPlayer(400.0f, true))
-                                    me->CastSpell(l_Target, eFlameslingerSpells::SpellBurningArrow, true);
-              
-                                m_Shots01++;
-                                if (m_Shots01 >= 4)
-                                {
-                                    m_Shots01 = 0;
-                                    events.CancelEvent(eFlameslingerEvents::EventBurningArrow);
-                                    events.ScheduleEvent(eFlameslingerEvents::EventBurningArrowCheck, 500);
-                                }
-                                events.ScheduleEvent(eFlameslingerEvents::EventBurningArrow, 40 * TimeConstants::IN_MILLISECONDS);
-                                break;
-                            }
-                        case eFlameslingerEvents::EventBarbedArrows:
-                            {
-                                if (Player* l_Target = me->FindNearestPlayer(400.0f, true))
-                                    me->CastSpell(l_Target, eFlameslingerSpells::SpellBarbedArrowMissile, true);
-            
-                                m_Shots02++;
-                                if (m_Shots02 >= 4)
-                                {
-                                    m_Shots02 = 0;
-                                    events.CancelEvent(eFlameslingerEvents::EventBarbedArrows);
-                                    events.ScheduleEvent(eFlameslingerEvents::EventBurningArrowCheck, 500);
-                                }
-                                events.ScheduleEvent(eFlameslingerEvents::EventBarbedArrows, 25 * TimeConstants::IN_MILLISECONDS);
-                                break;
-                            }
-                        case eFlameslingerEvents::EventBurningArrowCheck:
-                            {
-                                if (m_Instance != nullptr)
-                                {
-                                    if (Creature* l_Nokgar = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataNokgar)))
-                                    {
-                                        if (l_Nokgar->IsAIEnabled)
-                                            l_Nokgar->AI()->Talk(eTalks::SayAggro);
-                                    }
-                                }
+                case eFlameslingerEvents::EventBurningArrow:
+                {
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 200.0f, true))
+                        me->CastSpell(l_Target, eFlameslingerSpells::SpellBurningArrow, true);
 
-                                m_Shots02 = 0;
-                                m_Shots01 = 0;
-                                events.ScheduleEvent(eFlameslingerEvents::EventBarbedArrows, 25 * TimeConstants::IN_MILLISECONDS);
-                                events.ScheduleEvent(eFlameslingerEvents::EventBurningArrow, 40 * TimeConstants::IN_MILLISECONDS);
-                                break;
-                            }
-                            default:
-                                break;
+                    events.ScheduleEvent(eFlameslingerEvents::EventBurningArrow, 2 * TimeConstants::IN_MILLISECONDS);
+
+                    if (roll_chance_i(50))
+                    events.ScheduleEvent(eFlameslingerEvents::EventBarbedArrows, 5 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                }
+                case eFlameslingerEvents::EventBarbedArrows:
+                {
+                    if(Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 200.0f, true))
+                        me->CastSpell(l_Target, eFlameslingerSpells::SpellBarbedArrowMissile, true);
+                    break;
+                }
+                default:
+                    break;
                 }
             }
         };

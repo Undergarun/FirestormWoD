@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 Name: Boss_Vazruden_the_Herald
@@ -38,7 +28,7 @@ enum eSpells
     SPELL_REVENGE                 = 19130,
     SPELL_REVENGE_H               = 40392,
     SPELL_KIDNEY_SHOT             = 30621,
-    SPELL_FIRE_NOVA_VISUAL        = 19823,
+    SPELL_FIRE_NOVA_VISUAL        = 19823
 };
 
 enum eUnits
@@ -49,7 +39,7 @@ enum eUnits
     ENTRY_NAZAN                       = 17536,
     ENTRY_LIQUID_FIRE                 = 22515,
     ENTRY_REINFORCED_FEL_IRON_CHEST   = 185168,
-    ENTRY_REINFORCED_FEL_IRON_CHEST_H = 185169,
+    ENTRY_REINFORCED_FEL_IRON_CHEST_H = 185169
 };
 
 enum eSays
@@ -62,7 +52,7 @@ enum eSays
     SAY_KILL_1                    = -1543022,
     SAY_KILL_2                    = -1543023,
     SAY_DIE                       = -1543024,
-    EMOTE                         = -1543025,
+    EMOTE                         = -1543025
 };
 
 const float VazrudenMiddle[3] = {-1406.5f, 1746.5f, 81.2f};
@@ -509,6 +499,8 @@ class mob_hellfire_sentry : public CreatureScript
             return new mob_hellfire_sentryAI(creature);
         }
 };
+
+#ifndef __clang_analyzer__
 void AddSC_boss_vazruden_the_herald()
 {
     new boss_vazruden_the_herald();
@@ -516,4 +508,4 @@ void AddSC_boss_vazruden_the_herald()
     new boss_nazan();
     new mob_hellfire_sentry();
 }
-
+#endif

@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: boss_illidan_stormrage
@@ -163,7 +153,7 @@ enum CreatureEntry
     SPIRIT_OF_UDALO         =   23410,
     ILLIDARI_ELITE          =   23226,
     PARASITIC_SHADOWFIEND   =   23498,
-    CAGE_TRAP_TRIGGER       =   23292,
+    CAGE_TRAP_TRIGGER       =   23292
 };
 
 /*** Phase Names ***/
@@ -178,7 +168,7 @@ enum PhaseIllidan
     PHASE_TALK_SEQUENCE         =   6,
     PHASE_FLIGHT_SEQUENCE       =   7,
     PHASE_TRANSFORM_SEQUENCE    =   8,
-    PHASE_ILLIDAN_MAX           =   9,
+    PHASE_ILLIDAN_MAX           =   9
 }; // Maiev uses the same phase
 
 enum PhaseAkama
@@ -189,7 +179,7 @@ enum PhaseAkama
     PHASE_TALK              =   3,
     PHASE_FIGHT_ILLIDAN     =   4,
     PHASE_FIGHT_MINIONS     =   5,
-    PHASE_RETURN            =   6,
+    PHASE_RETURN            =   6
 };
 
 enum EventIllidan
@@ -219,7 +209,7 @@ enum EventIllidan
     // sequence phase
     EVENT_TALK_SEQUENCE         =   2,
     EVENT_FLIGHT_SEQUENCE       =   2,
-    EVENT_TRANSFORM_SEQUENCE    =   2,
+    EVENT_TRANSFORM_SEQUENCE    =   2
 };
 
 enum EventMaiev
@@ -229,7 +219,7 @@ enum EventMaiev
     EVENT_MAIEV_TAUNT           =   2,
     EVENT_MAIEV_SHADOW_STRIKE   =   3,
     EVENT_MAIEV_THROW_DAGGER    =   4,
-    EVENT_MAIEV_TRAP            =   4,
+    EVENT_MAIEV_TRAP            =   4
 };
 
 static const EventIllidan MaxTimer[9] =
@@ -592,7 +582,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage >= me->GetHealth() && done_by != me)
                 damage = 0;
@@ -1199,7 +1189,7 @@ public:
             IllidanGUID = guid;
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (done_by->GetGUID() != IllidanGUID)
                 damage = 0;
@@ -1483,7 +1473,7 @@ public:
                 Timer = 1;
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage > me->GetHealth() || done_by->GetGUID() != IllidanGUID)
                 damage = 0;
@@ -2286,6 +2276,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_illidan()
 {
     new boss_illidan_stormrage();
@@ -2298,3 +2289,4 @@ void AddSC_boss_illidan()
     new mob_shadow_demon();
     new mob_parasitic_shadowfiend();
 }
+#endif

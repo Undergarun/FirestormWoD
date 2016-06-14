@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -63,7 +52,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
                 
@@ -81,7 +70,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                     pInstance->SetBossState(DATA_THOK_THE_BLOODTHIRSTY, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -101,11 +90,11 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -154,7 +143,7 @@ class mob_korkron_jailer : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                 return;
@@ -187,7 +176,7 @@ class mob_akolik : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -220,7 +209,7 @@ class mob_waterspeaker_gorai : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -253,7 +242,7 @@ class mob_montak : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -266,6 +255,7 @@ class mob_montak : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_thok_the_bloodthirsty()
 {
     new boss_thok_the_bloodthirsty();
@@ -274,3 +264,4 @@ void AddSC_thok_the_bloodthirsty()
     new mob_waterspeaker_gorai();
     new mob_montak();
 };
+#endif

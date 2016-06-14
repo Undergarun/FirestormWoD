@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "AAlchemyLab.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -13,24 +14,24 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 77363 - Mary Kearie                                               ////
     //////////////////////////////////////////////////////////////////////////
     namespace npc_MaryKearieAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -38,7 +39,7 @@ namespace MS { namespace Garrison
         char ScriptName[] = "npc_MaryKearie_Garr";
 
         std::vector<RecipesConditions> Recipes
-        { 
+        {
             { 156582,     0 },
             { 156585,     0 },
             { 156577, 27405 },
@@ -64,17 +65,17 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_PeterKearieAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -111,9 +112,9 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_PeterKearie::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_PeterKearie::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
-        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+        GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 
         if (l_AI == nullptr)
             return true;

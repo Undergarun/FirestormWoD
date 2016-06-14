@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 Name: list_commandscript
@@ -416,7 +407,7 @@ public:
         return true;
     }
 
-    static bool HandleListAurasCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleListAurasCommand(ChatHandler* handler, char const* args)
     {
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
@@ -433,7 +424,7 @@ public:
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());
         for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         {
-            bool talent = false;// GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
+            bool talent = sSpellMgr->IsTalent(itr->second->GetBase()->GetId());
 
             AuraApplication const* aurApp = itr->second;
             Aura const* aura = aurApp->GetBase();
@@ -449,16 +440,24 @@ public:
                 GUID_LOPART(aura->GetCasterGUID()));
         }
 
-        for (uint16 i = 0; i < TOTAL_AURAS; ++i)
+        char* triggeredStr = strtok((char*)args, " ");
+        if (triggeredStr)
         {
-            Unit::AuraEffectList const& auraList = unit->GetAuraEffectsByType(AuraType(i));
-            if (auraList.empty())
-                continue;
+            int l = strlen(triggeredStr);
+            if (strncmp(triggeredStr, "type", l) == 0)
+            {
+                for (uint16 i = 0; i < TOTAL_AURAS; ++i)
+                {
+                    Unit::AuraEffectList const& auraList = unit->GetAuraEffectsByType(AuraType(i));
+                    if (auraList.empty())
+                        continue;
 
-            handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, auraList.size(), i);
+                    handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, auraList.size(), i);
 
-            for (Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
-                handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(), (*itr)->GetAmount());
+                    for (Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
+                        handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(), (*itr)->GetAmount());
+                }
+            }
         }
 
         return true;
@@ -510,11 +509,11 @@ public:
                     std::string subject     = fields[5].GetString();
                     uint64 deliverTime      = fields[6].GetUInt32();
                     uint64 expireTime       = fields[7].GetUInt32();
-                    uint32 money            = fields[8].GetUInt32();
+                    uint64 money            = fields[8].GetUInt64();
                     int hasItem             = fields[9].GetUInt8();
-                    uint32 gold = money /GOLD;
-                    uint32 silv = (money % GOLD) / SILVER;
-                    uint32 copp = (money % GOLD) % SILVER;
+                    uint64 gold = money /GOLD;
+                    uint64 silv = (money % GOLD) / SILVER;
+                    uint64 copp = (money % GOLD) % SILVER;
                     std::string receiverStr = handler->playerLink(receiver);
                     std::string senderStr = handler->playerLink(sender);
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_1 , messageId, subject.c_str(),gold, silv, copp);
@@ -574,7 +573,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_list_commandscript()
 {
     new list_commandscript();
 }
+#endif

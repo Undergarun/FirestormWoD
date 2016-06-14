@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -21,7 +21,10 @@ namespace Shadowmoon
     {
         NpcProphetVelen = 89319,
         NpcYrelSpawned  = 79219,
-        NpcYrelSummon   = 79656
+        NpcYrelSummon   = 79656,
+        JuicyMushroomA  = 78902,
+        JuicyMushroomB  = 78903,
+        JuicyMushroomC  = 78904
     };
 
     enum eGameObjects
@@ -59,7 +62,7 @@ namespace Shadowmoon
 
     enum eSpells
     {
-
+        Squeezing = 159303
     };
 }
 #endif

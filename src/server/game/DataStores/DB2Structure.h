@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2011 TrintiyCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_DB2STRUCTURE_H
 #define TRINITY_DB2STRUCTURE_H
@@ -25,11 +16,6 @@
 #include "Util.h"
 #include "SharedDefines.h"
 #include "ItemPrototype.h"
-
-#include <map>
-#include <set>
-#include <vector>
-#include <array>
 
 /// GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
@@ -308,10 +294,10 @@ struct CreatureDisplayInfoEntry
     //uint32    m_sounID;                                           ///< 2      m_SoundID
     uint32  ExtendedDisplayInfoID;                                  ///< 3      m_ExtendedDisplayInfoID
     float   scale;                                                  ///< 4      m_CreatureModelScale
-    //float     620_unk                                             ///< 5
+    //float     PlayerModelScale;                                   ///< 5      Used for players if greater than 0, see client's CGUnit_C::GetModelScale
     //uint32    m_creatureModelAlpha;                               ///< 6      m_CreatureModelAlpha
     //char*     m_textureName;                                      ///< 7-9    m_TextureVariation[3]
-    //char*     m_portraitTextureName ;                             ///< 10      m_PortraitTextureName
+    //char*     m_portraitTextureName ;                             ///< 10     m_PortraitTextureName
     //uint32    m_PortraitCreatureDisplayInfoID                     ///< 11     m_PortraitCreatureDisplayInfoID
     //uint32    m_SizeClass;                                        ///< 12     m_SizeClasss
     //uint32    m_BloodID;                                          ///< 13     m_BloodID
@@ -547,6 +533,36 @@ struct GarrPlotBuildingEntry
     uint32 BuildingID;                                              ///< 2
 };
 
+/*
+const char GarrFollowerEntryfmt[] = "
+n ID
+i Type
+i Creature0
+i Creature1
+i HordeUiAnimRaceInfoID
+i AllianceUiAnimRaceInfoID
+i Quality
+i HordeGarrClassSecID
+i AllianceGarrClassSecID
+i HordeGarrFollItemSetID
+i AllianceGarrFollItemSetID
+i Level
+i ItemLevelWeapon
+i ItemLevelArmor
+i Unk
+i Flags
+s HordeSourceText
+s AllinaceSourceText
+
+i HordePortraitIconID
+i AlliancePortraitIconID
+
+i HordeListPortraitTextureKitID
+i AllianceListPortraitTextureKitID
+x
+x";*/
+
+
 struct GarrFollowerEntry
 {
     uint32 ID;                                                      ///< 0
@@ -564,12 +580,12 @@ struct GarrFollowerEntry
     int32  ItemLevelArmor;                                          ///< 13
     uint32 Unk;                                                     ///< 14
     uint32 Flags;                                                   ///< 15
-    char * HordeSourceText;                                         ///< 16     Descr1 : zoneH (where you find this follower)
-    char * AllinaceSourceText;                                      ///< 17     Descr2 : zoneA (where you find this follower)
-    int32  Unk1;                                                    ///< 18     H
-    int32  Unk2;                                                    ///< 19     A
-    uint32 HordePortraitIconID;                                     ///< 20
-    uint32 AlliancePortraitIconID;                                  ///< 21
+    LocalizedString const* HordeSourceText;                         ///< 16     Descr1 : zoneH (where you find this follower)
+    LocalizedString const* AllinaceSourceText;                      ///< 17     Descr2 : zoneA (where you find this follower)
+    int32  HordePortraitIconID;                                     ///< 18
+    int32  AlliancePortraitIconID;                                  ///< 19
+    uint32 HordeListPortraitTextureKitID;                           ///< 20
+    uint32 AllianceListPortraitTextureKitID;                        ///< 21
 };
 
 struct GarrFollowerTypeEntry
@@ -696,12 +712,10 @@ struct CharShipmentContainerEntry
     uint32 BuildingType;                                            ///< 2
     LocalizedString const* Name;                                    ///< 3
     uint32 TextureKitID;                                            ///< 4
-    uint32 Unk2;                                                    ///< 5
-    uint32 Unk3;                                                    ///< 6
-    uint32 Unk4;                                                    ///< 7
-    uint32 Unk5;                                                    ///< 8
-    uint32 Unk6;                                                    ///< 9
-    uint32 Unk7;                                                    ///< 10
+    uint32 OverrideDisplayIfNotNull;                                ///< 5 - shipyard override displayID
+    uint32 OverrideDisplayID1;                                      ///< 6
+    uint32 OverrideIfAmountMet[2];                                  ///< 7-8
+    uint32 ShipmentAmountNeeded[2];                                 ///< 9-10
     LocalizedString const* Description;                             ///< 11
     uint32 Unk8;                                                    ///< 12
     uint32 Unk9;                                                    ///< 13
@@ -1299,6 +1313,44 @@ enum class PackageItemRewardType : uint8
     NoRequire            = 3
 };
 
+struct QuestV2CliTaskEntry
+{
+    uint32 QuestID;                                          // 0
+    uint32 Unk1;                                             // 1
+    uint32 Unk2;                                             // 2
+    uint32 Unk3;                                             // 3
+    uint32 Unk4;                                             // 4
+    uint32 Unk5;                                             // 5
+    uint32 Unk6;                                             // 6
+    uint32 Unk7;                                             // 7
+    uint32 Unk8;                                             // 8
+    uint32 Unk9;                                             // 9
+    uint32 Unk10;                                            // 10
+    uint32 Unk11;                                            // 11
+    uint32 Unk12;                                            // 12
+    uint32 Unk13;                                            // 13
+    uint32 Level;                                            // 14
+    uint32 Unk14;                                            // 15
+    uint32 Unk15;                                            // 16
+    uint32 Unk16;                                            // 17
+    uint32 Unk17;                                            // 18
+    uint32 Unk18;                                            // 19
+    char * Name;                                             // 20
+    uint32 Unk19;                                            // 21
+    uint32 Unk20;                                            // 22
+};
+
+struct QuestPOIPointCliTaskEntry
+{
+    uint32 ID;                                              // 0
+    uint32 X;                                               // 1
+    uint32 Y;                                               // 2
+    uint32 Floor;                                           // 3
+    uint32 QuestID;                                         // 4
+    uint32 MapID;                                           // 5
+    uint32 AreaID;                                          // 6
+};
+
 ////////////////////////////////////////////////////////////////////
 /// Scaling DB2
 ////////////////////////////////////////////////////////////////////
@@ -1398,9 +1450,18 @@ struct SpellItemEnchantmentConditionEntry
 
 struct SpellProcsPerMinuteEntry
 {
-    uint32 Id;                                                      ///< 0        m_ID
-    float  ProcsPerMinute;                                          ///< 1        m_procsPerMinute
-    //bool unk;                                                     ///< 2
+    uint32 ID;
+    float BaseProcRate;
+    uint32 Flags;
+};
+
+struct SpellProcsPerMinuteModEntry
+{
+    uint32 ID;
+    uint32 Type;
+    uint32 Param;
+    float Coeff;
+    uint32 SpellProcsPerMinuteID;
 };
 
 struct SpellRadiusEntry

@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2013 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptedCreature.h"
 #include "terrace_of_endless_spring.h"
@@ -42,7 +31,7 @@ class npc_springtender_ashani : public CreatureScript
         {
             npc_springtender_ashaniAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void sGossipSelect(Player* player, uint32 sender, uint32 action)
+            void sGossipSelect(Player* /*player*/, uint32 sender, uint32 action)
             {
                 if (sender == ASHANI_LAST_GOSSIP && action == ASHANI_LAST_OPTION)
                 {
@@ -123,7 +112,7 @@ class npc_apparition_of_fear : public CreatureScript
                     pInstance->SetData(INTRO_DONE, 0);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // Schedule Combat event here
                 events.Reset();
@@ -142,7 +131,7 @@ class npc_apparition_of_fear : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 std::list<Creature*> fear;
                 me->GetCreatureListWithEntryInGrid(fear, NPC_APPARITION_OF_FEAR, 100.0f);
@@ -274,7 +263,7 @@ class npc_apparition_of_terror : public CreatureScript
                     pInstance->SetData(INTRO_DONE, 0);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // Schedule Combat event here
                 events.Reset();
@@ -292,7 +281,7 @@ class npc_apparition_of_terror : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 std::list<Creature*> fear;
                 me->GetCreatureListWithEntryInGrid(fear, NPC_APPARITION_OF_FEAR, 100.0f);
@@ -410,7 +399,7 @@ class mob_night_terrors : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void UpdateAI(const uint32 diff) { }
+            void UpdateAI(const uint32 /*p_Diff*/) { }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -487,7 +476,7 @@ class spell_night_terrors_missile : public SpellScriptLoader
         {
             PrepareSpellScript(spell_night_terrors_missile_SpellScript);
 
-            void SummonNightTerrors(SpellEffIndex effIndex)
+            void SummonNightTerrors(SpellEffIndex /*effIndex*/)
             {
                 PreventHitDefaultEffect(EFFECT_0);
 
@@ -520,7 +509,7 @@ class spell_night_terrors_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_night_terrors_periodic_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -543,6 +532,7 @@ class spell_night_terrors_periodic : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_terrace_of_endless_spring()
 {
     new npc_springtender_ashani();
@@ -553,3 +543,4 @@ void AddSC_terrace_of_endless_spring()
     new spell_night_terrors_missile();
     new spell_night_terrors_periodic();
 }
+#endif

@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2011 TrintiyCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_DB2STORES_H
 #define TRINITY_DB2STORES_H
@@ -22,8 +13,6 @@
 #include "DB2fmt.h"
 #include "DB2Store.h"
 #include "DB2Structure.h"
-
-#include <list>
 
 extern std::map<uint32, DB2StorageBase*> sDB2PerHash;
 extern std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
@@ -56,6 +45,8 @@ extern DB2Storage <HeirloomEntry>                   sHeirloomStore;
 extern DB2Storage <PvpItemEntry>                    sPvpItemStore;
 extern std::map<uint32, uint32>                     g_PvPItemStoreLevels;
 
+extern DB2Storage <QuestV2CliTaskEntry>             sQuestV2CliTaskStore;
+extern DB2Storage <QuestPOIPointCliTaskEntry>       sQuestPOIPointCliTaskStore;
 extern DB2Storage <ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore;
 extern DB2Storage <ItemAppearanceEntry>             sItemAppearanceStore;
 extern DB2Storage <SpellReagentsEntry>              sSpellReagentsStore;
@@ -206,9 +197,11 @@ extern std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 extern std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
 extern std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
 extern std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
+extern std::unordered_map<uint32, std::vector<SpellProcsPerMinuteModEntry const*>> sSpellProcsPerMinuteMods;
 extern MountCapabilitiesMap sMountCapabilitiesMap;
 
 std::vector<ItemBonusEntry const*> const* GetItemBonusesByID(uint32 Id);
 void LoadDB2Stores(const std::string& dataPath);
+std::vector<SpellProcsPerMinuteModEntry const*> GetSpellProcsPerMinuteMods(uint32 spellprocsPerMinuteId);
 
 #endif

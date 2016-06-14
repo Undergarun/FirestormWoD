@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "WorldSession.h"
 #include "WorldPacket.h"
@@ -61,7 +52,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& p_Packet)
     if (!l_SlotCount)
         return;
 
-    const LFGDungeonEntry * l_Entry = sLFGDungeonStore.LookupEntry(*l_Slots.begin() & 0xFFFFFF);
+    const LFGDungeonEntry* l_Entry = sLFGDungeonStore.LookupEntry(*l_Slots.begin() & 0xFFFFFF);
 
     uint8 l_Type = TYPEID_DUNGEON;
     uint8 l_MaxGroupSize = 5;
@@ -586,7 +577,7 @@ void WorldSession::SendLfgQueueStatus(uint32 p_Dungeon, int32 p_WaitTime, int32 
     SendPacket(&l_Data);
 }
 
-void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 done, const LfgReward* reward, const Quest* p_Quest) ///< done & reward is unused
+void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 /*done*/, const LfgReward* /*reward*/, const Quest* p_Quest)
 {
     if (!rdungeonEntry || !sdungeonEntry || !p_Quest)
         return;
@@ -712,7 +703,7 @@ void WorldSession::SendLfgUpdateProposal(uint32 p_ProposalID, const LfgProposal 
             l_DungeonID = (*playerDungeons.begin());
     }
 
-    if (const LFGDungeonEntry * l_DungeonEntry = sLFGDungeonStore.LookupEntry(l_DungeonID))
+    if (const LFGDungeonEntry* l_DungeonEntry = sLFGDungeonStore.LookupEntry(l_DungeonID))
     {
         l_DungeonID = l_DungeonEntry->Entry();
 

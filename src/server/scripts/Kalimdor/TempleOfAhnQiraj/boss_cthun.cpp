@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Cthun
@@ -72,7 +62,7 @@ enum Phases
     PHASE_CTHUN_STOMACH                         = 4,
     PHASE_CTHUN_WEAK                            = 5,
 
-    PHASE_CTHUN_DONE                            = 6,
+    PHASE_CTHUN_DONE                            = 6
 };
 
 enum Creatures
@@ -90,7 +80,7 @@ enum Creatures
     MOB_GIANT_CLAW_TENTACLE                     = 15728,
     MOB_GIANT_EYE_TENTACLE                      = 15334,
     MOB_FLESH_TENTACLE                          = 15802,
-    MOB_GIANT_PORTAL                            = 15910,
+    MOB_GIANT_PORTAL                            = 15910
 };
 
 enum Spells
@@ -130,12 +120,12 @@ enum Spells
     //Stomach Spells
     SPELL_MOUTH_TENTACLE                        = 26332,
     SPELL_EXIT_STOMACH_KNOCKBACK                = 25383,
-    SPELL_DIGESTIVE_ACID                        = 26476,
+    SPELL_DIGESTIVE_ACID                        = 26476
 };
 
 enum Actions
 {
-    ACTION_FLESH_TENTACLE_KILLED                = 1,
+    ACTION_FLESH_TENTACLE_KILLED                = 1
 };
 
 enum Yells
@@ -146,7 +136,7 @@ enum Yells
     // ****** Out of Combat ******
     // Random Wispers - No txt only sound
     // The random sound is chosen by the client.
-    RANDOM_SOUND_WHISPER                        = 8663,
+    RANDOM_SOUND_WHISPER                        = 8663
 };
 
 //Stomach Teleport positions
@@ -159,7 +149,7 @@ enum Yells
 const Position FleshTentaclePos[2] =
 {
     { -8571.0f, 1990.0f, -98.0f, 1.22f},
-    { -8525.0f, 1994.0f, -98.0f, 2.12f},
+    { -8525.0f, 1994.0f, -98.0f, 2.12f}
 };
 
 //Kick out position
@@ -431,7 +421,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             //No instance
             if (!instance)
@@ -526,7 +516,7 @@ public:
         uint64 StomachEnterTarget;
 
         //Stomach map, bool = true then in stomach
-        UNORDERED_MAP<uint64, bool> Stomach_Map;
+        std::unordered_map<uint64, bool> Stomach_Map;
 
         void Reset()
         {
@@ -580,7 +570,7 @@ public:
             if (Stomach_Map.empty())
                 return NULL;
 
-            UNORDERED_MAP<uint64, bool>::const_iterator i = Stomach_Map.begin();
+            std::unordered_map<uint64, bool>::const_iterator i = Stomach_Map.begin();
 
             std::list<Unit*> temp;
             std::list<Unit*>::const_iterator j;
@@ -734,7 +724,7 @@ public:
 
                         DoCast(me, SPELL_PURPLE_COLORATION, true);
 
-                        UNORDERED_MAP<uint64, bool>::iterator i = Stomach_Map.begin();
+                        std::unordered_map<uint64, bool>::iterator i = Stomach_Map.begin();
 
                         //Kick all players out of stomach
                         while (i != Stomach_Map.end())
@@ -765,7 +755,7 @@ public:
                     if (StomachAcidTimer <= diff)
                     {
                         //Apply aura to all players in stomach
-                        UNORDERED_MAP<uint64, bool>::iterator i = Stomach_Map.begin();
+                        std::unordered_map<uint64, bool>::iterator i = Stomach_Map.begin();
 
                         while (i != Stomach_Map.end())
                         {
@@ -911,7 +901,7 @@ public:
                 instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_DONE);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             //No instance
             if (!instance)
@@ -1368,8 +1358,7 @@ public:
 
 };
 
-//GetAIs
-
+#ifndef __clang_analyzer__
 void AddSC_boss_cthun()
 {
     new boss_eye_of_cthun();
@@ -1380,3 +1369,4 @@ void AddSC_boss_cthun()
     new mob_giant_eye_tentacle();
     new mob_giant_flesh_tentacle();
 }
+#endif

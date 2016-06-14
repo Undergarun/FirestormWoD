@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Ashenvale
@@ -42,13 +32,13 @@ enum TorekSays
     SAY_MOVE                   = 1,
     SAY_PREPARE                = 2,
     SAY_WIN                    = 3,
-    SAY_END                    = 4,
+    SAY_END                    = 4
 };
 
 enum TorekSpells
 {
     SPELL_REND                  = 11977,
-    SPELL_THUNDERCLAP           = 8078,
+    SPELL_THUNDERCLAP           = 8078
 };
 
 enum TorekMisc
@@ -58,7 +48,7 @@ enum TorekMisc
     ENTRY_SPLINTERTREE_RAIDER   = 12859,
     ENTRY_DURIEL                = 12860,
     ENTRY_SILVERWING_SENTINEL   = 12896,
-    ENTRY_SILVERWING_WARRIOR    = 12897,
+    ENTRY_SILVERWING_WARRIOR    = 12897
 };
 
 class npc_torek : public CreatureScript
@@ -479,7 +469,7 @@ class go_naga_brazier : public GameObjectScript
             return true;
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_ashenvale()
 {
     new npc_torek();
@@ -487,3 +477,4 @@ void AddSC_ashenvale()
     new npc_muglash();
     new go_naga_brazier();
 }
+#endif

@@ -17,7 +17,7 @@ enum ScriptTexts
     SAY_CHOGALL_11    = 11,
     SAY_CHOGALL_12    = 12,
     SAY_CHOGALL_13    = 13,
-    SAY_CHOGALL_14    = 14,
+    SAY_CHOGALL_14    = 14
 };
 
 enum Spells
@@ -34,9 +34,9 @@ enum Spells
     SPELL_MIND_SEAR                = 85643,
     SPELL_MIND_SEAR_DMG            = 85647,
     SPELL_UMBRAL_FLAMES            = 85664,
-    SPELL_UMBRAL_FLAMES_DMG        = 85679,  
+    SPELL_UMBRAL_FLAMES_DMG        = 85679,
     SPELL_SHADOW_MENDING        = 85575,
-    SPELL_SHADOW_MENDING_HEAL    = 85577,
+    SPELL_SHADOW_MENDING_HEAL    = 85577
 };
 
 enum CreaturesIds
@@ -45,7 +45,7 @@ enum CreaturesIds
     NPC_TWILIGHT_PORTAL            = 45885,
     NPC_FACELESS_MINION            = 45703,
     NPC_TWILIGHT_SHIFTER        = 45687,
-    NPC_TWILIGHT_SHADOW_MENDER    = 45699,
+    NPC_TWILIGHT_SHADOW_MENDER    = 45699
 };
 
 enum Events
@@ -72,7 +72,7 @@ enum Events
     EVENT_COUNCIL_DLG_1                = 116,
     EVENT_COUNCIL_DLG_2                = 117,
     EVENT_COUNCIL_DLG_3                = 118,
-    EVENT_CHOGALL_DLG                = 119,
+    EVENT_CHOGALL_DLG                = 119
 };
 
 class npc_twilight_portal_shaper : public CreatureScript
@@ -113,12 +113,12 @@ public:
             summons.Despawn(summon);
         }
 
-        void JustDied(Unit* who)
+        void JustDied(Unit* /*who*/)
         {
             summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             events.ScheduleEvent(EVENT_SHADOW_BOLT, 1000);
             events.ScheduleEvent(EVENT_SHAPE_PORTAL, urand(10000, 15000));
@@ -175,7 +175,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             events.ScheduleEvent(EVENT_TWILIGHT_SHIFT, urand(5000, 15000));
         }
@@ -236,7 +236,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(me, SPELL_SHADOW_MENDING);
             events.ScheduleEvent(EVENT_UMBRAL_FLAMES, urand(10000, 13000));
@@ -545,7 +545,7 @@ public:
         return true;
     }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_bastion_of_twilight()
 {
     new npc_twilight_portal_shaper();
@@ -560,3 +560,4 @@ void AddSC_bastion_of_twilight()
     new at_bt_council_3();
     new at_bt_chogall();
 }
+#endif

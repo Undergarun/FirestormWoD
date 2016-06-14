@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptPCH.h"
 #include "forge_of_souls.h"
@@ -46,7 +37,7 @@ enum Yells
     SAY_FACE_DESIRE_WAILING_SOUL                  = -1632028,
 
     SAY_JAINA_OUTRO                               = -1632029,
-    SAY_SYLVANAS_OUTRO                            = -1632030,
+    SAY_SYLVANAS_OUTRO                            = -1632030
 };
 
 enum Spells
@@ -72,14 +63,14 @@ enum Events
     EVENT_UNLEASHED_SOULS       = 4,
     EVENT_WAILING_SOULS         = 5,
     EVENT_WAILING_SOULS_TICK    = 6,
-    EVENT_FACE_ANGER            = 7,
+    EVENT_FACE_ANGER            = 7
 };
 
 enum eEnum
 {
     DISPLAY_ANGER               = 30148,
     DISPLAY_SORROW              = 30149,
-    DISPLAY_DESIRE              = 30150,
+    DISPLAY_DESIRE              = 30150
 };
 
 struct outroPosition
@@ -167,7 +158,7 @@ class boss_devourer_of_souls : public CreatureScript
                 instance->SetData(DATA_DEVOURER_EVENT, IN_PROGRESS);
             }
 
-            void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (mirroredSoulTarget && me->HasAura(SPELL_MIRRORED_SOUL))
                 {
@@ -390,8 +381,10 @@ class achievement_three_faced : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_devourer_of_souls()
 {
     new boss_devourer_of_souls();
     new achievement_three_faced();
 }
+#endif

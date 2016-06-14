@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -87,7 +78,7 @@ enum HodirSpells
     // Priests
     SPELL_SMITE                                  = 61923,
     SPELL_GREATER_HEAL                           = 62809,
-    SPELL_DISPEL_MAGIC                           = 63499,
+    SPELL_DISPEL_MAGIC                           = 63499
 };
 
 #define SPELL_FROZEN_BLOWS  RAID_MODE(SPELL_FROZEN_BLOWS_10, SPELL_FROZEN_BLOWS_25)
@@ -118,13 +109,13 @@ enum HodirEvents
 
     // Mage
     EVENT_CONJURE_FIRE          = 12,
-    EVENT_MELT_ICE              = 13,
+    EVENT_MELT_ICE              = 13
 };
 
 enum HodirActions
 {
     ACTION_I_HAVE_THE_COOLEST_FRIENDS   = 1,
-    ACTION_CHEESE_THE_FREEZE            = 2,
+    ACTION_CHEESE_THE_FREEZE            = 2
 };
 
 enum HodirData
@@ -132,7 +123,7 @@ enum HodirData
     DATA_I_COULD_SAY_THAT_THIS_CACHE_WAS_RARE   = 1,
     DATA_GETTING_COLD_IN_HERE                   = 2,
     DATA_CHEESE_THE_FREEZE                      = 3,
-    DATA_I_HAVE_THE_COOLEST_FRIENDS             = 4,
+    DATA_I_HAVE_THE_COOLEST_FRIENDS             = 4
 };
 
 enum ModelIds
@@ -164,7 +155,7 @@ uint32 const Entry[8] =
     NPC_FIELD_MEDIC_JESSI,
     NPC_ELLIE_NIGHTFEATHER,
     NPC_ELEMENTALIST_AVUUN,
-    NPC_SISSY_FLAMECUFFS,
+    NPC_SISSY_FLAMECUFFS
 };
 
 class FreezeTrapSearcher
@@ -295,7 +286,7 @@ class npc_ice_block : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* who, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* who, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (Creature* Helper = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
@@ -417,7 +408,7 @@ class boss_hodir : public CreatureScript
                 return 0;
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1224,6 +1215,7 @@ class achievement_i_have_the_coolest_friends : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_hodir()
 {
     new boss_hodir();
@@ -1251,6 +1243,7 @@ void AddSC_boss_hodir()
     new achievement_i_have_the_coolest_friends("achievement_i_have_the_coolest_friends_25");
 }
 
+#endif
 #undef SPELL_FROZEN_BLOWS
 #undef SPELL_STORM_CLOUD
 #undef SPELL_STORM_POWER

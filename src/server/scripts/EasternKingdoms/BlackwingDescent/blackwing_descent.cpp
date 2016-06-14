@@ -126,7 +126,7 @@ enum Spells
     //spirit of anvilrage
     SPELL_BESTOWAL_OF_ANVILRAGE        = 80874,
     SPELL_SPIRIT_OF_ANVILRAGE        = 80768,
-    SPELL_STORMBOLT                    = 80648, //править
+    SPELL_STORMBOLT                    = 80648,
     SPELL_STORMBOLT_25                = 91890,
 
     //spirit of moltenfist
@@ -137,7 +137,7 @@ enum Spells
     //spirit of shadowforge
     SPELL_BESTOWAL_OF_SHADOWFORGE    = 80873,
     SPELL_SPIRIT_OF_SHADOWFORGE        = 80769,
-    SPELL_DWARVEN_CHAIN_LIGHTNING    = 80646, //править
+    SPELL_DWARVEN_CHAIN_LIGHTNING    = 80646,
     SPELL_DWARVEN_CHAIN_LIGHTNING_25= 91891,
 
     //lord victor nefarius

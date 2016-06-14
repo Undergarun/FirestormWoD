@@ -364,7 +364,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_shadopan_monastery()
 {
     new instance_shadopan_monastery();
 }
+#endif

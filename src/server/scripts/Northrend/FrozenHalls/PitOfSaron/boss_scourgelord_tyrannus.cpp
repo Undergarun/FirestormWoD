@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -46,7 +37,7 @@ enum Yells
     SAY_SYLVANAS_OUTRO_3            = -1658067,
     SAY_JAYNA_OUTRO_4               = -1658068,
     SAY_SYLVANAS_OUTRO_4            = -1658069,
-    SAY_JAYNA_OUTRO_5               = -1658070,
+    SAY_JAYNA_OUTRO_5               = -1658070
 };
 
 enum Spells
@@ -63,7 +54,7 @@ enum Spells
     SPELL_ICY_BLAST_AURA            = 69238,
 
     SPELL_EJECT_ALL_PASSENGERS      = 50630,
-    SPELL_FULL_HEAL                 = 43979,
+    SPELL_FULL_HEAL                 = 43979
 };
 
 enum Events
@@ -81,7 +72,7 @@ enum Events
     EVENT_INTRO_1           = 8,
     EVENT_INTRO_2           = 9,
     EVENT_INTRO_3           = 10,
-    EVENT_COMBAT_START      = 11,
+    EVENT_COMBAT_START      = 11
 };
 
 enum Phases
@@ -89,7 +80,7 @@ enum Phases
     PHASE_NONE      = 0,
     PHASE_INTRO     = 1,
     PHASE_COMBAT    = 2,
-    PHASE_OUTRO     = 3,
+    PHASE_OUTRO     = 3
 };
 
 enum Actions
@@ -97,7 +88,7 @@ enum Actions
     ACTION_START_INTRO      = 1,
     ACTION_START_RIMEFANG   = 2,
     ACTION_START_OUTRO      = 3,
-    ACTION_END_COMBAT       = 4,
+    ACTION_END_COMBAT       = 4
 };
 
 #define GUID_HOARFROST 1
@@ -113,7 +104,7 @@ static const Position rimefangPos[10] =
     {967.6233f, 168.9670f, 665.0453f, 0.000000f},
     {969.1198f, 140.4722f, 665.0453f, 0.000000f},
     {986.7153f, 141.6424f, 665.0453f, 0.000000f},
-    {1012.601f, 142.4965f, 665.0453f, 0.000000f},
+    {1012.601f, 142.4965f, 665.0453f, 0.000000f}
 };
 
 static const Position miscPos = {1018.376f, 167.2495f, 628.2811f, 0.000000f};   //tyrannus combat start position
@@ -424,7 +415,7 @@ class spell_tyrannus_overlord_brand: public SpellScriptLoader
 
         class spell_tyrannus_overlord_brand_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_tyrannus_overlord_brand_AuraScript);
+            PrepareAuraScript(spell_tyrannus_overlord_brand_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -470,7 +461,7 @@ class spell_tyrannus_mark_of_rimefang: public SpellScriptLoader
 
         class spell_tyrannus_mark_of_rimefang_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_tyrannus_mark_of_rimefang_AuraScript);
+            PrepareAuraScript(spell_tyrannus_mark_of_rimefang_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -517,6 +508,7 @@ class at_tyrannus_event_starter : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_tyrannus()
 {
     new boss_tyrannus();
@@ -525,3 +517,4 @@ void AddSC_boss_tyrannus()
     new spell_tyrannus_mark_of_rimefang();
     new at_tyrannus_event_starter();
 }
+#endif

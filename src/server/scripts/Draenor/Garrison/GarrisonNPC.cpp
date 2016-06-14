@@ -1,11 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2014-2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common.h"
 #include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -57,413 +58,8 @@
 #include "Buildings/Horde/HFrostwallMines.hpp"
 #include "Buildings/Horde/HHerbGarden.hpp"
 
-#include <random>
-
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
-    /// Constructor
-    GarrisonNPCAI::GarrisonNPCAI(Creature* p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Owner(nullptr)
-    {
-
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Set to relative position from building
-    /// @p_X : Relative X
-    /// @p_Y : Relative Y
-    /// @p_Z : Relative Z
-    void GarrisonNPCAI::MoveBuildingRelative(uint32 p_PointID, float p_X, float p_Y, float p_Z)
-    {
-        if (!m_PlotInstanceLocation)
-            return;
-
-        G3D::Vector3 l_Position = G3D::Vector3(p_X, p_Y, 0);
-
-        G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
-        l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), m_PlotInstanceLocation->O);
-
-        l_Position.x += m_NonRotatedPlotPosition.x;
-        l_Position.y += m_NonRotatedPlotPosition.y;
-
-        l_Position = l_Mat * l_Position;
-
-        l_Position.z = p_Z + m_PlotInstanceLocation->Z;
-
-        me->GetMotionMaster()->MovePoint(p_PointID, l_Position.x, l_Position.y, l_Position.z);
-    }
-
-    /// Set facing to relative angle from the building
-    /// @p_O : Relative angle
-    void GarrisonNPCAI::SetFacingBuildingRelative(float p_O)
-    {
-        float l_Angle = p_O;
-
-        if (m_PlotInstanceLocation)
-            l_Angle += m_PlotInstanceLocation->O;
-
-        me->SetFacingTo(Position::NormalizeOrientation(l_Angle));
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Set NPC recipes
-    /// @p_Recipes          : Recipes
-    /// @p_RecipesSkillID   : Skill line ID
-    void GarrisonNPCAI::SetRecipes(std::vector<RecipesConditions> p_Recipes, uint32 p_RecipesSkillID)
-    {
-        m_Recipes           = p_Recipes;
-        m_RecipesSkillID    = p_RecipesSkillID;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Get building ID
-    uint32 GarrisonNPCAI::GetBuildingID()
-    {
-        return m_BuildingID;
-    }
-
-    /// Get plot instance ID
-    uint32 GarrisonNPCAI::GetPlotInstanceID()
-    {
-        return m_PlotInstanceLocation ? m_PlotInstanceLocation->PlotInstanceID : 0;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Setup action sequence
-    /// @p_CoordTable       : Coordinates table
-    /// @p_SequenceTable    : Sequence table
-    /// @p_SequenceSize     : Size of sequence table,
-    /// @p_FirstMovePointID : First move point ID
-    void GarrisonNPCAI::SetupActionSequence(SequencePosition* p_CoordTable, uint8* p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID)
-    {
-        m_CoordTable        = p_CoordTable;
-        m_SequencePosition  = 0xFF;
-        m_SequenceTable     = p_SequenceTable;
-        m_SequenceSize      = p_SequenceSize;
-        m_FirstMovePointID  = p_FirstMovePointID;
-    }
-
-    /// Do next sequence element
-    void GarrisonNPCAI::DoNextSequenceAction()
-    {
-        if (!m_SequenceSize)
-            return;
-
-        if (m_SequencePosition >= m_SequenceSize)
-            m_SequencePosition = 0;
-
-        m_DelayedOperations.push([this]() -> void
-        {
-            me->SetWalk(true);
-
-            uint32 l_LocationID = m_SequenceTable[m_SequencePosition] - m_FirstMovePointID;
-            MoveBuildingRelative( m_SequenceTable[m_SequencePosition], m_CoordTable[l_LocationID].X,
-                                                                       m_CoordTable[l_LocationID].Y,
-                                                                       m_CoordTable[l_LocationID].Z);
-
-            m_SequencePosition++;
-        });
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Spawn a creature with building relative coords
-    /// @p_Entry      : Creature entry
-    /// @p_RelX       : X Relative coord
-    /// @p_RelY       : Y Relative coord
-    /// @p_RelZ       : Z Relative coord
-    /// @p_RelO       : Relative orientation coord
-    /// @p_SummonType : Summon type
-    Creature* GarrisonNPCAI::SummonRelativeCreature(uint32 p_Entry, float p_RelX, float p_RelY, float p_RelZ, float p_RelO, TempSummonType p_SummonType)
-    {
-        if (!m_PlotInstanceLocation)
-            return nullptr;
-
-        G3D::Vector3 l_Position = G3D::Vector3(p_RelX, p_RelY, 0);
-
-        G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
-        l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), m_PlotInstanceLocation->O);
-
-        l_Position.x += m_NonRotatedPlotPosition.x;
-        l_Position.y += m_NonRotatedPlotPosition.y;
-
-        l_Position = l_Mat * l_Position;
-
-        l_Position.z = p_RelZ + m_PlotInstanceLocation->Z;
-
-        float l_Angle = p_RelO;
-
-        if (m_PlotInstanceLocation)
-            l_Angle += m_PlotInstanceLocation->O;
-
-        return me->SummonCreature(p_Entry, l_Position.x, l_Position.y, l_Position.z, l_Angle, p_SummonType);
-    }
-
-    /// Spawn a creature with building relative coords
-    /// @p_Entry      : Creature entry
-    /// @p_Position   : Relative position of the creature
-    /// @p_SummonType : Summon type
-    Creature* GarrisonNPCAI::SummonRelativeCreature(uint32 p_Entry, SequencePosition p_Position, TempSummonType p_SummonType)
-    {
-        return SummonRelativeCreature(p_Entry, p_Position.X, p_Position.Y, p_Position.Z, p_Position.O, p_SummonType);
-    }
-
-    /// Spawn a gameobject with building relative coords
-    /// @p_Entry      : GameObject entry
-    /// @p_RelX       : X Relative coord
-    /// @p_RelY       : Y Relative coord
-    /// @p_RelZ       : Z Relative coord
-    /// @p_RelO       : Relative orientation coord
-    GameObject* GarrisonNPCAI::SummonRelativeGameObject(uint32 p_Entry, float p_RelX, float p_RelY, float p_RelZ, float p_RelO)
-    {
-        if (!m_PlotInstanceLocation)
-            return nullptr;
-
-        G3D::Vector3 l_Position = G3D::Vector3(p_RelX, p_RelY, 0);
-
-        G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
-        l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), m_PlotInstanceLocation->O);
-
-        l_Position.x += m_NonRotatedPlotPosition.x;
-        l_Position.y += m_NonRotatedPlotPosition.y;
-
-        l_Position = l_Mat * l_Position;
-
-        l_Position.z = p_RelZ + m_PlotInstanceLocation->Z;
-
-        float l_Angle = p_RelO;
-
-        if (m_PlotInstanceLocation)
-            l_Angle += m_PlotInstanceLocation->O;
-
-        return me->SummonGameObject(p_Entry, l_Position.x, l_Position.y, l_Position.z, l_Angle, 0, 0, 0, 0, 0);
-    }
-
-    /// Spawn a gameobject with building relative coords
-    /// @p_Entry      : GameObject entry
-    /// @p_RelX       : X Relative coord
-    /// @p_RelY       : Y Relative coord
-    /// @p_RelZ       : Z Relative coord
-    /// @p_RelO       : Relative orientation coord
-    GameObject* GarrisonNPCAI::SummonRelativeGameObject(uint32 p_Entry, const Position p_Position)
-    {
-        return SummonRelativeGameObject(p_Entry, p_Position.m_positionX, p_Position.m_positionY, p_Position.m_positionZ, p_Position.m_orientation);
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Transform coord
-    /// @p_X : X coord
-    /// @p_Y : Y coord
-    /// @p_Z : Z coord
-    void GarrisonNPCAI::TransformCoord(float& p_X, float &p_Y, float &p_Z)
-    {
-        if (!m_PlotInstanceLocation)
-            return;
-
-        G3D::Vector3 l_Position = G3D::Vector3(p_X, p_Y, 0);
-
-        G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
-        l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), m_PlotInstanceLocation->O);
-
-        l_Position.x += m_NonRotatedPlotPosition.x;
-        l_Position.y += m_NonRotatedPlotPosition.y;
-
-        l_Position = l_Mat * l_Position;
-
-        l_Position.z = p_Z + m_PlotInstanceLocation->Z;
-
-        p_X = l_Position.x;
-        p_Y = l_Position.y;
-        p_Z = l_Position.z;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// When the building ID is set
-    /// @p_BuildingID : Set building ID
-    void GarrisonNPCAI::OnSetBuildingID(uint32 p_BuildingID)
-    {
-
-    }
-
-    /// When the PlotInstance ID is set
-    /// @p_BuildingID : Set plot instance ID
-    void GarrisonNPCAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
-    {
-
-    }
-
-    /// When the daily garrison datas are reset
-    void GarrisonNPCAI::OnDailyDataReset()
-    {
-
-    }
-
-    void GarrisonNPCAI::OnPlotInstanceUnload()
-    {
-        for (std::vector<uint64>::iterator l_Guid = m_Summons.begin(); l_Guid != m_Summons.end(); ++l_Guid)
-        {
-            if (Creature* l_Creature = HashMapHolder<Creature>::Find(*l_Guid))
-                l_Creature->DespawnOrUnsummon();
-        }
-
-        m_Summons.clear();
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Set UInt32 value
-    /// @p_ID    : Value ID
-    /// @p_Value : Value
-    void GarrisonNPCAI::SetData(uint32 p_ID, uint32 p_Value)
-    {
-        switch (p_ID)
-        {
-            case CreatureAIDataIDs::PlotInstanceID:
-            {
-                m_PlotInstanceLocation = nullptr;
-
-                for (uint32 l_I = 0; l_I < Globals::PlotInstanceCount; ++l_I)
-                {
-                    if (gGarrisonPlotInstanceInfoLocation[l_I].PlotInstanceID == (p_Value & 0x0000FFFF) && gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == ((p_Value >> 16) & 0x0000FFFF))
-                    {
-                        m_PlotInstanceLocation = &gGarrisonPlotInstanceInfoLocation[l_I];
-                        break;
-                    }
-                }
-
-                if (m_PlotInstanceLocation)
-                {
-                    G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
-                    l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -m_PlotInstanceLocation->O);
-
-                    /// transform plot coord
-                    m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
-            
-                    OnSetPlotInstanceID(m_PlotInstanceLocation->PlotInstanceID);
-                }
-                break;
-            }
-            case CreatureAIDataIDs::BuildingID:
-            {
-                m_BuildingID = p_Value;
-                OnSetBuildingID(m_BuildingID);
-                break;
-            }
-            case CreatureAIDataIDs::DailyReset:
-                OnDailyDataReset();
-///                l_GarrisonMgr->UpdatePlot(GetPlotInstanceID()); ///< Disabled cause it causes troubles, m_Owner is not always available
-                break;
-            case CreatureAIDataIDs::DespawnData:
-                OnPlotInstanceUnload();
-                break;
-            default:
-                break;
-        }
-    }
-
-    void GarrisonNPCAI::SetGUID(uint64 p_Guid, int32 p_Id)
-    {
-        if (p_Id == CreatureAIDataIDs::OwnerGuid)
-            m_Owner = HashMapHolder<Player>::Find(p_Guid);
-    }
-
-    /// Get UInt32 value
-    /// @p_ID    : Value ID
-    uint32 GarrisonNPCAI::GetData(uint32 p_ID)
-    {
-        if ((p_ID & CreatureAIDataIDs::HasRecipe) != 0)
-        {
-            if (m_Recipes.empty())
-                return (uint32)-1;
-
-            uint32 l_RecipeID = p_ID & ~CreatureAIDataIDs::HasRecipe;
-
-            auto l_It = std::find_if(m_Recipes.begin(), m_Recipes.end(), [l_RecipeID](RecipesConditions const& p_Entry) -> bool
-            {
-                return p_Entry.RecipeID == l_RecipeID;
-            });
-
-            if (l_It == m_Recipes.end())
-                return (uint32)-1;
-
-            return l_It->PlayerConditionID;
-        }
-        
-        return (uint32)-1;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Show shipment crafter UI
-    void GarrisonNPCAI::SendShipmentCrafterUI(Player* p_Player, uint32 p_ShipmentID /*= 0*/)
-    {
-        if (p_Player->IsInGarrison())
-        {
-            if (!p_ShipmentID && !(p_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(m_BuildingID, p_Player, false)))
-                p_Player->PlayerTalkClass->SendCloseGossip();
-            else
-            {
-                WorldPacket l_Data(SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP);
-                l_Data.appendPackGUID(me->GetGUID());
-                l_Data << uint32(p_ShipmentID);
-
-                p_Player->SendDirectMessage(&l_Data);
-            }
-        }
-    }
-
-    /// Show trade skill crafter UI
-    void GarrisonNPCAI::SendTradeSkillUI(Player* p_Player)
-    {
-        if (p_Player->IsInGarrison())
-        {
-            if (!m_Recipes.empty())
-            {
-                WorldPacket l_Data(SMSG_GARRISON_OPEN_TRADESKILL_NPC, 512);
-                l_Data.appendPackGUID(me->GetGUID());
-                l_Data << uint32(0);                    ///< SpellID
-                l_Data << uint32(1);                    ///< Skill line ID count
-                l_Data << uint32(0);                    ///< Skill rank count
-                l_Data << uint32(0);                    ///< Skill max rank count
-                l_Data << uint32(m_Recipes.size());    ///< Skill known ability spell id count
-
-                l_Data << uint32(m_RecipesSkillID);     ///< Skill line ID
-
-                for (uint32 l_I = 0; l_I < m_Recipes.size(); ++l_I)
-                    l_Data << m_Recipes.at(l_I).RecipeID;
-
-                l_Data << uint32(m_Recipes.size());    ///< Skill known ability spell id condition count
-
-                for (uint32 l_I = 0; l_I < m_Recipes.size(); ++l_I)
-                {
-                    if (m_Recipes.at(l_I).PlayerConditionID && !p_Player->EvalPlayerCondition(m_Recipes.at(l_I).PlayerConditionID).first)
-                        l_Data << m_Recipes.at(l_I).PlayerConditionID;
-                    else
-                        l_Data << uint32(0);
-                }
-
-                p_Player->SendDirectMessage(&l_Data);
-            }
-            else
-                p_Player->PlayerTalkClass->SendCloseGossip();
-        }
-    }
-
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -496,7 +92,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_GarrisonFord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_GarrisonFord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         if (p_Player->getLevel() >= 88 && !p_Player->GetGarrison())
         {
@@ -587,7 +183,7 @@ namespace MS { namespace Garrison
                 me->m_spells[2] = me->m_spells[0];
 
             for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
-                me->m_threatModifier[i] *= 10000.f;
+                me->m_threatModifier[i] *= 10000.0f;
         }
     }
 
@@ -609,7 +205,7 @@ namespace MS { namespace Garrison
     }
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_CallToArms::npc_CallToArmsAI::UpdateAI(const uint32 p_Diff)
+    void npc_CallToArms::npc_CallToArmsAI::UpdateAI(const uint32 /*p_Diff*/)
     {
         if (!UpdateVictim())
             return;
@@ -619,7 +215,7 @@ namespace MS { namespace Garrison
 
         if (m_Ranged)
         {
-            if (me->IsWithinMeleeRange(me->getVictim(), 1.f))
+            if (me->IsWithinMeleeRange(me->getVictim(), 1.0f))
             {
                 me->CastSpell(me, Spells::Disengage, TRIGGERED_FULL_MASK);
                 me->resetAttackTimer();
@@ -725,7 +321,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_garrison_atheeru_palestar::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_garrison_atheeru_palestar::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1 && p_Creature->AI() && p_Player->HasEnoughMoney((int64)10000))
         {
@@ -735,7 +331,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    void npc_garrison_atheeru_palestarAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_garrison_atheeru_palestarAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         DoAction(1);
     }
@@ -779,7 +375,7 @@ namespace MS { namespace Garrison
             p_Clicker->CastSpell(me, 166052, true);
     }
 
-    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply)
+    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply)
     {
         if (!p_Apply)
         {
@@ -875,6 +471,7 @@ namespace MS { namespace Garrison
 
     void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::Reset()
     {
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         SetMaxPlayerDistance(200.0f);
         SetDespawnAtFar(false);
         SetDespawnAtEnd(false);
@@ -1079,7 +676,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    bool npc_FleetCommandTable::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_FleetCommandTable::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         if (!p_Player->GetGarrison())
             return true;
@@ -1099,7 +696,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    bool npc_AncientTradingMechanism_Garr::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_AncientTradingMechanism_Garr::OnQuestReward(Player* p_Player, Creature* /*p_Creature*/, const Quest* /*p_Quest*/, uint32 /*p_Option*/)
     {
         if (p_Player->GetGarrison() == nullptr)
             return true;
@@ -1110,9 +707,9 @@ namespace MS { namespace Garrison
         {
             if (Creature* l_Creature = sObjectAccessor->GetCreature(*p_Player, *l_Itr))
             {
-                if (l_Creature->AI())
+                if (l_Creature->ToGarrisonNPCAI())
                 {
-                    MS::Garrison::GarrisonNPCAI* l_GarrisonAI = dynamic_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());
+                    GarrisonNPCAI* l_GarrisonAI = l_Creature->ToGarrisonNPCAI();
 
                     if (l_GarrisonAI != nullptr && l_GarrisonAI->GetOwner() != nullptr)
                         l_GarrisonAI->GetOwner()->GetGarrison()->UpdatePlot(l_GarrisonAI->GetPlotInstanceID());
@@ -1181,7 +778,7 @@ namespace MS { namespace Garrison
                             break;
                     }
 
-                    GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(p_Creature->AI());
+                    GarrisonNPCAI* l_GarrisonAI = p_Creature->ToGarrisonNPCAI();
 
                     if (l_GarrisonAI == nullptr)
                         return false;
@@ -1240,7 +837,7 @@ namespace MS { namespace Garrison
                     l_Recipes.push_back({ 176425, 0 }); ///< Voodoo Doctor's Hovel
                     l_Recipes.push_back({ 176420, 0 }); ///< Simple Tent
 
-                    GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(p_Creature->AI());
+                    GarrisonNPCAI* l_GarrisonAI = p_Creature->ToGarrisonNPCAI();
 
                     if (l_GarrisonAI == nullptr)
                         return false;
@@ -1299,7 +896,7 @@ namespace MS { namespace Garrison
                         { 175074, 0 }
                     };
 
-                    GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(p_Creature->AI());
+                    GarrisonNPCAI* l_GarrisonAI = p_Creature->ToGarrisonNPCAI();
 
                     if (l_GarrisonAI == nullptr)
                         return false;
@@ -1317,7 +914,7 @@ namespace MS { namespace Garrison
                         { 176513, 0 }
                     };
 
-                    GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(p_Creature->AI());
+                    GarrisonNPCAI* l_GarrisonAI = p_Creature->ToGarrisonNPCAI();
 
                     if (l_GarrisonAI == nullptr)
                         return false;
@@ -1336,7 +933,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_follower_generic_script::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_follower_generic_script::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         Manager* l_GarrisonMgr = p_Player->GetGarrison();
         CreatureAI* l_AI = p_Creature->AI();
@@ -1666,18 +1263,51 @@ namespace MS { namespace Garrison
 
     void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::IsSummonedBy(Unit* p_Summoner)
     {
+        m_SummonerGUID = p_Summoner->GetGUID();
         p_Summoner->CastSpell(me, eSpells::SpellAuraRideVehicle, true);
     }
 
-    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply)
+    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply)
     {
-        if (p_Apply)
-            p_Passenger->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
-        else
-            p_Passenger->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
+        if (Player* l_Player = HashMapHolder<Player>::Find(m_SummonerGUID))
+        {
+            if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
+            {
+                if (p_Apply)
+                {
+                    switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(BuildingType::Stable)))
+                    {
+                        case 2:
+                        {
+                            if (l_Player->HasItemCount(eItems::ItemBlackClawOfSethe))
+                                l_Player->AddAura(eSpells::SpellAuraBlackClawOfSethe, l_Player);
+
+                            l_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                            break;
+                        }
+                        case 3:
+                        {
+                            if (l_Player->HasItemCount(eItems::ItemGarnToothNecklace))
+                                l_Player->AddAura(eSpells::SpellAuraGarnToothNecklace, l_Player);
+
+                            l_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    l_Player->RemoveAura(eSpells::SpellAuraGarnToothNecklace);
+                    l_Player->RemoveAura(eSpells::SpellAuraBlackClawOfSethe);
+                    l_Player->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_3, UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                }
+            }
+        }
     }
 
-    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::JustDied(Unit* p_Killer)
+    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::JustDied(Unit* /*p_Killer*/)
     {
         if (Player* l_Player = HashMapHolder<Player>::Find(m_SummonerGUID))
             l_Player->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
@@ -1693,7 +1323,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    void npc_robot_rooster::npc_robot_roosterAI::EnterCombat(Unit* p_Attacker)
+    void npc_robot_rooster::npc_robot_roosterAI::EnterCombat(Unit* /*p_Attacker*/)
     {
         m_Events.ScheduleEvent(eDatas::EventBerserk, 5000);
         m_Events.ScheduleEvent(eDatas::EventNitroBoosts, 20000);
@@ -1757,7 +1387,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_GarrisonWalter::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_GarrisonWalter::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         if (!p_Player->GetSession())
             return false;
@@ -1787,9 +1417,58 @@ namespace MS { namespace Garrison
         return new npc_GarrisonWalterAI(p_Creature);
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    void npc_GearshopWorkshopTurret_Garr::npc_GearshopWorkshopTurret_GarrAI::IsSummonedBy(Unit* p_Summoner)
+    {
+        m_SummonerGUID = p_Summoner->GetGUID();
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_GearshopWorkshopTurret_Garr::GetAI(Creature* p_Creature) const
+    {
+        return new npc_GearshopWorkshopTurret_GarrAI(p_Creature);
+    }
+
+    void npc_GearshopWorkshopTurret_Garr::npc_GearshopWorkshopTurret_GarrAI::Reset()
+    {
+        m_SummonerGUID = 0;
+        m_AttackTimer  = 0;
+    }
+
+    void npc_GearshopWorkshopTurret_Garr::npc_GearshopWorkshopTurret_GarrAI::EnterCombat(Unit* p_Attacker)
+    {
+        m_AttackTimer = 500;
+    }
+
+    void npc_GearshopWorkshopTurret_Garr::npc_GearshopWorkshopTurret_GarrAI::UpdateAI(uint32 const p_Diff)
+    {
+
+        if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        if (m_AttackTimer)
+        {
+            if (m_AttackTimer <= p_Diff)
+            {
+                if (Unit* l_Victim = me->getVictim())
+                    me->CastSpell(l_Victim, eSpells::SpellTurretFire, false);
+
+                m_AttackTimer = 4000;
+            }
+            else
+                m_AttackTimer -= p_Diff;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_NPC()
 {
     /// Generic
@@ -1804,6 +1483,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_InspiringBattleStandard;
     new MS::Garrison::npc_FearsomeBattleStandard;
     new MS::Garrison::npc_GarrisonWalter;
+    new MS::Garrison::npc_GearshopWorkshopTurret_Garr;
 
     /// Alliance
     {
@@ -1825,6 +1505,7 @@ void AddSC_Garrison_NPC()
         /// The forge
         new MS::Garrison::npc_AuriaIrondreamer;
         new MS::Garrison::npc_YuliaSamras;
+        new MS::Garrison::npc_DalanaClarke_Garr;
 
         /// Lunarfall excavation
         new MS::Garrison::npc_TimothyLeens;
@@ -1878,6 +1559,7 @@ void AddSC_Garrison_NPC()
 
         /// Lunarfall Inn
         new MS::Garrison::npc_MadisonClark;
+        new MS::Garrison::npc_lysa_serion_garr;
 
         /// Mage Tower
         new MS::Garrison::npc_ApprenticeVarNath;
@@ -1963,6 +1645,7 @@ void AddSC_Garrison_NPC()
 
         /// Frostwall Tavern
         new MS::Garrison::npc_Murg;
+        new MS::Garrison::npc_akanja_garr;
 
         /// Spirit Lodge
         new MS::Garrison::npc_Varsha;
@@ -1984,3 +1667,4 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_FleetCommandTable;
     }
 }
+#endif

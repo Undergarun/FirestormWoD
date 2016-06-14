@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 /* ScriptData
 SDName: Boss_Kiljaeden
@@ -27,7 +18,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
-#include <math.h>
+#include "Common.h"
 
 /*** Speech and sounds***/
 enum Yells
@@ -196,7 +187,7 @@ Position DeceiverLocations[3]=
 {
     {1682.045f, 631.299f, 5.936f, 0.0f},
     {1684.099f, 618.848f, 0.589f, 0.0f},
-    {1694.170f, 612.272f, 1.416f, 0.0f},
+    {1694.170f, 612.272f, 1.416f, 0.0f}
 };
 
 // Locations, where Shield Orbs will spawn
@@ -236,7 +227,7 @@ static Speech Speeches[]=
     {SAY_KJ_PHASE5,             DATA_KILJAEDEN,     5500},
 
     // use in End sequence?
-    {SAY_KALECGOS_GOODBYE,      DATA_KALECGOS_KJ,   12000},
+    {SAY_KALECGOS_GOODBYE,      DATA_KALECGOS_KJ,   12000}
 };
 
 //AI for Kalecgos
@@ -1074,7 +1065,7 @@ public:
             bLockedTarget = false;
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (damage > me->GetHealth())
                 DoCast(me, SPELL_FELFIRE_FISSION, true);
@@ -1420,6 +1411,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kiljaeden()
 {
     new go_orb_of_the_blue_flight();
@@ -1433,3 +1425,4 @@ void AddSC_boss_kiljaeden()
     new mob_shield_orb();
     new mob_sinster_reflection();
 }
+#endif

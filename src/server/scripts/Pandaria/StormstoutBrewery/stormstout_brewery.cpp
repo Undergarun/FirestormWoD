@@ -1,7 +1,10 @@
-/*
-    Dungeon : Stormstout Brewery 85-87
-    Instance General Script
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "stormstout_brewery.h"
 #include "ScriptMgr.h"
@@ -65,7 +68,9 @@ class spell_stormstout_brewery_habanero_beer: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_stormstout_brewery()
 {
     new spell_stormstout_brewery_habanero_beer();
 }
+#endif

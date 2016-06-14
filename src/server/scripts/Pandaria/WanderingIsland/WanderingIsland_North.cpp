@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
@@ -105,7 +113,7 @@ class mob_master_shang_xi : public CreatureScript
     public:
         mob_master_shang_xi() : CreatureScript("mob_master_shang_xi") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
         {
             if (quest->GetQuestId() == 29408) // La lecon du parchemin brulant
             {
@@ -151,7 +159,9 @@ class mob_master_shang_xi : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (me->GetPositionX() != 1462.0f && me->GetPositionY() != 3465.590088f && me->GetPositionZ() != 181.597f)
+                Position const l_Pos = { 1462.0f, 3465.590f, 181.597f };
+
+                if (me->IsNearPosition(&l_Pos, 0.5f))
                     me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_STAND_STATE_SIT_MEDIUM_CHAIR);
 
                 if (checkPlayersTime <= diff)
@@ -192,7 +202,7 @@ class go_wandering_weapon_rack : public GameObjectScript
 public:
     go_wandering_weapon_rack() : GameObjectScript("go_wandering_weapon_rack") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
         if (player->GetQuestStatus(30027) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(73209))
         {
@@ -290,7 +300,7 @@ class mob_tushui_trainee : public CreatureScript
                 me->SetFullHealth();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (me->HealthBelowPctDamaged(16.67f, damage))
                 {
@@ -308,7 +318,7 @@ class mob_tushui_trainee : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*unit*/)
             {
                 isInCombat = true;
             }
@@ -360,18 +370,6 @@ class mob_tushui_trainee : public CreatureScript
         };
 };
 
-enum eJaominEvents
-{
-    EVENT_JAOMIN_JUMP   = 1,
-    EVENT_HIT_CIRCLE    = 2,
-    EVENT_FALCON        = 3,
-    EVENT_FALCON_ATTACK = 4,
-    EVENT_RESET         = 5,
-    EVENT_CHECK_AREA    = 6,
-    EVENT_JAOMIN_BUMP   = 7,
-    EVENT_STUNNED       = 8
-};
-
 class boss_jaomin_ro : public CreatureScript
 {
 public:
@@ -388,21 +386,35 @@ public:
         {
         }
 
+        enum eJaominEvents
+        {
+            EVENT_JAOMIN_JUMP   = 1,
+            EVENT_HIT_CIRCLE    = 2,
+            EVENT_FALCON        = 3,
+            EVENT_FALCON_ATTACK = 4,
+            EVENT_RESET         = 5,
+            EVENT_CHECK_AREA    = 6,
+            EVENT_JAOMIN_BUMP   = 7,
+            EVENT_STUNNED       = 8
+        };
+
         EventMap m_Events;
         bool m_HasSaidIntro;
         uint32 spellJumpTimer;
         bool m_HasScheduledFalcon;
-        uint64 m_PlayerGuid;
+        bool m_CombatEngaged;
 
-        void EnterCombat(Unit* p_Attacker)
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
+            m_CombatEngaged = true;
+
             m_Events.ScheduleEvent(EVENT_JAOMIN_JUMP, 1000);
             m_Events.ScheduleEvent(EVENT_JAOMIN_BUMP, 3200);
             m_Events.ScheduleEvent(EVENT_HIT_CIRCLE, 12000);
             m_Events.ScheduleEvent(EVENT_CHECK_AREA, 12500);
         }
         
-        void Reset()
+        void Reset() override
         {
             m_Events.Reset();
             me->setFaction(7);
@@ -411,13 +423,13 @@ public:
             me->SetDisplayId(39755);
             m_HasSaidIntro = false;
             m_HasScheduledFalcon = false;
+            m_CombatEngaged = false;
             me->HandleEmoteCommand(EMOTE_STATE_SIT);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
-            m_PlayerGuid = 0;
         }
 
-        void JustSummoned(Creature* p_Summoned)
+        void JustSummoned(Creature* p_Summoned) override
         {
             if (p_Summoned->GetEntry() == 57750) // Script of the falcon attack
             {
@@ -425,13 +437,14 @@ public:
                 p_Summoned->DespawnOrUnsummon();
             }
         }
-        
-        void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+
+        void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
         {
+            if (me->GetReactState() != REACT_AGGRESSIVE)
+                me->SetReactState(REACT_AGGRESSIVE);
+
             if (Player* l_Player = p_Attacker->ToPlayer())
             {
-                m_PlayerGuid = l_Player->GetGUID();
-
                 if (me->HealthBelowPctDamaged(30, p_Damage))
                 {
                     if (!m_HasScheduledFalcon)
@@ -445,8 +458,7 @@ public:
                     m_Events.CancelEvent(EVENT_JAOMIN_BUMP);
                     m_Events.CancelEvent(EVENT_HIT_CIRCLE);
                 }
-
-                if (me->HealthBelowPctDamaged(5, p_Damage))
+                else if (me->HealthBelowPctDamaged(5, p_Damage))
                 {
                     p_Damage = 0;
                     Talk(urand(1, 6));
@@ -462,7 +474,7 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 
-                    m_Events.ScheduleEvent(EVENT_RESET, 5000);
+                    m_Events.ScheduleEvent(EVENT_RESET, 3000);
                 }
 
                 if (p_Damage > me->GetHealth())
@@ -470,7 +482,14 @@ public:
             }
         }
 
-        void DoAction(const int32 p_Action)
+        void EnterEvadeMode() override
+        {
+            _EnterEvadeMode();
+            m_CombatEngaged = false;
+            m_Events.ScheduleEvent(EVENT_RESET, 3000);
+        }
+
+        void DoAction(const int32 p_Action) override
         {
             if (p_Action == ACTION_TALK)
             {
@@ -482,32 +501,25 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
-        {            
+        void UpdateAI(const uint32 diff) override
+        {
             m_Events.Update(diff);
 
-            if (!UpdateVictim())
+            if (!UpdateVictim() && !m_CombatEngaged)
             {
-                if (me->getFaction() == 35)
-                {
-                    std::list<Player*> l_PlayerList;
-                    GetPlayerListInGrid(l_PlayerList, me, 15.0f);
+                Player* l_Player = me->FindNearestPlayer(15.0f);
 
-                    for (Player* l_Player : l_PlayerList)
-                    {
-                        if (l_Player->GetQuestStatus(29409) == QUEST_STATUS_INCOMPLETE)
-                        {
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->HandleEmoteCommand(EMOTE_STATE_STAND);
-                            Reset();
-                            me->SetOrientation(1.98f);
-                            me->SetFacingTo(1.98f);
-                            me->setFaction(7);
-                            me->SetReactState(REACT_DEFENSIVE);
-                            DoAction(ACTION_TALK);
-                        }
-                    }
+                if (l_Player != nullptr && l_Player->GetQuestStatus(29409) == QUEST_STATUS_INCOMPLETE)
+                {
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->HandleEmoteCommand(EMOTE_STATE_STAND);
+                    me->SetOrientation(1.98f);
+                    me->SetFacingTo(1.98f);
+                    me->setFaction(7);
+                    me->SetReactState(REACT_DEFENSIVE);
+                    DoAction(ACTION_TALK);
                 }
+
                 return;
             }
 
@@ -572,13 +584,13 @@ public:
     {
         mob_attacker_dimwindAI(Creature* creature) : ScriptedAI(creature) {}
         
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* /*p_SpellInfo*/)
         {
             if(me->GetHealthPct() < 90 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54785)
                 uiDamage = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             if (me->GetPositionX() == 1403.440430f && me->GetPositionY() == 3566.382568f)
                 me->DespawnOrUnsummon();
@@ -615,8 +627,14 @@ public:
             ResetMobs();
             me->HandleEmoteCommand(EMOTE_STATE_READY2H);
         }
+
+        void Reset() override
+        {
+            me->SetRespawnDelay(10);
+            events.ScheduleEvent(EVENT_RESET, 1000);
+        }
         
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* /*p_SpellInfo*/)
         {
             if(me->GetHealthPct() < 25 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54130)
                 uiDamage = 0;
@@ -669,6 +687,15 @@ public:
                 }
             }
         }
+
+        void MovementInform(uint32 p_Type, uint32 p_Id) override
+        {
+            if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                return;
+
+            if (p_Id == 1)
+                me->DespawnOrUnsummon();
+        }
         
         void UpdateAI(const uint32 diff)
         {
@@ -676,14 +703,18 @@ public:
             GetPlayerListInGrid(PlayerList, me, 20.0f);
             std::list<Creature*> amberleafScampList;
             GetCreatureListWithEntryInGrid(amberleafScampList, me, 54130, 15.0f);
-            for (auto player: PlayerList)
+            for (auto player : PlayerList)
+            {
                 if (player->GetQuestStatus(29419) == QUEST_STATUS_INCOMPLETE)
                 {
                     player->KilledMonsterCredit(54855, 0);
-                    for (auto amberleafScamp: amberleafScampList)
+
+                    for (auto amberleafScamp : amberleafScampList)
                         amberleafScamp->GetMotionMaster()->MovePoint(0, 1403.440430f, 3566.382568f, 88.840317f);
+
                     Talk(0);
                 }
+            }
 
             events.Update(diff);
 
@@ -702,8 +733,9 @@ public:
                             GetPlayerListInGrid(PlayerList, me, 20.0f);
                             for (auto player: PlayerList)
                                 player->KilledMonsterCredit(54855, 0);
-                        
-                            events.ScheduleEvent(EVENT_RESET, 30000);
+
+                            me->SetWalk(false);
+                            me->GetMotionMaster()->MovePoint(1, 1406.08f, 3560.41f, 88.2305f);
                         }
                         else
                             events.ScheduleEvent(EVENT_CHECK_MOBS, 1000);
@@ -711,9 +743,10 @@ public:
                         break;
                     }
                     case EVENT_RESET:
-                    {
                         ResetMobs();
-                    }
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -726,7 +759,7 @@ public:
     mob_aysa_lake_escort() : CreatureScript("mob_aysa_lake_escort") { }
 
     struct mob_aysa_lake_escortAI : public npc_escortAI
-    {        
+    {
         mob_aysa_lake_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -840,7 +873,7 @@ public:
             EVENT_END           = 4,
         };
         
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage, SpellInfo const* /*p_SpellInfo*/)
         {
             if(me->HealthBelowPctDamaged(5, uiDamage))
             {
@@ -881,7 +914,7 @@ public:
                 if (player->GetQuestStatus(29414) == QUEST_STATUS_INCOMPLETE)
                     playersInvolved.push_back(player);
 
-                if (player->GetQuestStatus(29419) == QUEST_STATUS_COMPLETE && player->GetQuestStatus(29424) == QUEST_STATUS_COMPLETE 
+                if (player->GetQuestStatus(29419) == QUEST_STATUS_COMPLETE && player->GetQuestStatus(29424) == QUEST_STATUS_COMPLETE
                     && me->GetPositionX() == 1206.310059f && me->GetPositionY() == 3507.459961f)
                 {
                     DoAction(ACTION_TALK_1);
@@ -1059,7 +1092,7 @@ public:
         
         EventMap events;
         
-        void EnterCombat(Unit* unit)
+        void EnterCombat(Unit* /*unit*/)
         {
             events.ScheduleEvent(1, 3000);
             events.ScheduleEvent(2, 7000);
@@ -1191,7 +1224,7 @@ public:
             playerGuid = guid;
         }
         
-        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (me->HealthBelowPctDamaged(10, damage))
             {
@@ -1237,8 +1270,6 @@ public:
                 {
                     case EVENT_CHECK_PLAYER:
                     {
-                        bool checkPassed = true;
-                        
                         std::list<Player*> playerList;
                         GetPlayerListInGrid(playerList, me, 30.0f);
                         for (auto player: playerList)
@@ -1354,7 +1385,7 @@ class AreaTrigger_at_temple_entrance : public AreaTriggerScript
         AreaTrigger_at_temple_entrance() : AreaTriggerScript("AreaTrigger_at_temple_entrance")
         {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(29423) == QUEST_STATUS_INCOMPLETE)
             {
@@ -1414,7 +1445,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 15.0f);
@@ -1582,7 +1613,7 @@ class mob_huojin_trainee : public CreatureScript
                 isInCombat = false;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (me->HealthBelowPctDamaged(16.67f, damage))
                 {
@@ -1599,7 +1630,7 @@ class mob_huojin_trainee : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*unit*/)
             {
                 isInCombat = true;
             }
@@ -1674,7 +1705,7 @@ class npc_merchant_lorvo : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
 
                 std::list<Player*> playerList;
@@ -1730,7 +1761,7 @@ class mob_ji_firepaw : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 3.0f);
@@ -1782,7 +1813,7 @@ class mob_huojin_monk : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 std::list<Player*> l_PlayerList;
                 GetPlayerListInGrid(l_PlayerList, me, 10.0f);
@@ -1834,7 +1865,7 @@ class mob_chia_hui_autumnleaf : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 12.0f);
@@ -1888,7 +1919,7 @@ class mob_brewer_lin : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 4.0f);
@@ -1931,6 +1962,7 @@ class playerScript_pandaren_powerlevel : public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_WanderingIsland_North()
 {
     new mob_master_shang_xi();
@@ -1958,3 +1990,4 @@ void AddSC_WanderingIsland_North()
     new AreaTrigger_at_temple_entrance();
     new playerScript_pandaren_powerlevel();
 }
+#endif

@@ -51,6 +51,8 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 --------------------------------------------------------------------------------
 */
 
+#ifndef __clang_analyzer__
+
 #define GSOAP_LIB_VERSION 20817
 
 #ifdef AS400
@@ -16997,3 +16999,4 @@ soap::~soap()
 #endif
 
 /******************************************************************************/
+#endif

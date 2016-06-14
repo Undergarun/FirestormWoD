@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -68,7 +58,7 @@ StrafPointStruct StrafPoints[4] =
     { POINT_EAST_OUTSIDE,  {1195.4f, 2243.441f, 438.0f, 0.0f}, POINT_EAST_START,  {1195.392f, 2263.441f, 435.0f, 0.0f}, POINT_EAST_END,  {1195.299f, 2348.941f, 435.0f, 0.0f}, POINT_WEST_OUTSIDE,  {1195.3f, 2366.941f, 438.0f, 0.0f} }  // East  -> West
 };
 
-Position CenterPos = {1195.0f, 2304.0f, 438.0f};
+Position CenterPos = {1195.0f, 2304.0f, 438.0f, 0.0f};
 
 enum eSpells
 {
@@ -89,7 +79,7 @@ enum eEvents
     EVENT_PREY_TIME         = 1,
     EVENT_IMPALING_STRIKE   = 2,
 
-    EVENT_DISRUPTOR_BOMBARD = 3,
+    EVENT_DISRUPTOR_BOMBARD = 3
 };
 
 enum ePhases
@@ -202,7 +192,7 @@ class boss_striker_gadok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 float nextHealthPct = ((float(me->GetHealth()) - damage)  / float(me->GetMaxHealth())) * 100;
 
@@ -500,7 +490,7 @@ public:
             isAttackerStriker = false;
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 const /*p_Action*/)
         {
             isAttackerStriker = true;
 
@@ -704,7 +694,7 @@ class spell_prey_time: public SpellScriptLoader
                     GetTarget()->CastSpell(GetCaster(), SPELL_RIDE_VEHICLE, true);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     GetCaster()->RemoveAurasDueToSpell(SPELL_RIDE_VEHICLE);
@@ -723,6 +713,7 @@ class spell_prey_time: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_striker_gadok()
 {
     new boss_striker_gadok();
@@ -732,3 +723,4 @@ void AddSC_boss_striker_gadok()
     new spell_gadok_strafing();
     new spell_prey_time();
 }
+#endif

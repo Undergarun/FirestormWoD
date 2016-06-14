@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
 #include "Transport.h"
@@ -95,7 +85,7 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
     if (GetCustomFlags() & eGoBCustomFlags::CustomFlagUseQuaternion)
-        SetRotationAngles(0.f, float(M_PI / 2.0f), 0.f);
+        SetRotationAngles(0.0f, float(M_PI / 2.0f), 0.0f);
     else
         UpdateRotationFields(0.0f, 1.0f);
     return true;
@@ -298,7 +288,7 @@ GameObject* Transport::CreateGOPassenger(uint32 guid, GameObjectData const* data
     return go;
 }
 
-void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& o) 
+void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
 {
     float inx = x, iny = y, inz = z;
     if (o)
@@ -483,6 +473,8 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
                     newMap->AddToMap(go);
                     break;
                 }
+                default:
+                    return;
             }
         }
 
@@ -506,7 +498,10 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
                 case TYPEID_PLAYER:
                     (*itr)->ToPlayer()->TeleportTo(newMapid, x, y, z, (*itr)->GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
                     break;
+                default:
+                    return;
             }
+            
         }
 
         GetMap()->AddToMap<Transport>(this);
@@ -562,6 +557,8 @@ void Transport::UpdatePassengerPositions(std::set<WorldObject*>& passengers)
             case TYPEID_GAMEOBJECT:
                 GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o, false);
                 break;
+            default:
+                return;
         }
 
         if (Unit* unit = passenger->ToUnit())

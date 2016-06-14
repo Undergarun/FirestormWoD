@@ -1,20 +1,10 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef DEF_TOC_H
 #define DEF_TOC_H
@@ -32,7 +22,7 @@ enum eData
     DATA_GRAND_CHAMPION_ENTRY,
     DATA_GRAND_CHAMPION_GUID,
     DATA_MEMORY_ENTRY,
-    DATA_I_VE_HAD_WORSE,
+    DATA_I_VE_HAD_WORSE
 };
 
 enum Data64
@@ -49,7 +39,7 @@ enum Data64
     DATA_CHEST,
 
     DATA_BLACK_KNIGHT,
-    DATA_BLACK_KNIGHT_GRYPHON,
+    DATA_BLACK_KNIGHT_GRYPHON
 };
 
 enum AnnouncerPhases
@@ -60,7 +50,7 @@ enum AnnouncerPhases
     EVENT_INTRO_ARGENT,
     EVENT_WAVES_ARGENT,
     EVENT_BLACK_KNIGHT_INTRO,
-    EVENTS_MAX,
+    EVENTS_MAX
 };
 
 enum achievementCriterias
@@ -121,7 +111,7 @@ enum achievementCriterias
     SPELL_ACHIEVEMENT_PALETRESS = 68574,
     SPELL_ACHIEVEMENT_MEMORIES = 68206,
     SPELL_ACHIEVEMENT_EADRIC = 68575,
-    SPELL_ACHIEVEMENT_BLACK_KNIGHT = 68663,
+    SPELL_ACHIEVEMENT_BLACK_KNIGHT = 68663
 };
 
 enum eNpcs
@@ -129,12 +119,12 @@ enum eNpcs
     // Horde Champions
     NPC_MOKRA   = 35572,
     NPC_ERESSEA = 35569,
-    NPC_RUNOK	= 35571,
+    NPC_RUNOK   = 35571,
     NPC_ZULTORE = 35570,
     NPC_VISCERI = 35617,
 
     // Alliance Champions
-    NPC_JACOB	= 34705,
+    NPC_JACOB   = 34705,
     NPC_AMBROSE = 34702,
     NPC_COLOSOS = 34701,
     NPC_JAELYNE = 34657,
@@ -203,7 +193,7 @@ enum eNpcs
     NPC_THRALL      = 34994,
     NPC_GARROSH     = 34995,
     NPC_VARIAN      = 34990,
-    NPC_JAINA       = 34992,
+    NPC_JAINA       = 34992
 };
 
 enum eGameObjects
@@ -258,7 +248,7 @@ enum IntroSpells
 {
     SPELL_MOUNT_LANCE_STAND     = 64723,
     SPELL_DEATH_RESPITE_INTRO   = 66798,
-    SPELL_DEATH_PUSH_INTRO      = 66797,
+    SPELL_DEATH_PUSH_INTRO      = 66797
 };
 
 static void BindPlayersToInstance(Creature* creature)

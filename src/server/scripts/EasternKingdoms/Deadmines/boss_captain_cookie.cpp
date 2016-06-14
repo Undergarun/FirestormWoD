@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "deadmines.h"
 
@@ -46,7 +54,7 @@ enum Spells
     SPELL_THROW_FOOD_10     = 89263,
     SPELL_THROW_FOOD_11     = 90604,
     SPELL_THROW_FOOD_12     = 90555,
-    SPELL_THROW_FOOD_13     = 90606,
+    SPELL_THROW_FOOD_13     = 90606
 };
 
 enum Adds
@@ -67,7 +75,7 @@ enum Adds
     NPC_ROTTEN_LOAF         = 48299,
     NPC_ROTTEN_MELON        = 48293,
     NPC_ROTTEN_MISTERY_MEAT = 48298,
-    NPC_ROTTEN_BUN          = 48302,
+    NPC_ROTTEN_BUN          = 48302
 };
 
 enum Events
@@ -75,10 +83,10 @@ enum Events
     EVENT_THROW_FOOD    = 1,
     EVENT_CAULDRON_1    = 2,
     EVENT_CAULDRON_2    = 3,
-    EVENT_MOVE          = 4,
+    EVENT_MOVE          = 4
 };
 
-const uint32 ThrowFoodSpells[12] = 
+const uint32 ThrowFoodSpells[12] =
 {
     SPELL_THROW_FOOD_TARGETING_CORN,
     SPELL_THROW_FOOD_TARGETING_ROTTEN_CORN,
@@ -96,7 +104,6 @@ const uint32 ThrowFoodSpells[12] =
 
 #define POINT_MOVE  1
 
-const Position cauldronPos = {-64.07f, -820.27f, 41.17f, 0.0f};
 const Position movePos = {-71.292213f, -819.792297f, 40.51f, 0.04f};
 
 class boss_captain_cookie : public CreatureScript
@@ -147,7 +154,7 @@ class boss_captain_cookie : public CreatureScript
                 BossAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 me->RemoveAura(SPELL_WHO_IS_THAT);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -167,7 +174,7 @@ class boss_captain_cookie : public CreatureScript
                         events.ScheduleEvent(EVENT_CAULDRON_1, 2000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
 
@@ -230,7 +237,7 @@ class npc_captain_cookie_cauldron : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void Reset() 
+            void Reset()
             {
                 DoCast(me, SPELL_CAULDRON_VISUAL, true);
                 DoCast(me, SPELL_CAULDRON_FIRE);
@@ -265,17 +272,17 @@ class npc_captain_cookie_good_food : public CreatureScript
 
         struct npc_captain_cookie_good_foodAI : public ScriptedAI
         {
-            npc_captain_cookie_good_foodAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_captain_cookie_good_foodAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 pInstance = pCreature->GetInstanceScript();
             }
     
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!pInstance)
                     return;
@@ -316,17 +323,17 @@ class npc_captain_cookie_bad_food : public CreatureScript
 
         struct npc_captain_cookie_bad_foodAI : public ScriptedAI
         {
-            npc_captain_cookie_bad_foodAI(Creature* pCreature) : ScriptedAI(pCreature) 
+            npc_captain_cookie_bad_foodAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 pInstance = pCreature->GetInstanceScript();
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!pInstance)
                     return;
@@ -347,7 +354,7 @@ class spell_captain_cookie_setiated: public SpellScriptLoader
 
         class spell_captain_cookie_setiated_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_captain_cookie_setiated_SpellScript);
+            PrepareSpellScript(spell_captain_cookie_setiated_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -378,7 +385,7 @@ class spell_captain_cookie_nauseated: public SpellScriptLoader
 
         class spell_captain_cookie_nauseated_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_captain_cookie_nauseated_SpellScript);
+            PrepareSpellScript(spell_captain_cookie_nauseated_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -408,7 +415,7 @@ class spell_captain_cookie_throw_food_targeting: public SpellScriptLoader
 
         class spell_captain_cookie_throw_food_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_captain_cookie_throw_food_targeting_SpellScript);
+            PrepareSpellScript(spell_captain_cookie_throw_food_targeting_SpellScript)
 
             void HandleAfterHit()
             {
@@ -437,6 +444,7 @@ class spell_captain_cookie_throw_food_targeting: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_captain_cookie()
 {
     new boss_captain_cookie();
@@ -447,3 +455,4 @@ void AddSC_boss_captain_cookie()
     new spell_captain_cookie_nauseated();
     new spell_captain_cookie_throw_food_targeting();
 }
+#endif

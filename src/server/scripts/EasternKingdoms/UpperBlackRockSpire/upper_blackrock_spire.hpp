@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifndef UPPER_BLACKROCK_SPIRE_HPP
@@ -125,20 +125,23 @@ enum eScenarioDatas
 {
     ///< Normal/Heroic Mode
     ///< ScenarioID
-    SCENARIO_UBRS_ID        = 744,
+    SCENARIO_UBRS_ID            = 744,
     ///< Step 1
-    SCENARIO_UBRS_RUNES     = 24309,
+    SCENARIO_UBRS_RUNES         = 24309,
     ///< Step 2 : Bosses
-    SCENARIO_UBRS_GORASHAN  = 24322,
-    SCENARIO_UBRS_KYRAK     = 24433,
-    SCENARIO_UBRS_THARBEK   = 24619,
-    SCENARIO_UBRS_RAGEWING  = 24624,
-    SCENARIO_UBRS_ZAELA     = 24981,
+    SCENARIO_UBRS_GORASHAN      = 24322,
+    SCENARIO_UBRS_KYRAK         = 24433,
+    SCENARIO_UBRS_THARBEK       = 24619,
+    SCENARIO_UBRS_RAGEWING      = 24624,
+    SCENARIO_UBRS_ZAELA         = 24981,
     ///< Challenge Mode
     ///< ScenarioID
-    SCENARIO_UBRS_CHALLENGE = 432,
-    SCENARIO_UBRS_KILLS     = 65,
-    SCENARIO_UBRS_ENNEMIES  = 26275
+    SCENARIO_UBRS_CHALLENGE     = 432,
+    SCENARIO_UBRS_KILLS         = 65,
+    SCENARIO_UBRS_ENNEMIES      = 26275,
+
+    DailyChallengeQuestID       = 37266,
+    DailyChallengeKillCredit    = 79122
 };
 
 enum eAchievements

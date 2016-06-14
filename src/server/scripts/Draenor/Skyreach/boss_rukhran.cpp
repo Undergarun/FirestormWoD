@@ -6,35 +6,35 @@ namespace MS
     {
         static const Position k_Waypoints[12] =
         {
-            { 929.272f, 1937.448f, 224.75f },
-            { 910.023f, 1921.640f, 219.96f },
-            { 896.675f, 1901.697f, 219.96f },
-            { 898.726f, 1872.698f, 224.75f },
-            { 876.896f, 1888.450f, 224.75f },
-            { 895.448f, 1928.450f, 224.75f },
+            { 929.272f, 1937.448f, 224.75f, 0.0f},
+            { 910.023f, 1921.640f, 219.96f, 0.0f},
+            { 896.675f, 1901.697f, 219.96f, 0.0f},
+            { 898.726f, 1872.698f, 224.75f, 0.0f},
+            { 876.896f, 1888.450f, 224.75f, 0.0f},
+            { 895.448f, 1928.450f, 224.75f, 0.0f},
 
 
-            { 895.448f, 1928.450f, 224.75f },
-            { 876.896f, 1888.450f, 224.75f },
-            { 898.726f, 1872.698f, 224.75f },
-            { 896.675f, 1901.697f, 219.96f },
-            { 910.023f, 1921.640f, 219.96f },
-            { 929.272f, 1937.448f, 224.75f },
+            { 895.448f, 1928.450f, 224.75f, 0.0f},
+            { 876.896f, 1888.450f, 224.75f, 0.0f},
+            { 898.726f, 1872.698f, 224.75f, 0.0f},
+            { 896.675f, 1901.697f, 219.96f, 0.0f},
+            { 910.023f, 1921.640f, 219.96f, 0.0f},
+            { 929.272f, 1937.448f, 224.75f, 0.0f},
         };
 
         static const Position k_RandomSummonSolarFlare[] =
         {
-            { 939.31f, 1907.440f, 213.86f },
-            { 938.64f, 1899.550f, 213.86f },
-            { 942.61f, 1915.518f, 214.40f },
-            { 933.88f, 1908.990f, 213.86f },
-            { 926.94f, 1898.300f, 213.86f },
-            { 918.43f, 1892.141f, 213.86f },
-            { 913.15f, 1887.884f, 213.86f },
-            { 920.61f, 1882.406f, 213.86f },
-            { 917.99f, 1876.340f, 213.86f },
-            { 918.28f, 1884.108f, 213.86f },
-            { 909.16f, 1883.930f, 214.40f },
+            { 939.31f, 1907.440f, 213.86f, 0.0f },
+            { 938.64f, 1899.550f, 213.86f, 0.0f },
+            { 942.61f, 1915.518f, 214.40f, 0.0f },
+            { 933.88f, 1908.990f, 213.86f, 0.0f },
+            { 926.94f, 1898.300f, 213.86f, 0.0f },
+            { 918.43f, 1892.141f, 213.86f, 0.0f },
+            { 913.15f, 1887.884f, 213.86f, 0.0f },
+            { 920.61f, 1882.406f, 213.86f, 0.0f },
+            { 917.99f, 1876.340f, 213.86f, 0.0f },
+            { 918.28f, 1884.108f, 213.86f, 0.0f },
+            { 909.16f, 1883.930f, 214.40f, 0.0f },
         };
 
         class mob_SolarFlare : public CreatureScript
@@ -163,7 +163,7 @@ namespace MS
 
             enum class Spells : uint32
             {
-                BLAZE_OF_GLORY = 153926,
+                BLAZE_OF_GLORY = 153926
             };
 
             enum class Events : uint32
@@ -248,7 +248,7 @@ namespace MS
             {
                 PIERCE_ARMOR = 1,    // Every 11 to 12 seconds.
                 SUMMON_SOLAR_FLARE = 2,         // Every 15 to 16 seconds.
-                QUILLS = 3,
+                QUILLS = 3
             };
 
             CreatureAI* GetAI(Creature* creature) const
@@ -380,7 +380,8 @@ namespace MS
                             l_SolarFlare->ToCreature()->DespawnOrUnsummon();
                     }
 
-                    p_Killer->SummonGameObject(GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES, 925.22f, 1904.54f, 213.86f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                    if (!me->GetMap()->IsChallengeMode())
+                        p_Killer->SummonGameObject(GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES, 925.22f, 1904.54f, 213.86f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
 
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -390,7 +391,7 @@ namespace MS
                 {
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     _EnterCombat();
 
@@ -471,7 +472,7 @@ namespace MS
                         // We want to cast PierceArmor on the closest ennemy.
                         if (me->getVictim() && me->getVictim()->IsWithinMeleeRange(me))
                             me->CastSpell(me->getVictim(), uint32(Spells::PIERCE_ARMOR));
-                        else if (ScriptUtils::SelectNearestPlayer(me, 15.f))
+                        else if (ScriptUtils::SelectNearestPlayer(me, 15.0f))
                             me->CastSpell(me->getVictim(), uint32(Spells::PIERCE_ARMOR));
                         break;
                     case uint32(Events::QUILLS):
@@ -493,9 +494,11 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_boss_Rukhran()
 {
     new MS::InstanceSkyreach::boss_Rukhran();
     new MS::InstanceSkyreach::mob_SkyreachRavenWhisperer();
     new MS::InstanceSkyreach::mob_SolarFlare();
 }
+#endif

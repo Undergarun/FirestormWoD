@@ -1,12 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
-#ifndef SCRIPTING_INTERFACES_AREATRIGGER_HPP_INCLUDED
+# ifndef SCRIPTING_INTERFACES_AREATRIGGER_HPP_INCLUDED
 #define SCRIPTING_INTERFACES_AREATRIGGER_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
@@ -22,7 +23,7 @@ class AreaTriggerScript : public ScriptObjectImpl<true>
     public:
         /// Called when the area trigger is activated by a player.
         /// @p_Player  : Player who trigger this area trigger
-        /// @p_Trigger : Area Trigger 
+        /// @p_Trigger : Area Trigger
         virtual bool OnTrigger(Player* p_Player, AreaTriggerEntry const* p_Trigger)
         {
             UNUSED(p_Player);
@@ -32,10 +33,10 @@ class AreaTriggerScript : public ScriptObjectImpl<true>
         }
 
         /// Called when a player enters the AreaTrigger
-        virtual void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) { } ///< p_Player & p_AreaTrigger is unused
+        virtual void OnEnter(Player* /*p_Player*/, AreaTriggerEntry const* /*p_AreaTrigger*/) { }
 
         /// Called when a player exits the AreaTrigger
-        virtual void OnExit(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) { } ///< p_Player & p_AreaTrigger is unused
+        virtual void OnExit(Player* /*p_Player*/, AreaTriggerEntry const* /*p_AreaTrigger*/) { }
 
         /// Called on each update of AreaTriggers.
         /// @p_AreaTrigger : Area Trigger instance
@@ -86,7 +87,7 @@ class AreaTriggerEntityScript : public ScriptObjectImpl<true>
         /// Proc when AreaTrigger is updated.
         /// @p_AreaTrigger : AreaTrigger instance
         /// @p_Time        : Diff since last update
-        virtual void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) 
+        virtual void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
             UNUSED(p_AreaTrigger);
             UNUSED(p_Time);
@@ -95,7 +96,7 @@ class AreaTriggerEntityScript : public ScriptObjectImpl<true>
         /// Proc when AreaTrigger is removed.
         /// @p_AreaTrigger : AreaTrigger instance
         /// @p_Time        : Diff since last update
-        virtual void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) 
+        virtual void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
             UNUSED(p_AreaTrigger);
             UNUSED(p_Time);

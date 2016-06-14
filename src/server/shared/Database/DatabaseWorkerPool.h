@@ -1,24 +1,13 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _DATABASEWORKERPOOL_H
 #define _DATABASEWORKERPOOL_H
-
-#include <ace/Thread_Mutex.h>
 
 #include "Common.h"
 #include "Callback.h"
@@ -58,7 +47,7 @@ class DatabaseWorkerPool
             
             /// Update queue size limit, 16 kb is not enough
             _queue->queue()->high_water_mark(8 * 1024 * 1024);
-            _queue->queue()->low_water_mark(8 * 1024 * 1024);            
+            _queue->queue()->low_water_mark(8 * 1024 * 1024);
 
             WPFatal (mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
         }
@@ -388,7 +377,7 @@ class DatabaseWorkerPool
         //! Enqueues a query in prepared format that will set the value of the PreparedQueryResultFuture return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
         //! Statement must be prepared with CONNECTION_ASYNC flag.
-        PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt, std::function<void(PreparedQueryResult)> p_Callback) ///< p_Callback is unused 22/02/16
+        PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt, std::function<void(PreparedQueryResult)> p_Callback)
         {
             if (stmt->getIndex() == 0)
             {
@@ -613,7 +602,7 @@ class DatabaseWorkerPool
         {
             IDX_ASYNC,
             IDX_SYNCH,
-            IDX_SIZE,
+            IDX_SIZE
         };
 
         ACE_Activation_Queue*           _queue;             //! Queue shared by async worker threads.

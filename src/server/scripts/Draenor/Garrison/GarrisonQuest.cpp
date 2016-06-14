@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonQuest.hpp"
 #include "Buildings/BuildingScripts.hpp"
 #include "ScriptMgr.h"
@@ -15,7 +16,7 @@
 #include "GarrisonScriptData.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonQuestPlayerScript::GarrisonQuestPlayerScript()
@@ -114,15 +115,16 @@ namespace MS { namespace Garrison
             case WorkshopGearworks::InventionItemIDs::ItemXD57BullseyeGuidedRocketKit:
             case WorkshopGearworks::InventionItemIDs::ItemGG117MicroJetpack:
             case WorkshopGearworks::InventionItemIDs::ItemSentryTurretDispenser:
-                p_Item->SetSpellCharges(0, p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges));
+//                p_Item->SetSpellCharges(0, p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonWorkshopGearworksInventionCharges));
                 break;
+            /// Scribe Quarters
             case 119126:
             {
                 uint64 l_PlayerGuid  = p_Player->GetGUID();
                 uint64 l_ItemGuid    = p_Item->GetGUID();
                 uint32 l_RewardCount = 1;
 
-                std::vector<uint32> l_Rewards = 
+                std::vector<uint32> l_Rewards =
                 {
                     118592,
                     119094,
@@ -139,11 +141,7 @@ namespace MS { namespace Garrison
                 p_Player->AddCriticalOperation([l_PlayerGuid]() -> bool
                 {
                     if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
-                    {
-                        uint32 l_DestroyCount = 2;
-
-                        l_Player->DestroyItemCount(119126, l_DestroyCount, true, false);
-                    }
+                        l_Player->DestroyItemCount(119126, 1, true, false);
 
                     return true;
                 });
@@ -151,14 +149,13 @@ namespace MS { namespace Garrison
                 for (int l_Itr = 0; l_Itr < 2; ++l_Itr)
                 {
                     /// check space and find places
-                    ItemPosCountVec l_Dest;
                     uint32 l_RewardID = l_Rewards[urand(0, l_Rewards.size() - 1)];
 
-                    InventoryResult l_Message = p_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_RewardID, l_RewardCount, &l_NoSpaceForCount);
+                    InventoryResult l_Message = p_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardID, l_RewardCount, &l_NoSpaceForCount);
 
                     if (l_Message == EQUIP_ERR_OK)
                     {
-                        if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_RewardID, true, Item::GenerateItemRandomPropertyId(l_RewardID)))
+                        if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_RewardID, true))
                             p_Player->SendNewItem(l_Item, l_RewardCount, true, false, false);
                     }
                     else
@@ -167,6 +164,64 @@ namespace MS { namespace Garrison
 
                 break;
             }
+            //////////////////
+            /// Stables
+            case 118469: ///< Black Claw of Sethe
+            {
+                uint64 l_PlayerGuid = p_Player->GetGUID();
+
+                if (p_Player->HasItemCount(118469, 2))
+                {
+                    p_Player->AddCriticalOperation([l_PlayerGuid]() -> bool
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                            l_Player->DestroyItemCount(118469, 1, true, false);
+
+                        return true;
+                    });
+                }
+
+                if (p_Player->HasItemCount(118470))
+                {
+                    p_Player->AddCriticalOperation([l_PlayerGuid]() -> bool
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                            l_Player->DestroyItemCount(118470, 1, true, false);
+
+                        return true;
+                    });
+                }
+
+                break;
+            }
+            case 118470: ///< Garn-Tooth Necklace
+            {
+                uint64 l_PlayerGuid = p_Player->GetGUID();
+
+                if (p_Player->HasItemCount(118470, 2))
+                {
+                    p_Player->AddCriticalOperation([l_PlayerGuid]() -> bool
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                            l_Player->DestroyItemCount(118470, 1, true, false);
+
+                        return true;
+                    });
+                }
+
+                if (p_Player->HasItemCount(118469))
+                {
+                    p_Player->AddCriticalOperation([l_PlayerGuid]() -> bool
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                            l_Player->DestroyItemCount(118469, 1, true, false);
+
+                        return true;
+                    });
+                }
+                break;
+            }
+            /////////////////
             default:
                 break;
         }
@@ -362,7 +417,7 @@ namespace MS { namespace Garrison
         p_Player->SetPhaseMask(l_PhaseMask, true);
     }
 
-    void playerScript_Garrison_Portals_Phases::OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId)
+    void playerScript_Garrison_Portals_Phases::OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 /*p_OldZoneID*/, uint32 /*p_NewAreaId*/)
     {
         /// World Map Phases
         switch (p_NewZoneId)
@@ -378,6 +433,23 @@ namespace MS { namespace Garrison
             default:
                 break;
         }
+
+        /// Stables bonuses handling
+        if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
+        {
+            if (p_Player->GetMap() && p_Player->GetMap()->GetParent())
+            {
+                if (p_Player->GetMap()->GetParent()->GetId() == 1116)
+                    l_GarrisonMgr->HandleStablesAuraBonuses();
+                else
+                    l_GarrisonMgr->HandleStablesAuraBonuses(true);
+            }
+        }
+    }
+
+    bool playerScript_Garrison_Portals_Phases::NeedsTradingPostReset(std::vector<uint32> p_Entries, uint64 p_WorldState)
+    {
+        return !p_WorldState || std::find(p_Entries.begin(), p_Entries.end(), p_WorldState) != p_Entries.end() || p_WorldState <= 196;
     }
 
     void playerScript_Garrison_Portals_Phases::OnLogin(Player* p_Player)
@@ -388,31 +460,32 @@ namespace MS { namespace Garrison
         {
             if (l_GarrisonMgr->GetBuildingWithType(BuildingType::TradingPost).BuildingID)
             {
-                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomShipment))
+                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment))
                 {
                     std::vector<uint32> l_TradingPostShipments = { 138, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 196 };
-                    p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
+                    p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
                 }
 
-                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader) || p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader) <= 196)
+                std::vector<uint32> l_AllianceTradersEntries = { 87203, 87202, 87200, 87201, 87204 };
+                std::vector<uint32> l_HordeTradersEntries    = { 86778, 86777, 86779, 86776, 86683 };
+                uint64 l_WorldState = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTradingPostDailyRandomTrader);
+
+                switch (p_Player->GetTeamId())
                 {
-                    switch (p_Player->GetTeamId())
+                    case TEAM_ALLIANCE:
                     {
-                        case TEAM_ALLIANCE:
-                        {
-                            std::vector<uint32> l_TradersEntries = { 87203, 87202, 87200, 87201, 87204 };
-                            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_TradersEntries[urand(0, l_TradersEntries.size() - 1)]);
-                            break;
-                        }
-                        case TEAM_HORDE:
-                        {
-                            std::vector<uint32> l_TradersEntries = { 86778, 86777, 86779, 86776, 86683 };
-                            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_TradersEntries[urand(0, l_TradersEntries.size() - 1)]);
-                            break;
-                        }
-                        default:
-                            break;
+                        if (NeedsTradingPostReset(l_HordeTradersEntries, l_WorldState))
+                            p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomTrader, l_AllianceTradersEntries[urand(0, l_AllianceTradersEntries.size() - 1)]);
+                        break;
                     }
+                    case TEAM_HORDE:
+                    {
+                        if (NeedsTradingPostReset(l_AllianceTradersEntries, l_WorldState))
+                            p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTradingPostDailyRandomTrader, l_HordeTradersEntries[urand(0, l_HordeTradersEntries.size() - 1)]);
+                        break;
+                    }
+                    default:
+                        break;
                 }
 
                 /// Fix old wrong reputations handling
@@ -459,7 +532,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    void playerScript_Garrison_Portals_Phases::OnQuestCleared(Player* p_Player, Quest const* p_Quest)
+    void playerScript_Garrison_Portals_Phases::OnQuestCleared(Player* p_Player, Quest const* /*p_Quest*/)
     {
         switch (p_Player->GetMapId())
         {
@@ -492,7 +565,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    void playerScript_Garrison_Portals_Phases::OnQuestReward(Player* p_Player, const Quest* p_Quest)
+    void playerScript_Garrison_Portals_Phases::OnQuestReward(Player* p_Player, const Quest* /*p_Quest*/)
     {
         switch (p_Player->GetMapId())
         {
@@ -605,7 +678,7 @@ namespace MS { namespace Garrison
             {
                 if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
                 {
-                    p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges, p_Item->GetSpellCharges());
+                    p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonWorkshopGearworksInventionCharges, p_Item->GetSpellCharges());
                     l_GarrisonMgr->UpdatePlot(p_Player->GetPlotInstanceID());
                 }
                 break;
@@ -618,6 +691,7 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_Quest()
 {
     new MS::Garrison::GarrisonBuildingAuraPlayerScript;
@@ -627,3 +701,4 @@ void AddSC_Garrison_Quest()
     new MS::Garrison::playerScript_Garrison_Quests_Phases;
     new MS::Garrison::spell_learning_blueprint;
 }
+#endif

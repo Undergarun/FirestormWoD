@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Chat.h"
 #include "Player.h"
@@ -44,7 +34,7 @@ namespace JadeCore
     class BattlegroundChatBuilder
     {
         public:
-            BattlegroundChatBuilder(ChatMsg msgtype, int32 textId, Player const* source, va_list* args = NULL)
+            BattlegroundChatBuilder(ChatMsg msgtype, int32 textId, Player const* source, va_list* args = nullptr)
                 : _msgtype(msgtype), _textId(textId), _source(source), _args(args) { }
 
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
@@ -69,7 +59,7 @@ namespace JadeCore
         private:
             void do_helper(WorldPacket& data, char const* text)
             {
-                ChatHandler::FillMessageData(&data, _source ? _source->GetSession() : NULL, _msgtype, LANG_UNIVERSAL, NULL, _source ? _source->GetGUID() : 0, text, NULL, NULL);
+                ChatHandler::FillMessageData(&data, _source ? _source->GetSession() : nullptr, _msgtype, LANG_UNIVERSAL, nullptr, _source ? _source->GetGUID() : 0, text, nullptr, nullptr);
             }
 
             ChatMsg _msgtype;
@@ -93,7 +83,7 @@ namespace JadeCore
                 char str[2048];
                 snprintf(str, 2048, text, arg1str, arg2str);
 
-                ChatHandler::FillMessageData(&data, _source ? _source->GetSession() : NULL, _msgtype, LANG_UNIVERSAL, NULL, _source ? _source->GetGUID() : 0, str, NULL, NULL);
+                ChatHandler::FillMessageData(&data, _source ? _source->GetSession() : nullptr, _msgtype, LANG_UNIVERSAL, nullptr, _source ? _source->GetGUID() : 0, str, nullptr, nullptr);
             }
 
         private:
@@ -152,7 +142,7 @@ Battleground::Battleground()
     m_MinPlayers        = 0;
 
     m_MapId             = 0;
-    m_Map               = NULL;
+    m_Map               = nullptr;
 
     m_TeamStartLocX[BG_TEAM_ALLIANCE]   = 0;
     m_TeamStartLocX[BG_TEAM_HORDE]      = 0;
@@ -175,8 +165,8 @@ Battleground::Battleground()
     m_ArenaTeamMMR[BG_TEAM_ALLIANCE]   = 0;
     m_ArenaTeamMMR[BG_TEAM_HORDE]      = 0;
 
-    m_BgRaids[BG_TEAM_ALLIANCE]         = NULL;
-    m_BgRaids[BG_TEAM_HORDE]            = NULL;
+    m_BgRaids[BG_TEAM_ALLIANCE]         = nullptr;
+    m_BgRaids[BG_TEAM_HORDE]            = nullptr;
 
     m_PlayersCount[BG_TEAM_ALLIANCE]    = 0;
     m_PlayersCount[BG_TEAM_HORDE]       = 0;
@@ -223,8 +213,8 @@ Battleground::~Battleground()
     {
         m_Map->SetUnload();
         //unlink to prevent crash, always unlink all pointer reference before destruction
-        m_Map->SetBG(NULL);
-        m_Map = NULL;
+        m_Map->SetBG(nullptr);
+        m_Map = nullptr;
     }
 
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
@@ -393,7 +383,7 @@ inline void Battleground::_ProcessRessurect(uint32 diff)
         {
             for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
             {
-                Creature* sh = NULL;
+                Creature* sh = nullptr;
                 for (std::vector<uint64>::const_iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
                 {
                     Player* player = ObjectAccessor::FindPlayer(*itr2);
@@ -481,13 +471,13 @@ inline void Battleground::_ProcessProgress(uint32 diff)
         if (newtime > (MINUTE * IN_MILLISECONDS))
         {
             if (newtime / (MINUTE * IN_MILLISECONDS) != m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS))
-                PSendMessageToAll(LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING, CHAT_MSG_SYSTEM, NULL, (uint32)(m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS)));
+                PSendMessageToAll(LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING, CHAT_MSG_SYSTEM, nullptr, (uint32)(m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS)));
         }
         else
         {
             //announce every 15 seconds
             if (newtime / (15 * IN_MILLISECONDS) != m_PrematureCountDownTimer / (15 * IN_MILLISECONDS))
-                PSendMessageToAll(LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS, CHAT_MSG_SYSTEM, NULL, (uint32)(m_PrematureCountDownTimer / IN_MILLISECONDS));
+                PSendMessageToAll(LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS, CHAT_MSG_SYSTEM, nullptr, (uint32)(m_PrematureCountDownTimer / IN_MILLISECONDS));
         }
         m_PrematureCountDownTimer = newtime;
     }
@@ -711,9 +701,9 @@ inline void Battleground::_ProcessLeave(uint32 diff)
     }
 }
 
-inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const char* context) const ///< context is unused
+inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const char* /*context*/) const
 {
-    Player* player = NULL;
+    Player* player = nullptr;
     if (!offlineRemove)
     {
         player = ObjectAccessor::FindPlayer(guid);
@@ -743,7 +733,7 @@ inline Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayer
         if (!team)
             team = player->GetTeam();
         if (team != teamId)
-            player = NULL;
+            player = nullptr;
     }
     return player;
 }
@@ -820,7 +810,7 @@ void Battleground::RewardHonorToTeam(uint32 p_Honor, uint32 TeamID, MS::Battlegr
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         if (Player* l_Player = _GetPlayerForTeam(TeamID, itr, "RewardHonorToTeam"))
-            UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, p_Honor, p_RewardCurrencyType);
+            UpdatePlayerScore(l_Player, nullptr, SCORE_BONUS_HONOR, p_Honor, p_RewardCurrencyType);
     }
 }
 
@@ -860,8 +850,8 @@ void Battleground::UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player*
 
 void Battleground::EndBattleground(uint32 p_Winner)
 {
-    Group* winner_team = NULL;
-    Group* loser_team = NULL;
+    Group* winner_team = nullptr;
+    Group* loser_team = nullptr;
     uint32 loser_team_rating = 0;
     uint32 loser_matchmaker_rating = 0;
     int32  loser_change = 0;
@@ -1017,7 +1007,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
                 uint32 rating = l_Player->GetArenaPersonalRating(slot);
                 l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
                 l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
-                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD), true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::Arena);
             }
             else
             {
@@ -1048,7 +1038,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
                     l_Player->KilledMonsterCredit(66623);
                 }
 
-                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD));
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD), true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundRated);
 
                 int32 MMRating_mod = Arena::GetMatchmakerRatingMod(winner_matchmaker_rating, loser_matchmaker_rating, true);
                 l_Player->SetArenaMatchMakerRating(SLOT_RBG, l_Player->GetArenaMatchMakerRating(SLOT_RBG) + MMRating_mod);
@@ -1079,7 +1069,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
         {
             if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())))
             {
-                UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, winner_bonus, !IsWargame(), MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundWin);
+                UpdatePlayerScore(l_Player, nullptr, SCORE_BONUS_HONOR, winner_bonus, !IsWargame(), MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundWin);
                 if (!l_Player->GetRandomWinner() && !IsWargame())
                 {
                     // 100cp awarded for the first rated battleground won each day
@@ -1093,12 +1083,12 @@ void Battleground::EndBattleground(uint32 p_Winner)
 
             if (IsSkirmish())
             {
-                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, ArenaSkirmishRewards::ConquestPointsWinner, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, ArenaSkirmishRewards::ConquestPointsWinner, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::Arena);
 
                 uint32 l_HonorReward = ArenaSkirmishRewards::HonorPointsWinnerBase;
                 l_HonorReward += ArenaSkirmishRewards::HonorPointsWinnerBonusPerMinute * (GetElapsedTime() / (IN_MILLISECONDS * MINUTE));
 
-                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, l_HonorReward, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
+                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, l_HonorReward, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::Arena);
             }
 
             l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
@@ -1108,9 +1098,9 @@ void Battleground::EndBattleground(uint32 p_Winner)
                 if (uint32 guildId = GetBgMap()->GetOwnerGuildId(l_Player->GetTeam()))
                     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
                     {
-                        guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, NULL, l_Player);
+                        guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, nullptr, l_Player);
                         if (isArena() && !IsSkirmish() && winner_team && loser_team && winner_team != loser_team)
-                            guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winner_team->GetRating(Arena::GetSlotByType(GetArenaType())), 1), 0, 0, NULL, l_Player);
+                            guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winner_team->GetRating(Arena::GetSlotByType(GetArenaType())), 1), 0, 0, nullptr, l_Player);
                     }
             }
         }
@@ -1118,14 +1108,14 @@ void Battleground::EndBattleground(uint32 p_Winner)
         {
             if (IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID()))
             {
-                UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, loser_bonus, !IsWargame());
+                UpdatePlayerScore(l_Player, nullptr, SCORE_BONUS_HONOR, loser_bonus, !IsWargame());
 
                 if (!IsWargame())
                     l_Player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_HONOR_POINTS, loser_bonus);
             }
 
             if (IsSkirmish())
-                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, ArenaSkirmishRewards::HonorPointLoser, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
+                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, ArenaSkirmishRewards::HonorPointLoser, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::Arena);
         }
 
         l_Player->ResetAllPowers();
@@ -1223,7 +1213,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                 if (Pet* pet = player->GetPet())
                     player->RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, false, pet->m_Stampeded);
                 else
-                    player->RemovePet(NULL, PET_SLOT_ACTUAL_PET_SLOT, false, true);
+                    player->RemovePet(nullptr, PET_SLOT_ACTUAL_PET_SLOT, false, true);
 
                 player->ResummonPetTemporaryUnSummonedIfAny();
                 player->SummonLastSummonedBattlePet();
@@ -1305,7 +1295,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         {
             if (!group->RemoveMember(guid))                // group was disbanded
             {
-                SetBgRaid(team, NULL);
+                SetBgRaid(team, nullptr);
             }
         }
 
@@ -1640,59 +1630,59 @@ bool Battleground::HasFreeSlots() const
     return GetPlayersSize() < GetMaxPlayers();
 }
 
-void Battleground::UpdatePlayerScore(Player* Source, Player* victim, uint32 type, uint32 value, bool doAddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType)
+void Battleground::UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType)
 {
     //this procedure is called from virtual function implemented in bg subclass
-    BattlegroundScoreMap::const_iterator itr = PlayerScores.find(Source->GetGUID());
+    BattlegroundScoreMap::const_iterator itr = PlayerScores.find(p_Source->GetGUID());
     if (itr == PlayerScores.end())                         // player not found...
         return;
 
-    switch (type)
+    switch (p_Type)
     {
         case SCORE_KILLING_BLOWS:                           // Killing blows
-            itr->second->KillingBlows += value;
+            itr->second->KillingBlows += p_Value;
             break;
         case SCORE_DEATHS:                                  // Deaths
-            itr->second->Deaths += value;
+            itr->second->Deaths += p_Value;
             break;
         case SCORE_HONORABLE_KILLS:                         // Honorable kills
-            itr->second->HonorableKills += value;
+            itr->second->HonorableKills += p_Value;
             break;
         case SCORE_BONUS_HONOR:                             // Honor bonus
             // do not add honor in arenas (only skirmish)
             if (isBattleground() || IsSkirmish())
             {
                 // reward honor instantly
-                if (doAddHonor)
+                if (p_DoAddHonor)
                 {
                     /// RewardHonor calls UpdatePlayerScore with doAddHonor = false
                     if (isBattleground())
-                        Source->RewardHonor(NULL, 1, value, false, p_RewardCurrencyType);
+                        p_Source->RewardHonor(nullptr, 1, p_Value, false, p_RewardCurrencyType);
                     else
-                        Source->RewardHonor(NULL, 1, value, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
+                        p_Source->RewardHonor(nullptr, 1, p_Value, false, MS::Battlegrounds::RewardCurrencyType::Type::Arena);
                 }
                 else
-                    itr->second->BonusHonor += value;
+                    itr->second->BonusHonor += p_Value;
             }
             break;
             // used only in EY, but in MSG_PVP_LOG_DATA opcode
         case SCORE_DAMAGE_DONE:                             // Damage Done
-            itr->second->DamageDone += value;
-            if (victim)
+            itr->second->DamageDone += p_Value;
+            if (p_Victim)
             {
-                if (victim->GetHealth() < m_minHealth)
+                if (p_Victim->GetHealth() < m_minHealth)
                 {
-                    m_minHealth = victim->GetHealth();
-                    m_teamDealMaxDamage = Source->GetBGTeam();
+                    m_minHealth = p_Victim->GetHealth();
+                    m_teamDealMaxDamage = p_Source->GetBGTeam();
                 }
             }
             break;
         case SCORE_HEALING_DONE:                            // Healing Done
-            itr->second->HealingDone += value;
+            itr->second->HealingDone += p_Value;
             break;
         default:
             sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::UpdatePlayerScore: unknown score type (%u) for BG (map: %u, instance id: %u)!",
-                type, m_MapId, m_InstanceID);
+                p_Type, m_MapId, m_InstanceID);
             break;
     }
 }
@@ -1829,7 +1819,7 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
 
     Map* map = FindBgMap();
     if (!map)
-        return NULL;
+        return nullptr;
 
     Creature* creature = new Creature;
     if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, 0, teamval, x, y, z, o))
@@ -1837,7 +1827,7 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
         sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::AddCreature: cannot create creature (entry: %u) for BG (map: %u, instance id: %u)!",
             entry, m_MapId, m_InstanceID);
         delete creature;
-        return NULL;
+        return nullptr;
     }
 
     creature->SetHomePosition(x, y, z, o);
@@ -1848,7 +1838,7 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
         sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::AddCreature: creature template (entry: %u) does not exist for BG (map: %u, instance id: %u)!",
             entry, m_MapId, m_InstanceID);
         delete creature;
-        return NULL;
+        return nullptr;
     }
     // Force using DB speeds
     creature->SetSpeed(MOVE_WALK,   cinfo->speed_walk);
@@ -1858,7 +1848,7 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
     if (!map->AddToMap(creature))
     {
         delete creature;
-        return NULL;
+        return nullptr;
     }
 
     BgCreatures[type] = creature->GetGUID();
@@ -1969,7 +1959,7 @@ void Battleground::SendWarningToAll(int32 entry, ...)
     std::string msg(str);
 
     WorldPacket data;
-    ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_RAID_BOSS_EMOTE, LANG_UNIVERSAL, NULL, 0, msg.c_str(), NULL);
+    ChatHandler::FillMessageData(&data, nullptr, CHAT_MSG_RAID_BOSS_EMOTE, LANG_UNIVERSAL, nullptr, 0, msg.c_str(), nullptr);
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
             if (player->GetSession())
@@ -2049,7 +2039,7 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
     // Keep in mind that for arena this will have to be changed a bit
 
     // Add +1 deaths
-    UpdatePlayerScore(victim, NULL, SCORE_DEATHS, 1, !IsWargame());
+    UpdatePlayerScore(victim, nullptr, SCORE_DEATHS, 1, !IsWargame());
     // Add +1 kills to group and +1 killing_blows to killer
     if (killer)
     {
@@ -2057,8 +2047,8 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
         if (killer == victim)
             return;
 
-        UpdatePlayerScore(killer, NULL, SCORE_HONORABLE_KILLS, 1, !IsWargame());
-        UpdatePlayerScore(killer, NULL, SCORE_KILLING_BLOWS, 1, !IsWargame());
+        UpdatePlayerScore(killer, nullptr, SCORE_HONORABLE_KILLS, 1, !IsWargame());
+        UpdatePlayerScore(killer, nullptr, SCORE_KILLING_BLOWS, 1, !IsWargame());
 
         for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         {
@@ -2067,7 +2057,7 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
                 continue;
 
             if (creditedPlayer->GetTeam() == killer->GetTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
-                UpdatePlayerScore(creditedPlayer, NULL, SCORE_HONORABLE_KILLS, 1, !IsWargame());
+                UpdatePlayerScore(creditedPlayer, nullptr, SCORE_HONORABLE_KILLS, 1, !IsWargame());
         }
     }
 
@@ -2179,7 +2169,7 @@ void Battleground::SetBgRaid(uint32 TeamID, Group* bg_raid)
 {
     Group*& old_raid = TeamID == ALLIANCE ? m_BgRaids[BG_TEAM_ALLIANCE] : m_BgRaids[BG_TEAM_HORDE];
     if (old_raid)
-        old_raid->SetBattlegroundGroup(NULL);
+        old_raid->SetBattlegroundGroup(nullptr);
     if (bg_raid)
         bg_raid->SetBattlegroundGroup(this);
     old_raid = bg_raid;
@@ -2278,7 +2268,7 @@ void Battleground::RelocateDeadPlayers(uint64 queueIndex)
     std::vector<uint64>& ghostList = m_ReviveQueue[queueIndex];
     if (!ghostList.empty())
     {
-        WorldSafeLocsEntry const* closestGrave = NULL;
+        WorldSafeLocsEntry const* closestGrave = nullptr;
         for (std::vector<uint64>::const_iterator itr = ghostList.begin(); itr != ghostList.end(); ++itr)
         {
             Player* player = ObjectAccessor::FindPlayer(*itr);
@@ -2302,7 +2292,7 @@ uint32 Battleground::GetArenaMatchmakerRating(uint32 Team, uint8 slot)
 
     if (Group* group = GetBgRaid(Team))
     {
-        for (GroupReference* ref = group->GetFirstMember(); ref != NULL; ref = ref->next())
+        for (GroupReference* ref = group->GetFirstMember(); ref != nullptr; ref = ref->next())
         {
             if (Player* groupMember = ref->getSource())
             {

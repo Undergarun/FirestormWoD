@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2014-2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifndef ARCHAEOLOGY_MGR_HPP_INCLUDED
@@ -44,7 +44,7 @@ namespace MS { namespace Skill { namespace Archaeology
 
     namespace Zones
     {
-        enum 
+        enum
         {
             TwilightHightlands  = 4922,
             Hyjal               = 616,
@@ -58,15 +58,15 @@ namespace MS { namespace Skill { namespace Archaeology
         {
             DigSite_Far_SurveyBot   = 206590,
             DigSite_Med_SurveyBot   = 206589,
-            DigSite_Close_SurveyBot = 204272,
+            DigSite_Close_SurveyBot = 204272
         };
     }
 
     enum ResearchWithLevelResult
     {
         RS_RESULT_FAIL = 0,
-        RS_RESULT_OK = 1,
-        RS_RESULT_HIDE = 2,
+        RS_RESULT_OK   = 1,
+        RS_RESULT_HIDE = 2
     };
 
     /// Player research site
@@ -85,9 +85,9 @@ namespace MS { namespace Skill { namespace Archaeology
         {
             SiteID = 0;
             LootGameObjectID = 0;
-            LootGameObjectX = 0.f;
-            LootGameObjectY = 0.f;
-            LootGameObjectZ = 0.f;
+            LootGameObjectX = 0.0f;
+            LootGameObjectY = 0.0f;
+            LootGameObjectZ = 0.0f;
             SiteLootCount = 0;
             SiteMaxLootCount = 0;
         }
@@ -246,7 +246,7 @@ namespace MS { namespace Skill { namespace Archaeology
             bool HasResearchProject(uint32 p_ProjectID) const;
 
             /// Get random loot for a research site
-            /// @p_SiteID : Site ID 
+            /// @p_SiteID : Site ID
             /// @p_Site   : [Out]Current site descriptor
             bool GenerateDigitLoot(uint16 p_SiteID, DigitSite &p_Site);
 

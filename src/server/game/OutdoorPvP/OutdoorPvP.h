@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef OUTDOOR_PVP_H_
 #define OUTDOOR_PVP_H_
@@ -46,7 +37,7 @@ enum ObjectiveStates
     OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE,
     OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE,
     OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE,
-    OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE,
+    OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE
 };
 
 #define OTHER_TEAM(a) (a == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE)
@@ -241,8 +232,8 @@ class OutdoorPvP : public ZoneScript
 
         void OnGameObjectCreate(GameObject* p_GameObject);
         void OnGameObjectRemove(GameObject* p_GameObject);
-        void OnCreatureCreate(Creature* p_Creature) { }
-        void OnCreatureRemove(Creature* p_Creature) { }
+        void OnCreatureCreate(Creature* /*p_Creature*/) { }
+        void OnCreatureRemove(Creature* /*p_Creature*/) { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -257,7 +248,7 @@ class OutdoorPvP : public ZoneScript
         virtual void HandleRewardHonor(Player* p_Player) { }
 
         /// Handle some custom PvP loots
-        virtual void FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64 p_Container) { }
+        virtual void FillCustomPvPLoots(Player* /*p_Looter*/, Loot& /*p_Loot*/, uint64 /*p_Container*/) { }
 
         // checks if player is in range of a capture credit marker
         bool IsInsideObjective(Player* player) const;
@@ -275,7 +266,7 @@ class OutdoorPvP : public ZoneScript
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
-        virtual void HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p_Player) { }
+        virtual void HandleBFMGREntryInviteResponse(bool /*p_Accepted*/, Player* /*p_Player*/) { }
 
         virtual WorldSafeLocsEntry const* GetClosestGraveyard(Player* p_Player);
 
@@ -318,13 +309,13 @@ class OutdoorPvP : public ZoneScript
         virtual void HandlePlayerEnterZone(Player* p_Player, uint32 p_ZoneID);
         virtual void HandlePlayerLeaveZone(Player* p_Player, uint32 p_ZoneID);
 
-        virtual void HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID) { }
-        virtual void HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID) { }
+        virtual void HandlePlayerEnterMap(Player* /*p_Player*/, uint32 /*p_MapID*/) { }
+        virtual void HandlePlayerLeaveMap(Player* /*p_Player*/, uint32 /*p_MapID*/) { }
 
-        virtual void HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID) { }
-        virtual void HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID) { }
+        virtual void HandlePlayerEnterArea(Player* /*p_Player*/, uint32 /*p_AreaID*/) { }
+        virtual void HandlePlayerLeaveArea(Player* /*p_Player*/, uint32 /*p_AreaID*/) { }
 
-        virtual void HandlePlayerResurrects(Player* p_Player, uint32 p_ZoneID) { }
+        virtual void HandlePlayerResurrects(Player* /*p_Player*/, uint32 /*p_ZoneID*/) { }
 
         void AddCapturePoint(OPvPCapturePoint* cp)
         {

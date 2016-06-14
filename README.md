@@ -42,5 +42,7 @@ git submodule init && git submodule update --remote
 - If the project is large, mention which component is affected.
 - **Describe the change in functionality** , **never** the code (that can be seen from the diff).
 
-## Merge work flow
-![image](https://firestorm-servers.com/assets/img/slides/b6b203d79f9f23522e73f149da6bddab.png)
+####How to Cppcheck
+run ```cppcheck --enable=all --xml-version=2 > PathToFile/cppcheck.xml --inconclusive path PathToFile/wod/src/ --verbose```
+
+and run ```./cppcheck-htmlreport --file=PathToFile/cppcheck.xml --source-dir=PathToFile/wod/src --report-dir=PathToFile/wod/cppcheck/``` to get the html out

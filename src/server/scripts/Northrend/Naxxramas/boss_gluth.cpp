@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -31,7 +22,7 @@ const Position PosSummon[3] =
 {
     {3267.9f, -3172.1f, 297.42f, 0.94f},
     {3253.2f, -3132.3f, 297.42f, 0},
-    {3308.3f, -3185.8f, 297.42f, 1.58f},
+    {3308.3f, -3185.8f, 297.42f, 1.58f}
 };
 
 enum Events
@@ -41,7 +32,7 @@ enum Events
     EVENT_ENRAGE,
     EVENT_DECIMATE,
     EVENT_BERSERK,
-    EVENT_SUMMON,
+    EVENT_SUMMON
 };
 
 #define EMOTE_NEARBY    " spots a nearby zombie to devour!"
@@ -145,7 +136,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gluth()
 {
     new boss_gluth();
 }
+#endif

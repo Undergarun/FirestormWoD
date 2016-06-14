@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #include "GarrisonMgr.hpp"
 #include "GameObjectAI.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     std::vector<uint32> g_HerbEntries
     {
@@ -175,7 +175,7 @@ namespace MS { namespace Garrison
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance
             /// @p_GameObject : Target GameObject instance
-            bool OnGossipHello(Player * p_Player, GameObject * p_GameObject);
+            bool OnGossipHello(Player * p_Player, GameObject * p_GameObject) override;
 
             struct go_garrison_timberAI : public GameObjectAI
             {

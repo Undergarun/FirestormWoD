@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
+//  Copyright 2016 Millenium-studio SARL
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -55,7 +56,7 @@ class npc_PetBattleTrainer : public CreatureScript
 
             /// Update AI
             /// @p_Diff : Time since last update
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const /*p_Diff*/) override
             {
 
             }
@@ -89,7 +90,7 @@ class npc_PetBattleTrainer : public CreatureScript
         /// @p_Player : Dialog requester
         /// @p_Sender : Sender entry
         /// @p_Action : Selected action ID
-        bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override
+        bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action) override
         {
             p_Player->PlayerTalkClass->ClearMenus();
 
@@ -97,7 +98,7 @@ class npc_PetBattleTrainer : public CreatureScript
             {
                 p_Player->CLOSE_GOSSIP_MENU();
 
-                float const l_Distance = 10.f;
+                float const l_Distance = 10.0f;
 
                 Position l_PlayerPosition;
                 {
@@ -308,7 +309,9 @@ class npc_PetBattleTrainer : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_npc_PetBattleTrainer()
 {
     new npc_PetBattleTrainer;
 }
+#endif

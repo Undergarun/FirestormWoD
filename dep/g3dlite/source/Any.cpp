@@ -10,7 +10,7 @@
  Copyright 2000-2013, Morgan McGuire.
  All rights reserved.
  */
-
+#ifndef __clang_analyzer__
 #include "G3D/Any.h"
 #include "G3D/TextOutput.h"
 #include "G3D/TextInput.h"
@@ -1786,4 +1786,4 @@ std::string Any::toString(Type t) {
 }
 
 }    // namespace G3D
-
+#endif

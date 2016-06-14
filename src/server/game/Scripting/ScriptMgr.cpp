@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
@@ -461,7 +461,7 @@ bool ScriptMgr::IsScriptScheduled() const
 //////////////////////////////////////////////////////////////////////////
 /// Called when the area trigger is activated by a player.
 /// @p_Player  : Player who trigger this area trigger
-/// @p_Trigger : Area Trigger 
+/// @p_Trigger : Area Trigger
 bool ScriptMgr::OnAreaTrigger(Player* p_Player, const AreaTriggerEntry* p_Trigger)
 {
     ASSERT(p_Player);
@@ -1620,7 +1620,7 @@ void ScriptMgr::OnColorCodeCalculation(XPColorChar & p_Color, uint8 p_PlayerLeve
 }
 
 /// Called after calculating zero difference.
-/// @p_Diff        : Level difference 
+/// @p_Diff        : Level difference
 /// @p_PlayerLevel : Player level
 void ScriptMgr::OnZeroDifferenceCalculation(uint8 & p_Diff, uint8 p_PlayerLevel)
 {
@@ -1737,9 +1737,10 @@ void ScriptMgr::OnPlayerKilledByCreature(Creature* p_Killer, Player* p_Killed)
 /// @p_OldValue  : Old value
 /// @p_NewValue  : New value
 /// @p_Regen  : If it's a regen modification
-void ScriptMgr::OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+/// @p_After : If it's after modification
+void ScriptMgr::OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen, bool p_After)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_OldValue, p_NewValue, p_Regen);
+    FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_OldValue, p_NewValue, p_Regen, p_After);
 }
 
 /// Called when the player switch from indoors to outdoors or from outdoors to indoors
@@ -2078,6 +2079,13 @@ void ScriptMgr::OnPlayerEnterInCombat(Player* p_Player)
     FOREACH_SCRIPT(PlayerScript)->OnEnterInCombat(p_Player);
 }
 
+/// Called when a player enter in combat
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerMount(Player* p_Player, uint32 p_CreatureID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMount(p_Player, p_CreatureID);
+}
+
 /// Called when a player leave combat status
 /// @p_Player : Player instance
 void ScriptMgr::OnPlayerLeaveCombat(Player* p_Player)
@@ -2160,7 +2168,7 @@ void ScriptMgr::OnPlayerBlock(Player* p_Player, Unit* p_Attacker)
 
 /// Should return a fully valid Battleground object for the type ID.
 /// @p_TypeID : Battleground Type ID
-Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId p_TypeID)
+Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*p_TypeID*/)
 {
     // TODO: Implement script-side battlegrounds.
     ASSERT(false);

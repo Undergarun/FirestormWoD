@@ -1,14 +1,22 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "hour_of_twilight.h"
 
 #define MAX_ENCOUNTER 3
 
-static const DoorData doordata[] = 
+static const DoorData doordata[] =
 {
     {GO_ICEWALL_1, DATA_ARCURION,   DOOR_TYPE_ROOM,     BOUNDARY_NONE},
     {GO_ICEWALL_2, DATA_ARCURION,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
     {GO_GATE,      DATA_BENEDICTUS, DOOR_TYPE_ROOM,     BOUNDARY_NONE},
-    {0, 0, DOOR_TYPE_ROOM, BOUNDARY_NONE},
+    {0, 0, DOOR_TYPE_ROOM, BOUNDARY_NONE}
 };
 
 class instance_hour_of_twilight : public InstanceMapScript
@@ -46,7 +54,7 @@ class instance_hour_of_twilight : public InstanceMapScript
             bool SetBossState(uint32 type, EncounterState state)
             {
                 if (!InstanceScript::SetBossState(type, state))
-                    return false;                    
+                    return false;
 
                 return true;
             }
@@ -101,7 +109,9 @@ class instance_hour_of_twilight : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_hour_of_twilight()
 {
     new instance_hour_of_twilight();
 }
+#endif

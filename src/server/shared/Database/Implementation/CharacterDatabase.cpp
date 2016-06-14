@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "CharacterDatabase.h"
 
@@ -81,7 +72,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     "health, power1, power2, power3, power4, power5, power6, instance_id, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, knownTitles, actionBars, currentpetslot, petslotused, grantableLevels, resetspecialization_cost, resetspecialization_time, playerFlagsEx, RaidDifficulty, LegacyRaidDifficuly, lastbattlepet, xprate FROM characters WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_GROUP_MEMBER, "SELECT guid FROM group_member WHERE memberGuid = ?", CONNECTION_BOTH)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_INSTANCE, "SELECT id, permanent, map, difficulty, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = ?", CONNECTION_ASYNC)
-    PREPARE_STATEMENT(CHAR_SEL_CHARACTER_AURAS, "SELECT caster_guid, slot, spell, effect_mask, recalculate_mask, stackcount, maxduration, remaintime, remaincharges FROM character_aura WHERE guid = ?", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(CHAR_SEL_CHARACTER_AURAS, "SELECT caster_guid, slot, spell, effect_mask, recalculate_mask, stackcount, maxduration, remaintime, remaincharges, castItemLevel FROM character_aura WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_AURAS_EFFECTS, "SELECT slot, effect, baseamount, amount FROM character_aura_effect WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_SPELL, "SELECT spell, active, disabled, IsMountFavorite FROM character_spell WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_QUESTSTATUS, "SELECT quest, status, explored, timer FROM character_queststatus WHERE guid = ? AND status <> 0", CONNECTION_ASYNC)
@@ -294,8 +285,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_DEL_EQUIP_SET, "DELETE FROM character_equipmentsets WHERE setguid=?", CONNECTION_ASYNC)
 
     /// Auras
-    PREPARE_STATEMENT(CHAR_INS_AURA, "INSERT INTO character_aura (guid, slot, caster_guid, item_guid, spell, effect_mask, recalculate_mask, stackcount, maxduration, remaintime, remaincharges) "
-    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(CHAR_INS_AURA, "INSERT INTO character_aura (guid, slot, caster_guid, item_guid, spell, effect_mask, recalculate_mask, stackcount, maxduration, remaintime, remaincharges, castItemLevel) "
+    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC)
 
     PREPARE_STATEMENT(CHAR_INS_AURA_EFFECT, "INSERT INTO character_aura_effect (guid, slot, effect, baseamount, amount) "
     "VALUES (?, ?, ?, ?, ?)",  CONNECTION_ASYNC)
@@ -697,7 +688,12 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR, "INSERT INTO character_garrison_daily_tavern_data (CharacterGuid, NpcEntry) VALUES (?,?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_SEL_GARRISON_DAILY_TAVERN_DATA_CHAR, "SELECT CharacterGuid, NpcEntry FROM character_garrison_daily_tavern_data WHERE CharacterGuid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA_CHAR, "DELETE FROM character_garrison_daily_tavern_data WHERE CharacterGuid = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA, "DELETE FROM character_garrison_daily_tavern_data", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA,      "DELETE FROM character_garrison_daily_tavern_data", CONNECTION_ASYNC);
+
+    PREPARE_STATEMENT(CHAR_ADD_GARRISON_WEEKLY_TAVERN_DATA_CHAR, "REPLACE INTO character_garrison_weekly_tavern_data (CharacterGuid, FollowerID, Abilities) VALUES (?,?,?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_WEEKLY_TAVERN_DATA_CHAR, "SELECT CharacterGuid, FollowerID, Abilities FROM character_garrison_weekly_tavern_data WHERE CharacterGuid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_WEEKLY_TAVERN_DATA_CHAR, "DELETE FROM character_garrison_weekly_tavern_data WHERE CharacterGuid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_WEEKLY_TAVERN_DATA,      "DELETE FROM character_garrison_weekly_tavern_data", CONNECTION_ASYNC);
 
     /// Battle pets
     PREPARE_STATEMENT(CHAR_UPD_LAST_BATTLEPET, "UPDATE characters SET lastbattlepet = ? WHERE guid = ?", CONNECTION_ASYNC);

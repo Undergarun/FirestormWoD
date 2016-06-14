@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _OBJECTMGR_H
 #define _OBJECTMGR_H
@@ -36,15 +26,11 @@
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
-#include <ace/Singleton.h>
 #include "VehicleDefines.h"
-#include <string>
-#include <map>
-#include <limits>
+#include "Common.h"
 #include "ConditionMgr.h"
 #include <functional>
 #include "PhaseMgr.h"
-#include <LockedMap.h>
 #include <ace/Thread_Mutex.h>
 
 class Item;
@@ -70,11 +56,9 @@ struct PageText
 #pragma pack(pop)
 #endif
 
-// Benchmarked: Faster than UNORDERED_MAP (insert/find)
 typedef std::map<uint32, PageText> PageTextContainer;
 
-// Benchmarked: Faster than std::map (insert/find)
-typedef UNORDERED_MAP<uint16, InstanceTemplate> InstanceTemplateContainer;
+typedef std::unordered_map<uint16, InstanceTemplate> InstanceTemplateContainer;
 
 struct GameTele
 {
@@ -87,7 +71,7 @@ struct GameTele
     std::wstring wnameLow;
 };
 
-typedef UNORDERED_MAP<uint32, GameTele > GameTeleContainer;
+typedef std::unordered_map<uint32, GameTele > GameTeleContainer;
 
 enum ScriptsType
 {
@@ -505,7 +489,7 @@ struct MailLevelReward
 };
 
 typedef std::list<MailLevelReward> MailLevelRewardList;
-typedef UNORDERED_MAP<uint8, MailLevelRewardList> MailLevelRewardContainer;
+typedef std::unordered_map<uint8, MailLevelRewardList> MailLevelRewardContainer;
 
 // We assume the rate is in general the same for all three types below, but chose to keep three for scalability and customization
 struct RepRewardRate
@@ -613,7 +597,7 @@ struct QuestPOI
 };
 
 typedef std::vector<QuestPOI> QuestPOIVector;
-typedef UNORDERED_MAP<uint32, QuestPOIVector> QuestPOIContainer;
+typedef std::unordered_map<uint32, QuestPOIVector> QuestPOIContainer;
 
 struct GraveYardData
 {
@@ -623,8 +607,8 @@ struct GraveYardData
 
 typedef std::multimap<uint32, GraveYardData> GraveYardContainer;
 
-typedef UNORDERED_MAP<uint32, VendorItemData> CacheVendorItemContainer;
-typedef UNORDERED_MAP<uint32, TrainerSpellData> CacheTrainerSpellContainer;
+typedef std::unordered_map<uint32, VendorItemData> CacheVendorItemContainer;
+typedef std::unordered_map<uint32, TrainerSpellData> CacheTrainerSpellContainer;
 
 enum SkillRangeType
 {
@@ -673,7 +657,7 @@ struct DungeonEncounter
 };
 
 typedef std::list<DungeonEncounter const*> DungeonEncounterList;
-typedef UNORDERED_MAP<uint32, DungeonEncounterList> DungeonEncounterContainer;
+typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContainer;
 
 struct GuildChallengeReward
 {
@@ -710,6 +694,17 @@ struct RealmCompletedChallenge
     uint8 m_MembersCount;
 
     ChallengeMember m_Members[5];
+
+    bool HasPlayer(Player* p_Player) const
+    {
+        for (uint8 l_I = 0; l_I < 5; ++l_I)
+        {
+            if (m_Members[l_I].m_Guid == p_Player->GetGUID())
+                return true;
+        }
+
+        return false;
+    }
 };
 
 struct ChallengeReward
@@ -853,22 +848,22 @@ class ObjectMgr
         ~ObjectMgr();
 
     public:
-        typedef UNORDERED_MAP<uint32, Item*> ItemMap;
+        typedef std::unordered_map<uint32, Item*> ItemMap;
 
-        typedef UNORDERED_MAP<uint32, Quest*> QuestMap;
+        typedef std::unordered_map<uint32, Quest*> QuestMap;
 
-        typedef UNORDERED_MAP<uint32, AreaTriggerStruct> AreaTriggerContainer;
+        typedef std::unordered_map<uint32, AreaTriggerStruct> AreaTriggerContainer;
 
-        typedef UNORDERED_MAP<uint32, uint32> AreaTriggerScriptContainer;
+        typedef std::unordered_map<uint32, uint32> AreaTriggerScriptContainer;
 
-        typedef UNORDERED_MAP<uint32, AccessRequirement> AccessRequirementContainer;
-        typedef UNORDERED_MAP<uint32, LFRAccessRequirement> LFRAccessRequirements;
-        typedef UNORDERED_MAP<uint32, RepRewardRate > RepRewardRateContainer;
-        typedef UNORDERED_MAP<uint32, ReputationOnKillEntry> RepOnKillContainer;
-        typedef UNORDERED_MAP<uint32, RepSpilloverTemplate> RepSpilloverTemplateContainer;
-        typedef UNORDERED_MAP<uint32, CurrencyOnKillEntry> CurOnKillContainer;
+        typedef std::unordered_map<uint32, AccessRequirement> AccessRequirementContainer;
+        typedef std::unordered_map<uint32, LFRAccessRequirement> LFRAccessRequirements;
+        typedef std::unordered_map<uint32, RepRewardRate > RepRewardRateContainer;
+        typedef std::unordered_map<uint32, ReputationOnKillEntry> RepOnKillContainer;
+        typedef std::unordered_map<uint32, RepSpilloverTemplate> RepSpilloverTemplateContainer;
+        typedef std::unordered_map<uint32, CurrencyOnKillEntry> CurOnKillContainer;
 
-        typedef UNORDERED_MAP<uint32, PointOfInterest> PointOfInterestContainer;
+        typedef std::unordered_map<uint32, PointOfInterest> PointOfInterestContainer;
 
         typedef std::vector<std::string> ScriptNameContainer;
 
@@ -1063,7 +1058,7 @@ class ObjectMgr
 
         DungeonEncounterList const* GetDungeonEncounterList(uint32 mapId, Difficulty difficulty)
         {
-            UNORDERED_MAP<uint32, DungeonEncounterList>::const_iterator itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, difficulty));
+            std::unordered_map<uint32, DungeonEncounterList>::const_iterator itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, difficulty));
 
             if (itr != _dungeonEncounterStore.end())
                 return &itr->second;
@@ -1094,6 +1089,19 @@ class ObjectMgr
         }
         void LoadFollowerQuests();
         std::vector<uint32> FollowerQuests;
+
+        void LoadBonusQuests();
+        struct BonusQuestRectEntry
+        {
+            int32 X, Y, XMax, YMax;
+            uint32 MapID;
+
+            bool IsIn(uint32 p_MapID, int p_X, int p_Y)
+            {
+                return MapID == p_MapID && X <= p_X && XMax >= p_X && Y <= p_Y && YMax >= p_Y;
+            }
+        };
+        std::map<uint32, std::vector<BonusQuestRectEntry>> BonusQuestsRects;
 
         void LoadQuestForItem();
         std::map<uint32, std::vector<std::pair<uint32, uint8>>> QuestForItem;    ///< <ItemID, [<QuestID, ObjectiveIndex>]>
@@ -1242,6 +1250,7 @@ class ObjectMgr
         void LoadPhaseDefinitions();
         void LoadSpellPhaseInfo();
         void LoadSpellInvalid();
+        void LoadSpellStolen();
         void LoadDisabledEncounters();
         void LoadBattlePetTemplate();
         void LoadBattlePetNpcTeamMember();
@@ -1259,6 +1268,18 @@ class ObjectMgr
         std::vector<BattlePetNpcTeamMember> GetPetBattleTrainerTeam(uint32 p_NpcID)
         {
             return m_BattlePetNpcTeamMembers[p_NpcID];
+        }
+
+        void AddGroupCompletedChallenge(uint32 p_MapID, RealmCompletedChallenge p_Challengers)
+        {
+            RealmCompletedChallenge& l_RealmChallenge = m_GroupsCompletedChallenges[p_MapID];
+            l_RealmChallenge = p_Challengers;
+        }
+
+        void AddGuildCompletedChallenge(uint32 p_MapID, RealmCompletedChallenge p_Challengers)
+        {
+            RealmCompletedChallenge& l_GuildChallenge = m_GuildsCompletedChallenges[p_MapID];
+            l_GuildChallenge = p_Challengers;
         }
 
         RealmCompletedChallenge* GetGroupCompletedChallengeForMap(uint32 p_MapID)
@@ -1593,7 +1614,7 @@ class ObjectMgr
 
         UpdateSkipData skipData;
 
-        ///Temporaire pour la création des Z, a remettre en private après
+        ///Temporaire pour la creation des Z, a remettre en private apres
         GameObjectDataContainer _gameObjectDataStore;
 
         std::set<uint32> const& GetOverwriteExtendedCosts() const
@@ -1707,6 +1728,14 @@ class ObjectMgr
             return false;
         }
 
+        bool IsStolenSpell(uint32 p_SpellId)
+        {
+            if (std::find(m_SpellStolen.begin(), m_SpellStolen.end(), p_SpellId) != m_SpellStolen.end())
+                return true;
+
+            return false;
+        }
+
         bool IsDisabledEncounter(uint32 p_EncounterID, uint32 p_DifficultyID) const
         {
             auto l_Iter = m_DisabledEncounters.find(std::make_pair(p_EncounterID, p_DifficultyID));
@@ -1749,8 +1778,8 @@ class ObjectMgr
         QuestObjectiveLookupMap m_questObjectiveLookup;
         std::vector<uint32> m_IgnoredQuestObjectives;
 
-        typedef UNORDERED_MAP<uint32, GossipText> GossipTextContainer;
-        typedef UNORDERED_MAP<uint32, uint32> QuestAreaTriggerContainer;
+        typedef std::unordered_map<uint32, GossipText> GossipTextContainer;
+        typedef std::unordered_map<uint32, uint32> QuestAreaTriggerContainer;
         typedef std::set<uint32> TavernAreaTriggerContainer;
         typedef std::set<uint32> GameObjectForQuestContainer;
 
@@ -1890,6 +1919,7 @@ class ObjectMgr
         std::set<uint32> _hasDifficultyEntries[Difficulty::MaxDifficulties - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
 
         std::list<uint32> m_SpellInvalid;
+        std::list<uint32> m_SpellStolen;
 
         std::set<uint32> _overwriteExtendedCosts;
 
