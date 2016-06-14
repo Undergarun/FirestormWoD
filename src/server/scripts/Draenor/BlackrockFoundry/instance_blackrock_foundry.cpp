@@ -263,7 +263,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                         Position const l_DarmacOuttro = { 409.889f, 3318.73f, 303.685f, 3.12171f };
 
                         if (p_Creature->IsNearPosition(&l_DarmacOuttro, 1.0f))
+                        {
                             m_GromkarMenAtArms.insert(p_Creature->GetGUID());
+                            break;
+                        }
                         else
                         {
                             Position l_ThogarIntro = { 502.17f, 3275.37f, 305.984f, 0.538223f };
@@ -277,6 +280,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 break;
                         }
 
+                        Position l_Trash = { 431.22f, 3314.19f, 303.04f, 4.71f };
+                        if (p_Creature->IsNearPosition(&l_Trash, 1.0f))
+                            break;
+
                         p_Creature->DespawnOrUnsummon();
                         break;
                     }
@@ -285,13 +292,18 @@ class instance_blackrock_foundry : public InstanceMapScript
                         Position l_Pos = { 415.89f, 3316.49f, 303.685f, 3.38996f };
 
                         if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                        {
                             m_IronRaiders.insert(p_Creature->GetGUID());
+                            break;
+                        }
                         else
                         {
                             l_Pos = { 425.729f, 3316.56f, 303.658f, 3.03271f };
 
                             if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
                                 m_IronRaiders.insert(p_Creature->GetGUID());
+
+                            break;
                         }
 
                         if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
@@ -305,13 +317,18 @@ class instance_blackrock_foundry : public InstanceMapScript
                         Position l_Pos = { 415.781f, 3316.689941f, 303.685f, 3.3621f };
 
                         if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                        {
                             m_IronCracksShot.insert(p_Creature->GetGUID());
+                            break;
+                        }
                         else
                         {
                             l_Pos = { 417.047f, 3318.0f, 303.685f, 3.18233f };
 
                             if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
                                 m_IronCracksShot.insert(p_Creature->GetGUID());
+
+                            break;
                         }
 
                         if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
@@ -325,13 +342,18 @@ class instance_blackrock_foundry : public InstanceMapScript
                         Position l_Pos = { 415.056f, 3321.31006f, 303.685f, 3.54152f };
 
                         if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
+                        {
                             m_GromkarFiremenders.insert(p_Creature->GetGUID());
+                            break;
+                        }
                         else
                         {
                             l_Pos = { 425.788f, 3316.83f, 303.66f, 2.9753f };
 
                             if (p_Creature->IsNearPosition(&l_Pos, 1.0f))
                                 m_GromkarFiremenders.insert(p_Creature->GetGUID());
+
+                            break;
                         }
 
                         if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())

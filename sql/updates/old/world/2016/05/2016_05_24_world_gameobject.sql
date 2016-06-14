@@ -1,4 +1,4 @@
--- delete from gameobject where entry in (233600, 243477);
+delete from gameobject where id in (233600, 243477);
 -- Horde side
 INSERT INTO `gameobject` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `isActive`, `custom_flags`, `protect_anti_doublet`)
 VALUES

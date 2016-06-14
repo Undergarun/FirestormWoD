@@ -270,6 +270,17 @@ enum ActionButtonType
     ACTION_BUTTON_ITEM = 0x80
 };
 
+enum ReputationSource
+{
+    REPUTATION_SOURCE_KILL,
+    REPUTATION_SOURCE_QUEST,
+    REPUTATION_SOURCE_DAILY_QUEST,
+    REPUTATION_SOURCE_WEEKLY_QUEST,
+    REPUTATION_SOURCE_MONTHLY_QUEST,
+    REPUTATION_SOURCE_REPEATABLE_QUEST,
+    REPUTATION_SOURCE_SPELL
+};
+
 #define ACTION_BUTTON_ACTION(X) (uint64(X) & 0x00000000FFFFFFFF)
 #define ACTION_BUTTON_TYPE(X)   ((uint64(X) & 0xFF00000000000000) >> 56)
 #define MAX_ACTION_BUTTON_ACTION_VALUE (0x0000000000FFFFFF)
@@ -3904,7 +3915,7 @@ class Player : public Unit, public GridObject<Player>
         // know currencies are not removed at any point (0 displayed)
         void AddKnownCurrency(uint32 itemId);
 
-        int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest, bool noQuestBonus = false);
+        int32 CalculateReputationGain(ReputationSource source, uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool noQuestBonus = false);
         void AdjustQuestReqItemCount(Quest const* quest);
 
         bool IsCanDelayTeleport() const { return m_bCanDelayTeleport; }

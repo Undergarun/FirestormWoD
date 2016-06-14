@@ -8845,43 +8845,88 @@ ReputationRank Player::GetReputationRank(uint32 faction) const
     return GetReputationMgr().GetRank(factionEntry);
 }
 
-//Calculate total reputation percent player gain with quest/creature level
-int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest, bool noQuestBonus)
+/// Calculate total reputation percent player gain with quest/creature level
+int32 Player::CalculateReputationGain(ReputationSource p_Source, uint32 p_CreatureOrQuestLevel, int32 p_Reputation, int32 faction, bool p_NoQuestBonus)
 {
-    float percent = 100.0f;
+    float l_Percent         = 100.0f;
+    float l_ReputationMod   = p_NoQuestBonus ? 0.0f : float(GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN));
 
-    // Get the generic rate first
-    if (RepRewardRate const* repData = sObjectMgr->GetRepRewardRate(faction))
+    /// faction specific auras only seem to apply to kills
+    if (p_Source == REPUTATION_SOURCE_KILL)
+        l_ReputationMod += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction);
+
+    l_Percent += p_Reputation > 0 ? l_ReputationMod : -l_ReputationMod;
+
+    float l_Rate;
+    switch (p_Source)
     {
-        float repRate = for_quest ? repData->quest_rate : repData->creature_rate;
-        percent *= repRate;
+        case REPUTATION_SOURCE_KILL:
+            l_Rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_KILL);
+            break;
+
+        case REPUTATION_SOURCE_QUEST:
+        case REPUTATION_SOURCE_DAILY_QUEST:
+        case REPUTATION_SOURCE_WEEKLY_QUEST:
+        case REPUTATION_SOURCE_MONTHLY_QUEST:
+        case REPUTATION_SOURCE_REPEATABLE_QUEST:
+            l_Rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_QUEST);
+            break;
+
+        case REPUTATION_SOURCE_SPELL:
+        default:
+            l_Rate = 1.0f;
+            break;
     }
 
-    float rate = for_quest ? sWorld->getRate(RATE_REPUTATION_LOWLEVEL_QUEST) : sWorld->getRate(RATE_REPUTATION_LOWLEVEL_KILL);
+    if (l_Rate != 1.0f && p_CreatureOrQuestLevel < JadeCore::XP::GetGrayLevel(getLevel()))
+        l_Percent *= l_Rate;
 
-    if (rate != 1.0f && creatureOrQuestLevel <= JadeCore::XP::GetGrayLevel(getLevel()))
-        percent *= rate;
-
-    float repMod = noQuestBonus ? 0.0f : (float)GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN);
-
-    if (!for_quest)
-        repMod += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction);
-
-    percent += rep > 0 ? repMod : -repMod;
-
-    if (percent <= 0.0f)
+    if (l_Percent <= 0.0f)
         return 0;
 
-    return int32(rep*percent/100);
+    /// Multiply result with the faction specific rate
+    if (RepRewardRate const* repData = sObjectMgr->GetRepRewardRate(faction))
+    {
+        float l_ReputationRate = 0.0f;
+        switch (p_Source)
+        {
+            case REPUTATION_SOURCE_KILL:
+                l_ReputationRate = repData->creature_rate;
+                break;
+
+            case REPUTATION_SOURCE_QUEST:
+            case REPUTATION_SOURCE_DAILY_QUEST:         ///< @TODO
+            case REPUTATION_SOURCE_WEEKLY_QUEST:        ///< @TODO
+            case REPUTATION_SOURCE_MONTHLY_QUEST:       ///< @TODO
+            case REPUTATION_SOURCE_REPEATABLE_QUEST:    ///< @TODO
+                l_ReputationRate = repData->quest_rate;
+                break;
+
+            case REPUTATION_SOURCE_SPELL:
+                l_ReputationRate = repData->spell_rate;
+                break;
+        }
+
+        /// for custom, a rate of 0.0 will totally disable reputation gain for this faction/type
+        if (l_ReputationRate <= 0.0f)
+            return 0;
+
+        l_Percent *= l_ReputationRate;
+    }
+
+    if (p_Source != REPUTATION_SOURCE_SPELL && GetsRecruitAFriendBonus(false))
+        l_Percent *= 1.0f + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS);
+
+    return CalculatePct(p_Reputation, l_Percent);
 }
 
 /// Calculates how many reputation points player gains in victim's enemy factions
-void Player::RewardReputation(Unit* victim, float rate)
+void Player::RewardReputation(Unit* p_Victim, float p_Rate)
 {
-    if (!victim || victim->IsPlayer())
+    if (!p_Victim || p_Victim->IsPlayer())
         return;
 
-    if (victim->ToCreature()->IsReputationGainDisabled())
+    if (p_Victim->ToCreature()->IsReputationGainDisabled())
         return;
 
     if (HasAura(186404)) ///< Sign of the Emissary (Weekly event bonus)
@@ -8889,7 +8934,7 @@ void Player::RewardReputation(Unit* victim, float rate)
         uint32 l_Zone = GetZoneId();
         uint32 l_Team = GetTeam();
 
-        Creature* l_Creature = victim->ToCreature();
+        Creature* l_Creature = p_Victim->ToCreature();
 
         if (l_Creature == nullptr)
             return;
@@ -8927,9 +8972,9 @@ void Player::RewardReputation(Unit* victim, float rate)
         }
     }
 
-    ReputationOnKillEntry const* Rep = sObjectMgr->GetReputationOnKilEntry(victim->ToCreature()->GetCreatureTemplate()->Entry);
+    ReputationOnKillEntry const* l_Reputation = sObjectMgr->GetReputationOnKilEntry(p_Victim->ToCreature()->GetCreatureTemplate()->Entry);
 
-    if (GetChampioningFaction() && !Rep && victim->ToCreature())
+    if (GetChampioningFaction() && !l_Reputation && p_Victim->ToCreature())
     {
         /// Support for: Championing - http://www.wowwiki.com/Championing
 
@@ -8941,7 +8986,7 @@ void Player::RewardReputation(Unit* victim, float rate)
             {
                 uint32 l_ReputationGain = 0;
 
-                switch (victim->ToCreature()->GetCreatureTemplate()->rank)
+                switch (p_Victim->ToCreature()->GetCreatureTemplate()->rank)
                 {
                     case CREATURE_ELITE_TRIVIAL:
                     case CREATURE_ELITE_NORMAL:
@@ -8952,6 +8997,7 @@ void Player::RewardReputation(Unit* victim, float rate)
                         l_ReputationGain = 15;
                         break;
                     case CREATURE_ELITE_RAREELITE:
+                    case CREATURE_ELITE_WORLDBOSS:
                         l_ReputationGain = 300;
                         break;
                     default:
@@ -8963,98 +9009,96 @@ void Player::RewardReputation(Unit* victim, float rate)
                     FactionEntry const* l_FactionEntry = sFactionStore.LookupEntry(GetChampioningFaction());
 
                     if (l_FactionEntry)
-                        GetReputationMgr().ModifyReputation(l_FactionEntry, l_ReputationGain);
+                        GetReputationMgr().ModifyReputation(l_FactionEntry, l_ReputationGain, true);
                 }
             }
         }
     }
 
-    if (!Rep)
+    if (!l_Reputation)
         return;
 
-    // Favored reputation increase START
-    uint32 zone = GetZoneId();
-    uint32 team = GetTeam();
-    float favored_rep_mult = 0;
+    uint32 l_Zone = GetZoneId();
+    uint32 l_Team = GetTeam();
+    float l_BonusReputationRate = 0;
 
-    if ((HasAura(32096) || HasAura(32098)) && (zone == 3483 || zone == 3562 || zone == 3836 || zone == 3713 || zone == 3714)) favored_rep_mult = 0.25; // Thrallmar's Favor and Honor Hold's Favor
-    else if (HasAura(30754) && (Rep->RepFaction1 == 609 || Rep->RepFaction2 == 609))                   favored_rep_mult = 0.25; // Cenarion Favor
+    /// Thrallmar's Favor and Honor Hold's Favor
+    if ((l_Zone == 3483 || l_Zone == 3562 || l_Zone == 3836 || l_Zone == 3713 || l_Zone == 3714) && (HasAura(32096) || HasAura(32098)))
+        l_BonusReputationRate = 0.25;
 
-    if (favored_rep_mult > 0) favored_rep_mult *= 2; // Multiplied by 2 because the reputation is divided by 2 for some reason (See "donerep1 / 2" and "donerep2 / 2") -- if you know why this is done, please update/explain :)
-    // Favored reputation increase END
+    /// Cenarion Favor
+    if ((l_Reputation->RepFaction1 == 609 || l_Reputation->RepFaction2 == 609) && HasAura(30754))
+        l_BonusReputationRate = 0.25;
 
-    bool recruitAFriend = GetsRecruitAFriendBonus(false);
-
-    if (Rep->RepFaction1 && (!Rep->TeamDependent || team == ALLIANCE))
+    if (l_Reputation->RepFaction1 && (!l_Reputation->TeamDependent || l_Team == ALLIANCE))
     {
-        int32 donerep1 = CalculateReputationGain(victim->getLevel(), Rep->RepValue1, Rep->RepFaction1, false);
-        donerep1 = int32(donerep1*(rate + favored_rep_mult));
+        int32 l_StandingA = CalculateReputationGain(REPUTATION_SOURCE_KILL, p_Victim->getLevel(), l_Reputation->RepValue1, l_Reputation->RepFaction1, false);
+        l_StandingA = int32(float(l_StandingA) * (p_Rate + l_BonusReputationRate));
 
-        if (recruitAFriend)
-            donerep1 = int32(donerep1 * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
-
-        FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(Rep->RepFaction1);
-        uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
-        if (factionEntry1 && current_reputation_rank1 <= Rep->ReputationMaxCap1)
-            GetReputationMgr().ModifyReputation(factionEntry1, donerep1);
+        if (FactionEntry const* l_FactionEntryA = sFactionStore.LookupEntry(l_Reputation->RepFaction1))
+        {
+            if (GetReputationMgr().GetRank(l_FactionEntryA) <= l_Reputation->ReputationMaxCap1)
+                GetReputationMgr().ModifyReputation(l_FactionEntryA, l_StandingA);
+        }
     }
 
-    if (Rep->RepFaction2 && (!Rep->TeamDependent || team == HORDE))
+    if (l_Reputation->RepFaction2 && (!l_Reputation->TeamDependent || l_Team == HORDE))
     {
-        int32 donerep2 = CalculateReputationGain(victim->getLevel(), Rep->RepValue2, Rep->RepFaction2, false);
-        donerep2 = int32(donerep2*(rate + favored_rep_mult));
+        int32 l_StandingB = CalculateReputationGain(REPUTATION_SOURCE_KILL, p_Victim->getLevel(), l_Reputation->RepValue2, l_Reputation->RepFaction2, false);
+        l_StandingB = int32(float(l_StandingB) * (p_Rate + l_BonusReputationRate));
 
-        if (recruitAFriend)
-            donerep2 = int32(donerep2 * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
-
-        FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(Rep->RepFaction2);
-        uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
-        if (factionEntry2 && current_reputation_rank2 <= Rep->ReputationMaxCap2)
-            GetReputationMgr().ModifyReputation(factionEntry2, donerep2);
+        if (FactionEntry const* l_FactionEntryB = sFactionStore.LookupEntry(l_Reputation->RepFaction2))
+        {
+            if (GetReputationMgr().GetRank(l_FactionEntryB) <= l_Reputation->ReputationMaxCap2)
+                GetReputationMgr().ModifyReputation(l_FactionEntryB, l_StandingB);
+        }
     }
 }
 
 //Calculate how many reputation points player gain with the quest
-void Player::RewardReputation(Quest const* quest)
+void Player::RewardReputation(Quest const* p_Quest)
 {
-    bool recruitAFriend = GetsRecruitAFriendBonus(false);
-
     // quest reputation reward/loss
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    for (uint8 l_I = 0; l_I < QUEST_REPUTATIONS_COUNT; ++l_I)
     {
-        if (!quest->RewardFactionId[i])
+        if (!p_Quest->RewardFactionId[l_I])
             continue;
-        if (quest->RewardFactionValueIdOverride[i])
+
+        int32 l_Reputation = 0;
+        bool l_NoQuestBonus = false;
+
+        if (p_Quest->RewardFactionValueIdOverride[l_I])
         {
-            int32 rep = CalculateReputationGain(GetQuestLevel(quest), quest->RewardFactionValueIdOverride[i]/100, quest->RewardFactionId[i], true, true);
-
-            if (recruitAFriend)
-                rep = int32(rep * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
-
-            if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i]))
-                GetReputationMgr().ModifyReputation(factionEntry, rep);
+            l_Reputation = p_Quest->RewardFactionValueIdOverride[l_I] / 100;
+            l_NoQuestBonus = true;
         }
         else
         {
-            uint32 row = ((quest->RewardFactionValueId[i] < 0) ? 1 : 0) + 1;
-            uint32 field = abs(quest->RewardFactionValueId[i]);
-
-            if (const QuestFactionRewEntry* pRow = sQuestFactionRewardStore.LookupEntry(row))
+            uint32 l_Row = ((p_Quest->RewardFactionValueId[l_I] < 0) ? 1 : 0) + 1;
+            if (QuestFactionRewEntry const* questFactionRewEntry = sQuestFactionRewardStore.LookupEntry(l_Row))
             {
-                int32 repPoints = pRow->QuestRewFactionValue[field];
-
-                if (!repPoints)
-                    continue;
-
-                repPoints = CalculateReputationGain(GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
-
-                if (recruitAFriend)
-                    repPoints = int32(repPoints * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
-
-                if (const FactionEntry* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i]))
-                    GetReputationMgr().ModifyReputation(factionEntry, repPoints);
+                uint32 field = abs(p_Quest->RewardFactionValueId[l_I]);
+                l_Reputation = questFactionRewEntry->QuestRewFactionValue[field];
             }
         }
+
+        if (!l_Reputation)
+            continue;
+
+        /// @TODO
+        ///if (quest->IsDaily())
+        ///    rep = CalculateReputationGain(REPUTATION_SOURCE_DAILY_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
+        ///else if (quest->IsWeekly())
+        ///    rep = CalculateReputationGain(REPUTATION_SOURCE_WEEKLY_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
+        ///else if (quest->IsMonthly())
+        ///    rep = CalculateReputationGain(REPUTATION_SOURCE_MONTHLY_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
+        ///else if (quest->IsRepeatable())
+        ///    rep = CalculateReputationGain(REPUTATION_SOURCE_REPEATABLE_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
+        ///else
+            l_Reputation = CalculateReputationGain(REPUTATION_SOURCE_QUEST, GetQuestLevel(p_Quest), l_Reputation, p_Quest->RewardFactionId[l_I], l_NoQuestBonus);
+
+        if (FactionEntry const* l_FactionEntry = sFactionStore.LookupEntry(p_Quest->RewardFactionId[l_I]))
+            GetReputationMgr().ModifyReputation(l_FactionEntry, l_Reputation);
     }
 }
 
@@ -9103,7 +9147,7 @@ void Player::RewardGuildReputation(Quest const* quest)
             break;
     }
 
-    rep = CalculateReputationGain(GetQuestLevel(quest), rep, REP_GUILD, true);
+    rep = CalculateReputationGain(REPUTATION_SOURCE_DAILY_QUEST, GetQuestLevel(quest), rep, REP_GUILD, true);
 
     if (GetsRecruitAFriendBonus(false))
         rep = int32(rep * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));

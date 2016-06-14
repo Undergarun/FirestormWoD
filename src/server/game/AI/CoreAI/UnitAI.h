@@ -275,6 +275,8 @@ class UnitAI
         Player* SelectRangedTarget(bool p_AllowHeal = true, int32 p_CheckAura = 0) const;
         /// In mostly cases, tanks will not be targeted
         Player* SelectMeleeTarget(bool p_AllowTank = false) const;
+        Player* SelectMainTank() const;
+        Player* SelectOffTank() const;
 
         // Called at any Damage to any victim (before damage apply)
         virtual void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType)

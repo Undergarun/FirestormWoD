@@ -744,6 +744,7 @@ class npc_foundry_train_controller : public CreatureScript
                                 {
                                     if (Creature* l_ManAtArms = Creature::GetCreature(*me, l_Guid))
                                     {
+                                        l_ManAtArms->SetHomePosition(g_ManAtArmsExitPos);
                                         l_ManAtArms->GetMotionMaster()->MoveJump(g_ManAtArmsExitPos, 30.0f, 20.0f);
 
                                         l_ManAtArms->SetReactState(ReactStates::REACT_AGGRESSIVE);
@@ -1038,7 +1039,12 @@ class npc_foundry_train_controller : public CreatureScript
                                 AddTimedDelayedOperation(100, [this, l_Guid, l_IsLeft, l_I]() -> void
                                 {
                                     if (Creature* l_Passenger = Creature::GetCreature(*me, l_Guid))
-                                        l_Passenger->GetMotionMaster()->MoveJump(l_IsLeft ? g_IronRaiderLeftExitPos[l_I] : g_IronRaiderRightExitPos[l_I], 30.0f, 10.0f);
+                                    {
+                                        Position l_Pos = l_IsLeft ? g_IronRaiderLeftExitPos[l_I] : g_IronRaiderRightExitPos[l_I];
+
+                                        l_Passenger->GetMotionMaster()->MoveJump(l_Pos, 30.0f, 10.0f);
+                                        l_Passenger->SetHomePosition(l_Pos);
+                                    }
                                 });
 
                                 AddTimedDelayedOperation(500, [this, l_Guid]() -> void
