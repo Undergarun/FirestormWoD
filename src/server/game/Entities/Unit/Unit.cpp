@@ -2756,7 +2756,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
 
     // Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
     if (attType != WeaponAttackType::RangedAttack && (IsPlayer() || ToCreature()->isPet()) &&
-        victim->ToCreature() && !victim->ToCreature()->isPet() && victim->getLevel() > (getLevel() + 2))
+        victim->ToCreature() && !victim->ToCreature()->isPet() && victim->getLevel() > (getLevel() + 3))
     {
         ///@todo Patch 6.0.2 (2014-10-14): All characters now have a 100% chance to hit, 0% chance to be dodged, 3% chance to be parried, and 0% chance for glancing blows, when fighting creatures up to 3 levels higher (bosses included).
         // Anytime a character makes a melee attack on a level ?? boss
