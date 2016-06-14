@@ -2656,7 +2656,10 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
 
     // Remove from old map now
     if (Map* l_OldMap = IsInWorld() ? GetMap() : NULL)
+    {
+        SetMapSwitchDestination(p_MapID);
         l_OldMap->RemovePlayerFromMap(this, false);
+    }
 
     // Relocate the player to the teleport destination
     Map* l_NewMap = sMapMgr->CreateMap(p_MapID, this);
@@ -2691,6 +2694,7 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
     }
 
     GetMap()->AddPlayerToMap(this, true);
+    SetMapSwitchDestination(-1);
 
     // Update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 l_NewZone, l_NewArea;
@@ -24676,9 +24680,30 @@ void Player::StopCastingCharm()
     {
         if (charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_PUPPET))
             ((Puppet*)charm)->UnSummon();
-        else if (charm->IsVehicle())
-            ExitVehicle();
     }
+
+    if (charm->IsVehicle())
+    {
+        /// Prevent exit vehicle at map switch
+        if (GetMapSwitchDestination() != -1 && charm->GetTypeId() == TYPEID_UNIT)
+        {
+            Map* l_NewMap = sMapMgr->CreateMap(GetMapSwitchDestination(), this);
+
+            if (l_NewMap && l_NewMap->CanEnter(this))
+            {
+                charm->SetMapSwitchDestination(GetMapSwitchDestination());
+                charm->ToCreature()->SetLockAI(true);
+                charm->ToCreature()->FarTeleportTo(l_NewMap, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+                charm->ToCreature()->SetLockAI(false);
+                charm->SetMapSwitchDestination(-1);
+
+                return;
+            }
+        }
+
+        ExitVehicle();
+    }
+
     if (GetCharmGUID())
         charm->RemoveCharmAuras();
 

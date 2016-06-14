@@ -2740,6 +2740,9 @@ class Unit : public WorldObject
         bool m_LastOutdoorStatus;
         bool IsOutdoors();
 
+        int32 GetMapSwitchDestination() const { return m_MapSwitchDestination; }
+        void SetMapSwitchDestination(int32 p_MapId) { m_MapSwitchDestination = p_MapId; }
+
     public:
         uint64 _petBattleId;
 
@@ -2925,6 +2928,8 @@ class Unit : public WorldObject
         bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
 
         time_t _lastDamagedTime;
+
+        int32 m_MapSwitchDestination;
 };
 
 namespace JadeCore
