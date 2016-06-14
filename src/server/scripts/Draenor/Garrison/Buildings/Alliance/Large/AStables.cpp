@@ -73,7 +73,10 @@ namespace MS { namespace Garrison
             p_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonStablesFirstQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
 
             if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
+            {
                 l_GarrisonMgr->UpdatePlot(l_AI->GetPlotInstanceID());
+                l_GarrisonMgr->Save();
+            }
         }
 
         return true;
@@ -107,7 +110,7 @@ namespace MS { namespace Garrison
         uint32 l_NextQuestID = 0;
 
         if (!l_QuestID)
-            return 0;
+            return p_FirstQuestID;
 
         if ((std::find(p_QuestsList.begin(), p_QuestsList.end(), l_QuestID) == p_QuestsList.end() && l_QuestID != p_FirstQuestID) ||
             l_QuestID == (p_FirstQuestID | StablesData::g_PendingQuestFlag)) ///< QUEST DIDN'T GOT DAILY RESET YET, SO NEXT QUEST ISN'T OFFERED
@@ -127,7 +130,7 @@ namespace MS { namespace Garrison
             Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
 
             if (l_Quest != nullptr)
-                p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+                p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
         }
 
         return l_NextQuestID;
@@ -343,13 +346,13 @@ namespace MS { namespace Garrison
                 if (l_CreatureScript == nullptr)
                     return;
 
-                l_KeeganNextQuestID = static_cast<npc_FannyFirebeard*>(l_CreatureScript)->ProceedQuestSelection(l_Owner, me, g_BoarQuests, 0, WolfQuests::QuestWanglingAWolf);
+                l_KeeganNextQuestID = static_cast<npc_KeeganFirebeard*>(l_CreatureScript)->ProceedQuestSelection(l_Owner, me, g_WolfQuests, 0, WolfQuests::QuestWanglingAWolf);
 
                 if (!l_KeeganNextQuestID)
-                    l_KeeganNextQuestID = static_cast<npc_FannyFirebeard*>(l_CreatureScript)->ProceedQuestSelection(l_Owner, me, g_ElekkQuests, WolfQuests::QuestWanglingAWolf, TalbukQuests::QuestTamingATalbuk);
+                    l_KeeganNextQuestID = static_cast<npc_KeeganFirebeard*>(l_CreatureScript)->ProceedQuestSelection(l_Owner, me, g_TalbukQuests, WolfQuests::QuestWanglingAWolf, TalbukQuests::QuestTamingATalbuk);
 
                 if (!l_KeeganNextQuestID)
-                    l_KeeganNextQuestID = static_cast<npc_FannyFirebeard*>(l_CreatureScript)->ProceedQuestSelection(l_Owner, me, g_ClefthoofQuests, TalbukQuests::QuestTamingATalbuk, RiverbeastQuests::QuestRequisitionARiverbeast);
+                    l_KeeganNextQuestID = static_cast<npc_KeeganFirebeard*>(l_CreatureScript)->ProceedQuestSelection(l_Owner, me, g_RiverbeastQuests, TalbukQuests::QuestTamingATalbuk, RiverbeastQuests::QuestRequisitionARiverbeast);
 
                 l_Owner->PlayerTalkClass->GetQuestMenu().ClearMenu();
 
@@ -377,6 +380,19 @@ namespace MS { namespace Garrison
 
     }
 
+    /// Constructor
+    npc_KeeganFirebeardAI::npc_KeeganFirebeardAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_KeeganFirebeard::GetAI(Creature* p_Creature) const
+    {
+        return new npc_KeeganFirebeardAI(p_Creature);
+    }
+
     bool npc_KeeganFirebeard::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         using namespace StablesData::Alliance::KeeganQuestGiver;
@@ -397,7 +413,10 @@ namespace MS { namespace Garrison
         }
 
         if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
+        {
             l_GarrisonMgr->UpdatePlot(l_AI->GetPlotInstanceID());
+            l_GarrisonMgr->Save();
+        }
 
         return true;
     }
@@ -420,21 +439,21 @@ namespace MS { namespace Garrison
         return false;
     }
 
-    void npc_KeeganFirebeard::ProceedQuestSelection(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestsList, uint32 p_NextListQuestID, uint32 p_FirstQuestID)
+    uint32 npc_KeeganFirebeard::ProceedQuestSelection(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestsList, uint32 p_NextListQuestID, uint32 p_FirstQuestID)
     {
         if (p_Player == nullptr)
-            return;
+            return 0;
 
         uint64 l_QuestID = p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesSecondQuest);
         std::vector<uint32>::const_iterator l_Iterator = std::find(p_QuestsList.begin(), p_QuestsList.end(), l_QuestID);
         uint32 l_NextQuestID = 0;
 
         if (!l_QuestID)
-            return;
+            return p_FirstQuestID;
 
         if ((std::find(p_QuestsList.begin(), p_QuestsList.end(), l_QuestID) == p_QuestsList.end() && l_QuestID != p_FirstQuestID) ||
             l_QuestID == (p_FirstQuestID | StablesData::g_PendingQuestFlag)) ///< QUEST DIDN'T GOT DAILY RESET YET, SO NEXT QUEST ISN'T OFFERED
-            return;
+            return 0;
         else if (l_Iterator != p_QuestsList.end() || l_QuestID == p_FirstQuestID)
         {
             if (l_QuestID == p_FirstQuestID)
@@ -445,15 +464,17 @@ namespace MS { namespace Garrison
                 l_NextQuestID = p_NextListQuestID;
 
             if (!l_NextQuestID)
-                return;
+                return 0;
 
             Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
 
             if (l_Quest != nullptr)
-                p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+                p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
 
             p_Player->PlayerTalkClass->SendGossipMenu(1, p_Creature->GetGUID());
         }
+
+        return l_NextQuestID;
     }
 
     bool npc_KeeganFirebeard::OnGossipHello(Player* p_Player, Creature* p_Creature)
@@ -501,7 +522,7 @@ namespace MS { namespace Garrison
             Quest const* l_Quest = sObjectMgr->GetQuestTemplate(RiverbeastQuests::QuestRequisitionARiverbeast);
 
             if (l_Quest != nullptr)
-                p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+                p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
         }
 
         p_Player->PlayerTalkClass->SendGossipMenu(1, p_Creature->GetGUID());

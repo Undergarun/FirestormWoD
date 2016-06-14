@@ -591,7 +591,7 @@ void InitOpcodes()
         /// Garrison
         DEFINE_OPCODE_HANDLER(SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP,                        STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GET_SHIPMENT_INFO_RESPONSE,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_GET_SHIPMENTS,                                       STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_LANDING_PAGE_SHIPMENT_INFO,                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_CREATE_SHIPMENT_RESPONSE,                            STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
     #pragma endregion
 
@@ -1074,7 +1074,6 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_MISSION_NPC_HELLO,                          STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonMissionNPCHelloOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_GET_SHIPMENT_INFO,                                   STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonGetShipmentInfoOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_CREATE_SHIPMENT,                                     STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonCreateShipmentOpcode);
-    DEFINE_OPCODE_HANDLER(CMSG_GET_SHIPMENTS,                                       STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonGetShipmentsOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_SET_MISSION_NPC,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonRequestSetMissionNPC);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_FOLLOWER_RENAME,                            STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonFollowerRename);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_DECOMISSION_SHIP,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonDecommisionShip);
