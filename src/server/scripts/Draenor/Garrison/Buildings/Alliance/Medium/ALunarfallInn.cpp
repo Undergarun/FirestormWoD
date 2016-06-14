@@ -171,7 +171,7 @@ namespace MS { namespace Garrison
         if (!p_Player->IsQuestRewarded(Quests::Alliance_TheHeadHunterHarverst))
             p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_TheHeadHunterHarverst, 4);
 
-        if (p_Player->GetQuestStatus(Quests::Alliance_TheHeadHunterHarverst) != QUEST_STATUS_NONE && !l_GarrisonMgr->GetGarrisonWeeklyTavernDatas().empty())
+        if (p_Player->GetQuestStatus(Quests::Alliance_TheHeadHunterHarverst) != QUEST_STATUS_NONE && l_GarrisonMgr->GetGarrisonWeeklyTavernDatas().empty())
             p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::FollowerRecruitment, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
