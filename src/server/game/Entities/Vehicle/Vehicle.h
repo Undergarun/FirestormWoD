@@ -36,6 +36,8 @@ class Vehicle : public TransportBase
 
         bool HasEmptySeat(int8 seatId) const;
         Unit* GetPassenger(int8 seatId) const;
+        uint8 GetPassengersCount() const { return Seats.size(); }
+        
         int8 GetNextEmptySeat(int8 seatId, bool next) const;
         uint8 GetAvailableSeatCount() const;
 
