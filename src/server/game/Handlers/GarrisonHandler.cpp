@@ -204,9 +204,33 @@ void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket& /*p_R
 
     MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
 
-    if (!l_Garrison)
+    if (!l_Garrison || !l_Garrison->GetGarrisonSiteLevelEntry())
         return;
 
+    std::vector<MS::Garrison::GarrisonWorkOrder> l_WorkOrders = l_Garrison->GetWorkOrders();
+
+    WorldPacket l_Data(SMSG_GARRISON_LANDING_PAGE_SHIPMENT_INFO, 1024);
+    l_Data << uint32(l_WorkOrders.size());
+
+    for (uint32 l_I = 0; l_I < l_WorkOrders.size(); ++l_I)
+    {
+        uint32 l_Duration = 0;
+
+        CharShipmentEntry const* l_Entry = sCharShipmentStore.LookupEntry(l_WorkOrders[l_I].ShipmentID);
+
+        if (l_Entry)
+            l_Duration = l_Entry->Duration;
+
+        /// @TODO http://www.mmo-champion.com/content/4662-Patch-6-1-Iron-Horde-Scrap-Meltdown-Garrison-Vendor-Rush-Orders-Blue-Posts
+        l_Data << uint32(l_WorkOrders[l_I].ShipmentID);
+        l_Data << uint64(l_WorkOrders[l_I].DatabaseID);
+        l_Data << uint64(l_Garrison->GetBuilding(l_WorkOrders[l_I].PlotInstanceID).FollowerAssigned);
+        l_Data << uint32(l_WorkOrders[l_I].CreationTime);
+        l_Data << uint32(l_WorkOrders[l_I].CompleteTime - l_WorkOrders[l_I].CreationTime);
+        l_Data << uint32(0);                                    ///< Rewarded XP
+    }
+
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket& p_RecvData)
@@ -820,18 +844,11 @@ void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket& p_RecvData)
             if (l_WorkOrders[l_I].PlotInstanceID != l_PlotInstanceID)
                 continue;
 
-            uint32 l_Duration = 0;
-        
-            const CharShipmentEntry* l_Entry = sCharShipmentStore.LookupEntry(l_WorkOrders[l_I].ShipmentID);
-        
-            if (l_Entry)
-                l_Duration = l_Entry->Duration;
-
             l_Response << uint32(l_WorkOrders[l_I].ShipmentID);
             l_Response << uint64(l_WorkOrders[l_I].DatabaseID);
             l_Response << uint64(0);                                    ///< 6.1.x FollowerID
             l_Response << uint32(l_WorkOrders[l_I].CreationTime);
-            l_Response << uint32(l_Duration);
+            l_Response << uint32(l_WorkOrders[l_I].CompleteTime - l_WorkOrders[l_I].CreationTime);
             l_Response << uint32(0);                                    ///< 6.1.x Rewarded XP
         }
     }
@@ -993,42 +1010,6 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData)
 
         m_Player->SendDirectMessage(&l_Ack);
     }
-}
-
-void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket& /*p_RecvData*/)
-{
-    if (!m_Player)
-        return;
-
-    MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
-
-    if (!l_Garrison || !l_Garrison->GetGarrisonSiteLevelEntry())
-        return;
-
-    std::vector<MS::Garrison::GarrisonWorkOrder> l_WorkOrders = l_Garrison->GetWorkOrders();
-
-    WorldPacket l_Data(SMSG_GET_SHIPMENTS, 1024);
-    l_Data << uint32(l_WorkOrders.size());
-
-    for (uint32 l_I = 0; l_I < l_WorkOrders.size(); ++l_I)
-    {
-        uint32 l_Duration = 0;
-
-        const CharShipmentEntry * l_Entry = sCharShipmentStore.LookupEntry(l_WorkOrders[l_I].ShipmentID);
-
-        if (l_Entry)
-            l_Duration = l_Entry->Duration;
-
-        /// @TODO http://www.mmo-champion.com/content/4662-Patch-6-1-Iron-Horde-Scrap-Meltdown-Garrison-Vendor-Rush-Orders-Blue-Posts
-        l_Data << uint32(l_WorkOrders[l_I].ShipmentID);
-        l_Data << uint64(l_WorkOrders[l_I].DatabaseID);
-        l_Data << uint64(0);                                    ///< FollowerID
-        l_Data << uint32(l_WorkOrders[l_I].CreationTime);
-        l_Data << uint32(l_Duration);
-        l_Data << uint32(0);                                    ///< Rewarded XP
-    }
-
-    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleGarrisonFollowerRename(WorldPacket& p_RecvData)
