@@ -1289,7 +1289,7 @@ enum SpellEffects
     SPELL_EFFECT_CREATE_SHIPMENT                    = 216,
     SPELL_EFFECT_UPGRADE_GARRISON                   = 217,
     SPELL_EFFECT_218                                = 218,
-    SPELL_EFFECT_219                                = 219,
+    SPELL_EFFECT_START_CONVERSATION                 = 219,
     SPELL_EFFECT_ADD_GARRISON_FOLLOWER              = 220,
     SPELL_EFFECT_221                                = 221,
     SPELL_EFFECT_CREATE_HEIRLOOM                    = 222,

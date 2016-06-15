@@ -1524,6 +1524,41 @@ void Object::AddDynamicValue(uint16 index, uint32 value)
     }
 }
 
+void Object::AddDynamicGuidValue(uint16 p_Index, uint64 p_Guid)
+{
+    ASSERT(p_Index < _dynamicValuesCount || PrintIndexError(p_Index, false));
+
+    std::vector<uint32>& l_Values   = _dynamicValues[p_Index];
+    UpdateMask& l_Mask              = _dynamicChangesArrayMask[p_Index];
+    Guid128 l_Guid                  = Guid64To128(p_Guid);
+
+    _dynamicChangesMask.SetBit(p_Index);
+
+    auto l_AddGuidPart = [&l_Values, &l_Mask](uint32 p_GuidPart) -> void
+    {
+        if (l_Values.size() >= l_Values.capacity())
+            l_Values.reserve(l_Values.capacity() + 32);
+
+        l_Values.push_back(p_GuidPart);
+
+        if (l_Mask.GetCount() < l_Values.size())
+            l_Mask.AddBlock();
+
+        l_Mask.SetBit(l_Values.size() - 1);
+    };
+
+    l_AddGuidPart(PAIR64_LOPART(l_Guid.GetLow()));
+    l_AddGuidPart(PAIR64_HIPART(l_Guid.GetLow()));
+    l_AddGuidPart(PAIR64_LOPART(l_Guid.GetHi()));
+    l_AddGuidPart(PAIR64_HIPART(l_Guid.GetHi()));
+
+    if (m_inWorld && !m_objectUpdated)
+    {
+        sObjectAccessor->AddUpdateObject(this);
+        m_objectUpdated = true;
+    }
+}
+
 void Object::RemoveDynamicValue(uint16 index, uint32 offset)
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false) || offset < _dynamicValues[index].size());

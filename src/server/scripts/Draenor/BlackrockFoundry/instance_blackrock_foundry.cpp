@@ -25,6 +25,7 @@ DoorData const g_DoorData[] =
     { eFoundryGameObjects::KromogDoor,                  eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::TheBeastGate,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::TerminusDoor,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::FreightElevatorDoor,         eFoundryDatas::DataOperatorThogar,      DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -86,6 +87,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_ThogarIntroStarted        = false;
                 m_IronGateDoorGuid          = 0;
                 m_OperatorThogarGuid        = 0;
+
+                m_AdmiralGaranGuid          = 0;
+                m_EnforcerSorkaGuid         = 0;
+                m_MarakTheBloodedGuid       = 0;
 
                 m_SpikeGateGuid             = 0;
                 m_CrucibleEntrance          = 0;
@@ -156,6 +161,11 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_OperatorThogarGuid;
             std::map<uint32, uint64> m_TrackDoorsGuids;
 
+            /// Dread Grotto
+            uint64 m_AdmiralGaranGuid;
+            uint64 m_EnforcerSorkaGuid;
+            uint64 m_MarakTheBloodedGuid;
+
             /// Blackhand's Crucible
             uint64 m_SpikeGateGuid;
             uint64 m_CrucibleEntrance;
@@ -166,7 +176,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                 LoadDoorData(g_DoorData);
 
-                instance->SetObjectVisibility(150.0f);
+                instance->SetObjectVisibility(200.0f);
             }
 
             void OnCreatureCreate(Creature* p_Creature) override
@@ -367,6 +377,21 @@ class instance_blackrock_foundry : public InstanceMapScript
                         m_OperatorThogarGuid = p_Creature->GetGUID();
                         break;
                     }
+                    case eFoundryCreatures::BossAdmiralGaran:
+                    {
+                        m_AdmiralGaranGuid = p_Creature->GetGUID();
+                        break;
+                    }
+                    case eFoundryCreatures::BossEnforcerSorka:
+                    {
+                        m_EnforcerSorkaGuid = p_Creature->GetGUID();
+                        break;
+                    }
+                    case eFoundryCreatures::BossMarakTheBlooded:
+                    {
+                        m_MarakTheBloodedGuid = p_Creature->GetGUID();
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -391,6 +416,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BlackForgeGate:
                     case eFoundryGameObjects::TheBeastGate:
                     case eFoundryGameObjects::TerminusDoor:
+                    case eFoundryGameObjects::FreightElevatorDoor:
                         AddDoor(p_GameObject, true);
                         break;
                     case eFoundryGameObjects::VolatileBlackrockOre:
@@ -474,6 +500,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BlackForgeGate:
                     case eFoundryGameObjects::TheBeastGate:
                     case eFoundryGameObjects::TerminusDoor:
+                    case eFoundryGameObjects::FreightElevatorDoor:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -790,7 +817,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                         {
                             case EncounterState::DONE:
                             {
-                                instance->SetObjectVisibility(150.0f);
+                                instance->SetObjectVisibility(200.0f);
 
                                 if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
                                     l_IronGate->SetGoState(GOState::GO_STATE_ACTIVE);
@@ -1004,6 +1031,12 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_OperatorThogarGuid;
                     case eFoundryGameObjects::IronGate:
                         return m_IronGateDoorGuid;
+                    case eFoundryCreatures::BossAdmiralGaran:
+                        return m_AdmiralGaranGuid;
+                    case eFoundryCreatures::BossEnforcerSorka:
+                        return m_EnforcerSorkaGuid;
+                    case eFoundryCreatures::BossMarakTheBlooded:
+                        return m_MarakTheBloodedGuid;
                     default:
                         break;
                 }

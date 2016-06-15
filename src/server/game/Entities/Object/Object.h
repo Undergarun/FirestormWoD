@@ -46,6 +46,7 @@ enum TypeMask
     TYPEMASK_CORPSE         = 0x0080,
     TYPEMASK_AREATRIGGER    = 0x0100,
     TYPEMASK_SCENEOBJECT    = 0x0200,
+    TYPEMASK_CONVERSATION   = 0x0400,
     TYPEMASK_SEER           = TYPEMASK_UNIT|TYPEMASK_DYNAMICOBJECT|TYPEMASK_DYNAMICOBJECT
 };
 
@@ -60,7 +61,8 @@ enum TypeID
     TYPEID_DYNAMICOBJECT = 6,
     TYPEID_CORPSE        = 7,
     TYPEID_AREATRIGGER   = 8,
-    TYPEID_SCENEOBJECT   = 9
+    TYPEID_SCENEOBJECT   = 9,
+    TYPEID_CONVERSATION  = 10
 };
 
 #define NUM_CLIENT_OBJECT_TYPES             10
@@ -346,6 +348,7 @@ class Object
         std::vector<uint32> const& GetDynamicValues(uint16 index) const;
         uint32 GetDynamicValue(uint16 index, uint16 secondIndex) const;
         void AddDynamicValue(uint16 index, uint32 value);
+        void AddDynamicGuidValue(uint16 p_Index, uint64 p_Guid);
         void RemoveDynamicValue(uint16 index, uint32 value);
         void ClearDynamicValue(uint16 index);
         void SetDynamicValue(uint16 index, uint8 offset, uint32 value);

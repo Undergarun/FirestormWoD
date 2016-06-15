@@ -168,6 +168,7 @@ enum eFoundryGameObjects
     MassiveDoorTrack3Left       = 231847,
     MassiveDoorTrack2Left       = 231849,
     MassiveDoorTrack1Left       = 231850,
+    FreightElevatorDoor         = 236848,
     /// Blackhand's Crucible - Part 4
     SpikeGate                   = 232556,
     CrucibleDoor                = 233006
@@ -228,7 +229,9 @@ enum eFoundryDatas
     DataGromkarManAtArms    = 1,
     DataIronRaider          = 2,
     DataIronCrackShot       = 2,
-    DataGromkarFiremender   = 2
+    DataGromkarFiremender   = 2,
+    /// Iron Maidens
+    IronMaidensCount        = 3
 };
 
 enum eFoundrySpells
@@ -275,6 +278,13 @@ enum eFoundryDungeons
     BlackForge          = 846,
     IronAssembly        = 848,
     BlackhandsCrucible  = 823
+};
+
+static std::array<uint32, eFoundryDatas::IronMaidensCount> g_IronMaidensEntries =
+{
+    eFoundryCreatures::BossAdmiralGaran,
+    eFoundryCreatures::BossEnforcerSorka,
+    eFoundryCreatures::BossMarakTheBlooded
 };
 
 Position const g_GromkarManAtArmsMovePos = { 379.8316f, 3322.484f, 303.9331f, 0.0f };

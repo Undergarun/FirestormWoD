@@ -4817,6 +4817,38 @@ class areatrigger_at_foundry_hansgar_and_franzok_exit : public AreaTriggerScript
         }
 };
 
+/// Iron Maidens Entrance - 10243
+class areatrigger_at_foundry_iron_maidens_entrance : public AreaTriggerScript
+{
+    public:
+        areatrigger_at_foundry_iron_maidens_entrance() : AreaTriggerScript("areatrigger_at_foundry_iron_maidens_entrance")
+        {
+            m_Activated = false;
+        }
+
+        bool m_Activated;
+
+        void OnEnter(Player* p_Player, AreaTriggerEntry const* /*p_AreaTrigger*/) override
+        {
+            if (m_Activated)
+                return;
+
+            if (InstanceScript* l_InstanceScript = p_Player->GetInstanceScript())
+            {
+                for (uint8 l_I = 0; l_I < eFoundryDatas::IronMaidensCount; ++l_I)
+                {
+                    if (Creature* l_Maiden = Creature::GetCreature(*p_Player, l_InstanceScript->GetData64(g_IronMaidensEntries[l_I])))
+                    {
+                        if (l_Maiden->IsAIEnabled)
+                            l_Maiden->AI()->DoAction(0);
+                    }
+                }
+            }
+
+            m_Activated = true;
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_blackrock_foundry()
 {
@@ -4888,5 +4920,6 @@ void AddSC_blackrock_foundry()
     new areatrigger_at_foundry_second_floor_trap();
     new areatrigger_at_foundry_hansgar_and_franzok_entrance();
     new areatrigger_at_foundry_hansgar_and_franzok_exit();
+    new areatrigger_at_foundry_iron_maidens_entrance();
 }
 #endif
