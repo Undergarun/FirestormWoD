@@ -24684,23 +24684,20 @@ void Player::StopCastingCharm()
 
     if (charm->IsVehicle())
     {
-        if (charm->GetVehicleKit() && charm->GetVehicleKit()->GetPassengersCount() == 1)
+        /// Prevent exit vehicle at map switch
+        if (GetMapSwitchDestination() != -1 && charm->GetTypeId() == TYPEID_UNIT)
         {
-            /// Prevent exit vehicle at map switch
-            if (GetMapSwitchDestination() != -1 && charm->GetTypeId() == TYPEID_UNIT)
+            Map* l_NewMap = sMapMgr->CreateMap(GetMapSwitchDestination(), this);
+
+            if (l_NewMap && l_NewMap->CanEnter(this))
             {
-                Map* l_NewMap = sMapMgr->CreateMap(GetMapSwitchDestination(), this);
+                charm->SetMapSwitchDestination(GetMapSwitchDestination());
+                charm->ToCreature()->SetLockAI(true);
+                charm->ToCreature()->FarTeleportTo(l_NewMap, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+                charm->ToCreature()->SetLockAI(false);
+                charm->SetMapSwitchDestination(-1);
 
-                if (l_NewMap && l_NewMap->CanEnter(this))
-                {
-                    charm->SetMapSwitchDestination(GetMapSwitchDestination());
-                    charm->ToCreature()->SetLockAI(true);
-                    charm->ToCreature()->FarTeleportTo(l_NewMap, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-                    charm->ToCreature()->SetLockAI(false);
-                    charm->SetMapSwitchDestination(-1);
-
-                    return;
-                }
+                return;
             }
         }
 
