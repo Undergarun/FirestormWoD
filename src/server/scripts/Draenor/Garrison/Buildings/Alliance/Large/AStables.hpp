@@ -37,9 +37,11 @@ namespace MS { namespace Garrison
 
             virtual bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override;
 
+            virtual bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override;
+
             bool CheckRewardQuest(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestList);
 
-            void ProceedQuestSelection(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestsList, uint32 p_NextListQuestID, uint32 p_FirstQuestID);
+            uint32 ProceedQuestSelection(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestsList, uint32 p_NextListQuestID, uint32 p_FirstQuestID);
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
@@ -82,7 +84,18 @@ namespace MS { namespace Garrison
 
             bool CheckRewardQuest(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestList);
 
-            void ProceedQuestSelection(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestsList, uint32 p_NextListQuestID, uint32 p_FirstQuestID);
+            uint32 ProceedQuestSelection(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestsList, uint32 p_NextListQuestID, uint32 p_FirstQuestID);
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const override;
+    };
+
+    class npc_KeeganFirebeardAI : public GarrisonNPCAI
+    {
+        public:
+            /// Constructor
+            npc_KeeganFirebeardAI(Creature* p_Creature);
     };
 }   ///< namespace Garrison
 }   ///< namespace MS

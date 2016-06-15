@@ -3538,6 +3538,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
+            case 61551:     ///< Toy Train Set (Pulse)
+                spellInfo->TargetAuraSpell = 0;
+                break;
             case 179244:    ///< Summon Chauffeur (Horde)
             case 179245:    ///< Summon Chauffeur (Alliance)
                 spellInfo->Effects[EFFECT_0].MiscValueB = 284;  ///< This will allow level 1 mounting at 160% normal speed

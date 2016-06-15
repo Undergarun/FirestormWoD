@@ -1215,7 +1215,6 @@ class WorldSession
         void HandleGarrisonRemoveFollowerFromBuilding(WorldPacket& p_RecvData);
         void HandleGarrisonGetShipmentInfoOpcode(WorldPacket& p_RecvData);
         void HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData);
-        void HandleGarrisonGetShipmentsOpcode(WorldPacket& p_RecvData);
         void HandleGarrisonFollowerRename(WorldPacket& p_RecvData);
         void HandleGarrisonDecommisionShip(WorldPacket& p_RecvData);
 

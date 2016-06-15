@@ -295,6 +295,8 @@ class boss_operator_thogar : public CreatureScript
 
                 if (m_Instance != nullptr)
                 {
+                    m_Instance->SetBossState(eFoundryDatas::DataOperatorThogar, EncounterState::FAIL);
+
                     for (uint32 l_Entry = eFoundryGameObjects::MassiveDoorTrack4Right; l_Entry <= eFoundryGameObjects::MassiveDoorTrack1Left; ++l_Entry)
                     {
                         if (GameObject* l_Door = GameObject::GetGameObject(*me, m_Instance->GetData64(l_Entry)))
@@ -744,6 +746,7 @@ class npc_foundry_train_controller : public CreatureScript
                                 {
                                     if (Creature* l_ManAtArms = Creature::GetCreature(*me, l_Guid))
                                     {
+                                        l_ManAtArms->SetHomePosition(g_ManAtArmsExitPos);
                                         l_ManAtArms->GetMotionMaster()->MoveJump(g_ManAtArmsExitPos, 30.0f, 20.0f);
 
                                         l_ManAtArms->SetReactState(ReactStates::REACT_AGGRESSIVE);
@@ -1038,7 +1041,12 @@ class npc_foundry_train_controller : public CreatureScript
                                 AddTimedDelayedOperation(100, [this, l_Guid, l_IsLeft, l_I]() -> void
                                 {
                                     if (Creature* l_Passenger = Creature::GetCreature(*me, l_Guid))
-                                        l_Passenger->GetMotionMaster()->MoveJump(l_IsLeft ? g_IronRaiderLeftExitPos[l_I] : g_IronRaiderRightExitPos[l_I], 30.0f, 10.0f);
+                                    {
+                                        Position l_Pos = l_IsLeft ? g_IronRaiderLeftExitPos[l_I] : g_IronRaiderRightExitPos[l_I];
+
+                                        l_Passenger->GetMotionMaster()->MoveJump(l_Pos, 30.0f, 10.0f);
+                                        l_Passenger->SetHomePosition(l_Pos);
+                                    }
                                 });
 
                                 AddTimedDelayedOperation(500, [this, l_Guid]() -> void
@@ -1498,10 +1506,12 @@ class areatrigger_foundry_moving_train : public AreaTriggerEntityScript
                         l_Iter->CastSpell(l_Iter, eSpells::MovingTrainDamage, true, nullptr, nullptr, l_Thogar->GetGUID());
 
                         Position l_Pos;
-                        l_Pos.m_positionX   = l_Iter->m_positionX + 20.0f * cos(l_Iter->GetAngle(&g_CenterPos));
-                        l_Pos.m_positionY   = l_Iter->m_positionY + 20.0f * sin(l_Iter->GetAngle(&g_CenterPos));
+
+                        float l_Orientation = p_AreaTrigger->GetAngle(l_Iter);
+                        l_Pos.m_positionX   = l_Iter->m_positionX + 10.0f * cos(l_Orientation);
+                        l_Pos.m_positionY   = l_Iter->m_positionY + 10.0f * sin(l_Orientation);
                         l_Pos.m_positionZ   = g_CenterPos.m_positionZ;
-                        l_Pos.m_orientation = g_CenterPos.m_orientation;
+                        l_Pos.m_orientation = l_Orientation;
 
                         l_Iter->CastSpell(l_Pos, eSpells::DodgedAMovingTrain, true);
 

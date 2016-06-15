@@ -1030,6 +1030,9 @@ public:
             {
                 for (uint64 l_Itr : m_ListVoidSpawnsGuid)
                 {
+					if (!l_Itr)
+						continue;
+
                     if (Creature* l_Creature = Creature::GetCreature(*go, l_Itr))
                     {
                         if (l_Creature->isDead())

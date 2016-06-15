@@ -24726,20 +24726,23 @@ void Player::StopCastingCharm()
 
     if (charm->IsVehicle())
     {
-        /// Prevent exit vehicle at map switch
-        if (GetMapSwitchDestination() != -1 && charm->GetTypeId() == TYPEID_UNIT)
+        if (charm->GetVehicleKit() && charm->GetVehicleKit()->GetPassengersCount() == 1)
         {
-            Map* l_NewMap = sMapMgr->CreateMap(GetMapSwitchDestination(), this);
-
-            if (l_NewMap && l_NewMap->CanEnter(this))
+            /// Prevent exit vehicle at map switch
+            if (GetMapSwitchDestination() != -1 && charm->GetTypeId() == TYPEID_UNIT)
             {
-                charm->SetMapSwitchDestination(GetMapSwitchDestination());
-                charm->ToCreature()->SetLockAI(true);
-                charm->ToCreature()->FarTeleportTo(l_NewMap, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-                charm->ToCreature()->SetLockAI(false);
-                charm->SetMapSwitchDestination(-1);
+                Map* l_NewMap = sMapMgr->CreateMap(GetMapSwitchDestination(), this);
 
-                return;
+                if (l_NewMap && l_NewMap->CanEnter(this))
+                {
+                    charm->SetMapSwitchDestination(GetMapSwitchDestination());
+                    charm->ToCreature()->SetLockAI(true);
+                    charm->ToCreature()->FarTeleportTo(l_NewMap, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+                    charm->ToCreature()->SetLockAI(false);
+                    charm->SetMapSwitchDestination(-1);
+
+                    return;
+                }
             }
         }
 
@@ -28179,6 +28182,8 @@ void Player::ResetDailyGarrisonDatas()
                 }
             }
         }
+
+        l_Garrison->UpdatePlot(GetPlotInstanceID());
     }
 
     SaveToDB();

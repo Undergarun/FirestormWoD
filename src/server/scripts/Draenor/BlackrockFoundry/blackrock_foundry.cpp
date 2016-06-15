@@ -3493,7 +3493,7 @@ class npc_foundry_iron_raider : public CreatureScript
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                             me->CastSpell(*l_Target, eSpells::SpellThrowGrenade, false);
-                        m_Events.ScheduleEvent(eEvents::EventThrowGrenade, urand(5 * TimeConstants::IN_MILLISECONDS, 7 * TimeConstants::IN_MILLISECONDS));
+                        m_Events.ScheduleEvent(eEvents::EventThrowGrenade, urand(12 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     case eEvents::EventSerratedSlash:
@@ -3579,7 +3579,7 @@ class npc_foundry_iron_crack_shot : public CreatureScript
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                             me->CastSpell(*l_Target, eSpells::SpellThrowGrenade, false);
-                        m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(5 * TimeConstants::IN_MILLISECONDS, 7 * TimeConstants::IN_MILLISECONDS));
+                        m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(12 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     default:
