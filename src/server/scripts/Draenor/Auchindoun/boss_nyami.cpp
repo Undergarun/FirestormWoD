@@ -403,16 +403,8 @@ class auchindoun_nyami_mob_warden_cosmetic : public CreatureScript
             me->SetDisableGravity(true);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->CastSpell(me, eNyamiSpells::SpellStrangulateState);
+			me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FLYING);
             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-        }
-
-        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
-        {
-            switch (p_Id)
-            {
-                default:
-                    break;
-            }
         }
     };
 
@@ -780,7 +772,7 @@ class auchindoun_nyami_spell_torn_spirits : public SpellScriptLoader
 /// Soul Vessel - 154187
 class auchindoun_nyami_spell_soul_vessel : public SpellScriptLoader
 {
-public:
+	public:
 
     auchindoun_nyami_spell_soul_vessel() : SpellScriptLoader("auchindoun_nyami_spell_soul_vessel") { }
 
@@ -809,8 +801,7 @@ public:
 /// Soul Vessel - 155327
 class auchindoun_nyami_spell_soul_vessel_dummy : public SpellScriptLoader
 {
-
-public:
+	public:
 
     auchindoun_nyami_spell_soul_vessel_dummy() : SpellScriptLoader("auchindoun_nyami_spell_soul_vessel_dummy") { }
 
@@ -831,14 +822,17 @@ public:
                         if (l_Itr && l_Itr->IsInWorld())
                             l_Itr->CastSpell(l_Itr, eNyamiSpells::SpellSoulVesselDmg);
                     }
-                }
+				}
 
-                /// Cosmetic
-                if (Creature* l_Bubble = l_Caster->FindNearestCreature(eNyamiCreatures::CreatureSoulVesselHackBubbleEffect, 150.0f))
-                {
-                    l_Bubble->CancelOrphanSpellVisual(eAuchindounSpellVisualKit::SpellVisualKitNyamiSoulVesselCircle);
-                    l_Bubble->CancelOrphanSpellVisual(eAuchindounSpellVisualKit::SpellVisualKitNyamiSoulVesselSpiralCircle);
-                }
+				/// Cosmetic
+				if (Creature* l_Bubble = l_Caster->FindNearestCreature(eNyamiCreatures::CreatureSoulVesselHackBubbleEffect, 150.0f))
+				{
+					G3D::Vector3 l_Source(l_Bubble->m_positionX, l_Bubble->m_positionY, l_Bubble->m_positionZ);
+					G3D::Vector3 l_Dest(l_Caster->m_positionX, l_Caster->m_positionY, l_Caster->m_positionZ);
+					G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
+
+					l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitNyamiSoulVesselSpiralCircle, 1.0f);
+				}
             }
         }
 
@@ -857,7 +851,7 @@ public:
 /// Radiant Star AreaTrigger - 157787
 class auchindoun_nyami_at_radiant_star : public AreaTriggerEntityScript
 {
-public:
+	public:
 
     auchindoun_nyami_at_radiant_star() : AreaTriggerEntityScript("auchindoun_nyami_at_radiant_star") {}
 

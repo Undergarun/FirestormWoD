@@ -111,39 +111,47 @@ class EventTuulaniIntroduction : public BasicEvent
                                 }
                                 case 11:
                                 {
-                                    std::list<Creature*> l_ListCreatures;
-                                    l_Tuulina->GetCreatureListInGrid(l_ListCreatures, 1000.0f);
-                                    if (!l_ListCreatures.empty())
-                                    {
-                                        for (Creature* l_Itr : l_ListCreatures)
-                                        {
-                                            if (!l_Itr)
-                                                continue;
+									std::list<Creature*> l_ListCreatures;
+									uint32 l_Entries[7] = { eAuchindounCreatures::CreatureSoulBinderTuulani ,eAuchindounCreatures::CreatureSoulBinderNyami, eAuchindounBosses::BossKaathar,eAuchindounCreatures::CreatureSargeriZealot, eAuchindounCreatures::CreatureSargeriSoulBinder, eAuchindounCreatures::CreatureSargeriRitualist, eAuchindounCreatures::CreatureSargeiHoplite };
 
-                                            l_Itr->SetPhaseMask(4, true);
-                                        }
-                                    }
+									for (uint8 l_I = 0; l_I < 7; l_I++)
+									{
+										l_Tuulina->GetCreatureListWithEntryInGrid(l_ListCreatures, l_Entries[l_I], 200.0f);
+									}
 
-                                    std::list<Player*> l_ListPlayers;
-                                    l_Tuulina->GetPlayerListInGrid(l_ListPlayers, 600.0f, true);
-                                    if (!l_ListPlayers.empty())
-                                    {
-                                        for (Player* l_Itr : l_ListPlayers)
-                                        {
-                                            if (!l_Itr)
-                                                continue;
+									if (!l_ListCreatures.empty())
+									{
+										for (Creature* l_Itr : l_ListCreatures)
+										{
+											if (!l_Itr)
+												continue;
 
-                                            l_Itr->NearTeleportTo(*l_Tuulina);
-                                            l_Itr->PlayScene(eAuchindounScenes::SpellAuchindounSceneTulaaniReachNyami, l_Itr);
-                                        }
-                                    }
+											l_Itr->SetPhaseMask(4, true);
+										}
+									}
 
-                                    l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 15, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(30 * TimeConstants::IN_MILLISECONDS));
+									std::list<Player*> l_ListPlayers;
+									l_Tuulina->GetPlayerListInGrid(l_ListPlayers, 600.0f, true);
+									if (!l_ListPlayers.empty())
+									{
+										for (Player* l_Itr : l_ListPlayers)
+										{
+											if (!l_Itr)
+												continue;
+
+											l_Itr->NearTeleportTo(*l_Tuulina);
+											l_Itr->PlayScene(eAuchindounScenes::SpellAuchindounSceneTulaaniReachNyami, l_Itr);
+										}
+									}
+
+                                    l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 15, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(12 * TimeConstants::IN_MILLISECONDS));
                                     l_Tuulina->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani09, g_PositionTuulaniMovements[9]);
                                     break;
                                 }
                                 case 12:
                                 {
+								
+
                                     l_Tuulina->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani10, g_PositionTuulaniMovements[10]);
                                     break;
                                 }
@@ -159,18 +167,25 @@ class EventTuulaniIntroduction : public BasicEvent
                                 }
                                 case 15:
                                 {
-                                    std::list<Creature*> l_ListCreatures;
-                                    l_Tuulina->GetCreatureListInGrid(l_ListCreatures, 1000.0f);
-                                    if (!l_ListCreatures.empty())
-                                    {
-                                        for (Creature* l_Itr : l_ListCreatures)
-                                        {
-                                            if (!l_Itr)
-                                                continue;
+									std::list<Creature*> l_ListCreatures;
+									uint32 l_Entries[7] = { eAuchindounCreatures::CreatureSoulBinderTuulani, eAuchindounCreatures::CreatureSoulBinderNyami, eAuchindounBosses::BossKaathar, eAuchindounCreatures::CreatureSargeriZealot, eAuchindounCreatures::CreatureSargeriSoulBinder, eAuchindounCreatures::CreatureSargeriRitualist, eAuchindounCreatures::CreatureSargeiHoplite };
 
-                                            l_Itr->SetPhaseMask(1, true);
-                                        }
-                                    } 
+									for (uint8 l_I = 0; l_I < 7; l_I++)
+									{
+										l_Tuulina->GetCreatureListWithEntryInGrid(l_ListCreatures, l_Entries[l_I], 200.0f);
+									}
+
+									if (!l_ListCreatures.empty())
+									{
+										for (Creature* l_Itr : l_ListCreatures)
+										{
+											if (!l_Itr)
+												continue;
+
+											l_Itr->SetPhaseMask(1, true);
+										}
+									}
+
                                     break;
                                 }
                                 /*
