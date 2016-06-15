@@ -3508,6 +3508,11 @@ class spell_pri_mind_blast: public SpellScriptLoader
     public:
         spell_pri_mind_blast() : SpellScriptLoader("spell_pri_mind_blast") { }
 
+        enum eSpells
+        {
+            GlyphOfMindSpike = 81292
+        };
+
         class spell_pri_mind_blast_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pri_mind_blast_SpellScript);
@@ -3552,6 +3557,10 @@ class spell_pri_mind_blast: public SpellScriptLoader
                     if (l_Caster->HasSpellCooldown(PRIEST_SPELL_MIND_BLAST))
                         l_Caster->RemoveSpellCooldown(PRIEST_SPELL_MIND_BLAST, true);
                 }
+
+                /// Glyph of Mind Spike
+                if (l_Caster->HasAura(eSpells::GlyphOfMindSpike))
+                    l_Caster->RemoveAura(eSpells::GlyphOfMindSpike);
             }
 
             void HandleAfterHit()
@@ -4487,7 +4496,50 @@ public:
     }
 };
 
-#ifndef __clang_analyzer__
+/// Glyph of Mind Spike - 33371 (Proc - 81292)
+/// Called by Mind Spike - 73510
+class spell_pri_glyph_of_mind_spike : public SpellScriptLoader
+{
+public:
+    spell_pri_glyph_of_mind_spike() : SpellScriptLoader("spell_pri_glyph_of_mind_spike") { }
+
+    class spell_pri_glyph_of_mind_spike_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_glyph_of_mind_spike_SpellScript);
+
+        enum eSpells
+        {
+            GlyphOfMindSpikeAura = 33371,
+            GlyphOfMindSpike = 81292
+        };
+
+        void HandleCast()
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            if (l_Caster->HasAura(eSpells::GlyphOfMindSpikeAura))
+            {
+                uint32 l_CastTime = l_Caster->GetCurrentSpellCastTime(m_scriptSpellId);
+                if (l_CastTime != 0)
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfMindSpike, true);
+            }
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_pri_glyph_of_mind_spike_SpellScript::HandleCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_glyph_of_mind_spike_SpellScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_shadowform();
@@ -4569,6 +4621,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_cascade_trigger_holy();
     new spell_pri_cascade_trigger_shadow();
     new spell_pri_cascade_heal();
+    new spell_pri_glyph_of_mind_spike();
 
     /// PlayerScripts
     new PlayerScript_Shadow_Orb();

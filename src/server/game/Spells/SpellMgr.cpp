@@ -6425,6 +6425,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].MiscValue = 74410;
                 spellInfo->Effects[0].MiscValueB = 248;
                 break;
+            case 81292:  ///< Glyph of Mind Spike (Shadow)
+                spellInfo->ProcFlags = 0;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
@@ -6474,7 +6477,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 74434:  ///< Soul Burn
             case 23920:  ///< Spell Reflection
             case 124430: ///< Divine Insight (Shadow)
-            case 81292:  ///< Glyph of Mind Spike
             case 114250: ///< Selfless Healer
             case 90174:  ///< Divine Purpose
             case 131567: ///< Holy Spark
