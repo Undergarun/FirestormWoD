@@ -26,6 +26,7 @@ DELETE FROM `vehicle_template_accessory` WHERE entry IN (81297, 83612);
 INSERT INTO `instance_template` (`map`, `parent`, `script`, `allowMount`) VALUES (1195, 0, 'instance_iron_docks', 0);
 
 -- Creature
+UPDATE creature SET spawntimesecs` = 4000 WHERE map = 1195;
 
 -- Creature
 INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES('47667','1195','6951','7309','6','1','0','2','6817.24','-1113.05','4.8014','2.10844','86400','0','0','1','0','0','0','0','0','2048','0','0','0','0',NULL);
