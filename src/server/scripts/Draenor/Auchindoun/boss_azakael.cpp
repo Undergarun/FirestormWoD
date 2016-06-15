@@ -294,6 +294,24 @@ class boss_azzakel : public CreatureScript
             }
         }
 
+		void JustSummoned(Creature* p_Summon) override
+		{
+			if (p_Summon)
+			{
+				switch (p_Summon->GetEntry())
+				{
+				case eAzzakelCreatures::CreatureBlazingTrickster:
+				case eAzzakelCreatures::CreatureCacklingPyromaniac:
+				case eAzzakelCreatures::CreatureFelguard:
+					p_Summon->SetReactState(ReactStates::REACT_AGGRESSIVE);
+					p_Summon->SetInCombatWithZone();
+					break;
+				default:
+					break;			
+				}
+			}
+		}
+
         void JustReachedHome() override
         {
             _JustReachedHome();

@@ -54,7 +54,8 @@ enum eKaatharEvents
 enum eKaatharActions
 {
     ActionActivateBoss = 1,
-    ActionFateHallowedGround
+    ActionFateHallowedGround,
+	ActionDespawnCreatures
 };
 
 enum eKaatharTalks
@@ -75,6 +76,40 @@ enum eKaatharCreatures
 };
 
 Position const g_KaatharNewHomePosition = { 1911.47f, 3152.13f, 30.972f, 1.166194f };
+
+
+/// 1st Starting Event
+class EventKaatharDespawnCreatures : public BasicEvent
+{
+public:
+
+	explicit EventKaatharDespawnCreatures(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
+	{
+	}
+
+	bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
+	{
+		if (m_Obj)
+		{
+			if (InstanceScript * l_Instance = m_Obj->GetInstanceScript())
+			{
+				if (Creature* l_Kaathar = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossKathaar)))
+				{
+					if (l_Kaathar->IsAIEnabled)
+						l_Kaathar->GetAI()->DoAction(eKaatharActions::ActionDespawnCreatures);
+				}
+			}
+		}
+
+		return true;
+	}
+
+private:
+	InstanceScript* m_InstanceScript;
+	Unit* m_Obj;
+	int m_Modifier;
+	int m_Event;
+};
 
 class EventNyamiEscape : public BasicEvent
 {
@@ -110,17 +145,17 @@ class EventNyamiEscape : public BasicEvent
                                     case 1:
                                     {
                                         /// Cosmetic crystal projectiles flies toward the middle
-                                        if (Creature* l_Teronagar = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+                                        if (Creature* l_Kaathar = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossKathaar)))
                                         {
                                             for (uint8 l_I = 0; l_I < 20; l_I++)
                                             {
                                                 if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
                                                 {
                                                     G3D::Vector3 l_Source(l_Caster->m_positionX, l_Caster->m_positionY, l_Caster->m_positionZ);
-                                                    G3D::Vector3 l_Dest(l_Teronagar->m_positionX, l_Teronagar->m_positionY, l_Teronagar->m_positionZ);
+													G3D::Vector3 l_Dest(l_Kaathar->m_positionX, l_Kaathar->m_positionY, l_Kaathar->m_positionZ);
                                                     G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
 
-                                                    l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 1.0f);
+                                                    l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral);									
                                                 }
                                             }
                                         }
@@ -131,6 +166,9 @@ class EventNyamiEscape : public BasicEvent
                                     }
                                     case 2:
                                     {
+										if (Creature* l_AuchindounProtection = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureShieldStalker, 1000.0f, true))
+											l_AuchindounProtection->DespawnOrUnsummon();
+
                                         l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK8);
                                         l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 3), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                         break;
@@ -226,18 +264,20 @@ public:
                                     }
                                 }
 
+								if (Creature* l_Nyami = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossNyami)))
+									l_Nyami->SetPhaseMask(1, true);
+
                                 if (Creature* l_Magus = m_Obj->SummonCreature(eAuchindounCreatures::CreatureAucheniMagus, g_PositionMageSpawning, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                                 {
                                     l_Magus->GetMotionMaster()->MovePoint(0, g_PositionMageMoveTo);
-                                    l_Magus->m_Events.AddEvent(new EventPostKaathar(l_Magus, 1), l_Magus->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                    l_Magus->m_Events.AddEvent(new EventPostKaathar(l_Magus, 1), l_Magus->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));							
                                 }                      
                                 break;
                             }
                             case 1:
                             {                 
                                 l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK15);
-                                /// Summoning a boss
-                                l_Tuulani->SummonCreature(eAuchindounBosses::BossNyami, g_PositionNyamiSpawn, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+     
                                 /// Holy Wall, Object In MIddle
                                 l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInMiddleFromNyami.GetPositionX(), g_PositionWallInMiddleFromNyami.GetPositionY(), g_PositionWallInMiddleFromNyami.GetPositionZ(), g_PositionWallInMiddleFromNyami.GetOrientation(), 0, 0, 0, 0, 0);
                                 /// Holy Wall, Object Behind
@@ -402,11 +442,11 @@ class boss_kaathar : public CreatureScript
                 m_Intro = false;
                 m_False = false;
                 m_IntroDone = false;
-                ActivateDoors();
                 me->setFaction(FriendlyFaction);
                 me->CastSpell(me, eAuchindounSpells::SpellGuard);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);                                                
             }
+			ActivateDoors();
         }
 
         void ActivateDoors()
@@ -425,7 +465,6 @@ class boss_kaathar : public CreatureScript
         {
             _JustReachedHome();      
             summons.DespawnAll();
-            ActivateDoors();        
         }
 
         void MoveInLineOfSight(Unit* p_Who) override
@@ -490,6 +529,9 @@ class boss_kaathar : public CreatureScript
                         me->m_Events.AddEvent(new EventNyamiEscape(me, 0), me->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
                     }
                     break;
+				case eKaatharActions::ActionDespawnCreatures:
+					DespawnAllAucheniDraeneis();
+					break;
                 }
                 default:
                     break;
@@ -506,14 +548,13 @@ class boss_kaathar : public CreatureScript
                     if (Creature* l_AssinatedGuard = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataAssinatedGuard)))
                     {
                         l_AssinatingGuard->GetMotionMaster()->MovePoint(0, *l_AssinatedGuard);
-
                         l_AssinatingGuard->Attack(l_AssinatedGuard, true);
                         l_AssinatedGuard->Kill(l_AssinatedGuard);
                     }
                 }
             }
 
-            int32 l_Entries[13] = { 77693, 76595, eAuchindounCreatures::CreatureAuchenaiDefenderUnique, eAuchindounCreatures::CreatureAucheniMagus2, eAuchindounCreatures::CreatureAucheniHoplite,
+            uint32 l_Entries[13] = { 77693, 76595, eAuchindounCreatures::CreatureAuchenaiDefenderUnique, eAuchindounCreatures::CreatureAucheniMagus2, eAuchindounCreatures::CreatureAucheniHoplite,
                 eAuchindounCreatures::CreatureAucheniZealot, eAuchindounCreatures::CreatureAucheniWarden, eAuchindounCreatures::CreatureAucheniRitualist, eAuchindounCreatures::CreatureAucheniMagus,
                 eAuchindounCreatures::CreatureAucheniSoulPriest, eAuchindounCreatures::CreatureAucheniArbiter, eAuchindounCreatures::CreatureAucheniCleric, eAuchindounCreatures::CreatureAucheniDefender };
 
@@ -526,14 +567,14 @@ class boss_kaathar : public CreatureScript
         /// Responsible for the phase change after Kaathar fight - Spawning
         void SpawnSargereiDraenies()
         {
-            uint32 l_EntriesOfSargereiDraeneis[6] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
+            uint32 l_EntriesOfSargereiDraeneis[7] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
                 eAuchindounCreatures::CreatureSargeriSoulPriest, eAuchindounCreatures::CreatureSargeriWarden,
-                eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating};
+                eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating, eAuchindounCreatures::CreatureWardenAzzakael};
 
             std::list<Creature*> l_ListSargereiDraeneis;
-            for (uint8 l_I = 0; l_I < 6; l_I++)
+            for (uint8 l_I = 0; l_I < 7; l_I++)
             {
-                me->GetCreatureListInGrid(l_ListSargereiDraeneis, l_EntriesOfSargereiDraeneis[l_I]);              
+                me->GetCreatureListWithEntryInGrid(l_ListSargereiDraeneis, l_EntriesOfSargereiDraeneis[l_I], 1000.0f);              
             }
 
             if (!l_ListSargereiDraeneis.empty())
@@ -549,11 +590,8 @@ class boss_kaathar : public CreatureScript
         {
             _JustDied();
 
-            AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-            {
-                DespawnAllAucheniDraeneis();
-            });    
-
+			DespawnAllAucheniDraeneis();
+   
             /// From here Teronogor spawns
             std::list<Player*> l_ListPlayers;
             me->GetPlayerListInGrid(l_ListPlayers, 600.0f, true);
@@ -622,7 +660,6 @@ class boss_kaathar : public CreatureScript
                     Position l_Position;
                     me->GetRandomNearPosition(l_Position, 20.0f);
                     me->SummonCreature(eKaatharCreatures::TriggerHallowedGround, l_Position, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 30 * TimeConstants::IN_MILLISECONDS);
-
                     events.ScheduleEvent(eKaatharEvents::EventHallowedGround, 8 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
@@ -1063,7 +1100,7 @@ class auchindoun_kaathar_at_fissure : public AreaTriggerEntityScript
         if (m_Diff <= p_Time)
         {
             std::list<Player*> l_PlayerList;
-            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 2.0f);
+            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 1.0f);
             JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, l_PlayerList, check);
             p_AreaTrigger->VisitNearbyObject(2.0f, searcher);
 
