@@ -21054,6 +21054,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType p_TotemType)
         case SUMMON_TYPE_TOTEM_AIR3:
         case SUMMON_TYPE_TOTEM_AIR4:
         case SUMMON_TYPE_TOTEM_AIR5:
+        case SUMMON_TYPE_TOTEM_AIR6:
             p_TotemType = SUMMON_TYPE_TOTEM_AIR;
             break;
     }
