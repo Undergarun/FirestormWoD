@@ -4540,6 +4540,63 @@ public:
     }
 };
 
+
+/// Glyph of the Heavens - 120581, ItemId - 79538
+/// Called by Levitate: 111758
+class spell_pri_glyph_of_the_heavens : public SpellScriptLoader
+{
+public:
+    spell_pri_glyph_of_the_heavens() : SpellScriptLoader("spell_pri_glyph_of_the_heavens") { }
+
+    class spell_pri_glyph_of_the_heavens_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_glyph_of_the_heavens_AuraScript);
+
+        enum eSpells
+        {
+            LevitateEffect = 111758,
+            Heaven = 124433,
+            GlyphOfTheHeavens = 120581
+        };
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Unit* l_Target = GetUnitOwner();
+            if (l_Target == nullptr)
+                return;
+
+            if (l_Target->HasAura(eSpells::LevitateEffect))
+                if (l_Caster->HasAura(eSpells::GlyphOfTheHeavens))
+                    l_Target->CastSpell(l_Target, eSpells::Heaven, true);
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Target = GetUnitOwner();
+            if (l_Target == nullptr)
+                return;
+
+            if (l_Target->HasAura(eSpells::Heaven))
+                l_Target->RemoveAura(eSpells::Heaven);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_the_heavens_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_the_heavens_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_glyph_of_the_heavens_AuraScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_shadowform();
@@ -4622,6 +4679,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_cascade_trigger_shadow();
     new spell_pri_cascade_heal();
     new spell_pri_glyph_of_mind_spike();
+    new spell_pri_glyph_of_the_heavens(); 
 
     /// PlayerScripts
     new PlayerScript_Shadow_Orb();
