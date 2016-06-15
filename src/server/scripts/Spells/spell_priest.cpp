@@ -3899,7 +3899,7 @@ class spell_pri_saving_grace : public SpellScriptLoader
                 PreventHitEffect(p_EffIndex);
             }
 
-            void HandleAfterHit()
+            void HandleAfterCast()
             {
                 Player* p_Player = GetCaster()->ToPlayer();
                 if (!p_Player)
@@ -3908,15 +3908,15 @@ class spell_pri_saving_grace : public SpellScriptLoader
                 p_Player->CastSpell(p_Player, eSpells::SavingGraceDebuff, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_pri_saving_grace_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
                 OnEffectLaunch += SpellEffectFn(spell_pri_saving_grace_SpellScript::HandleTriggerSpell, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
-                AfterHit += SpellHitFn(spell_pri_saving_grace_SpellScript::HandleAfterHit);
+                AfterCast += SpellCastFn(spell_pri_saving_grace_SpellScript::HandleAfterCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_pri_saving_grace_SpellScript;
         }
