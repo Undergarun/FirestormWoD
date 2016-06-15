@@ -145,20 +145,22 @@ class EventNyamiEscape : public BasicEvent
                                     case 1:
                                     {
                                         /// Cosmetic crystal projectiles flies toward the middle
-                                        if (Creature* l_Kaathar = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossKathaar)))
+                                        if (Creature* l_Teronoger = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
                                         {
-                                            for (uint8 l_I = 0; l_I < 20; l_I++)
+                                            for (uint8 l_I = 0; l_I < 30; l_I++)
                                             {
                                                 if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
                                                 {
                                                     G3D::Vector3 l_Source(l_Caster->m_positionX, l_Caster->m_positionY, l_Caster->m_positionZ);
-													G3D::Vector3 l_Dest(l_Kaathar->m_positionX, l_Kaathar->m_positionY, l_Kaathar->m_positionZ);
+													G3D::Vector3 l_Dest(l_Teronoger->m_positionX, l_Teronoger->m_positionY, l_Teronoger->m_positionZ);
                                                     G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
 
-                                                    l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral);									
+                                                    l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 2.0f);									
                                                 }
                                             }
                                         }
+
+										//if (GameObject* l_NearestCrystal = l_Nyami->FindNearestGameObject(eAuchindounObjects::))
 
                                         l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK7);
                                         l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 2), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
@@ -444,9 +446,10 @@ class boss_kaathar : public CreatureScript
                 m_IntroDone = false;
                 me->setFaction(FriendlyFaction);
                 me->CastSpell(me, eAuchindounSpells::SpellGuard);
+				ActivateDoors();
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);                                                
             }
-			ActivateDoors();
+		
         }
 
         void ActivateDoors()
@@ -465,6 +468,7 @@ class boss_kaathar : public CreatureScript
         {
             _JustReachedHome();      
             summons.DespawnAll();
+			ActivateDoors();
         }
 
         void MoveInLineOfSight(Unit* p_Who) override

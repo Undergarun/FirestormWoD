@@ -166,8 +166,6 @@ public:
                         {
                             if (Creature* l_Teronogor = instance->GetCreature(GetData64(eAuchindounDatas::DataBossTeronogor)))
                             {
-                                p_Go->SetLootState(LootState::GO_READY);
-                                p_Go->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, l_Teronogor);
                                 m_SoulTransport01Guid = p_Go->GetGUID();
                             }
                         }
@@ -177,8 +175,6 @@ public:
                         {
                             if (Creature* l_Teronogor = instance->GetCreature(GetData64(eAuchindounDatas::DataBossTeronogor)))
                             {
-                                p_Go->SetLootState(LootState::GO_READY);
-                                p_Go->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, l_Teronogor);
                                 m_SoulTransport02Guid = p_Go->GetGUID();
                             }
                         }
@@ -187,9 +183,7 @@ public:
                         if (instance != nullptr)
                         {
                             if (Creature* l_Teronogor = instance->GetCreature(GetData64(eAuchindounDatas::DataBossTeronogor)))
-                            {
-                                p_Go->SetLootState(LootState::GO_READY);
-                                p_Go->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, l_Teronogor);
+							{
                                 m_SoulTransport03Guid = p_Go->GetGUID();
                             }
                         }
