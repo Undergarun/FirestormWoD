@@ -10,6 +10,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
+#include "DBCStores.h"
 
 /// Stonebound - 129755
 class spell_toy_stonebound : public SpellScriptLoader
@@ -183,6 +184,51 @@ class spell_toy_leyaras_locket : public SpellScriptLoader
         }
 };
 
+/// Toy Train Set (Pulse) - 61551
+class spell_item_toy_train_set_pulse : public SpellScriptLoader
+{
+    public:
+        spell_item_toy_train_set_pulse() : SpellScriptLoader("spell_item_toy_train_set_pulse") { }
+
+        class spell_item_toy_train_set_pulse_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_toy_train_set_pulse_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                if (Player* l_Target = GetHitUnit()->ToPlayer())
+                {
+                    l_Target->HandleEmoteCommand(Emote::EMOTE_ONESHOT_TRAIN);
+
+                    if (EmotesTextSoundEntry const* l_SoundEntry = FindTextSoundEmoteFor(TextEmotes::TEXT_EMOTE_TRAIN, l_Target->getRace(), l_Target->getGender()))
+                        l_Target->SendPlaySound(l_SoundEntry->SoundID, true);
+                }
+            }
+
+            void HandleTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.remove_if([](WorldObject const* p_Object)
+                {
+                    return !p_Object->IsPlayer();
+                });
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_toy_train_set_pulse_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_item_toy_train_set_pulse_SpellScript::HandleTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_toy_train_set_pulse_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_spell_toy()
 {
@@ -190,5 +236,6 @@ void AddSC_spell_toy()
     new spell_toy_warsong_orc_costume();
     new spell_toy_flippable_table();
     new spell_toy_leyaras_locket();
+    new spell_item_toy_train_set_pulse();
 }
 #endif
