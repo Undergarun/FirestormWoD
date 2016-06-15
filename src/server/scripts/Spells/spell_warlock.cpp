@@ -3975,7 +3975,7 @@ class spell_warl_doom_bolt : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Demonic Servitude - 152107
 class spell_warl_demonic_servitude : public SpellScriptLoader
 {
@@ -3993,6 +3993,13 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
                 GrimoireInfernal    = 157901,
                 GrimoireofSupremacy = 108499,
                 SummonAbyssal       = 157899
+            };
+
+            enum eNPCs
+            {
+                Infernal    = 78217,
+                Abyssal     = 78216,
+                Terrorguard = 78215
             };
 
             void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
@@ -4040,6 +4047,15 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
                     l_Player->removeSpell(eSpells::GrimoireInfernal, false, false);
                 if (l_Player->HasSpell(eSpells::SummonAbyssal))
                     l_Player->removeSpell(eSpells::SummonAbyssal, false, false);
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet == nullptr)
+                    return;
+
+                /// Prevent Doomguard/Infernal/Abyssal to keep summon after removing the talent
+                if (l_Pet->GetEntry() == eNPCs::Abyssal || l_Pet->GetEntry() == eNPCs::Infernal || l_Pet->GetEntry() == eNPCs::Terrorguard)
+                    l_Player->GetPet()->UnSummon();
             }
 
             void Register()
