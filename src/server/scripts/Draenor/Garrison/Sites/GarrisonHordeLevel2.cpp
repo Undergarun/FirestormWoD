@@ -85,12 +85,16 @@ namespace MS { namespace Garrison { namespace Sites
             p_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(9545), nullptr);
 
         /// Build your Barracks quest
-        if (p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
+        if (p_Owner->GetQuestStatus(Quests::Horde_BuildYourBarracks) != QUEST_STATUS_REWARDED)
         {
+            Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Horde_BuildYourBarracks);
             Manager* l_GarrisonMgr = p_Owner->GetGarrison();
 
-            if (l_GarrisonMgr == nullptr)
+            if (l_GarrisonMgr == nullptr || l_Quest == nullptr)
                 return;
+
+            if (p_Owner->GetQuestStatus(Quests::Horde_BuildYourBarracks) == QUEST_STATUS_NONE)
+                p_Owner->AddQuest(l_Quest, p_Owner);
 
             if (p_Owner->GetGarrison()->GetBuildingWithType(BuildingType::Barracks).BuildingID)
             {
@@ -99,6 +103,8 @@ namespace MS { namespace Garrison { namespace Sites
                 p_Owner->QuestObjectiveSatisfy(39012, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Learn Blueprint
                 p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Plot Finalize
             }
+
+            p_Owner->CompleteQuest(Quests::Horde_BuildYourBarracks);
         }
     }
 
