@@ -134,7 +134,7 @@ enum __QuestFlags
     QUEST_FLAGS_AUTO_SUBMIT                  = 0x00010000,                // Quests with this flag player submit automatically by special button in player gui, might not work properly atm
     QUEST_FLAGS_DISPLAY_ITEM_IN_TRACKER      = 0x00020000,
     QUEST_FLAGS_DISABLE_COMPLETION_TEXT      = 0x00040000,                // use Objective text as Complete text
-    QUEST_FLAGS_AUTO_ACCEPT                  = 0x00080000,                // The client recognizes this flag as auto-accept. Quest is automatically added to questlog, without offering gossip item menu to accept it manually.
+    QUEST_FLAGS_AUTO_ACCEPT                  = 0x00080000,                // The client recognizes this flag as auto-accept. However, NONE of the current quests (3.3.5a) have this flag. Maybe blizz used to use it, or will use it in the future.
     QUEST_FLAGS_AUTOCOMPLETE                 = 0x00100000,                // auto complete if the quest has at least 1 objective. Otherwise show autosubmit UI.
     QUEST_FLAGS_AUTO_TAKE                    = 0x00200000,                // Automatically suggestion of accepting quest. Not from npc.
     QUEST_FLAGS_UPDATE_PHASE_SHIFT           = 0x00400000,                // Not used currently

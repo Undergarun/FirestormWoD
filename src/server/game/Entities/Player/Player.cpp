@@ -18356,7 +18356,7 @@ bool Player::CanCompleteRepeatableQuest(const Quest * p_Quest)
 bool Player::CanRewardQuest(Quest const* p_Quest, bool msg)
 {
     // not auto complete quest and not completed quest (only cheating case, then ignore without message)
-    if (!p_Quest->IsDFQuest() && !p_Quest->IsAutoComplete() && !(p_Quest->GetFlags() & QUEST_FLAGS_AUTOCOMPLETE) && GetQuestStatus(p_Quest->GetQuestId()) != QUEST_STATUS_COMPLETE)
+    if (!p_Quest->IsDFQuest() && !p_Quest->IsAutoComplete() && GetQuestStatus(p_Quest->GetQuestId()) != QUEST_STATUS_COMPLETE)
         return false;
 
     // daily quest can't be rewarded (25 daily quest already completed)
@@ -18508,6 +18508,79 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
     return true;
 }
 
+void Player::HandleAutoCompleteQuest(Quest const* p_Quest)
+{
+    if (p_Quest->IsAutoComplete())
+    {
+        for (QuestObjective l_Objective : p_Quest->QuestObjectives)
+        {
+            if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
+            {
+                uint32 id = l_Objective.ObjectID;
+                uint32 count = l_Objective.Amount;
+
+                if (!id || !count)
+                    continue;
+
+                uint32 curItemCount = GetItemCount(id, true);
+
+                ItemPosCountVec dest;
+                uint8 msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, id, count - curItemCount);
+                if (msg == EQUIP_ERR_OK)
+                {
+                    Item* item = StoreNewItem(dest, id, true);
+                    SendNewItem(item, count - curItemCount, true, false);
+                }
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC)
+            {
+                int32 creature = l_Objective.ObjectID;
+                uint32 creaturecount = l_Objective.Amount;
+
+                if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
+                {
+                    for (uint16 z = 0; z < creaturecount; ++z)
+                        KilledMonster(cInfo, 0);
+                }
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_GO)
+            {
+                for (uint16 z = 0; z < l_Objective.Amount; ++z)
+                    CastedCreatureOrGO(l_Objective.ObjectID, 0, 0);
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_SPELL)
+            {
+                /// @TODO
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CURRENCY)
+            {
+                if (!l_Objective.ObjectID || !l_Objective.Amount)
+                    continue;
+
+                ModifyCurrency(l_Objective.ObjectID, l_Objective.Amount);
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2)
+            {
+                if (GetReputationMgr().GetReputation(l_Objective.ObjectID) < l_Objective.Amount)
+                {
+                    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(l_Objective.ObjectID))
+                        GetReputationMgr().SetReputation(factionEntry, l_Objective.Amount);
+                }
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY)
+            {
+                ModifyMoney(l_Objective.Amount);
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CRITERIA_TREE)
+            {
+                QuestObjectiveSatisfy(l_Objective.ObjectID, l_Objective.Amount, l_Objective.Type);
+            }
+        }
+
+        CompleteQuest(p_Quest->GetQuestId());
+    }
+}
+
 void Player::AddQuest(Quest const* quest, Object* questGiver)
 {
     uint16 log_slot = FindQuestSlot(0);
@@ -18585,6 +18658,8 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         m_Garrison->OnQuestStarted(quest);
 
     sScriptMgr->OnQuestAccept(this, quest);
+
+    HandleAutoCompleteQuest(quest);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
