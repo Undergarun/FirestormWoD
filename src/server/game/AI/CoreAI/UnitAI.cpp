@@ -35,7 +35,7 @@ void UnitAI::DoMeleeAttackIfReady()
 
     Unit* l_Victim = me->getVictim();
 
-    if (!l_Victim->isAlive())
+    if (l_Victim != nullptr && !l_Victim->isAlive())
         return;
 
     if (!me->IsWithinMeleeRange(l_Victim))
