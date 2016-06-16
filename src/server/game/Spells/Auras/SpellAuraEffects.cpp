@@ -1771,7 +1771,7 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
            break;
     }
     /// Update Amplitude since WoD, should be recalculated dynamically
-    CalculatePeriodic(caster);
+    CalculatePeriodic(caster, false);
     GetBase()->CallScriptEffectUpdatePeriodicHandlers(this);
 }
 
