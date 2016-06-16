@@ -1534,7 +1534,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 else
                 {
                     p_AbsorbAmount = 0;
-                    l_Caster->RemoveAura(GetSpellInfo()->Id, l_Caster->GetGUID());
+                    l_Caster->RemoveAura(122470, l_Caster->GetGUID());
                 }
             }
 
