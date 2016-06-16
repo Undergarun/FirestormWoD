@@ -4063,7 +4063,7 @@ class spell_monk_fists_of_fury_damage : public SpellScriptLoader
                     return;
 
                 Unit* l_Target = GetHitUnit();
-                Player* l_Player = GetCaster()->ToPlayer();
+                Player* l_Player = GetCaster()->GetSpellModOwner();
 
                 if (l_Target == nullptr ||l_Player == nullptr)
                     return;
