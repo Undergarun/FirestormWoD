@@ -151,11 +151,11 @@ class EventNyamiEscape : public BasicEvent
                                             {
                                                 if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
                                                 {
-                                                    G3D::Vector3 l_Source(l_Caster->m_positionX, l_Caster->m_positionY, l_Caster->m_positionZ);
-													G3D::Vector3 l_Dest(l_Teronoger->m_positionX, l_Teronoger->m_positionY, l_Teronoger->m_positionZ);
+													G3D::Vector3 l_Source(1911.741f, 3183.639f, 56.50413f);
+													G3D::Vector3 l_Dest(1911.731f, 3183.639f, 56.50413f);
                                                     G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
 
-                                                    l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 0.40f);									
+                                                    l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 8.0f);									
                                                 }
                                             }
                                         }
@@ -359,6 +359,24 @@ public:
 										if (!l_Itr)
 											continue;
 
+										l_Itr->SetPhaseMask(1, true);
+									}
+								}
+
+								uint32 l_EntriesOfSargereiDraeneis[7] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
+									eAuchindounCreatures::CreatureSargeriSoulPriest, eAuchindounCreatures::CreatureSargeriWarden,
+									eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating, eAuchindounCreatures::CreatureWardenAzzakael };
+
+								std::list<Creature*> l_ListSargereiDraeneis;
+								for (uint8 l_I = 0; l_I < 7; l_I++)
+								{
+									l_Tuulani->GetCreatureListWithEntryInGrid(l_ListSargereiDraeneis, l_EntriesOfSargereiDraeneis[l_I], 1000.0f);
+								}
+
+								if (!l_ListSargereiDraeneis.empty())
+								{
+									for (Creature* l_Itr : l_ListSargereiDraeneis)
+									{
 										l_Itr->SetPhaseMask(1, true);
 									}
 								}
@@ -587,30 +605,6 @@ class boss_kaathar : public CreatureScript
 
             for (uint8 l_I = 0; l_I < 13; l_I++)
                 DespawnCreaturesInArea(l_Entries[l_I], me);
-
-            SpawnSargereiDraenies();
-        }
-
-        /// Responsible for the phase change after Kaathar fight - Spawning
-        void SpawnSargereiDraenies()
-        {
-            uint32 l_EntriesOfSargereiDraeneis[7] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
-                eAuchindounCreatures::CreatureSargeriSoulPriest, eAuchindounCreatures::CreatureSargeriWarden,
-                eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating, eAuchindounCreatures::CreatureWardenAzzakael};
-
-            std::list<Creature*> l_ListSargereiDraeneis;
-            for (uint8 l_I = 0; l_I < 7; l_I++)
-            {
-                me->GetCreatureListWithEntryInGrid(l_ListSargereiDraeneis, l_EntriesOfSargereiDraeneis[l_I], 1000.0f);              
-            }
-
-            if (!l_ListSargereiDraeneis.empty())
-            {
-                for (Creature* l_Itr : l_ListSargereiDraeneis)
-                {
-                    l_Itr->SetPhaseMask(1, true);
-                }
-            }
         }
 
         void JustDied(Unit* /*p_Killer*/) override

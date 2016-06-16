@@ -427,6 +427,7 @@ class boss_azzakel : public CreatureScript
                     {
                         events.Reset();
                         Talk(eAzzakelTalks::AzzakelSpell01);
+						me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FLYING);
                         me->CastSpell(me, eAzzakelSpells::SpellClawsOfArgusVisual);               
                         me->MonsterTextEmote("Azzakel casts |cffff0000[Azzakael casts [Claws of Agrus]|cfffaeb00!", me->GetGUID(), true);
                         events.ScheduleEvent(eAzzakelEvents::EventClawsOfArgus, 45 * TimeConstants::IN_MILLISECONDS);

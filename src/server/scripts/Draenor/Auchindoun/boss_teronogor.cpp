@@ -671,20 +671,14 @@ class auchindoun_teronogor_mob_durag : public CreatureScript
                 me->GetMap()->SetObjectVisibility(1000.0f);
 
             /// Cosmetic channel - 
-            if (m_Instance != nullptr)
-            {
-                if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
-                {
-                    me->CastStop();
-                    me->CastSpell(l_Teronogor, eAuchindounSpells::SpellDrainSoulVisual);
-                }
-            }
-
-            if (m_First)
-            {
-                m_First = false;
-              
-            }
+			if (m_Instance != nullptr)
+			{
+				if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+				{
+					me->CastStop();
+					me->CastSpell(l_Teronogor, eAuchindounSpells::SpellDrainSoulVisual);
+				}
+			}
 
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
@@ -1562,7 +1556,7 @@ class auchindoun_teronogor_gameobject_soul_transporter_04 : public GameObjectScr
 	{
 	if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
 	{
-	go->SetLootState(LootState::GO_READY);
+	go->SetLootState(LootState::instance);
 	go->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, l_Teronogor);
 	}
 	}
