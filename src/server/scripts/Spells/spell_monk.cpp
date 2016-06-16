@@ -1528,13 +1528,13 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
 
                     if (AuraEffect* l_PreviousAura = l_Target->GetAuraEffect(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
                         l_Damage += l_PreviousAura->GetAmount() * (l_PreviousAura->GetBase()->GetDuration() / l_PreviousAura->GetAmplitude());
-                    l_Damage /= 6;
+                    l_Damage /= 5;
                     l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, l_Damage, l_Target);
                 }
                 else
                 {
                     p_AbsorbAmount = 0;
-                    l_Caster->RemoveAura(122470, l_Caster->GetGUID());
+                    l_Caster->RemoveAura(GetSpellInfo()->Id, l_Caster->GetGUID());
                 }
             }
 
