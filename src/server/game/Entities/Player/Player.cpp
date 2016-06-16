@@ -18108,17 +18108,7 @@ void Player::SendPreparedQuest(uint64 guid)
                     return;
                 }
 
-                if (quest->IsAutoAccept() && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
-                {
-                    AddQuest(quest, object);
-                    if (CanCompleteQuest(questId))
-                        CompleteQuest(questId);
-                }
-
-                if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
-                    PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
-                else
-                    PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid);
+                PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid);
             }
         }
     }
@@ -18175,31 +18165,48 @@ bool Player::IsActiveQuest(uint32 quest_id) const
     return m_QuestStatus.find(quest_id) != m_QuestStatus.end();
 }
 
-Quest const* Player::GetNextQuest(uint64 guid, Quest const* quest)
+Quest const* Player::GetNextQuest(uint64 p_Guid, Quest const* p_Quest)
 {
-    QuestRelationBounds objectQR;
+    QuestRelationBounds l_ObjectQR;
 
-    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
-    if (creature)
-        objectQR  = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
-    else
+    WorldObject* l_Object = ObjectAccessor::GetWorldObject(*this, p_Guid);
+
+    if (l_Object == nullptr)
+        return nullptr;
+
+    switch (l_Object->GetTypeId())
     {
-        //we should obtain map pointer from GetMap() in 99% of cases. Special case
-        //only for quests which cast teleport spells on player
-        Map* _map = IsInWorld() ? GetMap() : sMapMgr->FindMap(GetMapId(), GetInstanceId());
-        ASSERT(_map);
-        GameObject* pGameObject = _map->GetGameObject(guid);
-        if (pGameObject)
-            objectQR  = sObjectMgr->GetGOQuestRelationBounds(pGameObject->GetEntry());
-        else
-            return NULL;
+        case TYPEID_UNIT:
+        {
+            if (Creature* l_Creature = l_Object->ToCreature())
+                l_ObjectQR = sObjectMgr->GetCreatureQuestRelationBounds(l_Creature->GetEntry());
+
+            break;
+        }
+        case TYPEID_PLAYER:
+        {
+            if (Player* l_Player = l_Object->ToPlayer())
+                return sObjectMgr->GetQuestTemplate(p_Quest->GetNextQuestId());
+
+            break;
+        }
+        case TYPEID_GAMEOBJECT:
+        {
+            if (GameObject* l_Gob = l_Object->ToGameObject())
+                l_ObjectQR = sObjectMgr->GetGOQuestRelationBounds(l_Gob->GetEntry());
+
+            break;
+        }
+        default:
+            break;
     }
 
-    uint32 nextQuestID = quest->GetNextQuestInChain();
-    for (QuestRelations::const_iterator itr = objectQR.first; itr != objectQR.second; ++itr)
+    uint32 l_NextQuestID = p_Quest->GetNextQuestInChain();
+
+    for (QuestRelations::const_iterator l_Itr = l_ObjectQR.first; l_Itr != l_ObjectQR.second; ++l_Itr)
     {
-        if (itr->second == nextQuestID)
-            return sObjectMgr->GetQuestTemplate(nextQuestID);
+        if (l_Itr->second == l_NextQuestID)
+            return sObjectMgr->GetQuestTemplate(l_NextQuestID);
     }
 
     return NULL;

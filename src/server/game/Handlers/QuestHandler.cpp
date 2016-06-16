@@ -109,8 +109,9 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
     unk1 = recvData.ReadBit(); ///< unk1 is never read 01/18/16
 
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT|TYPEMASK_ITEM|TYPEMASK_PLAYER);
+    Quest const* l_Quest = sObjectMgr->GetQuestTemplate(questId);
 
-    if (!object || object == m_Player)
+    if (!l_Quest || !object || (object == m_Player && !l_Quest->IsAutoTake()))
         return;
 
     // no or incorrect quest giver (probably missing quest relation)
@@ -127,24 +128,24 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (object && object->IsPlayer() && object->ToPlayer()->GetQuestStatus(questId) == QUEST_STATUS_NONE)
+    if (object->IsPlayer() && object != m_Player && object->ToPlayer()->GetQuestStatus(questId) == QUEST_STATUS_NONE)
         return;
 
     // some kind of WPE protection
     if (!m_Player->CanInteractWithQuestGiver(object))
         return;
 
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+    if (l_Quest)
     {
         // prevent cheating
-        if (!GetPlayer()->CanTakeQuest(quest, true))
+        if (!GetPlayer()->CanTakeQuest(l_Quest, true))
         {
             m_Player->PlayerTalkClass->SendCloseGossip();
             m_Player->SetDivider(0);
             return;
         }
 
-        if (object && object->IsPlayer() && !quest->HasFlag(QUEST_FLAGS_SHARABLE))
+        if (object && object->IsPlayer() && !(l_Quest->HasFlag(QUEST_FLAGS_SHARABLE) || l_Quest->IsAutoTake()))
             return;
 
         if (m_Player->GetDivider() != 0)
@@ -169,11 +170,11 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             }
         }
 
-        if (m_Player->CanAddQuest(quest, true))
+        if (m_Player->CanAddQuest(l_Quest, true))
         {
-            m_Player->AddQuest(quest, object);
+            m_Player->AddQuest(l_Quest, object);
 
-            if (quest->HasFlag(QUEST_FLAGS_PARTY_ACCEPT))
+            if (l_Quest->HasFlag(QUEST_FLAGS_PARTY_ACCEPT))
             {
                 if (Group* group = m_Player->GetGroup())
                 {
@@ -184,14 +185,14 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                         if (!player || player == m_Player)     // not self
                             continue;
 
-                        if (player->CanTakeQuest(quest, true))
+                        if (player->CanTakeQuest(l_Quest, true))
                         {
                             player->SetDivider(m_Player->GetGUID());
 
                             //need confirmation that any gossip window will close
                             player->PlayerTalkClass->SendCloseGossip();
 
-                            m_Player->SendQuestConfirmAccept(quest, player);
+                            m_Player->SendQuestConfirmAccept(l_Quest, player);
                         }
                     }
                 }
@@ -203,20 +204,20 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             switch (object->GetTypeId())
             {
                 case TYPEID_UNIT:
-                    sScriptMgr->OnQuestAccept(m_Player, (object->ToCreature()), quest);
-                    (object->ToCreature())->AI()->sQuestAccept(m_Player, quest);
+                    sScriptMgr->OnQuestAccept(m_Player, (object->ToCreature()), l_Quest);
+                    (object->ToCreature())->AI()->sQuestAccept(m_Player, l_Quest);
                     break;
                 case TYPEID_ITEM:
                 case TYPEID_CONTAINER:
                 {
-                    sScriptMgr->OnQuestAccept(m_Player, ((Item*)object), quest);
+                    sScriptMgr->OnQuestAccept(m_Player, ((Item*)object), l_Quest);
 
-                    if (!quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))
+                    if (!l_Quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))
                         break;
 
                     // destroy not required for quest finish quest starting item
                     bool destroyItem = true;
-                    for (QuestObjective l_Objective : quest->QuestObjectives)
+                    for (QuestObjective l_Objective : l_Quest->QuestObjectives)
                     {
                         if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM &&
                             (l_Objective.ObjectID == ((Item*)object)->GetEntry()) && (((Item*)object)->GetTemplate()->MaxCount > 0)) ///< Comparison of integers of different signs: 'int32' (aka 'int') and 'uint32' (aka 'unsigned int')
@@ -232,16 +233,16 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                     break;
                 }
                 case TYPEID_GAMEOBJECT:
-                    sScriptMgr->OnQuestAccept(m_Player, ((GameObject*)object), quest);
-                    (object->ToGameObject())->AI()->QuestAccept(m_Player, quest);
+                    sScriptMgr->OnQuestAccept(m_Player, ((GameObject*)object), l_Quest);
+                    (object->ToGameObject())->AI()->QuestAccept(m_Player, l_Quest);
                     break;
                 default:
                     break;
             }
             m_Player->PlayerTalkClass->SendCloseGossip();
 
-            if (quest->GetSrcSpell() > 0)
-                m_Player->CastSpell(m_Player, quest->GetSrcSpell(), true);
+            if (l_Quest->GetSrcSpell() > 0)
+                m_Player->CastSpell(m_Player, l_Quest->GetSrcSpell(), true);
 
             if (quest->IsAutoComplete())
             {
@@ -316,12 +317,6 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             return;
         }
     }
-    else
-    {
-        /// Quest template is missing
-        if (m_Player->m_IsDebugQuestLogs)
-            ChatHandler(m_Player).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_NO_TEMPLATE);
-    }
 
     m_Player->PlayerTalkClass->SendCloseGossip();
 }
@@ -368,7 +363,8 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
                 if (m_Player->CanCompleteQuest(l_QuestId))
                     m_Player->CompleteQuest(l_QuestId);
             }
-            m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID());
+            else
+                m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID());
         }
     }
 }
@@ -401,6 +397,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
 
     Object*     l_Object            = m_Player;
     bool        l_LegacyRewardFound = false;
+    bool        l_CloseGossip       = false;
 
     /// - No package id, we use legacy item choice
     if (l_Quest->GetQuestPackageID() == 0)
@@ -457,15 +454,24 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
                     // Send next quest
                     if (Quest const* l_NextQuest = m_Player->GetNextQuest(l_Guid, l_Quest))
                     {
-                        if (l_NextQuest->IsAutoAccept() && m_Player->CanAddQuest(l_NextQuest, true) && m_Player->CanTakeQuest(l_NextQuest, true))
+                        if (m_Player->CanAddQuest(l_NextQuest, true) && m_Player->CanTakeQuest(l_NextQuest, true) && l_NextQuest->IsAutoTake())
                         {
-                            m_Player->AddQuest(l_NextQuest, l_Object);
-                            if (m_Player->CanCompleteQuest(l_NextQuest->GetQuestId()))
-                                m_Player->CompleteQuest(l_NextQuest->GetQuestId());
-                        }
+                            if (l_NextQuest->IsAutoAccept())
+                            {
+                                m_Player->AddQuest(l_NextQuest, l_Object);
 
-                        m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
+                                if (m_Player->CanCompleteQuest(l_NextQuest->GetQuestId()))
+                                    m_Player->CompleteQuest(l_NextQuest->GetQuestId());
+
+                                l_CloseGossip = true;
+                            }
+                            else
+                                m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
+                        }
                     }
+                    else
+                        l_CloseGossip = true;
+
                     if (l_CreatureQGiver)
                     {
                         l_CreatureQGiver->AI()->sQuestReward(m_Player, l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry);
@@ -483,15 +489,23 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
                     // Send next quest
                     if (Quest const* l_NextQuest = m_Player->GetNextQuest(l_Guid, l_Quest))
                     {
-                        if (l_NextQuest->IsAutoAccept() && m_Player->CanAddQuest(l_NextQuest, true) && m_Player->CanTakeQuest(l_NextQuest, true))
+                        if (m_Player->CanAddQuest(l_NextQuest, true) && m_Player->CanTakeQuest(l_NextQuest, true) && l_NextQuest->IsAutoTake())
                         {
-                            m_Player->AddQuest(l_NextQuest, l_Object);
-                            if (m_Player->CanCompleteQuest(l_NextQuest->GetQuestId()))
-                                m_Player->CompleteQuest(l_NextQuest->GetQuestId());
-                        }
+                            if (l_NextQuest->IsAutoAccept())
+                            {
+                                m_Player->AddQuest(l_NextQuest, l_Object);
 
-                        m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
+                                if (m_Player->CanCompleteQuest(l_NextQuest->GetQuestId()))
+                                    m_Player->CompleteQuest(l_NextQuest->GetQuestId());
+
+                                l_CloseGossip = true;
+                            }
+                            else
+                                m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
+                        }
                     }
+                    else
+                        l_CloseGossip = true;
 
                     l_Object->ToGameObject()->AI()->QuestReward(m_Player, l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry);
                 }
@@ -503,6 +517,9 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
     }
     else
         m_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, l_Guid);
+
+    if (l_CloseGossip)
+        m_Player->PlayerTalkClass->SendCloseGossip();
 }
 
 void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
