@@ -3784,7 +3784,7 @@ class spell_monk_spinning_crane_kick: public SpellScriptLoader
                 float l_Low = 0;
                 float l_High = 0;
 
-                Player* l_Player = GetCaster()->ToPlayer();
+                Player* l_Player = GetCaster()->GetSpellModOwner();
 
                 if (l_Player == nullptr)
                     return;
@@ -4600,7 +4600,7 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
                 float l_Low = 0;
                 float l_High = 0;
 
-                Player* l_Player = GetCaster()->ToPlayer();
+                Player* l_Player = GetCaster()->GetSpellModOwner();
                 Unit* l_Target = GetHitUnit();
                 if (l_Player == nullptr || l_Target == nullptr)
                     return;
@@ -4861,7 +4861,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 float l_Low = 0;
                 float l_High = 0;
 
-                Player* l_Player = GetCaster()->ToPlayer();
+                Player* l_Player = GetCaster()->GetSpellModOwner();
                 Unit* l_Target = GetHitUnit();
 
                 if (l_Player == nullptr || l_Target == nullptr)
