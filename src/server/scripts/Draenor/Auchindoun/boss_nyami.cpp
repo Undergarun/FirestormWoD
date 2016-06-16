@@ -891,7 +891,7 @@ class auchindoun_nyami_spell_soul_vessel_dummy : public SpellScriptLoader
         void Register()
         {
             OnEffectPeriodic += AuraEffectPeriodicFn(auchindoun_nyami_spell_soul_vessel_dummy_AuraScript::HandlePeriodic, SpellEffIndex::EFFECT_1, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-			AfterEffectRemove += AuraEffectRemoveFn(auchindoun_azzakel_spell_claws_of_argus_AuraScript::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_DUMMY, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+			AfterEffectRemove += AuraEffectRemoveFn(auchindoun_nyami_spell_soul_vessel_dummy_AuraScript::OnRemove, SpellEffIndex::EFFECT_1, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
         }
     };
 
