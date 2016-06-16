@@ -442,7 +442,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //393 SPELL_AURA_DEFLECT_FRONT_SPELLS
     &AuraEffect::HandleNoImmediateEffect,                         //394 SPELL_AURA_TRIGGER_BONUS_LOOT (NYI)
     &AuraEffect::HandleAreaTrigger,                               //395 SPELL_AURA_AREATRIGGER
-    &AuraEffect::HandleNULL,                                      //396 SPELL_AURA_396
+    &AuraEffect::HandleNoImmediateEffect,                         //396 SPELL_AURA_PROC_ON_POWER_AMOUNT_2 implemented in Unit::HandleAuraProcOnPowerAmount
     &AuraEffect::HandleNULL,                                      //397 SPELL_AURA_397
     &AuraEffect::HandleNULL,                                      //398 SPELL_AURA_398
     &AuraEffect::HandleNULL,                                      //399 SPELL_AURA_399
