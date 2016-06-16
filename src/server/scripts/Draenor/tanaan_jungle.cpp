@@ -3731,8 +3731,12 @@ class npc_tanaan_khadgar_final : public CreatureScript
                     Position l_Pos;
                     p_Player->GetPosition(&l_Pos);
 
+                    if (Quest const* l_QuestTemplate = sObjectMgr->GetQuestTemplate(33868)) ///< Home of the Frostwolves
+                        p_Player->AddQuest(l_QuestTemplate, p_Player);
+
                     if (g_SceneAllianceBoatPlayerScript)
                         g_SceneAllianceBoatPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneAllianceBoat, 63, l_Pos);
+
                     break;
                 }
                 case TanaanQuests::QuestTheHomeStretchHorde:
@@ -3740,8 +3744,12 @@ class npc_tanaan_khadgar_final : public CreatureScript
                     Position l_Pos;
                     p_Player->GetPosition(&l_Pos);
 
+                    if (Quest const* l_QuestTemplate = sObjectMgr->GetQuestTemplate(34575)) ///< Step Three: Prophet!
+                        p_Player->AddQuest(l_QuestTemplate, p_Player);
+
                     if (g_SceneHordeBoatPlayerScript)
                         g_SceneHordeBoatPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneHordeBoat, 63, l_Pos);
+
                     break;
                 }
                 default:
