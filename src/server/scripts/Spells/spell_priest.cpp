@@ -2210,15 +2210,13 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                     return;
 
                 std::list<Unit*> l_UnFriendlyUnitListTemp;
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Target, l_FirstCaster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_UnFriendlyUnitListTemp, l_Check);
-                l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_FirstCaster, l_FirstCaster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_FirstCaster, l_UnFriendlyUnitListTemp, l_Check);
+                l_FirstCaster->VisitNearbyObject(l_Radius, l_Searcher);
 
-                l_UnFriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker, l_FirstCaster->GetGUID()));
-
-                l_UnFriendlyUnitListTemp.remove_if([this, l_FirstCaster](WorldObject* p_Object) -> bool
+                l_UnFriendlyUnitListTemp.remove_if([this, l_FirstCaster, l_Target](WorldObject* p_Object) -> bool
                 {
-                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr || p_Object->GetGUID() == l_Target->GetGUID() || p_Object->GetGUID() == l_FirstCaster->GetGUID())
                         return true;
 
                     if (!l_FirstCaster->IsValidAttackTarget(p_Object->ToUnit()))
