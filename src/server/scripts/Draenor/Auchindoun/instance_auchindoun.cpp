@@ -127,7 +127,7 @@ public:
             m_SoulTransport03Guid             = 0;
             /// Triggers
             m_TriggerBubbleMiddleNyamiGuid    = 0;
-			m_KaatharDied = false;
+			m_KaatharDied					  = false;
 
             instance->SetObjectVisibility(150.0f);
 
@@ -141,7 +141,7 @@ public:
             InstanceScript::OnPlayerEnter(p_Player);
 
             if (m_KaatharDied)
-                p_Player->m_Events.AddEvent(new EventTeleportPlayer(p_Player, 101), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
+                p_Player->m_Events.AddEvent(new EventTeleportPlayer(p_Player, 101), p_Player->m_Events.CalculateTime(500));
         }
 
         void OnGameObjectCreate(GameObject* p_Go) override
