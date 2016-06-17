@@ -127,6 +127,7 @@ public:
             m_SoulTransport03Guid             = 0;
             /// Triggers
             m_TriggerBubbleMiddleNyamiGuid    = 0;
+			m_KaatharDied = false;
 
             instance->SetObjectVisibility(150.0f);
 
