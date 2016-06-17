@@ -1528,7 +1528,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
 
                     if (AuraEffect* l_PreviousAura = l_Target->GetAuraEffect(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
                         l_Damage += l_PreviousAura->GetAmount() * (l_PreviousAura->GetBase()->GetDuration() / l_PreviousAura->GetAmplitude());
-                    l_Damage /= 6;
+                    l_Damage /= 5;
                     l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, l_Damage, l_Target);
                 }
                 else
@@ -3633,7 +3633,7 @@ class spell_monk_fortifying_brew: public SpellScriptLoader
         }
 };
 
-// Roll - 109132
+/// Call by Flying Serpent Kick - 101545, Roll - 109132, and Chi Torpedo - 115008
 class spell_monk_roll: public SpellScriptLoader
 {
     public:
@@ -3646,7 +3646,9 @@ class spell_monk_roll: public SpellScriptLoader
             enum eSpells
             {
                 MonkWoDPvPBrewmaster2PBonus     = 165691,
-                MonkWoDPvPBrewmasterAura        = 165692
+                MonkWoDPvPBrewmasterAura        = 165692,
+                GlyphOfFreedomRoll              = 159534,
+                Roll                            = 109132
             };
 
             bool Validate(SpellInfo const* /*spell*/)
@@ -3654,11 +3656,6 @@ class spell_monk_roll: public SpellScriptLoader
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_ROLL))
                     return false;
                 return true;
-            }
-
-            void HandleBeforeCast()
-            {
-                
             }
 
             void HandleAfterCast()
@@ -3680,17 +3677,25 @@ class spell_monk_roll: public SpellScriptLoader
                 if (!l_Caster || l_Caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (l_Caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
-                    l_Caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-
                 if (l_Caster->HasAura(eSpells::MonkWoDPvPBrewmaster2PBonus))
                     l_Caster->CastSpell(l_Caster, eSpells::MonkWoDPvPBrewmasterAura, true);
             }
 
-            void Register()
+            void HandleRemoveSnare()
             {
-                BeforeCast += SpellCastFn(spell_monk_roll_SpellScript::HandleBeforeCast);
-                AfterCast += SpellCastFn(spell_monk_roll_SpellScript::HandleAfterCast);
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster && (l_Caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS) || l_Caster->HasAura(eSpells::GlyphOfFreedomRoll)))
+                    l_Caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+            }
+
+            void Register() override
+            {
+                if (this->m_scriptSpellId == eSpells::Roll)
+                {
+                    AfterCast += SpellCastFn(spell_monk_roll_SpellScript::HandleAfterCast);
+                }
+                AfterCast += SpellCastFn(spell_monk_roll_SpellScript::HandleRemoveSnare);
             }
         };
 
@@ -3779,7 +3784,7 @@ class spell_monk_spinning_crane_kick: public SpellScriptLoader
                 float l_Low = 0;
                 float l_High = 0;
 
-                Player* l_Player = GetCaster()->ToPlayer();
+                Player* l_Player = GetCaster()->GetSpellModOwner();
 
                 if (l_Player == nullptr)
                     return;
@@ -4058,7 +4063,7 @@ class spell_monk_fists_of_fury_damage : public SpellScriptLoader
                     return;
 
                 Unit* l_Target = GetHitUnit();
-                Player* l_Player = GetCaster()->ToPlayer();
+                Player* l_Player = GetCaster()->GetSpellModOwner();
 
                 if (l_Target == nullptr ||l_Player == nullptr)
                     return;
@@ -4595,7 +4600,7 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
                 float l_Low = 0;
                 float l_High = 0;
 
-                Player* l_Player = GetCaster()->ToPlayer();
+                Player* l_Player = GetCaster()->GetSpellModOwner();
                 Unit* l_Target = GetHitUnit();
                 if (l_Player == nullptr || l_Target == nullptr)
                     return;
@@ -4856,7 +4861,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 float l_Low = 0;
                 float l_High = 0;
 
-                Player* l_Player = GetCaster()->ToPlayer();
+                Player* l_Player = GetCaster()->GetSpellModOwner();
                 Unit* l_Target = GetHitUnit();
 
                 if (l_Player == nullptr || l_Target == nullptr)
@@ -5554,42 +5559,6 @@ class spell_monk_detonate_chi : public SpellScriptLoader
         }
 };
 
-/// Glyph of Freedom Roll - 159534
-/// Call by Flying Serpent Kick - 101545, Roll - 109132, and Chi Torpedo - 115008
-class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
-{
-    public:
-        spell_monk_glyph_of_freedom_roll() : SpellScriptLoader("spell_monk_glyph_of_freedom_roll") { }
-
-        class spell_monk_glyph_of_freedom_roll_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_glyph_of_freedom_roll_SpellScript);
-
-            enum eSpells
-            {
-                GlyphofFreedomRoll = 159534
-            };
-
-            void HandleOnCast()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(eSpells::GlyphofFreedomRoll))
-                    l_Caster->RemoveMovementImpairingAuras();
-            }
-
-            void Register()
-            {
-                OnCast += SpellCastFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleOnCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_glyph_of_freedom_roll_SpellScript();
-        }
-};
-
 /// Crackling Tiger Lightning - 123996
 class spell_monk_crackling_tiger_lightning : public SpellScriptLoader
 {
@@ -6096,7 +6065,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_WoDPvPBrewmaster2PBonus();
     new spell_monk_zen_sphere_tick();
     new spell_monk_zen_sphere_detonate_heal();
-    new spell_monk_glyph_of_freedom_roll();
     new spell_monk_crackling_tiger_lightning();
     new spell_monk_item_t17_brewmaster_2p_bonus();
     new spell_monk_vital_mists();

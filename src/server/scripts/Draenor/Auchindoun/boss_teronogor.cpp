@@ -356,7 +356,8 @@ class boss_teronogor : public CreatureScript
                 m_SoulTransport03 = false;
                 m_SoulTransport04 = false;
                 m_SoulTransport05 = false;
-                me->SetPhaseMask(4, true);   
+              
+                me->GetMap()->SetObjectVisibility(1000.0f);        
             }
         }
 
@@ -670,20 +671,14 @@ class auchindoun_teronogor_mob_durag : public CreatureScript
                 me->GetMap()->SetObjectVisibility(1000.0f);
 
             /// Cosmetic channel - 
-            if (m_Instance != nullptr)
-            {
-                if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
-                {
-                    me->CastStop();
-                    me->CastSpell(l_Teronogor, eAuchindounSpells::SpellDrainSoulVisual);
-                }
-            }
-
-            if (m_First)
-            {
-                m_First = false;
-                me->SetPhaseMask(4, true);
-            }
+			if (m_Instance != nullptr)
+			{
+				if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+				{
+					me->CastStop();
+					me->CastSpell(l_Teronogor, eAuchindounSpells::SpellDrainSoulVisual);
+				}
+			}
 
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
@@ -778,7 +773,7 @@ class auchindoun_teronogor_mob_gulkosh : public CreatureScript
             if (m_First)
             {
                 m_First = false;
-                me->SetPhaseMask(4, true);
+              
             }
 
             if (m_Instance != nullptr)
@@ -872,7 +867,7 @@ class auchindoun_teronogor_mob_shaadum : public CreatureScript
             if (m_First)
             {
                 m_First = false;
-                me->SetPhaseMask(4, true);
+              
             }
 
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
@@ -960,7 +955,7 @@ class auchindoun_teronogor_mob_gromkash : public CreatureScript
             if (m_First)
             {
                 m_First = false;
-                me->SetPhaseMask(4, true);
+              
             }
 
             if (m_Instance != nullptr)
@@ -1066,7 +1061,7 @@ class auchindoun_teronogor_mob_abyssal : public CreatureScript
             if (m_First)
             {
                 m_First = false;
-                me->SetPhaseMask(4, true);
+              
                 me->CastSpell(me, eTerongorSpells::SpellSummonAbyssalMeteor);
             }
         }
@@ -1123,6 +1118,34 @@ class auchindoun_teronogor_mob_abyssal : public CreatureScript
     {
         return new auchindoun_teronogor_mob_abyssalAI(p_Creature);
     }
+};
+
+class auchindoun_teronogor_mob_spirit : public CreatureScript
+{
+	public:
+
+	auchindoun_teronogor_mob_spirit() : CreatureScript("auchindoun_teronogor_mob_spirit") { }
+
+	struct auchindoun_teronogor_mob_spiritAI : public ScriptedAI
+	{
+		auchindoun_teronogor_mob_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+		{
+			m_Instance = me->GetInstanceScript();
+		}
+
+		InstanceScript* m_Instance;
+
+		void Reset() override
+		{
+			me->SetReactState(ReactStates::REACT_PASSIVE);
+			me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* p_Creature) const override
+	{
+		return new auchindoun_teronogor_mob_spiritAI(p_Creature);
+	}
 };
 
 /// Chaos Wave - 157001
@@ -1323,30 +1346,33 @@ class auchindoun_teronogor_gameobject_soul_transporter_01 : public GameObjectScr
     auchindoun_teronogor_gameobject_soul_transporter_01() : GameObjectScript("auchindoun_teronogor_gameobject_soul_transporter_01") { }
 
     bool OnGossipHello(Player* p_Player, GameObject* p_Gobject)
-    {
-        if (InstanceScript* m_Instance = p_Gobject->GetInstanceScript())
-        {
-            if (Creature* m_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
-            {
-                if (m_Instance->GetBossState(eAuchindounDatas::DataBossAzzakael) == EncounterState::DONE)
-                {
-                    if (boss_teronogor::boss_teronogorAI* l_LinkAI = CAST_AI(boss_teronogor::boss_teronogorAI, m_Teronogor->GetAI()))
-                    {
-                        if (l_LinkAI->m_SoulTransport01)
-                        {
-                            p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
-                            p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                            p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                            p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-                            p_Player->m_Events.AddEvent(new auchindoun_soul_transportation_event(p_Player, 0), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
+	{
+		if (InstanceScript* m_Instance = p_Gobject->GetInstanceScript())
+		{
+			if (Creature* m_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+			{
+				if (Creature* m_Azzakel = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossAzzakael)))
+				{
+					if (m_Azzakel->isAlive())
+						return false;
 
-        return false;
+					if (boss_teronogor::boss_teronogorAI* l_LinkAI = CAST_AI(boss_teronogor::boss_teronogorAI, m_Teronogor->GetAI()))
+					{
+						if (l_LinkAI->m_SoulTransport01)
+						{
+							p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
+							p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+							p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+							p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+							p_Player->m_Events.AddEvent(new auchindoun_soul_transportation_event(p_Player, 0), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
+							return true;
+						}
+					}
+				}
+			}
+		}
+
+		return false;
     }
 };
 
@@ -1371,7 +1397,7 @@ class auchindoun_teronogor_gameobject_soul_transporter_02 : public GameObjectScr
                         {
                             if (boss_teronogor::boss_teronogorAI* l_LinkAI = CAST_AI(boss_teronogor::boss_teronogorAI, l_Teronogor->GetAI()))
                             {
-                                if (l_LinkAI->m_SoulTransport01)
+                                if (l_LinkAI->m_SoulTransport02)
                                 {
                                     p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
                                     p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
@@ -1389,47 +1415,95 @@ class auchindoun_teronogor_gameobject_soul_transporter_02 : public GameObjectScr
 
         return false;
     }
+	/*
+	struct auchindoun_teronogor_gameobject_soul_transporter_02AI : public GameObjectAI
+	{
+		auchindoun_teronogor_gameobject_soul_transporter_02AI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+
+		void Reset() override
+		{
+			if (InstanceScript* l_Instance = go->GetInstanceScript())
+			{
+				if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+				{
+					go->SetLootState(LootState::GO_READY);
+					go->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, l_Teronogor);
+				}
+			}
+		}
+	};
+	
+
+	GameObjectAI* GetAI(GameObject* p_GameObject) const override
+	{
+		return new auchindoun_teronogor_gameobject_soul_transporter_02AI(p_GameObject);
+	}
+	*/
 };
 
 /// Soul Transport Object 03 - 345367
 class auchindoun_teronogor_gameobject_soul_transporter_03 : public GameObjectScript
 {
-    public:
+	public:
 
-    auchindoun_teronogor_gameobject_soul_transporter_03() : GameObjectScript("auchindoun_teronogor_gameobject_soul_transporter_03") { }
+	auchindoun_teronogor_gameobject_soul_transporter_03() : GameObjectScript("auchindoun_teronogor_gameobject_soul_transporter_03") { }
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gobject)
-    {
-        if (InstanceScript* l_Instance = p_Gobject->GetInstanceScript())
-        {
-            if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
-            {
-                if (Creature* l_Gulkosh = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataGulkosh)))
-                {
-                    if (l_Gulkosh->isDead())
-                    {
-                        if (l_Teronogor->IsAIEnabled)
-                        {
-                            if (boss_teronogor::boss_teronogorAI* l_LinkAI = CAST_AI(boss_teronogor::boss_teronogorAI, l_Teronogor->GetAI()))
-                            {
-                                if (l_LinkAI->m_SoulTransport01)
-                                {
-                                    p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
-                                    p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                                    p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                                    p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-                                    p_Player->m_Events.AddEvent(new auchindoun_soul_transportation_event(p_Player, 7), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+	bool OnGossipHello(Player* p_Player, GameObject* p_Gobject)
+	{
+		if (InstanceScript* l_Instance = p_Gobject->GetInstanceScript())
+		{
+			if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+			{
+				if (Creature* l_Gulkosh = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataGulkosh)))
+				{
+					if (l_Gulkosh->isDead())
+					{
+						if (l_Teronogor->IsAIEnabled)
+						{
+							if (boss_teronogor::boss_teronogorAI* l_LinkAI = CAST_AI(boss_teronogor::boss_teronogorAI, l_Teronogor->GetAI()))
+							{
+								if (l_LinkAI->m_SoulTransport03)
+								{
+									p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
+									p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+									p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+									p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+									p_Player->m_Events.AddEvent(new auchindoun_soul_transportation_event(p_Player, 7), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
+	/*
+	struct auchindoun_teronogor_gameobject_soul_transporter_02AI : public GameObjectAI
+	{
+	auchindoun_teronogor_gameobject_soul_transporter_02AI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+
+	void Reset() override
+	{
+	if (InstanceScript* l_Instance = go->GetInstanceScript())
+	{
+	if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+	{
+	go->SetLootState(LootState::GO_READY);
+	go->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, l_Teronogor);
+	}
+	}
+	}
+	};
+
+
+	GameObjectAI* GetAI(GameObject* p_GameObject) const override
+	{
+	return new auchindoun_teronogor_gameobject_soul_transporter_02AI(p_GameObject);
+	}
+	*/
 };
 
 /// Soul Transport Object 04 - 345368
@@ -1453,7 +1527,7 @@ class auchindoun_teronogor_gameobject_soul_transporter_04 : public GameObjectScr
                         {
                             if (boss_teronogor::boss_teronogorAI* l_LinkAI = CAST_AI(boss_teronogor::boss_teronogorAI, l_Teronogor->GetAI()))
                             {
-                                if (l_LinkAI->m_SoulTransport01)
+                                if (l_LinkAI->m_SoulTransport04)
                                 {
                                     p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
                                     p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
@@ -1471,6 +1545,30 @@ class auchindoun_teronogor_gameobject_soul_transporter_04 : public GameObjectScr
 
         return false;
     }
+	/*
+	struct auchindoun_teronogor_gameobject_soul_transporter_02AI : public GameObjectAI
+	{
+	auchindoun_teronogor_gameobject_soul_transporter_02AI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+
+	void Reset() override
+	{
+	if (InstanceScript* l_Instance = go->GetInstanceScript())
+	{
+	if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+	{
+	go->SetLootState(LootState::instance);
+	go->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, l_Teronogor);
+	}
+	}
+	}
+	};
+
+
+	GameObjectAI* GetAI(GameObject* p_GameObject) const override
+	{
+	return new auchindoun_teronogor_gameobject_soul_transporter_02AI(p_GameObject);
+	}
+	*/
 };
 
 void AddSC_boss_teronogor()
@@ -1481,6 +1579,7 @@ void AddSC_boss_teronogor()
     new auchindoun_teronogor_mob_durag();                           ///< 77890
     new auchindoun_teronogor_mob_gulkosh();                         ///< 78437
     new auchindoun_teronogor_mob_shaadum();                         ///< 78728
+	new auchindoun_teronogor_mob_spirit();
     new auchindoun_teronogor_spell_chaos_wave();                    ///< 157001
     new auchindoun_teronogor_spell_demonic_leap();                  ///< 148969
     new auchindoun_teronogor_spell_seed_of_malevolence();           ///< 156921

@@ -676,7 +676,10 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
     if (victim->isDead() || victim->GetHealth() == 0)
+    {
+        damage = 0;
         return 0; ///< Prevent double death
+    }
 
     // need for operations with Player class
     Player* plr = victim->ToPlayer();
@@ -16640,6 +16643,7 @@ bool InitTriggerAuraData()
         isAlwaysTriggeredAura[i] = false;
     }
     isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT] = true;
+    isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT_2] = true;
     isTriggerAura[SPELL_AURA_DUMMY] = true;
     isTriggerAura[SPELL_AURA_PERIODIC_DUMMY] = true;
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
@@ -17205,6 +17209,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         break;
                     }
                     case SPELL_AURA_PROC_ON_POWER_AMOUNT:
+                    case SPELL_AURA_PROC_ON_POWER_AMOUNT_2:
                     {
                         if (HandleAuraProcOnPowerAmount(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                             takeCharges = true;
@@ -21054,6 +21059,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType p_TotemType)
         case SUMMON_TYPE_TOTEM_AIR3:
         case SUMMON_TYPE_TOTEM_AIR4:
         case SUMMON_TYPE_TOTEM_AIR5:
+        case SUMMON_TYPE_TOTEM_AIR6:
             p_TotemType = SUMMON_TYPE_TOTEM_AIR;
             break;
     }

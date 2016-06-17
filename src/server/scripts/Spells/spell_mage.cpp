@@ -1416,19 +1416,17 @@ class spell_mage_inferno_blast: public SpellScriptLoader
                         for (Unit* l_Unit : l_TargetList)
                         {
                             /// 1 : Ignite
-                            if (l_Target->HasAura(SPELL_MAGE_IGNITE, l_Caster->GetGUID()))
+                            if (Aura* l_Aura = l_Target->GetAura(SPELL_MAGE_IGNITE, l_Caster->GetGUID()))
                             {
                                 float l_Value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
 
-                                int32 l_Ignite = 0;
+                                int32 l_Ignite = l_Aura->GetEffect(EFFECT_0)->GetAmount();
                                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IGNITE);
 
                                 if (l_SpellInfo != nullptr)
                                 {
                                     if (l_Unit->HasAura(SPELL_MAGE_IGNITE, l_Caster->GetGUID()))
                                         l_Ignite += l_Unit->GetRemainingPeriodicAmount(l_Caster->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
-
-                                    l_Ignite += int32((CalculatePct(GetHitDamage(), l_Value)) / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude));
 
                                     l_Caster->CastCustomSpell(l_Unit, SPELL_MAGE_IGNITE, &l_Ignite, NULL, NULL, true);
                                 }

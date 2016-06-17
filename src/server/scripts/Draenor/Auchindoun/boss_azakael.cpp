@@ -294,6 +294,24 @@ class boss_azzakel : public CreatureScript
             }
         }
 
+		void JustSummoned(Creature* p_Summon) override
+		{
+			if (p_Summon)
+			{
+				switch (p_Summon->GetEntry())
+				{
+				case eAzzakelCreatures::CreatureBlazingTrickster:
+				case eAzzakelCreatures::CreatureCacklingPyromaniac:
+				case eAzzakelCreatures::CreatureFelguard:
+					p_Summon->SetReactState(ReactStates::REACT_AGGRESSIVE);
+					p_Summon->SetInCombatWithZone();
+					break;
+				default:
+					break;			
+				}
+			}
+		}
+
         void JustReachedHome() override
         {
             _JustReachedHome();
@@ -409,6 +427,7 @@ class boss_azzakel : public CreatureScript
                     {
                         events.Reset();
                         Talk(eAzzakelTalks::AzzakelSpell01);
+						me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FLYING);
                         me->CastSpell(me, eAzzakelSpells::SpellClawsOfArgusVisual);               
                         me->MonsterTextEmote("Azzakel casts |cffff0000[Azzakael casts [Claws of Agrus]|cfffaeb00!", me->GetGUID(), true);
                         events.ScheduleEvent(eAzzakelEvents::EventClawsOfArgus, 45 * TimeConstants::IN_MILLISECONDS);
