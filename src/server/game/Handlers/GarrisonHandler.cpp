@@ -662,8 +662,8 @@ void WorldSession::HandleGarrisonRecruitFollower(WorldPacket& p_RecvData)
         {
             l_Follower.Write(l_RecruitmentResult);
             l_Garrison->AddFollower(l_Follower);
-            l_Garrison->SetCanRecruitFollower(true);
-            m_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTavernBoolCanRecruitFollower, 1);
+            l_Garrison->SetCanRecruitFollower(false);
+            m_Player->SetCharacterWorldState(CharacterWorldStates::GarrisonTavernBoolCanRecruitFollower, 0);
             break;
         }
     }

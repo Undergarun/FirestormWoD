@@ -5558,6 +5558,9 @@ namespace MS { namespace Garrison
     void Manager::ResetGarrisonWeeklyTavernData()
     {
         CleanGarrisonWeeklyTavernData();
+
+        m_Owner->SetCharacterWorldState(CharacterWorldStates::GarrisonTavernBoolCanRecruitFollower, 1);
+        SetCanRecruitFollower(true);
     }
 
     //////////////////////////////////////////////////////////////////////
