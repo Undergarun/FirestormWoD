@@ -28144,6 +28144,8 @@ void Player::ResetDailyGarrisonDatas()
                 }
             }
         }
+
+        l_Garrison->UpdatePlot(GetPlotInstanceID());
     }
 
     SaveToDB();

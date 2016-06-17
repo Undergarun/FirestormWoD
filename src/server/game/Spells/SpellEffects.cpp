@@ -7215,6 +7215,13 @@ void Spell::EffectGiveCurrency(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    /// Champion's Honor (sell in shop) must bypass week cap limit
+    if (m_spellInfo->Id == 190471)
+    {
+        unitTarget->ToPlayer()->ModifyCurrency(m_spellInfo->Effects[effIndex].MiscValue, damage, true, false, true);
+        return;
+    }
+
     unitTarget->ToPlayer()->ModifyCurrency(m_spellInfo->Effects[effIndex].MiscValue, damage);
 }
 

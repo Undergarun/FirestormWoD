@@ -77,6 +77,10 @@ DBCStorage <DurabilityCostsEntry>         sDurabilityCostsStore(DurabilityCostsf
 DBCStorage <EmotesEntry>                  sEmotesStore(EmotesEntryfmt);
 DBCStorage <EmotesTextEntry>              sEmotesTextStore(EmotesTextEntryfmt);
 
+typedef std::tuple<uint32, uint32, uint32> EmotesTextSoundKey;
+static std::map<EmotesTextSoundKey, EmotesTextSoundEntry const*> sEmotesTextSoundMap;
+DBCStorage <EmotesTextSoundEntry>         sEmotesTextSoundStore(EmotesTextSoundEntryfmt);
+
 typedef std::map<uint32, SimpleFactionsList> FactionTeamMap;
 static FactionTeamMap                     sFactionTeamMap;
 DBCStorage <FactionEntry>                 sFactionStore(FactionEntryfmt);
@@ -288,7 +292,14 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sDurabilityCostsStore,        dbcPath, "DurabilityCosts.dbc");                                              // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sEmotesStore,                 dbcPath, "Emotes.dbc");                                                       // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sEmotesTextStore,             dbcPath, "EmotesText.dbc");                                                   // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sEmotesTextSoundStore,        dbcPath, "EmotesTextSound.dbc");                                              // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sFactionStore,                dbcPath, "Faction.dbc");                                                      // 17399
+
+    for (uint32 l_I = 0; l_I < sEmotesTextSoundStore.GetNumRows(); ++l_I)
+    {
+        if (EmotesTextSoundEntry const* l_Entry = sEmotesTextSoundStore.LookupEntry(l_I))
+            sEmotesTextSoundMap[EmotesTextSoundKey(l_Entry->EmotesTextID, l_Entry->RaceID, l_Entry->Gender)] = l_Entry;
+    }
 
     for (uint32 i=0; i<sFactionStore.GetNumRows(); ++i)
     {
@@ -698,6 +709,12 @@ int32 GetAreaFlagByAreaID(uint32 area_id)
         return -1;
 
     return i->second;
+}
+
+EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 p_Emote, uint32 p_Race, uint32 p_Gender)
+{
+    auto l_Iter = sEmotesTextSoundMap.find(EmotesTextSoundKey(p_Emote, p_Race, p_Gender));
+    return l_Iter != sEmotesTextSoundMap.end() ? l_Iter->second : nullptr;
 }
 
 WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid)

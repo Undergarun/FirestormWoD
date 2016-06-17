@@ -488,8 +488,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                 if (!InstanceScript::SetBossState(p_BossID, p_State))
                     return false;
 
-                /// Don't handle the next in case of loading
-                if (l_OldState != EncounterState::IN_PROGRESS)
+                /// Don't handle the DONE state in case of loading
+                if (p_State == EncounterState::DONE && l_OldState != EncounterState::IN_PROGRESS)
                     return true;
 
                 switch (p_BossID)
@@ -806,8 +806,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                             }
                             case EncounterState::IN_PROGRESS:
                             {
-                                if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
-                                    l_IronGate->SetGoState(GOState::GO_STATE_READY);
+                                AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                                {
+                                    if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
+                                        l_IronGate->SetGoState(GOState::GO_STATE_READY);
+                                });
 
                                 break;
                             }
