@@ -4679,17 +4679,17 @@ void ObjectMgr::LoadBonusQuests()
 {
     for (uint32 l_I = 0; l_I < sCriteriaStore.GetNumRows(); ++l_I)
     {
-        CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(l_I);
+        const CriteriaEntry * l_Criteria = sCriteriaStore.LookupEntry(l_I);
 
         if (!l_Criteria || l_Criteria->Type != ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST)
             continue;
 
-        const QuestV2CliTaskEntry* l_QuestV2CliTask = sQuestV2CliTaskStore.LookupEntry(l_Criteria->complete_quest.questID);
+        const QuestV2CliTaskEntry * l_QuestV2CliTask = sQuestV2CliTaskStore.LookupEntry(l_Criteria->complete_quest.questID);
 
         if (!l_QuestV2CliTask)
             continue;
 
-        Quest const* l_Quest = GetQuestTemplate(l_Criteria->complete_quest.questID);
+        const Quest * l_Quest = GetQuestTemplate(l_Criteria->complete_quest.questID);
         
         if (!l_Quest || l_Quest->Method != QUEST_METHOD_AUTO_SUBMITED || !(l_Quest->GetZoneOrSort() > 0))
             continue;
@@ -4700,7 +4700,7 @@ void ObjectMgr::LoadBonusQuests()
         {
             for (QuestPOIVector::const_iterator l_It = l_POIs->begin(); l_It != l_POIs->end(); ++l_It)
             {
-                QuestObjective const* l_Objective = l_Quest->GetQuestObjectiveXIndex(l_It->ObjectiveIndex);
+                const QuestObjective * l_Objective = l_Quest->GetQuestObjectiveXIndex(l_It->ObjectiveIndex);
 
                 int32 l_MinX = 0, l_MinY = 0, l_MaxX = 0, l_MaxY = 0;
                 bool l_FirstIter = true;

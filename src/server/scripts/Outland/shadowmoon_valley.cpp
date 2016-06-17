@@ -2066,20 +2066,18 @@ class mob_collidus_the_warp_watcher : public CreatureScript
         };
 };
 
-/*
 class playerScript_quests_greenfire_questline : public PlayerScript
 {
 public:
     playerScript_quests_greenfire_questline() : PlayerScript("playerScript_quests_greenfire_questline") { }
 
-    enum eQuests
-    {
-        AnUnusualTome              = 32295,
-        ReaderForTheDeadTongue     = 32307,
-        ATaleOfSixMasterA          = 32310,
-        ATaleOfSixMasterH          = 32309,
-        SeekingTheSoulstones       = 32317,
-        SeekTheSignal              = 32324,
+    enum eQuests {
+        AnUnusualTome = 32295,
+        ReaderForTheDeadTongue = 32307,
+        ATaleOfSixMasterA = 32310,
+        ATaleOfSixMasterH = 32309,
+        SeekingTheSoulstones = 32317,
+        SeekTheSignal = 32324,
         InfiltratingTheBlackTemple = 32325
     };
 
@@ -2113,15 +2111,12 @@ public:
             }
         }
     }
-
-    void OnLogin()
 };
-*/
 
 #ifndef __clang_analyzer__
 void AddSC_shadowmoon_valley()
 {
-   /* new playerScript_quests_greenfire_questline();*/
+    new playerScript_quests_greenfire_questline();
     new mob_mature_netherwing_drake();
     new mob_enslaved_netherwing_drake();
     new mob_dragonmaw_peon();

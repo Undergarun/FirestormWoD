@@ -243,6 +243,76 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             if (quest->GetSrcSpell() > 0)
                 m_Player->CastSpell(m_Player, quest->GetSrcSpell(), true);
 
+            if (quest->IsAutoComplete())
+            {
+                for (QuestObjective l_Objective : quest->QuestObjectives)
+                {
+                    if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
+                    {
+                        uint32 id       = l_Objective.ObjectID;
+                        uint32 count    = l_Objective.Amount;
+
+                        if (!id || !count)
+                            continue;
+
+                        uint32 curItemCount = m_Player->GetItemCount(id, true);
+
+                        ItemPosCountVec dest;
+                        uint8 msg = m_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, id, count - curItemCount);
+                        if (msg == EQUIP_ERR_OK)
+                        {
+                            Item* item = m_Player->StoreNewItem(dest, id, true);
+                            m_Player->SendNewItem(item, count - curItemCount, true, false);
+                        }
+                    }
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC)
+                    {
+                        int32 creature          = l_Objective.ObjectID;
+                        uint32 creaturecount    = l_Objective.Amount;
+
+                        if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
+                        {
+                            for (uint16 z = 0; z < creaturecount; ++z)
+                                m_Player->KilledMonster(cInfo, 0);
+                        }
+                    }
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_GO)
+                    {
+                        for (uint16 z = 0; z < l_Objective.Amount; ++z)
+                            m_Player->CastedCreatureOrGO(l_Objective.ObjectID, 0, 0);
+                    }
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_SPELL)
+                    {
+                        /// @TODO
+                    }
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CURRENCY)
+                    {
+                        if (!l_Objective.ObjectID || !l_Objective.Amount)
+                            continue;
+
+                        m_Player->ModifyCurrency(l_Objective.ObjectID, l_Objective.Amount);
+                    }
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2)
+                    {
+                        if (m_Player->GetReputationMgr().GetReputation(l_Objective.ObjectID) < l_Objective.Amount)
+                        {
+                            if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(l_Objective.ObjectID))
+                                m_Player->GetReputationMgr().SetReputation(factionEntry, l_Objective.Amount);
+                        }
+                    }
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY)
+                    {
+                        m_Player->ModifyMoney(l_Objective.Amount);
+                    }
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CRITERIA_TREE)
+                    {
+                        m_Player->QuestObjectiveSatisfy(l_Objective.ObjectID, l_Objective.Amount, l_Objective.Type);
+                    }
+                }
+
+                m_Player->CompleteQuest(quest->GetQuestId());
+            }
+
             return;
         }
     }
@@ -352,7 +422,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
         }
     }
 
-    if (!l_Quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT))
+    if (!l_Quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT | QUEST_FLAGS_AUTOCOMPLETE))
     {
         l_Object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
         if (!l_Object || !l_Object->hasInvolvedQuest(l_QuestId))
@@ -381,7 +451,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
             case TYPEID_PLAYER:
             {
                 //For AutoSubmition was added plr case there as it almost same exclude AI script cases.
-                Creature* l_CreatureQGiver = l_Object->ToCreature();
+                Creature *l_CreatureQGiver = l_Object->ToCreature();
                 if (!l_CreatureQGiver || !(sScriptMgr->OnQuestReward(m_Player, l_CreatureQGiver, l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry)))
                 {
                     // Send next quest
