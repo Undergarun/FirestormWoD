@@ -728,7 +728,7 @@ class npc_fun_gold_vendor : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI * GetAI(Creature* p_Creature) const override
         {
             return new npc_fun_gold_vendorAI(p_Creature);
         }

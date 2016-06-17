@@ -1232,6 +1232,16 @@ class misc_commandscript: public CommandScript
                 return false;
             }
 
+            if (InstanceScript* l_InstanceScript = player->GetInstanceScript())
+            {
+                if (l_InstanceScript->IsEncounterInProgress())
+                {
+                    handler->SendSysMessage(LANG_YOU_IN_COMBAT);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+            }
+
             if (player->isDead() || player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
             {
                 // if player is dead and stuck, send ghost to graveyard
