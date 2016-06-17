@@ -204,11 +204,14 @@ class boss_nyami : public CreatureScript
             if (!m_First)
             {
                 m_First = true;
+				me->setFaction(35);
+				me->SetReactState(ReactStates::REACT_PASSIVE);
+				me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+			}
 
-				if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
-					l_Teronogor->SummonCreature(eAuchindounCreatures::CreatureWardenAzzakael, g_PositionWardenSpawnPoint);
-            }      
-        }
+			if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+				l_Teronogor->SummonCreature(eAuchindounCreatures::CreatureWardenAzzakael, g_PositionWardenSpawnPoint);
+		}
 
         void JustReachedHome() override
         {

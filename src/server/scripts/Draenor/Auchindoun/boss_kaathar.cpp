@@ -363,12 +363,12 @@ public:
 									}
 								}
 
-								uint32 l_EntriesOfSargereiDraeneis[7] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
+								uint32 l_EntriesOfSargereiDraeneis[8] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
 									eAuchindounCreatures::CreatureSargeriSoulPriest, eAuchindounCreatures::CreatureSargeriWarden,
-									eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating, eAuchindounCreatures::CreatureWardenAzzakael };
+									eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating, eAuchindounCreatures::CreatureWardenAzzakael, eAuchindounBosses::BossNyami };
 
 								std::list<Creature*> l_ListSargereiDraeneis;
-								for (uint8 l_I = 0; l_I < 7; l_I++)
+								for (uint8 l_I = 0; l_I < 8; l_I++)
 								{
 									l_Tuulani->GetCreatureListWithEntryInGrid(l_ListSargereiDraeneis, l_EntriesOfSargereiDraeneis[l_I], 1000.0f);
 								}
@@ -378,6 +378,9 @@ public:
 									for (Creature* l_Itr : l_ListSargereiDraeneis)
 									{
 										l_Itr->SetPhaseMask(1, true);
+										l_Itr->setFaction(FriendlyFaction);
+										l_Itr->SetReactState(ReactStates::REACT_AGGRESSIVE);
+										l_Itr->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
 									}
 								}
 

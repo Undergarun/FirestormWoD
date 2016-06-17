@@ -839,6 +839,7 @@ class auchindoun_mob_sargerei_defender : public CreatureScript
         auchindoun_mob_sargerei_defenderAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
+			m_False = true;
         }
 
         enum eSargereiDefenderSpells
@@ -854,10 +855,19 @@ class auchindoun_mob_sargerei_defender : public CreatureScript
         };
 
         InstanceScript* m_Instance;
+		bool m_False;
 
         void Reset() override
         {
             events.Reset();
+
+			if (m_False)
+			{
+				m_False = false;
+				me->setFaction(35);
+				me->SetReactState(ReactStates::REACT_PASSIVE);
+				me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+			}
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -910,6 +920,7 @@ class auchindoun_mob_sargerei_magus : public CreatureScript
     {
         auchindoun_mob_sargerei_magusAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
+			m_False = true;
             m_Instance = me->GetInstanceScript();
         }
 
@@ -928,10 +939,19 @@ class auchindoun_mob_sargerei_magus : public CreatureScript
         };
 
         InstanceScript* m_Instance;
+		bool m_False;
         std::list<uint64> l_Prisoners;
 
         void Reset() override
         {
+			if (m_False)
+			{
+				m_False = false;
+				me->setFaction(35);
+				me->SetReactState(ReactStates::REACT_PASSIVE);
+				me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+			}
+
             events.Reset();
             me->CastSpell(me, eSargereiMagusSpells::SpellArcaneChanneling);
         }
@@ -1025,6 +1045,7 @@ class auchindoun_mob_soul_priest : public CreatureScript
         auchindoun_mob_soul_priestAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
+			m_False = true;
         }
 
         enum eSoulPriestSpells
@@ -1040,11 +1061,20 @@ class auchindoun_mob_soul_priest : public CreatureScript
         };
 
         InstanceScript* m_Instance;
+		bool m_False;
 
-        void Reset() override
-        {
-            events.Reset();
-        }
+		void Reset() override
+		{
+			events.Reset();
+
+			if (m_False)
+			{
+				m_False = false;
+				me->setFaction(35);
+				me->SetReactState(ReactStates::REACT_PASSIVE);
+				me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+			}
+		}
 
         void EnterCombat(Unit* p_Attacker) override
         {
@@ -1097,6 +1127,7 @@ class auchindoun_mob_sargeri_warden : public CreatureScript
         auchindoun_mob_sargeri_wardenAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
+			m_False = true;
         }
 
         enum eWardenSpells
@@ -1112,11 +1143,20 @@ class auchindoun_mob_sargeri_warden : public CreatureScript
         };
 
         InstanceScript* m_Instance;
+		bool m_False;
 
         void Reset() override
         {
             events.Reset();
-        }
+
+			if (m_False)
+			{
+				m_False = false;
+				me->setFaction(35);
+				me->SetReactState(ReactStates::REACT_PASSIVE);
+				me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+			}
+		}
 
         void EnterCombat(Unit* p_Attacker) override
         {
