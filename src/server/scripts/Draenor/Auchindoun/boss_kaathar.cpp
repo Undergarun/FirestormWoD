@@ -378,7 +378,7 @@ public:
 									for (Creature* l_Itr : l_ListSargereiDraeneis)
 									{
 										l_Itr->SetPhaseMask(1, true);
-										l_Itr->setFaction(FriendlyFaction);
+										l_Itr->setFaction(HostileFaction);
 										l_Itr->SetReactState(ReactStates::REACT_AGGRESSIVE);
 										l_Itr->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
 									}
