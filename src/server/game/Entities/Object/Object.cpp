@@ -1021,6 +1021,10 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             break;
         case TYPEID_OBJECT:
             break;
+        case TYPEID_CONVERSATION:
+            flags = ConversationUpdateFieldFlags;
+            visibleFlag |= UpdatefieldFlags::UF_FLAG_PUBLIC;
+            break;
     }
 
     return visibleFlag;
@@ -1060,6 +1064,10 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
         case TYPEID_GAMEOBJECT:
             flags = GameObjectDynamicUpdateFieldFlags;
             visibleFlag |= UF_FLAG_PUBLIC;
+            break;
+        case TYPEID_CONVERSATION:
+            flags = ConversationDynamicUpdateFieldFlags;
+            visibleFlag |= UpdatefieldFlags::UF_FLAG_PUBLIC;
             break;
         default:
             flags = nullptr;

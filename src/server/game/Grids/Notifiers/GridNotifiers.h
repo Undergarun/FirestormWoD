@@ -122,6 +122,7 @@ namespace JadeCore
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
         void Visit(CorpseMapType &m)        { updateObjects<Corpse>(m); }
         void Visit(AreaTriggerMapType &m)   { updateObjects<AreaTrigger>(m); }
+        void Visit(ConversationMapType &m)  { updateObjects<Conversation>(m); }
     };
 
     struct MessageDistDeliverer
@@ -230,6 +231,7 @@ namespace JadeCore
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
@@ -251,6 +253,7 @@ namespace JadeCore
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
@@ -272,6 +275,7 @@ namespace JadeCore
         void Visit(GameObjectMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
@@ -339,6 +343,18 @@ namespace JadeCore
                     i_do(itr->getSource());
         }
 
+        void Visit(ConversationMapType &m)
+        {
+            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
+                return;
+
+            for (ConversationMapType l_Iter : m)
+            {
+                if (l_Iter->getSource()->InSamePhase(i_phaseMask))
+                    i_do(l_Iter->getSource());
+            }
+        }
+
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
 
@@ -372,8 +388,39 @@ namespace JadeCore
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
-    /// Gameobject searchers
 
+    /// Conversation searchers
+    template<class Check>
+    struct ConversationVectorSearcher
+    {
+        uint32 m_PhaseMask;
+        std::list<Conversation*>& m_Conversations;
+        Check& m_Check;
+
+        ConversationVectorSearcher(WorldObject const* p_Searcher, std::list<Conversation*>& p_Conversation, Check& p_Check)
+            : m_PhaseMask(p_Searcher->GetPhaseMask()), m_Conversations(p_Conversation), m_Check(p_Check) { }
+
+        void Visit(ConversationMapType& p_ConversationMap);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
+    template<class Check>
+    struct ConversationSearcher
+    {
+        uint32 i_phaseMask;
+        Conversation* &i_object;
+        Check & i_check;
+
+        ConversationSearcher(WorldObject const* searcher, Conversation* & result, Check & check)
+            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) { }
+
+        void Visit(ConversationMapType& p_ConversationMap);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
+    /// Gameobject searchers
     template<class Check>
     struct GameObjectSearcher
     {
@@ -1114,6 +1161,22 @@ namespace JadeCore
             bool operator()(AreaTrigger* p_AreaTrigger)
             {
                 if (m_Object->IsWithinDistInMap(p_AreaTrigger, m_Range))
+                    return true;
+
+                return false;
+            }
+        private:
+            WorldObject const* m_Object;
+            float m_Range;
+    };
+
+    class AnyConversationInObjectRangeCheck
+    {
+        public:
+            AnyConversationInObjectRangeCheck(WorldObject const* p_Object, float p_Range) : m_Object(p_Object), m_Range(p_Range) { }
+            bool operator()(Conversation* p_Conversation)
+            {
+                if (m_Object->IsWithinDistInMap(p_Conversation, m_Range))
                     return true;
 
                 return false;

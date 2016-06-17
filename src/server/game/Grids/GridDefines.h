@@ -21,6 +21,7 @@ class Pet;
 class Player;
 class AreaTrigger;
 class Conversation;
+class Conversation;
 
 #define MAX_NUMBER_OF_CELLS     8
 
@@ -62,6 +63,7 @@ typedef GridRefManager<DynamicObject>   DynamicObjectMapType;
 typedef GridRefManager<GameObject>      GameObjectMapType;
 typedef GridRefManager<Player>          PlayerMapType;
 typedef GridRefManager<AreaTrigger>     AreaTriggerMapType;
+typedef GridRefManager<Conversation>    ConversationMapType;
 
 enum GridMapTypeMask
 {
@@ -71,7 +73,8 @@ enum GridMapTypeMask
     GRID_MAP_TYPE_MASK_GAMEOBJECT       = 0x08,
     GRID_MAP_TYPE_MASK_PLAYER           = 0x10,
     GRID_MAP_TYPE_MASK_AREATRIGGER      = 0x20,
-    GRID_MAP_TYPE_MASK_ALL              = 0x3F
+    GRID_MAP_TYPE_MASK_CONVERSATION     = 0x40,
+    GRID_MAP_TYPE_MASK_ALL              = 0x7F
 };
 
 typedef Grid<Player, AllWorldObjectTypes, AllGridObjectTypes> GridType;

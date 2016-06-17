@@ -13,6 +13,9 @@
 # include "Timer.h"
 
 class Unit;
+class InstanceScript;
+
+struct ConversationLine;
 
 class Conversation : public WorldObject, public GridObject<Conversation>
 {
@@ -23,9 +26,12 @@ class Conversation : public WorldObject, public GridObject<Conversation>
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool StartConversation(Unit* p_Source, uint32 p_ConversationEntry, int32 p_Duration);
+        void Remove();
+
+        bool StartConversation(Unit* p_Source, uint32 p_ConversationEntry);
 
         void AddConversationActor(uint64 p_ActorGuid);
+        void AddConversationLine(ConversationLine p_Line);
 
         void Update(uint32 p_Diff);
 

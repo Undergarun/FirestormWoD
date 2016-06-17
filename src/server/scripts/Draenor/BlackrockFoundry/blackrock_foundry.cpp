@@ -4835,13 +4835,10 @@ class areatrigger_at_foundry_iron_maidens_entrance : public AreaTriggerScript
 
             if (InstanceScript* l_InstanceScript = p_Player->GetInstanceScript())
             {
-                for (uint8 l_I = 0; l_I < eFoundryDatas::IronMaidensCount; ++l_I)
+                if (Creature* l_Garan = Creature::GetCreature(*p_Player, l_InstanceScript->GetData64(eFoundryCreatures::BossAdmiralGaran)))
                 {
-                    if (Creature* l_Maiden = Creature::GetCreature(*p_Player, l_InstanceScript->GetData64(g_IronMaidensEntries[l_I])))
-                    {
-                        if (l_Maiden->IsAIEnabled)
-                            l_Maiden->AI()->DoAction(0);
-                    }
+                    if (l_Garan->IsAIEnabled)
+                        l_Garan->AI()->DoAction(0);
                 }
             }
 

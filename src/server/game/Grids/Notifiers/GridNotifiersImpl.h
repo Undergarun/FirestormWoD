@@ -184,6 +184,29 @@ void JadeCore::WorldObjectSearcher<Check>::Visit(AreaTriggerMapType &m)
 }
 
 template<class Check>
+void JadeCore::WorldObjectSearcher<Check>::Visit(ConversationMapType &m)
+{
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
+        return;
+
+    /// Already found
+    if (i_object)
+        return;
+
+    for (ConversationMapType l_Iter : m)
+    {
+        if (!l_Iter->getSource()->InSamePhase(i_phaseMask))
+            continue;
+
+        if (i_check(l_Iter->getSource()))
+        {
+            i_object = l_Iter->getSource();
+            return;
+        }
+    }
+}
+
+template<class Check>
 void JadeCore::WorldObjectLastSearcher<Check>::Visit(GameObjectMapType &m)
 {
     if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_GAMEOBJECT))
@@ -280,6 +303,22 @@ void JadeCore::WorldObjectLastSearcher<Check>::Visit(AreaTriggerMapType  &m)
 }
 
 template<class Check>
+void JadeCore::WorldObjectLastSearcher<Check>::Visit(ConversationMapType  &m)
+{
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
+        return;
+
+    for (ConversationMapType l_Iter : m)
+    {
+        if (!l_Iter->getSource()->InSamePhase(i_phaseMask))
+            continue;
+
+        if (i_check(l_Iter->getSource()))
+            i_object = l_Iter->getSource();
+    }
+}
+
+template<class Check>
 void JadeCore::WorldObjectListSearcher<Check>::Visit(PlayerMapType &m)
 {
     if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_PLAYER))
@@ -343,6 +382,19 @@ void JadeCore::WorldObjectListSearcher<Check>::Visit(AreaTriggerMapType &m)
     for (AreaTriggerMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
         if (i_check(itr->getSource()))
             i_objects.push_back(itr->getSource());
+}
+
+template<class Check>
+void JadeCore::WorldObjectListSearcher<Check>::Visit(ConversationMapType &m)
+{
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
+        return;
+
+    for (ConversationMapType l_Iter : m)
+    {
+        if (i_check(l_Iter->getSource()))
+            i_objects.push_back(l_Iter->getSource());
+    }
 }
 
 /// AreaTrigger searchers

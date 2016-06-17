@@ -15,23 +15,89 @@ REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEnt
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (@REF_GARAN, 1, 0, 0, 112344);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (@REF_MARAK, 1, 114962, 114971, 0);
 
-DELETE FROM creature_text WHERE entry IN (@REF_SORKA, @REF_GARAN, @REF_MARAK);
-INSERT INTO creature_text VALUES
-(@REF_SORKA, 0, 0, "My pleasure.", 14, 0, 100, 0, 0, 41851, "Intro 0"),
-(@REF_SORKA, 1, 0, "I think I see the problem...", 12, 0, 100, 0, 0, 41852, "Intro 1"),
-(@REF_SORKA, 2, 0, "Let's see how well you trained our soldiers, Gar'an.", 14, 0, 100, 0, 0, 41853, "Intro 2"),
-(@REF_SORKA, 3, 0, "What brutality... What bloodshed... Beautiful!", 14, 0, 100, 0, 0, 41854, "Intro 3"),
-(@REF_SORKA, 4, 0, "Don't worry, I'm coming... this looks fun.", 12, 0, 100, 0, 0, 41855, "Intro 4"),
+DELETE FROM `conversation_template` WHERE `Entry` IN (118, 119);
+INSERT INTO `conversation_template` VALUES
+(118, 30000, 3, "77557 77231 77477", "Iron Maidens - Intro"),
+(119, 10000, 3, "0 77557 77231", "Iron Maidens - After Trashes");
 
-(@REF_GARAN, 0, 0, "Patience, sisters. The sooner we finish our work, the sooner we crush our enemies.", 14, 0, 100, 0, 0, 41824, "Intro 0"),
-(@REF_GARAN, 1, 0, "Sorka, ensure the peons are keeping pace!", 14, 0, 100, 0, 0, 41825, "Intro 1"),
-(@REF_GARAN, 2, 0, "Marak, load the ammunition into the main cannon!", 14, 0, 100, 0, 0, 41826, "Intro 2"),
-(@REF_GARAN, 3, 0, "What? The trains are behind schedule?", 14, 0, 100, 0, 0, 41827, "Intro 3"),
-(@REF_GARAN, 4, 0, "You insufferable...", 14, 0, 100, 0, 0, 41829, "Intro 4"),
-(@REF_GARAN, 5, 0, "Sorka! This isn't a game! Get down there!", 14, 0, 100, 0, 0, 41828, "Intro 5"),
+DELETE FROM `conversation_lines` WHERE `Entry` IN (118, 119);
+INSERT INTO `conversation_lines` VALUES
+(118, 452, 87897, 0, 0, 256),
+(118, 453, 87898, 0, 5853, 256),
+(118, 454, 87921, 0, 9253, 257),
+(118, 455, 87899, 0, 10849, 256),
+(118, 456, 87937, 0, 14547, 258),
+(118, 457, 87900, 0, 18421, 256),
+(118, 458, 87922, 0, 21417, 1),
+(118, 459, 87923, 0, 23600, 257),
+(118, 460, 87902, 0, 27884, 256),
+(119, 461, 87924, 0, 0, 258),
+(119, 462, 87901, 0, 5316, 257),
+(119, 463, 87925, 0, 8190, 2);
 
-(@REF_MARAK, 0, 0, "Right.", 14, 0, 100, 0, 0, 41710, "Intro 0");
+DELETE FROM npc_text WHERE ID IN (87897, 87898, 87921, 87899, 87937, 87900, 87922, 87923, 87902, 87924, 87901, 87925);
+INSERT INTO npc_text (ID, SoundID, text0_0, text0_1) VALUE
+(
+    87897, 41824,
+    "Patience, sisters. The sooner we finish our work, the sooner we crush our enemies.",
+    "Patience, sisters. The sooner we finish our work, the sooner we crush our enemies."
+),
+(
+    87898, 41825,
+    "Sorka, ensure the peons are keeping pace!",
+    "Sorka, ensure the peons are keeping pace!"
+),
+(
+    87921, 41851,
+    "My pleasure.",
+    "My pleasure."
+),
+(
+    87899, 41826,
+    "Marak, load the ammunition into the main cannon!",
+    "Marak, load the ammunition into the main cannon!"
+),
+(
+    87937, 41710,
+    "Right.",
+    "Right."
+),
+(
+    87900, 41827,
+    "What? The trains are behind schedule?",
+    "What? The trains are behind schedule?"
+),
+(
+    87922, 41852,
+    "I think I see the problem...",
+    "I think I see the problem..."
+),
+(
+    87923, 41853,
+    "Let's see how well you trained our soldiers, Gar'an.",
+    "Let's see how well you trained our soldiers, Gar'an."
+),
+(
+    87902, 41829,
+    "You insufferable...",
+    "You insufferable..."
+),
+(
+    87924, 41854,
+    "What brutality... What bloodshed... Beautiful!",
+    "What brutality... What bloodshed... Beautiful!"
+),
+(
+    87901, 41828,
+    "Sorka! This isn't a game! Get down there!",
+    "Sorka! This isn't a game! Get down there!"
+),
+(
+    87925, 41855,
+    "Don't worry, I'm coming... this looks fun.",
+    "Don't worry, I'm coming... this looks fun."
+);
 
-DELETE FROM locales_creature_text WHERE entry IN (@REF_SORKA, @REF_GARAN, @REF_MARAK);
---                                                       French     German     Spanish    Russian
-INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUES
+DELETE FROM locales_npc_text WHERE entry IN (87897, 87898, 87921, 87899, 87937, 87900, 87922, 87923, 87902, 87924, 87901, 87925);
+--                                   French                      German                      Spanish                     Russian
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE

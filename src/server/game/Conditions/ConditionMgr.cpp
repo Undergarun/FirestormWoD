@@ -437,6 +437,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
                 case TYPEID_AREATRIGGER:
                     mask |= GRID_MAP_TYPE_MASK_AREATRIGGER;
                     break;
+                case TYPEID_CONVERSATION:
+                    mask |= GRID_MAP_TYPE_MASK_CONVERSATION;
+                    break;
                 default:
                     break;
             }
@@ -451,6 +454,8 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
                 mask |= GRID_MAP_TYPE_MASK_CORPSE;
             if (ConditionValue1 & TYPEMASK_AREATRIGGER)
                 mask |= GRID_MAP_TYPE_MASK_AREATRIGGER;
+            if (ConditionValue1 & TYPEMASK_CONVERSATION)
+                mask |= GRID_MAP_TYPE_MASK_CONVERSATION;
             break;
         case CONDITION_RELATION_TO:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;

@@ -16,6 +16,8 @@ class boss_admiral_garan : public CreatureScript
 
         enum eSpells
         {
+            IronMaidenIntroConversation = 172658,
+            AfterTrashesConversation    = 172686
         };
 
         enum eEvents
@@ -28,12 +30,6 @@ class boss_admiral_garan : public CreatureScript
 
         enum eTalks
         {
-            TalkIntro0,
-            TalkIntro1,
-            TalkIntro2,
-            TalkIntro3,
-            TalkIntro4,
-            TalkIntro5
         };
 
         struct boss_admiral_garanAI : public BossAI
@@ -102,36 +98,12 @@ class boss_admiral_garan : public CreatureScript
                 {
                     case eIronMaidensActions::ActionIntro:
                     {
-                        uint32 l_Time = 2 * TimeConstants::IN_MILLISECONDS;
-                        AddTimedDelayedOperation(l_Time, [this]() -> void
-                        {
-                            Talk(eTalks::TalkIntro0);
-                        });
-
-                        l_Time += 6 * TimeConstants::IN_MILLISECONDS;
-                        AddTimedDelayedOperation(l_Time, [this]() -> void
-                        {
-                            Talk(eTalks::TalkIntro1);
-                        });
-
-                        l_Time += 5 * TimeConstants::IN_MILLISECONDS;
-                        AddTimedDelayedOperation(l_Time, [this]() -> void
-                        {
-                            Talk(eTalks::TalkIntro2);
-                        });
-
-                        l_Time += 8 * TimeConstants::IN_MILLISECONDS;
-                        AddTimedDelayedOperation(l_Time, [this]() -> void
-                        {
-                            Talk(eTalks::TalkIntro3);
-                        });
-
-                        l_Time += 10 * TimeConstants::IN_MILLISECONDS;
-                        AddTimedDelayedOperation(l_Time, [this]() -> void
-                        {
-                            Talk(eTalks::TalkIntro4);
-                        });
-
+                        me->CastSpell(me, eSpells::IronMaidenIntroConversation, true);
+                        break;
+                    }
+                    case eIronMaidensActions::ActionAfterTrashesIntro:
+                    {
+                        me->CastSpell(me, eSpells::AfterTrashesConversation, true);
                         break;
                     }
                     default:
@@ -193,11 +165,6 @@ class boss_enforcer_sorka : public CreatureScript
 
         enum eTalks
         {
-            TalkIntro0,
-            TalkIntro1,
-            TalkIntro2,
-            TalkIntro3,
-            TalkIntro4
         };
 
         struct boss_enforcer_sorkaAI : public BossAI
@@ -260,37 +227,6 @@ class boss_enforcer_sorka : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DoAction(int32 const p_Action) override
-            {
-                switch (p_Action)
-                {
-                    case eIronMaidensActions::ActionIntro:
-                    {
-                        uint32 l_Time = 12 * TimeConstants::IN_MILLISECONDS;
-                        AddTimedDelayedOperation(l_Time, [this]() -> void
-                        {
-                            Talk(eTalks::TalkIntro0);
-                        });
-
-                        l_Time += 12 * TimeConstants::IN_MILLISECONDS;
-                        AddTimedDelayedOperation(l_Time, [this]() -> void
-                        {
-                            Talk(eTalks::TalkIntro1);
-                        });
-
-                        l_Time += 3 * TimeConstants::IN_MILLISECONDS;
-                        AddTimedDelayedOperation(l_Time, [this]() -> void
-                        {
-                            Talk(eTalks::TalkIntro2);
-                        });
-
-                        break;
-                    }
-                    default:
-                        break;
-                }
-            }
-
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
@@ -345,7 +281,6 @@ class boss_marak_the_blooded : public CreatureScript
 
         enum eTalks
         {
-            TalkIntro0
         };
 
         struct boss_marak_the_bloodedAI : public BossAI
@@ -406,24 +341,6 @@ class boss_marak_the_blooded : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 summons.DespawnAll();
-            }
-
-            void DoAction(int32 const p_Action) override
-            {
-                switch (p_Action)
-                {
-                    case eIronMaidensActions::ActionIntro:
-                    {
-                        AddTimedDelayedOperation(17 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            Talk(eTalks::TalkIntro0);
-                        });
-
-                        break;
-                    }
-                    default:
-                        break;
-                }
             }
 
             void UpdateAI(uint32 const p_Diff) override

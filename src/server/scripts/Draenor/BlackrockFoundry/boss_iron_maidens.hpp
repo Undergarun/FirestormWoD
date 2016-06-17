@@ -10,7 +10,8 @@
 
 enum eIronMaidensActions
 {
-    ActionIntro
+    ActionIntro,
+    ActionAfterTrashesIntro
 };
 
 static void RespawnMaidens(InstanceScript* p_Instance, Creature* p_Source)

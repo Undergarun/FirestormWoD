@@ -7841,6 +7841,10 @@ void Spell::EffectStartConversation(SpellEffIndex p_EffIndex)
         return;
 
     uint32 l_Entry = m_spellInfo->Effects[p_EffIndex].MiscValue;
+
+    Conversation* l_Conversation = new Conversation;
+    if (!l_Conversation->StartConversation(m_caster, l_Entry))
+        delete l_Conversation;
 }
 
 void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
