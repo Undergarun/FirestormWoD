@@ -30,6 +30,7 @@
 #include "Timer.h"
 #include "../DynamicObject/DynamicObject.h"
 #include "../AreaTrigger/AreaTrigger.h"
+#include "../Conversation/Conversation.hpp"
 
 #define WORLD_TRIGGER   12999
 
@@ -365,6 +366,7 @@ class Spell;
 class SpellInfo;
 class DynamicObject;
 class AreaTrigger;
+class Conversaton;
 class GameObject;
 class Item;
 class Pet;

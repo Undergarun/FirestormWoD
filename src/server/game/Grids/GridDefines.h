@@ -20,6 +20,7 @@ class GameObject;
 class Pet;
 class Player;
 class AreaTrigger;
+class Conversation;
 
 #define MAX_NUMBER_OF_CELLS     8
 

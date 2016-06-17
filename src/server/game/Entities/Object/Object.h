@@ -386,6 +386,9 @@ class Object
         AreaTrigger* ToAreaTrigger() { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger*>(this); else return NULL; }
         AreaTrigger const* ToAreaTrigger() const { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger const*>(this); else return NULL; }
 
+        Conversation* ToConversation() { if (GetTypeId() == TypeID::TYPEID_CONVERSATION) return reinterpret_cast<Conversation*>(this); else return nullptr; }
+        Conversation const* ToConversation() const { if (GetTypeId() == TypeID::TYPEID_CONVERSATION) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
+
     protected:
         Object();
 

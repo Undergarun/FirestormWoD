@@ -15,6 +15,7 @@
 #include "DynamicObject.h"
 #include "Corpse.h"
 #include "AreaTrigger.h"
+#include "Conversation.hpp"
 #include "World.h"
 #include "CellImpl.h"
 #include "CreatureAI.h"
