@@ -93,7 +93,6 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-
             if (l_CheckTimer)
             {
                 if (l_CheckTimer <= diff)
@@ -125,6 +124,9 @@ public:
                 else
                     l_TalkRefill -= diff;
             }
+
+            if (!me->getVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             DoMeleeAttackIfReady();
         }
