@@ -866,9 +866,6 @@ class auchindoun_mob_sargerei_defender : public CreatureScript
 			if (m_False)
 			{
 				m_False = false;
-				me->setFaction(35);
-				me->SetReactState(ReactStates::REACT_PASSIVE);
-				me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
 			}
         }
 
@@ -949,9 +946,6 @@ class auchindoun_mob_sargerei_magus : public CreatureScript
 			if (m_False)
 			{
 				m_False = false;
-				me->setFaction(35);
-				me->SetReactState(ReactStates::REACT_PASSIVE);
-				me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
 			}
 
             events.Reset();
@@ -1072,9 +1066,6 @@ class auchindoun_mob_soul_priest : public CreatureScript
 			if (m_False)
 			{
 				m_False = false;
-				me->setFaction(35);
-				me->SetReactState(ReactStates::REACT_PASSIVE);
-				me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
 			}
 		}
 
@@ -1154,9 +1145,6 @@ class auchindoun_mob_sargeri_warden : public CreatureScript
 			if (m_False)
 			{
 				m_False = false;
-				me->setFaction(35);
-				me->SetReactState(ReactStates::REACT_PASSIVE);
-				me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
 			}
 		}
 
