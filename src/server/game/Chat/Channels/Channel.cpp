@@ -710,8 +710,13 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
         uint32 messageLength = strlen(what) + 1; ///< messageLenght is never read 01/18/16
 
         WorldPacket data;
+#ifndef CROSS
         player->BuildPlayerChat(&data, nullptr, CHAT_MSG_CHANNEL, what, lang, NULL, m_name);
         SendToAll(&data, !m_Players[p].IsModerator() ? p : false, p);
+#else /* CROSS */
+        player->BuildPlayerChat(&data, 0, CHAT_MSG_CHANNEL, what, lang, NULL, m_name);
+        SendToAll(&data, !m_Players[p].IsModerator() ? p : false);
+#endif /* CROSS */
 
         if (IsWorld())
         {
@@ -811,7 +816,11 @@ void Channel::Invite(uint64 p, const char *newname)
     }
 
     WorldPacket data;
+#ifndef CROSS
     if (!newp->GetSocial()->HasIgnore(GUID_LOPART(p)))
+#else /* CROSS */
+    if (!newp->GetSocial() || !newp->GetSocial()->HasIgnore(GUID_LOPART(p)))
+#endif /* CROSS */
     {
         MakeInvite(&data, p);
         SendToOne(&data, newp->GetGUID());
@@ -860,6 +869,7 @@ void Channel::SendToAll(WorldPacket* data, uint64 p, uint64 p_SenderGUID)
         Player* player = ObjectAccessor::FindPlayer(i->first);
         if (player)
         {
+#ifndef CROSS
             if (!p || !player->GetSocial()->HasIgnore(GUID_LOPART(p)))
             {
                 if (IsWorld() || IsConstant())
@@ -867,6 +877,10 @@ void Channel::SendToAll(WorldPacket* data, uint64 p, uint64 p_SenderGUID)
                 else if (!(IsWorld() || IsConstant()))
                     player->GetSession()->SendPacket(data);
             }
+#else /* CROSS */
+            if (!p || !player->GetSocial() || !player->GetSocial()->HasIgnore(GUID_LOPART(p)))
+                player->GetSession()->SendPacket(data);
+#endif /* CROSS */
         }
     }
     m_Lock.release();

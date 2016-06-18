@@ -26,17 +26,21 @@ enum AccountOpResult
 
 namespace AccountMgr
 {
+#ifndef CROSS
     AccountOpResult CreateAccount(std::string username, std::string password);
     AccountOpResult DeleteAccount(uint32 accountId);
     AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
     AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
+#endif /* not CROSS */
     bool CheckPassword(uint32 accountId, std::string password);
 
     uint32 GetId(std::string username);
     uint32 GetSecurity(uint32 accountId);
     uint32 GetSecurity(uint32 accountId, int32 realmId);
     bool GetName(uint32 accountId, std::string& name);
+#ifndef CROSS
     uint32 GetCharactersCount(uint32 accountId);
+#endif /* not CROSS */
     std::string CalculateShaPassHash(std::string& name, std::string& password);
 
     bool normalizeString(std::string& utf8String);

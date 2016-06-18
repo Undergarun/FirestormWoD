@@ -373,6 +373,9 @@ class BattlegroundEY : public Battleground
 
         /* achievement req. */
         bool IsAllNodesControlledByTeam(uint32 team) const;
+#ifdef CROSS
+        uint32 GetZoneId() const { return BATTLEGROUND_EY_ZONEID; }
+#endif /* CROSS */
     private:
         virtual void PostUpdateImpl(uint32 diff);
 

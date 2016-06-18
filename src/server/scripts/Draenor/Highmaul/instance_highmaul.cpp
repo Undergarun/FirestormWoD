@@ -150,7 +150,11 @@ class instance_highmaul : public InstanceMapScript
                 SetBossNumber(eHighmaulDatas::MaxHighmaulBosses);
                 LoadDoorData(g_DoorData);
 
+#ifndef CROSS
                 instance->SetObjectVisibility(200.0f);
+#else /* CROSS */
+                instance->SetObjectVisibility(150.0f);
+#endif /* CROSS */
             }
 
             void OnCreatureCreate(Creature* p_Creature) override

@@ -11,6 +11,7 @@
 #ifndef SCRIPTING_INTERFACES_INTERFACES_HPP_INCLUDED
 # define SCRIPTING_INTERFACES_INTERFACES_HPP_INCLUDED
 
+#ifndef CROSS
 # include "InterfaceBase.hpp"
 # include "Interface_AreaTrigger.hpp"
 # include "Interface_Creature.hpp"
@@ -28,5 +29,23 @@
 # include "Interface_PlayerCondition.hpp"
 # include "Interface_BattlePay.hpp"
 # include "Interface_Encounter.hpp"
+#else /* CROSS */
+#include "InterfaceBase.hpp"
+#include "Interface_AreaTrigger.hpp"
+#include "Interface_Creature.hpp"
+#include "Interface_GameObject.hpp"
+#include "Interface_Group.hpp"
+#include "Interface_Guild.hpp"
+#include "Interface_Item.hpp"
+#include "Interface_Map.hpp"
+#include "Interface_Misc.hpp"
+#include "Interface_Player.hpp"
+#include "Interface_PVP.hpp"
+#include "Interface_Spell.hpp"
+#include "Interface_Transport.hpp"
+#include "Interface_Vehicle.hpp"
+#include "Interface_PlayerCondition.hpp"
+#include "Interface_Encounter.hpp"
+#endif /* CROSS */
 
 #endif  ///< SCRIPTING_INTERFACES_INTERFACES_HPP_INCLUDED

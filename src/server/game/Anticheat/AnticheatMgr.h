@@ -70,8 +70,10 @@ public:
     void AnticheatGlobalCommand(ChatHandler* handler);
     void AnticheatDeleteCommand(uint32 guid);
 
+#ifndef CROSS
     void BuildReport(Player* player, uint8 reportType);
 
+#endif /* not CROSS */
     void ResetDailyReportStates();
 private:
     void SpeedHackDetection(Player* player, MovementInfo const& movementInfo);
@@ -81,6 +83,9 @@ private:
     void TeleportPlaneHackDetection(Player* player, MovementInfo const&);
     void ClimbHackDetection(Player* player, MovementInfo const& movementInfo, uint32 opcode);
 
+#ifdef CROSS
+    void BuildReport(Player* player,uint8 reportType);
+#endif /* CROSS */
 
     bool MustCheckTempReports(uint8 type);
 

@@ -1,3 +1,6 @@
+#ifdef CROSS
+#ifndef CROSS
+#endif /* CROSS */
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
@@ -381,3 +384,6 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
 
     return target != _source->getVictim();
 }
+#ifdef CROSS
+#endif /* not CROSS */
+#endif /* CROSS */

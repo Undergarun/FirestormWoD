@@ -32,11 +32,15 @@
 #include "World.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
+#ifndef CROSS
 #include "AuctionHouseMgr.h"
+#endif /* not CROSS */
 #include "ObjectMgr.h"
 #include "GuildMgr.h"
+#ifndef CROSS
 #include "GuildFinderMgr.h"
 #include "TicketMgr.h"
+#endif /* not CROSS */
 #include "SpellMgr.h"
 #include "GroupMgr.h"
 #include "Chat.h"
@@ -66,7 +70,9 @@
 #include "LFGMgr.h"
 #include "ConditionMgr.h"
 #include "DisableMgr.h"
+#ifndef CROSS
 #include "CharacterDatabaseCleaner.h"
+#endif /* not CROSS */
 #include "ScriptMgr.h"
 #include "WeatherMgr.h"
 #include "CreatureTextMgr.h"
@@ -74,22 +80,36 @@
 #include "Channel.h"
 #include "WardenCheckMgr.h"
 #include "Warden.h"
+#ifndef CROSS
 #include "CalendarMgr.h"
+#endif /* not CROSS */
 #include "BattlefieldMgr.h"
+#ifndef CROSS
 #include "BlackMarketMgr.h"
+#endif /* not CROSS */
 #include "CinematicPathMgr.h"
 #include "WildBattlePet.h"
+#ifndef CROSS
 #include "PlayerDump.h"
+#endif /* not CROSS */
 #include "TransportMgr.h"
+#ifndef CROSS
 #include "BattlepayMgr.h"
+#endif /* not CROSS */
 #include "InterRealmOpcodes.h"
+#ifdef CROSS
+#include "InterRealmMgr.h"
+#include <ace/OS_NS_time.h>
+#endif /* CROSS */
 #include "MMapFactory.h"
 #include "TaxiPathGraph.h"
 #include <ctime>
 
 uint32 gOnlineGameMaster = 0;
+#ifndef CROSS
 #include "GarrisonShipmentManager.hpp"
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 #include "ChatLexicsCutter.h"
 
 std::atomic<bool> World::m_stopEvent(false);
@@ -122,12 +142,19 @@ World::World()
     m_maxQueuedSessionCount = 0;
     m_PlayerCount = 0;
     m_MaxPlayerCount = 0;
+#ifdef CROSS
+
+#endif /* CROSS */
     m_NextDailyQuestReset = 0;
     m_NextWeeklyQuestReset = 0;
+#ifndef CROSS
     m_NextCurrencyReset = 0;
     m_NextDailyLootReset = 0;
     m_NextGuildChallengesReset = 0;
     m_NextBossLootedReset = 0;
+#else /* CROSS */
+    m_NextRandomBGReset = 0;
+#endif /* CROSS */
 
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
@@ -148,7 +175,11 @@ World::World()
 
     m_lexicsCutter = nullptr;
 
+#ifndef CROSS
     m_InterRealmSession = nullptr;
+#else /* CROSS */
+    m_update_online_timer = 60000;
+#endif /* CROSS */
 
     m_QueryHolderCallbacks             = std::unique_ptr<QueryHolderCallbacks>(new QueryHolderCallbacks());
     m_QueryHolderCallbacksBuffer       = std::unique_ptr<QueryHolderCallbacks>(new QueryHolderCallbacks());
@@ -161,6 +192,7 @@ World::World()
 /// World destructor
 World::~World()
 {
+#ifndef CROSS
     ///- Empty the kicked session set
     while (!m_sessions.empty())
     {
@@ -169,6 +201,7 @@ World::~World()
         m_sessions.erase(m_sessions.begin());
     }
 
+#endif /* not CROSS */
     CliCommandHolder* command = NULL;
     while (cliCmdQueue.next(command))
         delete command;
@@ -183,13 +216,22 @@ World::~World()
 Player* World::FindPlayerInZone(uint32 zone)
 {
     ///- circle through active sessions and return the first player found in the zone
+#ifndef CROSS
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+#else /* CROSS */
+    PlayerMap::const_iterator itr;
+    for (itr = m_players.begin(); itr != m_players.end(); ++itr)
+#endif /* CROSS */
     {
         if (!itr->second)
             continue;
 
+#ifndef CROSS
         Player* player = itr->second->GetPlayer();
+#else /* CROSS */
+        Player* player = itr->second;
+#endif /* CROSS */
         if (!player)
             continue;
 
@@ -220,6 +262,7 @@ MotdText const& World::GetMotd() const
     return m_Motd;
 }
 
+#ifndef CROSS
 /// Find a session by its id
 WorldSession* World::FindSession(uint32 id) const
 {
@@ -426,6 +469,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
     return found;
 }
 
+#endif /* not CROSS */
 /// Initialize config values
 void World::LoadConfigSettings(bool reload)
 {
@@ -1345,6 +1389,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_GUILD_DAILY_XP_CAP] = ConfigMgr::GetIntDefault("Guild.DailyXPCap", 7807500);
     m_int_configs[CONFIG_GUILD_WEEKLY_REP_CAP] = ConfigMgr::GetIntDefault("Guild.WeeklyReputationCap", 4375);
 
+#ifndef CROSS
     // Blackmarket
     m_int_configs[CONFIG_BLACKMARKET_MAX_AUCTIONS] = ConfigMgr::GetIntDefault("BlackMarket.MaxAuctions", 10);
     m_int_configs[CONFIG_BLACKMARKET_AUCTION_DELAY] = ConfigMgr::GetIntDefault("BlackMarket.AuctionDelay", 120);
@@ -1354,6 +1399,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowPaths", true);
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowOverwrite", true);
 
+#endif /* not CROSS */
     // call ScriptMgr if we're reloading the configuration
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = ConfigMgr::GetBoolDefault("Wintergrasp.Enable", false);
     m_int_configs[CONFIG_WINTERGRASP_PLR_MAX] = ConfigMgr::GetIntDefault("Wintergrasp.PlayerMax", 100);
@@ -1450,9 +1496,11 @@ void World::LoadConfigSettings(bool reload)
     m_lexicsCutter->IgnoreMiddleSpaces = ConfigMgr::GetBoolDefault("LexicsCutterIgnoreSpaces", true);
     m_lexicsCutter->CheckLetterContains = ConfigMgr::GetBoolDefault("LexicsCutterCheckContains", false);
 
+#ifndef CROSS
     // InterRealm settings
     m_bool_configs[CONFIG_INTERREALM_ENABLE] = ConfigMgr::GetBoolDefault("InterRealm.Enabled", false);
 
+#endif /* not CROSS */
     m_int_configs[CONFIG_SPELLOG_FLAGS] = ConfigMgr::GetIntDefault("SpellLog.Flags", SPELLLOG_OUTPUT_FLAG_PLAYER);
 
     sReporter->SetActiveState(ConfigMgr::GetBoolDefault("Reporting.Enabled", false));
@@ -1528,11 +1576,13 @@ void World::SetInitialWorldSettings()
     ///- Update the realm entry in the database with the realm type from the config file
     //No SQL injection as values are treated as integers
 
+#ifndef CROSS
     ///- Remove the bones (they should not exist in DB though) and old corpses after a restart
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CORPSES);
     stmt->setUInt32(0, 3 * DAY);
     CharacterDatabase.Execute(stmt);
 
+#endif /* not CROSS */
     ///- Load the DBC files
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize data stores...");
     LoadDBCStores(m_dataPath);
@@ -1737,12 +1787,14 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Group Size Stats...");
     sObjectMgr->LoadCreatureGroupSizeStats();
 
+#ifndef CROSS
     /*if (!sWorld->getBoolConfig(CONFIG_ENABLE_ONLY_SPECIFIC_MAP))
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Restructuring Creatures GUIDs...");
         sObjectMgr->RestructCreatureGUID(10000);
     }*/
 
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Data...");
     sObjectMgr->LoadCreatures();
 
@@ -1758,6 +1810,7 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Addon Data...");
     sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
+#ifndef CROSS
     if (sWorld->getBoolConfig(CONFIG_ENABLE_GAMEOBJECTS))
     {
         /// sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Restructuring Gameobjects GUIDs...");
@@ -1766,6 +1819,10 @@ void World::SetInitialWorldSettings()
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Gameobject Data...");
         sObjectMgr->LoadGameobjects();
     }
+#else /* CROSS */
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Gameobject Data...");
+    sObjectMgr->LoadGameobjects();
+#endif /* CROSS */
 
     if (sWorld->getBoolConfig(CONFIG_ENABLE_QUEST))
     {
@@ -1875,9 +1932,11 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading disabled rankings...");
     sObjectMgr->LoadDisabledEncounters();
 
+#ifndef CROSS
     /// It must be done before anything related to players
     LoadCharacterInfoStore();
 
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Data...");
     sObjectMgr->LoadPlayerInfo();
 
@@ -1887,17 +1946,21 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Pet Name Parts...");
     sObjectMgr->LoadPetNames();
 
+#ifndef CROSS
     CharacterDatabaseCleaner::CleanDatabase();
 
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading the max pet number...");
     sObjectMgr->LoadPetNumber();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading pet stats...");
     sObjectMgr->LoadPetStatInfo();
 
+#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Corpses...");
     sObjectMgr->LoadCorpses();
 
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player level dependent mail rewards...");
     sObjectMgr->LoadMailLevelRewards();
 
@@ -1927,6 +1990,7 @@ void World::SetInitialWorldSettings()
     sAchievementMgr->LoadRewards();
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Achievement Reward Locales...");
     sAchievementMgr->LoadRewardLocales();
+#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Completed Achievements...");
     sAchievementMgr->LoadCompletedAchievements();
 
@@ -1952,6 +2016,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading ReservedNames...");
     sObjectMgr->LoadReservedPlayersNames();
+#endif /* not CROSS */
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GameObjects for quests...");
     sObjectMgr->LoadGameObjectForQuests();
@@ -2007,19 +2072,23 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading faction change title pairs...");
     sObjectMgr->LoadFactionChangeTitles();
 
+#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GM tickets...");
     sTicketMgr->LoadTickets();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GM surveys...");
     sTicketMgr->LoadSurveys();
 
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading client addons...");
     AddonMgr::LoadFromDB();
 
+#ifndef CROSS
     ///- Handle outdated emails (delete/return)
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Returning old mails...");
     sObjectMgr->ReturnOrDeleteOldMails(false);
 
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Autobroadcasts...");
     LoadAutobroadcasts();
 
@@ -2047,9 +2116,11 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SmartAI scripts...");
     sSmartScriptMgr->LoadSmartAIFromDB();
 
+#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
 
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Cinematic path ...");
     sCinematicSequenceMgr->Load();
 
@@ -2076,9 +2147,11 @@ void World::SetInitialWorldSettings()
     m_gameTime = time(NULL);
     m_startTime = m_gameTime;
 
+#ifndef CROSS
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
                             g_RealmID, uint32(m_startTime), GitRevision::GetFullVersion()); ///< One-time query
 
+#endif /* not CROSS */
     m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
     m_timers[WUPDATE_UPTIME].SetInterval(m_int_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILLISECONDS);
@@ -2094,13 +2167,17 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_GUILDSAVE].SetInterval(getIntConfig(CONFIG_GUILD_SAVE_INTERVAL) * MINUTE * IN_MILLISECONDS);
 
+#ifndef CROSS
     m_timers[WUPDATE_BLACKMARKET].SetInterval(MINUTE * IN_MILLISECONDS);
 
+#endif /* not CROSS */
     m_timers[WUPDATE_REALM_STATS].SetInterval(MINUTE * IN_MILLISECONDS);
 
+#ifndef CROSS
     m_timers[WUPDATE_TRANSFER].SetInterval(1 * IN_MILLISECONDS);
     m_timers[WUPDATE_TRANSFER_EXP].SetInterval(1 * MINUTE * IN_MILLISECONDS);
 
+#endif /* not CROSS */
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
     //one second is 1000 -(tested on win system)
@@ -2125,17 +2202,21 @@ void World::SetInitialWorldSettings()
     uint32 nextGameEvent = sGameEventMgr->StartSystem();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
+#ifndef CROSS
     // Delete all characters which have been deleted X days before
     Player::DeleteOldCharacters();
 
+#endif /* not CROSS */
     // Delete all custom channels which haven't been used for PreserveCustomChannelDuration days.
     Channel::CleanOldChannelsInDB();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Arena Season...");
     sGameEventMgr->StartArenaSeason();
 
+#ifndef CROSS
     sTicketMgr->Initialize();
 
+#endif /* not CROSS */
     //sBattlegroundMgr->InitAutomaticArenaPointDistribution();
 
     ///- Initialize outdoor pvp
@@ -2156,21 +2237,26 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Warden Action Overrides...");
     sWardenCheckMgr->LoadWardenOverrides();
 
+#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query
 
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next daily quest reset time...");
     InitDailyQuestResetTime();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next weekly quest reset time...");
     InitWeeklyQuestResetTime();
 
+#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next monthly quest reset time...");
     InitMonthlyQuestResetTime();
 
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate random battleground reset time...");
     InitRandomBGResetTime();
 
+#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next currency reset time...");
     InitCurrencyResetTime();
 
@@ -2185,15 +2271,22 @@ void World::SetInitialWorldSettings()
 
     ///InitServerAutoRestartTime();
 
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_GENERAL, "Initializing Opcodes...");
     InitOpcodes();
 
+#ifdef CROSS
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading InterRealm config...");
+    sInterRealmMgr->LoadConfig();
+
+#endif /* CROSS */
     IRopcodeTable.Initialize();
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading hotfix info...");
     sObjectMgr->LoadHotfixData();
     sObjectMgr->LoadHotfixTableHashs();
 
+#ifndef CROSS
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading guild challenge rewards...");
     sObjectMgr->LoadGuildChallengeRewardInfo();
 
@@ -2203,12 +2296,17 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading black market auctions...");
     sBlackMarketMgr->LoadAuctions();
 
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading realm name...");
 
+#ifndef CROSS
     m_realmName = "Mist of Pandaria servers";
     QueryResult realmResult = LoginDatabase.PQuery("SELECT name FROM realmlist WHERE id = %u", g_RealmID);
     if (realmResult)
         m_realmName = (*realmResult)[0].GetString();
+#else /* CROSS */
+    m_realmName = "Warlords of Draenor servers";
+#endif /* CROSS */
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading area skip update...");
     sObjectMgr->LoadSkipUpdateZone();
@@ -2226,18 +2324,28 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading character template data...");
     sObjectMgr->LoadCharacterTemplateData();
 
+#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading realm completed challenges...");
     sObjectMgr->LoadRealmCompletedChallenges();
 
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading challenge mode rewards...");
     sObjectMgr->LoadChallengeRewards();
 
+#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Init Garrison shipment manager...");
     sGarrisonShipmentManager->Init();
+#else /* CROSS */
+    InitServerAutoRestartTime();
+#endif /* CROSS */
 
+#ifndef CROSS
     PlayerDump::LoadColumnsName();
 
     sBattlepayMgr->LoadFromDatabase();
+#else /* CROSS */
+    //sBattlepayMgr->LoadFromDatabase();
+#endif /* CROSS */
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
@@ -2360,6 +2468,16 @@ void World::Update(uint32 diff)
 {
     m_updateTime = diff;
 
+#ifdef CROSS
+    if (m_update_online_timer <= diff)
+    {
+        UpdateInterRealmStat();
+        m_update_online_timer = 60000;
+    }
+    else
+        m_update_online_timer -= diff;
+
+#endif /* CROSS */
     m_serverDelaySum += m_updateTime;
     ++m_serverUpdateCount;
 
@@ -2367,7 +2485,9 @@ void World::Update(uint32 diff)
     {
         if (m_updateTimeSum > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])
         {
+#ifndef CROSS
             LoginDatabase.PExecute("UPDATE realmlist set online=%u, queue=%u, lastupdate=%u where id=%u", GetActiveSessionCount(), GetQueuedSessionCount(), std::time(nullptr), g_RealmID);
+#endif /* not CROSS */
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
         }
@@ -2385,7 +2505,9 @@ void World::Update(uint32 diff)
         m_serverDelaySum = 0;
         m_serverUpdateCount = 0;
 
+#ifndef CROSS
         LoginDatabase.PExecute("UPDATE realmlist set delay=%u, lastupdate=%u where id=%u", delay, std::time(nullptr), g_RealmID);
+#endif /* not CROSS */
         m_serverDelayTimer -= m_int_configs[CONFIG_INTERVAL_LOG_UPDATE];
     }
     else
@@ -2403,6 +2525,7 @@ void World::Update(uint32 diff)
     ///- Update the game time and check for shutdown time
     _UpdateGameTime();
 
+#ifndef CROSS
     /// Handle daily quests reset time
     if (m_gameTime > m_NextDailyQuestReset)
     {
@@ -2464,9 +2587,17 @@ void World::Update(uint32 diff)
     }
 
     _updateTransfers();
+#else /* CROSS */
+    if (m_gameTime > m_NextServerRestart && !m_bool_configs[CONFIG_DISABLE_RESTART])
+        AutoRestartServer();
+#endif /* CROSS */
 
     uint32 diffTime = getMSTime();
 
+#ifdef CROSS
+    sInterRealmMgr->Update(diff);
+
+#endif /* CROSS */
     /// <li> Handle session updates when the timer has passed
     RecordTimeDiff(NULL);
     UpdateSessions(diff);
@@ -2490,6 +2621,7 @@ void World::Update(uint32 diff)
         uint32 maxOnlinePlayers = GetMaxPlayerCount();
 
         m_timers[WUPDATE_UPTIME].Reset();
+#ifndef CROSS
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_UPTIME_PLAYERS);
 
@@ -2515,6 +2647,7 @@ void World::Update(uint32 diff)
 
             LoginDatabase.Execute(stmt);
         }
+#endif /* not CROSS */
     }
 
     /// <li> Handle all other objects
@@ -2550,6 +2683,7 @@ void World::Update(uint32 diff)
     diffTime = getMSTime();
     RecordTimeDiff("BattlefieldMgr");
 
+#ifndef CROSS
     ///- Delete all characters which have been deleted X days before
     if (m_timers[WUPDATE_DELETECHARS].Passed())
     {
@@ -2557,6 +2691,7 @@ void World::Update(uint32 diff)
         Player::DeleteOldCharacters();
     }
 
+#endif /* not CROSS */
     sPetBattleSystem->Update(diff);
     sWildBattlePetMgr->Update(diff);
 
@@ -2565,9 +2700,11 @@ void World::Update(uint32 diff)
     diffTime = getMSTime();
     RecordTimeDiff("UpdateLFGMgr");
 
+#ifndef CROSS
     if (InterRealmSession* tunnel = GetInterRealmSession())
         tunnel->Update(diff);
 
+#endif /* not CROSS */
     // execute callbacks from sql queries that were queued recently
     ProcessQueryCallbacks();
 
@@ -2606,6 +2743,7 @@ void World::Update(uint32 diff)
             WebDatabase.KeepAlive();
     }
 
+#ifndef CROSS
     if (m_timers[WUPDATE_GUILDSAVE].Passed())
     {
         m_timers[WUPDATE_GUILDSAVE].Reset();
@@ -2619,6 +2757,7 @@ void World::Update(uint32 diff)
         sBlackMarketMgr->Update();
     }
 
+#endif /* not CROSS */
     // update the instance reset times
     sInstanceSaveMgr->Update();
 
@@ -2641,16 +2780,32 @@ void World::ForceGameEventUpdate()
 /// Send a packet to all players (except self if mentioned)
 void World::SendGlobalMessage(WorldPacket* packet, WorldSession* self, uint32 team)
 {
+#ifndef CROSS
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+#else /* CROSS */
+    PlayerMap::const_iterator itr;
+    for (itr = m_players.begin(); itr != m_players.end(); ++itr)
+#endif /* CROSS */
     {
         if (itr->second &&
+#ifndef CROSS
             itr->second->GetPlayer() &&
             itr->second->GetPlayer()->IsInWorld() &&
             itr->second != self &&
             (team == 0 || itr->second->GetPlayer()->GetTeam() == team))
+#else /* CROSS */
+            itr->second &&
+            itr->second->IsInWorld() &&
+            itr->second->GetSession() != self &&
+            (team == 0 || itr->second->GetTeam() == team))
+#endif /* CROSS */
         {
+#ifndef CROSS
             itr->second->SendPacket(packet);
+#else /* CROSS */
+            itr->second->GetSession()->SendPacket(packet);
+#endif /* CROSS */
         }
     }
 }
@@ -2658,17 +2813,34 @@ void World::SendGlobalMessage(WorldPacket* packet, WorldSession* self, uint32 te
 /// Send a packet to all GMs (except self if mentioned)
 void World::SendGlobalGMMessage(WorldPacket* packet, WorldSession* self, uint32 team)
 {
+#ifndef CROSS
     SessionMap::iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+#else /* CROSS */
+    PlayerMap::iterator itr;
+    for (itr = m_players.begin(); itr != m_players.end(); ++itr)
+#endif /* CROSS */
     {
         if (itr->second &&
+#ifndef CROSS
             itr->second->GetPlayer() &&
             itr->second->GetPlayer()->IsInWorld() &&
             itr->second != self &&
             !AccountMgr::IsPlayerAccount(itr->second->GetSecurity()) &&
             (team == 0 || itr->second->GetPlayer()->GetTeam() == team))
+#else /* CROSS */
+            itr->second &&
+            itr->second->IsInWorld() &&
+            itr->second->GetSession() != self &&
+            !AccountMgr::IsPlayerAccount(itr->second->GetSession()->GetSecurity()) &&
+            (team == 0 || itr->second->GetTeam() == team))
+#endif /* CROSS */
         {
+#ifndef CROSS
             itr->second->SendPacket(packet);
+#else /* CROSS */
+            itr->second->GetSession()->SendPacket(packet);
+#endif /* CROSS */
         }
     }
 }
@@ -2726,12 +2898,24 @@ void World::SendWorldText(int32 string_id, ...)
 
     JadeCore::WorldWorldTextBuilder wt_builder(string_id, &ap);
     JadeCore::LocalizedPacketListDo<JadeCore::WorldWorldTextBuilder> wt_do(wt_builder);
+#ifndef CROSS
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+#else /* CROSS */
+    for (PlayerMap::const_iterator itr = m_players.begin(); itr != m_players.end(); ++itr)
+#endif /* CROSS */
     {
+#ifndef CROSS
         if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
+#else /* CROSS */
+        if (!itr->second || !itr->second || !itr->second->IsInWorld())
+#endif /* CROSS */
             continue;
 
+#ifndef CROSS
         wt_do(itr->second->GetPlayer());
+#else /* CROSS */
+        wt_do(itr->second);
+#endif /* CROSS */
     }
 
     va_end(ap);
@@ -2745,15 +2929,31 @@ void World::SendGMText(int32 string_id, ...)
 
     JadeCore::WorldWorldTextBuilder wt_builder(string_id, &ap);
     JadeCore::LocalizedPacketListDo<JadeCore::WorldWorldTextBuilder> wt_do(wt_builder);
+#ifndef CROSS
     for (SessionMap::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+#else /* CROSS */
+    for (PlayerMap::iterator itr = m_players.begin(); itr != m_players.end(); ++itr)
+#endif /* CROSS */
     {
+#ifndef CROSS
         if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
+#else /* CROSS */
+        if (!itr->second || !itr->second || !itr->second->IsInWorld())
+#endif /* CROSS */
             continue;
 
+#ifndef CROSS
         if (AccountMgr::IsPlayerAccount(itr->second->GetSecurity()))
+#else /* CROSS */
+        if (AccountMgr::IsPlayerAccount(itr->second->GetSession()->GetSecurity()))
+#endif /* CROSS */
             continue;
 
+#ifndef CROSS
         wt_do(itr->second->GetPlayer());
+#else /* CROSS */
+        wt_do(itr->second);
+#endif /* CROSS */
     }
 
     va_end(ap);
@@ -2780,17 +2980,34 @@ void World::SendGlobalText(const char* text, WorldSession* self)
 /// Send a packet to all players (or players selected team) in the zone (except self if mentioned)
 void World::SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self, uint32 team)
 {
+#ifndef CROSS
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+#else /* CROSS */
+    PlayerMap::const_iterator itr;
+    for (itr = m_players.begin(); itr != m_players.end(); ++itr)
+#endif /* CROSS */
     {
         if (itr->second &&
+#ifndef CROSS
             itr->second->GetPlayer() &&
             itr->second->GetPlayer()->IsInWorld() &&
             itr->second->GetPlayer()->GetZoneId() == zone &&
             itr->second != self &&
             (team == 0 || itr->second->GetPlayer()->GetTeam() == team))
+#else /* CROSS */
+            itr->second &&
+            itr->second->IsInWorld() &&
+            itr->second->GetZoneId() == zone &&
+            itr->second != self->GetPlayer() &&
+            (team == 0 || itr->second->GetTeam() == team))
+#endif /* CROSS */
         {
+#ifndef CROSS
             itr->second->SendPacket(packet);
+#else /* CROSS */
+            itr->second->GetSession()->SendPacket(packet);
+#endif /* CROSS */
         }
     }
 }
@@ -2806,16 +3023,19 @@ void World::SendZoneText(uint32 zone, const char* text, WorldSession* self, uint
 /// Kick (and save) all players
 void World::KickAll()
 {
+#ifndef CROSS
     m_QueuedPlayer.clear();                                 // prevent send queue update packet and login queued sessions
 
     // session not removed at kick and will removed in next update tick
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         itr->second->KickPlayer();
+#endif /* not CROSS */
 }
 
 /// Kick (and save) all players with security level less `sec`
 void World::KickAllLess(AccountTypes sec)
 {
+#ifndef CROSS
     // session not removed at kick and will removed in next update tick
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetSecurity() < sec)
@@ -3051,6 +3271,7 @@ bool World::RemoveBanCharacter(std::string name)
     stmt->setUInt32(0, guid);
     CharacterDatabase.Execute(stmt);
     return true;
+#endif /* not CROSS */
 }
 
 /// Update the game time
@@ -3067,7 +3288,11 @@ void World::_UpdateGameTime()
         ///- ... and it is overdue, stop the world (set m_stopEvent)
         if (m_ShutdownTimer <= elapsed)
         {
+#ifndef CROSS
             if (!(m_ShutdownMask & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount() == 0)
+#else /* CROSS */
+            if (!(m_ShutdownMask & SHUTDOWN_MASK_IDLE))
+#endif /* CROSS */
                 m_stopEvent = true;                         // exist code already set
             else
                 m_ShutdownTimer = 1;                        // minimum timer value to wait idle state
@@ -3095,7 +3320,11 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std:
     ///- If the shutdown time is 0, set m_stopEvent (except if shutdown is 'idle' with remaining sessions)
     if (time == 0)
     {
+#ifndef CROSS
         if (!(options & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount() == 0)
+#else /* CROSS */
+        if (!(options & SHUTDOWN_MASK_IDLE))
+#endif /* CROSS */
             m_stopEvent = true;                             // exist code already set
         else
             m_ShutdownTimer = 1;                            //So that the session count is re-evaluated at next world tick
@@ -3178,6 +3407,7 @@ void World::SendServerMessage(ServerMessageType type, const char *text, Player* 
 
 void World::UpdateSessions(uint32 diff)
 {
+#ifndef CROSS
     ///- Add new sessions
     WorldSession* sess = NULL;
     while (addSessQueue.next(sess))
@@ -3192,19 +3422,62 @@ void World::UpdateSessions(uint32 diff)
         ///- and remove not active sessions from the list
         WorldSession* pSession = itr->second;
         WorldSessionFilter updater(pSession);
+#else /* CROSS */
+    playersLock.lock();
 
+    for (PlayerMap::iterator itr = m_players.begin(); itr != m_players.end();)
+    {
+        Player* player = itr->second;
+#endif /* CROSS */
+
+#ifndef CROSS
         if (!pSession->Update(diff, updater))    // As interval = 0
+#else /* CROSS */
+        //CheckPlayerMaps(player);
+
+        if (player->IsNeedRemove())
+#endif /* CROSS */
         {
+#ifndef CROSS
             if (!RemoveQueuedPlayer(itr->second) && itr->second && getIntConfig(CONFIG_INTERVAL_DISCONNECT_TOLERANCE))
                 m_disconnects[itr->second->GetAccountId()] = time(NULL);
             RemoveQueuedPlayer(pSession);
             m_sessions.erase(itr);
             delete pSession;
+#else /* CROSS */
+            Map* map = player->FindMap();
+            if (map && map->IsUpdating())
+            {
+                ++itr;
+                continue;
+            }
+#endif /* CROSS */
 
+#ifdef CROSS
+            player->RemovePlayer();
+            delete player;
+            itr = m_players.erase(itr);
+        }
+        else
+        {
+            WorldSession* pSession = itr->second->GetSession();
+            WorldSessionFilter updater(pSession);
+
+            pSession->Update(diff, updater);
+
+            ++itr;
+#endif /* CROSS */
         }
     }
+#ifdef CROSS
+
+    playersLock.release();
+#endif /* CROSS */
 }
 
+#ifdef CROSS
+
+#endif /* CROSS */
 // This handles the issued and queued CLI commands
 void World::ProcessCliCommands()
 {
@@ -3228,6 +3501,7 @@ void World::SendAutoBroadcast()
 {
     if (m_Autobroadcasts.empty())
         return;
+#ifndef CROSS
 
     AutoBroadcastText l_AutobroadcastText;
     l_AutobroadcastText = JadeCore::Containers::SelectRandomContainerElement(m_Autobroadcasts);
@@ -3268,18 +3542,22 @@ void World::SendAutoBroadcast()
             itr->second->SendPacket(&l_Data);
         }
     }
+#endif /* not CROSS */
 }
 
 void World::UpdateRealmCharCount(uint32 accountId)
 {
+#ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_COUNT);
     stmt->setUInt32(0, accountId);
     PreparedQueryResultFuture result = CharacterDatabase.AsyncQuery(stmt);
     m_realmCharCallbacks.insert(result);
+#endif /* not CROSS */
 }
 
 void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 {
+#ifndef CROSS
     if (resultCharCount)
     {
         Field* fields = resultCharCount->Fetch();
@@ -3577,6 +3855,7 @@ void World::ResetBossLooted()
         if (l_Iter->second->GetPlayer())
             l_Iter->second->GetPlayer()->ResetBossLooted();
     }
+#endif /* not CROSS */
 }
 
 void World::LoadDBMotd()
@@ -3617,6 +3896,7 @@ void World::SetPlayerSecurityLimit(AccountTypes _sec)
         KickAllLess(m_allowedSecurityLevel);
 }
 
+#ifndef CROSS
 void World::ResetWeeklyQuests()
 {
     sLog->outInfo(LOG_FILTER_GENERAL, "Weekly quests reset for all characters.");
@@ -3727,6 +4007,7 @@ void World::UpdateMaxSessionCounters()
     m_maxQueuedSessionCount = std::max(m_maxQueuedSessionCount, uint32(m_QueuedPlayer.size()));
 }
 
+#endif /* not CROSS */
 void World::LoadDBVersion()
 {
     QueryResult result = WorldDatabase.Query("SELECT db_version, cache_id FROM version LIMIT 1");
@@ -3755,12 +4036,23 @@ void World::ProcessStopEvent()
 
 void World::UpdateAreaDependentAuras()
 {
+#ifndef CROSS
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second && itr->second->GetPlayer() && itr->second->GetPlayer()->IsInWorld())
+#else /* CROSS */
+    PlayerMap::const_iterator itr;
+    for (itr = m_players.begin(); itr != m_players.end(); ++itr)
+        if (itr->second && itr->second && itr->second->IsInWorld())
+#endif /* CROSS */
         {
+#ifndef CROSS
             itr->second->GetPlayer()->UpdateAreaDependentAuras(itr->second->GetPlayer()->GetAreaId());
             itr->second->GetPlayer()->UpdateZoneDependentAuras(itr->second->GetPlayer()->GetZoneId());
+#else /* CROSS */
+            itr->second->UpdateAreaDependentAuras(itr->second->GetAreaId());
+            itr->second->UpdateZoneDependentAuras(itr->second->GetZoneId());
+#endif /* CROSS */
         }
 }
 
@@ -3940,8 +4232,13 @@ void World::ProcessQueryCallbacks()
     }
 }
 
+#ifndef CROSS
 void World::LoadCharacterInfoStore()
+#else /* CROSS */
+void World::UpdatePhaseDefinitions()
+#endif /* CROSS */
 {
+#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading character name data");
 
     QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level FROM characters WHERE deleteDate IS NULL OR deleteDate = 0");
@@ -3964,10 +4261,21 @@ void World::LoadCharacterInfoStore()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loaded name data for %u characters in %u ms.", count, GetMSTimeDiffToNow(l_OldMSTime));
+#else /* CROSS */
+    PlayerMap::const_iterator itr;
+    for (itr = m_players.begin(); itr != m_players.end(); ++itr)
+        if (itr->second && itr->second && itr->second->IsInWorld())
+            itr->second->GetPhaseMgr().NotifyStoresReloaded();
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 void World::AddCharacterInfo(uint32 guid, std::string const& name, uint32 accountId, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
+#else /* CROSS */
+bool World::ModerateMessage(std::string l_Text)
+#endif /* CROSS */
 {
+#ifndef CROSS
     CharacterInfo& data = _characterInfoStore[guid];
     data.Name       = name;
     data.AccountId  = accountId;
@@ -3975,19 +4283,38 @@ void World::AddCharacterInfo(uint32 guid, std::string const& name, uint32 accoun
     data.Sex        = gender;
     data.Class      = playerClass;
     data.Level      = level;
+#else /* CROSS */
+    if (!m_lexicsCutter)
+        return false;
+
+    return m_lexicsCutter->CheckLexics(l_Text);
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 void World::UpdateCharacterInfo(uint32 guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
+#else /* CROSS */
+void World::AddPlayer(Player* player)
+#endif /* CROSS */
 {
+#ifndef CROSS
     CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
     if (itr == _characterInfoStore.end())
         return;
 
     itr->second.Name = name;
+#else /* CROSS */
+    ASSERT(player);
+#endif /* CROSS */
 
+#ifndef CROSS
     if (gender != GENDER_NONE)
         itr->second.Sex = gender;
+#else /* CROSS */
+    playersLock.lock();
+#endif /* CROSS */
 
+#ifndef CROSS
     if (race != RACE_NONE)
         itr->second.Race = race;
 }
@@ -3997,62 +4324,214 @@ void World::UpdateCharacterInfoLevel(uint32 guid, uint8 level)
     CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
     if (itr == _characterInfoStore.end())
         return;
+#else /* CROSS */
+    m_players[player->GetGUID()] = player;
+#endif /* CROSS */
 
+#ifndef CROSS
     itr->second.Level = level;
+#else /* CROSS */
+    playersLock.release();
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 CharacterInfo  const* World::GetCharacterInfo(uint32 guid) const
+#else /* CROSS */
+bool World::HasPlayer(uint64 guid) const
+#endif /* CROSS */
 {
+#ifndef CROSS
     CharacterInfoContainer::const_iterator itr = _characterInfoStore.find(guid);
     if (itr != _characterInfoStore.end())
         return &itr->second;
     else
         return NULL;
+#else /* CROSS */
+    return (m_players.find(guid) != m_players.end());
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 uint64 World::GetCharacterGuidByName(std::string const& p_Name)
+#else /* CROSS */
+Player* World::GetPlayer(uint64 guid)
+#endif /* CROSS */
 {
+#ifndef CROSS
     for (CharacterInfoContainer::iterator itr = _characterInfoStore.begin(); itr != _characterInfoStore.end(); ++itr)
     {
         if (itr->second.Name == p_Name)
             return MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER);
     }
+#else /* CROSS */
+    PlayerMap::iterator itr = m_players.find(guid);
+    if (itr != m_players.end())
+        return itr->second;
+#endif /* CROSS */
 
+#ifndef CROSS
     return 0;
+#else /* CROSS */
+    return NULL;
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 void World::UpdatePhaseDefinitions()
+#else /* CROSS */
+const PlayerMap& World::GetAllPlayers()
+#endif /* CROSS */
 {
+#ifndef CROSS
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second && itr->second->GetPlayer() && itr->second->GetPlayer()->IsInWorld())
             itr->second->GetPlayer()->GetPhaseMgr().NotifyStoresReloaded();
+#else /* CROSS */
+    return m_players;
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 std::string World::GetNormalizedRealmName() const
+#else /* CROSS */
+void World::CheckPlayerMaps(Player* player)
+#endif /* CROSS */
 {
+#ifndef CROSS
     std::string l_NormalizedName = "";
     for (uint32 l_I = 0; l_I < m_realmName.length(); l_I++)
+#else /* CROSS */
+    std::vector<Map*> mapsVector;
+    std::vector<Player*> playersVector;
+    int count = 0;
+    /*MapMapType const& maps = sMapMgr->GetMaps();
+    for (MapMapType::const_iterator itrMaps = maps.begin(); itrMaps != maps.end(); ++itrMaps)
+#endif /* CROSS */
     {
+#ifndef CROSS
         if (m_realmName[l_I] == ' ')
             continue;
+#else /* CROSS */
+    Map* _map = itrMaps->second;
+#endif /* CROSS */
 
+#ifndef CROSS
         l_NormalizedName += m_realmName[l_I];
+#else /* CROSS */
+    Map::PlayerList const& _players = _map->GetPlayers();
+    for (Map::PlayerList::const_iterator _itrMap = _players.begin(); _itrMap != _players.end(); ++_itrMap)
+    {
+    if (player->GetGUID() == _itrMap->getSource()->GetGUID())
+    {
+    count++;
+    mapsVector.push_back(_map);
+    playersVector.push_back(_itrMap->getSource());
+#endif /* CROSS */
     }
+#ifdef CROSS
+    }
+    if (MapInstanced* iMap = _map->ToMapInstanced())
+    {
+    MapInstanced::InstancedMaps& iMaps = iMap->GetInstancedMaps();
+    for (MapInstanced::InstancedMaps::const_iterator itrIMaps = iMaps.begin(); itrIMaps != iMaps.end(); ++itrIMaps)
+    {
+    Map* map = itrIMaps->second;
+    Map::PlayerList const& players = map->GetPlayers();
+    for (Map::PlayerList::const_iterator itrMap = players.begin(); itrMap != players.end(); ++itrMap)
+    {
+    if (player->GetGUID() == itrMap->getSource()->GetGUID())
+    {
+    count++;
+    mapsVector.push_back(map);
+    playersVector.push_back(itrMap->getSource());
+    }
+    }
+    }
+    }
+    }*/
+#endif /* CROSS */
 
+#ifndef CROSS
     return l_NormalizedName;
+#else /* CROSS */
+    if (count > 1)
+    {
+        for (std::vector<Player*>::const_iterator itr = playersVector.begin(); itr != playersVector.end(); ++itr)
+        {
+            sLog->outInfo(LOG_FILTER_WORLDSERVER, "Player %s (GUID %u), needremove %u, isinworld %u",
+                player->GetName(), player->GetRealGUIDLow(), player->IsNeedRemove(), player->IsInWorld());
+        }
+        for (std::vector<Map*>::const_iterator itr = mapsVector.begin(); itr != mapsVector.end(); ++itr)
+        {
+            Map* vecMap = (*itr);
+            sLog->outInfo(LOG_FILTER_WORLDSERVER, "Map id %u, name %s, instanceId %u, is bg %u",
+                vecMap->GetId(), vecMap->GetMapName(),
+                vecMap->GetInstanceId(), vecMap->IsBattlegroundOrArena());
+        }
+        ASSERT(false);
+    }
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 bool World::ModerateMessage(std::string l_Text)
+#else /* CROSS */
+bool World::FindPlayerOnMaps(uint64 guid)
+#endif /* CROSS */
 {
+#ifndef CROSS
     if (!m_lexicsCutter)
         return false;
+#else /* CROSS */
+    int count = 0;
+    /*MapMapType const& maps = sMapMgr->GetMaps();
+    for (MapMapType::const_iterator itrMaps = maps.begin(); itrMaps != maps.end(); ++itrMaps)
+    {
+    Map* _map = itrMaps->second;
+#endif /* CROSS */
 
+#ifndef CROSS
     return m_lexicsCutter->CheckLexics(l_Text);
+#else /* CROSS */
+    Map::PlayerList const& _players = _map->GetPlayers();
+    for (Map::PlayerList::const_iterator _itrMap = _players.begin(); _itrMap != _players.end(); ++_itrMap)
+    {
+    if (guid == _itrMap->getSource()->GetGUID())
+    {
+    count++;
+    }
+    }
+    if (MapInstanced* iMap = _map->ToMapInstanced())
+    {
+    MapInstanced::InstancedMaps& iMaps = iMap->GetInstancedMaps();
+    for (MapInstanced::InstancedMaps::const_iterator itrIMaps = iMaps.begin(); itrIMaps != iMaps.end(); ++itrIMaps)
+    {
+    Map* map = itrIMaps->second;
+    Map::PlayerList const& players = map->GetPlayers();
+    for (Map::PlayerList::const_iterator itrMap = players.begin(); itrMap != players.end(); ++itrMap)
+    {
+    if (guid == itrMap->getSource()->GetGUID())
+    {
+    count++;
+    }
+    }
+    }
+    }
+    }*/
+
+    return (count > 0);
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 void World::_updateTransfers()
+#else /* CROSS */
+void World::UpdateInterRealmStat()
+#endif /* CROSS */
 {
+#ifndef CROSS
     /// Regular transfers (realm to realm)
     if (m_timers[WUPDATE_TRANSFER].Passed())
     {
@@ -4060,30 +4539,63 @@ void World::_updateTransfers()
         {
             PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERS_DUMP);
             l_Stmt->setUInt32(0, sLog->GetRealmID());
+#else /* CROSS */
+    ClientMap const& clients = sInterRealmMgr->GetClients();
+#endif /* CROSS */
 
+#ifndef CROSS
             m_transfersDumpCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
         }
+#else /* CROSS */
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    trans->PAppend("DELETE FROM interrealmstat");
+    uint32 count = 0;
+#endif /* CROSS */
 
+#ifndef CROSS
         // Prepare transfer load callback ...
         {
             PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERS_LOAD);
             l_Stmt->setUInt32(0, sLog->GetRealmID());
+#else /* CROSS */
+    playersLock.lock();
+#endif /* CROSS */
 
+#ifndef CROSS
             m_transfersLoadCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
+#else /* CROSS */
+    for (PlayerMap::const_iterator itr = m_players.begin(); itr != m_players.end(); ++itr)
+    {
+        Player* player = itr->second;
+        if (player->GetSession()->isInInterRealmBG())
+        {
+            count++;
+#endif /* CROSS */
         }
+#ifndef CROSS
 
         m_timers[WUPDATE_TRANSFER].SetInterval(HOUR * IN_MILLISECONDS);
         m_timers[WUPDATE_TRANSFER].Reset();
+#endif /* not CROSS */
     }
 
+#ifndef CROSS
     if (m_transfersDumpCallbacks.ready() && m_transfersLoadCallbacks.ready())
     {
         PreparedQueryResult l_ToDump;
         PreparedQueryResult l_ToLoad;
+#else /* CROSS */
+    playersLock.release();
+#endif /* CROSS */
 
+#ifndef CROSS
         m_transfersDumpCallbacks.get(l_ToDump);
         m_transfersLoadCallbacks.get(l_ToLoad);
+#else /* CROSS */
+    uint32 uptimeDiff = uint32(m_gameTime - m_startTime);
+#endif /* CROSS */
 
+#ifndef CROSS
         if (l_ToDump)
         {
             do
@@ -4096,13 +4608,31 @@ void World::_updateTransfers()
                 /// Transfers aren't allowed with legacy account
                 if (l_AccountID & 0x40000000)
                     continue;
+#else /* CROSS */
+    trans->PAppend("REPLACE INTO interrealmstat VALUES (%u, %u, %u)", count, uint32(m_startTime), uptimeDiff);
+#endif /* CROSS */
 
+#ifndef CROSS
                 if (Player * l_Player = sObjectMgr->GetPlayerByLowGUID(l_CharGUID))
                     continue;
+#else /* CROSS */
+    CharacterDatabase.CommitTransaction(trans);
+}
+#endif /* CROSS */
 
+#ifndef CROSS
                 bool l_Error = true;
                 std::string l_Dump;
+#else /* CROSS */
+void World::InitWeeklyQuestResetTime()
+{
+    time_t wstime = uint64(sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME));
+    time_t curtime = time(NULL);
+    m_NextWeeklyQuestReset = wstime < curtime ? curtime : time_t(wstime);
+}
+#endif /* CROSS */
 
+#ifndef CROSS
                 if (PlayerDumpWriter().GetDump(l_CharGUID, l_AccountID, l_Dump, false))
                 {
                     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_TRANSFER_PDUMP);
@@ -4118,7 +4648,13 @@ void World::_updateTransfers()
                         CharacterDatabase.PExecute("UPDATE characters SET deleteInfos_Name=name, deleteInfos_Account=account, deleteDate='" UI64FMTD "', name='', account=0 WHERE guid=%u", uint64(time(NULL)), l_CharGUID);
                     }
                 }
+#else /* CROSS */
+void World::InitDailyQuestResetTime()
+{
+    time_t mostRecentQuestTime;
+#endif /* CROSS */
 
+#ifndef CROSS
                 if (l_Error)
                 {
                     sLog->outTrace(LOG_FILTER_WORLDSERVER, "PlayerDump fail ! (guid %u)", l_CharGUID);
@@ -4128,7 +4664,11 @@ void World::_updateTransfers()
             }
             while (l_ToDump->NextRow());
         }
+#else /* CROSS */
+    mostRecentQuestTime = 0;
+#endif /* CROSS */
 
+#ifndef CROSS
         if (l_ToLoad)
         {
             do
@@ -4150,34 +4690,93 @@ void World::_updateTransfers()
                 FILE* l_File = fopen(l_Filename.str().c_str(), "w");
                 if (!l_File)
                     continue;
+#else /* CROSS */
+    // client built-in time for reset is 6:00 AM
+    // FIX ME: client not show day start time
+    time_t curTime = time(NULL);
+    tm localTm;
+    ACE_OS::localtime_r(&curTime, &localTm);
+    localTm.tm_hour = 6;
+    localTm.tm_min  = 0;
+    localTm.tm_sec  = 0;
+#endif /* CROSS */
 
+#ifndef CROSS
                 fprintf(l_File, "%s\n", l_CharDump.c_str());
                 fclose(l_File);
+#else /* CROSS */
+    // current day reset time
+    time_t curDayResetTime = mktime(&localTm);
+#endif /* CROSS */
 
+#ifndef CROSS
                 DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_AccountID, "#Transfer", 0);
                 remove(l_Filename.str().c_str());
+#else /* CROSS */
+    // last reset time before current moment
+    time_t resetTime = (curTime < curDayResetTime) ? curDayResetTime - DAY : curDayResetTime;
+#endif /* CROSS */
 
+#ifndef CROSS
                 if (l_Error == DUMP_SUCCESS)
                 {
                     LoginDatabase.PQuery("UPDATE webshop_delivery_interrealm_transfer SET state = 2 WHERE id = %u", l_Transaction);
                     continue;
                 }
+#else /* CROSS */
+    // need reset (if we have quest time before last reset time (not processed by some reason)
+    if (mostRecentQuestTime && mostRecentQuestTime <= resetTime)
+        m_NextDailyQuestReset = mostRecentQuestTime;
+    else // plan next reset time
+        m_NextDailyQuestReset = (curTime >= curDayResetTime) ? curDayResetTime + DAY : curDayResetTime;
+}
+#endif /* CROSS */
 
+#ifndef CROSS
                 if (l_Error != DUMP_TOO_MANY_CHARS)
                     sLog->outSlack("#jarvis", "danger", true, "Transfer to realm [%u] on account [%u] failed. ErrorCode [%u]", g_RealmID, l_AccountID, l_Error);
+#else /* CROSS */
+void World::InitRandomBGResetTime()
+{
+    time_t bgtime = uint64(sWorld->getWorldState(WS_BG_DAILY_RESET_TIME));
+    if (!bgtime)
+        m_NextRandomBGReset = time_t(time(NULL));         // game time not yet init
+#endif /* CROSS */
 
+#ifndef CROSS
                 LoginDatabase.PQuery("UPDATE webshop_delivery_interrealm_transfer SET error = %u, nb_attempt = nb_attempt + 1 WHERE id = %u", (uint32)l_Error, l_Transaction);
             }
             while (l_ToLoad->NextRow());
         }
+#else /* CROSS */
+    // generate time by config
+    time_t curTime = time(NULL);
+    tm localTm;
+    ACE_OS::localtime_r(&curTime, &localTm);
+    localTm.tm_hour = getIntConfig(CONFIG_RANDOM_BG_RESET_HOUR);
+    localTm.tm_min = 0;
+    localTm.tm_sec = 0;
+#endif /* CROSS */
 
+#ifndef CROSS
         m_transfersDumpCallbacks.cancel();
         m_transfersLoadCallbacks.cancel();
+#else /* CROSS */
+    // current day reset time
+    time_t nextDayResetTime = mktime(&localTm);
+#endif /* CROSS */
 
+#ifndef CROSS
         m_timers[WUPDATE_TRANSFER].SetInterval(15 * MINUTE * IN_MILLISECONDS);
         m_timers[WUPDATE_TRANSFER].Reset();
     }
+#else /* CROSS */
+    // next reset time before current moment
+    if (curTime >= nextDayResetTime)
+        nextDayResetTime += DAY;
+#endif /* CROSS */
 
+#ifndef CROSS
     /// Inter exp transfers
     if (m_timers[WUPDATE_TRANSFER_EXP].Passed())
     {
@@ -4185,19 +4784,47 @@ void World::_updateTransfers()
         {
             PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERS_EXP_LOAD);
             l_Stmt->setUInt32(0, sLog->GetRealmID());
+#else /* CROSS */
+    // normalize reset time
+    m_NextRandomBGReset = bgtime < curTime ? nextDayResetTime - DAY : nextDayResetTime;
+#endif /* CROSS */
 
+#ifndef CROSS
             m_transfersExpLoadCallback = LoginDatabase.AsyncQuery(l_Stmt);
         }
+#else /* CROSS */
+    if (!bgtime)
+        sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint64(m_NextRandomBGReset));
+}
+#endif /* CROSS */
 
+#ifndef CROSS
         m_timers[WUPDATE_TRANSFER_EXP].SetInterval(HOUR * IN_MILLISECONDS);
         m_timers[WUPDATE_TRANSFER_EXP].Reset();
     }
+#else /* CROSS */
+void World::InitServerAutoRestartTime()
+{
+    time_t serverRestartTime = uint64(sWorld->getWorldState(WS_AUTO_SERVER_RESTART_TIME));
+    if (!serverRestartTime)
+        m_NextServerRestart = time_t(time(NULL));         // game time not yet init
+#endif /* CROSS */
 
+#ifndef CROSS
     if (m_transfersExpLoadCallback.ready())
     {
         PreparedQueryResult l_ToLoad;
         m_transfersExpLoadCallback.get(l_ToLoad);
+#else /* CROSS */
+    // generate time by config
+    time_t curTime = time(NULL);
+    tm localTm = *localtime(&curTime);
+    localTm.tm_hour = getIntConfig(CONFIG_AUTO_SERVER_RESTART_HOUR);
+    localTm.tm_min = 0;
+    localTm.tm_sec = 0;
+#endif /* CROSS */
 
+#ifndef CROSS
         if (l_ToLoad)
         {
             do
@@ -4219,29 +4846,70 @@ void World::_updateTransfers()
                 FILE* l_File = fopen(l_Filename.str().c_str(), "w");
                 if (!l_File)
                     continue;
+#else /* CROSS */
+    // current day reset time
+    time_t nextDayRestartTime = mktime(&localTm);
+#endif /* CROSS */
 
+#ifndef CROSS
                 fprintf(l_File, "%s\n", l_CharDump.c_str());
                 fclose(l_File);
+#else /* CROSS */
+    // next reset time before current moment
+    if (curTime >= nextDayRestartTime)
+        nextDayRestartTime += DAY;
+#endif /* CROSS */
 
+#ifndef CROSS
                 DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_AccountID, "#Transfer", 0, false, AtLoginFlags::AT_LOGIN_RENAME | AtLoginFlags::AT_LOGIN_DELETE_INVALID_SPELL);
                 remove(l_Filename.str().c_str());
+#else /* CROSS */
+    // normalize reset time
+    m_NextServerRestart = serverRestartTime < curTime ? nextDayRestartTime - DAY : nextDayRestartTime;
+#endif /* CROSS */
 
+#ifndef CROSS
                 if (l_Error == DUMP_SUCCESS)
                 {
                     LoginDatabase.PQuery("UPDATE webshop_delivery_interexp_transfer SET state = 2 WHERE id = %u", l_Transaction);
                     continue;
                 }
+#else /* CROSS */
+    if (!serverRestartTime)
+        sWorld->setWorldState(WS_AUTO_SERVER_RESTART_TIME, uint64(m_NextServerRestart));
+#endif /* CROSS */
 
+#ifndef CROSS
                 if (l_Error != DUMP_TOO_MANY_CHARS)
                     sLog->outSlack("#jarvis", "danger", true, "Inter Exp Transfer to realm [%u] on account [%u] failed. ErrorCode [%u]", g_RealmID, l_AccountID, l_Error);
+#else /* CROSS */
+    if (m_bool_configs[CONFIG_DISABLE_RESTART])
+        m_NextServerRestart += DAY * 1;
+}
+#endif /* CROSS */
 
+#ifndef CROSS
                 LoginDatabase.PQuery("UPDATE webshop_delivery_interexp_transfer SET error = %u, nb_attempt = nb_attempt + 1 WHERE id = %u", (uint32)l_Error, l_Transaction);
             }
             while (l_ToLoad->NextRow());
         }
+#else /* CROSS */
+void World::AutoRestartServer()
+{
+    if (sWorld->getBoolConfig(CONFIG_DISABLE_RESTART))
+        return;
+#endif /* CROSS */
 
+#ifndef CROSS
         m_transfersExpLoadCallback.cancel();
         m_timers[WUPDATE_TRANSFER_EXP].SetInterval(20 * MINUTE * IN_MILLISECONDS);
         m_timers[WUPDATE_TRANSFER_EXP].Reset();
     }
 }
+#else /* CROSS */
+    sWorld->ShutdownServ(300, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
+
+    m_NextServerRestart = time_t(m_NextServerRestart + DAY);
+    sWorld->setWorldState(WS_AUTO_SERVER_RESTART_TIME, uint64(m_NextServerRestart));
+}
+#endif /* CROSS */

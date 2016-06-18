@@ -18,13 +18,17 @@
 #include "Arena.h"
 #include "Chat.h"
 #include "Group.h"
+#ifndef CROSS
 #include "Guild.h"
 #include "GuildFinderMgr.h"
+#endif /* not CROSS */
 #include "Language.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
+#ifndef CROSS
 #include "PlayerDump.h"
+#endif /* not CROSS */
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "UpdateMask.h"
@@ -34,10 +38,16 @@
 #include "AccountMgr.h"
 #include "DBCStores.h"
 #include "LFGMgr.h"
+#ifndef CROSS
 
 
+#else /* CROSS */
+#include <time.h>
+#include "InterRealmMgr.h"
+#endif /* CROSS */
 //#include <Reporting/Reporter.hpp>
 
+#ifndef CROSS
 class LoginQueryHolder : public SQLQueryHolder
 {
     private:
@@ -61,6 +71,7 @@ class LoginDBQueryHolder : public SQLQueryHolder
         uint32 GetAccountId() const { return m_AccountId; }
         bool Initialize();
 };
+#endif /* not CROSS */
 
 bool LoginDBQueryHolder::Initialize()
 {
@@ -92,74 +103,143 @@ bool LoginQueryHolder::Initialize()
     uint32 l_LowGuid = GUID_LOPART(m_guid);
     PreparedStatement* l_Statement = nullptr;
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER);
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADFROM, l_Statement);
+#else /* CROSS */
+    InterRealmDatabasePool l_RealmDatabase = *sInterRealmMgr->GetClientByRealmNumber(m_realmId)->GetDatabase();
+#endif /* CROSS */
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
+#ifndef CROSS
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADGROUP, l_Statement);
+#else /* CROSS */
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADFROM, l_Statement);
+#endif /* CROSS */
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BOSS_LOOTED);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_BOSS_LOOTED);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_BOSS_LOOTED, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_INSTANCE);
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADBOUNDINSTANCES, l_Statement);
 
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AURAS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AURAS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADAURAS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AURAS_EFFECTS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AURAS_EFFECTS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADAURAS_EFFECTS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SPELL);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SPELL);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_CHAR_LOADSPELLS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUEST_OBJECTIVE_STATUS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUEST_OBJECTIVE_STATUS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_DAILYQUESTSTATUS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_DAILYQUESTSTATUS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADDAILYQUESTSTATUS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_WEEKLYQUESTSTATUS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_WEEKLYQUESTSTATUS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADWEEKLYQUESTSTATUS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MONTHLYQUESTSTATUS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MONTHLYQUESTSTATUS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SEASONALQUESTSTATUS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SEASONALQUESTSTATUS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADSEASONALQUESTSTATUS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_REPUTATION);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_REPUTATION);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADREPUTATION, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_INVENTORY);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_INVENTORY);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADINVENTORY, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_VOID_STORAGE);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHAR_VOID_STORAGE);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACTIONS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACTIONS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADACTIONS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILCOUNT);
     l_Statement->setUInt32(0, l_LowGuid);
     l_Statement->setUInt64(1, uint64(time(NULL)));
@@ -178,112 +258,212 @@ bool LoginQueryHolder::Initialize()
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADSOCIALLIST, l_Statement);
 
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_HOMEBIND);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_HOMEBIND);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADHOMEBIND, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SPELLCOOLDOWNS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SPELLCOOLDOWNS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS, l_Statement);
 
     if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
     {
+#ifndef CROSS
         l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_DECLINEDNAMES);
+#else /* CROSS */
+        l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_DECLINEDNAMES);
+#endif /* CROSS */
         l_Statement->setUInt32(0, l_LowGuid);
         l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES, l_Statement);
     }
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADGUILD, l_Statement);
 
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACHIEVEMENTS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACHIEVEMENTS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADACHIEVEMENTS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_ACHIEVEMENTS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_ACHIEVEMENTS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, m_accountId);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADACCOUNTACHIEVEMENTS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_CRITERIAPROGRESS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_CRITERIAPROGRESS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADCRITERIAPROGRESS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_CRITERIAPROGRESS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_CRITERIAPROGRESS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, m_accountId);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADACCOUNTCRITERIAPROGRESS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_EQUIPMENTSETS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_EQUIPMENTSETS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ARENA_DATA);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ARENA_DATA);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADARENADATA, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_BGDATA);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_BGDATA);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADBGDATA, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GLYPHS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GLYPHS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADGLYPHS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_TALENTS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_TALENTS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADTALENTS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_ACCOUNT_DATA);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_ACCOUNT_DATA);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SKILLS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SKILLS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADSKILLS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_RANDOMBG);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_RANDOMBG);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADRANDOMBG, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_BANNED);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_BANNED);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADBANNED, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUSREW);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUSREW);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADQUESTSTATUSREW, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_INSTANCELOCKTIMES);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_INSTANCELOCKTIMES);
+#endif /* CROSS */
     l_Statement->setUInt32(0, m_accountId);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADINSTANCELOCKTIMES, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_CURRENCY);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_CURRENCY);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADCURRENCY, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ARCHAEOLOGY);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ARCHAEOLOGY);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ARCHAEOLOGY_PROJECTS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ARCHAEOLOGY_PROJECTS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_PROJECTS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ARCHAEOLOGY_SITES);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ARCHAEOLOGY_SITES);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_SITES, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CUF_PROFILE);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CUF_PROFILE);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARGES_COOLDOWN);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARGES_COOLDOWN);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_COMPLETED_CHALLENGES);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_COMPLETED_CHALLENGES);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON);
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_GARRISON, l_Statement);
@@ -313,13 +493,21 @@ bool LoginQueryHolder::Initialize()
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_GARRISON_WEEKLY_TAVERNDATA, l_Statement);
 
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_DAILY_LOOT_COOLDOWNS);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_DAILY_LOOT_COOLDOWNS);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_WORLD_STATES);
+#else /* CROSS */
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_WORLD_STATES);
+#endif /* CROSS */
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_WORLD_STATES, l_Statement);
 
+#ifndef CROSS
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_ITEM);
     l_Statement->setInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM, l_Statement);
@@ -340,11 +528,17 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL, l_Statement);
 
+#endif /* not CROSS */
     return l_Result;
 }
 
+#ifndef CROSS
 void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
+#else /* CROSS */
+void WorldSession::HandleSetFactionAtWar(WorldPacket& p_Packet)
+#endif /* CROSS */
 {
+#ifndef CROSS
     uint32 l_CharacterCount             = 0;
     uint32 l_FactionChangeRestrictions  = 0;
 
@@ -397,12 +591,25 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
     stmt->setUInt32(1, GetAccountId());
     stmt->setUInt32(2, g_RealmID);
     trans->Append(stmt);
+#else /* CROSS */
+    uint8 l_FactionIndex;
+    p_Packet >> l_FactionIndex;
+#endif /* CROSS */
 
+#ifndef CROSS
     LoginDatabase.CommitTransaction(trans);
+#else /* CROSS */
+    GetPlayer()->GetReputationMgr().SetAtWar(l_FactionIndex, true);
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
+#else /* CROSS */
+void WorldSession::HandleUnSetFactionAtWar(WorldPacket& p_Packet)
+#endif /* CROSS */
 {
+#ifndef CROSS
     // remove expired bans
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
     CharacterDatabase.Execute(stmt);
@@ -416,12 +623,26 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
 
     stmt->setUInt8(0, PetSlot::PET_SLOT_ACTUAL_PET_SLOT);
     stmt->setUInt32(1, GetAccountId());
+#else /* CROSS */
+    uint8 l_FactionIndex;
+    p_Packet >> l_FactionIndex;
+#endif /* CROSS */
 
+#ifndef CROSS
     m_CharEnumCallback = CharacterDatabase.AsyncQuery(stmt);
+#else /* CROSS */
+    GetPlayer()->GetReputationMgr().SetAtWar(l_FactionIndex, false);
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
+#else /* CROSS */
+//I think this function is never used :/ I dunno, but i guess this opcode not exists
+void WorldSession::HandleSetFactionCheat(WorldPacket& /*recvData*/)
+#endif /* CROSS */
 {
+#ifndef CROSS
     uint32 l_CharacterNameLenght    = 0;
     uint32 l_TemplateSetID          = 0;
 
@@ -611,10 +832,19 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
     l_Stmt->setString(1, l_CharacterName);
 
     _charCreateCallback.SetFutureResult(CharacterDatabase.AsyncQuery(l_Stmt));
+#else /* CROSS */
+    sLog->outError(LOG_FILTER_NETWORKIO, "WORLD SESSION: HandleSetFactionCheat, not expected call, please report.");
+    GetPlayer()->GetReputationMgr().SendStates();
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, CharacterCreateInfo* createInfo)
+#else /* CROSS */
+enum TUTORIAL_ACTIONS
+#endif /* CROSS */
 {
+#ifndef CROSS
     /** This is a series of callbacks executed consecutively as a result from the database becomes available.
         This is much more efficient than synchronous requests on packet handler, and much less DoS prone.
         It also prevents data syncrhonisation errors.
@@ -665,7 +895,14 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
 
             _charCreateCallback.FreeResult();
+#else /* CROSS */
+    TUTORIAL_ACTION_RESET   = 1,
+    TUTORIAL_ACTION_CLEAR   = 2,
+    TUTORIAL_ACTION_FLAG    = 3,
+};
+#endif /* CROSS */
 
+#ifndef CROSS
             if (!allowTwoSideAccounts || skipCinematics == 1 || createInfo->Class == CLASS_DEATH_KNIGHT)
             {
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CREATE_INFO);
@@ -675,7 +912,13 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 _charCreateCallback.NextStage();
                 return;
             }
+#else /* CROSS */
+void WorldSession::HandleTutorial(WorldPacket& p_RecvPacket)
+{
+    uint32 l_Action;
+#endif /* CROSS */
 
+#ifndef CROSS
             _charCreateCallback.NextStage();
             HandleCharCreateCallback(PreparedQueryResult(NULL), createInfo);   // Will jump to case 2
         }
@@ -687,14 +930,29 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             bool hasHeroicReqLevel = (heroicReqLevel == 0);
             bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || !AccountMgr::IsPlayerAccount(GetSecurity());
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
+#else /* CROSS */
+    l_Action = p_RecvPacket.ReadBits(2);
+#endif /* CROSS */
 
+#ifndef CROSS
             if (result)
+#else /* CROSS */
+    switch (l_Action)
+    {
+        case TUTORIAL_ACTION_FLAG:
+#endif /* CROSS */
             {
+#ifndef CROSS
                 uint32 team = Player::TeamForRace(createInfo->Race);
 
                 Field* field = result->Fetch();
                 uint8 accRace  = field[1].GetUInt8();
+#else /* CROSS */
+                uint32 l_TutorialBit;
+                p_RecvPacket >> l_TutorialBit;
+#endif /* CROSS */
 
+#ifndef CROSS
                 if (AccountMgr::IsPlayerAccount(GetSecurity()) && createInfo->Class == CLASS_DEATH_KNIGHT)
                 {
                     if (!hasHeroicReqLevel)
@@ -748,7 +1006,11 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                     }
                 }
             }
+#else /* CROSS */
+                uint8 l_Index = uint8(l_TutorialBit / 32);
+#endif /* CROSS */
 
+#ifndef CROSS
             if (AccountMgr::IsPlayerAccount(GetSecurity()) && createInfo->Class == CLASS_DEATH_KNIGHT && !hasHeroicReqLevel)
             {
                 WorldPacket data(SMSG_CREATE_CHAR, 1);
@@ -758,29 +1020,50 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 _charCreateCallback.Reset();
                 return;
             }
+#else /* CROSS */
+                if (l_Index >= MAX_ACCOUNT_TUTORIAL_VALUES)
+                    return;
+#endif /* CROSS */
 
+#ifndef CROSS
             if (createInfo->Data.rpos() < createInfo->Data.wpos())
             {
                 uint8 unk;
                 createInfo->Data >> unk;
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "Character creation %s (account %u) has unhandled tail data: [%u]", createInfo->Name.c_str(), GetAccountId(), unk);
             }
+#else /* CROSS */
+                uint32 l_Value = (l_TutorialBit % 32);
+#endif /* CROSS */
 
+#ifndef CROSS
             Player newChar(this);
             newChar.GetMotionMaster()->Initialize();
             if (!newChar.Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PLAYER), createInfo))
             {
                 // Player not create (race/class/etc problem?)
                 newChar.CleanupsBeforeDelete();
+#else /* CROSS */
+                uint32 l_Flag = GetTutorialInt(l_Index);
+                l_Flag |= (1 << l_Value);
+#endif /* CROSS */
 
+#ifndef CROSS
                 WorldPacket data(SMSG_CREATE_CHAR, 1);
                 data << uint8(CHAR_CREATE_ERROR);
                 SendPacket(&data);
                 delete createInfo;
                 _charCreateCallback.Reset();
                 return;
+#else /* CROSS */
+                SetTutorialInt(l_Index, l_Flag);
+#endif /* CROSS */
             }
+#ifdef CROSS
+            break;
+#endif /* CROSS */
 
+#ifndef CROSS
             if ((haveSameRace && skipCinematics == 1) || skipCinematics == 2)
                 newChar.setCinematic(1);                          // not show intro
 
@@ -795,7 +1078,14 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 WorldSession* l_Session = sWorld->FindSession(l_AccountID);
                 if (l_Session == nullptr)
                     return;
+#else /* CROSS */
+        case TUTORIAL_ACTION_CLEAR:
+            for (uint8 l_I = 0; l_I < MAX_ACCOUNT_TUTORIAL_VALUES; ++l_I)
+                SetTutorialInt(l_I, 0xFFFFFFFF);
+            break;
+#endif /* CROSS */
 
+#ifndef CROSS
                 WorldPacket l_Data(SMSG_CREATE_CHAR, 1);
                 l_Data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
                 l_Session->SendPacket(&l_Data);
@@ -823,11 +1113,22 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             _charCreateCallback.Reset();
         }
         break;
+#else /* CROSS */
+        case TUTORIAL_ACTION_RESET:
+            for (uint8 l_I = 0; l_I < MAX_ACCOUNT_TUTORIAL_VALUES; ++l_I)
+                SetTutorialInt(l_I, 0x00000000);
+            break;
+#endif /* CROSS */
     }
 }
 
+#ifndef CROSS
 void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
+#else /* CROSS */
+void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recvData)
+#endif /* CROSS */
 {
+#ifndef CROSS
     uint64 charGuid;
 
     recvData.readPackGUID(charGuid);
@@ -835,11 +1136,25 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     // can't delete loaded character
     if (ObjectAccessor::FindPlayer(charGuid))
         return;
+#else /* CROSS */
+    uint32 fact;
+    recvData >> fact;
+    GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fact);
+}
+#endif /* CROSS */
 
+#ifndef CROSS
     uint32 accountId = 0;
     uint32 atLogin = 0;
     std::string name;
+#else /* CROSS */
+void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
+{
+    uint32 replistid;
+    bool inactive;
+#endif /* CROSS */
 
+#ifndef CROSS
     // is guild leader
     if (sGuildMgr->GetGuildByLeader(charGuid))
     {
@@ -848,10 +1163,20 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
         SendPacket(&data);
         return;
     }
+#else /* CROSS */
+    recvData >> replistid;
+    inactive = recvData.ReadBit();
+#endif /* CROSS */
 
+#ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_NAME_BY_GUID);
     stmt->setUInt32(0, GUID_LOPART(charGuid));
+#else /* CROSS */
+    m_Player->GetReputationMgr().SetInactive(replistid, inactive);
+}
+#endif /* CROSS */
 
+#ifndef CROSS
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
     {
         Field* fields = result->Fetch();
@@ -1462,11 +1787,18 @@ void WorldSession::HandleShowAccountAchievement(WorldPacket& recvData)
 {
     bool showing = recvData.ReadBit(); ///< showing is never read 01/18/16
 }
+#else /* CROSS */
+void WorldSession::HandleShowAccountAchievement(WorldPacket& recvData)
+{
+    bool showing = recvData.ReadBit();
+}
+#endif /* CROSS */
 
 void WorldSession::HandleShowingHelmOpcode(WorldPacket& recvData)
 {
     recvData.read_skip<uint8>(); // unknown, bool?
     m_Player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
+#ifndef CROSS
 }
 
 void WorldSession::HandleShowingCloakOpcode(WorldPacket& recvData)
@@ -1656,10 +1988,26 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& p_RecvData)
         l_Statement->setString(l_I + 1, l_DeclinedName.name[l_I]);
 
     l_Transaction->Append(l_Statement);
+#else /* CROSS */
+}
+#endif /* CROSS */
 
+#ifndef CROSS
     CharacterDatabase.CommitTransaction(l_Transaction);
+#else /* CROSS */
+void WorldSession::HandleShowingCloakOpcode(WorldPacket& recvData)
+{
+    recvData.read_skip<uint8>(); // unknown, bool?
+    m_Player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
+}
+#endif /* CROSS */
 
+#ifndef CROSS
     SendPlayerDeclinedNamesResult(l_Player, 0);
+#else /* CROSS */
+void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& p_RecvData)
+{
+#endif /* CROSS */
 }
 
 void WorldSession::SendPlayerDeclinedNamesResult(uint64 p_Player, uint32 p_Result)
@@ -1769,6 +2117,7 @@ void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
     }
 }
 
+#ifndef CROSS
 void WorldSession::HandleCharCustomize(WorldPacket& p_RecvData)
 {
     uint64 l_PlayerGuid = 0;
@@ -1910,6 +2259,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& p_RecvData)
     SendPacket(&l_Data);
 }
 
+#endif /* not CROSS */
 void WorldSession::HandleEquipmentSetSave(WorldPacket& p_RecvData)
 {
     uint64 l_SetGuid = 0;
@@ -1919,7 +2269,11 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& p_RecvData)
 
     p_RecvData >> l_SetGuid;
     p_RecvData >> l_SetID;
+#ifndef CROSS
     uint32 l_Unk = p_RecvData.read<uint32>(); ///< l_unk is never read 01/18/16
+#else /* CROSS */
+    uint32 l_Unk = p_RecvData.read<uint32>();
+#endif /* CROSS */
 
     std::vector<uint64> l_ItemsGuids(EQUIPMENT_SLOT_END, 0);
     for (uint32 l_Iter = 0; l_Iter < EQUIPMENT_SLOT_END; ++l_Iter)
@@ -2043,6 +2397,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& p_RecvData)
     SendPacket(&l_Data);
 }
 
+#ifndef CROSS
 void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
 {
     bool l_FactionChange;
@@ -2716,10 +3071,22 @@ void WorldSession::HandleReorderCharacters(WorldPacket& p_Packet)
     CharacterDatabase.CommitTransaction(l_Transaction);
 }
 
+#endif /* not CROSS */
 void WorldSession::HandleSuspendToken(WorldPacket& p_RecvData)
 {
     uint32 l_Token = p_RecvData.read<uint32>();
 
     m_Player->m_tokenCounter = l_Token;
     GetPlayer()->SendResumeToken(l_Token);
+#ifdef CROSS
+}
+
+void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
+{
+    sLog->outInfo(LOG_FILTER_GENERAL, "WORLD: Recvd CMSG_LOAD_SCREEN");
+    uint32 mapID;
+
+    recvPacket >> mapID;
+    recvPacket.ReadBit();
+#endif /* CROSS */
 }

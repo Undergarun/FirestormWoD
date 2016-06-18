@@ -10,7 +10,9 @@
     \ingroup u2w
 */
 
+#ifndef CROSS
 #include "WorldSocket.h"                                    // must be first to make ACE happy with ACE includes in it
+#endif /* not CROSS */
 #include <zlib.h>
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -23,7 +25,9 @@
 #include "ObjectMgr.h"
 #include "GuildMgr.h"
 #include "Group.h"
+#ifndef CROSS
 #include "Guild.h"
+#endif /* not CROSS */
 #include "World.h"
 #include "ObjectAccessor.h"
 #include "BattlegroundMgr.hpp"
@@ -35,11 +39,15 @@
 #include "Transport.h"
 #include "WardenWin.h"
 #include "WardenMac.h"
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 #include "AccountMgr.h"
+#ifndef CROSS
 #include "InterRealmOpcodes.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
+#endif /* not CROSS */
 #include "PetBattle.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
@@ -47,6 +55,11 @@ bool MapSessionFilter::Process(WorldPacket* packet)
     uint16 opcode = DropHighBytes(packet->GetOpcode());
     OpcodeHandler const* opHandle = g_OpcodeTable[WOW_CLIENT_TO_SERVER][opcode];
 
+#ifdef CROSS
+    if (!opHandle)
+        return true;
+
+#endif /* CROSS */
     //let's check if our opcode can be really processed in Map::Update()
     if (opHandle->packetProcessing == PROCESS_INPLACE)
         return true;
@@ -69,6 +82,11 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 {
     uint16 opcode = DropHighBytes(packet->GetOpcode());
     OpcodeHandler const* opHandle = g_OpcodeTable[WOW_CLIENT_TO_SERVER][opcode];
+#ifdef CROSS
+    if (!opHandle)
+        return true;
+
+#endif /* CROSS */
     //check if packet handler is supposed to be safe
     if (opHandle->packetProcessing == PROCESS_INPLACE)
         return true;
@@ -87,7 +105,11 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
+#ifndef CROSS
 WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags, uint32 p_CustomFlags)
+#else /* CROSS */
+WorldSession::WorldSession(uint32 id, InterRealmClient* irc, AccountTypes sec, bool ispremium, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, std::string p_ServerName)
+#endif /* CROSS */
 {
     ///////////////////////////////////////////////////////////////////////////////
     /// Members initialization
@@ -95,18 +117,30 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool 
     m_Player                = nullptr;
     m_VoteSyncTimer         = VOTE_SYNC_TIMER;
     m_muteTime              = mute_time;
+#ifndef CROSS
     m_Socket                = sock;
+#endif /* not CROSS */
     _security               = sec;
     _accountId              = id;
     m_expansion             = expansion;
     _ispremium              = ispremium;
+#ifndef CROSS
     m_PremiumType           = premiumType;
     m_VoteRemainingTime     = p_VoteRemainingTime;
+#else /* CROSS */
+    m_PremiumType           = 0;
+    m_VoteRemainingTime     = 0;
+#endif /* CROSS */
     m_sessionDbLocaleIndex  = locale;
     recruiterId             = recruiter;
     isRecruiter             = isARecruiter;
+#ifndef CROSS
     m_ServiceFlags          = p_ServiceFlags;
     m_CustomFlags           = p_CustomFlags;
+#else /* CROSS */
+    m_ServiceFlags          = 0;
+    m_CustomFlags           = 0;
+#endif /* CROSS */
     m_sessionDbcLocale      = sWorld->GetAvailableDbcLocale(locale);
 
     m_timeOutTime                       = 0;
@@ -138,7 +172,9 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool 
     _logoutTime                         = 0;
     m_latency                           = 0;
     m_VoteTimePassed                    = 0;
+#ifndef CROSS
     m_InterRealmZoneId                  = 0;
+#endif /* not CROSS */
 
     m_IsStressTestSession   = false;
     m_playerRecentlyLogout  = false;
@@ -147,15 +183,20 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool 
     m_playerLoading         = false;
     m_playerLogout          = false;
     m_inQueue               = false;
+#ifndef CROSS
     m_BackFromCross         = false;
+#endif /* not CROSS */
     m_IsPetBattleJournalLocked = false;
+#ifndef CROSS
 
+#endif /* not CROSS */
     ///////////////////////////////////////////////////////////////////////////////
 
     _warden = NULL;
     _filterAddonMessages = false;
     m_LoginTime = time(nullptr);
 
+#ifndef CROSS
     if (sock)
     {
         m_Address = sock->GetRemoteAddress();
@@ -163,6 +204,22 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool 
         ResetTimeOutTime();
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
+#else /* CROSS */
+    InitializeQueryCallbackParameters();
+
+    m_isinIRBG = false;
+    m_ir_socket = irc;
+    m_ir_closing = false;
+    m_ir_server_name = p_ServerName;
+    m_ir_number = irc->GetRealmId();
+
+    m_RemoveType = 0;
+    m_RemoveProgress = 0;
+
+    m_GUIDLow = 0;
+    m_GUID = 0;
+    m_RealGUID = 0;
+#endif /* CROSS */
 
     InitializeQueryCallbackParameters();
 
@@ -191,6 +248,7 @@ WorldSession::~WorldSession()
     if (m_Player)
         LogoutPlayer (true);
 
+#ifndef CROSS
     /// - If have unclosed socket, close it
     if (m_Socket)
     {
@@ -199,6 +257,7 @@ WorldSession::~WorldSession()
         m_Socket = NULL;
     }
 
+#endif /* not CROSS */
     if (_warden)
         delete _warden;
 
@@ -207,11 +266,13 @@ WorldSession::~WorldSession()
     while (_recvQueue.next(packet))
         delete packet;
 
+#ifndef CROSS
     if (m_VoteTimePassed)
         LoginDatabase.PExecute("UPDATE account_vote SET remainingTime = remainingTime - %u WHERE account = %u", m_VoteTimePassed, GetAccountId());
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
 
+#endif /* not CROSS */
     int32 z_res = deflateEnd(_compressionStream);
     if (z_res != Z_OK && z_res != Z_DATA_ERROR) // Z_DATA_ERROR signals that internal state was BUSY
     {
@@ -254,8 +315,13 @@ uint32 WorldSession::GetGuidLow() const
 }
 
 /// Send a packet to the client
+#ifndef CROSS
 void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/, bool ir_packet /*=false*/)
+#else /* CROSS */
+void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/)
+#endif /* CROSS */
 {
+#ifndef CROSS
     if (!m_Socket)
         return;
 
@@ -272,7 +338,11 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     else if (packet->GetOpcode() == UNKNOWN_OPCODE && !forced)
     {
         sLog->outError(LOG_FILTER_OPCODES, "Prevented sending of UNKNOWN_OPCODE to %s", GetPlayerName(false).c_str());
+#else /* CROSS */
+    if (!m_ir_socket || !m_Player || m_ir_closing)
+#endif /* CROSS */
         return;
+#ifndef CROSS
     }
 
     if (!forced)
@@ -292,10 +362,24 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     static time_t firstTime = time(NULL);
     static time_t lastTime = firstTime;                     // next 60 secs start time
+#endif /* not CROSS */
 
+#ifndef CROSS
     static uint64 sendLastPacketCount = 0;
     static uint64 sendLastPacketBytes = 0;
+#else /* CROSS */
+    if (!m_isinIRBG && packet->GetOpcode() != SMSG_BATTLEFIELD_LIST && 
+        packet->GetOpcode() != SMSG_BATTLEFIELD_STATUS_NONE &&
+        packet->GetOpcode() != SMSG_BATTLEFIELD_STATUS_FAILED &&
+        packet->GetOpcode() != SMSG_BATTLEFIELD_STATUS_QUEUED && 
+        packet->GetOpcode() != SMSG_BATTLEFIELD_STATUS_ACTIVE && 
+        packet->GetOpcode() != SMSG_NEW_WORLD && 
+        packet->GetOpcode() != SMSG_TRANSFER_PENDING &&
+        packet->GetOpcode() != SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION)
+         return;
+#endif /* CROSS */
 
+#ifndef CROSS
     time_t cur_time = time(NULL);
 
     if ((cur_time - lastTime) < 60)
@@ -321,6 +405,9 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     if (m_Socket->SendPacket(*packet) == -1)
         m_Socket->CloseSocket();
+#else /* CROSS */
+    m_ir_socket->SendTunneledPacket(m_Player->GetRealGUID(), packet);
+#endif /* CROSS */
 }
 
 /// Add an incoming packet to the queue
@@ -354,6 +441,7 @@ struct OpcodeInfo
 /// Update the WorldSession (triggered by World update)
 bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 {
+#ifndef CROSS
     uint32 sessionDiff = getMSTime();
     uint32 nbPacket = 0;
     std::map<uint32, OpcodeInfo> pktHandle; // opcodeId / OpcodeInfo
@@ -382,14 +470,24 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             m_VoteTimeCallback.SetFutureResult(LoginDatabase.AsyncQuery(l_Query.str().c_str()));
         }
     }
+#else /* CROSS */
+    if (IsIRClosing())
+        return false;
+#endif /* CROSS */
 
+#ifndef CROSS
     /// - Vote sync
     if (m_VoteSyncTimer <= diff)
     {
         if (m_VoteTimeCallback.GetStage() == 0)
         {
             std::ostringstream l_Query;
+#else /* CROSS */
+    if (!GetInterRealmClient())
+        return false;
+#endif /* CROSS */
 
+#ifndef CROSS
             if (!m_VoteTimePassed)
             {
                 l_Query << "SELECT remainingTime FROM account_vote WHERE account = " << GetAccountId();
@@ -397,7 +495,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             }
             else
                 l_Query << "UPDATE account_vote SET remainingTime = remainingTime - " << m_VoteTimePassed << " WHERE account = " << GetAccountId();
+#else /* CROSS */
+    WorldPacket* packet = NULL;
+#endif /* CROSS */
 
+#ifndef CROSS
             // Callback to sync core with database
             m_VoteTimeCallback.NextStage();
             m_VoteTimeCallback.SetParam(true);  //< sync callback
@@ -408,15 +510,27 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     }
     else
         m_VoteSyncTimer -= diff;
+#else /* CROSS */
+    bool deletePacket = true;
+#endif /* CROSS */
 
+#ifndef CROSS
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);
+#else /* CROSS */
+    uint32 processedPackets = 0;
+#endif /* CROSS */
 
+#ifndef CROSS
     ///- Before we process anything:
     /// If necessary, kick the player from the character select screen
     if (IsConnectionIdle() && m_Socket)
         m_Socket->CloseSocket();
+#else /* CROSS */
+    uint32 opcode = 0;
+#endif /* CROSS */
 
+#ifndef CROSS
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not process packets if socket already closed
     WorldPacket* packet = NULL;
@@ -433,15 +547,36 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     while (m_Socket && !m_Socket->IsClosed() &&
             !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
             _recvQueue.next(packet, updater))
+#else /* CROSS */
+    while (!_recvQueue.empty() && _recvQueue.next(packet, updater))
+#endif /* CROSS */
     {
+#ifndef CROSS
         const OpcodeHandler* opHandle = g_OpcodeTable[WOW_CLIENT_TO_SERVER][packet->GetOpcode()];
         uint32 pktTime = getMSTime();
+#else /* CROSS */
+        opcode = packet->GetOpcode();
+#endif /* CROSS */
 
+#ifndef CROSS
         try
+#else /* CROSS */
+        const OpcodeHandler* opHandle = g_OpcodeTable[WOW_CLIENT_TO_SERVER][packet->GetOpcode()];
+        if (opHandle)
+#endif /* CROSS */
         {
+#ifndef CROSS
             switch (opHandle->status)
+#else /* CROSS */
+            try
+#endif /* CROSS */
             {
+#ifdef CROSS
+                switch (opHandle->status)
+                {
+#endif /* CROSS */
                 case STATUS_LOGGEDIN:
+#ifndef CROSS
                     if (!m_Player)
                     {
                         // skip STATUS_LOGGEDIN opcode unexpected errors if player logout sometime ago - this can be network lag delayed packets
@@ -463,7 +598,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else if (m_Player->IsInWorld())
                     {
                         sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet), this);
+#else /* CROSS */
+                    if (m_Player && m_Player->IsInWorld())
+#endif /* CROSS */
                         (this->*opHandle->handler)(*packet);
+#ifndef CROSS
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
                     }
@@ -534,8 +673,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         }
                     }
                     // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
+#endif /* not CROSS */
                     break;
                 case STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT:
+#ifndef CROSS
                     if (!m_Player && !m_playerRecentlyLogout && !m_playerLogout) // There's a short delay between _player = null and m_playerRecentlyLogout = true during logout
                         LogUnexpectedOpcode(packet, "STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT",
                             "the player has not logged in yet and not recently logout");
@@ -548,7 +689,9 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             LogUnprocessedTail(packet);
                     }
                     break;
+#endif /* not CROSS */
                 case STATUS_TRANSFER:
+#ifndef CROSS
                     if (!m_Player)
                         LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player has not logged in yet");
                     else if (m_Player->IsInWorld())
@@ -561,7 +704,9 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             LogUnprocessedTail(packet);
                     }
                     break;
+#endif /* not CROSS */
                 case STATUS_AUTHED:
+#ifndef CROSS
                     // prevent cheating with skip queue wait
                     if (m_inQueue)
                     {
@@ -575,30 +720,49 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         m_playerRecentlyLogout = false;
 
                     sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet), this);
+#endif /* not CROSS */
                     (this->*opHandle->handler)(*packet);
+#ifndef CROSS
                     if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                         LogUnprocessedTail(packet);
+#endif /* not CROSS */
                     break;
                 case STATUS_NEVER:
+#ifndef CROSS
                         sLog->outError(LOG_FILTER_OPCODES, "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str()
                             , GetPlayerName(false).c_str());
                     break;
+#endif /* not CROSS */
                 case STATUS_UNHANDLED:
+#ifndef CROSS
                         sLog->outError(LOG_FILTER_OPCODES, "Received not handled opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str()
                             , GetPlayerName(false).c_str());
+#endif /* not CROSS */
                     break;
+#ifdef CROSS
+                }
+#endif /* CROSS */
             }
+#ifndef CROSS
         }
         catch(ByteBufferException &)
         {
             if (deletePacket)
+#else /* CROSS */
+            catch (ByteBufferException &)
+#endif /* CROSS */
             {
+#ifndef CROSS
                 sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %u) from client %s, accountid=%i. Skipped packet.",
                     packet->GetOpcode(), GetRemoteAddress().c_str(), GetAccountId());
                 packet->hexlike();
+#else /* CROSS */
+                //
+#endif /* CROSS */
             }
         }
 
+#ifndef CROSS
         nbPacket++;
 
         if (deletePacket)
@@ -613,23 +777,37 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                 data.totalTime += getMSTime() - pktTime;
             }
 
+#else /* CROSS */
+        if (packet != NULL)
+#endif /* CROSS */
             delete packet;
+#ifndef CROSS
         }
+#endif /* not CROSS */
 
+#ifndef CROSS
 #define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 50
+#else /* CROSS */
+#define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 200 
+#endif /* CROSS */
         processedPackets++;
 
+#ifndef CROSS
         //process only a max amout of packets in 1 Update() call.
         //Any leftover will be processed in next update
+#endif /* not CROSS */
         if (processedPackets > MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE)
             break;
     }
 
+#ifndef CROSS
     if (m_Socket && !m_Socket->IsClosed() && _warden)
         _warden->Update();
 
+#endif /* not CROSS */
     ProcessQueryCallbacks();
 
+#ifndef CROSS
     //check if we are safe to proceed with logout
     //logout procedure should happen only in World::UpdateSessions() method!!!
     if (updater.ProcessLogout() && !m_IsStressTestSession)
@@ -672,11 +850,19 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             sLog->outAshran("-----> %u %s (%u ms)", itr.second.nbPkt, GetOpcodeNameForLogging((Opcodes)itr.first, WOW_CLIENT_TO_SERVER).c_str(), itr.second.totalTime);
     }
 
+#endif /* not CROSS */
     return true;
 }
 
+#ifdef CROSS
+
+#endif /* CROSS */
 /// %Log the player out
+#ifndef CROSS
 void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
+#else /* CROSS */
+void WorldSession::LogoutPlayer(bool Save)
+#endif /* CROSS */
 {
     sPetBattleSystem->LeaveQueue(m_Player);
 
@@ -693,13 +879,19 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
         HandleMoveWorldportAckOpcode();
 
     m_playerLogout = true;
+#ifndef CROSS
     m_playerSave = p_Save;
+#else /* CROSS */
+    m_playerSave = Save;
+#endif /* CROSS */
 
     if (m_Player)
     {
+#ifndef CROSS
         if (m_Player->IsInGarrison())
             m_Player->GetGarrison()->OnPlayerLeave();
 
+#endif /* not CROSS */
         if (uint64 lguid = m_Player->GetLootGUID())
             DoLootRelease(lguid);
 
@@ -741,8 +933,13 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
             // give bg rewards and update counters like kill by first from attackers
             // this can't be called for all attackers.
             if (!aset.empty())
+#ifndef CROSS
             if (Battleground* bg = m_Player->GetBattleground())
                 bg->HandleKillPlayer(m_Player, *aset.begin());
+#else /* CROSS */
+                if (Battleground* bg = m_Player->GetBattleground())
+                    bg->HandleKillPlayer(m_Player, *aset.begin());
+#endif /* CROSS */
         }
         else if (m_Player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
         {
@@ -752,11 +949,13 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
             m_Player->BuildPlayerRepop();
             m_Player->RepopAtGraveyard();
         }
+#ifndef CROSS
         else if (m_Player->HasPendingBind())
         {
             m_Player->RepopAtGraveyard();
             m_Player->SetPendingBind(0, 0);
         }
+#endif /* not CROSS */
         else if (m_Player->GetVehicleBase() && m_Player->isInCombat())
         {
             m_Player->KillPlayer();
@@ -768,13 +967,19 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
         if (Battleground* bg = m_Player->GetBattleground())
             bg->EventPlayerLoggedOut(m_Player);
 
+#ifndef CROSS
         ///- Teleport to home if the player is in an invalid instance
         if (!m_Player->m_InstanceValid && !m_Player->isGameMaster())
             m_Player->TeleportTo(m_Player->m_homebindMapId, m_Player->m_homebindX, m_Player->m_homebindY, m_Player->m_homebindZ, m_Player->GetOrientation());
 
+#endif /* not CROSS */
         sOutdoorPvPMgr->HandlePlayerLeaveZone(m_Player, m_Player->GetZoneId());
 
+#ifndef CROSS
         for (int i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+#else /* CROSS */
+        for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+#endif /* CROSS */
         {
             if (MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = m_Player->GetBattlegroundQueueTypeId(i))
             {
@@ -784,7 +989,11 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
         }
 
         /// If, when the player logout, the battleground pointer of the player is still good, we apply deserter buff.
+#ifndef CROSS
         if (p_Save && m_Player->GetBattleground() != nullptr && m_Player->GetBattleground()->GetStatus() != STATUS_WAIT_LEAVE)
+#else /* CROSS */
+        if (Save && m_Player->GetBattleground() != nullptr && m_Player->GetBattleground()->GetStatus() != STATUS_WAIT_LEAVE)
+#endif /* CROSS */
         {
             /// We add the Deserter buff, otherwise it can be used bug.
             m_Player->AddAura(MS::Battlegrounds::Spells::DeserterBuff, m_Player);
@@ -795,10 +1004,12 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
         while (m_Player->IsBeingTeleportedFar())
             HandleMoveWorldportAckOpcode();
 
+#ifndef CROSS
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
         if (Guild* guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
             guild->HandleMemberLogout(this);
 
+#endif /* not CROSS */
         m_Player->UnsummonCurrentBattlePetIfAny(true);
 
         ///- Remove pet
@@ -820,7 +1031,11 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
 
         ///- empty buyback items and save the player in the database
         // some save parts only correctly work in case player present in map/player_lists (pets, etc)
+#ifndef CROSS
         if (p_Save)
+#else /* CROSS */
+        if (Save)
+#endif /* CROSS */
         {
             uint32 eslot;
             for (int j = BUYBACK_SLOT_START; j < BUYBACK_SLOT_END; ++j)
@@ -830,6 +1045,7 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
                 m_Player->SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, 0);
                 m_Player->SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
             }
+#ifndef CROSS
 
             uint32 l_AccountID = GetAccountId();
             m_Player->SaveToDB(false, std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
@@ -845,6 +1061,9 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
             tunPacket << uint64(m_Player->GetGUID());
             sIRTunnel->SendPacket(&tunPacket);
             m_InterRealmZoneId = 0;
+#else /* CROSS */
+            m_Player->SaveToDB();
+#endif /* CROSS */
         }
 
         ///- Leave all channels before player delete...
@@ -853,28 +1072,61 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
         ///- If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
         m_Player->UninviteFromGroup();
 
+#ifndef CROSS
         //! Broadcast a logout message to the player's friends
+#else /* CROSS */
+        // remove player from the group if he is:
+        // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
+        if (m_Player->GetGroup() && !m_Player->GetGroup()->isRaidGroup())
+            m_Player->RemoveFromGroup();
+#endif /* CROSS */
 
+#ifndef CROSS
         if (!p_AfterInterRealm)
+#else /* CROSS */
+        //! Send update to group and reset stored max enchanting level
+        if (m_Player->GetGroup())
+#endif /* CROSS */
         {
+#ifndef CROSS
             // remove player from the group if he is:
             // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
             if (m_Player->GetGroup() && !m_Player->GetGroup()->isRaidGroup() && m_Socket)
                 m_Player->RemoveFromGroup();
+#else /* CROSS */
+            m_Player->GetGroup()->SendUpdate();
+            m_Player->GetGroup()->ResetMaxEnchantingLevel();
+        }
+#endif /* CROSS */
 
+#ifndef CROSS
             //! Send update to group and reset stored max enchanting level
             if (m_Player->GetGroup())
             {
                 m_Player->GetGroup()->SendUpdate();
                 m_Player->GetGroup()->ResetMaxEnchantingLevel();
             }
+#else /* CROSS */
+        //! Call script hook before deletion
+        sScriptMgr->OnPlayerLogout(m_Player);
+#endif /* CROSS */
 
+#ifndef CROSS
             sSocialMgr->SendFriendStatus(m_Player, FRIEND_OFFLINE, m_Player->GetGUIDLow(), true);
             sSocialMgr->RemovePlayerSocial(m_Player->GetGUIDLow());
+#else /* CROSS */
+        m_Player->SetNeedRemove(true);
+#endif /* CROSS */
 
+#ifndef CROSS
             //! Call script hook before deletion
             sScriptMgr->OnPlayerLogout(m_Player);
         }
+#else /* CROSS */
+        //! Broadcast a logout message to the player's friends
+        sSocialMgr->SendFriendStatus(m_Player, FRIEND_OFFLINE, m_Player->GetGUIDLow(), true);
+        sSocialMgr->RemovePlayerSocial(m_Player->GetGUIDLow());
+#endif /* CROSS */
 
         //! Remove the player from the world
         // the player may not be in the world when logging out
@@ -887,6 +1139,7 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
 
         SetPlayer(NULL); //! Pointer already deleted during RemovePlayerFromMap
 
+#ifndef CROSS
         if (!p_AfterInterRealm)
         {
             //! Send the 'logout complete' packet to the client
@@ -895,10 +1148,23 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
             data.appendPackGUID(0);
             SendPacket(&data);
             sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
+#else /* CROSS */
+        //! Send the 'logout complete' packet to the client
+        //! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
+        WorldPacket data(SMSG_LOGOUT_COMPLETE, 16);
+        data.appendPackGUID(0);
+        SendPacket(&data);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
+#endif /* CROSS */
 
+#ifndef CROSS
             //! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
             CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'", GetAccountId());
         }
+#else /* CROSS */
+        //! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
+        CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'", GetAccountId());
+#endif /* CROSS */
     }
 
     m_playerLogout = false;
@@ -907,6 +1173,7 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
     LogoutRequest(0);
 }
 
+#ifndef CROSS
 /// Kick a player out of the World
 void WorldSession::KickPlayer()
 {
@@ -914,6 +1181,7 @@ void WorldSession::KickPlayer()
         m_Socket->CloseSocket();
 }
 
+#endif /* not CROSS */
 void WorldSession::SendNotification(const char *format, ...)
 {
     if (format)
@@ -990,9 +1258,17 @@ void WorldSession::SendAuthWaitQue(uint32 position)
 
 void WorldSession::LoadGlobalAccountData()
 {
+#ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_DATA);
+#else /* CROSS */
+    PreparedStatement* stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_DATA);
+#endif /* CROSS */
     stmt->setUInt32(0, GetAccountId());
+#ifndef CROSS
     LoadAccountData(CharacterDatabase.Query(stmt), GLOBAL_CACHE_MASK);
+#else /* CROSS */
+    LoadAccountData(SessionRealmDatabase.Query(stmt), GLOBAL_CACHE_MASK);
+#endif /* CROSS */
 }
 
 void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
@@ -1047,12 +1323,20 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
         index = CHAR_REP_PLAYER_ACCOUNT_DATA;
     }
 
+#ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(index);
+#else /* CROSS */
+    PreparedStatement* stmt = SessionRealmDatabase.GetPreparedStatement(index);
+#endif /* CROSS */
     stmt->setUInt32(0, id);
     stmt->setUInt8 (1, type);
     stmt->setUInt32(2, uint32(tm));
     stmt->setString(3, data);
+#ifndef CROSS
     CharacterDatabase.Execute(stmt);
+#else /* CROSS */
+    SessionRealmDatabase.Execute(stmt);
+#endif /* CROSS */
 
     m_accountData[type].Time = tm;
     m_accountData[type].Data = data;
@@ -1074,9 +1358,17 @@ void WorldSession::LoadTutorialsData()
 {
     memset(m_Tutorials, 0, sizeof(uint32) * MAX_ACCOUNT_TUTORIAL_VALUES);
 
+#ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TUTORIALS);
+#else /* CROSS */
+    PreparedStatement* stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_SEL_TUTORIALS);
+#endif /* CROSS */
     stmt->setUInt32(0, GetAccountId());
+#ifndef CROSS
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+#else /* CROSS */
+    if (PreparedQueryResult result = SessionRealmDatabase.Query(stmt))
+#endif /* CROSS */
         for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
             m_Tutorials[i] = (*result)[i].GetUInt32();
 
@@ -1097,7 +1389,11 @@ void WorldSession::SaveTutorialsData(SQLTransaction &trans)
         return;
 
     // Modify data in DB
+#ifndef CROSS
     PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_TUTORIALS);
+#else /* CROSS */
+    PreparedStatement* l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_INS_TUTORIALS);
+#endif /* CROSS */
     for (uint8 l_I = 0; l_I < MAX_ACCOUNT_TUTORIAL_VALUES; ++l_I)
         l_Statement->setUInt32(l_I, m_Tutorials[l_I]);
     l_Statement->setUInt32(MAX_ACCOUNT_TUTORIAL_VALUES, GetAccountId());
@@ -1272,10 +1568,18 @@ void WorldSession::SendFeatureSystemStatus()
     bool l_ItemRestorationButtonEnbaled         = false;
     bool l_RecruitAFriendSystem                 = false;
     bool l_HasTravelPass                        = false;
+#ifndef CROSS
     bool l_InGameBrowser                        = sBattlepayMgr->IsAvailable(this);;
+#else /* CROSS */
+    bool l_InGameBrowser                        = false;
+#endif /* CROSS */
     bool l_StoreEnabled                         = true;
     bool l_StoreIsDisabledByParentalControls    = false;
+#ifndef CROSS
     bool l_StoreIsAvailable                     = sBattlepayMgr->IsAvailable(this);
+#else /* CROSS */
+    bool l_StoreIsAvailable                     = false;
+#endif /* CROSS */
     bool l_IsRestrictedAccount                  = false;
     bool l_IsTutorialEnabled                    = false;
     bool l_ShowNPETutorial                      = true;
@@ -1427,7 +1731,15 @@ void WorldSession::SetPlayer(Player* player)
 
     // set m_GUID that can be used while player loggined and later until m_playerRecentlyLogout not reset
     if (m_Player)
+#ifdef CROSS
+    {
+#endif /* CROSS */
         m_GUIDLow = m_Player->GetGUIDLow();
+#ifdef CROSS
+        m_GUID = m_Player->GetGUID();
+        m_RealGUID = m_Player->GetRealGUID();
+    }
+#endif /* CROSS */
 }
 
 void WorldSession::InitializeQueryCallbackParameters()
@@ -1439,11 +1751,14 @@ void WorldSession::InitializeQueryCallbackParameters()
 
 void WorldSession::ProcessQueryCallbacks()
 {
+#ifndef CROSS
     uint32 l_StartTime = getMSTime();
     std::vector<uint32> l_Times;
 
+#endif /* not CROSS */
     PreparedQueryResult result;
 
+#ifndef CROSS
     //! Vote
     if (m_VoteTimeCallback.IsReady())
     {
@@ -1511,6 +1826,7 @@ void WorldSession::ProcessQueryCallbacks()
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
+#endif /* not CROSS */
     //! HandlePlayerLoginOpcode
     if (m_CharacterLoginCallback.ready() && m_CharacterLoginDBCallback.ready())
     {
@@ -1518,11 +1834,16 @@ void WorldSession::ProcessQueryCallbacks()
         SQLQueryHolder* l_Param2;
         m_CharacterLoginCallback.get(l_Param);
         m_CharacterLoginDBCallback.get(l_Param2);
+#ifndef CROSS
         HandlePlayerLogin((LoginQueryHolder*)l_Param, (LoginDBQueryHolder*)l_Param2);
+#else /* CROSS */
+        LoadCharacterDone((LoginQueryHolder*)l_Param, (LoginDBQueryHolder*)l_Param2);
+#endif /* CROSS */
         m_CharacterLoginCallback.cancel();
         m_CharacterLoginDBCallback.cancel();
     }
 
+#ifndef CROSS
     l_Times.push_back(getMSTime() - l_StartTime);
 
 
@@ -1558,6 +1879,7 @@ void WorldSession::ProcessQueryCallbacks()
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
+#endif /* not CROSS */
     //- SendStabledPet
     if (_sendStabledPetCallback.IsReady())
     {
@@ -1567,8 +1889,10 @@ void WorldSession::ProcessQueryCallbacks()
         _sendStabledPetCallback.FreeResult();
     }
 
+#ifndef CROSS
     l_Times.push_back(getMSTime() - l_StartTime);
 
+#endif /* not CROSS */
     //- HandleStableSwapPet
     if (_setPetSlotCallback.IsReady())
     {
@@ -1577,6 +1901,7 @@ void WorldSession::ProcessQueryCallbacks()
         HandleStableSetPetSlotCallback(result, param);
         _setPetSlotCallback.FreeResult();
     }
+#ifndef CROSS
 
     uint32 l_EndTime = getMSTime() - l_StartTime;
 
@@ -1591,6 +1916,7 @@ void WorldSession::ProcessQueryCallbacks()
             l_Idx++;
         }
     }
+#endif /* not CROSS */
 }
 
 void WorldSession::InitWarden(BigNumber* k, std::string os)
@@ -1618,32 +1944,76 @@ void WorldSession::SetServiceFlags(uint32 p_Flags)
     LoginDatabase.AsyncQuery(l_Statement);
 }
 
+#ifndef CROSS
 void WorldSession::UnsetServiceFlags(uint32 p_Flags)
+#else /* CROSS */
+void WorldSession::LoadCharacter(CharacterPortData const& p_CharacterPortData)
+#endif /* CROSS */
 {
+#ifndef CROSS
     m_ServiceFlags &= ~p_Flags;
+#else /* CROSS */
+    InterRealmClient* l_Client = GetInterRealmClient();
+    if (!l_Client)
+        return;
+#endif /* CROSS */
 
+#ifndef CROSS
     PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LoginDatabaseStatements::LOGIN_REMOVE_ACCOUNT_SERVICE);
     l_Statement->setUInt32(0, p_Flags);
     l_Statement->setUInt32(1, GetAccountId());
     LoginDatabase.AsyncQuery(l_Statement);
 }
+#else /* CROSS */
+    InterRealmDatabasePool* l_RealmDatabase = l_Client->GetDatabase();
+#endif /* CROSS */
 
+#ifndef CROSS
 void WorldSession::SetCustomFlags(uint32 p_Flags)
 {
     m_CustomFlags |= p_Flags;
+#else /* CROSS */
+    LoginQueryHolder*   l_Holer = new LoginQueryHolder(GetAccountId(), m_RealGUID, GetInterRealmNumber(), p_CharacterPortData);
+    LoginDBQueryHolder* l_LoginDBQueryHolder = new LoginDBQueryHolder(GetAccountId());
+#endif /* CROSS */
 
+#ifndef CROSS
     LoginDatabase.AsyncPQuery("UPDATE account SET custom_flags = custom_flags | %u WHERE id = %u", p_Flags, GetAccountId());
 }
+#else /* CROSS */
+    if (!l_Holer->Initialize() || !l_LoginDBQueryHolder->Initialize())
+    {
+        delete l_Holer;
+        delete l_LoginDBQueryHolder;
+#endif /* CROSS */
 
+#ifndef CROSS
 void WorldSession::UnsetCustomFlags(uint32 p_Flags)
 {
     m_CustomFlags &= ~p_Flags;
+#else /* CROSS */
+        m_playerLoading = false;
+#endif /* CROSS */
 
+#ifndef CROSS
     LoginDatabase.AsyncPQuery("UPDATE account SET custom_flags = custom_flags &~ %u WHERE id = %u", p_Flags, GetAccountId());
+#else /* CROSS */
+        sLog->outInfo(LOG_FILTER_WORLDSERVER, "Cannot initialize query holder.");
+        return;
+    }
+
+    m_CharacterLoginCallback   = l_RealmDatabase->DelayQueryHolder((SQLQueryHolder*)l_Holer);
+    m_CharacterLoginDBCallback = LoginDatabase.DelayQueryHolder((SQLQueryHolder*)l_LoginDBQueryHolder);
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 void WorldSession::LoadPremades()
+#else /* CROSS */
+void WorldSession::LoadCharacterDone(LoginQueryHolder* p_CharHolder, LoginDBQueryHolder* p_AuthHolder)
+#endif /* CROSS */
 {
+#ifndef CROSS
     PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PREMADES);
     l_Statement->setUInt32(0, GetAccountId());
 
@@ -1653,17 +2023,39 @@ void WorldSession::LoadPremades()
 
     uint32 l_CharactersCount = AccountMgr::GetCharactersCount(GetAccountId());
     if (l_CharactersCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
-        return;
-
-    do
+#else /* CROSS */
+    if (!p_CharHolder || !p_AuthHolder)
     {
-        Field* l_Fields = l_Result->Fetch();
+        sLog->outInfo(LOG_FILTER_WORLDSERVER, "There is no query holder in WorldSession::LoadCharacterDone.");
+#endif /* CROSS */
+        return;
+#ifdef CROSS
+    }
+#endif /* CROSS */
 
+#ifndef CROSS
+    do
+#else /* CROSS */
+    if (!GetPlayer())
+#endif /* CROSS */
+    {
+#ifndef CROSS
+        Field* l_Fields = l_Result->Fetch();
+#else /* CROSS */
+        delete p_CharHolder;
+        delete p_AuthHolder;
+#endif /* CROSS */
+
+#ifndef CROSS
         uint32 l_Transaction = l_Fields[0].GetUInt32();
         uint32 l_TemplateID = l_Fields[1].GetUInt32();
         uint32 l_Faction = l_Fields[2].GetUInt8();
         uint8  l_Type = l_Fields[3].GetUInt8();
+#else /* CROSS */
+        sLog->outInfo(LOG_FILTER_WORLDSERVER, "There is no player in WorldSession::LoadCharacterDone.");
+#endif /* CROSS */
 
+#ifndef CROSS
         CharacterTemplate const* l_Template = sObjectMgr->GetCharacterTemplate(l_TemplateID);
         if (!l_Template)
             continue;
@@ -1686,16 +2078,29 @@ void WorldSession::LoadPremades()
 
         l_NewCharacter.SetLevel(l_Template->m_Level);
         l_NewCharacter.SetMoney(l_Template->m_Money);
+#else /* CROSS */
+        return;
+    }
+#endif /* CROSS */
 
+#ifndef CROSS
         for (auto& l_ReputationInfo : l_Template->m_TemplateFactions)
         {
             if (FactionEntry const* l_Faction = sFactionStore.LookupEntry(l_ReputationInfo.m_FactionID))
                 l_NewCharacter.GetReputationMgr().SetReputation(l_Faction, l_ReputationInfo.m_Reputaion);
         }
+#else /* CROSS */
+    SetPlayerLoading(true);
+#endif /* CROSS */
 
+#ifndef CROSS
         for (auto l_Spell : l_Template->m_SpellIDs)
             l_NewCharacter.learnSpell(l_Spell, false);
+#else /* CROSS */
+    uint64 l_PlayerGuid = p_CharHolder->GetGuid();
+#endif /* CROSS */
 
+#ifndef CROSS
         std::list<CharacterTemplate::TemplateItem const*> l_RemainingTemplates;
         for (auto& l_Item : l_Template->m_TemplateItems)
         {
@@ -1706,51 +2111,103 @@ void WorldSession::LoadPremades()
                 {
                     if (!l_Item.m_Faction || (l_Item.m_Faction == 1 && l_NewCharacter.GetTeam() == ALLIANCE) || (l_Item.m_Faction == 2 && l_NewCharacter.GetTeam() == HORDE))
                         l_NewCharacter.StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
+#else /* CROSS */
+    if (!GetPlayer()->LoadFromDB(GUID_LOPART(l_PlayerGuid), p_CharHolder, p_AuthHolder))
+    {
+        delete p_CharHolder;
+        delete p_AuthHolder;
+#endif /* CROSS */
 
+#ifndef CROSS
                     continue;
                 }
             }
             l_RemainingTemplates.push_back(&l_Item);
         }
+#else /* CROSS */
+        SetPlayerLoading(false);
+#endif /* CROSS */
 
+#ifndef CROSS
         for (auto l_Item : l_RemainingTemplates)
         {
             if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->m_ItemID))
             {
                 if ((l_Proto->AllowableRace & l_NewCharacter.getRaceMask()) == 0)
                     continue;
+#else /* CROSS */
+        sLog->outInfo(LOG_FILTER_INTERREALM, "Cannot load player in WorldSession::LoadCharacterDone.");
+#endif /* CROSS */
 
+#ifndef CROSS
                 if (!l_Item->m_Faction || (l_Item->m_Faction == 1 && l_NewCharacter.GetTeam() == ALLIANCE) || (l_Item->m_Faction == 2 && l_NewCharacter.GetTeam() == HORDE))
                 {
                     ItemContext l_Context = ItemContext::None;
+#else /* CROSS */
+        return;
+    }
+#endif /* CROSS */
 
+#ifndef CROSS
                     /// Pve premade have LFR items
                     if (l_Type == 1)
                         l_Context = ItemContext::RaidLfr;
+#else /* CROSS */
+    GetPlayer()->SetPlayOnCross(true);
+#endif /* CROSS */
 
+#ifndef CROSS
                     if (l_Item->m_Type == 0 || l_Type == l_Item->m_Type)
                         l_NewCharacter.StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, l_Context);
                 }
             }
         }
+#else /* CROSS */
+    SetPlayerLoading(false);
+#endif /* CROSS */
 
+#ifndef CROSS
         uint32 l_AccountID = GetAccountId();
+#else /* CROSS */
+    GetInterRealmClient()->SendBattlefieldPort(p_CharHolder->GetCharacterPortData());
+#endif /* CROSS */
 
+#ifndef CROSS
         l_NewCharacter.SaveToDB(true, std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
         {
             WorldSession* l_Session = sWorld->FindSession(l_AccountID);
             if (l_Session == nullptr)
                 return;
+#else /* CROSS */
+    delete p_CharHolder;
+    delete p_AuthHolder;
+}
+#endif /* CROSS */
 
+#ifndef CROSS
             WorldPacket l_Data(SMSG_CREATE_CHAR, 1);
             l_Data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
             l_Session->SendPacket(&l_Data);
         }));
+#else /* CROSS */
+void WorldSession::UnsetServiceFlags(uint32 p_Flags)
+{
+    m_ServiceFlags &= ~p_Flags;
+#endif /* CROSS */
 
+#ifndef CROSS
         if (l_CreateInfo->Class == CLASS_HUNTER)
         {
             uint32 pet_id = sObjectMgr->GeneratePetNumber();
+#else /* CROSS */
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LoginDatabaseStatements::LOGIN_REMOVE_ACCOUNT_SERVICE);
+    l_Statement->setUInt32(0, p_Flags);
+    l_Statement->setUInt32(1, GetAccountId());
+    LoginDatabase.AsyncQuery(l_Statement);
+}
+#endif /* CROSS */
 
+#ifndef CROSS
             switch (l_CreateInfo->Race)
             {
                 case RACE_HUMAN:
@@ -1792,18 +2249,38 @@ void WorldSession::LoadPremades()
                 default:
                     break;
             }
+#else /* CROSS */
+void WorldSession::SetCustomFlags(uint32 p_Flags)
+{
+    m_CustomFlags |= p_Flags;
+#endif /* CROSS */
 
+#ifndef CROSS
             CharacterDatabase.PExecute("UPDATE characters SET currentPetSlot = '0', petSlotUsed = '1' WHERE guid = %u", l_NewCharacter.GetGUIDLow());
             l_NewCharacter.SetTemporaryUnsummonedPetNumber(pet_id);
         }
+#else /* CROSS */
+    LoginDatabase.AsyncPQuery("UPDATE account SET custom_flags = custom_flags | %u WHERE id = %u", p_Flags, GetAccountId());
+}
+#endif /* CROSS */
 
+#ifndef CROSS
         l_NewCharacter.CleanupsBeforeDelete();
         delete l_CreateInfo;
+#else /* CROSS */
+void WorldSession::UnsetCustomFlags(uint32 p_Flags)
+{
+    m_CustomFlags &= ~p_Flags;
+#endif /* CROSS */
 
+#ifndef CROSS
         l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PREMADE_SUCESS);
         l_Statement->setUInt32(0, l_Transaction);
         CharacterDatabase.Execute(l_Statement);
     } while (l_Result->NextRow());
+#else /* CROSS */
+    LoginDatabase.AsyncPQuery("UPDATE account SET custom_flags = custom_flags &~ %u WHERE id = %u", p_Flags, GetAccountId());
+#endif /* CROSS */
 }
 
 /// Send a game error
@@ -1825,6 +2302,7 @@ void WorldSession::SendGameError(GameError::Type p_Error, uint32 p_Data1, uint32
         l_Packet << uint32(p_Data2);
 
     SendPacket(&l_Packet);
+#ifndef CROSS
 }
 
 void WorldSession::SaveSpecialChannels()
@@ -1858,4 +2336,5 @@ void WorldSession::RestoreSpecialChannels()
     }
 
     m_SpecialChannelsSave.clear();
+#endif /* not CROSS */
 }

@@ -224,6 +224,17 @@ namespace MS
             /// Returns the value of the battleground testing flag.
             bool isTesting() const { return m_Testing; }
 
+#ifdef CROSS
+            /// Insert arena match information in the database (teams, map, arenatype, winner, damage, heal, rating changes, mmr changes ...etc)
+            /// @p_Arena  : Battleground instance of the arena to log
+            /// @p_Winner : Winner team (ALLIANCE/HORDE)
+            /// @p_WinnerRatingChange : rating change of the winner team
+            /// @p_WinnerMmrChange    : mmr change for the winner team
+            /// @p_LoserRatingChange  : rating change of the loser team
+            /// @p_LoserMmrChange     : mmr change for the loser team
+            void LogArenaMatch(Battleground* p_Arena, uint32 p_Winner, int32 p_WinnerRatingChange, int32 p_WinnerMmrChange, int32 p_LoserRatingChange, int32 p_LoserMmrChange);
+
+#endif /* CROSS */
             /// Converts a TypeId into a HolidayIds.
             /// @p_TypeId : The type id to convert.
             static HolidayIds BGTypeToWeekendHolidayId(BattlegroundTypeId p_TypeId);
@@ -250,6 +261,10 @@ namespace MS
             BattlegroundScheduler m_Scheduler;                                                  ///< The battleground scheduler.
             BattlegroundInvitationsMgr m_InvitationsMgr;                                        ///< The battleground invitations manager.
             std::map<uint32, Bracket::Id> m_InstanceId2Brackets;                                ///< A map that keep binded instance ids and bracket ids.
+#ifdef CROSS
+            uint32 m_DumpTimer;                                                                 ///< The timer used to dump battlegrounds
+            uint32 m_NextArenaMatchID;                                                          ///< The next unique arena match id, used to log every arena match in database
+#endif /* CROSS */
         };
     } ///< namespace Battlegrounds.
 } ///< namespace MS.

@@ -197,19 +197,28 @@ class ObjectAccessor
         static Pet* FindPet(uint64);
         /// Find player /!\ IN WORLD !!!!
         static Player* FindPlayer(uint64);
+#ifndef CROSS
 
         static Player* FindPlayerInOrOutOfWorld(uint64);
 
+#endif /* not CROSS */
         /// Find creature /!\ IN WORLD !!!!
         static Creature* FindCreature(uint64);
         /// Find unit /!\ IN WORLD !!!!
         static Unit* FindUnit(uint64);
         static Player* FindPlayerByName(const char* name);
+#ifndef CROSS
 
         static Player* FindPlayerByNameInOrOutOfWorld(const char* name);
 
+#endif /* not CROSS */
         /// Find gameobject /!\ IN WORLD !!!!
         static GameObject* FindGameObject(uint64);
+#ifdef CROSS
+
+        static Player* FindPlayerInOrOutOfWorld(uint64 guid);
+        static Player* FindPlayerByNameAndRealmId(std::string const& name, uint32 realmId);
+#endif /* CROSS */
 
         // when using this, you must use the hashmapholder's lock
         static HashMapHolder<Player>::MapType const& GetPlayers()

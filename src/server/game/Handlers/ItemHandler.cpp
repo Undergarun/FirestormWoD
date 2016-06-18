@@ -761,7 +761,9 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
         l_Vendor->StopMoving();
 
     int32 l_PriceMod = m_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES);
+#ifndef CROSS
     std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
+#endif /* not CROSS */
 
     VendorItemData const* vendorItems = l_Vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
@@ -816,6 +818,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
                     (l_ItemTemplate->Flags2 & ITEM_FLAG2_ALLIANCE_ONLY && m_Player->GetTeam() == HORDE))
                     continue;
 
+#ifndef CROSS
                 bool guildRewardCheckPassed = true;
 
                 for (auto const& reward : rewards)
@@ -859,6 +862,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
                 if (!guildRewardCheckPassed)
                     continue;
 
+#endif /* not CROSS */
                 // Items sold out are not displayed in list
                 if (l_AvailableInStock == 0)
                     continue;
@@ -1358,11 +1362,21 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
         return;
     }
 
+#ifndef CROSS
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
+#else /* CROSS */
+    SQLTransaction trans = SessionRealmDatabase.BeginTransaction();
+#endif /* CROSS */
 
+#ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GIFT);
     stmt->setUInt32(0, GUID_LOPART(item->GetOwnerGUID()));
     stmt->setUInt32(1, item->GetGUIDLow());
+#else /* CROSS */
+    PreparedStatement* stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_INS_CHAR_GIFT);
+    stmt->setUInt32(0, GUID_LOPART(item->GetRealOwnerGUID()));
+    stmt->setUInt32(1, item->GetRealGUIDLow());
+#endif /* CROSS */
     stmt->setUInt32(2, item->GetEntry());
     stmt->setUInt32(3, item->GetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS));
     trans->Append(stmt);
@@ -1402,7 +1416,11 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
         item->SaveToDB(trans);                                   // item gave inventory record unchanged and can be save standalone
     }
 
+#ifndef CROSS
     CharacterDatabase.CommitTransaction(trans);
+#else /* CROSS */
+    SessionRealmDatabase.CommitTransaction(trans);
+#endif /* CROSS */
 
     uint32 count = 1;
     m_Player->DestroyItemCount(gift, count, true);

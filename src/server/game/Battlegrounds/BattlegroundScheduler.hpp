@@ -106,6 +106,11 @@ namespace MS
             /// Try to create a battleground
             bool TryCreateBattleground(BattlegroundType::Type p_DecidedBg, std::vector<std::list<GroupQueueInfo*>>& p_PotentialGroups, std::size_t p_BracketId);
 
+#ifdef CROSS
+            /// Dump all running battlegrounds with queue information (player in bg, invite sent ...etc) in a dump file for debugging purpose
+            void DumpBattlegrounds();
+
+#endif /* CROSS */
         private:
             /// Allocates the groups in the existing battlegrounds depending on different criteria and respecting eligibility.
             /// @p_BracketId    : The bracket id.

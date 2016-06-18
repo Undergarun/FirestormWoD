@@ -1099,8 +1099,10 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     UpdateEventNPCVendor(event_id, true);
     // update bg holiday
     UpdateBattlegroundSettings();
+#ifndef CROSS
     // check for seasonal quest reset.
     sWorld->ResetEventSeasonalQuests(event_id);
+#endif /* not CROSS */
 }
 
 void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)

@@ -22,7 +22,9 @@ set(scripts_STAT_SRCS
   Commands/cs_gm.cpp
   Commands/cs_go.cpp
   Commands/cs_gobject.cpp
+#ifndef CROSS
   Commands/cs_guild.cpp
+#endif /* not CROSS */
   Commands/cs_honor.cpp
   Commands/cs_instance.cpp
   Commands/cs_learn.cpp
@@ -36,14 +38,20 @@ set(scripts_STAT_SRCS
   Commands/cs_reload.cpp
   Commands/cs_reset.cpp
   Commands/cs_tele.cpp
+#ifndef CROSS
   Commands/cs_ticket.cpp
+#endif /* not CROSS */
   Commands/cs_server.cpp
   Commands/cs_titles.cpp
   Commands/cs_wp.cpp
   Commands/cs_vip.cpp
+#ifndef CROSS
   Commands/cs_garrison.cpp
+#endif /* not CROSS */
   Commands/cs_hotfix.cpp
+#ifndef CROSS
   Commands/cs_battlepay.cpp
+#endif /* not CROSS */
   Commands/cs_items.cpp
   Commands/cs_spelllog.cpp
   Commands/cs_mmaps.cpp

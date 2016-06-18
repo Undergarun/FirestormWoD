@@ -310,6 +310,10 @@ class BattlegroundDG : public Battleground
         uint32 GetMaxScore() const { return BG_DG_MAX_VICTORY_POINTS; }
         bool IsScoreIncremental() const { return true; }
 
+#ifdef CROSS
+        uint32 GetZoneId() const { return BATTLEGROUND_DG_ZONEID; }
+
+#endif /* CROSS */
     private:
         uint8 GetFlagState(uint32 team)             { return _flagState[GetTeamIndexByTeamId(team)]; };
 

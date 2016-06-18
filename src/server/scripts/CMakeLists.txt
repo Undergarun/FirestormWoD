@@ -40,7 +40,9 @@ if(SCRIPTS)
   include(PetBattle/CMakeLists.txt)
   include(Draenor/CMakeLists.txt)
   include(Fun/CMakeLists.txt)
+#ifndef CROSS
   include(BattlePay/CMakeLists.txt)
+#endif /* not CROSS */
   include(Firestorm/CMakeLists.txt)
   include(Toys/CMakeLists.txt)
 endif()

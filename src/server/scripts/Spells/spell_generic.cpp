@@ -292,11 +292,22 @@ class spell_gen_pet_summoned: public SpellScriptLoader
 
                     if (Pet* l_NewPet = new Pet(player, newPetType))
                     {
+#ifndef CROSS
                         PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(0, player->GetLastPetNumber(), player->GetGUIDLow(), true, PET_SLOT_UNK_SLOT);
+#else /* CROSS */
+                        PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(0, player->GetLastPetNumber(), player->GetRealGUIDLow(), true, PET_SLOT_UNK_SLOT, player->GetSession()->GetInterRealmNumber());
+#endif /* CROSS */
                         uint64 l_PlayerGUID = player->GetGUID();
                         uint32 l_PetNumber  = player->GetLastPetNumber();
+#ifdef CROSS
+                        uint32 l_RealmID    = player->GetSession()->GetInterRealmNumber();
+#endif /* CROSS */
 
+#ifndef CROSS
                         CharacterDatabase.AsyncQuery(l_PetStatement, [l_NewPet, l_PlayerGUID, l_PetNumber](PreparedQueryResult p_Result) -> void
+#else /* CROSS */
+                        CharacterDatabase.AsyncQuery(l_PetStatement, [l_NewPet, l_PlayerGUID, l_PetNumber, l_RealmID](PreparedQueryResult p_Result) -> void
+#endif /* CROSS */
                         {
                             if (!p_Result)
                             {
@@ -304,7 +315,11 @@ class spell_gen_pet_summoned: public SpellScriptLoader
                                 return;
                             }
 
+#ifndef CROSS
                             PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), p_Result);
+#else /* CROSS */
+                            PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), l_RealmID, p_Result);
+#endif /* CROSS */
                             l_PetHolder->Initialize();
 
                             auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);
@@ -4227,7 +4242,11 @@ class spell_taunt_flag_targeting : public SpellScriptLoader
 
                             WorldPacket l_Data;
                             /// No specific target needed
+#ifndef CROSS
                             l_Caster->BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_EMOTE, l_Text, LANG_UNIVERSAL);
+#else /* CROSS */
+                            l_Caster->BuildPlayerChat(&l_Data, 0, CHAT_MSG_EMOTE, l_Text, LANG_UNIVERSAL);
+#endif /* CROSS */
                             l_Session->SendPacket(&l_Data);
                         }
                     }

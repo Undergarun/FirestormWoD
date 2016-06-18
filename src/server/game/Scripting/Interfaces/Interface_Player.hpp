@@ -368,7 +368,11 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Lang    : Message language (WoW)
         /// @p_Message : Message content
         /// @p_Guild   : Message guild target
+#ifndef CROSS
         virtual void OnChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string& p_Message, Guild* p_Guild)
+#else /* CROSS */
+        virtual void OnChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string& p_Message, InterRealmGuild* p_Guild)
+#endif /* CROSS */
         {
             UNUSED(p_Player);
             UNUSED(p_Type);

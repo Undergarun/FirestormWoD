@@ -9,6 +9,10 @@
 #include <ace/Reactor.h>
 #include <ace/Auto_Ptr.h>
 
+#ifdef CROSS
+#include "IRSocket.h"
+#include "InterRealmOpcodes.h"
+#endif /* CROSS */
 #include "Common.h"
 
 #include "Util.h"
@@ -21,13 +25,24 @@
 #include "BigNumber.h"
 #include "SHA1.h"
 #include "WorldSession.h"
+#ifndef CROSS
 #include "WorldSocketMgr.h"
 #include "IRSocket.h"
 #include "InterRealmSession.h"
+#else /* CROSS */
+#include "IRSocketMgr.h"
+#endif /* CROSS */
 #include "Log.h"
+#ifdef CROSS
+#include "PacketLog.h"
+#endif /* CROSS */
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
+#ifndef CROSS
 #include "InterRealmOpcodes.h"
+#else /* CROSS */
+#include "InterRealmMgr.h"
+#endif /* CROSS */
 #include "ObjectMgr.h"
 
 #if defined(__GNUC__)
@@ -42,16 +57,29 @@
 #pragma pack(pop)
 #endif
 
+#ifndef CROSS
 IRSocket::IRSocket (void): IRHandler(),
 m_LastPingTime(ACE_Time_Value::zero), m_OverSpeedPings(0), m_InterRealmSession(0),
+#else /* CROSS */
+IRSocket::IRSocket(): IRHandler(),
+m_LastPingTime(ACE_Time_Value::zero),
+#endif /* CROSS */
 m_RecvWPct(0), m_RecvPct(), m_Header(sizeof (IRInPktHeader)),
+#ifndef CROSS
 m_OutBuffer(0), m_OutBufferSize(65536), m_OutActive(false),
 m_Seed(static_cast<uint32> (rand32()))
+#else /* CROSS */
+m_OutBuffer(0), m_OutBufferSize(65536), m_OutActive(false)
+#endif /* CROSS */
 {
     reference_counting_policy().value (ACE_Event_Handler::Reference_Counting_Policy::ENABLED);
 
     msg_queue()->high_water_mark(8 * 1024 * 1024);
     msg_queue()->low_water_mark(8 * 1024 * 1024);
+#ifdef CROSS
+
+    m_InterRealmClient = NULL;
+#endif /* CROSS */
 }
 
 IRSocket::~IRSocket (void)
@@ -74,14 +102,21 @@ bool IRSocket::IsClosed (void) const
 void IRSocket::CloseSocket (void)
 {
     {
+#ifdef CROSS
+        ACE_GUARD (LockType, Guard, m_OutBufferLock);
+
+#endif /* CROSS */
         if (closing_)
             return;
 
+#ifndef CROSS
         ACE_GUARD (LockType, Guard, m_OutBufferLock);
 
+#endif /* not CROSS */
         closing_ = true;
         peer().close_writer();
     }
+#ifndef CROSS
 
     {
         ACE_GUARD (LockType, Guard, m_SessionLock);
@@ -90,6 +125,7 @@ void IRSocket::CloseSocket (void)
     }
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "[INTERREALM] IRSocket::CloseSocket");
+#endif /* not CROSS */
 }
 
 const std::string& IRSocket::GetRemoteAddress (void) const
@@ -99,6 +135,10 @@ const std::string& IRSocket::GetRemoteAddress (void) const
 
 int IRSocket::SendPacket(WorldPacket const* pct)
 {
+#ifdef CROSS
+    ASSERT(!(pct->GetOpcode() & COMPRESSED_OPCODE_MASK)); // Packet not compressed
+
+#endif /* CROSS */
     ACE_GUARD_RETURN (LockType, Guard, m_OutBufferLock, -1);
 
     if (closing_)
@@ -151,11 +191,13 @@ long IRSocket::RemoveReference (void)
 
 int IRSocket::open (void *a)
 {
+#ifndef CROSS
     m_InterRealmSession = sWorld->GetInterRealmSession();
 
     if (!m_InterRealmSession)
         return -1;
 
+#endif /* not CROSS */
     ACE_UNUSED_ARG (a);
 
     // Prevent double call to this func.
@@ -167,22 +209,44 @@ int IRSocket::open (void *a)
     m_OutActive = true;
 
     // Hook for the manager.
+#ifndef CROSS
     if (m_InterRealmSession->OnSocketOpen(this) == -1)
+#else /* CROSS */
+    if (sIRSocketMgr->OnSocketOpen(this) == -1)
+#endif /* CROSS */
         return -1;
 
     // Allocate the buffer.
     ACE_NEW_RETURN (m_OutBuffer, ACE_Message_Block (m_OutBufferSize), -1);
 
+#ifdef CROSS
+    ACE_NEW_RETURN(m_InterRealmClient, InterRealmClient(this), -1);
+
+    sInterRealmMgr->RegisterClient(m_InterRealmClient);
+
+#endif /* CROSS */
     // Store peer address.
     ACE_INET_Addr remote_addr;
 
+#ifndef CROSS
     /*if (peer().get_remote_addr(remote_addr) == -1)
+#else /* CROSS */
+    if (peer().get_remote_addr(remote_addr) == -1)
+#endif /* CROSS */
     {
+#ifndef CROSS
         sLog->outError(LOG_FILTER_NETWORKIO, "IRSocket::open: peer().get_remote_addr errno = %s", ACE_OS::strerror (errno));
+#else /* CROSS */
+        sLog->outError(LOG_FILTER_INTERREALM, "IRSocket::open: peer().get_remote_addr errno = %s", ACE_OS::strerror (errno));
+#endif /* CROSS */
         return -1;
     }
 
+#ifndef CROSS
     m_Address = remote_addr.get_host_addr();*/
+#else /* CROSS */
+    m_Address = remote_addr.get_host_addr();
+#endif /* CROSS */
 
     // Register with ACE Reactor
     if (reactor()->register_handler(this, ACE_Event_Handler::READ_MASK | ACE_Event_Handler::WRITE_MASK) == -1)
@@ -220,17 +284,29 @@ int IRSocket::handle_input (ACE_HANDLE)
             if ((errno == EWOULDBLOCK) ||
                 (errno == EAGAIN))
             {
+#ifndef CROSS
                 return Update();  // interesting line, isn't it ?
+#else /* CROSS */
+                return Update();                           // interesting line, isn't it ?
+#endif /* CROSS */
             }
 
+#ifndef CROSS
             sLog->outError(LOG_FILTER_INTERREALM, "IRSocket::handle_input: Peer error closing connection errno = %s", ACE_OS::strerror (errno));
+#else /* CROSS */
+            sLog->outDebug(LOG_FILTER_INTERREALM, "IRSocket::handle_input: Peer error closing connection errno = %s", ACE_OS::strerror (errno));
+#endif /* CROSS */
 
             errno = ECONNRESET;
             return -1;
         }
         case 0:
         {
+#ifndef CROSS
             sLog->outError(LOG_FILTER_INTERREALM, "IRSocket::handle_input: Peer has closed connection");
+#else /* CROSS */
+            sLog->outDebug(LOG_FILTER_INTERREALM, "IRSocket::handle_input: Peer has closed connection");
+#endif /* CROSS */
 
             errno = ECONNRESET;
             return -1;
@@ -353,7 +429,17 @@ int IRSocket::handle_output_queue (GuardType& g)
 
 int IRSocket::handle_close (ACE_HANDLE h, ACE_Reactor_Mask)
 {
+#ifndef CROSS
     sLog->outDebug(LOG_FILTER_INTERREALM, "IRSocket::handle_close");
+#else /* CROSS */
+	sLog->outDebug(LOG_FILTER_INTERREALM, "IRSocket::handle_close");
+
+    // Remove all players
+    if (m_InterRealmClient)
+    {
+        m_InterRealmClient->SetNeedClose(true);
+    }
+#endif /* CROSS */
 
     // Critical section
     {
@@ -365,6 +451,7 @@ int IRSocket::handle_close (ACE_HANDLE h, ACE_Reactor_Mask)
             peer().close_writer();
     }
 
+#ifndef CROSS
     // Critical section
     {
         ACE_GUARD_RETURN (LockType, Guard, m_SessionLock, -1);
@@ -378,6 +465,7 @@ int IRSocket::handle_close (ACE_HANDLE h, ACE_Reactor_Mask)
         }
     }
 
+#endif /* not CROSS */
     reactor()->remove_handler(this, ACE_Event_Handler::DONT_CALL | ACE_Event_Handler::ALL_EVENTS_MASK);
     return 0;
 }
@@ -419,7 +507,11 @@ int IRSocket::handle_input_header (void)
 
     header.size -= 4;
 
+#ifndef CROSS
     ACE_NEW_RETURN(m_RecvWPct, WorldPacket (Opcodes(header.cmd), header.size), -1);
+#else /* CROSS */
+    ACE_NEW_RETURN(m_RecvWPct, WorldPacket (PacketFilter::DropHighBytes(Opcodes(header.cmd)), header.size), -1);
+#endif /* CROSS */
 
     if (header.size > 0)
     {
@@ -452,10 +544,14 @@ int IRSocket::handle_input_payload (void)
     m_Header.reset();
 
     if (ret == -1)
+#ifndef CROSS
     {
         sLog->outError(LOG_FILTER_INTERREALM, "handle_input_payload failed.");
+#endif /* not CROSS */
         errno = EINVAL;
+#ifndef CROSS
     }
+#endif /* not CROSS */
 
     return ret;
 }
@@ -490,6 +586,9 @@ int IRSocket::handle_input_missing_data (void)
     {
         if (m_Header.space() > 0)
         {
+#ifdef CROSS
+            int a = sizeof(IRInPktHeader);
+#endif /* CROSS */
             //need to receive the header
             const size_t to_header = (message_block.length() > m_Header.space() ? m_Header.space() : message_block.length());
             m_Header.copy (message_block.rd_ptr(), to_header);
@@ -593,22 +692,40 @@ int IRSocket::ProcessIncoming(WorldPacket* new_pct)
     ACE_ASSERT (new_pct);
 
     // manage memory ;)
+#ifdef CROSS
+    //ACE_Auto_Ptr<WorldPacket> aptr(new_pct);
+#endif /* CROSS */
 
+#ifndef CROSS
     uint16 opcode = new_pct->GetOpcode();
+#else /* CROSS */
+    uint16 opcode = PacketFilter::DropHighBytes(new_pct->GetOpcode());
+#endif /* CROSS */
 
     if (closing_)
         return -1;
 
+#ifndef CROSS
     //std::string opcodeName = GetIROpcodeNameForLogging(opcode);
+#else /* CROSS */
+    std::string opcodeName = GetIROpcodeNameForLogging(opcode);
+#endif /* CROSS */
 
     try
     {
         switch (opcode)
         {
+#ifndef CROSS
             case IR_SMSG_TUNNEL_PACKET:
                 return Handle_TunneledPacket(new_pct);
+#else /* CROSS */
+            case IR_CMSG_TUNNEL_PACKET:
+                //ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
+                m_InterRealmClient->Handle_TunneledPacket(new_pct);
+#endif /* CROSS */
                 break;
             default:
+#ifndef CROSS
             {
                 ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
 
@@ -617,12 +734,26 @@ int IRSocket::ProcessIncoming(WorldPacket* new_pct)
                 m_InterRealmSession->AddPacket(new_pct);
                 return 0;
             }
+#else /* CROSS */
+                //aptr.release();
+                m_InterRealmClient->AddPacket(new_pct);
+                break;
+#endif /* CROSS */
         }
+#ifdef CROSS
+
+        return 0;
+#endif /* CROSS */
     }
     catch (ByteBufferException &)
     {
+#ifndef CROSS
         /*sLog->outInfo(LOG_FILTER_SERVER_LOADING, "[INTERREALM] IRSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet %s from client %s. Disconnected client.",
                        opcodeName.c_str(), GetRemoteAddress().c_str());*/
+#else /* CROSS */
+        sLog->outError(LOG_FILTER_INTERREALM, "IRSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet %s from client %s. Disconnected client.",
+                       opcodeName.c_str(), GetRemoteAddress().c_str());
+#endif /* CROSS */
         new_pct->hexlike();
         return -1;
     }
@@ -630,27 +761,81 @@ int IRSocket::ProcessIncoming(WorldPacket* new_pct)
     ACE_NOTREACHED (return 0);
 }
 
+#ifndef CROSS
 int IRSocket::Handle_TunneledPacket(WorldPacket* packet)
+#else /* CROSS */
+int IRSocket::Handle_Ping(WorldPacket* packet)
+#endif /* CROSS */
 {
+#ifdef CROSS
+    uint32 ping;
+    uint32 latency;
+#endif /* CROSS */
     uint64 playerGuid;
+#ifndef CROSS
     uint16 opcodeId;
+#endif /* not CROSS */
 
+#ifdef CROSS
+    // Get the ping packet content
+#endif /* CROSS */
     *packet >> playerGuid;
+#ifndef CROSS
     *packet >> opcodeId;
+#else /* CROSS */
+    *packet >> latency;
+    *packet >> ping;
+#endif /* CROSS */
 
+#ifndef CROSS
     packet->eraseFirst(10); // remove playerGuid and opcodeId data
     packet->SetOpcode((Opcodes)opcodeId);
     packet->rfinish();
+#else /* CROSS */
+    delete packet;
+#endif /* CROSS */
 
+#ifndef CROSS
     // Now we have standart packet
+#else /* CROSS */
+    Player* player = sObjectAccessor->FindPlayerInOrOutOfWorld(playerGuid);
+    if (!player)
+        return 0;
+#endif /* CROSS */
 
+#ifndef CROSS
     if (Player* pPlayer = sObjectAccessor->FindPlayerInOrOutOfWorld(playerGuid))
+#else /* CROSS */
+    if (m_LastPingTime == ACE_Time_Value::zero)
+        m_LastPingTime = ACE_OS::gettimeofday(); // for 1st ping
+    else
+#endif /* CROSS */
     {
+#ifndef CROSS
         if (pPlayer->GetSession())
             pPlayer->GetSession()->SendPacket(packet, false, true);
+#else /* CROSS */
+        ACE_Time_Value cur_time = ACE_OS::gettimeofday();
+        ACE_Time_Value diff_time (cur_time);
+        diff_time -= m_LastPingTime;
+        m_LastPingTime = cur_time;
+#endif /* CROSS */
     }
 
+#ifndef CROSS
     delete packet;
+#else /* CROSS */
+    // critical section
+    {
+        player->GetSession()->SetLatency(latency);
+        player->GetSession()->ResetClientTimeDelay();
+    }
+#endif /* CROSS */
 
+#ifdef CROSS
+    WorldPacket data(SMSG_PONG, 4);
+    data << ping;
+    player->GetSession()->SendPacket(&data);
+#endif /* CROSS */
     return 0;
 }

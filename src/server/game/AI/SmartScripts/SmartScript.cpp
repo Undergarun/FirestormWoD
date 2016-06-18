@@ -27,7 +27,9 @@
 #include "Player.h"
 #include "ScriptedGossip.h"
 #include "LFG.h"
+#ifndef CROSS
 #include "../../../scripts/Draenor/Garrison/GarrisonNPC.hpp"
+#endif /* not CROSS */
 
 class TrinityStringTextBuilder
 {
@@ -2298,6 +2300,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_UPDATE_PLOT_INSTANCE:
         {
+#ifndef CROSS
             WorldObject* l_Object = GetBaseObject();
 
             if (l_Object == nullptr)
@@ -2313,6 +2316,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (l_GarrisonAI != nullptr && l_GarrisonAI->GetOwner() != nullptr && l_GarrisonAI->GetOwner()->GetGarrison() != nullptr)
                 l_GarrisonAI->GetOwner()->GetGarrison()->UpdatePlot(l_GarrisonAI->GetPlotInstanceID());
 
+#else /* CROSS */
+            /// Don't work on cross
+#endif /* CROSS */
             break;
         }
         case SMART_ACTION_PLAY_SCENE_OBJECT:

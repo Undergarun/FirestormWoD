@@ -15,8 +15,10 @@
 #include "Unit.h"
 #include "BattlegroundMgr.hpp"
 #include "Item.h"
+#ifndef CROSS
 #include "AuctionHouseMgr.h"
 #include "BlackMarket/BlackMarketMgr.h"
+#endif /* not CROSS */
 
 MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery(stationery)
 {
@@ -36,7 +38,11 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
             break;
         case TYPEID_PLAYER:
             m_messageType = MAIL_NORMAL;
+#ifndef CROSS
             m_senderId = sender->GetGUIDLow();
+#else /* CROSS */
+            m_senderId = sender->GetRealGUIDLow();
+#endif /* CROSS */
             break;
         default:
             m_messageType = MAIL_NORMAL;
@@ -46,6 +52,7 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
     }
 }
 
+#ifndef CROSS
 MailSender::MailSender(CalendarEvent* /*sender*/)
 : m_messageType(MAIL_AUCTION), m_senderId(BLACKMARKET_AUCTION_HOUSE), m_stationery(MAIL_STATIONERY_AUCTION)
 {
@@ -61,20 +68,36 @@ MailSender::MailSender(BMAuctionEntry* /*sender*/)
 {
 }
 
+#endif /* not CROSS */
 MailSender::MailSender(Player* sender)
 {
     m_messageType = MAIL_NORMAL;
     m_stationery = sender->isGameMaster() ? MAIL_STATIONERY_GM : MAIL_STATIONERY_DEFAULT;
+#ifndef CROSS
     m_senderId = sender->GetGUIDLow();
+#else /* CROSS */
+    m_senderId = sender->GetRealGUIDLow();
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_lowguid(receiver->GetGUIDLow())
+#else /* CROSS */
+MailSender::MailSender(CalendarEvent* sender)
+: m_messageType(MAIL_AUCTION), m_senderId(MAIL_NORMAL), m_stationery(MAIL_STATIONERY_DEFAULT)
+{
+}
+
+MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_lowguid(receiver->GetRealGUIDLow())
+#endif /* CROSS */
 {
 }
 
 MailReceiver::MailReceiver(Player* receiver, uint32 receiver_lowguid) : m_receiver(receiver), m_receiver_lowguid(receiver_lowguid)
 {
+#ifndef CROSS
     ASSERT(!receiver || receiver->GetGUIDLow() == receiver_lowguid);
+#endif /* not CROSS */
 }
 
 MailDraft& MailDraft::AddItem(Item* item)
@@ -127,6 +150,7 @@ void MailDraft::deleteIncludedItems(SQLTransaction& trans, bool inDB /*= false*/
     m_items.clear();
 }
 
+#ifndef CROSS
 void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32 receiver_guid, SQLTransaction& trans)
 {
     Player* receiver = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(receiver_guid, 0, HIGHGUID_PLAYER));
@@ -169,15 +193,31 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32
     SendMailTo(trans, MailReceiver(receiver, receiver_guid), MailSender(MAIL_NORMAL, sender_guid), MAIL_CHECK_MASK_RETURNED, deliver_delay);
 }
 
+#endif /* not CROSS */
 void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked, uint32 deliver_delay)
 {
     Player* pReceiver = receiver.GetPlayer();               // can be NULL
+#ifndef CROSS
     Player* pSender = sObjectMgr->GetPlayerByLowGUID(sender.GetSenderId());
+#else /* CROSS */
+    if (!pReceiver)
+        return;
+#endif /* CROSS */
 
+#ifndef CROSS
     if (pReceiver)
         prepareItems(pReceiver, trans);                            // generate mail template items
+#else /* CROSS */
+    uint32 mailId = InterRealmClient::GetIRClient(pReceiver)->GenerateLocalRealmLowGuid(HIGHGUID_MAIL);
+    if (mailId == 0)
+        return;
+#endif /* CROSS */
 
+#ifndef CROSS
     uint32 mailId = sObjectMgr->GenerateMailID();
+#else /* CROSS */
+    prepareItems(pReceiver, trans);                            // generate mail template items
+#endif /* CROSS */
 
     time_t deliver_time = time(NULL) + deliver_delay;
 
@@ -195,7 +235,11 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
         if (m_COD)
             expire_delay = 3 * DAY;
         else
+#ifndef CROSS
             expire_delay = pSender && pSender->isGameMaster() ? 90 * DAY : 30 * DAY;
+#else /* CROSS */
+            expire_delay = 30 * DAY;
+#endif /* CROSS */
 
     time_t expire_time = deliver_time + expire_delay;
 
@@ -242,7 +286,11 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
         Item* pItem = mailItemIter->second;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
         stmt->setUInt32(0, mailId);
+#ifndef CROSS
         stmt->setUInt32(1, pItem->GetGUIDLow());
+#else /* CROSS */
+        stmt->setUInt32(1, pItem->GetRealGUIDLow());
+#endif /* CROSS */
         stmt->setUInt32(2, receiver.GetPlayerGUIDLow());
         trans->Append(stmt);
     }
@@ -263,7 +311,11 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
         for (MailItemMap::const_iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
         {
             Item* item = mailItemIter->second;
+#ifndef CROSS
             m->AddItem(item->GetGUIDLow(), item->GetEntry());
+#else /* CROSS */
+            m->AddItem(item->GetRealGUIDLow(), item->GetEntry());
+#endif /* CROSS */
         }
 
         m->messageType = sender.GetMailMessageType();

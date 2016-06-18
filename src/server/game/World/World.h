@@ -21,7 +21,9 @@
 #include "Callback.h"
 #include "TimeDiffMgr.h"
 #include "DatabaseWorkerPool.h"
+#ifndef CROSS
 #include "InterRealmSession.h"
+#endif /* not CROSS */
 
 #include <atomic>
 
@@ -80,8 +82,10 @@ enum WorldTimers
     WUPDATE_PINGDB,
     WUPDATE_GUILDSAVE,
     WUPDATE_REALM_STATS,
+#ifndef CROSS
     WUPDATE_TRANSFER,
     WUPDATE_TRANSFER_EXP,
+#endif /* not CROSS */
     WUPDATE_COUNT
 };
 
@@ -202,8 +206,10 @@ enum WorldBoolConfigs
     CONFIG_LOG_PACKETS,
     CONFIG_BATTLEPAY_ENABLE,
     CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK,
+#ifndef CROSS
     CONFIG_INTERREALM_ENABLE,
     CONFIG_IGNORE_RESEARCH_SITE,
+#endif /* not CROSS */
     CONFIG_ENABLE_MMAPS,
     CONFIG_ENABLE_QUEST,
     CONFIG_ENABLE_LOOTS,
@@ -667,6 +673,9 @@ struct QueryHolderCallback
     std::function<void(SQLQueryHolder*)>   m_Callback;
 };
 
+#ifdef CROSS
+typedef std::unordered_map<uint64 /*Guid*/, Player*> PlayerMap;
+#endif /* CROSS */
 
 struct MotdText
 {
@@ -685,22 +694,31 @@ class World
         World();
         ~World();
 
+#ifndef CROSS
         WorldSession* FindSession(uint32 id) const;
         void AddSession(WorldSession* s);
+#endif /* not CROSS */
         void SendAutoBroadcast();
+#ifndef CROSS
         bool RemoveSession(uint32 id);
+#endif /* not CROSS */
         /// Get the number of current active sessions
         void UpdateMaxSessionCounters();
+#ifndef CROSS
         const SessionMap& GetAllSessions() const { return m_sessions; }
         uint32 GetActiveAndQueuedSessionCount() const { return uint32(m_sessions.size() * getRate(RATE_ONLINE)); }
         uint32 GetActiveSessionCount() const { return uint32((m_sessions.size() - m_QueuedPlayer.size()) * getRate(RATE_ONLINE)); }
         uint32 GetQueuedSessionCount() const { return m_QueuedPlayer.size(); }
+#else /* CROSS */
+
+#endif /* CROSS */
         /// Get the maximum number of parallel sessions on the server since last reboot
         uint32 GetMaxQueuedSessionCount() const { return m_maxQueuedSessionCount; }
         uint32 GetMaxActiveSessionCount() const { return uint32(m_maxActiveSessionCount * getRate(RATE_ONLINE)); }
         /// Get number of players
         inline uint32 GetPlayerCount() const { return m_PlayerCount; }
         inline uint32 GetMaxPlayerCount() const { return m_MaxPlayerCount; }
+#ifndef CROSS
         /// Increase/Decrease number of players
         inline void IncreasePlayerCount()
         {
@@ -708,9 +726,14 @@ class World
             m_MaxPlayerCount = std::max(m_MaxPlayerCount, m_PlayerCount);
         }
         inline void DecreasePlayerCount() { m_PlayerCount--; }
+#endif /* not CROSS */
 
         Player* FindPlayerInZone(uint32 zone);
 
+#ifdef CROSS
+        void UpdateInterRealmStat();
+
+#endif /* CROSS */
         /// Deny clients?
         bool IsClosed() const;
 
@@ -726,6 +749,7 @@ class World
         void SetPlayerAmountLimit(uint32 limit) { m_playerLimit = limit; }
         uint32 GetPlayerAmountLimit() const { return m_playerLimit; }
 
+#ifndef CROSS
         //player Queue
         typedef std::list<WorldSession*> Queue;
         void AddQueuedPlayer(WorldSession*);
@@ -733,6 +757,7 @@ class World
         int32 GetQueuePos(WorldSession*);
         bool HasRecentlyDisconnected(WorldSession*);
 
+#endif /* not CROSS */
         /// \todo Actions on m_allowMovement still to be implemented
         /// Is movement allowed?
         bool getAllowMovement() const { return m_allowMovement; }
@@ -884,10 +909,17 @@ class World
 
         void KickAll();
         void KickAllLess(AccountTypes sec);
+#ifndef CROSS
         BanReturn BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author);
         bool RemoveBanAccount(BanMode mode, std::string nameOrIP);
         BanReturn BanCharacter(std::string name, std::string duration, std::string reason, std::string author);
         bool RemoveBanCharacter(std::string name);
+#else /* CROSS */
+
+        void InitDailyQuestResetTime();
+        void InitWeeklyQuestResetTime();
+        void InitRandomBGResetTime();
+#endif /* CROSS */
 
         // for max speed access
         static float GetMaxVisibleDistanceOnContinents()    { return m_MaxVisibleDistanceOnContinents; }
@@ -927,6 +959,7 @@ class World
 
         bool isEventKillStart;
 
+#ifndef CROSS
         CharacterInfo const* GetCharacterInfo(uint32 guid) const;
         void AddCharacterInfo(uint32 guid, std::string const& name, uint32 accountId, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
         void UpdateCharacterInfo(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
@@ -938,24 +971,56 @@ class World
         void SetInterRealmSession(InterRealmSession* irt) { m_InterRealmSession = irt; }
         InterRealmSession* GetInterRealmSession() { return m_InterRealmSession; }
 
+#endif /* not CROSS */
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
+#ifndef CROSS
         void   ResetEventSeasonalQuests(uint16 event_id);
+#endif /* not CROSS */
         std::string GetRealmName() { return m_realmName; }
+#ifndef CROSS
         std::string GetNormalizedRealmName() const;
+#endif /* not CROSS */
 
         void UpdatePhaseDefinitions();
 
+#ifdef CROSS
+        bool AddCharacterName(std::string name)
+        {
+            if (nameMap.find(name) != nameMap.end())
+                return false;
+
+            nameMap[name] = true;
+            return true;
+        }
+
+        void DeleteCharName(std::string name) { nameMap.erase(name); }
+
+#endif /* CROSS */
         void SetRecordDiff(RecordDiffType recordDiff, uint32 diff) { m_recordDiff[recordDiff] = diff; }
         uint32 GetRecordDiff(RecordDiffType recordDiff) { return m_recordDiff[recordDiff]; }
 
+#ifndef CROSS
         void ResetCurrencyWeekCap();
+#endif /* not CROSS */
         void ResetDailyLoots();
         void ResetGuildChallenges();
         void ResetBossLooted();
 
         bool ModerateMessage(std::string l_Text);
 
+#ifdef CROSS
+        void AddPlayer(Player* player);
+        bool HasPlayer(uint64 guid) const;
+        Player* GetPlayer(uint64 guid);
+        const PlayerMap& GetAllPlayers();
+
+        void CheckPlayerMaps(Player* player);
+        bool FindPlayerOnMaps(uint64 guid);
+
+        void RemovePlayer(uint64 p_Guid) { m_players.erase(p_Guid); }
+
+#endif /* CROSS */
         //////////////////////////////////////////////////////////////////////////
         /// New callback system
         //////////////////////////////////////////////////////////////////////////
@@ -984,8 +1049,14 @@ class World
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
         void _UpdateRealmCharCount(PreparedQueryResult resultCharCount);
+#ifndef CROSS
         void _updateTransfers();
+#else /* CROSS */
+        void AutoRestartServer();
+        void InitServerAutoRestartTime();
+#endif /* CROSS */
 
+#ifndef CROSS
         void InitDailyQuestResetTime();
         void InitWeeklyQuestResetTime();
         void InitMonthlyQuestResetTime();
@@ -1002,8 +1073,11 @@ class World
         void ResetMonthlyQuests();
         void ResetRandomBG();
         //void AutoRestartServer();
+#endif /* not CROSS */
     private:
+#ifndef CROSS
         InterRealmSession* m_InterRealmSession;
+#endif /* not CROSS */
         static std::atomic<bool> m_stopEvent;
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
@@ -1026,14 +1100,20 @@ class World
         uint32 m_serverDelaySum;
         uint32 m_serverUpdateCount;
 
+#ifndef CROSS
         SessionMap m_sessions;
         typedef std::unordered_map<uint32, time_t> DisconnectMap;
         DisconnectMap m_disconnects;
+#endif /* not CROSS */
         uint32 m_maxActiveSessionCount;
         uint32 m_maxQueuedSessionCount;
         uint32 m_PlayerCount;
         uint32 m_MaxPlayerCount;
 
+#ifdef CROSS
+        PlayerMap m_players;
+
+#endif /* CROSS */
         std::string m_newCharString;
         std::string m_realmName;
 
@@ -1063,26 +1143,37 @@ class World
         static int32 m_visibility_notify_periodInInstances;
         static int32 m_visibility_notify_periodInBGArenas;
 
+#ifndef CROSS
         // CLI command holder to be thread safe
         ACE_Based::LockedQueue<CliCommandHolder*, ACE_Thread_Mutex> cliCmdQueue;
 
         // next daily quests and random bg reset time
+#endif /* not CROSS */
         time_t m_NextDailyQuestReset;
         time_t m_NextWeeklyQuestReset;
+#ifndef CROSS
         time_t m_NextMonthlyQuestReset;
+#endif /* not CROSS */
         time_t m_NextRandomBGReset;
+#ifndef CROSS
         time_t m_NextCurrencyReset;
         time_t m_NextDailyLootReset;
         time_t m_NextGuildChallengesReset;
         time_t m_NextBossLootedReset;
+#endif /* not CROSS */
         time_t m_NextServerRestart;
 
+#ifndef CROSS
         //Player Queue
         Queue m_QueuedPlayer;
 
         // sessions that are added async
         void AddSession_(WorldSession* s);
         ACE_Based::LockedQueue<WorldSession*, ACE_Thread_Mutex> addSessQueue;
+#else /* CROSS */
+        // CLI command holder to be thread safe
+        ACE_Based::LockedQueue<CliCommandHolder*, ACE_Thread_Mutex> cliCmdQueue;
+#endif /* CROSS */
 
         // used versions
         std::string m_DBVersion;
@@ -1097,9 +1188,14 @@ class World
 
         std::list<AutoBroadcastText> m_Autobroadcasts;
 
+#ifndef CROSS
         typedef std::unordered_map<uint32, CharacterInfo> CharacterInfoContainer;
         CharacterInfoContainer _characterInfoStore;
         void LoadCharacterInfoStore();
+#else /* CROSS */
+        uint32 m_update_online_timer;
+        std::map<std::string, bool> nameMap;
+#endif /* CROSS */
 
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
@@ -1108,6 +1204,10 @@ class World
         PreparedQueryResultFuture m_transfersExpLoadCallback;
         uint32 m_recordDiff[RECORD_DIFF_MAX];
         LexicsCutter *m_lexicsCutter;
+#ifdef CROSS
+
+        ACE_Thread_Mutex playersLock;
+#endif /* CROSS */
 
         //////////////////////////////////////////////////////////////////////////
         /// New query holder callback system

@@ -17,7 +17,9 @@ EndScriptData */
 #include "Chat.h"
 #include "AccountMgr.h"
 #include "ObjectMgr.h"
+#ifndef CROSS
 #include "PlayerDump.h"
+#endif /* not CROSS */
 
 class character_commandscript: public CommandScript
 {
@@ -185,6 +187,7 @@ public:
     */
     static void HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo, ChatHandler* handler)
     {
+#ifndef CROSS
         if (delInfo.accountName.empty())                    // account not exist
         {
             handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_ACCOUNT, delInfo.name.c_str(), delInfo.lowGuid, delInfo.accountId);
@@ -215,6 +218,9 @@ public:
         stmt->setUInt32(0, delInfo.lowGuid);
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
             sWorld->AddCharacterInfo(delInfo.lowGuid, delInfo.name, delInfo.accountId, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8(), (*result)[2].GetUInt8());
+#else /* CROSS */
+        return;
+#endif /* CROSS */
     }
 
     static void HandleCharacterLevel(Player* player, uint64 playerGuid, uint32 oldLevel, uint32 newLevel, ChatHandler* handler)
@@ -325,7 +331,11 @@ public:
 
     static bool HandleCharacterLevelCommand(ChatHandler* handler, char const* args)
     {
+#ifndef CROSS
         char* nameStr;
+#else /* CROSS */
+        /*char* nameStr;
+#endif /* CROSS */
         char* levelStr;
         handler->extractOptFirstArg((char*)args, &nameStr, &levelStr);
         if (!levelStr)
@@ -358,7 +368,11 @@ public:
         {
             std::string nameLink = handler->playerLink(targetName);
             handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, nameLink.c_str(), newlevel);
+#ifndef CROSS
         }
+#else /* CROSS */
+        }*/
+#endif /* CROSS */
 
         return true;
     }
@@ -378,7 +392,11 @@ public:
         {
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
             target->SetAtLoginFlag(AT_LOGIN_CUSTOMIZE);
+#ifndef CROSS
             stmt->setUInt32(1, target->GetGUIDLow());
+#else /* CROSS */
+            stmt->setUInt32(1, target->GetRealGUIDLow());
+#endif /* CROSS */
         }
         else
         {
@@ -406,7 +424,11 @@ public:
         {
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
             target->SetAtLoginFlag(AT_LOGIN_CHANGE_FACTION);
+#ifndef CROSS
             stmt->setUInt32(1, target->GetGUIDLow());
+#else /* CROSS */
+            stmt->setUInt32(1, target->GetRealGUIDLow());
+#endif /* CROSS */
         }
         else
         {
@@ -434,7 +456,11 @@ public:
             // TODO : add text into database
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
             target->SetAtLoginFlag(AT_LOGIN_CHANGE_RACE);
+#ifndef CROSS
             stmt->setUInt32(1, target->GetGUIDLow());
+#else /* CROSS */
+            stmt->setUInt32(1, target->GetRealGUIDLow());
+#endif /* CROSS */
         }
         else
         {
@@ -626,6 +652,7 @@ public:
 
     static bool HandleCharacterEraseCommand(ChatHandler* handler, char const* args)
     {
+#ifndef CROSS
         if (!*args)
             return false;
 
@@ -665,12 +692,17 @@ public:
         Player::DeleteFromDB(characterGuid, accountId, true, true);
         handler->PSendSysMessage(LANG_CHARACTER_DELETED, characterName.c_str(), GUID_LOPART(characterGuid), accountName.c_str(), accountId);
 
+#endif /* not CROSS */
         return true;
     }
 
     static bool HandleLevelUpCommand(ChatHandler* handler, char const* args)
     {
+#ifndef CROSS
         char* nameStr;
+#else /* CROSS */
+        /*char* nameStr;
+#endif /* CROSS */
         char* levelStr;
         handler->extractOptFirstArg((char*)args, &nameStr, &levelStr);
 
@@ -703,13 +735,18 @@ public:
         {
             std::string nameLink = handler->playerLink(targetName);
             handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, nameLink.c_str(), newlevel);
+#ifndef CROSS
         }
+#else /* CROSS */
+        }*/
+#endif /* CROSS */
 
         return true;
     }
 
     static bool HandlePDumpLoadCommand(ChatHandler* p_Handler, char const* p_Args)
     {
+#ifndef CROSS
         if (!*p_Args)
             return false;
 
@@ -799,11 +836,13 @@ public:
                 return false;
         }
 
+#endif /* not CROSS */
         return true;
     }
 
     static bool HandlePDumpWriteCommand(ChatHandler* handler, char const* args)
     {
+#ifndef CROSS
         if (!*args)
             return false;
 
@@ -858,6 +897,7 @@ public:
                 return false;
         }
 
+#endif /* not CROSS */
         return true;
     }
 

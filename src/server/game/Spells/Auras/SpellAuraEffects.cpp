@@ -6077,9 +6077,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         {
                             if (target->GetTypeId() != TYPEID_PLAYER || aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                                 return;
+#ifndef CROSS
 
                             if (target->GetMap()->IsBattleground())
                                 target->ToPlayer()->LeaveBattleground();
+#endif /* not CROSS */
                             break;
                         }
                         case 42783: // Wrath of the Astromancer

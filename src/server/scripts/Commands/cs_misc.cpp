@@ -25,7 +25,9 @@
 #include "DisableMgr.h"
 #include <fstream>
 
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 #include "BattlegroundPacketFactory.hpp"
 #include "BattlegroundInvitationsMgr.hpp"
 #include "LFGMgr.h"
@@ -53,10 +55,14 @@ class misc_commandscript: public CommandScript
             };
             static ChatCommand sendCommandTable[] =
             {
+#ifndef CROSS
                 { "items",              SEC_ADMINISTRATOR,  true, &HandleSendItemsCommand,          "", NULL },
                 { "mail",               SEC_MODERATOR,      true, &HandleSendMailCommand,           "", NULL },
+#endif /* not CROSS */
                 { "message",            SEC_ADMINISTRATOR,  true, &HandleSendMessageCommand,        "", NULL },
+#ifndef CROSS
                 { "money",              SEC_ADMINISTRATOR,  true, &HandleSendMoneyCommand,          "", NULL },
+#endif /* not CROSS */
                 { NULL,                 0,                  false, NULL,                            "", NULL }
             };
             static ChatCommand auraCommandTable[] =
@@ -66,6 +72,21 @@ class misc_commandscript: public CommandScript
                 { "",                   SEC_ADMINISTRATOR,  true,   &HandleAuraCommand,             "", NULL },
                 { NULL,                 0,                  false,  NULL,                           "", NULL }
             };
+#ifdef CROSS
+
+            static ChatCommand ticketCommandTable[] =
+            {
+                { "fsccreate",          SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "fscupdate",          SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "fscappend",          SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "fscend",             SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "fscdelete",          SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "fscticketget",       SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "fscticketres",       SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { NULL,                 0,                  false,  NULL,                           "", NULL },
+            };
+
+#endif /* CROSS */
             static ChatCommand commandTable[] =
             {
                 { "dev",                SEC_ADMINISTRATOR,  false,  &HandleDevCommand,              "", NULL },
@@ -123,12 +144,36 @@ class misc_commandscript: public CommandScript
                 { "wargame",            SEC_GAMEMASTER,     false,  &HandleWargameCommand,          "", NULL },
                 { "chatfilter",         SEC_PLAYER,         false,  &HandleToggleChatFiltering,     "", NULL },
                 { "initlfg",            SEC_ADMINISTRATOR,  false,  &HandleInitializeLFGCommand,    "", NULL },
+#ifdef CROSS
+                { "fsccreate",          SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "fscupdate",          SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "fscappend",          SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "fscend",             SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "fscdelete",          SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "fscticketget",       SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "fscticketres",       SEC_PLAYER,         true,   &HandlePlaceHolderCommand,      "", NULL },
+                { "ticket",             SEC_PLAYER,         false,    NULL,                         "", ticketCommandTable },
+#endif /* CROSS */
                 { NULL,                 0,                  false,  NULL,                           "", NULL }
             };
             return commandTable;
         }
 
+#ifndef CROSS
         static bool HandleInitializeLFGCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
+#else /* CROSS */
+        static bool HandlePlaceHolderCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            return true;
+        }
+
+        static bool HandleLastBuildCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            return true;
+        }
+
+        static bool HandleInitializeLFGCommand(ChatHandler* p_Handler, char const* p_Args)
+#endif /* CROSS */
         {
             Player* l_Player = p_Handler->getSelectedPlayer();
 
@@ -592,9 +637,11 @@ class misc_commandscript: public CommandScript
                         handler->SetSentErrorMessage(true);
                         return false;
                     }
+#ifndef CROSS
                     // if both players are in different bgs
                     else if (_player->GetBattlegroundId() && _player->GetBattlegroundId() != target->GetBattlegroundId())
                         _player->LeaveBattleground(false); // Note: should be changed so _player gets no Deserter debuff
+#endif /* not CROSS */
 
                     // all's well, set bg id
                     // when porting out from the bg, it will be reset to 0
@@ -744,9 +791,11 @@ class misc_commandscript: public CommandScript
                         handler->SetSentErrorMessage(true);
                         return false;
                     }
+#ifndef CROSS
                     // if both players are in different bgs
                     else if (target->GetBattlegroundId() && handler->GetSession()->GetPlayer()->GetBattlegroundId() != target->GetBattlegroundId())
                         target->LeaveBattleground(false); // Note: should be changed so target gets no Deserter debuff
+#endif /* not CROSS */
 
                     // all's well, set bg id
                     // when porting out from the bg, it will be reset to 0
@@ -1188,6 +1237,7 @@ class misc_commandscript: public CommandScript
         // kick player
         static bool HandleKickPlayerCommand(ChatHandler* handler, char const* args)
         {
+#ifndef CROSS
             Player* target = NULL;
             std::string playerName;
             if (!handler->extractPlayerTarget((char*)args, &target, NULL, &playerName))
@@ -1211,6 +1261,7 @@ class misc_commandscript: public CommandScript
 
             target->GetSession()->KickPlayer();
 
+#endif /* not CROSS */
             return true;
         }
 
@@ -1232,6 +1283,7 @@ class misc_commandscript: public CommandScript
                 return false;
             }
 
+#ifndef CROSS
             if (InstanceScript* l_InstanceScript = player->GetInstanceScript())
             {
                 if (l_InstanceScript->IsEncounterInProgress())
@@ -1242,6 +1294,7 @@ class misc_commandscript: public CommandScript
                 }
             }
 
+#endif /* not CROSS */
             if (player->isDead() || player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
             {
                 // if player is dead and stuck, send ghost to graveyard
@@ -1755,6 +1808,7 @@ class misc_commandscript: public CommandScript
             uint32 areaId;
             uint32 phase = 0;
             uint32 l_GarrisonID = 0;
+#ifndef CROSS
             bool inInterRealm = false;
 
             if (!target)
@@ -1764,6 +1818,7 @@ class misc_commandscript: public CommandScript
                     inInterRealm = true;
                 }
             }
+#endif /* not CROSS */
 
             // get additional information from Player object
             if (target)
@@ -1780,12 +1835,19 @@ class misc_commandscript: public CommandScript
                 race = target->getRace();
                 Class = target->getClass();
                 muteTime = target->GetSession()->m_muteTime;
+#ifndef CROSS
                 mapId = inInterRealm ? target->GetInterRealmMapId() : target->GetMapId();
                 areaId = inInterRealm ? target->GetInterRealmAreaId() : target->GetAreaId();
+#else /* CROSS */
+                mapId = target->GetMapId();
+                areaId = target->GetAreaId();
+#endif /* CROSS */
                 phase = target->GetPhaseMask();
+#ifndef CROSS
 
                 if (MS::Garrison::Manager* l_Garr = target->GetGarrison())
                     l_GarrisonID = l_Garr->GetGarrisonID();
+#endif /* not CROSS */
             }
             // get additional information from DB
             else
@@ -2054,6 +2116,7 @@ class misc_commandscript: public CommandScript
         // mute player for some times
         static bool HandleMuteCommand(ChatHandler* handler, char const* args)
         {
+#ifndef CROSS
             char* nameStr;
             char* delayStr;
             handler->extractOptFirstArg((char*)args, &nameStr, &delayStr);
@@ -2124,12 +2187,14 @@ class misc_commandscript: public CommandScript
                 sprintf(buff, handler->GetTrinityString(LANG_SYSTEMMESSAGE), announce.c_str());
                 sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
             }
+#endif /* not CROSS */
             return true;
         }
 
         // unmute player
         static bool HandleUnmuteCommand(ChatHandler* handler, char const* args)
         {
+#ifndef CROSS
             Player* target;
             uint64 targetGuid;
             std::string targetName;
@@ -2171,10 +2236,13 @@ class misc_commandscript: public CommandScript
 
             handler->PSendSysMessage(LANG_YOU_ENABLE_CHAT, nameLink.c_str());
 
+#endif /* not CROSS */
             return true;
         }
 
+#ifndef CROSS
 
+#endif /* not CROSS */
         static bool HandleMovegensCommand(ChatHandler* handler, char const* /*args*/)
         {
             Unit* unit = handler->getSelectedUnit();
@@ -2487,7 +2555,9 @@ class misc_commandscript: public CommandScript
 
         static bool HandleFlushArenaPointsCommand(ChatHandler* /*handler*/, char const* /*args*/)
         {
+#ifndef CROSS
             sWorld->ResetCurrencyWeekCap();
+#endif /* not CROSS */
             return true;
         }
 
@@ -2511,6 +2581,7 @@ class misc_commandscript: public CommandScript
             return true;
         }
 
+#ifndef CROSS
         // Send mail by command
         static bool HandleSendMailCommand(ChatHandler* handler, char const* args)
         {
@@ -2714,6 +2785,7 @@ class misc_commandscript: public CommandScript
             handler->PSendSysMessage(LANG_MAIL_SENT, nameLink.c_str());
             return true;
         }
+#endif /* not CROSS */
         /// Send a message to a player in game
         static bool HandleSendMessageCommand(ChatHandler* handler, char const* args)
         {

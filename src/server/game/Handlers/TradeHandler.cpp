@@ -487,10 +487,18 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*p_RecvData*/)
         l_Trader->m_trade = NULL;
 
         // Desynchronized with the other saves here (SaveInventoryAndGoldToDB() not have own transaction guards)
+#ifndef CROSS
         SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+#else /* CROSS */
+        SQLTransaction l_Transaction = SessionRealmDatabase.BeginTransaction();
+#endif /* CROSS */
         m_Player->SaveInventoryAndGoldToDB(l_Transaction);
         l_Trader->SaveInventoryAndGoldToDB(l_Transaction);
+#ifndef CROSS
         CharacterDatabase.CommitTransaction(l_Transaction);
+#else /* CROSS */
+        SessionRealmDatabase.CommitTransaction(l_Transaction);
+#endif /* CROSS */
 
         l_Trader->GetSession()->SendTradeStatus(TRADE_STATUS_COMPLETE);
         SendTradeStatus(TRADE_STATUS_COMPLETE);
@@ -543,6 +551,10 @@ void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*p_RecvData*/)
 
 void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
 {
+#ifdef CROSS
+    return; ///< Trade are disable in cross to prevent exploits etc
+
+#endif /* CROSS */
     uint64 l_Guid = 0;
     p_RecvData.readPackGUID(l_Guid);
 
@@ -617,7 +629,11 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
         return;
     }
 
+#ifndef CROSS
     if (l_Player->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
+#else /* CROSS */
+    if (l_Player->GetSocial() && l_Player->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
+#endif /* CROSS */
     {
         SendTradeStatus(TRADE_STATUS_PLAYER_IGNORED);
         return;

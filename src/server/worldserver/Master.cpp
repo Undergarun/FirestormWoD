@@ -13,12 +13,16 @@
 #include "SignalHandler.h"
 #include "World.h"
 #include "WorldRunnable.h"
+#ifndef CROSS
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
+#endif /* not CROSS */
 #include "Configuration/Config.h"
 #include "Database/DatabaseEnv.h"
 #include "Database/DatabaseWorkerPool.h"
+#ifndef CROSS
 #include "PlayerDump.h"
+#endif /* not CROSS */
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "CinematicPathMgr.h"
@@ -34,6 +38,10 @@
 #include "BigNumber.h"
 #include "Reporter.hpp"
 
+#ifdef CROSS
+#include "IRSocketMgr.h"
+
+#endif /* CROSS */
 #ifdef _WIN32
 #include "ServiceWin32.h"
 extern int m_ServiceStatus;
@@ -144,6 +152,7 @@ public:
     }
 };
 
+#ifndef CROSS
 class GmLogToDBRunnable : public ACE_Based::Runnable
 {
 public:
@@ -360,6 +369,7 @@ public:
     }
 };
 
+#endif /* not CROSS */
 const char* dumpTables[32] =
 {
     "characters",
@@ -494,9 +504,11 @@ int Master::Run()
     }
 
     ACE_Based::Thread rar_thread(new RARunnable, "RARunnable");
+#ifndef CROSS
     ACE_Based::Thread gmLogToDB_thread(new GmLogToDBRunnable, "GmLogToDBRunnable");
     ACE_Based::Thread gmChatLogToDB_thread(new GmChatLogToDBRunnable, "GmChatLogToDBRunnable");
     ACE_Based::Thread arenaLogToDB_thread(new ArenaLogToDBRunnable, "ArenaLogToDBRunnable");
+#endif /* not CROSS */
 
     ///- Handle affinity for multiple processors and process priority on Windows
     #ifdef _WIN32
@@ -560,16 +572,29 @@ int Master::Run()
         freeze_thread.setPriority(ACE_Based::Highest);
     }
 
+#ifndef CROSS
     ///- Launch the world listener socket
     uint16 wsport = sWorld->getIntConfig(CONFIG_PORT_WORLD);
     std::string bind_ip = ConfigMgr::GetStringDefault("BindIP", "0.0.0.0");
+#else /* CROSS */
+    uint16 wsport = ConfigMgr::GetIntDefault("InterRealmServer.Port", 12345);
+#endif /* CROSS */
 
+#ifndef CROSS
     if (sWorldSocketMgr->StartNetwork(wsport, bind_ip.c_str()) == -1)
+#else /* CROSS */
+    if (sIRSocketMgr->StartNetwork(wsport) == -1)
+#endif /* CROSS */
     {
+#ifndef CROSS
         sLog->outError(LOG_FILTER_WORLDSERVER, "Failed to start network");
+#else /* CROSS */
+        sLog->outError(LOG_FILTER_INTERREALM, "Failed to start network");
+#endif /* CROSS */
         World::StopNow(ERROR_EXIT_CODE);
         // go down and shutdown the server
     }
+#ifndef CROSS
 
     // set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, g_RealmID);
@@ -578,6 +603,7 @@ int Master::Run()
     ACE_Based::Thread interrealm_thread(irt, "InterRealm");
     interrealm_thread.setPriority(ACE_Based::Highest);
     sWorld->SetInterRealmSession(irt);
+#endif /* not CROSS */
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 

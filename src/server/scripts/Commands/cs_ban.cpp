@@ -74,6 +74,7 @@ public:
 
     static bool HandleBanCharacterCommand(ChatHandler* handler, char const* args)
     {
+#ifndef CROSS
         if (!*args)
             return false;
 
@@ -136,6 +137,7 @@ public:
             sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
          }
 
+#endif /* not CROSS */
         return true;
     }
 
@@ -151,6 +153,7 @@ public:
 
     static bool HandleBanHelper(BanMode mode, char const* args, ChatHandler* handler)
     {
+#ifndef CROSS
         if (!*args)
             return false;
 
@@ -248,6 +251,7 @@ public:
             sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
         }
 
+#endif /* not CROSS */
         return true;
     }
 
@@ -670,6 +674,7 @@ public:
 
     static bool HandleUnBanCharacterCommand(ChatHandler* handler, char const* args)
     {
+#ifndef CROSS
         if (!*args)
             return false;
 
@@ -693,6 +698,7 @@ public:
             return false;
         }
 
+#endif /* not CROSS */
         return true;
     }
 
@@ -708,6 +714,7 @@ public:
 
     static bool HandleUnBanHelper(BanMode mode, char const* args, ChatHandler* handler)
     {
+#ifndef CROSS
         if (!*args)
             return false;
 
@@ -746,6 +753,7 @@ public:
         else
             handler->PSendSysMessage(LANG_UNBAN_ERROR, nameOrIP.c_str());
 
+#endif /* not CROSS */
         return true;
     }
 };

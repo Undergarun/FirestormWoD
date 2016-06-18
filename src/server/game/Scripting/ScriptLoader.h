@@ -12,8 +12,13 @@
 void AddScripts();
 void AddExampleScripts();
 void AddSpellScripts();
+#ifndef CROSS
 void AddCommandScripts();
+#endif /* not CROSS */
 void AddWorldScripts();
+#ifdef CROSS
+void AddCommandScripts();
+#endif /* CROSS */
 void AddEasternKingdomsScripts();
 void AddKalimdorScripts();
 void AddOutlandScripts();
@@ -23,6 +28,8 @@ void AddDraenorScripts();
 void AddBattlegroundScripts();
 void AddOutdoorPvPScripts();
 void AddCustomScripts();
+#ifndef CROSS
 void AddBattlePayScripts();
+#endif /* not CROSS */
 
 #endif

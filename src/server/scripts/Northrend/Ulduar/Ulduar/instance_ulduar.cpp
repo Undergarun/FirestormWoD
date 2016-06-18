@@ -1094,7 +1094,11 @@ class instance_ulduar : public InstanceMapScript
                 return 0;
             }
 
+#ifndef CROSS
             bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint64 /* = 0 */)
+#else /* CROSS */
+            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* , Unit const* /* = NULL */, uint64 /* = 0 */)
+#endif /* CROSS */
             {
                 switch (criteriaId)
                 {

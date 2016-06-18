@@ -28,6 +28,30 @@ class Unit;
 
 struct WorldSafeLocsEntry;
 
+#ifdef CROSS
+enum BattlegroundAreaIds
+{
+    BATTLEGROUND_AB_ZONEID  = 3358,
+    BATTLEGROUND_AV_ZONEID  = 2597,
+    BATTLEGROUND_BE_ZONEID  = 3702,
+    BATTLEGROUND_BFG_ZONEID = 5108,
+    BATTLEGROUND_DS_ZONEID  = 4378,
+    BATTLEGROUND_EY_ZONEID  = 5799,
+    BATTLEGROUND_IC_ZONEID  = 4710,
+    BATTLEGROUND_NA_ZONEID  = 3698,
+    BATTLEGROUND_RL_ZONEID  = 3968,
+    BATTLEGROUND_RV_ZONEID  = 4406,
+    BATTLEGROUND_SA_ZONEID  = 4384,
+    BATTLEGROUND_TP_ZONEID  = 5031,
+    BATTLEGROUND_WS_ZONEID  = 3277,
+    BATTLEGROUND_TV_ZONEID  = 6296,
+    BATTLEGROUND_TTP_ZONEID = 6732,
+    BATTLEGROUND_KT_ZONEID  = 6051,
+    BATTLEGROUND_SSM_ZONEID = 6126,
+    BATTLEGROUND_DG_ZONEID  = 6665,
+};
+
+#endif /* CROSS */
 #define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10
 
 namespace MS
@@ -586,7 +610,11 @@ enum BattlegroundTimeIntervals
     RESURRECTION_INTERVAL           = 30000,                // ms
     //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
+#ifndef CROSS
     INVITE_ACCEPT_WAIT_TIME         = 30000,                // ms
+#else /* CROSS */
+    INVITE_ACCEPT_WAIT_TIME         = 90000,                // ms
+#endif /* CROSS */
     TIME_AUTOCLOSE_BATTLEGROUND     = 120000,               // ms
     MAX_OFFLINE_TIME                = 300,                  // secs
     RESPAWN_ONE_DAY                 = 86400,                // secs
@@ -1096,7 +1124,13 @@ class Battleground
 
         void AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team);
 
+#ifndef CROSS
         virtual void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket);
+#else /* CROSS */
+        virtual uint32 GetZoneId() const { return 0; }
+
+        virtual void RemovePlayerAtLeave(uint64 guid);
+#endif /* CROSS */
                                                             // can be extended in in BG subclass
 
         void HandleTriggerBuff(uint64 go_guid);
@@ -1140,6 +1174,10 @@ class Battleground
 
         /// - Debug only
         void FastStart() { m_StartDelayTime = 0; }
+#ifdef CROSS
+
+        void RemoveFromInterRealm(uint64 playerGuid);
+#endif /* CROSS */
 
         void AwardTeams(uint32 p_Winner);
         void AwardTeamsWithRewards(BattlegroundAward p_LooserAward, BattlegroundAward p_WinnerAward, uint32 p_Winner);

@@ -29,9 +29,11 @@ EndScriptData */
 #include "LFGMgr.h"
 #include "World.h"
 
+#ifndef CROSS
 #include "InterRealmOpcodes.h"
 #include "InterRealmSession.h"
 
+#endif /* not CROSS */
 #include <fstream>
 #include "BattlegroundPacketFactory.hpp"
 
@@ -183,7 +185,9 @@ class debug_commandscript: public CommandScript
                 { "addunitstate",                SEC_ADMINISTRATOR,  false, &HandleDebugAddUnitStateCommand,         "", NULL },
                 { "getunitstate",                SEC_ADMINISTRATOR,  false, &HandleDebugGetUnitStatesCommand,        "", NULL },
                 { "removeunitstate",             SEC_ADMINISTRATOR,  false, &HandleDebugRemoveUnitStateCommand,      "", NULL },
+#ifndef CROSS
                 { "stresstest",                  SEC_ADMINISTRATOR,  false, &HandleDebugStressTestCommand,           "", NULL },
+#endif /* not CROSS */
                 { "showequiperror",              SEC_ADMINISTRATOR,  false, &HandleDebugShowEquipErrorCommand,       "", NULL },
                 { "critical",                    SEC_ADMINISTRATOR,  false, &HandleDebugCriticalCommand,             "", NULL },
                 { "haste",                       SEC_ADMINISTRATOR,  false, &HandleDebugHasteCommand,                "", NULL },
@@ -358,6 +362,7 @@ class debug_commandscript: public CommandScript
             l_Target->SendEquipError((InventoryResult)l_ErrorID, nullptr, nullptr);
             return true;
         }
+#ifndef CROSS
 
         static bool HandleDebugStressTestCommand(ChatHandler* p_Handler, char const* p_Args)
         {
@@ -430,6 +435,9 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
+#else /* CROSS */
+ 
+#endif /* CROSS */
         static bool HandleDebugAdjustSplineCommand(ChatHandler* p_Handler, char const* p_Args)
         {
             if (!*p_Args)
@@ -2102,8 +2110,13 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
+#ifndef CROSS
         static bool HandleDebugBattlegroundCommand(ChatHandler* handler, char const* /*args*/)
+#else /* CROSS */
+        static bool HandleDebugBattlegroundCommand(ChatHandler* /*handler*/, char const* /*args*/)
+#endif /* CROSS */
         {
+#ifndef CROSS
             if (sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE))
             {
                 InterRealmSession* tunnel = sWorld->GetInterRealmSession();
@@ -2118,13 +2131,21 @@ class debug_commandscript: public CommandScript
                 tunnel->SendPacket(&pckt);
                 return true;
             }
+#endif /* not CROSS */
             sBattlegroundMgr->ToggleTesting();
+#ifndef CROSS
 
+#endif /* not CROSS */
             return true;
         }
 
+#ifndef CROSS
         static bool HandleDebugArenaCommand(ChatHandler* handler, char const* /*args*/)
+#else /* CROSS */
+        static bool HandleDebugArenaCommand(ChatHandler* /*handler*/, char const* /*args*/)
+#endif /* CROSS */
         {
+#ifndef CROSS
             if (sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE))
             {
                 InterRealmSession* tunnel = sWorld->GetInterRealmSession();
@@ -2139,6 +2160,7 @@ class debug_commandscript: public CommandScript
                 tunnel->SendPacket(&pckt);
                 return true;
             }
+#endif /* not CROSS */
             sBattlegroundMgr->ToggleArenaTesting();
             return true;
         }
@@ -2860,13 +2882,24 @@ class debug_commandscript: public CommandScript
         /// This can be reported by static analyse, yes l_Pig is free and make it crash that the point !
         static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
+#ifndef CROSS
             p_Handler->PSendSysMessage("You've crash the server by adding pigs in farm that doesn't exists!");
+#else /* CROSS */
+            Player* l_CrashPlayer = nullptr;
+            uint64 l_Guid         = GUID_LOPART(l_CrashPlayer->GetPetGUID());
+
+            p_Handler->PSendSysMessage("You've crash the server ! (%lu)", l_Guid);
+#endif /* CROSS */
 
             Player* l_Pig = new Player(p_Handler->GetSession());
             delete l_Pig;
+#ifndef CROSS
 #ifndef __clang_analyzer__
+#endif /* not CROSS */
             l_Pig->isAFK();
+#ifndef CROSS
 #endif
+#endif /* not CROSS */
             return true;
         }
 
@@ -3504,7 +3537,11 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugPacketProfiler(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
+#ifndef CROSS
             gPacketProfilerMutex.lock();
+#else /* CROSS */
+            /*gPacketProfilerMutex.lock();
+#endif /* CROSS */
             p_Handler->PSendSysMessage("----------------");
 
             for (auto l_Pair : gPacketProfilerData)
@@ -3513,7 +3550,11 @@ class debug_commandscript: public CommandScript
             }
 
             p_Handler->PSendSysMessage("----------------");
+#ifndef CROSS
             gPacketProfilerMutex.unlock();
+#else /* CROSS */
+            gPacketProfilerMutex.unlock();*/
+#endif /* CROSS */
             return true;
         }
 
@@ -3906,4 +3947,8 @@ void AddSC_debug_commandscript()
 {
     new debug_commandscript();
 }
+#ifndef CROSS
 #endif
+#else /* CROSS */
+#endif
+#endif /* CROSS */

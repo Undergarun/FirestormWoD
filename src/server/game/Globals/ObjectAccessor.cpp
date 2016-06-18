@@ -214,28 +214,57 @@ Player* ObjectAccessor::FindPlayerByName(const char* name)
     return NULL;
 }
 
+#ifndef CROSS
 GameObject* ObjectAccessor::FindGameObject(uint64 p_Guid)
 {
     return GetObjectInWorld(p_Guid, (GameObject*)NULL);
 }
 
 Player* ObjectAccessor::FindPlayerByNameInOrOutOfWorld(const char* name)
+#else /* CROSS */
+Player* ObjectAccessor::FindPlayerByNameAndRealmId(std::string const& name, uint32 realmId)
+#endif /* CROSS */
 {
     TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
+#ifdef CROSS
+    
+#endif /* CROSS */
     std::string nameStr = name;
     std::transform(nameStr.begin(), nameStr.end(), nameStr.begin(), ::tolower);
+#ifdef CROSS
+     
+#endif /* CROSS */
     HashMapHolder<Player>::MapType const& m = GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
     {
+#ifdef CROSS
+        if (!iter->second->IsInWorld())
+            continue;
+
+        if (!iter->second->GetSession())
+            continue;
+
+#endif /* CROSS */
         std::string currentName = iter->second->GetName();
         std::transform(currentName.begin(), currentName.end(), currentName.begin(), ::tolower);
+#ifndef CROSS
         if (nameStr.compare(currentName) == 0)
+#else /* CROSS */
+        if (nameStr.compare(currentName) == 0 && iter->second->GetSession()->GetInterRealmNumber() == realmId)
+#endif /* CROSS */
             return iter->second;
     }
 
     return NULL;
 }
 
+#ifdef CROSS
+GameObject* ObjectAccessor::FindGameObject(uint64 p_Guid)
+{
+    return GetObjectInWorld(p_Guid, (GameObject*)NULL);
+}
+
+#endif /* CROSS */
 void ObjectAccessor::SaveAllPlayers()
 {
     TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
@@ -351,11 +380,13 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
 
     // remove corpse from player_guid -> corpse map and from current map
     RemoveCorpse(corpse);
+#ifndef CROSS
 
     // remove corpse from DB
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     corpse->DeleteFromDB(trans);
     CharacterDatabase.CommitTransaction(trans);
+#endif /* not CROSS */
 
     Corpse* bones = NULL;
     // create the bones only if the map and the grid is loaded at the corpse's location

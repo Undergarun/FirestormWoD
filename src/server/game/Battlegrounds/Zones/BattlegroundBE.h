@@ -58,6 +58,9 @@ class BattlegroundBE : public Battleground
         bool HandlePlayerUnderMap(Player* player);
 
         /* Scorekeeping */
+#ifdef CROSS
+        uint32 GetZoneId() const { return BATTLEGROUND_BE_ZONEID; }
+#endif /* CROSS */
         void UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor = true, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType = MS::Battlegrounds::RewardCurrencyType::Type::None);
 };
 #endif

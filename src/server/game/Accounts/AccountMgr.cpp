@@ -15,6 +15,7 @@
 
 namespace AccountMgr
 {
+#ifndef CROSS
 
     AccountOpResult CreateAccount(std::string username, std::string password)
     {
@@ -167,6 +168,7 @@ namespace AccountMgr
         return AOR_OK;
     }
 
+#endif /* not CROSS */
     uint32 GetId(std::string username)
     {
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ID_BY_USERNAME);
@@ -226,6 +228,7 @@ namespace AccountMgr
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
         return (result) ? true : false;
+#ifndef CROSS
     }
 
     uint32 GetCharactersCount(uint32 accountId)
@@ -236,6 +239,7 @@ namespace AccountMgr
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
         return (result) ? (*result)[0].GetUInt64() : 0;
+#endif /* not CROSS */
     }
 
     bool normalizeString(std::string& utf8String)

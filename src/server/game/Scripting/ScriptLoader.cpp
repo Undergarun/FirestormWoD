@@ -45,7 +45,9 @@ void AddSC_areatrigger_spell_scripts();
 void AddSC_spell_item_enchantment();
 void AddSC_spell_toy();
 void AddSC_npc_toy();
+#ifndef CROSS
 void AddSC_go_toy();
+#endif /* not CROSS */
 void AddSC_SmartSCripts();
 void AddSC_petbattle_abilities();
 void AddSC_npc_PetBattleTrainer();
@@ -67,7 +69,9 @@ void AddSC_gm_commandscript();
 void AddSC_go_commandscript();
 void AddSC_at_commandscript();
 void AddSC_gobject_commandscript();
+#ifndef CROSS
 void AddSC_guild_commandscript();
+#endif /* not CROSS */
 void AddSC_honor_commandscript();
 void AddSC_instance_commandscript();
 void AddSC_learn_commandscript();
@@ -82,12 +86,18 @@ void AddSC_reload_commandscript();
 void AddSC_reset_commandscript();
 void AddSC_server_commandscript();
 void AddSC_tele_commandscript();
+#ifndef CROSS
 void AddSC_ticket_commandscript();
+#endif /* not CROSS */
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
+#ifndef CROSS
 void AddSC_garrison_commandscript();
+#endif /* not CROSS */
 void AddSC_hotfix_commandscript();
+#ifndef CROSS
 void AddSC_battlepay_commandscript();
+#endif /* not CROSS */
 void AddSC_items_commandscript();
 void AddSC_spellog_commandscript();
 void AddSC_mmaps_commandscript();
@@ -1011,6 +1021,7 @@ void AddSC_frostfire_ridge();
 void AddSC_draenor_shadowmoon_valley();
 void AddSC_gorgrond();
 void AddSC_talador();
+#ifndef CROSS
 void AddSC_Garrison_GO();
 void AddSC_Garrison_NPC();
 void AddSC_Garrison_Quest();
@@ -1024,6 +1035,7 @@ void AddSC_Garrison_H3();
 void AddSC_Garrison_AS();
 void AddSC_Garrison_HS();
 void AddSC_Garrison();
+#endif /* not CROSS */
 void AddSC_item_strongboxes();
 
 /// Draenor Scenario
@@ -1125,11 +1137,13 @@ void AddSC_AshranAreaTrigger();
 void AddSC_AshranNPCNeutral();
 void AddSC_AshranQuest();
 
+#ifndef CROSS
 /// BattlePay
 void AddSC_BattlePay_Services();
 void AddSC_BattlePay_Golds();
 void AddSC_BattlePay_Professions();
 
+#endif /* not CROSS */
 #endif
 
 void AddScripts()
@@ -1149,6 +1163,7 @@ void AddScripts()
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
+#ifndef CROSS
     AddBattlePayScripts();
 #endif
 }
@@ -1159,6 +1174,7 @@ void AddBattlePayScripts()
     AddSC_BattlePay_Services();
     AddSC_BattlePay_Golds();
     AddSC_BattlePay_Professions();
+#endif /* not CROSS */
 #endif
 }
 
@@ -1186,7 +1202,9 @@ void AddSpellScripts()
     AddSC_spell_item_enchantment();
     AddSC_spell_toy();
     AddSC_npc_toy();
+#ifndef CROSS
     AddSC_go_toy();
+#endif /* not CROSS */
 #ifdef SCRIPTS
     AddSC_petbattle_abilities();
     AddSC_npc_PetBattleTrainer();
@@ -1211,7 +1229,9 @@ void AddCommandScripts()
     AddSC_go_commandscript();
     AddSC_at_commandscript();
     AddSC_gobject_commandscript();
+#ifndef CROSS
     AddSC_guild_commandscript();
+#endif /* not CROSS */
     AddSC_honor_commandscript();
     AddSC_instance_commandscript();
     AddSC_learn_commandscript();
@@ -1226,12 +1246,18 @@ void AddCommandScripts()
     AddSC_reset_commandscript();
     AddSC_server_commandscript();
     AddSC_tele_commandscript();
+#ifndef CROSS
     AddSC_ticket_commandscript();
+#endif /* not CROSS */
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
+#ifndef CROSS
     AddSC_garrison_commandscript();
+#endif /* not CROSS */
     AddSC_hotfix_commandscript();
+#ifndef CROSS
     AddSC_battlepay_commandscript();
+#endif /* not CROSS */
     AddSC_items_commandscript();
     AddSC_mmaps_commandscript();
     AddSC_spellog_commandscript();
@@ -1994,6 +2020,7 @@ void AddDraenorScripts()
     AddSC_draenor_shadowmoon_valley();
     AddSC_gorgrond();
     AddSC_talador();
+#ifndef CROSS
 
     /// Garrison
     AddSC_Garrison_GO();
@@ -2009,6 +2036,7 @@ void AddDraenorScripts()
     AddSC_Garrison_AS();
     AddSC_Garrison_HS();
     AddSC_Garrison();
+#endif /* not CROSS */
 
     /// Instance Skyreach
     AddSC_instance_Skyreach();

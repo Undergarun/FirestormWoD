@@ -603,6 +603,10 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<JadeCore::Ob
 
 void Map::Update(const uint32 t_diff)
 {
+#ifdef CROSS
+    SetUpdating(true);
+
+#endif /* CROSS */
     uint32 l_Time = getMSTime();
 
     _dynamicTree.update(t_diff);
@@ -612,8 +616,19 @@ void Map::Update(const uint32 t_diff)
         Player* player = m_mapRefIter->getSource();
         if (player && player->IsInWorld())
         {
+#ifndef CROSS
             //player->Update(t_diff);
+#else /* CROSS */
+            if (player->IsNeedRemove())
+                continue;
+
+#endif /* CROSS */
             WorldSession* session = player->GetSession();
+#ifdef CROSS
+            if (!session->GetPlayer())
+                continue;
+
+#endif /* CROSS */
             MapSessionFilter updater(session);
             session->Update(t_diff, updater);
         }
@@ -633,7 +648,20 @@ void Map::Update(const uint32 t_diff)
     {
         Player* player = m_mapRefIter->getSource();
 
+#ifndef CROSS
         if (!player || !player->IsInWorld())
+#else /* CROSS */
+        ASSERT(player->GetMap() == this);
+
+        if (!player || !player->IsInWorld() || player->GetSession()->IsIRClosing())
+            continue;
+
+        if (player->IsNeedRemove())
+            continue;
+
+        WorldSession* session = player->GetSession();
+        if (!session->GetPlayer())
+#endif /* CROSS */
             continue;
 
         // update players at tick
@@ -689,9 +717,13 @@ void Map::Update(const uint32 t_diff)
 
     sScriptMgr->OnMapUpdate(this, t_diff);
 
+#ifndef CROSS
     //uint32 l_TimeElapsed = getMSTime() - l_Time; ///< l_TimeElapsed is never read 01/18/16
     //if (l_TimeElapsed > 10)
     //    sMapMgr->RegisterMapDelay(GetId(), l_TimeElapsed);
+#else /* CROSS */
+    SetUpdating(false);
+#endif /* CROSS */
 }
 
 void Map::RemovePlayerFromMap(Player* player, bool remove)
@@ -3101,8 +3133,10 @@ void InstanceMap::PermBindAllPlayers(Player* p_Source)
             WorldPacket l_Data(SMSG_INSTANCE_SAVE_CREATED, 4);
             l_Data.WriteBit(false);
             l_Player->GetSession()->SendPacket(&l_Data);
+#ifndef CROSS
 
             l_Player->GetSession()->SendCalendarRaidLockout(l_Save, true);
+#endif /* not CROSS */
         }
 
         // if the leader is not in the instance the group will not get a perm bind
@@ -3295,7 +3329,12 @@ void BattlegroundMap::RemoveAllPlayers()
         for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
             if (Player* player = itr->getSource())
                 if (!player->IsBeingTeleportedFar())
+#ifndef CROSS
                     player->TeleportTo(player->GetBattlegroundEntryPoint());
+#else /* CROSS */
+                    if (InterRealmClient *irClient = InterRealmClient::GetIRClient(player))
+                        irClient->RemovePlayerFromIR(player);
+#endif /* CROSS */
 }
 
 Creature* Map::GetCreature(uint64 guid)

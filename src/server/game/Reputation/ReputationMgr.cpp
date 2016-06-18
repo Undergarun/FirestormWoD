@@ -14,8 +14,10 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#ifndef CROSS
 #include "../Garrison/GarrisonMgrConstants.hpp"
 #include "../Garrison/GarrisonMgr.hpp"
+#endif /* not CROSS */
 
 const int32 ReputationMgr::PointsInRank[MAX_REPUTATION_RANK] = {36000, 3000, 3000, 3000, 6000, 12000, 21000, 1000};
 
@@ -295,6 +297,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
             {
                 if (_player->GetReputationRank(repTemplate->faction[i]) <= ReputationRank(repTemplate->faction_rank[i]))
                 {
+#ifndef CROSS
                     ///< Algorithm to add Trading Post bonus (+20% from each reputation earning when you have the building lvl 3)
                     if (_player->GetGarrison() != nullptr)
                     {
@@ -302,6 +305,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
                             standing *= 1.2;
                     }
 
+#endif /* not CROSS */
                     // bonuses are already given, so just modify standing by rate
                     int32 spilloverRep = int32(standing * repTemplate->faction_rate[i]);
                     SetOneFactionReputation(sFactionStore.LookupEntry(repTemplate->faction[i]), spilloverRep, incremental);
@@ -370,10 +374,21 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         if (incremental)
         {
             // int32 *= float cause one point loss?
+#ifndef CROSS
             standing = int32(floor((float)standing * sWorld->getRate(RATE_REPUTATION_GAIN) + 0.5f));
 
             if (_player->GetSession()->IsPremium())
                 standing = int32(floor((float)standing * sWorld->getRate(RATE_REPUTATION_GAIN_PREMIUM) + 0.5f));
+#else /* CROSS */
+            if (InterRealmClient* client = _player->GetSession()->GetInterRealmClient())
+            {
+                // int32 *= float cause one point loss?
+                standing = int32(floor((float)standing * client->GetReputationRate() + 0.5f));
+ 
+                if (_player->GetSession()->IsPremium())
+                    standing = int32(floor((float)standing * client->GetReputationPremiumRate() + 0.5f));
+            }
+#endif /* CROSS */
 
             standing += itr->second.Standing + BaseRep;
         }
@@ -581,8 +596,13 @@ void ReputationMgr::SaveToDB(SQLTransaction& trans)
     {
         if (itr->second.needSave)
         {
+#ifndef CROSS
             trans->PAppend("DELETE FROM character_reputation WHERE guid = '%u' AND faction='%u'", _player->GetGUIDLow(), uint16(itr->second.ID));
             trans->PAppend("INSERT INTO character_reputation (guid, faction, standing, flags) VALUES ('%u', '%u', '%d', '%u')", _player->GetGUIDLow(), uint16(itr->second.ID), itr->second.Standing, uint16(itr->second.Flags));
+#else /* CROSS */
+            trans->PAppend("DELETE FROM character_reputation WHERE guid = '%u' AND faction='%u'", _player->GetRealGUIDLow(), uint16(itr->second.ID));
+            trans->PAppend("INSERT INTO character_reputation (guid, faction, standing, flags) VALUES ('%u', '%u', '%d', '%u')", _player->GetRealGUIDLow(), uint16(itr->second.ID), itr->second.Standing, uint16(itr->second.Flags));
+#endif /* CROSS */
             itr->second.needSave = false;
         }
     }

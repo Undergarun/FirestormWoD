@@ -47,7 +47,9 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "GuildMgr.h"
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -6948,12 +6950,16 @@ SpellCastResult Spell::CheckCast(bool strict)
                 break;
             case SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB:
             {
+#ifndef CROSS
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return SPELL_FAILED_BAD_TARGETS;
                 if (Guild* guild = m_caster->ToPlayer()->GetGuild())
                     if (guild->GetLeaderGUID() != m_caster->ToPlayer()->GetGUID())
                         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 break;
+#else /* CROSS */
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+#endif /* CROSS */
             }
             case SPELL_EFFECT_CREATE_HEIRLOOM:
             {
@@ -6980,6 +6986,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 if (!l_Player->CanUpgradeHeirloomWith(l_Heirloom, m_CastItem->GetTemplate()->ItemId))
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+#ifndef CROSS
                 break;
             }
             case SPELL_EFFECT_TEACH_FOLLOWER_ABILITY:
@@ -7016,6 +7023,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (l_Result != SPELL_CAST_OK)
                     return l_Result;
 
+#endif /* not CROSS */
                 break;
             }
             default:

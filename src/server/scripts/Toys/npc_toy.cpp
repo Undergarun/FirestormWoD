@@ -48,6 +48,7 @@ class npc_toy_mini_maba_bomb : public CreatureScript
         }
 };
 
+#ifndef CROSS
 /// Wind-Up Train Wrecker - 33404
 class npc_train_wrecker : public CreatureScript
 {
@@ -224,10 +225,13 @@ class npc_train_wrecker : public CreatureScript
         }
 };
 
+#endif /* not CROSS */
 #ifndef __clang_analyzer__
 void AddSC_npc_toy()
 {
     new npc_toy_mini_maba_bomb();
+#ifndef CROSS
     new npc_train_wrecker();
+#endif /* not CROSS */
 }
 #endif

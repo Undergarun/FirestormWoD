@@ -23,7 +23,9 @@
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
 #include "SpellAuraEffects.h"
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 
 void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 {
@@ -271,6 +273,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         }
     }
 
+#ifndef CROSS
     if (l_TargetFlags & SpellCastTargetFlags::TARGET_FLAG_GARRISON_MISSION && l_Misc[0])
     {
         if (MS::Garrison::Manager* l_GarrisonMgr = pUser->GetGarrison())
@@ -284,6 +287,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         }
     }
 
+#endif /* not CROSS */
     Unit* mover = pUser->m_mover;
     if (mover != pUser && mover->IsPlayer())
         return;
@@ -377,11 +381,23 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
         /// Wrapped?
         if (l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
         {
+#ifndef CROSS
             PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
+#else /* CROSS */
+            PreparedStatement* l_Stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
+#endif /* CROSS */
 
+#ifndef CROSS
             l_Stmt->setUInt32(0, l_Item->GetGUIDLow());
+#else /* CROSS */
+            l_Stmt->setUInt32(0, l_Item->GetRealGUIDLow());
+#endif /* CROSS */
 
+#ifndef CROSS
             PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
+#else /* CROSS */
+            PreparedQueryResult l_Result = SessionRealmDatabase.Query(l_Stmt);
+#endif /* CROSS */
 
             if (l_Result)
             {
@@ -402,11 +418,23 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
                 return;
             }
 
+#ifndef CROSS
             l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
+#else /* CROSS */
+            l_Stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
+#endif /* CROSS */
 
+#ifndef CROSS
             l_Stmt->setUInt32(0, l_Item->GetGUIDLow());
+#else /* CROSS */
+            l_Stmt->setUInt32(0, l_Item->GetRealGUIDLow());
+#endif /* CROSS */
 
+#ifndef CROSS
             CharacterDatabase.Execute(l_Stmt);
+#else /* CROSS */
+            SessionRealmDatabase.Execute(l_Stmt);
+#endif /* CROSS */
         }
         else
             m_Player->SendLoot(l_Item->GetGUID(), LOOT_CORPSE);
@@ -669,7 +697,11 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 
             if (l_Unit)
             {
+#ifndef CROSS
                 uint32 l_ConditionID = l_Unit->AI()->GetData(MS::Garrison::CreatureAIDataIDs::HasRecipe + l_SpellID);
+#else /* CROSS */
+                uint32 l_ConditionID = 0;
+#endif /* CROSS */
                 if (l_ConditionID == (uint32)-1)
                 {
                     p_RecvPacket.rfinish();
@@ -966,12 +998,18 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     if (creator->IsPlayer())
     {
         Player* player = creator->ToPlayer();
+#ifndef CROSS
         Guild* guild = NULL;
 
         if (uint32 guildId = player->GetGuildId())
             guild = sGuildMgr->GetGuildById(guildId);
+#endif /* not CROSS */
 
+#ifndef CROSS
         uint64 guildGuid = guild ?  guild->GetGUID() : 0;
+#else /* CROSS */
+        uint64 guildGuid = player->GetGuildGUID();
+#endif /* CROSS */
 
         data.appendPackGUID(guid);
         data << uint32(player->GetDisplayId());

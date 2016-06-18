@@ -621,15 +621,29 @@ void WorldSession::HandlePetRename(WorldPacket & p_RecvPacket)
         }
     }
 
+#ifndef CROSS
     SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+#else /* CROSS */
+    SQLTransaction l_Transaction = SessionRealmDatabase.BeginTransaction();
+#endif /* CROSS */
     if (l_HasDeclinedNames)
     {
+#ifndef CROSS
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
         l_Statement->setUInt32(0, l_Pet->GetCharmInfo()->GetPetNumber());
+#else /* CROSS */
+        PreparedStatement* l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
+        l_Statement->setUInt32(0, l_Pet->GetCharmInfo()->GetRealmPetNumber());
+#endif /* CROSS */
         l_Transaction->Append(l_Statement);
 
+#ifndef CROSS
         l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CHAR_PET_DECLINEDNAME);
         l_Statement->setUInt32(0, m_Player->GetGUIDLow());
+#else /* CROSS */
+        l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_ADD_CHAR_PET_DECLINEDNAME);
+        l_Statement->setUInt32(0, m_Player->GetRealGUIDLow());
+#endif /* CROSS */
 
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
             l_Statement->setString(i + 1, l_DeclinedNames.name[i]);
@@ -637,13 +651,26 @@ void WorldSession::HandlePetRename(WorldPacket & p_RecvPacket)
         l_Transaction->Append(l_Statement);
     }
 
+#ifndef CROSS
     PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_NAME);
+#else /* CROSS */
+    PreparedStatement* l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_NAME);
+#endif /* CROSS */
     l_Statement->setString(0, l_NewName);
+#ifndef CROSS
     l_Statement->setUInt32(1, m_Player->GetGUIDLow());
     l_Statement->setUInt32(2, l_Pet->GetCharmInfo()->GetPetNumber());
+#else /* CROSS */
+    l_Statement->setUInt32(1, m_Player->GetRealGUIDLow());
+    l_Statement->setUInt32(2, l_Pet->GetCharmInfo()->GetRealmPetNumber());
+#endif /* CROSS */
     l_Transaction->Append(l_Statement);
 
+#ifndef CROSS
     CharacterDatabase.CommitTransaction(l_Transaction);
+#else /* CROSS */
+    SessionRealmDatabase.CommitTransaction(l_Transaction);
+#endif /* CROSS */
 
     l_Pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
 }

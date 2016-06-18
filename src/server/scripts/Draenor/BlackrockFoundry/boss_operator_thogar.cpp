@@ -295,8 +295,10 @@ class boss_operator_thogar : public CreatureScript
 
                 if (m_Instance != nullptr)
                 {
+#ifndef CROSS
                     m_Instance->SetBossState(eFoundryDatas::DataOperatorThogar, EncounterState::FAIL);
 
+#endif /* not CROSS */
                     for (uint32 l_Entry = eFoundryGameObjects::MassiveDoorTrack4Right; l_Entry <= eFoundryGameObjects::MassiveDoorTrack1Left; ++l_Entry)
                     {
                         if (GameObject* l_Door = GameObject::GetGameObject(*me, m_Instance->GetData64(l_Entry)))
@@ -1506,12 +1508,21 @@ class areatrigger_foundry_moving_train : public AreaTriggerEntityScript
                         l_Iter->CastSpell(l_Iter, eSpells::MovingTrainDamage, true, nullptr, nullptr, l_Thogar->GetGUID());
 
                         Position l_Pos;
+#ifndef CROSS
 
                         float l_Orientation = p_AreaTrigger->GetAngle(l_Iter);
                         l_Pos.m_positionX   = l_Iter->m_positionX + 10.0f * cos(l_Orientation);
                         l_Pos.m_positionY   = l_Iter->m_positionY + 10.0f * sin(l_Orientation);
+#else /* CROSS */
+                        l_Pos.m_positionX   = l_Iter->m_positionX + 20.0f * cos(l_Iter->GetAngle(&g_CenterPos));
+                        l_Pos.m_positionY   = l_Iter->m_positionY + 20.0f * sin(l_Iter->GetAngle(&g_CenterPos));
+#endif /* CROSS */
                         l_Pos.m_positionZ   = g_CenterPos.m_positionZ;
+#ifndef CROSS
                         l_Pos.m_orientation = l_Orientation;
+#else /* CROSS */
+                        l_Pos.m_orientation = g_CenterPos.m_orientation;
+#endif /* CROSS */
 
                         l_Iter->CastSpell(l_Pos, eSpells::DodgedAMovingTrain, true);
 

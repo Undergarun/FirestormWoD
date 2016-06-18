@@ -13,7 +13,9 @@
 #include "Common.h"
 #include "ObjectAccessor.h"
 #include "World.h"
+#ifndef CROSS
 #include "WorldSocketMgr.h"
+#endif /* not CROSS */
 #include "Database/DatabaseEnv.h"
 #include "ScriptMgr.h"
 #include "BattlegroundMgr.hpp"
@@ -79,8 +81,10 @@ void WorldRunnable::run()
 
     sWorld->KickAll();                                       // save and kick all players
     sWorld->UpdateSessions( 1 );                             // real players unload required UpdateSessions call
+#ifndef CROSS
 
     sWorldSocketMgr->StopNetwork();
+#endif /* not CROSS */
 
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
     sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world

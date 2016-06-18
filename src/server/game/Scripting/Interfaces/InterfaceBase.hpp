@@ -18,7 +18,9 @@
 #include "World.h"
 #include "Weather.h"
 
+#ifndef CROSS
 class AuctionHouseObject;
+#endif /* not CROSS */
 class AuraScript;
 class Battleground;
 class BattlegroundMap;

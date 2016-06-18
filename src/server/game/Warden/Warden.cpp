@@ -97,7 +97,9 @@ void Warden::Update()
                 {
                     sLog->outWarn(LOG_FILTER_WARDEN, "%s (latency: %u, IP: %s) exceeded Warden module response delay for more than %s - disconnecting client",
                                    _session->GetPlayerName(false).c_str(), _session->GetLatency(), _session->GetRemoteAddress().c_str(), secsToTimeString(maxClientResponseDelay, true).c_str());
+#ifndef CROSS
                     _session->KickPlayer();
+#endif /* not CROSS */
                 }
                 else
                     _clientResponseTimer += diff;
@@ -167,7 +169,9 @@ std::string Warden::Penalty(WardenCheck* check /*= NULL*/)
         return "None";
         break;
     case WARDEN_ACTION_KICK:
+#ifndef CROSS
         _session->KickPlayer();
+#endif /* not CROSS */
         return "Kick";
         break;
     case WARDEN_ACTION_BAN:
@@ -175,14 +179,18 @@ std::string Warden::Penalty(WardenCheck* check /*= NULL*/)
             std::stringstream duration;
             duration << sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION) << "s";
             std::string accountName;
+#ifndef CROSS
             AccountMgr::GetName(_session->GetAccountId(), accountName);
+#endif /* not CROSS */
             std::stringstream banReason;
             banReason << "Warden Anticheat Violation";
             // Check can be NULL, for example if the client sent a wrong signature in the warden packet (CHECKSUM FAIL)
             if (check)
                 banReason << ": " << check->Comment << " (CheckId: " << check->CheckId << ")";
+#ifndef CROSS
 
             sWorld->BanAccount(BAN_ACCOUNT, accountName, duration.str(), banReason.str(),"Server");
+#endif /* not CROSS */
 
             return "Ban";
         }

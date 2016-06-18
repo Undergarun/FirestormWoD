@@ -19,6 +19,9 @@
 #include "Opcodes.h"
 #include "LFGListMgr.h"
 #include "MSCallback.hpp"
+#ifdef CROSS
+#include "InterRealmClient.h"
+#endif /* CROSS */
 
 class Creature;
 class GameObject;
@@ -76,27 +79,72 @@ struct AccountData
     std::string Data;
 };
 
+#ifndef CROSS
 struct BattlegroundPortData
+#else /* CROSS */
+struct CharacterPortData
+#endif /* CROSS */
 {
+#ifndef CROSS
     uint64 PlayerGuid;
     uint32 Time;
     uint32 QueueSlot;
     uint8 Action;
+#else /* CROSS */
+    uint64 playerGuid;
+    uint32 IsInvitedToBGInstanceGUID;
+    uint16 bgTypeId;
+    uint32 bgZoneId;
+#endif /* CROSS */
 };
 
+#ifndef CROSS
 struct CrossPartyInfo
+#else /* CROSS */
+class LoginQueryHolder : public SQLQueryHolder
+#endif /* CROSS */
 {
+#ifndef CROSS
     CrossPartyInfo()
     {
         memset(this, 0, sizeof(CrossPartyInfo));
     }
+#else /* CROSS */
+    private:
+        uint32 m_accountId;
+        uint64 m_guid;
+        uint32 m_realmId;
+        CharacterPortData m_CharacterPortData;
+#endif /* CROSS */
 
+#ifndef CROSS
     uint64 PlayerGuid;
     uint64 GroupGUID;
     uint64 LeaderGUID;
     uint8  PartyFlags;
     uint8  PartyIndex;
     uint8  PartyType;
+#else /* CROSS */
+    public:
+        LoginQueryHolder(uint32 accountId, uint64 guid, uint32 realmId, CharacterPortData const& characterPortData)
+            : m_accountId(accountId), m_guid(guid), m_realmId(realmId), m_CharacterPortData(characterPortData) { }
+        uint64 GetGuid() const { return m_guid; }
+        uint32 GetAccountId() const { return m_accountId; }
+        uint32 GetRealmId() const { return m_realmId; }
+        CharacterPortData const& GetCharacterPortData() const { return m_CharacterPortData; }
+        bool Initialize();
+};
+
+class LoginDBQueryHolder : public SQLQueryHolder
+{
+    private:
+        uint32 m_AccountId;
+    public:
+        LoginDBQueryHolder(uint32 p_AccountId)
+            : m_AccountId(p_AccountId) { }
+        uint32 GetAccountId() const { return m_AccountId; }
+        bool Initialize();
+#endif /* CROSS */
 };
 
 enum PartyCommand
@@ -225,8 +273,12 @@ public:
 
     virtual bool Process(WorldPacket* /*packet*/) { return true; }
     virtual bool ProcessLogout() const { return true; }
+#ifndef CROSS
     //static Opcodes DropHighBytes(Opcodes opcode) { return Opcodes(opcode & 0xFFFF); }
     static uint16 DropHighBytes(uint16 opcode) { return opcode & 0xFFFF; }
+#else /* CROSS */
+    static uint16 DropHighBytes(uint16 opcode) { return uint16(opcode & 0xFFFF); }
+#endif /* CROSS */
 
 protected:
     WorldSession* const m_pSession;
@@ -258,6 +310,7 @@ public:
 // only to prevent bloating the parameter list
 class CharacterCreateInfo
 {
+#ifndef CROSS
     friend class WorldSession;
     friend class Player;
 
@@ -265,6 +318,12 @@ class CharacterCreateInfo
         CharacterCreateInfo(std::string name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId, uint32 templateId,
         WorldPacket& data) : Name(name), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair), OutfitId(outfitId),
         TemplateId(templateId), Data(data), CharCount(0)
+#else /* CROSS */
+    public:
+        CharacterCreateInfo(std::string name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId, uint32 templateId) : 
+            Name(name), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair), OutfitId(outfitId),
+        TemplateId(templateId), CharCount(0)
+#endif /* CROSS */
         {}
 
         /// User specified variables
@@ -279,23 +338,58 @@ class CharacterCreateInfo
         uint8 FacialHair;
         uint8 OutfitId;
         uint32 TemplateId;
+#ifndef CROSS
         WorldPacket Data;
+#endif /* not CROSS */
 
         /// Server side data
         uint8 CharCount;
 
+#ifndef CROSS
     private:
+#endif /* not CROSS */
         virtual ~CharacterCreateInfo(){};
 };
 
+#ifdef CROSS
+#define SessionRealmDatabase (*GetInterRealmClient()->GetDatabase())
+
+#endif /* CROSS */
 /// Player session in the World
 class WorldSession
 {
     public:
+#ifndef CROSS
         WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale,
                      uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags, uint32 p_CustomFlags);
+#else /* CROSS */
+        WorldSession(uint32 id, InterRealmClient* irc, AccountTypes sec, bool ispremium, uint8 expansion, time_t mute_time, LocaleConstant locale,
+            uint32 recruiter, bool isARecruiter, std::string server_name = "");
+#endif /* CROSS */
         ~WorldSession();
 
+#ifdef CROSS
+        void SetPlayerLoading(bool val) { m_playerLoading = val; }
+        void SetRemoteAddress(std::string& address) { m_Address = address; }
+
+        void SetBattlegroundLeaveData(uint64 guid, uint8 desertir)
+        {
+            _battlegroundLeaveData.PlayerGuid = guid;
+            _battlegroundLeaveData.desertir = desertir;
+
+        }
+
+        void SetIRClosing(bool val) { m_ir_closing = val; }
+        bool IsIRClosing() { return m_ir_closing; }
+        bool isInInterRealmBG() { return m_isinIRBG; }
+        void setInInterRealmBG(bool inIRBG) { m_isinIRBG = inIRBG; }
+        InterRealmClient* GetInterRealmClient() const { return m_ir_socket; }
+        void SetInterRealmClient(InterRealmClient* irc) { m_ir_socket = irc; }
+        uint32 GetInterRealmNumber() const { return m_ir_number; }
+        void SetInterRealmNumber(uint32 realm) { m_ir_number = realm; }
+        std::string GetServerName() { return m_ir_server_name; }
+
+#endif /* CROSS */
         uint64 GetWoWAccountGUID()
         {
             return MAKE_NEW_GUID(GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT);
@@ -319,7 +413,11 @@ class WorldSession
         void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
         static void WriteMovementInfo(WorldPacket& data, MovementInfo* mi);
 
+#ifndef CROSS
         void SendPacket(WorldPacket const* packet, bool forced = false, bool ir_packet = false);
+#else /* CROSS */
+        void SendPacket(WorldPacket const* packet, bool forced = false);
+#endif /* CROSS */
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
@@ -364,9 +462,13 @@ class WorldSession
         }
 
         void LoginPlayer(uint64 p_Guid);
+#ifndef CROSS
         void LogoutPlayer(bool p_Save, bool p_AfterInterRealm = false);
 
         void KickPlayer();
+#else /* CROSS */
+        void LogoutPlayer(bool Save);
+#endif /* CROSS */
 
         void QueuePacket(WorldPacket* new_packet);
         bool Update(uint32 diff, PacketFilter& updater);
@@ -375,7 +477,11 @@ class WorldSession
         void SendAuthWaitQue(uint32 position);
 
         //void SendTestCreatureQueryOpcode(uint32 entry, uint64 guid, uint32 testvalue);
+#ifndef CROSS
         void SendNameQueryOpcode(uint64 guid);
+#else /* CROSS */
+        void SendNameQueryOpcode(uint64 guid, bool atLeave = false);
+#endif /* CROSS */
 
         void SendTrainerList(uint64 guid);
         void SendTrainerList(uint64 guid, const std::string& strTitle);
@@ -426,11 +532,13 @@ class WorldSession
         }
         //used with item_page table
         bool SendItemInfo(uint32 itemid, WorldPacket data);
+#ifndef CROSS
         //auction
         void SendAuctionHello(uint64 p_Guid, Creature* p_Unit);
         void SendAuctionCommandResult(AuctionEntry* p_Auction, uint32 p_Action, uint32 p_Error, uint32 p_BidError = 0);
         void SendAuctionBidderNotification(AuctionEntry* p_Auction, uint64 p_Bidder, uint64 p_BidSum);
         void SendAuctionOwnerNotification(AuctionEntry* p_Auction);
+#endif /* not CROSS */
 
         // Item Enchantment
         void SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 enchantID, uint8 slotID);
@@ -445,7 +553,9 @@ class WorldSession
 
         // Guild/Arena Team
         void SendNotInArenaTeamPacket(uint8 type);
+#ifndef CROSS
         void SendPetitionShowList(uint64 guid);
+#endif /* not CROSS */
         void SendPetitionSignResult(uint64 p_PlayerGUID, uint64 p_ItemGUID, uint8 p_Result);
         void SendAlreadySigned(uint64 p_PlayerGUID);
         void SendPetitionDeclined(uint64 p_PlayerGUID);
@@ -541,6 +651,7 @@ class WorldSession
         /// @p_Data2 : Additional data 2
         void SendGameError(GameError::Type p_Error, uint32 p_Data1 = 0xF0F0F0F0, uint32 p_Data2 = 0xF0F0F0F0);
 
+#ifndef CROSS
         /// ============== Cross realm ========================= ///
         uint32 GetInterRealmBG() { return m_InterRealmZoneId; }
         void SetInterRealmBG(uint32 value) { m_InterRealmZoneId = value; }
@@ -566,6 +677,7 @@ class WorldSession
 
         /// ==================================================== ///
 
+#endif /* not CROSS */
     public:                                                 // opcodes handlers
 
         void Handle_NULL(WorldPacket& recvPacket);          // not used
@@ -575,17 +687,21 @@ class WorldSession
 
         void BuildCharacterRename(WorldPacket* pkt, ObjectGuid guid, uint8 result, std::string name);
 
+#ifndef CROSS
         void HandleCharEnumOpcode(WorldPacket& recvPacket);
         void HandleCharDeleteOpcode(WorldPacket& recvPacket);
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
         void HandleCharCreateCallback(PreparedQueryResult result, CharacterCreateInfo* createInfo);
         void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
+#endif /* not CROSS */
         void HandleLoadScreenOpcode(WorldPacket& recvPacket);
+#ifndef CROSS
         void HandleCharEnum(PreparedQueryResult result);
         void HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginDBQueryHolder* l_LoginHolder);
         void HandleCharRaceOrFactionChange(WorldPacket& recvData);
         void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
         void HandleReorderCharacters(WorldPacket& recvData);
+#endif /* not CROSS */
         void HandleSuspendToken(WorldPacket& recvData);
 
         // played time
@@ -626,7 +742,9 @@ class WorldSession
         void HandleForceSpeedChangeAck(WorldPacket& recvData);
 
         void HandlePingOpcode(WorldPacket& recvPacket);
+#ifndef CROSS
         void HandleAuthSessionOpcode(WorldPacket& recvPacket);
+#endif /* not CROSS */
         void HandleRepopRequestOpcode(WorldPacket& recvPacket);
         void HandleLootItemOpcode(WorldPacket& recvPacket);
         void HandleLootMoneyOpcode(WorldPacket& recvPacket);
@@ -638,6 +756,7 @@ class WorldSession
         void HandlePlayerLogoutOpcode(WorldPacket& recvPacket);
         void HandleLogoutCancelOpcode(WorldPacket& recvPacket);
 
+#ifndef CROSS
         // GM Ticket opcodes
         void OnGMTicketGetTicketEvent();
         void HandleGMTicketGetWebTicketOpcode(WorldPacket& recvPacket);
@@ -646,6 +765,7 @@ class WorldSession
         void HandleReportLag(WorldPacket& recvPacket);
         void SendTicketStatusUpdate(uint8 p_Response);
 
+#endif /* not CROSS */
         void HandleTogglePvP(WorldPacket& recvPacket);
 
         void HandleZoneUpdateOpcode(WorldPacket& recvPacket);
@@ -822,6 +942,7 @@ class WorldSession
         void HandleSetTradeItemOpcode(WorldPacket& recvPacket);
         void HandleUnacceptTradeOpcode(WorldPacket& recvPacket);
 
+#ifndef CROSS
         void HandleAuctionHelloOpcode(WorldPacket& recvPacket);
         void HandleAuctionListItems(WorldPacket& recvData);
         void HandleAuctionListBidderItems(WorldPacket& recvData);
@@ -838,11 +959,14 @@ class WorldSession
         void HandleMailMarkAsRead(WorldPacket& recvData);
         void HandleMailReturnToSender(WorldPacket& recvData);
         void HandleMailDelete(WorldPacket& recvData);
+#endif /* not CROSS */
         void HandleItemTextQuery(WorldPacket& recvData);
         void HandleMailCreateTextItem(WorldPacket& recvData);
         void HandleQueryNextMailTime(WorldPacket& recvData);
         void HandleCancelChanneling(WorldPacket& recvData);
+#ifndef CROSS
 
+#endif /* not CROSS */
         void SendItemPageInfo(ItemTemplate* itemProto);
         void HandleSplitItemOpcode(WorldPacket& recvPacket);
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
@@ -1110,6 +1234,7 @@ class WorldSession
         void HandleGrantLevel(WorldPacket& recvData);
         void HandleAcceptGrantLevel(WorldPacket& recvData);
 
+#ifndef CROSS
         // Calendar
         void HandleCalendarGetCalendar(WorldPacket& p_RecvData);
         void HandleCalendarGetEvent(WorldPacket& p_RecvData);
@@ -1131,6 +1256,7 @@ class WorldSession
         void SendCalendarRaidLockout(InstanceSave const* save, bool add);
         void SendCalendarRaidLockoutUpdated(InstanceSave const* save);
 
+#endif /* not CROSS */
         // Void Storage
         void HandleVoidStorageUnlock(WorldPacket& recvData);
         void HandleVoidStorageQuery(WorldPacket& recvData);
@@ -1176,6 +1302,7 @@ class WorldSession
         void HandleShowTradeSkillOpcode(WorldPacket& p_RecvPacket);
         int32 HandleEnableNagleAlgorithm();
 
+#ifndef CROSS
         // Black Market
         void HandleBlackMarketHello(WorldPacket& recvData);
         void SendBlackMarketHello(uint64 npcGuid);
@@ -1184,6 +1311,7 @@ class WorldSession
         void HandleBlackMarketBid(WorldPacket& recvData);
         void SendBlackMarketBidResult(uint32 itemEntry, uint32 auctionId);
 
+#endif /* not CROSS */
         // Twitter
         void HandleRequestTwitterStatus(WorldPacket& p_RecvData);
         void SendTwitterStatus(bool l_Enabled);
@@ -1211,6 +1339,9 @@ class WorldSession
         void HandleGarrisonRemoveFollowerFromBuilding(WorldPacket& p_RecvData);
         void HandleGarrisonGetShipmentInfoOpcode(WorldPacket& p_RecvData);
         void HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData);
+#ifdef CROSS
+        void HandleGarrisonGetShipmentsOpcode(WorldPacket& p_RecvData);
+#endif /* CROSS */
         void HandleGarrisonFollowerRename(WorldPacket& p_RecvData);
         void HandleGarrisonDecommisionShip(WorldPacket& p_RecvData);
 
@@ -1294,6 +1425,7 @@ class WorldSession
         void HandleGetChallengeModeRewards(WorldPacket& p_RecvData);
         void HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData);
         void HandleChallengeModeRequestMapStats(WorldPacket& p_RecvData);
+#ifndef CROSS
 
         //////////////////////////////////////////////////////////////////////////
         /// Battlepay
@@ -1303,6 +1435,7 @@ class WorldSession
         void HandleBattlePayStartPurchase(WorldPacket& p_RecvData);
         void HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData);
 
+#endif /* not CROSS */
         void SendChallengeModeMapStatsUpdate(uint32 p_MapID);
 
         /// Auto sort bags.
@@ -1311,6 +1444,11 @@ class WorldSession
         /// Gms command cooldowns (performances)
         time_t m_TimeLastTicketOnlineList;
 
+#ifdef CROSS
+        /// Cross related
+        void LoadCharacter(CharacterPortData const& p_CharacterPortData);
+        void LoadCharacterDone(LoginQueryHolder* p_CharHolder, LoginDBQueryHolder* p_AuthHolder);
+#endif /* CROSS */
         void SetStressTest(bool p_Value) { m_IsStressTestSession = p_Value; }
         bool IsStressTest() const { return m_IsStressTestSession; }
 
@@ -1323,6 +1461,16 @@ class WorldSession
         PreparedQueryResultFuture m_CharEnumCallback;
         PreparedQueryResultFuture m_AddIgnoreCallback;
 
+#ifdef CROSS
+        struct BattlegroundLeaveData
+        {
+            uint64 PlayerGuid;
+            uint8 desertir;
+        };
+
+        BattlegroundLeaveData _battlegroundLeaveData;
+
+#endif /* CROSS */
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;
         QueryCallback<PreparedQueryResult, uint32> _setPetSlotCallback;
@@ -1347,6 +1495,7 @@ class WorldSession
         std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
         std::mutex m_PreparedStatementCallbackLock;
 
+#ifndef CROSS
         /// Cross realm sync data
         BattlegroundPortData _battlegroundPortData;
         CrossPartyInfo m_CrossPartyInfo;
@@ -1354,6 +1503,7 @@ class WorldSession
         bool m_BackFromCross;
         std::list<std::string> m_SpecialChannelsSave;
 
+#endif /* not CROSS */
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
@@ -1373,8 +1523,16 @@ class WorldSession
         std::set<uint32> _allowedCharsToLogin;
 
         uint32 m_GUIDLow;                                   // set loggined or recently logout player (while m_playerRecentlyLogout set)
+#ifdef CROSS
+        uint64 m_GUID;
+        uint64 m_RealGUID; 
+#endif /* CROSS */
         Player* m_Player;
+#ifndef CROSS
         WorldSocket* m_Socket;
+#else /* CROSS */
+        InterRealmClient* m_ir_socket;
+#endif /* CROSS */
         std::string m_Address;
 
         AccountTypes _security;
@@ -1384,6 +1542,15 @@ class WorldSession
         uint16 m_ClientBuild;
 
         uint64 m_AccountJoinDate;
+#ifdef CROSS
+
+        bool m_isinIRBG;
+        std::string m_ir_server_name;
+        bool m_ir_closing;
+        uint32 m_ir_number;
+        uint8 m_RemoveType;
+        uint8 m_RemoveProgress;
+#endif /* CROSS */
 
         //////////////////////////////////////////////////////////////////////////
         /// Premium

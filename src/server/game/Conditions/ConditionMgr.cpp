@@ -16,7 +16,9 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 
 // Checks if object meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: SmartAI)
@@ -282,6 +284,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_SPAWNMASK:
         {
             condMeets = ((1 << object->GetMap()->GetSpawnMode()) & ConditionValue1);
+#ifndef CROSS
             break;
         }
         case CONDITION_HAS_BUILDING_TYPE:
@@ -318,6 +321,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
                     condMeets = l_GarrisonMgr->GetGarrisonLevel() >= ConditionValue1;
             }
+#endif /* not CROSS */
             break;
         }
         default:

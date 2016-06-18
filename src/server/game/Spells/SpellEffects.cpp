@@ -54,14 +54,20 @@
 #include "GameObjectAI.h"
 #include "AccountMgr.h"
 #include "InstanceScript.h"
+#ifndef CROSS
 #include "Guild.h"
+#endif /* not CROSS */
 #include "GuildMgr.h"
 #include "ArchaeologyMgr.hpp"
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 #include "PetBattle.h"
 #include "PathGenerator.h"
 #include "Chat.h"
+#ifndef CROSS
 #include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
+#endif /* not CROSS */
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
 {
@@ -2119,8 +2125,14 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, bool vellum)
             player->UpdateCraftSkill(m_spellInfo->Id);
     }
 
+#ifndef CROSS
     if (Guild* l_Guild = player->GetGuild())
         l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD, 1, 0, 0, nullptr, player);
+#else /* CROSS */
+    /// @TODO: cross sync
+    //if (Guild* l_Guild = player->GetGuild())
+        //l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD, 1, 0, 0, nullptr, player);
+#endif /* CROSS */
 }
 
 void Spell::EffectCreateItem(SpellEffIndex effIndex)
@@ -2526,9 +2538,11 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     {
         GameObjectTemplate const* goInfo = gameObjTarget->GetGOInfo();
 
+#ifndef CROSS
         if (goInfo->type == GAMEOBJECT_TYPE_GOOBER && player->GetGarrison())
             player->GetGarrison()->SetLastUsedActivationGameObject(gameObjTarget->GetGUID());
 
+#endif /* not CROSS */
         // Arathi Basin banner opening. // TODO: Verify correctness of this check
         if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
             (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.requireLOS) ||
@@ -7215,6 +7229,7 @@ void Spell::EffectGiveCurrency(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
+#ifndef CROSS
     /// Champion's Honor (sell in shop) must bypass week cap limit
     if (m_spellInfo->Id == 190471)
     {
@@ -7222,6 +7237,7 @@ void Spell::EffectGiveCurrency(SpellEffIndex effIndex)
         return;
     }
 
+#endif /* not CROSS */
     unitTarget->ToPlayer()->ModifyCurrency(m_spellInfo->Effects[effIndex].MiscValue, damage);
 }
 
@@ -7498,10 +7514,21 @@ void Spell::EffectUnlockGuildVaultTab(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
+#ifdef CROSS
+    /// @TODO: cross sync
+#endif /* CROSS */
     // Safety checks done in Spell::CheckCast
+#ifndef CROSS
     Player* caster = m_caster->ToPlayer();
+#else /* CROSS */
+    /*Player* caster = m_caster->ToPlayer();
+#endif /* CROSS */
     if (Guild* guild = caster->GetGuild())
+#ifndef CROSS
         guild->HandleBuyBankTab(caster->GetSession(), m_spellInfo->Effects[effIndex].BasePoints - 1); // Bank tabs start at zero internally
+#else /* CROSS */
+        guild->HandleBuyBankTab(caster->GetSession(), m_spellInfo->Effects[effIndex].BasePoints - 1); // Bank tabs start at zero internally*/
+#endif /* CROSS */
 }
 
 void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
@@ -7802,6 +7829,7 @@ void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)
 
 void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
 {
+#ifndef CROSS
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -7840,10 +7868,12 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
     }
     else
         SendCastResult(SPELL_FAILED_BLUEPRINT_KNOWN);
+#endif /* not CROSS */
 }
 
 void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
 {
+#ifndef CROSS
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -7883,10 +7913,12 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
     }
     else
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
+#endif /* not CROSS */
 }
 
 void Spell::EffectCreateGarrison(SpellEffIndex /*p_EffIndex*/)
 {
+#ifndef CROSS
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -7930,10 +7962,12 @@ void Spell::EffectCreateGarrison(SpellEffIndex /*p_EffIndex*/)
     l_TargetPlayer->GetGarrison()->AddFollower(89);
     l_TargetPlayer->GetGarrison()->AddFollower(92);
 
+#endif /* not CROSS */
 }
 
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex /*p_EffIndex*/)
 {
+#ifndef CROSS
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -7951,10 +7985,12 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex /*p_EffIndex*/)
         return;
 
     l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
+#endif /* not CROSS */
 }
 
 void Spell::EffectRerollFollowerAbilities(SpellEffIndex /*p_EffIndex*/)
 {
+#ifndef CROSS
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -7967,12 +8003,15 @@ void Spell::EffectRerollFollowerAbilities(SpellEffIndex /*p_EffIndex*/)
         return;
 
     MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+#endif /* not CROSS */
 
+#ifndef CROSS
     if (l_GarrisonMgr == nullptr)
         return;
 
     if (MS::Garrison::GarrisonFollower* l_Follower = l_GarrisonMgr->GetFollower(m_Misc[0]))
         l_GarrisonMgr->GenerateFollowerAbilities(l_Follower->DatabaseID, true, true, true, true);
+#endif /* not CROSS */
 }
 
 void Spell::EffectGiveExperience(SpellEffIndex /*p_EffIndex*/)
@@ -8012,6 +8051,7 @@ void Spell::EffectGiveExperience(SpellEffIndex /*p_EffIndex*/)
 
 void Spell::EffectGarrisonFinalize(SpellEffIndex /*p_EffIndex*/)
 {
+#ifndef CROSS
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -8027,6 +8067,7 @@ void Spell::EffectGarrisonFinalize(SpellEffIndex /*p_EffIndex*/)
         return;
 
     l_Player->ToPlayer()->GetGarrison()->ActivateBuilding();
+#endif /* not CROSS */
 }
 
 void Spell::EffectIncreaseSkill(SpellEffIndex p_EffIndex)
@@ -8310,6 +8351,7 @@ void Spell::EffectApplyEnchantIllusion(SpellEffIndex p_EffIndex)
 
 void Spell::EffectLearnFollowerAbility(SpellEffIndex p_EffIndex)
 {
+#ifndef CROSS
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
@@ -8324,6 +8366,7 @@ void Spell::EffectLearnFollowerAbility(SpellEffIndex p_EffIndex)
         return;
 
     l_Garrison->LearnFollowerTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), p_EffIndex);
+#endif /* not CROSS */
 }
 
 void Spell::EffectUpgradeHeirloom(SpellEffIndex /*p_EffIndex*/)
@@ -8381,6 +8424,7 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex /*p_EffIndex*/)
 
 void Spell::EffectFinishGarrisonMission(SpellEffIndex /*p_EffIndex*/)
 {
+#ifndef CROSS
     if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
@@ -8397,18 +8441,22 @@ void Spell::EffectFinishGarrisonMission(SpellEffIndex /*p_EffIndex*/)
             {
                 if (l_Mission->State == MS::Garrison::MissionStates::InProgress)
                     l_Mission->StartTime = time(0) - (l_GarrisonMgr->GetMissionTravelDuration(l_Mission->MissionID) + l_GarrisonMgr->GetMissionDuration(l_Mission->MissionID));
+#endif /* not CROSS */
 
+#ifndef CROSS
                 WorldPacket l_PlaceHolder;
                 l_Player->GetSession()->HandleGetGarrisonInfoOpcode(l_PlaceHolder);
             }
         }
     }
+#endif /* not CROSS */
 }
 
 void Spell::EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_HIT)
         return;
+#ifndef CROSS
 
     if (Player* l_Player = m_caster->ToPlayer())
     {
@@ -8451,6 +8499,7 @@ void Spell::EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex)
             }
         }
     }
+#endif /* not CROSS */
 }
 
 void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)

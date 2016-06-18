@@ -28,20 +28,41 @@ enum NameQueryResponse
     NAME_QUERY_RESULT_RETRY = 2,
 };
 
+#ifndef CROSS
 void WorldSession::SendNameQueryOpcode(uint64 guid)
+#else /* CROSS */
+void WorldSession::SendNameQueryOpcode(uint64 guid, bool atLeave)
+#endif /* CROSS */
 {
+#ifndef CROSS
     Player* player = ObjectAccessor::FindPlayer(guid);
     CharacterInfo  const* nameData = sWorld->GetCharacterInfo(GUID_LOPART(guid));
+#else /* CROSS */
+    Player* player = ObjectAccessor::FindPlayerInOrOutOfWorld(guid);
+    InterRealmClient* playerClient = player ? player->GetSession()->GetInterRealmClient() : nullptr;
+#endif /* CROSS */
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE);
 
+#ifndef CROSS
     data << uint8(nameData ? NAME_QUERY_RESULT_OK : NAME_QUERY_RESULT_DENY);
+#else /* CROSS */
+    data << uint8(playerClient ? NAME_QUERY_RESULT_OK : NAME_QUERY_RESULT_DENY);
+#endif /* CROSS */
     data.appendPackGUID(guid);
 
+#ifndef CROSS
     if (nameData)
+#else /* CROSS */
+    if (playerClient)
+#endif /* CROSS */
     {
         data.WriteBit(false);   ///< Is deleted
+#ifndef CROSS
         data.WriteBits(nameData->Name.size(), 6);
+#else /* CROSS */
+        data.WriteBits(strlen(player->GetName()), 6);
+#endif /* CROSS */
 
         if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
         {
@@ -67,13 +88,25 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
         data.appendPackGUID(player ? player->GetSession()->GetBNetAccountGUID() : 0);
         data.appendPackGUID(guid);
 
+#ifndef CROSS
         data << uint32(g_RealmID);
         data << uint8(nameData->Race);
         data << uint8(nameData->Sex);
         data << uint8(nameData->Class);
         data << uint8(nameData->Level);
+#else /* CROSS */
+        data << uint32(playerClient->GetRealmId());
+        data << uint8(player->getRace());
+        data << uint8(player->getGender());
+        data << uint8(player->getClass());
+        data << uint8(player->getLevel());
+#endif /* CROSS */
 
+#ifndef CROSS
         data.WriteString(nameData->Name);
+#else /* CROSS */
+        data.WriteString(player->GetName());
+#endif /* CROSS */
     }
 
     SendPacket(&data);

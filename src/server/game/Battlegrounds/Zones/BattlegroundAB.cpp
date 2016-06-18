@@ -227,6 +227,7 @@ void BattlegroundAB::HandleAreaTrigger(Player* Source, uint32 Trigger)
 
     switch (Trigger)
     {
+#ifndef CROSS
         case 3948:                                          // Arathi Basin Alliance Exit.
             if (Source->GetBGTeam() == ALLIANCE)
                 Source->LeaveBattleground();
@@ -235,6 +236,7 @@ void BattlegroundAB::HandleAreaTrigger(Player* Source, uint32 Trigger)
             if (Source->GetBGTeam() == HORDE)
                 Source->LeaveBattleground();
             break;
+#endif /* not CROSS */
         case 3866:                                          // Stables
         case 3869:                                          // Gold Mine
         case 3867:                                          // Farm

@@ -1302,6 +1302,9 @@ class CharmInfo
         ~CharmInfo();
         void RestoreState();
         uint32 GetPetNumber() const { return m_petnumber; }
+#ifdef CROSS
+        uint32 GetRealmPetNumber() const { return m_RealmPetNumber; }
+#endif /* CROSS */
         void SetPetNumber(uint32 petnumber, bool statwindow);
 
         void SetCommandState(CommandStates st) { m_CommandState = st; }
@@ -1353,6 +1356,9 @@ class CharmInfo
         CharmSpellInfo     m_charmspells[4];
         CommandStates      m_CommandState;
         uint32             m_petnumber;
+#ifdef CROSS
+        uint32             m_RealmPetNumber;
+#endif /* CROSS */
         bool               m_barInit;
         CharmType          m_CharmType;
 
@@ -2740,6 +2746,11 @@ class Unit : public WorldObject
         bool m_LastOutdoorStatus;
         bool IsOutdoors();
 
+#ifdef CROSS
+        int32 GetMapSwitchDestination() const { return m_MapSwitchDestination; }
+        void SetMapSwitchDestination(int32 p_MapId) { m_MapSwitchDestination = p_MapId; }
+
+#endif /* CROSS */
     public:
         uint64 _petBattleId;
 
@@ -2925,6 +2936,10 @@ class Unit : public WorldObject
         bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
 
         time_t _lastDamagedTime;
+#ifdef CROSS
+
+        int32 m_MapSwitchDestination;
+#endif /* CROSS */
 };
 
 namespace JadeCore

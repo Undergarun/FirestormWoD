@@ -1276,7 +1276,11 @@ bool LFGMgr::CheckCompatibility(LfgGuidList p_Check, LfgProposal*& p_Proposal, L
             for (PlayerSet::const_iterator itPlayer = players.begin(); itPlayer != players.end() && player; ++itPlayer)
             {
                 // Do not form a group with ignoring candidates
+#ifndef CROSS
                 if (player->GetSocial()->HasIgnore((*itPlayer)->GetGUIDLow()) || (*itPlayer)->GetSocial()->HasIgnore(player->GetGUIDLow()))
+#else /* CROSS */
+                if ((player->GetSocial() && player->GetSocial()->HasIgnore((*itPlayer)->GetGUIDLow())) || ((*itPlayer)->GetSocial() && (*itPlayer)->GetSocial()->HasIgnore(player->GetGUIDLow())))
+#endif /* CROSS */
                 {
                     player = NULL;
                 }

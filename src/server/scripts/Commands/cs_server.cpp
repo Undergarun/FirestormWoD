@@ -96,16 +96,23 @@ public:
 
     static bool HandleServerInfoCommand(ChatHandler* p_Handler, char const* /*args*/)
     {
+#ifndef CROSS
         uint32 l_ActiveClientsNum     = sWorld->GetActiveSessionCount();
         uint32 l_QueuedClientsNum     = sWorld->GetQueuedSessionCount();
         uint32 l_MaxActiveClientsNum  = sWorld->GetMaxActiveSessionCount();
         uint32 l_MaxQueuedClientsNum  = sWorld->GetMaxQueuedSessionCount();
+#endif /* not CROSS */
         std::string l_Uptime          = secsToTimeString(sWorld->GetUptime());
         uint32 l_UpdateTime           = sWorld->GetUpdateTime();
 
+#ifdef CROSS
+        p_Handler->PSendSysMessage("Firestorm WoD 6.2.3 (Cross)");
+#endif /* CROSS */
         p_Handler->PSendSysMessage(GitRevision::GetFullVersion());
         p_Handler->PSendSysMessage(GitRevision::GetDate());
+#ifndef CROSS
         p_Handler->PSendSysMessage(LANG_CONNECTED_USERS, l_ActiveClientsNum, l_MaxActiveClientsNum, l_QueuedClientsNum, l_MaxQueuedClientsNum);
+#endif /* not CROSS */
         p_Handler->PSendSysMessage(LANG_UPTIME, l_Uptime.c_str());
         p_Handler->PSendSysMessage("Server delay: %u ms", l_UpdateTime);
 

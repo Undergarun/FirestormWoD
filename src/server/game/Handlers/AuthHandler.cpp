@@ -123,11 +123,19 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
             l_Data.WriteBit(true);                                          ///< Is Locale
             l_Data.WriteBit(false);                                         ///< Is Internal
             l_Data.WriteBits(sWorld->GetRealmName().size(), 8);             ///< Realm Name Actual
+#ifndef CROSS
             l_Data.WriteBits(sWorld->GetNormalizedRealmName().size(), 8);   ///< Realm Name Normalized
+#else /* CROSS */
+            l_Data.WriteBits(sWorld->GetRealmName().size(), 8);             ///< Realm Name Normalized
+#endif /* CROSS */
             l_Data.FlushBits();
 
             l_Data.WriteString(sWorld->GetRealmName());                     ///< Realm Name Actual
+#ifndef CROSS
             l_Data.WriteString(sWorld->GetNormalizedRealmName());           ///< Realm Name Normalized
+#else /* CROSS */
+            l_Data.WriteString(sWorld->GetRealmName());                     ///< Realm Name Normalized
+#endif /* CROSS */
         }
 
         for (uint32 l_I = 0; l_I < sizeof(gExpansionPerRace); ++l_I)

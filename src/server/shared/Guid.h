@@ -29,7 +29,11 @@ enum HighGuid
     HIGHGUID_VIGNETTE           = 0x200,
     HIGHGUID_BATTLE_PET         = 0x201,
     HIGHGUID_MAIL               = 0x800,                        // Custom, used for cross <-> local realm sync
+#ifndef CROSS
     HIGHGUID_PET_NUMBER         = 0x900,                        // Custom, used for cross <-> local realm sync
+#else /* CROSS */
+    HIGHGUID_PET_NUMBER         = 0x900,                        // Custom, usef for cross <-> local realm sync
+#endif /* CROSS */
     HIGHGUID_EQUIPMENT_SET      = 0x700
 };
 

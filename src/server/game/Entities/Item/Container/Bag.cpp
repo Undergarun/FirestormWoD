@@ -68,6 +68,17 @@ bool Bag::Create(uint32 guidlow, uint32 itemid, Player const* owner)
 
     Object::_Create(guidlow, 0, HIGHGUID_CONTAINER);
 
+#ifdef CROSS
+    if (owner)
+    {
+        uint32 l_LocalRealmGuid = InterRealmClient::GetIRClient((Player*)owner)->GenerateLocalRealmLowGuid(HIGHGUID_ITEM);
+        if (l_LocalRealmGuid == 0)
+            ((Player*)owner)->AddItemToGuidSync(GetGUID());
+        else
+            SetRealGUID(MAKE_NEW_GUID(l_LocalRealmGuid, 0, HIGHGUID_ITEM));
+    }
+
+#endif /* CROSS */
     SetEntry(itemid);
     SetObjectScale(1.0f);
 

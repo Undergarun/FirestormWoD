@@ -648,12 +648,14 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_LOAD_STORE_PROFESSION,    "SELECT skill, recipe FROM store_profession WHERE guid = ?",                                   CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_STORE_PROFESSION,     "DELETE FROM store_profession WHERE guid = ? AND skill = ?",                                   CONNECTION_ASYNC);
 
+#ifndef CROSS
     /// Black Market
     PREPARE_STATEMENT(CHAR_INS_BLACKMARKET_AUCTION, "INSERT INTO blackmarket VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_BLACKMARKET_AUCTION, "DELETE FROM blackmarket WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_UPD_BLACKMARKET_AUCTION, "UPDATE blackmarket SET bid = ?, bidder = ?, bidderCount = ? WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_SEL_BLACKMARKET_AUCTIONS, "SELECT id, templateId, startTime, bid, bidder, bidderCount FROM blackmarket", CONNECTION_SYNCH);
 
+#endif /* not CROSS */
     //////////////////////////////////////////////////////////////////////////
     /// Garrison
     //////////////////////////////////////////////////////////////////////////

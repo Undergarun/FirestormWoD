@@ -271,13 +271,21 @@ class ByteBuffer
         const static size_t DEFAULT_SIZE = 0x1000;
 
         // constructor
+#ifndef CROSS
         ByteBuffer() : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0)
+#else /* CROSS */
+        ByteBuffer() : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0), isTunneled(false)
+#endif /* CROSS */
         {
             _storage.reserve(DEFAULT_SIZE);
             m_BaseSize = DEFAULT_SIZE;
         }
 
+#ifndef CROSS
         ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0)
+#else /* CROSS */
+        ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0), isTunneled(false)
+#endif /* CROSS */
         {
             _storage.reserve(reserve);
             m_BaseSize = reserve;
@@ -285,8 +293,20 @@ class ByteBuffer
 
         // copy constructor
         ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
+#ifndef CROSS
             _wbitpos(buf._wbitpos), _rbitpos(8), _curbitval(buf._curbitval), m_BaseSize(buf.m_BaseSize), _storage(buf._storage)
+#else /* CROSS */
+            _wbitpos(buf._wbitpos), _rbitpos(8), _curbitval(buf._curbitval), m_BaseSize(buf.m_BaseSize), _storage(buf._storage), isTunneled(false)
+
         {
+        }
+
+        void SetTunneled(bool val)
+#endif /* CROSS */
+        {
+#ifdef CROSS
+            isTunneled = val;
+#endif /* CROSS */
         }
 
         void clear()
@@ -298,6 +318,7 @@ class ByteBuffer
             _rbitpos = 8;
         }
 
+#ifndef CROSS
         void eraseFirst(int num)
         {
             if ((int)_storage.size() >= num)
@@ -307,6 +328,7 @@ class ByteBuffer
             }
         }
 
+#endif /* not CROSS */
         template <typename T> void append(T value)
         {
             FlushBits();
@@ -745,7 +767,21 @@ class ByteBuffer
         const uint8 *contents() const { return &_storage[0]; }
 
         size_t size() const { return _storage.size(); }
+#ifndef CROSS
         bool empty() const { return _storage.empty(); }
+#else /* CROSS */
+        bool empty() const
+        {
+            // we have 10 bytes for tunneled packets
+            // InterRealmClient::Handle_TunneledPacket
+            if (isTunneled)
+            {
+                return _storage.size() <= 10;
+            }
+
+            return _storage.empty();
+        }
+#endif /* CROSS */
 
         void resize(size_t newsize)
         {
@@ -887,6 +923,9 @@ class ByteBuffer
         uint8 _curbitval;
         uint32 m_BaseSize;
         std::vector<uint8> _storage;
+#ifdef CROSS
+        bool isTunneled;
+#endif /* CROSS */
 };
 
 template <typename T>

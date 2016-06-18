@@ -562,6 +562,10 @@ class BattlegroundSA : public Battleground
         uint32 GetMaxScore() const { return 3; }
         bool IsScoreIncremental() const { return true; }
 
+#ifdef CROSS
+        uint32 GetZoneId() const { return BATTLEGROUND_SA_ZONEID; }
+
+#endif /* CROSS */
     private:
 
         /**

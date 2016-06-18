@@ -114,6 +114,9 @@ class BattlegroundRV : public Battleground
         bool SetupBattleground();
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* player);
+#ifdef CROSS
+        uint32 GetZoneId() const { return BATTLEGROUND_RV_ZONEID; }
+#endif /* CROSS */
 
     private:
         uint32 Timer;

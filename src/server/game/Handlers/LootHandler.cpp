@@ -245,7 +245,12 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 (*i)->ModifyMoney(l_GoldPerPlayer);
                 (*i)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, l_GoldPerPlayer);
 
+#ifndef CROSS
                 if ((*i)->HasAuraType(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT))
+#else /* CROSS */
+                /// @TODO: cross sync
+                /*if ((*i)->HasAuraType(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT))
+#endif /* CROSS */
                 {
                     if (Guild* guild = sGuildMgr->GetGuildById((*i)->GetGuildId()))
                     {
@@ -261,7 +266,11 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                         if (guildGold)
                             guild->DepositMoney(guildGold);
                     }
+#ifndef CROSS
                 }
+#else /* CROSS */
+                }*/
+#endif /* CROSS */
 
                 WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
                 data << uint32(l_GoldPerPlayer);
@@ -277,7 +286,12 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
             if (player->HasAuraType(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT))
             {
+#ifndef CROSS
                 if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
+#else /* CROSS */
+                /// @TODO: sync cross
+                /*if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
+#endif /* CROSS */
                 {
                     uint64 guildGold = uint64(CalculatePct(loot->Gold, player->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)));
                     if (guildGold > MAX_MONEY_AMOUNT)
@@ -290,7 +304,11 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
                     if (guildGold)
                         guild->DepositMoney(guildGold);
+#ifndef CROSS
                 }
+#else /* CROSS */
+                }*/
+#endif /* CROSS */
             }
 
             loot->NotifyMoneyRemoved();

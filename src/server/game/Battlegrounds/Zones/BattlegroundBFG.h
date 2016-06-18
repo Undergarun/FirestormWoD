@@ -224,6 +224,9 @@ class BattlegroundBFG : public Battleground
         uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
         uint32 GetMaxScore() const { return GILNEAS_BG_MAX_TEAM_SCORE; }
         bool IsScoreIncremental() const { return true; }
+#ifdef CROSS
+        uint32 GetZoneId() const { return BATTLEGROUND_BFG_ZONEID; }
+#endif /* CROSS */
 
     private:
         virtual void PostUpdateImpl(uint32 diff);

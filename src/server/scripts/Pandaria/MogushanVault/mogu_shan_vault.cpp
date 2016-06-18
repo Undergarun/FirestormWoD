@@ -1176,7 +1176,18 @@ class npc_lorewalker_cho : public CreatureScript
                         Map::PlayerList const& players = me->GetMap()->GetPlayers();
                         // Previous boss not done
                         if (!pInstance->CheckRequiredBosses(DATA_ELEGON))
+#ifdef CROSS
+                        {
+                            sLog->outAshran("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
+                            sLog->outAshran("CheckRequiredBosses fail, player in raid : ");
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                sLog->outAshran("Player[%u] : %s", itr->getSource()->GetGUIDLow(), itr->getSource()->GetName());
+                            sLog->outAshran("=============================================");
+#endif /* CROSS */
                             break;
+#ifdef CROSS
+                        }
+#endif /* CROSS */
                         else
                         {
                             Talk(25);

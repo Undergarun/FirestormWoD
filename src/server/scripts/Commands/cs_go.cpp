@@ -16,7 +16,9 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "MapManager.h"
+#ifndef CROSS
 #include "TicketMgr.h"
+#endif /* not CROSS */
 #include "Chat.h"
 
 class go_commandscript: public CommandScript
@@ -528,7 +530,11 @@ public:
 
     static bool HandleGoTicketCommand(ChatHandler* handler, char const* args)
     {
+#ifndef CROSS
         if (!*args)
+#else /* CROSS */
+        /*if (!*args)
+#endif /* CROSS */
             return false;
 
         char* id = strtok((char*)args, " ");
@@ -555,7 +561,11 @@ public:
         else
             player->SaveRecallPosition();
 
+#ifndef CROSS
         ticket->TeleportTo(player);
+#else /* CROSS */
+        ticket->TeleportTo(player);*/
+#endif /* CROSS */
         return true;
     }
 

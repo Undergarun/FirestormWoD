@@ -13,7 +13,9 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "VMapManager2.h"
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 
 namespace DisableMgr
 {
@@ -392,7 +394,9 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
         case DISABLE_TYPE_BATTLEGROUND:
         case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
+#ifndef CROSS
         case DISABLE_TYPE_GARRISON_MISSION:
+#endif /* not CROSS */
             return true;
         case DISABLE_TYPE_VMAP:
            return flags & itr->second.flags;

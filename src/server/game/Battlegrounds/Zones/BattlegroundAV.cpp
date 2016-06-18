@@ -510,6 +510,7 @@ void BattlegroundAV::HandleAreaTrigger(Player* Source, uint32 Trigger)
     uint32 SpellId = 0;
     switch (Trigger)
     {
+#ifndef CROSS
         case 95:
         case 2608:
             if (Source->GetTeam() == ALLIANCE)
@@ -519,6 +520,7 @@ void BattlegroundAV::HandleAreaTrigger(Player* Source, uint32 Trigger)
             if (Source->GetTeam() == HORDE)
                 Source->LeaveBattleground();
             break;
+#endif /* not CROSS */
         case 3326:
         case 3327:
         case 3328:
