@@ -229,7 +229,10 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
             break;
 		case 153478: ///< Holy Shield
 			Position l_Position;
+			l_Position.m_positionX = this->m_positionX + 1 * cos(this->GetAngle(m_Caster));
+			l_Position.m_positionY = this->m_positionY + 1 * cos(this->GetAngle(m_Caster));
 
+			this->MovePosition(l_Position, 1.0f, this->GetAngle(m_Caster));
 			break;
         default:
             break;
