@@ -144,6 +144,9 @@ class EventNyamiEscape : public BasicEvent
                                     }
                                     case 1:
                                     {
+										if (GameObject* l_Crystal = l_Instance->instance->GetGameObject(l_Instance->GetData64(eAuchindounDatas::DataCrystal)))
+											l_Crystal->Delete();
+
                                         /// Cosmetic crystal projectiles flies toward the middle
                                         if (Creature* l_Teronoger = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
                                         {
@@ -168,6 +171,22 @@ class EventNyamiEscape : public BasicEvent
                                     }
                                     case 2:
                                     {
+										/// Cosmetic crystal projectiles flies toward the middle
+										if (Creature* l_Teronoger = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+										{
+											for (uint8 l_I = 0; l_I < 30; l_I++)
+											{
+												if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
+												{
+													G3D::Vector3 l_Source(1911.741f, 3183.639f, 56.50413f);
+													G3D::Vector3 l_Dest(l_Teronoger->m_positionX, l_Teronoger->m_positionY, l_Teronoger->m_positionZ);
+													G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
+
+													l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 8.0f);
+												}
+											}
+										}
+
 										if (Creature* l_AuchindounProtection = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureShieldStalker, 1000.0f, true))
 											l_AuchindounProtection->DespawnOrUnsummon();
 
@@ -272,7 +291,8 @@ public:
                                 if (Creature* l_Magus = m_Obj->SummonCreature(eAuchindounCreatures::CreatureAucheniMagus, g_PositionMageSpawning, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                                 {
                                     l_Magus->GetMotionMaster()->MovePoint(0, g_PositionMageMoveTo);
-                                    l_Magus->m_Events.AddEvent(new EventPostKaathar(l_Magus, 1), l_Magus->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));							
+                                    l_Magus->m_Events.AddEvent(new EventPostKaathar(l_Magus, 1), l_Magus->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));			
+									l_Magus->m_Events.AddEvent(new EventPostKaathar(l_Magus, 2), l_Magus->m_Events.CalculateTime(20 * TimeConstants::IN_MILLISECONDS));
                                 }                      
                                 break;
                             }
@@ -341,28 +361,6 @@ public:
 									}
 								}
 
-								/// Phases Teronogor and all the other creatures back to phase 1
-								uint32 l_CreaturesTeronogorPhaseIn[7] = { eAuchindounCreatures::CreatureZipteq, eAuchindounCreatures::CreatureZashoo, eAuchindounCreatures::CreatureShaadum,
-									eAuchindounCreatures::CreatureGromtashTheDestructor, eAuchindounCreatures::CreatureGulkosh, eAuchindounCreatures::CreatureDurem, eAuchindounBosses::BossTeronogor };
-
-								std::list<Creature*> l_CreaturesTeronogorPhaseInList;
-
-								for (uint8 l_I = 0; l_I < 7; l_I++)
-								{
-									l_Tuulani->GetCreatureListWithEntryInGrid(l_CreaturesTeronogorPhaseInList, l_CreaturesTeronogorPhaseIn[l_I], 700.0f);
-								}
-
-								if (!l_CreaturesTeronogorPhaseInList.empty())
-								{
-									for (Creature* l_Itr : l_CreaturesTeronogorPhaseInList)
-									{
-										if (!l_Itr)
-											continue;
-
-										l_Itr->SetPhaseMask(1, true);
-									}
-								}
-
 								uint32 l_EntriesOfSargereiDraeneis[8] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
 									eAuchindounCreatures::CreatureSargeriSoulPriest, eAuchindounCreatures::CreatureSargeriWarden,
 									eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating, eAuchindounCreatures::CreatureWardenAzzakael, eAuchindounBosses::BossNyami };
@@ -387,6 +385,31 @@ public:
 								/// Magus
 								m_Obj->CastSpell(m_Obj, eAuchindounSpells::SpellArcaneChanneling);
 								m_Obj->SummonGameObject(eAuchindounObjects::GameobjectTaladorPortal, g_PositionTuulaniGobjectPortalSpawn.GetPositionX(), g_PositionTuulaniGobjectPortalSpawn.GetPositionY(), g_PositionTuulaniGobjectPortalSpawn.GetPositionZ(), g_PositionTuulaniGobjectPortalSpawn.GetOrientation(), 0, 0, 0, 0, 0);
+								break;
+							}
+							case 2:
+							{
+								/// Phases Teronogor and all the other creatures back to phase 1
+								uint32 l_CreaturesTeronogorPhaseIn[7] = { eAuchindounCreatures::CreatureZipteq, eAuchindounCreatures::CreatureZashoo, eAuchindounCreatures::CreatureShaadum,
+									eAuchindounCreatures::CreatureGromtashTheDestructor, eAuchindounCreatures::CreatureGulkosh, eAuchindounCreatures::CreatureDurem, eAuchindounBosses::BossTeronogor };
+
+								std::list<Creature*> l_CreaturesTeronogorPhaseInList;
+
+								for (uint8 l_I = 0; l_I < 7; l_I++)
+								{
+									l_Tuulani->GetCreatureListWithEntryInGrid(l_CreaturesTeronogorPhaseInList, l_CreaturesTeronogorPhaseIn[l_I], 700.0f);
+								}
+
+								if (!l_CreaturesTeronogorPhaseInList.empty())
+								{
+									for (Creature* l_Itr : l_CreaturesTeronogorPhaseInList)
+									{
+										if (!l_Itr)
+											continue;
+
+										l_Itr->SetPhaseMask(1, true);
+									}
+								}
 								break;
 							}
                             default:
@@ -627,6 +650,8 @@ class boss_kaathar : public CreatureScript
                     l_Itr->PlayScene(eAuchindounScenes::SpellAuchindounSceneTeronogorSpawn, l_Itr);
                 }               
             }
+
+
 
             /// Phases Teronogor and all the other creatures back to phase 1
             uint32 l_CreaturesTeronogorPhaseIn[7] = { eAuchindounCreatures::CreatureZipteq, eAuchindounCreatures::CreatureZashoo, eAuchindounCreatures::CreatureShaadum,

@@ -146,11 +146,13 @@ class EventTuulaniIntroduction : public BasicEvent
 
                                     l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 15, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(12 * TimeConstants::IN_MILLISECONDS));
                                     l_Tuulina->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani09, g_PositionTuulaniMovements[9]);
+
+									l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 12, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(5 * TimeConstants::IN_MILLISECONDS));
+
                                     break;
                                 }
                                 case 12:
-                                {
-								
+								{							
 
                                     l_Tuulina->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani10, g_PositionTuulaniMovements[10]);
                                     break;

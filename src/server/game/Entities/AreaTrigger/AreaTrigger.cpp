@@ -18,6 +18,7 @@
 #include "ScriptedCreature.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "MoveSplineInit.h"
 
 AreaTrigger::AreaTrigger()
     : WorldObject(false),
@@ -226,6 +227,10 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
         case 153690: ///< Necrotic Pitch
             this->SummonCreature(76191, *this, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60 * TimeConstants::IN_MILLISECONDS);
             break;
+		case 153478: ///< Holy Shield
+			Position l_Position;
+
+			break;
         default:
             break;
     }
