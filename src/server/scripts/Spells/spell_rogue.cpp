@@ -2769,6 +2769,33 @@ class PlayerScript_ruthlessness : public PlayerScript
         }
 };
 
+/// Last Update 6.2.3
+class PlayerScript_stealth : public PlayerScript
+{
+    public:
+        PlayerScript_stealth() : PlayerScript("PlayerScript_stealth") { }
+
+        enum eSpells
+        {
+            Stealth                 = 1784,
+            StealthSubterfuge       = 115191,
+            StealthShapeshift       = 158188,
+            StealthSubterfugeEffect = 115192
+        };
+
+        void OnEnterBG(Player* p_Player, uint32 p_MapID)
+        {
+            if (p_Player->getClass() != CLASS_ROGUE)
+                return;
+
+            /// We should remove the resting stealth aura
+            p_Player->RemoveAura(eSpells::Stealth);
+            p_Player->RemoveAura(eSpells::StealthSubterfuge);
+            p_Player->RemoveAura(eSpells::StealthShapeshift);
+            p_Player->RemoveAura(eSpells::StealthSubterfugeEffect);
+        }
+};
+
 /// Feint - 1966
 class spell_rog_feint : public SpellScriptLoader
 {
@@ -3615,5 +3642,6 @@ void AddSC_rogue_spell_scripts()
 
     /// Player Scripts
     new PlayerScript_ruthlessness();
+    new PlayerScript_stealth();
 }
 #endif
