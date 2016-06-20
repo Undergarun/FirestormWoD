@@ -18186,7 +18186,7 @@ Quest const* Player::GetNextQuest(uint64 p_Guid, Quest const* p_Quest)
         case TYPEID_PLAYER:
         {
             if (Player* l_Player = l_Object->ToPlayer())
-                return sObjectMgr->GetQuestTemplate(p_Quest->GetNextQuestId());
+                return sObjectMgr->GetQuestTemplate(p_Quest->GetNextQuestInChain());
 
             break;
         }

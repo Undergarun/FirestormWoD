@@ -392,11 +392,9 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
 
                                 if (m_Player->CanCompleteQuest(l_NextQuest->GetQuestId()))
                                     m_Player->CompleteQuest(l_NextQuest->GetQuestId());
-
-                                l_CloseGossip = true;
                             }
-                            else
-                                m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
+
+                            m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
                         }
                     }
                     else
@@ -427,11 +425,9 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
 
                                 if (m_Player->CanCompleteQuest(l_NextQuest->GetQuestId()))
                                     m_Player->CompleteQuest(l_NextQuest->GetQuestId());
-
-                                l_CloseGossip = true;
                             }
-                            else
-                                m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
+
+                            m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
                         }
                     }
                     else
