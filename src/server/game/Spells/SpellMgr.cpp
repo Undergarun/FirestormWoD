@@ -5433,6 +5433,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO | SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
+            case 170493: ///< Honorbound
+                spellInfo->Attributes |= SPELL_ATTR0_CANT_CANCEL;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
+                spellInfo->AttributesEx4 |= SPELL_ATTR4_NOT_STEALABLE;
+                break;
             case 57723:  ///< Exhaustion
             case 57724:  ///< Sated
             case 80354:  ///< Temporal Displacement
