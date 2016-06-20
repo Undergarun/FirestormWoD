@@ -58,6 +58,7 @@ uint32 GuidHigh2TypeId(uint32 guid_hi)
         case HIGHGUID_AREATRIGGER:  return TYPEID_AREATRIGGER;
         case HIGHGUID_MO_TRANSPORT: return TYPEID_GAMEOBJECT;
         case HIGHGUID_VEHICLE:      return TYPEID_UNIT;
+        case HIGHGUID_CONVERSATION: return TYPEID_CONVERSATION;
     }
     return NUM_CLIENT_OBJECT_TYPES;                         // unknown
 }

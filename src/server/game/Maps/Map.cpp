@@ -2543,6 +2543,9 @@ void Map::RemoveAllObjectsInRemoveList()
         case TYPEID_AREATRIGGER:
             RemoveFromMap((AreaTrigger*)obj, true);
             break;
+        case TYPEID_CONVERSATION:
+            RemoveFromMap((Conversation*)obj, true);
+            break;
         case TYPEID_GAMEOBJECT:
             RemoveFromMap((GameObject*)obj, true);
             break;

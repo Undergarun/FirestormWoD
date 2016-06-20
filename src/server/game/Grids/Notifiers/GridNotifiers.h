@@ -348,7 +348,7 @@ namespace JadeCore
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
                 return;
 
-            for (ConversationMapType l_Iter : m)
+            for (ConversationMapType::iterator l_Iter = m.begin(); l_Iter != m.end(); ++l_Iter)
             {
                 if (l_Iter->getSource()->InSamePhase(i_phaseMask))
                     i_do(l_Iter->getSource());
@@ -391,21 +391,6 @@ namespace JadeCore
 
     /// Conversation searchers
     template<class Check>
-    struct ConversationVectorSearcher
-    {
-        uint32 m_PhaseMask;
-        std::list<Conversation*>& m_Conversations;
-        Check& m_Check;
-
-        ConversationVectorSearcher(WorldObject const* p_Searcher, std::list<Conversation*>& p_Conversation, Check& p_Check)
-            : m_PhaseMask(p_Searcher->GetPhaseMask()), m_Conversations(p_Conversation), m_Check(p_Check) { }
-
-        void Visit(ConversationMapType& p_ConversationMap);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
-    };
-
-    template<class Check>
     struct ConversationSearcher
     {
         uint32 i_phaseMask;
@@ -414,6 +399,21 @@ namespace JadeCore
 
         ConversationSearcher(WorldObject const* searcher, Conversation* & result, Check & check)
             : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) { }
+
+        void Visit(ConversationMapType& p_ConversationMap);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
+    template<class Check>
+    struct ConversationListSearcher
+    {
+        uint32 m_PhaseMask;
+        std::list<Conversation*>& m_Conversations;
+        Check& m_Check;
+
+        ConversationListSearcher(WorldObject const* p_Searcher, std::list<Conversation*>& p_Conversation, Check& p_Check)
+            : m_PhaseMask(p_Searcher->GetPhaseMask()), m_Conversations(p_Conversation), m_Check(p_Check) { }
 
         void Visit(ConversationMapType& p_ConversationMap);
 

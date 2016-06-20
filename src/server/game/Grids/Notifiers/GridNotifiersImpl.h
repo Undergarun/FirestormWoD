@@ -193,7 +193,7 @@ void JadeCore::WorldObjectSearcher<Check>::Visit(ConversationMapType &m)
     if (i_object)
         return;
 
-    for (ConversationMapType l_Iter : m)
+    for (ConversationMapType::iterator l_Iter = m.begin(); l_Iter != m.end(); ++l_Iter)
     {
         if (!l_Iter->getSource()->InSamePhase(i_phaseMask))
             continue;
@@ -308,7 +308,7 @@ void JadeCore::WorldObjectLastSearcher<Check>::Visit(ConversationMapType  &m)
     if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
         return;
 
-    for (ConversationMapType l_Iter : m)
+    for (ConversationMapType::iterator l_Iter = m.begin(); l_Iter != m.end(); ++l_Iter)
     {
         if (!l_Iter->getSource()->InSamePhase(i_phaseMask))
             continue;
@@ -387,10 +387,10 @@ void JadeCore::WorldObjectListSearcher<Check>::Visit(AreaTriggerMapType &m)
 template<class Check>
 void JadeCore::WorldObjectListSearcher<Check>::Visit(ConversationMapType &m)
 {
-    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
         return;
 
-    for (ConversationMapType l_Iter : m)
+    for (ConversationMapType::iterator l_Iter = m.begin(); l_Iter != m.end(); ++l_Iter)
     {
         if (i_check(l_Iter->getSource()))
             i_objects.push_back(l_Iter->getSource());
@@ -398,7 +398,6 @@ void JadeCore::WorldObjectListSearcher<Check>::Visit(ConversationMapType &m)
 }
 
 /// AreaTrigger searchers
-
 template<class Check>
 void JadeCore::AreaTriggerListSearcher<Check>::Visit(AreaTriggerMapType& p_AreaTriggerMap)
 {
@@ -430,10 +429,43 @@ void JadeCore::AreaTriggerSearcher<Check>::Visit(AreaTriggerMapType& p_Areatrigg
             return;
         }
     }
-
 }
-/// Gameobject searchers
 
+/// Conversation searchers
+template<class Check>
+void JadeCore::ConversationSearcher<Check>::Visit(ConversationMapType& p_ConversationMap)
+{
+    /// Already found
+    if (i_object)
+        return;
+
+    for (ConversationMapType::iterator itr = p_ConversationMap.begin(); itr != p_ConversationMap.end(); ++itr)
+    {
+        if (!itr->getSource()->InSamePhase(i_phaseMask))
+            continue;
+
+        if (i_check(itr->getSource()))
+        {
+            i_object = itr->getSource();
+            return;
+        }
+    }
+}
+
+template<class Check>
+void JadeCore::ConversationListSearcher<Check>::Visit(ConversationMapType& p_ConversationMap)
+{
+    for (ConversationMapType::iterator l_Iterator = p_ConversationMap.begin(); l_Iterator != p_ConversationMap.end(); ++l_Iterator)
+    {
+        if (l_Iterator->getSource()->InSamePhase(m_PhaseMask))
+        {
+            if (m_Check(l_Iterator->getSource()))
+                m_Conversations.push_back(l_Iterator->getSource());
+        }
+    }
+}
+
+/// Gameobject searchers
 template<class Check>
 void JadeCore::GameObjectSearcher<Check>::Visit(GameObjectMapType &m)
 {

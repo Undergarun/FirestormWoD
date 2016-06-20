@@ -65,7 +65,7 @@ enum TypeID
     TYPEID_CONVERSATION  = 10
 };
 
-#define NUM_CLIENT_OBJECT_TYPES             10
+#define NUM_CLIENT_OBJECT_TYPES             11
 
 uint32 GuidHigh2TypeId(uint32 guid_hi);
 
@@ -254,7 +254,6 @@ class Object
 
         void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModInt32Value(uint16 index, int32 val, bool apply);
-        void ApplyModUInt64Value(uint16 index, int32 val, bool apply);
         void ApplyModPositiveFloatValue(uint16 index, float val, bool apply);
         void ApplyModSignedFloatValue(uint16 index, float val, bool apply);
 
@@ -399,8 +398,6 @@ class Object
 
         uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
         uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
-
-        bool IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const;
 
         void BuildMovementUpdate(ByteBuffer * data, uint32 flags) const;
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;

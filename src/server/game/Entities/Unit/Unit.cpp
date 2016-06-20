@@ -17783,10 +17783,10 @@ void Unit::GetConversationListInRange(std::list<Conversation*>& p_List, float p_
     l_Cell.SetNoCreate();
 
     JadeCore::AnyConversationInObjectRangeCheck l_Check(this, p_Range);
-    JadeCore::ConversationVectorSearcher<JadeCore::AnyConversationInObjectRangeCheck> searcher(this, p_List, l_Check);
+    JadeCore::ConversationListSearcher<JadeCore::AnyConversationInObjectRangeCheck> searcher(this, p_List, l_Check);
 
-    TypeContainerVisitor<JadeCore::ConversationVectorSearcher<JadeCore::AnyConversationInObjectRangeCheck>, WorldTypeMapContainer> l_WorldSearcher(searcher);
-    TypeContainerVisitor<JadeCore::ConversationVectorSearcher<JadeCore::AnyConversationInObjectRangeCheck>, GridTypeMapContainer>  l_GridSearcher(searcher);
+    TypeContainerVisitor<JadeCore::ConversationListSearcher<JadeCore::AnyConversationInObjectRangeCheck>, WorldTypeMapContainer> l_WorldSearcher(searcher);
+    TypeContainerVisitor<JadeCore::ConversationListSearcher<JadeCore::AnyConversationInObjectRangeCheck>, GridTypeMapContainer>  l_GridSearcher(searcher);
 
     l_Cell.Visit(l_Coords, l_WorldSearcher, *GetMap(), *this, p_Range);
     l_Cell.Visit(l_Coords, l_GridSearcher, *GetMap(), *this, p_Range);

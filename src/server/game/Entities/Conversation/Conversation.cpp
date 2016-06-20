@@ -131,9 +131,9 @@ void Conversation::AddConversationLine(ConversationLine p_Line)
 void Conversation::Update(uint32 p_Diff)
 {
     /// Don't decrease infinite durations
-    if (GetDuration() > int32(p_Diff))
+    if (m_Duration > 0)
         m_Duration -= p_Diff;
-    else if (GetDuration() != -1 && GetDuration() <= 0)
+    else if (m_Duration != -1 && m_Duration <= 0)
     {
         Remove(); ///< Expired
         return;
