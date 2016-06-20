@@ -4566,13 +4566,15 @@ namespace MS { namespace Garrison
             if (l_CurrentAvailableMission < l_MaxMissionCount)
             {
                 uint32 l_MaxFollowerLevel = 90;
+                uint32 l_MinFollowerLevel = 100;
                 uint32 l_MaxFollowerItemLevel = 600;
 
-                std::for_each(m_Followers.begin(), m_Followers.end(), [&l_MaxFollowerLevel, &l_MaxFollowerItemLevel](const GarrisonFollower & p_Follower) -> void
+                std::for_each(m_Followers.begin(), m_Followers.end(), [&l_MaxFollowerLevel, &l_MaxFollowerItemLevel, &l_MinFollowerLevel](const GarrisonFollower & p_Follower) -> void
                 {
                     if (!p_Follower.IsNPC())
                         return;
 
+                    l_MinFollowerLevel      = std::min(l_MinFollowerLevel, (uint32)p_Follower.Level);
                     l_MaxFollowerLevel      = std::max(l_MaxFollowerLevel, (uint32)p_Follower.Level);
                     l_MaxFollowerItemLevel  = std::max(l_MaxFollowerItemLevel, (uint32)((p_Follower.ItemLevelArmor + p_Follower.ItemLevelWeapon) / 2));
                 });
@@ -4594,49 +4596,6 @@ namespace MS { namespace Garrison
                     if (l_Count)
                         continue;
 
-                    if (l_Entry->RequiredFollowersCount > m_Followers.size())
-                        continue;
-
-                    if (l_Entry->Duration <= 10)
-                        continue;
-
-                    if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
-                        continue;
-
-                    /// If player has Tavern lvl 3, he'll have 50% chance to get a treasure hunter type mission
-                    if (l_Entry->MissionType == MissionType::Treasure)
-                    {
-                        if (GetBuildingLevel(GetBuildingWithType(BuildingType::Inn)) != 3)
-                            continue;
-                        else if (urand(0, 1))
-                            continue;
-                    }
-
-                    uint32 l_RewardCount = 0;
-                    for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
-                    {
-                        GarrMissionRewardEntry const* l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_RewardIT);
-
-                        if (!l_RewardEntry)
-                            continue;
-
-                        if (l_RewardEntry->MissionID != l_Entry->MissionRecID)
-                            continue;
-
-                        /// Elemental Rune & Abrogator Stone - Legendary Questline  NYI
-                        if (l_RewardEntry->ItemID == 115510 || l_RewardEntry->ItemID == 115280)
-                        {
-                            l_RewardCount = 0;
-                            break;
-                        }
-
-                        ++ l_RewardCount;
-                    }
-
-                    /// All missions should have a reward
-                    if (!l_RewardCount)
-                        continue;
-
                     /// Max Level cap : 2
                     if (l_Entry->RequiredLevel > (int32)(l_MaxFollowerLevel + 2))
                         continue;
@@ -4644,16 +4603,14 @@ namespace MS { namespace Garrison
                     if (l_Entry->RequiredItemLevel > (int32)l_MaxFollowerItemLevel)
                         continue;
 
-                    /// Ships NYI
-                    if (l_Entry->FollowerType != MS::Garrison::FollowerType::NPC)
-                        continue;
-
-                    /// We are getting too many rare missions compared to retail
-                    if (l_Entry->Flags & MS::Garrison::MissionFlags::Rare)
+                    /// We have less chances to get a low lvl mission if your followers' lowest lvl is higher
+                    if (l_Entry->RequiredLevel < l_MinFollowerLevel)
                     {
-                        if (urand(0, 100) >= 15)
+                        if (urand(0, 100) <= 25)
                             continue;
                     }
+
+                    EvaluateMissionConditions(l_Entry);
 
                     l_Candidates.push_back(l_Entry);
                 }
@@ -4675,6 +4632,66 @@ namespace MS { namespace Garrison
             }
             m_MissionDistributionLastUpdate = time(0);
         }
+    }
+
+    bool Manager::EvaluateMissionConditions(GarrMissionEntry const* p_Entry)
+    {
+        if (p_Entry->RequiredFollowersCount > m_Followers.size())
+            return false;
+
+        if (p_Entry->Duration <= 10)
+            return false;
+
+        if (p_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
+            return false;
+
+        /// If player has Tavern lvl 3, he'll have 50% chance to get a treasure hunter type mission
+        if (p_Entry->MissionType == MissionType::Treasure)
+        {
+            if (GetBuildingLevel(GetBuildingWithType(BuildingType::Inn)) != 3)
+                return false;
+            else if (urand(0, 1))
+                return false;
+        }
+
+        uint32 l_RewardCount = 0;
+
+        for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
+        {
+            GarrMissionRewardEntry const* l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_RewardIT);
+
+            if (!l_RewardEntry)
+                return false;
+
+            if (l_RewardEntry->MissionID != p_Entry->MissionRecID)
+                return false;
+
+            /// Elemental Rune & Abrogator Stone - Legendary Questline  NYI
+            if (l_RewardEntry->ItemID == 115510 || l_RewardEntry->ItemID == 115280)
+            {
+                l_RewardCount = 0;
+                break;
+            }
+
+            ++l_RewardCount;
+        }
+
+        /// All missions should have a reward
+        if (!l_RewardCount)
+            return false;
+
+        /// Ships NYI
+        if (p_Entry->FollowerType != MS::Garrison::FollowerType::NPC)
+            return false;
+
+        /// We are getting too many rare missions compared to retail
+        if (p_Entry->Flags & MS::Garrison::MissionFlags::Rare)
+        {
+            if (urand(0, 100) <= 15)
+                return false;
+        }
+
+        return true;
     }
 
     /// Update garrison ability

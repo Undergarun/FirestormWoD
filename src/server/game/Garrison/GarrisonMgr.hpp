@@ -300,6 +300,8 @@ namespace MS { namespace Garrison
             /// Update mission distribution
             void UpdateMissionDistribution(bool p_Force = false, uint32 p_ForcedCount = 0);
 
+            bool EvaluateMissionConditions(GarrMissionEntry const* p_Entry);
+
             /// Renames the specified follower
             bool RenameFollower(uint32 p_DatabaseID, std::string p_FollowerName);
 
