@@ -1611,7 +1611,7 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
             // TEMPORARY HACKS FOR PERIODIC HANDLERS OF DYNAMIC OBJECT AURAS
             if (m_base->GetType() == DYNOBJ_AURA_TYPE)
             {
-                if (DynamicObject const* d_owner = l_Base->GetDynobjOwner())
+                if (DynamicObject const* d_owner = m_base->GetDynobjOwner())
                 {
                     switch (GetSpellInfo()->Id)
                     {
