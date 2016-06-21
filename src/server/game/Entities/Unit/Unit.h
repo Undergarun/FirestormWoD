@@ -2417,6 +2417,7 @@ class Unit : public WorldObject
         uint32 SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim);
         uint32 SpellCriticalHealingBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim);
         uint32 SpellCriticalAuraAbsorbBonus(SpellInfo const* p_SpellProto, uint32 p_Damage);
+        bool   IsUnitAbleToCrit() const;
 
         void SetContestedPvP(Player* attackedPlayer = NULL);
 
