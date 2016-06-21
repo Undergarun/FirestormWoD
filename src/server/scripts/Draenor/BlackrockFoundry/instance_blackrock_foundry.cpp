@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-# include "blackrock_foundry.hpp"
+# include "boss_iron_maidens.hpp"
 
 DoorData const g_DoorData[] =
 {
@@ -503,6 +503,28 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::FreightElevatorDoor:
                         AddDoor(p_GameObject, false);
                         break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnCreatureKilled(Creature* p_Creature, Player* p_Killer) override
+            {
+                switch (p_Creature->GetEntry())
+                {
+                    case eIronMaidensCreatures::AquaticTechnician:
+                    case eIronMaidensCreatures::IronDockworker:
+                    case eIronMaidensCreatures::IronEarthbinder:
+                    case eIronMaidensCreatures::IronMauler:
+                    {
+                        if (Creature* l_Garan = instance->GetCreature(m_AdmiralGaranGuid))
+                        {
+                            if (l_Garan->IsAIEnabled)
+                                l_Garan->AI()->SetGUID(p_Creature->GetGUID());
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }

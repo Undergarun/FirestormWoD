@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 # include "boss_operator_thogar.hpp"
+# include "boss_iron_maidens.hpp"
 
 /// Iron Flame Binder - 87515
 class npc_foundry_iron_flame_binder : public CreatureScript
@@ -3685,6 +3686,453 @@ class npc_foundry_gromkar_firemender : public CreatureScript
         }
 };
 
+/// Iron Dockworker - 84841
+class npc_foundry_iron_dockworker : public CreatureScript
+{
+    public:
+        npc_foundry_iron_dockworker() : CreatureScript("npc_foundry_iron_dockworker") { }
+
+        enum eSpells
+        {
+            WorkersSolidarity       = 171545,
+            WorkersSolidarityStacks = 171543,
+            ThrowCrate              = 171570,
+            CarryingCrate           = 171205
+        };
+
+        enum eMoves
+        {
+            MoveCarryCrate = 1,
+            MoveThrowCrate
+        };
+
+        struct npc_foundry_iron_dockworkerAI : public ScriptedAI
+        {
+            npc_foundry_iron_dockworkerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_IsCosmetic = p_Creature->IsNearPosition(&g_CosmeticCleaverPos, 6.0f);
+            }
+
+            bool m_IsCosmetic;
+
+            void Reset() override
+            {
+                me->RemoveAllAreasTrigger();
+
+                me->RemoveAura(eSpells::WorkersSolidarity);
+                me->RemoveAura(eSpells::WorkersSolidarityStacks);
+
+                if (m_IsCosmetic)
+                {
+                    float l_Distance = 100000.0f;
+                    Position l_MovePos;
+                    for (Position const l_Pos : g_IronDockworkerCarryCratePos)
+                    {
+                        if (l_Distance < me->GetDistance(l_Pos))
+                        {
+                            l_Distance  = me->GetDistance(l_Pos);
+                            l_MovePos   = l_Pos;
+                        }
+                    }
+
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_MovePos]() -> void
+                    {
+                        me->GetMotionMaster()->MovePoint(eMoves::MoveCarryCrate, l_MovePos);
+                    });
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                switch (p_ID)
+                {
+                    case eMoves::MoveCarryCrate:
+                    {
+                        me->CastSpell(me, eSpells::CarryingCrate, true);
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->GetMotionMaster()->MovePoint(eMoves::MoveThrowCrate, GetFreeLoadingChain());
+                        });
+
+                        break;
+                    }
+                    case eMoves::MoveThrowCrate:
+                    {
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                ClearDelayedOperations();
+
+                me->CastSpell(me, eSpells::WorkersSolidarity, true);
+
+                if (me->HasAura(eSpells::CarryingCrate))
+                    me->CastSpell(p_Attacker, eSpells::ThrowCrate, false);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+
+            Position const GetFreeLoadingChain() const
+            {
+                return Position();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_dockworkerAI(p_Creature);
+        }
+};
+
+/// Iron Earthbinder - 84860
+class npc_foundry_iron_earthbinder : public CreatureScript
+{
+    public:
+        npc_foundry_iron_earthbinder() : CreatureScript("npc_foundry_iron_earthbinder") { }
+
+        enum eSpells
+        {
+            InfernoTotemSummon  = 171613,
+            EarthenBarrier      = 171647
+        };
+
+        enum eEvents
+        {
+            EventInfernoTotem = 1,
+            EventEarthenBarrier
+        };
+
+        struct npc_foundry_iron_earthbinderAI : public ScriptedAI
+        {
+            npc_foundry_iron_earthbinderAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventInfernoTotem, 12 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventEarthenBarrier, 10 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventInfernoTotem:
+                    {
+                        me->CastSpell(me, eSpells::InfernoTotemSummon, true);
+                        m_Events.ScheduleEvent(eEvents::EventInfernoTotem, 12 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventEarthenBarrier:
+                    {
+                        me->CastSpell(me, eSpells::EarthenBarrier, false);
+                        m_Events.ScheduleEvent(eEvents::EventEarthenBarrier, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_earthbinderAI(p_Creature);
+        }
+};
+
+/// Inferno Totem - 85922
+class npc_foundry_inferno_totem : public CreatureScript
+{
+    public:
+        npc_foundry_inferno_totem() : CreatureScript("npc_foundry_inferno_totem") { }
+
+        enum eSpell
+        {
+            Inferno = 171614
+        };
+
+        struct npc_foundry_inferno_totemAI : public ScriptedAI
+        {
+            npc_foundry_inferno_totemAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpell::Inferno, false);
+            }
+
+            void OnSpellCasted(SpellInfo const* p_SpellInfo) override
+            {
+                if (p_SpellInfo->Id == eSpell::Inferno)
+                    me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_inferno_totemAI(p_Creature);
+        }
+};
+
+/// Iron Mauler - 85748
+class npc_foundry_iron_mauler : public CreatureScript
+{
+    public:
+        npc_foundry_iron_mauler() : CreatureScript("npc_foundry_iron_mauler") { }
+
+        enum eSpells
+        {
+            /// Cosmetic
+            CarryingCrate           = 171187,
+            ThrowCrate              = 171193,
+            ThrowMassiveAmmoCache   = 171580
+        };
+
+        enum eMoves
+        {
+            MoveCarryCrate = 1,
+            MoveThrowCrate
+        };
+
+        struct npc_foundry_iron_maulerAI : public ScriptedAI
+        {
+            npc_foundry_iron_maulerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            Position const m_IronMaulerThrowCratePos = { 435.355f, 3192.122f, 135.22f, 1.5854f };
+            Position const m_IronMaulerCarryCratePos = { 435.355f, 3138.81f, 135.22f, 4.72307f };
+
+            void Reset() override
+            {
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->SetWalk(true);
+
+                    me->GetMotionMaster()->MovePoint(eMoves::MoveCarryCrate, m_IronMaulerCarryCratePos);
+                });
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                switch (p_ID)
+                {
+                    case eMoves::MoveCarryCrate:
+                    {
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->CastSpell(me, eSpells::CarryingCrate, true);
+
+                            me->GetMotionMaster()->MovePoint(eMoves::MoveThrowCrate, m_IronMaulerThrowCratePos);
+                        });
+
+                        break;
+                    }
+                    case eMoves::MoveThrowCrate:
+                    {
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->RemoveAura(eSpells::CarryingCrate);
+
+                            if (Creature* l_Ukurogg = me->FindNearestCreature(eIronMaidensCreatures::Ukurogg, 100.0f))
+                                me->CastSpell(l_Ukurogg, eSpells::ThrowCrate, true);
+                        });
+
+                        AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->GetMotionMaster()->MovePoint(eMoves::MoveCarryCrate, m_IronMaulerCarryCratePos);
+                        });
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetWalk(false);
+
+                ClearDelayedOperations();
+
+                if (me->HasAura(eSpells::CarryingCrate))
+                    me->CastSpell(p_Attacker, eSpells::ThrowMassiveAmmoCache, false);
+            }
+
+            void OnSpellCasted(SpellInfo const* p_SpellInfo) override
+            {
+                if (p_SpellInfo->Id == eSpells::ThrowMassiveAmmoCache)
+                    me->RemoveAura(eSpells::CarryingCrate);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_maulerAI(p_Creature);
+        }
+};
+
+/// Iron Cleaver - 84859
+class npc_foundry_iron_cleaver : public CreatureScript
+{
+    public:
+        npc_foundry_iron_cleaver() : CreatureScript("npc_foundry_iron_cleaver") { }
+
+        enum eSpell
+        {
+            ReapingWhirl = 171537
+        };
+
+        enum eEvent
+        {
+            EventReapingWhirl = 1
+        };
+
+        struct npc_foundry_iron_cleaverAI : public ScriptedAI
+        {
+            npc_foundry_iron_cleaverAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_IsCosmetic = p_Creature->IsNearPosition(&g_CosmeticCleaverPos, 1.0f);
+            }
+
+            EventMap m_Events;
+
+            bool m_IsCosmetic;
+
+            std::set<uint64> m_WorkerList;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                if (m_IsCosmetic)
+                {
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        std::list<Creature*> l_WorkerList;
+
+                        me->GetCreatureListWithEntryInGrid(l_WorkerList, eIronMaidensCreatures::IronDockworker, 5.0f);
+
+                        for (Creature* l_Worker : l_WorkerList)
+                            m_WorkerList.insert(l_Worker->GetGUID());
+
+                        if (!m_WorkerList.empty())
+                            LaunchCosmeticEmotes();
+                        else
+                            m_IsCosmetic = false;
+                    });
+                }
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/) override
+            {
+                m_Events.ScheduleEvent(eEvent::EventReapingWhirl, 7 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventReapingWhirl:
+                    {
+                        me->CastSpell(me, eSpell::ReapingWhirl, false);
+                        m_Events.ScheduleEvent(eEvent::EventReapingWhirl, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            void LaunchCosmeticEmotes()
+            {
+                AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->HandleEmoteCommand(g_DockworkerEmotes[urand(0, (eIronMaidensDatas::MaxRandomEmotes - 1))]);
+
+                    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        for (uint64 l_Guid : m_WorkerList)
+                        {
+                            if (Creature* l_Creature = Creature::GetCreature(*me, l_Guid))
+                                l_Creature->HandleEmoteCommand(g_DockworkerEmotes[urand(0, (eIronMaidensDatas::MaxRandomEmotes - 1))]);
+                        }
+                    });
+                });
+            }
+
+            void LastOperationCalled() override
+            {
+                if (!m_IsCosmetic)
+                    return;
+
+                LaunchCosmeticEmotes();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_cleaverAI(p_Creature);
+        }
+};
+
 /// Grievous Mortal Wounds - 175624
 class spell_foundry_grievous_mortal_wounds : public SpellScriptLoader
 {
@@ -4661,6 +5109,68 @@ class areatrigger_foundry_ice_trap : public AreaTriggerEntityScript
         }
 };
 
+/// Worker's Solidarity - 171545
+class areatrigger_foundry_workers_solidarity : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_foundry_workers_solidarity() : AreaTriggerEntityScript("areatrigger_foundry_workers_solidarity") { }
+
+        enum eSpell
+        {
+            WorkersSolidarityStack = 171543
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 10.0f;
+
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
+                l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                if (!l_TargetList.empty())
+                {
+                    l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                    {
+                        if (p_Unit == nullptr || p_Unit->IsPlayer())
+                            return true;
+
+                        if (p_Unit->GetEntry() != eIronMaidensCreatures::IronDockworker)
+                            return true;
+
+                        return false;
+                    });
+                }
+
+                if (uint32 l_Count = uint32(l_TargetList.size()))
+                {
+                    Aura* l_Aura = l_Caster->GetAura(eSpell::WorkersSolidarityStack);
+                    if (l_Aura == nullptr)
+                        l_Aura = l_Caster->AddAura(eSpell::WorkersSolidarityStack, l_Caster);
+
+                    if (l_Aura != nullptr)
+                        l_Aura->SetStackAmount(l_Count);
+                }
+                else
+                    l_Caster->RemoveAura(eSpell::WorkersSolidarityStack);
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+                l_Caster->RemoveAura(eSpell::WorkersSolidarityStack);
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_foundry_workers_solidarity();
+        }
+};
+
 /// First Floor Trap - 10276
 class areatrigger_at_foundry_first_floor_trap : public AreaTriggerScript
 {
@@ -4887,6 +5397,11 @@ void AddSC_blackrock_foundry()
     new npc_foundry_iron_raider();
     new npc_foundry_iron_crack_shot();
     new npc_foundry_gromkar_firemender();
+    new npc_foundry_iron_dockworker();
+    new npc_foundry_iron_earthbinder();
+    new npc_foundry_inferno_totem();
+    new npc_foundry_iron_mauler();
+    new npc_foundry_iron_cleaver();
 
     /// Spells
     new spell_foundry_grievous_mortal_wounds();
@@ -4911,6 +5426,7 @@ void AddSC_blackrock_foundry()
     new areatrigger_foundry_fire_bomb();
     new areatrigger_foundry_electrical_storm();
     new areatrigger_foundry_ice_trap();
+    new areatrigger_foundry_workers_solidarity();
 
     /// AreaTriggers (world)
     new areatrigger_at_foundry_first_floor_trap();
