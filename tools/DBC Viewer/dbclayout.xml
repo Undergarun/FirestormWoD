@@ -7099,4 +7099,13 @@
     <field type="int" name="field0" />
     <field type="int" name="field1" />
   </ModelFileData>
+  <SpellDuration build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+  </SpellDuration>
 </DBFilesClient>
