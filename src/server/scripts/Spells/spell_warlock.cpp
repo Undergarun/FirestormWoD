@@ -2051,6 +2051,8 @@ class spell_warl_drain_soul: public SpellScriptLoader
                             if (AuraEffect* l_AuraEffect = l_Aura->GetEffect(l_Aura->GetEffectIndexByType(SPELL_AURA_PERIODIC_DAMAGE)))
                             {
                                 int32 l_Bp0 = CalculatePct(l_AuraEffect->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+                                l_Bp0 = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp0, 0, DOT);
+                                l_Bp0 = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Bp0, DOT);
 
                                 if (Aura* l_AuraGoS = l_Caster->GetAura(eSpells::GrimoireOfSacrifice))
                                 {
@@ -2093,14 +2095,14 @@ class spell_warl_drain_soul: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodicDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_warl_drain_soul_AuraScript();
         }
