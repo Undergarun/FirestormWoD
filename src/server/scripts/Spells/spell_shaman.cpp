@@ -2706,12 +2706,14 @@ class spell_sha_lava_burst: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_lava_burst_SpellScript);
 
-            bool m_HasLavaSurge = false;
             enum eSpells
             {
                 LavaSurge = 77762,
                 LavaBurst = 51505,
+                EchoOfTheElements = 108283
             };
+
+            bool m_EchoOfTheElements = false;
 
             void HitTarget(SpellEffIndex)
             {
@@ -2729,20 +2731,18 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     SetHitDamage(int32(GetHitDamage() * 1.5f));
             }
 
-            void HandleBeforeCast()
-            {
-                Unit* l_Caster = GetCaster();
-                if (l_Caster->HasAura(eSpells::LavaSurge))
-                    m_HasLavaSurge = true;
-            }
-
             void HandleAfterCast()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
                 if (!l_Player)
                     return;
+                
+                if (l_Player->HasAura(eSpells::EchoOfTheElements))
+                    m_EchoOfTheElements = true;
 
-                if (SpellInfo const* l_LavaSurge = sSpellMgr->GetSpellInfo(eSpells::LavaSurge))
+                SpellInfo const* l_LavaSurge = sSpellMgr->GetSpellInfo(eSpells::LavaSurge);
+
+                if (l_LavaSurge != nullptr && m_EchoOfTheElements)
                     l_Player->RestoreCharge(l_LavaSurge->ChargeCategoryEntry);
             }
 
@@ -2754,14 +2754,15 @@ class spell_sha_lava_burst: public SpellScriptLoader
 
                 if (l_Player->HasAura(eSpells::LavaSurge))
                 {
-                    if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
+                    SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst);
+
+                    if (l_LavaBurst != nullptr && m_EchoOfTheElements)
                         l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
                 }
             }
 
-            void Register()
+            void Register() override
             {
-                OnPrepare += SpellOnPrepareFn(spell_sha_lava_burst_SpellScript::HandleBeforeCast);
                 AfterHit += SpellHitFn(spell_sha_lava_burst_SpellScript::HandleAfterHit);
                 AfterCast += SpellCastFn(spell_sha_lava_burst_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
