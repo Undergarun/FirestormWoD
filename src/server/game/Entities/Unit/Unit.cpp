@@ -14100,9 +14100,6 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     if (target->GetEntry() == 76933 && target->ToTempSummon() && target->ToTempSummon()->GetSummoner() && target->ToTempSummon()->GetSummoner()->GetGUID() != GetGUID())
         return false;
 
-    if (target->HasAuraType(SPELL_AURA_SEE_WHILE_INVISIBLE))
-        return false;
-
     // can't attack unattackable units or GMs
     if (target->HasUnitState(UNIT_STATE_UNATTACKABLE)
         || (target->IsPlayer() && target->ToPlayer()->isGameMaster()))
