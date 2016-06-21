@@ -156,6 +156,9 @@ class boss_operator_thogar : public CreatureScript
                     }
                     case eGuidTypes::IntroRemove:
                     {
+                        if (m_IntroTrashes.find(p_Guid) == m_IntroTrashes.end())
+                            break;
+
                         m_IntroTrashes.erase(p_Guid);
 
                         /// Intro finished!
@@ -351,7 +354,7 @@ class boss_operator_thogar : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (me->GetDistance(me->GetHomePosition()) >= 120.0f)
+                if (me->GetDistance(me->GetHomePosition()) >= 90.0f)
                 {
                     EnterEvadeMode();
                     return;
@@ -862,12 +865,13 @@ class npc_foundry_train_controller : public CreatureScript
                                                     {
                                                         if (Creature* l_Passenger = Creature::GetCreature(*me, l_Guid))
                                                         {
-                                                            if (Unit* l_Victim = l_Passenger->SelectNearestPlayerNotGM(60.0f))
-                                                                l_Passenger->GetMotionMaster()->MoveJump(*l_Victim, 30.0f, 10.0f);
-                                                            else if (Creature* l_Thogar = Creature::GetCreature(*me, m_SummonerGUID))
+                                                            if (Creature* l_Thogar = Creature::GetCreature(*me, m_SummonerGUID))
                                                             {
-                                                                if (Unit* l_Target = l_Thogar->getVictim())
-                                                                    l_Passenger->GetMotionMaster()->MoveJump(*l_Target, 30.0f, 10.0f);
+                                                                if (l_Thogar->IsAIEnabled)
+                                                                {
+                                                                    if (Player* l_Tank = urand(0, 1) ? l_Thogar->AI()->SelectMainTank() : l_Thogar->AI()->SelectOffTank())
+                                                                        l_Passenger->GetMotionMaster()->MoveJump(*l_Tank, 30.0f, 10.0f);
+                                                                }
                                                             }
                                                         }
                                                     });
@@ -953,22 +957,43 @@ class npc_foundry_train_controller : public CreatureScript
                             if (l_Passenger == nullptr)
                                 continue;
 
+                            uint32 l_BoxEntry   = 0;
+                            float l_LessVal     = 0.0f;
+                            uint8 l_Iterations  = 0;
                             switch (l_I)
                             {
                                 case 0: ///< Always the engine
                                 {
-                                    if (GameObject* l_Box = me->SummonGameObject(eThogarGameObjects::EngineCollisionBox, *l_Passenger, 0.0f, 0.7071066f, 0.7071069f, 0.0f, 0))
-                                        m_CollisionBoxes.insert(l_Box->GetGUID());
-
+                                    l_BoxEntry      = eThogarGameObjects::EngineCollisionBox;
+                                    l_LessVal       = 20.0f;
+                                    l_Iterations    = 5;
                                     break;
                                 }
                                 default:
                                 {
-                                    if (GameObject* l_Box = me->SummonGameObject(urand(0, 1) ? eThogarGameObjects::TrainAndCarCollisionBox1 : eThogarGameObjects::TrainAndCarCollisionBox2, *l_Passenger, 0.0f, 0.7071066f, 0.7071069f, 0.0f, 0))
-                                        m_CollisionBoxes.insert(l_Box->GetGUID());
-
+                                    l_BoxEntry      = urand(0, 1) ? eThogarGameObjects::TrainAndCarCollisionBox1 : eThogarGameObjects::TrainAndCarCollisionBox2;
+                                    l_LessVal       = 10.0f;
+                                    l_Iterations    = 3;
                                     break;
                                 }
+                            }
+
+                            Position l_Pos      = *l_Passenger;
+                            l_Pos.m_positionY   += l_LessVal;
+
+                            for (uint8 l_I = 0; l_I < l_Iterations; ++l_I)
+                            {
+                                if (GameObject* l_Box = me->SummonGameObject(l_BoxEntry, l_Pos, 0.0f, 0.0f, 0.7071066f, 0.7071069f, 0))
+                                {
+                                    l_Box->SetRotationQuat(0.0f, 0.0f, 0.7071066f, 0.7071069f);
+                                    l_Box->SetFloatValue(EGameObjectFields::GAMEOBJECT_FIELD_PARENT_ROTATION + 0, 0.0f);
+                                    l_Box->SetFloatValue(EGameObjectFields::GAMEOBJECT_FIELD_PARENT_ROTATION + 1, 0.0f);
+                                    l_Box->SetFloatValue(EGameObjectFields::GAMEOBJECT_FIELD_PARENT_ROTATION + 2, 0.0f);
+                                    l_Box->SetFloatValue(EGameObjectFields::GAMEOBJECT_FIELD_PARENT_ROTATION + 3, 1.0f);
+                                    m_CollisionBoxes.insert(l_Box->GetGUID());
+                                }
+
+                                l_Pos.m_positionY -= 10.0f;
                             }
                         }
 

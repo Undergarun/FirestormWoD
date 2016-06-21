@@ -310,7 +310,9 @@ class boss_gruul_foundry : public CreatureScript
                 {
                     case eSpells::InfernoSlice:
                     {
-                        DoCastVictim(eSpells::InfernoStrike, true);
+                        if (Player* l_Tank = SelectMainTank())
+                            me->CastSpell(l_Tank, eSpells::InfernoStrike, true);
+
                         break;
                     }
                     case eSpells::OverheadSmash:
