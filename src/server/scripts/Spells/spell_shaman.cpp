@@ -1452,7 +1452,7 @@ class spell_sha_earthquake: public SpellScriptLoader
                 Earthquake             = 61882,
                 EarthquakeTick         = 77478,
                 EarthquakeSlow         = 182387,
-                ImprovedChainLightning = 157766,
+                ImprovedChainLightning = 157766
             };
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
@@ -1476,7 +1476,7 @@ class spell_sha_earthquake: public SpellScriptLoader
                 l_Caster->CastCustomSpell(l_AreaTrigger->GetPositionX(), l_AreaTrigger->GetPositionY(), l_AreaTrigger->GetPositionZ(), eSpells::EarthquakeTick, &l_Bp0, nullptr, nullptr, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthquake_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
@@ -1500,12 +1500,16 @@ class spell_sha_earthquake: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_Caster->HasAura(eSpells::ImprovedChainLightningEarthquakeMod))
-                        l_Caster->RemoveAura(eSpells::ImprovedChainLightningEarthquakeMod);
+                    if (AuraEffect* l_EarthquakeReduceCast = l_Caster->GetAuraEffect(eSpells::ImprovedChainLightningEarthquakeMod, EFFECT_1))
+                    {
+                        l_EarthquakeReduceCast->SetAmount(0);
+                        if (Aura* l_ImprovedChainLightning = l_Caster->GetAura(eSpells::ImprovedChainLightningEarthquakeMod))
+                            l_ImprovedChainLightning->SetDuration(10 * IN_MILLISECONDS);
+                    }
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterCast += SpellCastFn(spell_sha_earthquake_SpellScript::HandleAfterCast);
             }
