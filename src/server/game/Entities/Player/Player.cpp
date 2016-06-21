@@ -26283,7 +26283,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         return false;
     }
 
-    if (crItem->PlayerConditionID != 0 && EvalPlayerCondition(crItem->PlayerConditionID).first == false)
+    if (crItem->PlayerConditionID != 0 && crItem->PlayerConditionID < 0xFFFFFF && EvalPlayerCondition(crItem->PlayerConditionID).first == false)
     {
         /// @TODO find the right error
         return false;

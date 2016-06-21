@@ -734,6 +734,59 @@ class npc_fun_gold_vendor : public CreatureScript
         }
 };
 
+class npc_fun_transmo_vendor : public CreatureScript
+{
+    public:
+        npc_fun_transmo_vendor() 
+            : CreatureScript("npc_fun_transmo_vendor") 
+        { 
+        }
+    
+        /// Called when a player opens a gossip dialog with the creature.
+        /// @p_Player   : Source player instance
+        /// @p_Creature : Target creature instance
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        {
+            static const uint8 l_VendorClass[] = {
+                CLASS_DEATH_KNIGHT,
+                CLASS_DRUID,
+                CLASS_HUNTER,
+                CLASS_MAGE,
+                CLASS_MONK,
+                CLASS_PALADIN,
+                CLASS_PRIEST,
+                CLASS_ROGUE,
+                CLASS_SHAMAN,
+                CLASS_WARLOCK,
+                CLASS_WARRIOR,
+            };
+
+            uint8 l_ClassOffset = p_Creature->GetEntry() - 900003;
+
+            if ((l_ClassOffset >= 0 && l_ClassOffset < sizeof(l_VendorClass) && l_VendorClass[l_ClassOffset] == p_Player->getClass()) || p_Player->isGameMaster())
+            {
+                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "PvP Transmog", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "PvE Transmog", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            }
+
+            p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+            return true;
+        }
+        /// Called when a player selects a gossip item in the creature's gossip menu.
+        /// @p_Player   : Source player instance
+        /// @p_Creature : Target creature instance
+        /// @p_Sender   : Sender menu
+        /// @p_Action   : Action
+        virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+        {
+            p_Player->PlayerTalkClass->SendCloseGossip();
+            p_Player->GetSession()->SendListInventory(p_Creature->GetGUID(), p_Action == (GOSSIP_ACTION_INFO_DEF + 2), true);
+            return false;
+        }
+
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_npc_custom()
 {
@@ -741,5 +794,6 @@ void AddSC_npc_custom()
     new npc_pve_tests_manager();
     new npc_season_2_premade_master();
     new npc_fun_gold_vendor();
+    new npc_fun_transmo_vendor();
 }
 #endif
