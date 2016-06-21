@@ -3520,16 +3520,16 @@ class spell_vote_buff: public SpellScriptLoader
                 if (!GetUnitOwner())
                     return;
 
-                p_Amount = GetUnitOwner()->getLevel() * 2;
+                /*p_Amount = GetUnitOwner()->getLevel() * 2;*/
             }
 
-            void Register()
+            void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_vote_buff_AuraScript::CalculateEffectAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_vote_buff_AuraScript();
         }

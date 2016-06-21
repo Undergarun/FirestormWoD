@@ -1342,7 +1342,7 @@ void WorldSession::ProcessQueryCallbacks()
     PreparedQueryResult result;
 
     //! Vote
-    if (m_VoteTimeCallback.IsReady())
+    /*if (m_VoteTimeCallback.IsReady())
     {
         switch (m_VoteTimeCallback.GetStage())
         {
@@ -1385,7 +1385,7 @@ void WorldSession::ProcessQueryCallbacks()
             default:
                 break;
         }
-    }
+    }*/
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
