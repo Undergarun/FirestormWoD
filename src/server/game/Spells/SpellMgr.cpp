@@ -6566,6 +6566,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].Effect = 0;
                 break;
             case 115008: ///< Chi Torpedo
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(596); // 900 ms
                 spellInfo->OverrideSpellList.push_back(121828); ///< Override List with Chi Torpedo - Talent
                 spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_SPEED_NOT_STACK;
                 break;

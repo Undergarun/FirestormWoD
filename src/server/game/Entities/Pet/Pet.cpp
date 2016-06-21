@@ -1270,6 +1270,10 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult auraEff
                 continue;
             }
 
+            // Does not need to load Aura Into Phase 2 if the player isn't in Black Temple Scenario
+            if (spellInfo->Id == 80224 && GetOwner() && GetOwner()->GetMapId() != 1112)
+                continue;
+
             // Does not need to load Spirit Bond - reapplied at update
             if (spellInfo->Id == 118694)
                  continue;
