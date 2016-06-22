@@ -105,7 +105,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& /*p_RecvData*/)
         uint32 l_TravelDuration     = 0;
         uint32 l_MissionDuration    = 0;
 
-        if (l_Missions[l_I].State == MS::Garrison::MissionStates::InProgress && sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID))
+        if (l_Missions[l_I].State == MS::Garrison::Mission::State::InProgress && sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID))
         {
             l_TravelDuration    = l_Garrison->GetMissionTravelDuration(l_Missions[l_I].MissionID);
             l_MissionDuration   = l_Garrison->GetMissionDuration(l_Missions[l_I].MissionID);

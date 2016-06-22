@@ -8395,7 +8395,7 @@ void Spell::EffectFinishGarrisonMission(SpellEffIndex /*p_EffIndex*/)
         {
             if (MS::Garrison::GarrisonMission* l_Mission = l_GarrisonMgr->GetMissionWithID(m_Misc[0]))
             {
-                if (l_Mission->State == MS::Garrison::MissionStates::InProgress)
+                if (l_Mission->State == MS::Garrison::Mission::State::InProgress)
                     l_Mission->StartTime = time(0) - (l_GarrisonMgr->GetMissionTravelDuration(l_Mission->MissionID) + l_GarrisonMgr->GetMissionDuration(l_Mission->MissionID));
 
                 WorldPacket l_PlaceHolder;
@@ -8422,7 +8422,7 @@ void Spell::EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex)
             if (l_ContainerEntry == nullptr)
                 return;
 
-            uint32 l_PlotInstanceID = l_GarrisonMgr->GetBuildingWithType(BuildingType::Type(l_ContainerEntry->BuildingType)).PlotInstanceID;
+            uint32 l_PlotInstanceID = l_GarrisonMgr->GetBuildingWithType(Building::Type(l_ContainerEntry->BuildingType)).PlotInstanceID;
 
             if (l_PlotInstanceID)
             {

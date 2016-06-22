@@ -18818,9 +18818,9 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
 
                             if (GetGarrison())
                             {
-                                bool l_Level1 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker_WarMill_Level1);
-                                bool l_Level2 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker_WarMill_Level2);
-                                bool l_Level3 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker_WarMill_Level3);
+                                bool l_Level1 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level1);
+                                bool l_Level2 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level2);
+                                bool l_Level3 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level3);
 
                                 if (l_Level1 || l_Level2 || l_Level3)
                                     l_Coeff *= 2.0f;
@@ -22652,7 +22652,7 @@ void Player::_LoadGarrisonDailyTavernDatas(PreparedQueryResult p_Result)
     else
     {
 
-        if (l_GarrisonMgr->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1))
+        if (l_GarrisonMgr->HasActiveBuilding(MS::Garrison::Building::ID::LunarfallInn_FrostwallTavern_Level1))
         {
             if (roll_chance_i(50))
             {
@@ -28209,12 +28209,12 @@ void Player::ResetDailyGarrisonDatas()
 
     if (Manager* l_Garrison = GetGarrison())
     {
-        if (l_Garrison->HasBuildingType(BuildingType::Inn))
+        if (l_Garrison->HasBuildingType(Building::Type::Inn))
         {
             /// Weekly Tavern Reset is done in World::ResetWeeklyGarrisonDatas
 
             l_Garrison->ResetGarrisonDailyTavernData();
-            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Inn);
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(Building::Type::Inn);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
@@ -28226,7 +28226,7 @@ void Player::ResetDailyGarrisonDatas()
             }
         }
 
-        if (l_Garrison->HasBuildingType(BuildingType::Stable))
+        if (l_Garrison->HasBuildingType(Building::Type::Stable))
         {
             if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesFirstQuest))
                 SetCharacterWorldState(CharacterWorldStates::GarrisonStablesFirstQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
@@ -28235,10 +28235,10 @@ void Player::ResetDailyGarrisonDatas()
                 SetCharacterWorldState(CharacterWorldStates::GarrisonStablesSecondQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
         }
 
-        if (l_Garrison->HasBuildingType(BuildingType::Workshop))
+        if (l_Garrison->HasBuildingType(Building::Type::Workshop))
         {
             l_Garrison->ResetGarrisonWorkshopData(this);
-            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Workshop);
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(Building::Type::Workshop);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
@@ -28250,10 +28250,10 @@ void Player::ResetDailyGarrisonDatas()
             }
         }
 
-        if (l_Garrison->HasBuildingType(BuildingType::Type::TradingPost))
+        if (l_Garrison->HasBuildingType(Building::Type::TradingPost))
         {
             l_Garrison->ResetGarrisonTradingPostData(this);
-            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Type::TradingPost);
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(Building::Type::TradingPost);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
@@ -28278,7 +28278,7 @@ void Player::ResetWeeklyGarrisonDatas()
     if (Manager* l_Garrison = GetGarrison())
     {
         ///< Armory token handling
-        if (l_Garrison->GetBuildingWithType(BuildingType::Armory).DatabaseID)
+        if (l_Garrison->GetBuildingWithType(Building::Type::Armory).DatabaseID)
         {
             if (GetCharacterWorldStateValue(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain) == 1)
                 SetCharacterWorldState(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain, 0);

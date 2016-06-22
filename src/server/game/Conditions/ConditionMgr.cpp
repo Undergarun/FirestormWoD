@@ -291,10 +291,8 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
                 {
                     if (!ConditionValue2)
-                        condMeets = l_GarrisonMgr->HasBuildingType((MS::Garrison::BuildingType::Type)ConditionValue1);
                     else
                     {
-                        MS::Garrison::GarrisonBuilding l_Building = l_GarrisonMgr->GetBuildingWithType((MS::Garrison::BuildingType::Type)ConditionValue1);
 
                         if (!l_Building.BuildingID)
                         {

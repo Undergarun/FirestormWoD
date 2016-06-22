@@ -225,9 +225,9 @@ namespace MS { namespace Garrison
             /// Has active building
             bool HasActiveBuilding(uint32 p_BuildingID) const;
             /// Has building type
-            bool HasBuildingType(BuildingType::Type p_BuildingType, bool p_DontNeedActive = false) const;
+            bool HasBuildingType(Building::Type p_BuildingType, bool p_DontNeedActive = false) const;
             /// Get building with type
-            GarrisonBuilding GetBuildingWithType(BuildingType::Type p_BuildingType, bool p_DontNeedActive = false) const;
+            GarrisonBuilding GetBuildingWithType(Building::Type p_BuildingType, bool p_DontNeedActive = false) const;
             /// Get Level of the building
             uint32 GetBuildingLevel(GarrisonBuilding p_Building) const;
             /// Get building max work order
@@ -265,7 +265,7 @@ namespace MS { namespace Garrison
             void SetBuildingGatheringData(uint32 p_PlotInstanceID, std::string p_Data);
             /// Get list of creature in a specific building type
             /// @p_Type : Building type
-            std::vector<uint64> GetBuildingCreaturesByBuildingType(BuildingType::Type p_Type);
+            std::vector<uint64> GetBuildingCreaturesByBuildingType(Building::Type p_Type);
             /// Get Garrison ID
             uint32 GetGarrisonID() { return m_ID; };
             /// Get Garrison Level
@@ -441,7 +441,7 @@ namespace MS { namespace Garrison
             std::map<uint32, uint64>                m_PlotsWorkOrderGob;
             std::map<uint32, std::vector<uint64>>   m_PlotsGameObjects;
             std::map<uint32, std::vector<uint64>>   m_PlotsCreatures;
-            std::map<uint32, uint32>                m_LastPlotBuildingType; ///< <PlotID, BuildingType>
+            std::map<uint32, Building::Type>          m_LastPlotBuildingType; ///< <PlotID, BuildingType>
 
             Interfaces::GarrisonSite* m_GarrisonScript;
 
