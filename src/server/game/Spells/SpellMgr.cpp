@@ -6302,7 +6302,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
-            case 137211:
+            case 137211: ///< Tremendous Fortitude
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 break;
             case 115315: ///< Summon Black Ox Statue
@@ -7277,7 +7277,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->StackAmount = 2;
                 break;
             case 1543: ///< Flare
-                spellInfo->Effects[0].TriggerSpell = 109772;
+                spellInfo->Effects[0].TriggerSpell = 132950;
                 spellInfo->ProcChance = 100;
                 break;
             case 109772: ///< Flare
