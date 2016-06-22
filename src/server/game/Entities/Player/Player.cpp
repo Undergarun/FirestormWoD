@@ -33775,9 +33775,10 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
         m_OldPetBattleSpellToMerge.clear();
 
         if (l_Add)
+        {
             LoginDatabase.CommitTransaction(l_Transaction, l_CallBack);
-
-        return true;
+            return true;
+        }
     }
 
     for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
