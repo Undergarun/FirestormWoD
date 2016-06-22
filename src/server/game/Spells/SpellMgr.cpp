@@ -6337,10 +6337,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;
-            case 106734:///< Guardian Overrides Passive
-                spellInfo->Effects[5].Effect = 0;
-                spellInfo->Effects[6].Effect = 0;
-                break;
             case 52610: ///< Savage Roar
                 spellInfo->Effects[2].BasePoints = 40;
                 break;
