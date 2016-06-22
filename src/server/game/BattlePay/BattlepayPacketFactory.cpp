@@ -26,6 +26,21 @@ namespace Battlepay
 
             uint32 l_ProductSize = (uint32)std::count_if(sBattlepayMgr->GetProducts().begin(), sBattlepayMgr->GetProducts().end(), [p_Session, l_Player](std::pair<uint32, Battlepay::Product const&> p_Itr) -> bool
             {
+                for (auto& l_ItemProduct : p_Itr.second.Items)
+                {
+                    if (sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, p_Session->GetPlayer()))
+                        return false;
+
+                    if (ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_ItemProduct.ItemID))
+                    {
+                        if (l_ItemTemplate->AllowableClass && (l_ItemTemplate->AllowableClass & l_Player->getClassMask()) == 0)
+                            return false;
+
+                        if (l_ItemTemplate->AllowableRace && (l_ItemTemplate->AllowableRace & l_Player->getRaceMask()) == 0)
+                            return false;
+                    }
+                }
+
                 if (p_Itr.second.ClassMask == 0)
                     return true;
 
@@ -47,6 +62,35 @@ namespace Battlepay
                     continue;
 
                 if (l_Product.ClassMask && (l_Player->getClassMask() & l_Product.ClassMask) == 0)
+                    continue;
+
+                bool l_Continue = false;
+
+                for (auto& l_ItemProduct : l_Product.Items)
+                {
+                    if (sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, p_Session->GetPlayer()))
+                    {
+                        l_Continue = true;
+                        break;
+                    }
+
+                    if (ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_ItemProduct.ItemID))
+                    {
+                        if (l_ItemTemplate->AllowableClass && (l_ItemTemplate->AllowableClass & l_Player->getClassMask()) == 0)
+                        {
+                            l_Continue = true;
+                            break;
+                        }
+
+                        if (l_ItemTemplate->AllowableRace && (l_ItemTemplate->AllowableRace & l_Player->getRaceMask()) == 0)
+                        {
+                            l_Continue = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (l_Continue)
                     continue;
 
                 l_Data << uint32(l_Product.ProductID);

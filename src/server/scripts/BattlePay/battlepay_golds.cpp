@@ -12,10 +12,12 @@ namespace BattlePay
 {
     enum Type : int64
     {
-        Gold10k     = 100000000U,
-        Gold50k     = 500000000U,
-        Gold100k    = 1000000000U,
-        Gold300k    = 3000000000U,
+        Gold1k     = 10000000U,
+        Gold5k     = 50000000U,
+        Gold10k    = 100000000U,
+        Gold30k    = 300000000U,
+        Gold80k    = 800000000U,
+        Gold150k   = 1500000000U,
     };
 }
 
@@ -56,9 +58,11 @@ template<int64 t_Gold> class BattlePay_Gold : BattlePayProductScript
 #ifndef __clang_analyzer__
 void AddSC_BattlePay_Golds()
 {
+    new BattlePay_Gold<BattlePay::Gold1k>("battlepay_gold_1k");
+    new BattlePay_Gold<BattlePay::Gold5k>("battlepay_gold_5k");
     new BattlePay_Gold<BattlePay::Gold10k>("battlepay_gold_10k");
-    new BattlePay_Gold<BattlePay::Gold50k>("battlepay_gold_50k");
-    new BattlePay_Gold<BattlePay::Gold100k>("battlepay_gold_100k");
-    new BattlePay_Gold<BattlePay::Gold300k>("battlepay_gold_300k");
+    new BattlePay_Gold<BattlePay::Gold30k>("battlepay_gold_30k");
+    new BattlePay_Gold<BattlePay::Gold80k>("battlepay_gold_80k");
+    new BattlePay_Gold<BattlePay::Gold150k>("battlepay_gold_150k");
 }
 #endif

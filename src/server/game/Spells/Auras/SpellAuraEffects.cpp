@@ -1587,11 +1587,9 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
 
 void AuraEffect::Update(uint32 diff, Unit* caster)
 {
-    Aura* l_Base = (Aura*)m_base;
-    if (l_Base)
-        l_Base->CallScriptEffectUpdateHandlers(diff, this);
+    ((Aura*)m_base)->CallScriptEffectUpdateHandlers(diff, this);
 
-    if (m_isPeriodic && l_Base && (l_Base->GetDuration() >= 0 || l_Base->IsPassive() || l_Base->IsPermanent()))
+    if (m_isPeriodic && (m_base->GetDuration() >= 0 || m_base->IsPassive() || m_base->IsPermanent()))
     {
         if (m_periodicTimer > int32(diff))
             m_periodicTimer -= diff;
@@ -1611,9 +1609,9 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
                     PeriodicTick(*apptItr, caster);
 
             // TEMPORARY HACKS FOR PERIODIC HANDLERS OF DYNAMIC OBJECT AURAS
-            if (l_Base->GetType() == DYNOBJ_AURA_TYPE)
+            if (m_base->GetType() == DYNOBJ_AURA_TYPE)
             {
-                if (DynamicObject const* d_owner = l_Base->GetDynobjOwner())
+                if (DynamicObject const* d_owner = m_base->GetDynobjOwner())
                 {
                     switch (GetSpellInfo()->Id)
                     {
