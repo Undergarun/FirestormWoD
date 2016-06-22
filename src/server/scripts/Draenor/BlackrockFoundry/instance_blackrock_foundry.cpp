@@ -516,6 +516,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eIronMaidensCreatures::IronDockworker:
                     case eIronMaidensCreatures::IronEarthbinder:
                     case eIronMaidensCreatures::IronMauler:
+                    case eIronMaidensCreatures::IronCleaver:
                     {
                         if (Creature* l_Garan = instance->GetCreature(m_AdmiralGaranGuid))
                         {

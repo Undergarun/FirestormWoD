@@ -3838,6 +3838,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160050: ///< Delayed Siege Bomb - Damage (Operator Thogar)
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
+            case 171209: ///< Load Crate (Iron Dockworker - Iron Maidens intro)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
             /// Skills

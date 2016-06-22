@@ -27,9 +27,14 @@ enum eIronMaidensActions
 
 enum eIronMaidensDatas
 {
-    MaxRandomEmotes     = 3,
-    MaxLoadingChains    = 6,
-    MaxDockworkerPos    = 2
+    /// Counters
+    MaxRandomEmotes         = 3,
+    MaxLoadingChains        = 6,
+    MaxDockworkerPos        = 2,
+    MaxIronCleaverMoves     = 4,
+    /// Getters
+    LoadingChainID          = 0,
+    LoadingChainAvailable   = 1
 };
 
 static void RespawnMaidens(InstanceScript* p_Instance, Creature* p_Source)
@@ -99,6 +104,11 @@ Position const g_MarakHomePos = { 441.868f, 3136.77f, 135.302f, 1.67754f };
 Position const g_GaranHomePos = { 434.845f, 3141.18f, 135.302f, 1.39335f };
 Position const g_SorkaHomePos = { 426.464f, 3137.16f, 135.302f, 1.75377f };
 
+Position const g_GaranFirstJumpPos = { 506.106f, 3250.79f, 170.375f, 0.0f };
+Position const g_GaranSecondPos = { 463.2691f, 3186.117f, 176.3029f, 0.0f };
+
+float const g_GaranFinalFacing = 1.64061f;
+
 Position const g_CosmeticCleaverPos = { 446.648f, 3170.30f, 135.302f, 1.66107f };
 
 static std::array<Emote, eIronMaidensDatas::MaxRandomEmotes> g_DockworkerEmotes =
@@ -112,12 +122,12 @@ static std::array<Emote, eIronMaidensDatas::MaxRandomEmotes> g_DockworkerEmotes 
 static std::array<Position const, eIronMaidensDatas::MaxLoadingChains> g_LoadingChainsSpawnPos =
 {
     {
-        { 405.786f, 3194.20f, 145.749f, 1.5708f },
-        { 410.354f, 3194.36f, 145.749f, 1.5708f },
+        { 405.786f, 3194.32f, 145.749f, 1.5708f },
+        { 410.354f, 3194.32f, 145.749f, 1.5708f },
         { 415.681f, 3194.32f, 145.749f, 1.5708f },
         { 421.218f, 3194.32f, 145.749f, 1.5708f },
-        { 426.156f, 3194.77f, 145.749f, 1.5708f },
-        { 432.026f, 3194.75f, 145.749f, 1.5708f }
+        { 426.156f, 3194.32f, 145.749f, 1.5708f },
+        { 432.026f, 3194.32f, 145.749f, 1.5708f }
     }
 };
 
@@ -125,19 +135,29 @@ static std::array<Position const, eIronMaidensDatas::MaxLoadingChains> g_Loading
 static std::array<Position const, eIronMaidensDatas::MaxLoadingChains> g_LoadingChainsMoveBoatPos =
 {
     {
-        { 405.8764f, 3264.216f, 149.6323f, 1.5708f },
+        { 405.8764f, 3264.378f, 149.6323f, 1.5708f },
         { 410.4441f, 3264.378f, 149.6323f, 1.5708f },
-        { 415.6806f, 3194.325f, 145.7494f, 1.5708f },
-        { 421.3713f, 3264.340f, 149.6323f, 1.5708f },
-        { 426.2462f, 3264.793f, 149.6323f, 1.5708f },
-        { 432.1160f, 3264.775f, 149.6323f, 1.5708f }
+        { 415.6806f, 3264.378f, 149.6323f, 1.5708f },
+        { 421.3713f, 3264.378f, 149.6323f, 1.5708f },
+        { 426.2462f, 3264.378f, 149.6323f, 1.5708f },
+        { 432.1160f, 3264.378f, 149.6323f, 1.5708f }
     }
 };
 
 static std::array<Position const, eIronMaidensDatas::MaxDockworkerPos> g_IronDockworkerCarryCratePos =
 {
     {
-        { 366.79f, 3179.286f, 133.625f, 3.1741f },
-        { 389.50f, 3138.120f, 134.123f, 4.7841f }
+        { 367.4045f, 3174.203f, 133.7108f, 3.1741f },
+        { 390.8281f, 3142.027f, 134.2045f, 4.7841f }
+    }
+};
+
+static std::array<Position const, eIronMaidensDatas::MaxIronCleaverMoves> g_IronCleaverMovesPos =
+{
+    {
+        { 413.35f, 3143.22f, 135.22f, 4.72f },
+        { 457.10f, 3142.93f, 135.22f, 6.28f },
+        { 457.23f, 3187.47f, 135.22f, 1.56f },
+        { 413.77f, 3187.07f, 135.22f, 3.16f }
     }
 };

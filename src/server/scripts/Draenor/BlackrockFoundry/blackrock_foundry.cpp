@@ -3697,7 +3697,8 @@ class npc_foundry_iron_dockworker : public CreatureScript
             WorkersSolidarity       = 171545,
             WorkersSolidarityStacks = 171543,
             ThrowCrate              = 171570,
-            CarryingCrate           = 171205
+            CarryingCrate           = 171205,
+            LoadCrate               = 171209
         };
 
         enum eMoves
@@ -3710,36 +3711,40 @@ class npc_foundry_iron_dockworker : public CreatureScript
         {
             npc_foundry_iron_dockworkerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
-                m_IsCosmetic = p_Creature->IsNearPosition(&g_CosmeticCleaverPos, 6.0f);
+                m_IsCosmetic = !p_Creature->IsNearPosition(&g_CosmeticCleaverPos, 10.0f);
             }
 
             bool m_IsCosmetic;
 
+            std::array<uint64, eIronMaidensDatas::MaxLoadingChains> m_LoadingChains;
+
+            uint8 m_CurrentChainID;
+
             void Reset() override
             {
-                me->RemoveAllAreasTrigger();
-
-                me->RemoveAura(eSpells::WorkersSolidarity);
-                me->RemoveAura(eSpells::WorkersSolidarityStacks);
+                m_CurrentChainID = eIronMaidensDatas::MaxLoadingChains;
 
                 if (m_IsCosmetic)
                 {
-                    float l_Distance = 100000.0f;
-                    Position l_MovePos;
-                    for (Position const l_Pos : g_IronDockworkerCarryCratePos)
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        if (l_Distance < me->GetDistance(l_Pos))
-                        {
-                            l_Distance  = me->GetDistance(l_Pos);
-                            l_MovePos   = l_Pos;
-                        }
-                    }
+                        std::list<Creature*> l_LoadingChains;
+                        me->GetCreatureListWithEntryInGrid(l_LoadingChains, eIronMaidensCreatures::LoadingChain, 150.0f);
 
-                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_MovePos]() -> void
-                    {
-                        me->GetMotionMaster()->MovePoint(eMoves::MoveCarryCrate, l_MovePos);
+                        for (Creature* l_Chain : l_LoadingChains)
+                        {
+                            if (l_Chain->IsAIEnabled)
+                                m_LoadingChains[l_Chain->AI()->GetData(eIronMaidensDatas::LoadingChainID)] = l_Chain->GetGUID();
+                        }
+
+                        me->SetWalk(true);
+
+                        me->GetMotionMaster()->MovePoint(eMoves::MoveCarryCrate, GetNearestCratePos());
                     });
                 }
+
+                if (!me->HasAura(eSpells::WorkersSolidarity))
+                    me->CastSpell(me, eSpells::WorkersSolidarity, true);
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -3755,13 +3760,44 @@ class npc_foundry_iron_dockworker : public CreatureScript
 
                         AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            me->GetMotionMaster()->MovePoint(eMoves::MoveThrowCrate, GetFreeLoadingChain());
+                            if (m_CurrentChainID >= eIronMaidensDatas::MaxLoadingChains)
+                            {
+                                uint8 l_ChainID = GetFreeLoadingChain();
+                                if (l_ChainID >= eIronMaidensDatas::MaxLoadingChains)
+                                    return;
+
+                                m_CurrentChainID = l_ChainID;
+                            }
+
+                            Position l_Pos      = g_LoadingChainsSpawnPos[m_CurrentChainID];
+                            l_Pos.m_positionZ   = me->GetPositionZ();
+
+                            /// Set chain to unavailable state
+                            if (Creature* l_Chain = Creature::GetCreature(*me, m_LoadingChains[m_CurrentChainID]))
+                            {
+                                if (l_Chain->IsAIEnabled)
+                                    l_Chain->AI()->SetData(eIronMaidensDatas::LoadingChainAvailable, 0);
+                            }
+
+                            me->SetWalk(true);
+
+                            me->GetMotionMaster()->MovePoint(eMoves::MoveThrowCrate, l_Pos);
                         });
 
                         break;
                     }
                     case eMoves::MoveThrowCrate:
                     {
+                        if (Creature* l_Chain = Creature::GetCreature(*me, m_LoadingChains[m_CurrentChainID]))
+                            me->CastSpell(l_Chain, eSpells::LoadCrate, true);
+
+                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->SetWalk(true);
+
+                            me->GetMotionMaster()->MovePoint(eMoves::MoveCarryCrate, GetNearestCratePos());
+                        });
+
                         break;
                     }
                     default:
@@ -3771,12 +3807,14 @@ class npc_foundry_iron_dockworker : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
-                ClearDelayedOperations();
+                m_CurrentChainID = eIronMaidensDatas::MaxLoadingChains;
 
-                me->CastSpell(me, eSpells::WorkersSolidarity, true);
+                ClearDelayedOperations();
 
                 if (me->HasAura(eSpells::CarryingCrate))
                     me->CastSpell(p_Attacker, eSpells::ThrowCrate, false);
+
+                me->SetWalk(false);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -3789,9 +3827,39 @@ class npc_foundry_iron_dockworker : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            Position const GetFreeLoadingChain() const
+            Position const GetNearestCratePos() const
             {
-                return Position();
+                float l_MaxDistance = 100000.0f;
+                Position l_MovePos  = Position();
+
+                for (Position const l_Pos : g_IronDockworkerCarryCratePos)
+                {
+                    float l_Distance = me->GetDistance(l_Pos);
+                    if (l_MaxDistance > l_Distance)
+                    {
+                        l_MaxDistance   = l_Distance;
+                        l_MovePos       = l_Pos;
+                    }
+                }
+
+                return l_MovePos;
+            }
+
+            uint32 const GetFreeLoadingChain() const
+            {
+                for (uint64 l_Guid : m_LoadingChains)
+                {
+                    if (Creature* l_Chain = Creature::GetCreature(*me, l_Guid))
+                    {
+                        if (l_Chain->IsAIEnabled)
+                        {
+                            if (l_Chain->AI()->GetData(eIronMaidensDatas::LoadingChainAvailable))
+                                return l_Chain->AI()->GetData(eIronMaidensDatas::LoadingChainID);
+                        }
+                    }
+                }
+
+                return eIronMaidensDatas::MaxLoadingChains;
             }
         };
 
@@ -3828,16 +3896,29 @@ class npc_foundry_iron_earthbinder : public CreatureScript
             void Reset() override
             {
                 m_Events.Reset();
+
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (Creature* l_Cleaver = me->FindNearestCreature(eIronMaidensCreatures::IronCleaver, 5.0f))
+                        me->GetMotionMaster()->MoveFollow(l_Cleaver, 2.0f, 0.0f);
+                });
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* p_Attacker) override
             {
+                me->StopMoving();
+                me->GetMotionMaster()->Clear();
+
+                AttackStart(p_Attacker);
+
                 m_Events.ScheduleEvent(eEvents::EventInfernoTotem, 12 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventEarthenBarrier, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                UpdateOperations(p_Diff);
+
                 if (!UpdateVictim())
                     return;
 
@@ -4035,7 +4116,7 @@ class npc_foundry_iron_cleaver : public CreatureScript
 
         struct npc_foundry_iron_cleaverAI : public ScriptedAI
         {
-            npc_foundry_iron_cleaverAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_foundry_iron_cleaverAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_MoveID(0)
             {
                 m_IsCosmetic = p_Creature->IsNearPosition(&g_CosmeticCleaverPos, 1.0f);
             }
@@ -4045,6 +4126,8 @@ class npc_foundry_iron_cleaver : public CreatureScript
             bool m_IsCosmetic;
 
             std::set<uint64> m_WorkerList;
+
+            uint8 m_MoveID;
 
             void Reset() override
             {
@@ -4067,11 +4150,40 @@ class npc_foundry_iron_cleaver : public CreatureScript
                             m_IsCosmetic = false;
                     });
                 }
+                else
+                {
+                    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        me->SetWalk(true);
+
+                        me->GetMotionMaster()->MovePoint(m_MoveID, g_IronCleaverMovesPos[m_MoveID]);
+                        ++m_MoveID;
+                    });
+                }
             }
 
             void EnterCombat(Unit* /*p_Attacker*/) override
             {
+                me->SetWalk(false);
+
+                ClearDelayedOperations();
+
                 m_Events.ScheduleEvent(eEvent::EventReapingWhirl, 7 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                if (m_MoveID >= eIronMaidensDatas::MaxIronCleaverMoves)
+                    m_MoveID = 0;
+
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->GetMotionMaster()->MovePoint(m_MoveID, g_IronCleaverMovesPos[m_MoveID]);
+                    ++m_MoveID;
+                });
             }
 
             void UpdateAI(uint32 const p_Diff) override
