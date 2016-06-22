@@ -334,6 +334,50 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
         }
 };
 
+/// last update : 6.2.3
+/// Flare - 132950
+class spell_at_flare : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_flare() : AreaTriggerEntityScript("spell_at_flare") { }
+
+        enum eSpells
+        {
+            RogueStealth    = 1784,
+            Subterfuge      = 115191
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+        {
+            float l_Radius = 7.0f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            std::list<Unit*> l_NewTargetList;
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_NewTargetList, u_check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+            for (Unit* l_Target : l_NewTargetList)
+            {
+                l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                l_Target->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+                if (l_Target->getClass() == CLASS_ROGUE)
+                {
+                    l_Target->RemoveAura(eSpells::Subterfuge);
+                    l_Target->RemoveAura(eSpells::RogueStealth);
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_flare();
+        }
+};
+
 /// Binding Shot - 109248
 class spell_at_hun_binding_shot : public AreaTriggerEntityScript
 {
@@ -1556,6 +1600,7 @@ void AddSC_areatrigger_spell_scripts()
     new spell_at_hun_freezing_trap();
     new spell_at_hun_explosive_trap();
     new spell_at_hun_snake_trap();
+    new spell_at_flare();
 
     /// Mage Area Trigger
     new spell_at_mage_wod_frost_2p_bonus();

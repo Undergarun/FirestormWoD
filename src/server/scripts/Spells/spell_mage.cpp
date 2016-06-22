@@ -1321,7 +1321,7 @@ class spell_mage_combustion: public SpellScriptLoader
                     int32 l_Amount = l_Player->SpellDamageBonusDone(l_Target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
                     l_Amount = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Amount, DOT);
 
-                    combustionBp = (l_Amount * ((*i)->GetBase()->GetMaxDuration() / (*i)->GetAmplitude()) / (l_SpellInfoCombustion->GetMaxDuration() / l_SpellInfoCombustion->Effects[EFFECT_0].Amplitude));
+                    combustionBp = (l_Amount * (l_SpellInfoCombustion)->Effects[EFFECT_0].BasePoints) / (l_SpellInfoCombustion->GetMaxDuration() / l_SpellInfoCombustion->Effects[EFFECT_0].Amplitude);
                 }
 
                 if (combustionBp)

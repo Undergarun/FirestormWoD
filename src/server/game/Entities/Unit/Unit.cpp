@@ -2079,6 +2079,13 @@ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* s
                 if (spellInfo->GetEffectMechanicMask(effIndex) & (1<<MECHANIC_BLEED))
                     return false;
         }
+
+        for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
+        {
+            if (spellInfo->Effects[i].Effect == SPELL_EFFECT_SCHOOL_DAMAGE &&
+                spellInfo->GetEffectMechanicMask(i) & (1 << MECHANIC_BLEED))
+                return false;
+        }
     }
     return true;
 }
@@ -8089,8 +8096,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     break;
                 }
                 case 31801: /// Seal of Truth (damage calc on apply aura)
-                {
-                    if (effIndex != 0 || (procSpell && procSpell->Id == 53385))                       // effect 2 used by seal unleashing code
+                {                             /// Shouldn't proc for Divine storm and Hammer of the Righteous
+                    if (effIndex != 0 || (procSpell && (procSpell->Id == 53385 || procSpell->Id == 88263)))  // effect 2 used by seal unleashing code
                         return false;
 
                     triggered_spell_id = 31803;
@@ -11368,6 +11375,9 @@ Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
                 && (IsWithinLOSInMap(magnet)
                 || magnet->isTotem()))
             {
+                /// HackFix for Grounding Totem to not be able to redirect two spells in a row
+                if ((*itr)->GetSpellInfo()->Id == 8178)
+                    victim->RemoveAura(8178);
                 return magnet;
             }
     }
@@ -12383,11 +12393,30 @@ bool Unit::IsAuraAbsorbCrit(SpellInfo const* p_SpellProto, SpellSchoolMask /*p_S
     return roll_chance_f(l_CritAbsorb);
 }
 
+bool Unit::IsUnitAbleToCrit() const
+{
+    uint32 l_Entry = GetEntry();
+    switch (l_Entry)
+    {
+        case 15438:
+        case 63508:
+        case 27829:
+        case 77936:
+        case 55659:
+        case 82927: ///< Inner Demon
+        case 11859: ///< Summon Doomguard
+        case 78158: ///< Grimoire Doomguard
+            return true;
+        default:
+            return false;
+    }
+}
+
 float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) and Ebon Gargoyle can too - but this part is a hack and needs more research
-    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829 && GetEntry() != 77936 && GetEntry() != 55659 && GetEntry() != 82927)
+    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && !IsUnitAbleToCrit())
         return 0.0f;
 
     // not critting spell
@@ -14098,9 +14127,6 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
 
     /// Prismatic Crystal should be attackable only by summoner
     if (target->GetEntry() == 76933 && target->ToTempSummon() && target->ToTempSummon()->GetSummoner() && target->ToTempSummon()->GetSummoner()->GetGUID() != GetGUID())
-        return false;
-
-    if (target->HasAuraType(SPELL_AURA_SEE_WHILE_INVISIBLE))
         return false;
 
     // can't attack unattackable units or GMs

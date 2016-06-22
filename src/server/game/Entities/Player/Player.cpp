@@ -3243,7 +3243,7 @@ void Player::RegenerateHealth()
 
 void Player::ResetAllPowers()
 {
-    if (getPowerType() == POWER_COMBO_POINT)
+    if (getClass() == CLASS_ROGUE || getClass() == CLASS_DRUID)
         ClearComboPoints();
 
     SetHealth(GetMaxHealth());

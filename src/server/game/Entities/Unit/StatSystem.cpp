@@ -1059,10 +1059,7 @@ void Player::UpdateManaRegen()
                 if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(l_Eff->GetSpellInfo(), l_Eff->GetAmount(), l_SameEffectSpellGroup))
                 {
                     auto l_Base = l_Eff->GetBase();
-                    if (l_Base && l_Base->GetMaxDuration() == 3600000) ///< is one-hour aura
-                        l_RegenFromModPowerRegen += l_Eff->GetAmount();
-                    else
-                        l_RegenFromModPowerRegen += l_Eff->GetAmount() / 5.0f;
+                    l_RegenFromModPowerRegen += l_Eff->GetAmount();
                 }
             }
         }

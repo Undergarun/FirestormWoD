@@ -7,7 +7,7 @@
 #
 # Host: gameserver.ashran.com (MySQL 5.5.42-37.1)
 # Database: main_noire_characters
-# Generation Time: 2016-05-27 08:08:55 +0000
+# Generation Time: 2016-06-20 09:43:24 +0000
 # ************************************************************
 
 
@@ -528,6 +528,7 @@ CREATE TABLE `character_aura` (
   `maxduration` int(11) NOT NULL DEFAULT '0',
   `remaintime` int(11) NOT NULL DEFAULT '0',
   `remaincharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `castItemLevel` int(11) NOT NULL DEFAULT '-1',
   PRIMARY KEY (`guid`,`caster_guid`,`item_guid`,`spell`,`effect_mask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 
@@ -804,6 +805,19 @@ CREATE TABLE `character_garrison_mission` (
   `state` int(10) unsigned NOT NULL DEFAULT '10',
   PRIMARY KEY (`id`),
   KEY `garrison_id` (`garrison_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+# Dump of table character_garrison_weekly_tavern_data
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `character_garrison_weekly_tavern_data`;
+
+CREATE TABLE `character_garrison_weekly_tavern_data` (
+  `CharacterGUID` int(10) DEFAULT NULL,
+  `FollowerID` int(10) DEFAULT NULL,
+  `Abilities` blob
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
