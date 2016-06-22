@@ -304,6 +304,7 @@ class BattlePet
 
         /// When a player earn a pet it will insert into his account
         void AddToPlayer(Player* p_Player);
+        void AddToPlayer(Player* p_Player, SQLTransaction& p_Transaction);
 
         /// Update pet stats
         void UpdateStats();
