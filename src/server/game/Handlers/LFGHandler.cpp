@@ -20,7 +20,6 @@
 
 void WorldSession::HandleLfgJoinOpcode(WorldPacket& p_Packet)
 {
-    return; ///< tmp disable, lag
     LfgDungeonSet l_Slots;
 
     std::string l_Comment = "";
