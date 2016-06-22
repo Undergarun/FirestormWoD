@@ -33611,6 +33611,61 @@ bool Player::UpdateItemLevelCutOff(uint32 p_StartsWith, uint32 p_MinLevel, uint3
     return true;
 }
 
+/// Set current interaction status
+/// NOTE : This will fire all pending callback
+/// @p_GUID   : Interacted GUID
+/// @p_Status : New interaction status
+void Player::SetInteractionStatus(uint64 p_GUID, InteractionStatus::Type p_Status)
+{
+    /// @TODO temp disable
+    return;
+    m_InteractionStatusMutex.lock();
+
+    if (m_InteractionStatus.find(p_GUID) == m_InteractionStatus.end())
+        m_InteractionStatus[p_GUID] = std::queue<InteractionStatus::Type>();
+
+    auto & l_Queue = m_InteractionStatus[p_GUID];
+    InteractionStatus::Type l_Old = InteractionStatus::None;
+
+    if (!l_Queue.empty() && p_Status == InteractionStatus::None)
+    {
+        l_Old = l_Queue.front();
+        l_Queue.pop();
+    }
+
+    l_Queue.push(p_Status);
+
+    std::vector<Player::InteractionStatusCallback> l_Callbacks = m_InteractionStatusCallbacks[p_GUID];
+    m_InteractionStatusCallbacks[p_GUID].clear();
+
+    m_InteractionStatusMutex.unlock();
+
+    for (const auto& l_Callback : l_Callbacks)
+    {
+        if (!l_Callback(this, p_GUID, l_Old, p_Status))
+            AddInteractionStatusChangeCallback(p_GUID, l_Callback);
+    }
+}
+
+/// Get current interaction status
+Player::InteractionStatusMap Player::GetInteractionStatus()
+{
+    std::lock_guard<std::mutex> l_LockGuard(m_InteractionStatusMutex);
+    return m_InteractionStatus;
+}
+
+/// Register a "fire once" callback for interaction status change
+/// @p_GUID     : Interacted GUID
+/// @p_Callback : Callback method
+void Player::AddInteractionStatusChangeCallback(uint64 p_GUID, const Player::InteractionStatusCallback& p_Callback)
+{
+    /// @TODO temp disable
+    return;
+    m_InteractionStatusMutex.lock();
+    m_InteractionStatusCallbacks[p_GUID].push_back(p_Callback);
+    m_InteractionStatusMutex.unlock();
+}
+
 void Player::SetInPvPCombat(bool set)
 {
     if (m_pvpCombat == set)

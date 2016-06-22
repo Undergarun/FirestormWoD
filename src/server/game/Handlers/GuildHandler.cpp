@@ -316,7 +316,10 @@ void WorldSession::HandleGuildBankActivate(WorldPacket& p_Packet)
     }
 
     if (Guild* l_Guild = _GetPlayerGuild(this))
+    {
+        m_Player->SetInteractionStatus(l_Banker, InteractionStatus::GuildBanq);
         l_Guild->SendBankList(this, 0, true, true);
+    }
     else
         Guild::SendCommandResult(this, GUILD_BANK, ERR_GUILD_PLAYER_NOT_IN_GUILD);
 }

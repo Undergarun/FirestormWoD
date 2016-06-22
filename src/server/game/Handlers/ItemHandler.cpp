@@ -732,14 +732,14 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& p_RecvPacket)
 
 void WorldSession::HandleListInventoryOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    uint64 l_GUID;
 
-    recvData.readPackGUID(guid);
+    recvData.readPackGUID(l_GUID);
 
     if (!GetPlayer()->isAlive())
         return;
 
-    SendListInventory(guid);
+    SendListInventory(l_GUID);
 }
 
 void WorldSession::SendListInventory(uint64 p_VendorGUID, bool p_FunCustomPlayerConditionFilter, bool p_NoFilters)
@@ -953,6 +953,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID, bool p_FunCustomPlayer
     l_Response << uint32(l_ItemCount);
     l_Response.append(l_ItemDataBuffer);
 
+    m_Player->SetInteractionStatus(p_VendorGUID, InteractionStatus::Vendor);
     SendPacket(&l_Response);
 }
 

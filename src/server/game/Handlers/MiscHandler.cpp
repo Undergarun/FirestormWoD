@@ -1688,6 +1688,17 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& p_Packet)
     GetPlayer()->UpdateVisibilityForPlayer();
 }
 
+void WorldSession::HandleCloseInteraction(WorldPacket& p_RecvData)
+{
+    if (!m_Player)
+        return;
+
+    uint64 l_GUID = 0;
+    p_RecvData.readPackGUID(l_GUID);
+
+    m_Player->SetInteractionStatus(l_GUID, InteractionStatus::None);
+}
+
 void WorldSession::HandleSetTitleOpcode(WorldPacket& p_Packet)
 {
     uint32 l_Title = 0;
