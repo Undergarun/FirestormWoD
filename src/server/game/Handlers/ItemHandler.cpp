@@ -742,7 +742,7 @@ void WorldSession::HandleListInventoryOpcode(WorldPacket& recvData)
     SendListInventory(guid);
 }
 
-void WorldSession::SendListInventory(uint64 p_VendorGUID)
+void WorldSession::SendListInventory(uint64 p_VendorGUID, bool p_FunCustomPlayerConditionFilter, bool p_NoFilters)
 {
     Creature* l_Vendor = GetPlayer()->GetNPCIfCanInteractWith(p_VendorGUID, UNIT_NPC_FLAG_VENDOR);
 
@@ -778,6 +778,12 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
 
         VendorItem const* l_VendorItem = vendorItems->GetItem(slot);
         if (!l_VendorItem)
+            continue;
+
+        if (p_FunCustomPlayerConditionFilter && l_VendorItem->PlayerConditionID < 0xFFFFFF)
+            continue;
+
+        if (!p_FunCustomPlayerConditionFilter && l_VendorItem->PlayerConditionID >= 0xFFFFFF)
             continue;
 
         if (l_VendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
@@ -882,19 +888,21 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             if (l_PriceMod)
                 l_Price -= CalculatePct(l_Price, l_PriceMod);
 
-            bool l_BypassFilter = !(l_ItemTemplate->HasSpec() || l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_BYPASS_VENDOR_FILTER);
+            bool l_BypassFilter = p_NoFilters ? true : ((l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_BYPASS_VENDOR_FILTER) || (!l_ItemTemplate->HasSpec()));
 
             l_ItemDataBuffer << uint32(l_Muid);
             l_ItemDataBuffer << uint32(ITEM_VENDOR_TYPE_ITEM);              ///< Item type
 
             Item::BuildDynamicItemDatas(l_ItemDataBuffer, l_VendorItem->item);
 
+            uint32 l_PlayerCondition = (l_VendorItem->PlayerConditionID >= 0xFFFFFF) ? 0 : l_VendorItem->PlayerConditionID;
+
             l_ItemDataBuffer << int32(l_AvailableInStock);                  ///< Available In Stock
             l_ItemDataBuffer << uint32(l_Price);                            ///< Price
             l_ItemDataBuffer << uint32(l_ItemTemplate->MaxDurability);      ///< Max durability
             l_ItemDataBuffer << uint32(l_ItemTemplate->BuyCount);           ///< Stack count
             l_ItemDataBuffer << uint32(l_VendorItem->ExtendedCost);         ///< Extended cost ID
-            l_ItemDataBuffer << uint32(l_VendorItem->PlayerConditionID);    ///< Player condition failed
+            l_ItemDataBuffer << uint32(l_PlayerCondition);                  ///< Player condition failed
 
             l_ItemDataBuffer.WriteBit(l_BypassFilter);                      ///< Do not filter on vendor
             l_ItemDataBuffer.FlushBits();
