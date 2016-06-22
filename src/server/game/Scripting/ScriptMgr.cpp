@@ -2464,6 +2464,16 @@ bool ScriptMgr::BattlePayCanBuy(WorldSession* p_Session, Battlepay::Product cons
     return l_Script->CanBuy(p_Session, p_Product, p_Reason);
 }
 
+std::string ScriptMgr::BattlePayGetCustomData(Battlepay::Product const& p_Product)
+{
+    auto l_Itr = m_BattlePayProductScripts.find(p_Product.ScriptName);
+    if (l_Itr == m_BattlePayProductScripts.end())
+        return "";
+
+    BattlePayProductScript* l_Script = l_Itr->second;
+    return l_Script->GetCustomData(p_Product);
+}
+
 //////////////////////////////////////////////////////////////////////////
 /// EncounterScripts
 void ScriptMgr::OnEncounterEnd(EncounterDatas const* p_EncounterDatas)

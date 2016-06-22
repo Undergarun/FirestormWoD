@@ -988,6 +988,7 @@ class ScriptMgr
         void RegisterBattlePayProductScript(std::string p_ScriptName, BattlePayProductScript* p_Script);
         void OnBattlePayProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product);
         bool BattlePayCanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason);
+        std::string BattlePayGetCustomData(Battlepay::Product const& p_Product);
 
     /// Encounter scripts
     public:
