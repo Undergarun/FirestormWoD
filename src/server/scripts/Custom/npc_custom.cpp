@@ -786,6 +786,254 @@ class npc_fun_transmo_vendor : public CreatureScript
 
 };
 
+class npc_legendary_transmogrificator : public CreatureScript
+{
+    public:
+        npc_legendary_transmogrificator() : CreatureScript("npc_legendary_transmogrificator") { }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (player->getLevel() < 19)
+            {
+                player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+                return true;
+            }
+
+            WorldSession* session = player->GetSession();
+            for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_TABARD; slot++) // EQUIPMENT_SLOT_END
+            {
+                if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                {
+                    uint32 quality = newItem->GetTemplate()->Quality;
+                    if (quality == ITEM_QUALITY_UNCOMMON || quality == ITEM_QUALITY_RARE || quality == ITEM_QUALITY_EPIC || quality == ITEM_QUALITY_HEIRLOOM || quality == ITEM_QUALITY_LEGENDARY)
+                    {
+                        if (const char* slotName = GetSlotName(slot, session))
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, slotName, EQUIPMENT_SLOT_END, slot);
+                    }
+                }
+            }
+            player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, session->GetTrinityString(LANG_OPTION_REMOVE_ALL), EQUIPMENT_SLOT_END+2, 0, session->GetTrinityString(LANG_POPUP_REMOVE_ALL), 0, false);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, session->GetTrinityString(LANG_OPTION_UPDATE_MENU), EQUIPMENT_SLOT_END+1, 0);
+            player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 uiAction)
+        {
+            WorldSession* session = player->GetSession();
+            player->PlayerTalkClass->ClearMenus();
+            switch(sender)
+            {
+                case EQUIPMENT_SLOT_END: // Show items you can use
+                {
+                    if (Item* oldItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, uiAction))
+                    {
+                        uint32 lowGUID = player->GetGUIDLow();
+                        _items[lowGUID].clear();
+                        uint32 limit = 0;
+                        for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++)
+                        {
+                            if (limit > 30)
+                                break;
+                            if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                            {
+                                uint32 display = newItem->GetTemplate()->DisplayInfoID;
+
+                                if (Item::CanTransmogrifyItemWithItem(oldItem->GetTemplate(), newItem->GetTemplate()))
+                                {
+                                    if (_items[lowGUID].find(display) == _items[lowGUID].end())
+                                    {
+                                        limit++;
+                                        _items[lowGUID][display] = newItem;
+                                        player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, GetItemName(newItem, session), uiAction, display, session->GetTrinityString(LANG_POPUP_TRANSMOGRIFY)+GetItemName(newItem, session), GetFakePrice(oldItem), false);
+                                    }
+                                }
+                            }
+                        }
+
+                        for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+                        {
+                            if (Bag* bag = player->GetBagByPos(i))
+                            {
+                                for (uint32 j = 0; j < bag->GetBagSize(); j++)
+                                {
+                                    if (limit > 30)
+                                        break;
+                                    if (Item* newItem = player->GetItemByPos(i, j))
+                                    {
+                                        uint32 display = newItem->GetTemplate()->DisplayInfoID;
+                                        if (Item::CanTransmogrifyItemWithItem(oldItem->GetTemplate(), newItem->GetTemplate()))
+                                        {
+                                            if (_items[lowGUID].find(display) == _items[lowGUID].end())
+                                            {
+                                                limit++;
+                                                _items[lowGUID][display] = newItem;
+                                                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, GetItemName(newItem, session), uiAction, display, session->GetTrinityString(LANG_POPUP_TRANSMOGRIFY)+GetItemName(newItem, session), GetFakePrice(oldItem), false);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        char popup[250];
+                        snprintf(popup, 250, session->GetTrinityString(LANG_POPUP_REMOVE_ONE), GetSlotName(uiAction, session));
+                        player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, session->GetTrinityString(LANG_OPTION_REMOVE_ONE), EQUIPMENT_SLOT_END+3, uiAction, popup, 0, false);
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, session->GetTrinityString(LANG_OPTION_BACK), EQUIPMENT_SLOT_END+1, 0);
+                        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+                    }
+                    else
+                        OnGossipHello(player, creature);
+
+                    break;
+                }
+                case EQUIPMENT_SLOT_END+1: // Back
+                {
+                    OnGossipHello(player, creature);
+
+                    break;
+                }
+                case EQUIPMENT_SLOT_END+2: // Remove Transmogrifications
+                {
+                    bool removed = false;
+                    for (uint8 Slot = EQUIPMENT_SLOT_START; Slot < EQUIPMENT_SLOT_END; Slot++)
+                    {
+                        if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, Slot))
+                        {
+                            if (newItem->GetModifier(eItemModifiers::TransmogItemID) != 0 && !removed)
+                            {
+                                newItem->SetModifier(eItemModifiers::TransmogItemID, 0);
+                                player->SetVisibleItemSlot(uiAction, newItem);
+
+                                removed = true;
+                            }
+                        }
+                    }
+                    if (removed)
+                    {
+                        ChatHandler(session).PSendSysMessage(session->GetTrinityString(LANG_REM_TRANSMOGRIFICATIONS_ITEMS));
+                        player->PlayDirectSound(3337);
+                    }
+                    else
+                        session->SendNotification(session->GetTrinityString(LANG_ERR_NO_TRANSMOGRIFICATIONS));
+
+                    OnGossipHello(player, creature);
+
+                    break;
+                }
+                case EQUIPMENT_SLOT_END+3: // Remove Transmogrification from single item
+                {
+                    if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, uiAction))
+                    {
+                        if (newItem->GetModifier(eItemModifiers::TransmogItemID) != 0)
+                        {
+                            newItem->SetModifier(eItemModifiers::TransmogItemID, 0);
+                            player->SetVisibleItemSlot(uiAction, newItem);
+
+                            ChatHandler(session).PSendSysMessage(session->GetTrinityString(LANG_REM_TRANSMOGRIFICATION_ITEM), GetSlotName(uiAction, session));
+                            player->PlayDirectSound(3337);
+                        }
+                        else
+                            session->SendNotification(session->GetTrinityString(LANG_ERR_NO_TRANSMOGRIFICATION), GetSlotName(uiAction, session));
+                    }
+
+                    OnGossipSelect(player, creature, EQUIPMENT_SLOT_END, uiAction);
+
+                    break;
+                }
+                default: // Transmogrify
+                {
+                    uint32 lowGUID = player->GetGUIDLow();
+                    if (Item* oldItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, sender))
+                    {
+                        if (_items[lowGUID].find(uiAction) != _items[lowGUID].end() && _items[lowGUID][uiAction]->IsInWorld())
+                        {
+                            Item* newItem = _items[lowGUID][uiAction];
+                            if (newItem->GetOwnerGUID() == player->GetGUID() && (newItem->IsInBag() || newItem->GetBagSlot() == INVENTORY_SLOT_BAG_0) 
+                                && Item::CanTransmogrifyItemWithItem(oldItem->GetTemplate(), newItem->GetTemplate()))
+                            {
+                                player->ModifyMoney(-1*GetFakePrice(oldItem)); // take cost
+
+                                oldItem->SetModifier(eItemModifiers::TransmogItemID, newItem->GetEntry());
+                                player->SetVisibleItemSlot(sender, oldItem);
+
+                                oldItem->UpdatePlayedTime(player);
+
+                                oldItem->SetOwnerGUID(player->GetGUID());
+                                oldItem->SetNotRefundable(player);
+                                oldItem->ClearSoulboundTradeable(player);
+
+                                if (newItem != nullptr)
+                                {
+                                    if (newItem->GetTemplate()->Bonding == BIND_WHEN_EQUIPED || newItem->GetTemplate()->Bonding == BIND_WHEN_USE)
+                                        newItem->SetBinding(true);
+
+                                    newItem->SetOwnerGUID(player->GetGUID());
+                                    newItem->SetNotRefundable(player);
+                                    newItem->ClearSoulboundTradeable(player);
+                                    newItem->SetState(ITEM_CHANGED, player);
+                                }
+
+                                oldItem->SetState(ITEM_CHANGED, player);
+
+                                player->PlayDirectSound(3337);
+
+                                ChatHandler(session).PSendSysMessage(session->GetTrinityString(LANG_ITEM_TRANSMOGRIFIED), GetSlotName(sender, session));
+                            }
+                            else
+                                session->SendNotification(session->GetTrinityString(LANG_ERR_NO_ITEM_SUITABLE));
+                        }
+                        else
+                            session->SendNotification(session->GetTrinityString(LANG_ERR_NO_ITEM_EXISTS));
+                    }
+                    else
+                        session->SendNotification(session->GetTrinityString(LANG_ERR_EQUIP_SLOT_EMPTY));
+
+                    _items[lowGUID].clear();
+                    OnGossipSelect(player, creature, EQUIPMENT_SLOT_END, sender);
+
+                    break;
+                }
+            }
+            return true;
+        }
+
+    private:
+        std::map<uint64, std::map<uint32, Item*> > _items; // _items[lowGUID][DISPLAY] = item
+
+        const char * GetSlotName(uint8 slot, WorldSession* session)
+        {
+            switch(slot)
+            {
+                case EQUIPMENT_SLOT_HEAD      : return session->GetTrinityString(LANG_SLOT_NAME_HEAD);
+                case EQUIPMENT_SLOT_SHOULDERS : return session->GetTrinityString(LANG_SLOT_NAME_SHOULDERS);
+                case EQUIPMENT_SLOT_BODY      : return session->GetTrinityString(LANG_SLOT_NAME_BODY);
+                case EQUIPMENT_SLOT_CHEST     : return session->GetTrinityString(LANG_SLOT_NAME_CHEST);
+                case EQUIPMENT_SLOT_WAIST     : return session->GetTrinityString(LANG_SLOT_NAME_WAIST);
+                case EQUIPMENT_SLOT_LEGS      : return session->GetTrinityString(LANG_SLOT_NAME_LEGS);
+                case EQUIPMENT_SLOT_FEET      : return session->GetTrinityString(LANG_SLOT_NAME_FEET);
+                case EQUIPMENT_SLOT_WRISTS    : return session->GetTrinityString(LANG_SLOT_NAME_WRISTS);
+                case EQUIPMENT_SLOT_HANDS     : return session->GetTrinityString(LANG_SLOT_NAME_HANDS);
+                case EQUIPMENT_SLOT_BACK      : return session->GetTrinityString(LANG_SLOT_NAME_BACK);
+                case EQUIPMENT_SLOT_MAINHAND  : return session->GetTrinityString(LANG_SLOT_NAME_MAINHAND);
+                case EQUIPMENT_SLOT_OFFHAND   : return session->GetTrinityString(LANG_SLOT_NAME_OFFHAND);
+                case EQUIPMENT_SLOT_RANGED    : return session->GetTrinityString(LANG_SLOT_NAME_RANGED);
+                case EQUIPMENT_SLOT_TABARD    : return session->GetTrinityString(LANG_SLOT_NAME_TABARD);
+                default: return NULL;
+            }
+        }
+
+        std::string GetItemName(Item* item, WorldSession* session)
+        {
+            std::string name = item->GetTemplate()->Name1->Get(session->GetSessionDbLocaleIndex());
+            return name;
+        }
+
+        int32 GetFakePrice(Item* item)
+        {
+            return item->GetTemplate()->ItemLevel * 12.5f * GOLD;
+        }
+};
 
 #ifndef __clang_analyzer__
 void AddSC_npc_custom()
@@ -795,5 +1043,6 @@ void AddSC_npc_custom()
     new npc_season_2_premade_master();
     new npc_fun_gold_vendor();
     new npc_fun_transmo_vendor();
+    new npc_legendary_transmogrificator();
 }
 #endif
