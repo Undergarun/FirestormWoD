@@ -37,6 +37,7 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket& p_Packet)
     if (m_Player->HasUnitState(UNIT_STATE_DIED))
         m_Player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
+    m_Player->SetInteractionStatus(l_Guid, InteractionStatus::AuctionHouse);
     SendAuctionHello(l_Guid, l_Unit);
 }
 

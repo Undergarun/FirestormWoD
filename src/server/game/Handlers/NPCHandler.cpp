@@ -80,6 +80,7 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& p_RecvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
+    m_Player->SetInteractionStatus(l_Guid, InteractionStatus::Banq);
     SendShowBank(l_Guid);
 }
 
@@ -221,6 +222,8 @@ void WorldSession::SendTrainerList(uint64 p_NpcGUID, const std::string& p_Title)
 
         ++l_TrainerSpellCount;
     }
+
+    m_Player->SetInteractionStatus(p_NpcGUID, InteractionStatus::Trainer);
 
     WorldPacket l_Data(SMSG_TRAINER_LIST, 16 + 2 + 4 + 4 + 4 + l_TrainerList.size() + 1 + p_Title.size());
 

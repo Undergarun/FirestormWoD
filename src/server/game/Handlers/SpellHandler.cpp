@@ -424,7 +424,12 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
         return;
 
     if (GameObject* obj = GetPlayer()->GetMap()->GetGameObject(l_GameObjectGUID))
+    {
         obj->Use(m_Player);
+
+        if (obj->GetGoType() == GAMEOBJECT_TYPE_MAILBOX)
+            m_Player->SetInteractionStatus(l_GameObjectGUID, InteractionStatus::MailBox);
+    }
 }
 
 void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)

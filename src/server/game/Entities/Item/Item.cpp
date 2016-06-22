@@ -1721,6 +1721,14 @@ bool Item::SubclassesCompatible(ItemTemplate const* p_Transmogrifier, ItemTempla
         p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW))
         return true;
 
+    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_SWORD||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2) &&
+        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_SWORD ||
+         p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2))
+        return true;
+
     return false;
 }
 

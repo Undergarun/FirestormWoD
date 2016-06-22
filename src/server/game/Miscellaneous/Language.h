@@ -1367,6 +1367,39 @@ enum TrinityStrings
     WarnRaidTests = 20000,
     CharXPRateWarn,
 
+    /// Transmo
+    LANG_REM_TRANSMOGRIFICATIONS_ITEMS      = 30000,
+    LANG_ERR_NO_TRANSMOGRIFICATIONS         = 30001,
+    LANG_REM_TRANSMOGRIFICATION_ITEM        = 30002,
+    LANG_ERR_NO_TRANSMOGRIFICATION          = 30003,
+    LANG_ITEM_TRANSMOGRIFIED                = 30004,
+    LANG_ERR_NO_ITEM_SUITABLE               = 30005,
+    LANG_ERR_NO_ITEM_EXISTS                 = 30006,
+    LANG_ERR_EQUIP_SLOT_EMPTY               = 30007,
+
+    LANG_SLOT_NAME_HEAD                     = 30008,
+    LANG_SLOT_NAME_SHOULDERS                = 30009,
+    LANG_SLOT_NAME_BODY                     = 30010,
+    LANG_SLOT_NAME_CHEST                    = 30011,
+    LANG_SLOT_NAME_WAIST                    = 30012,
+    LANG_SLOT_NAME_LEGS                     = 30013,
+    LANG_SLOT_NAME_FEET                     = 30014,
+    LANG_SLOT_NAME_WRISTS                   = 30015,
+    LANG_SLOT_NAME_HANDS                    = 30016,
+    LANG_SLOT_NAME_BACK                     = 30017,
+    LANG_SLOT_NAME_MAINHAND                 = 30018,
+    LANG_SLOT_NAME_OFFHAND                  = 30019,
+    LANG_SLOT_NAME_RANGED                   = 30020,
+    LANG_SLOT_NAME_TABARD                   = 30021,
+
+    LANG_OPTION_BACK                        = 30022,
+    LANG_OPTION_REMOVE_ALL                  = 30023,
+    LANG_POPUP_REMOVE_ALL                   = 30024,
+    LANG_OPTION_UPDATE_MENU                 = 30025,
+    LANG_OPTION_REMOVE_ONE                  = 30026,
+    LANG_POPUP_REMOVE_ONE                   = 30027,
+    LANG_POPUP_TRANSMOGRIFY                 = 30028,
+
     /// Chat filtering
     ChatFilteringOff = 300000,
     ChatFilteringOn

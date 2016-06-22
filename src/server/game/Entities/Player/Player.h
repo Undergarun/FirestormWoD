@@ -1426,6 +1426,24 @@ namespace InterRealmPlayerState
 
 typedef std::list<Channel*> JoinedChannelsList;
 
+namespace InteractionStatus
+{
+    enum Type
+    {
+        None,
+        Gossip,
+        Vendor,
+        Banq,
+        GuildBanq,
+        Transmogrification,
+        VoidStorage,
+        ItemUpgrade,
+        Trainer,
+        AuctionHouse,
+        MailBox
+    };
+}
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -3596,6 +3614,25 @@ class Player : public Unit, public GridObject<Player>
 
         float GetMasteryCache() const { return m_MasteryCache; }
 
+        /// Interaction map type
+        using InteractionStatusMap = std::map<uint64, std::queue<InteractionStatus::Type>>;
+        /// Interaction callback type
+        using InteractionStatusCallback = std::function<bool(Player*, uint64, InteractionStatus::Type, InteractionStatus::Type)>;
+        /// Callback map type
+        using InteractionStatusCallbackMap = std::map<uint64, std::vector<InteractionStatusCallback>>;
+
+        /// Set current interaction status
+        /// NOTE : This will fire all pending callback
+        /// @p_GUID   : Interacted GUID
+        /// @p_Status : New interaction status
+        void SetInteractionStatus(uint64 p_GUID, InteractionStatus::Type p_Status);
+        /// Get current interaction status
+        InteractionStatusMap GetInteractionStatus();
+        /// Register a "fire once" callback for interaction status change
+        /// @p_GUID     : Interacted GUID
+        /// @p_Callback : Callback method
+        void AddInteractionStatusChangeCallback(uint64 p_GUID, const InteractionStatusCallback& p_Callback);
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3619,6 +3656,10 @@ class Player : public Unit, public GridObject<Player>
         bool m_VoidStorageLoaded;
 
     private:
+        InteractionStatusMap            m_InteractionStatus;            ///< InteractionStatus
+        InteractionStatusCallbackMap    m_InteractionStatusCallbacks;   ///< Callbacks
+        std::mutex                      m_InteractionStatusMutex;       ///< Mutex
+
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
         uint32 m_regenTimerCount;

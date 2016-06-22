@@ -1,12 +1,13 @@
 SET @NPC_ID = 900011;
 SET @NPC_DISPLAY_ID = 53057;
 SET @NPC_NAME = "Shaman";
-SET @NPC_SUBNAME = "PvP Transmo";
+SET @NPC_SUBNAME = "Transmog";
+SET @NPC_SCRIPT = "npc_fun_transmo_vendor";
 SET @SLOT = 1;
 
 DELETE FROM `creature_template` where `entry` = @NPC_ID;
 INSERT INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `femaleName`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `exp_req`, `faction`, `npcflag`, `npcflag2`, `speed_walk`, `speed_run`, `speed_fly`, `scale`, `rank`, `dmgschool`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `baseVariance`, `rangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Mana_mod_extra`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `TrackingQuestID`, `VignetteID`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `BuildVerified`)
- VALUES (@NPC_ID, '0', '0', @NPC_DISPLAY_ID, '0', '0', '0', @NPC_NAME, '', @NPC_SUBNAME, '', '0', '100', '100', '0', '0', '35', '129', '0', '2.8', '2.14286', '1.14286', '1', '0', '0', '35', '1200', '2000', '1', '1', '1', '64', '2048', '0', '0', '0', '0', '0', '0', '0', '0', '7', '76', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '100', '100', '', '0', '3', '1', '112.5', '150', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '1', '', '20779'); 
+ VALUES (@NPC_ID, '0', '0', @NPC_DISPLAY_ID, '0', '0', '0', @NPC_NAME, '', @NPC_SUBNAME, '', '0', '100', '100', '0', '0', '35', '129', '0', '2.8', '2.14286', '1.14286', '1', '0', '0', '35', '1200', '2000', '1', '1', '1', '64', '2048', '0', '0', '0', '0', '0', '0', '0', '0', '7', '76', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '100', '100', '', '0', '3', '1', '112.5', '150', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '1', @NPC_SCRIPT, '20779'); 
 
 DELETE FROM `npc_vendor` where `entry` = @NPC_ID;
 
@@ -397,4 +398,618 @@ SET @SLOT = @SLOT + 1;
 INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 100457, 0, 0, 1435, 1, 0);
 SET @SLOT = @SLOT + 1;
 INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 103286, 0, 0, 1435, 1, 0);
+SET @SLOT = @SLOT + 1;
+
+-- -------------------------------------------------
+-- PVE
+-- -------------------------------------------------
+
+-- Tier 1                     
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16837, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16838, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16839, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16840, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16842, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16843, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16844, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 28391, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 1 (Recolor)            
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 27454, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 27793, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 27845, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 27993, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 28266, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 2                     
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16943, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16944, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16945, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16946, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16947, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16948, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16949, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 16950, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 3                   
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 22464, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 22465, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 22466, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 22467, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 22468, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 22469, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 22470, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 22471, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 4                            
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 28503, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 28567, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 28610, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 29038, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 29039, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 29040, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 29042, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 29043, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 4 (Recolor)           
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 25997, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 25998, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 25999, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 26000, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 26001, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 28629, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 28630, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 5                   
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 30030, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 30043, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 30185, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 30189, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 30190, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 30192, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 30194, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 5 (Recolor)          
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 32004, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 32005, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 32006, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 32007, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 32008, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 32791, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 32803, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 6                   
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 30869, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 31011, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 31015, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 31021, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 31024, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 32258, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 34565, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 6 (Recolor)         
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 33707, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 33708, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 33709, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 33710, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 33895, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 33896, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 7                
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 39189, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 39251, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 39307, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 39597, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 39601, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 39602, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 39603, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 39604, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 7 (Recolor)       
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 39734, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 40209, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 40272, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 40520, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 40521, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 40522, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 40523, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 40524, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 8                
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45412, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45414, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45415, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45416, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 40693, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 120387, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 8 (Recolor)       
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 46200, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 46203, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 46208, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 46212, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 116039, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 8 (Recolor)          
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45151, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45187, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45239, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45259, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45274, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45440, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45513, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 46143, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 8 (Recolor)          
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45288, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45307, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45333, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45687, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45701, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 45943, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 46044, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 9                   
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 47265, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 47280, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 47295, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 47687, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 48300, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 48301, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 48303, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 48304, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 9 (Recolor)             
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 46990, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 47056, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 47090, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 48285, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 48286, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 48287, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 48288, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 48289, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 10              
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 49896, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 49900, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50015, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50030, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50059, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50064, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50177, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50202, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 10 (Recolor)              
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50774, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50784, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50830, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50831, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50832, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50833, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50834, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 51006, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 10 (Recolor)          
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50652, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50671, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 50687, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 51240, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 51241, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 51242, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 51243, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 51244, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 11           
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 58481, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 59310, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 59334, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 60318, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 60319, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 60320, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 60321, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 60322, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 11 (Recolor) 
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 60235, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 65004, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 65046, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 65055, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 65068, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 65114, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 65125, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 65136, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 12                  
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 69950, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 71009, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 71254, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 71302, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 71303, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 71304, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 71305, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 12 (Recolor)         
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 71425, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 71451, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 71548, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 71549, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 71550, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 71551, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 124309, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 13               
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 76757, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 76758, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 76759, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 76760, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 77174, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 77183, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 77125, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 13 (Recolor)      
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 78370, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 78405, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 78435, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 78666, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 78685, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 78704, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 13 (Recolor)      
+
+-- Tier 14               
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 86962, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 87030, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 87055, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 87130, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 87131, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 87132, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 87133, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 87134, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 14 (Recolor)      
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 85284, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 85285, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 85286, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 85287, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 85288, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 86168, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 86319, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 86342, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 14 (Recolor)      
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 86624, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 86625, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 86626, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 86627, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 86628, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 86826, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 86877, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 86900, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 15           
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 94999, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 95008, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 95027, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 95035, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 96417, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 96439, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 96445, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 96509, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 15 (Recolor)      
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 94275, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 94276, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 94741, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 94757, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 94767, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 94783, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 94802, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 94975, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 15 (Recolor)      
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 95643, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 95649, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 95663, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 95673, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 95695, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 95701, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 95714, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 95765, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 16             
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 99092, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 99093, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 99094, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 99095, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 103730, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 103861, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 103940, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 103955, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 16       
+
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 105741, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 105742, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 105743, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 105744, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 105745, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 105746, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 105747, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 105748, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+-- Tier 16 (Recolor)   
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 104414, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 104430, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 104451, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 104473, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 104474, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 104547, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 104558, 0, 0, 1002, 1, 16777215);
+SET @SLOT = @SLOT + 1;
+INSERT INTO `npc_vendor`(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUES(@NPC_ID, @SLOT, 104582, 0, 0, 1002, 1, 16777215);
 SET @SLOT = @SLOT + 1;
