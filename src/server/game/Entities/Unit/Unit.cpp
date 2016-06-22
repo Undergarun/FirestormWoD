@@ -11375,6 +11375,9 @@ Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
                 && (IsWithinLOSInMap(magnet)
                 || magnet->isTotem()))
             {
+                /// HackFix for Grounding Totem to not be able to redirect two spells in a row
+                if ((*itr)->GetSpellInfo()->Id == 8178)
+                    victim->RemoveAura(8178);
                 return magnet;
             }
     }
