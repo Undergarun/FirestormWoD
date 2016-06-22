@@ -6485,6 +6485,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 116768: ///< Combo Breaker (blackout kick)
             case 64803: ///< Entrapment
             case 135373: ///< Entrapment
+            case 115174: ///< Unertie
                 spellInfo->ProcFlags = 0;
                 break;
             /// All spells - ProcCharges = 1
