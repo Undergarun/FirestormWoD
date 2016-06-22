@@ -341,6 +341,12 @@ class spell_at_flare : public AreaTriggerEntityScript
     public:
         spell_at_flare() : AreaTriggerEntityScript("spell_at_flare") { }
 
+        enum eSpells
+        {
+            RogueStealth    = 1784,
+            Subterfuge      = 115191
+        };
+
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             float l_Radius = 7.0f;
@@ -360,8 +366,8 @@ class spell_at_flare : public AreaTriggerEntityScript
                 l_Target->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
                 if (l_Target->getClass() == CLASS_ROGUE)
                 {
-                    l_Target->RemoveAura(1784);
-                    l_Target->RemoveAura(115191);
+                    l_Target->RemoveAura(eSpells::Subterfuge);
+                    l_Target->RemoveAura(eSpells::RogueStealth);
                 }
             }
         }
