@@ -33760,9 +33760,18 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 {
     m_BattlePets.clear();
 
+    uint64 l_PlayerGUID = GetGUID();
+    MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_PlayerGUID](bool p_Success) -> void
+    {
+        if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
+            l_Player->ReloadPetBattles();
+    });
+
     if (!p_Result)
     {
         bool l_Add = false;
+
+        SQLTransaction l_Transaction = LoginDatabase.BeginTransaction();
 
         for (uint32 l_I = 0; l_I < m_OldPetBattleSpellToMerge.size(); l_I++)
         {
@@ -33795,7 +33804,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
             /// Calculate stats
             l_BattlePet.UpdateStats();
             l_BattlePet.Health = l_BattlePet.InfoMaxHealth;
-            l_BattlePet.AddToPlayer(this);
+            l_BattlePet.AddToPlayer(this, l_Transaction);
 
             l_Add = true;
         }
@@ -33803,7 +33812,9 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
         m_OldPetBattleSpellToMerge.clear();
 
         if (l_Add)
-            return false;
+            LoginDatabase.CommitTransaction(l_Transaction, l_CallBack);
+
+        return true;
     }
 
     for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
@@ -33843,6 +33854,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
     }
 
     bool l_OldPetAdded = false;
+    SQLTransaction l_Transaction = LoginDatabase.BeginTransaction();
     for (uint32 l_I = 0; l_I < m_OldPetBattleSpellToMerge.size(); l_I++)
     {
         if (std::find(l_AlreadyKnownPet.begin(), l_AlreadyKnownPet.end(), m_OldPetBattleSpellToMerge[l_I].second) != l_AlreadyKnownPet.end())
@@ -33880,15 +33892,16 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
         l_BattlePet.UpdateStats();
         l_BattlePet.Health = l_BattlePet.InfoMaxHealth;
 
-        l_BattlePet.AddToPlayer(this);
-
-        ///removeSpell(m_OldPetBattleSpellToMerge[l_I].first);
+        l_BattlePet.AddToPlayer(this, l_Transaction);
     }
 
     m_OldPetBattleSpellToMerge.clear();
 
     if (l_OldPetAdded)
-        return false;
+    {
+        LoginDatabase.CommitTransaction(l_Transaction, l_CallBack);
+        return true;
+    }
 
     GetSession()->SendBattlePetJournal();
 
