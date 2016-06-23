@@ -22,7 +22,9 @@ enum eIronMaidensCreatures
 enum eIronMaidensActions
 {
     ActionIntro,
-    ActionAfterTrashesIntro
+    ActionAfterTrashesIntro,
+    ActionEnteredZipline,
+    ActionZiplineArrived
 };
 
 enum eIronMaidensDatas
@@ -32,6 +34,7 @@ enum eIronMaidensDatas
     MaxLoadingChains        = 6,
     MaxDockworkerPos        = 2,
     MaxIronCleaverMoves     = 4,
+    MaxIntroMovesCount      = 4,
     /// Getters
     LoadingChainID          = 0,
     LoadingChainAvailable   = 1
@@ -100,13 +103,25 @@ static void WipeMaidens(InstanceScript* p_Instance)
     p_Instance->SetBossState(eFoundryDatas::DataIronMaidens, EncounterState::FAIL);
 }
 
-Position const g_MarakHomePos = { 441.868f, 3136.77f, 135.302f, 1.67754f };
-Position const g_GaranHomePos = { 434.845f, 3141.18f, 135.302f, 1.39335f };
-Position const g_SorkaHomePos = { 426.464f, 3137.16f, 135.302f, 1.75377f };
+Position const g_MarakHomePos = { 442.363f, 3136.75f, 135.219f, 1.710423f };
+Position const g_GaranHomePos = { 434.845f, 3141.18f, 135.219f, 1.393350f };
+Position const g_SorkaHomePos = { 425.965f, 3138.43f, 135.219f, 1.753770f };
 
-Position const g_GaranFirstJumpPos = { 506.106f, 3250.79f, 170.375f, 0.0f };
-Position const g_GaranSecondPos = { 463.2691f, 3186.117f, 176.3029f, 0.0f };
+/// For Gar'an and Marak
+Position const g_BoatBossFirstJumpPos = { 506.106f, 3250.79f, 170.375f, 0.0f };
 
+std::vector<G3D::Vector3> const g_BoatBossFlyingMoves =
+{
+    { 504.8629f, 3248.760f, 172.3238f },
+    { 495.1823f, 3234.664f, 172.8863f },
+    { 472.6910f, 3202.702f, 175.0203f },
+    { 463.2691f, 3186.117f, 176.3029f }
+};
+
+Position const g_ZiplineBossPos = { 461.8629f, 3187.325f, 180.6749f, 0.0f };
+Position const g_ZiplineBoatPos = { 520.7656f, 3271.337f, 174.8700f, 0.0f };
+
+float const g_MarakFinalFacing = 1.710423f;
 float const g_GaranFinalFacing = 1.64061f;
 
 Position const g_CosmeticCleaverPos = { 446.648f, 3170.30f, 135.302f, 1.66107f };

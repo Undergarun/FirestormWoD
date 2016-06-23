@@ -51,6 +51,23 @@ INSERT INTO `conversation_lines` VALUES
 (119, 462, 87901, 0, 5316, 257),
 (119, 463, 87925, 0, 8190, 2);
 
+DELIMITER @@
+CREATE PROCEDURE AddWorldEffectColumn()
+BEGIN
+  IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE table_name = "gameobject_template" AND column_name = "WorldEffectID") THEN
+    ALTER TABLE `gameobject_template` ADD COLUMN `WorldEffectID` INT(10) UNSIGNED DEFAULT 0 NOT NULL AFTER `unkInt32`;
+  END IF;
+END@@
+
+DELIMITER ;
+
+CALL AddWorldEffectColumn;
+
+DROP PROCEDURE AddWorldEffectColumn;
+
+UPDATE gameobject_template SET WorldEffectID = 3190 WHERE entry = 234028;
+
 DELETE FROM npc_text WHERE ID IN (87897, 87898, 87921, 87899, 87937, 87900, 87922, 87923, 87902, 87924, 87901, 87925);
 INSERT INTO npc_text (ID, SoundID, text0_0, text0_1) VALUE
 (

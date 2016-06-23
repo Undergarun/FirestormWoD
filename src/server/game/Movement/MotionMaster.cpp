@@ -512,6 +512,22 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints
     //MovePoint(EVENT_CHARGE_PREPATH, pos, false);
 }
 
+void MotionMaster::MoveSmoothFlyPath(uint32 p_PointID, std::vector<G3D::Vector3> const p_Path)
+{
+    Movement::MoveSplineInit l_Init(_owner);
+
+    l_Init.SetSmooth();
+    l_Init.SetFly();
+    l_Init.SetUncompressed();
+
+    for (G3D::Vector3 const l_Point : p_Path)
+        l_Init.Path().push_back(l_Point);
+
+    l_Init.Launch();
+
+    Mutate(new EffectMovementGenerator(p_PointID), MovementSlot::MOTION_SLOT_ACTIVE);
+}
+
 void MotionMaster::MoveFall(uint32 id /*=0*/)
 {
     // use larger distance for vmap height search than in most other cases

@@ -35,7 +35,7 @@ class boss_admiral_garan : public CreatureScript
         enum eMoves
         {
             MoveJump = 1,
-            MoveSecond,
+            MoveDown,
             MoveLast
         };
 
@@ -50,6 +50,8 @@ class boss_admiral_garan : public CreatureScript
             {
                 m_Instance  = p_Creature->GetInstanceScript();
                 m_IntroDone = false;
+
+                p_Creature->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_DISABLE_COLLISION);
             }
 
             InstanceScript* m_Instance;
@@ -82,7 +84,32 @@ class boss_admiral_garan : public CreatureScript
                         me->GetCreatureListWithEntryInGridAppend(l_TrashesList, eIronMaidensCreatures::IronCleaver, 150.0f);
 
                         for (Creature* l_Trash : l_TrashesList)
-                            m_TrashesGuids.insert(l_Trash->GetGUID());
+                        {
+                            if (l_Trash->isAlive())
+                                m_TrashesGuids.insert(l_Trash->GetGUID());
+                        }
+
+                        if (m_TrashesGuids.empty())
+                        {
+                            m_IntroDone = true;
+
+                            AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                if (Creature* l_Sorka = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossEnforcerSorka)))
+                                {
+                                    if (l_Sorka->IsAIEnabled)
+                                        l_Sorka->AI()->DoAction(eIronMaidensActions::ActionAfterTrashesIntro);
+                                }
+
+                                if (Creature* l_Marak = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossMarakTheBlooded)))
+                                {
+                                    if (l_Marak->IsAIEnabled)
+                                        l_Marak->AI()->DoAction(eIronMaidensActions::ActionAfterTrashesIntro);
+                                }
+
+                                DoAction(eIronMaidensActions::ActionAfterTrashesIntro);
+                            });
+                        }
                     });
                 }
             }
@@ -91,21 +118,25 @@ class boss_admiral_garan : public CreatureScript
             {
                 m_TrashesGuids.erase(p_Guid);
 
-                if (!m_IntroDone && m_TrashesGuids.empty())
+                if (!m_IntroDone && m_TrashesGuids.empty() && m_Instance != nullptr)
                 {
                     m_IntroDone = true;
 
                     AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        DoAction(eIronMaidensActions::ActionAfterTrashesIntro);
-
-                        AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        if (Creature* l_Sorka = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossEnforcerSorka)))
                         {
-                            me->SetDisableGravity(true);
-                            me->SetCanFly(true);
+                            if (l_Sorka->IsAIEnabled)
+                                l_Sorka->AI()->DoAction(eIronMaidensActions::ActionAfterTrashesIntro);
+                        }
 
-                            me->GetMotionMaster()->MoveJump(g_GaranFirstJumpPos, 30.0f, 20.0f, eMoves::MoveJump);
-                        });
+                        if (Creature* l_Marak = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossMarakTheBlooded)))
+                        {
+                            if (l_Marak->IsAIEnabled)
+                                l_Marak->AI()->DoAction(eIronMaidensActions::ActionAfterTrashesIntro);
+                        }
+
+                        DoAction(eIronMaidensActions::ActionAfterTrashesIntro);
                     });
                 }
             }
@@ -154,12 +185,21 @@ class boss_admiral_garan : public CreatureScript
                 {
                     case eIronMaidensActions::ActionIntro:
                     {
+                        if (m_IntroDone)
+                            break;
+
                         me->CastSpell(me, eSpells::IronMaidenIntroConversation, false);
                         break;
                     }
                     case eIronMaidensActions::ActionAfterTrashesIntro:
                     {
                         me->CastSpell(me, eSpells::AfterTrashesConversation, false);
+
+                        AddTimedDelayedOperation(9 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->GetMotionMaster()->MoveJump(g_BoatBossFirstJumpPos, 30.0f, 20.0f, eMoves::MoveJump);
+                        });
+
                         break;
                     }
                     default:
@@ -177,21 +217,25 @@ class boss_admiral_garan : public CreatureScript
                 {
                     case eMoves::MoveJump:
                     {
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            me->SetAIAnimKitId(eVisual::IntroVisual);
+                        me->SetAIAnimKitId(eVisual::IntroVisual);
 
-                            me->GetMotionMaster()->MovePoint(eMoves::MoveSecond, g_GaranSecondPos);
+                        AddTimedDelayedOperation(10, [this]() -> void
+                        {
+                            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FLYING);
+                            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 4.0f);
+                            me->GetMotionMaster()->MoveSmoothFlyPath(eMoves::MoveDown, g_BoatBossFlyingMoves);
                         });
 
                         break;
                     }
-                    case eMoves::MoveSecond:
+                    case eMoves::MoveDown:
                     {
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            me->SetAIAnimKitId(0);
+                        me->SetAIAnimKitId(0);
 
+                        AddTimedDelayedOperation(10, [this]() -> void
+                        {
+                            me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FLYING);
+                            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, me->GetCreatureTemplate()->speed_fly);
                             me->GetMotionMaster()->MoveJump(g_GaranHomePos, 30.0f, 20.0f, eMoves::MoveLast);
                         });
 
@@ -199,17 +243,22 @@ class boss_admiral_garan : public CreatureScript
                     }
                     case eMoves::MoveLast:
                     {
-                        me->SetDisableGravity(false);
-                        me->SetCanFly(false);
-
-                        me->SetHomePosition(g_GaranHomePos);
-
                         AddTimedDelayedOperation(10, [this]() -> void
                         {
                             me->SetFacingTo(g_GaranFinalFacing);
                         });
 
-                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS, 0);
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+
+                            if (Creature* l_Sorka = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossEnforcerSorka)))
+                                l_Sorka->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+
+                            if (Creature* l_Marak = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossMarakTheBlooded)))
+                                l_Marak->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                        });
+
                         break;
                     }
                     default:
@@ -278,6 +327,8 @@ class boss_enforcer_sorka : public CreatureScript
             boss_enforcer_sorkaAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataIronMaidens)
             {
                 m_Instance = p_Creature->GetInstanceScript();
+
+                p_Creature->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_DISABLE_COLLISION);
             }
 
             InstanceScript* m_Instance;
@@ -331,6 +382,24 @@ class boss_enforcer_sorka : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 summons.DespawnAll();
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eIronMaidensActions::ActionAfterTrashesIntro:
+                    {
+                        AddTimedDelayedOperation(13 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->GetMotionMaster()->MoveJump(g_SorkaHomePos, 30.0f, 20.0f, 0);
+                        });
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -389,11 +458,25 @@ class boss_marak_the_blooded : public CreatureScript
         {
         };
 
+        enum eVisual
+        {
+            IntroVisual = 6636
+        };
+
+        enum eMoves
+        {
+            MoveJump = 1,
+            MoveDown,
+            MoveLast
+        };
+
         struct boss_marak_the_bloodedAI : public BossAI
         {
             boss_marak_the_bloodedAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataIronMaidens)
             {
                 m_Instance = p_Creature->GetInstanceScript();
+
+                p_Creature->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_DISABLE_COLLISION);
             }
 
             InstanceScript* m_Instance;
@@ -447,6 +530,68 @@ class boss_marak_the_blooded : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 summons.DespawnAll();
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eIronMaidensActions::ActionAfterTrashesIntro:
+                    {
+                        me->GetMotionMaster()->MoveJump(g_BoatBossFirstJumpPos, 30.0f, 20.0f, eMoves::MoveJump);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::EFFECT_MOTION_TYPE &&
+                    p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                switch (p_ID)
+                {
+                    case eMoves::MoveJump:
+                    {
+                        me->SetAIAnimKitId(eVisual::IntroVisual);
+
+                        AddTimedDelayedOperation(10, [this]() -> void
+                        {
+                            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FLYING);
+                            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 4.0f);
+                            me->GetMotionMaster()->MoveSmoothFlyPath(eMoves::MoveDown, g_BoatBossFlyingMoves);
+                        });
+
+                        break;
+                    }
+                    case eMoves::MoveDown:
+                    {
+                        me->SetAIAnimKitId(0);
+
+                        AddTimedDelayedOperation(10, [this]() -> void
+                        {
+                            me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FLYING);
+                            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, me->GetCreatureTemplate()->speed_fly);
+                            me->GetMotionMaster()->MoveJump(g_MarakHomePos, 30.0f, 20.0f, eMoves::MoveLast);
+                        });
+
+                        break;
+                    }
+                    case eMoves::MoveLast:
+                    {
+                        AddTimedDelayedOperation(10, [this]() -> void
+                        {
+                            me->SetFacingTo(g_MarakFinalFacing);
+                        });
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -728,15 +873,73 @@ class npc_foundry_zipline_stalker : public CreatureScript
             ZiplineStalkerVisual = 166239
         };
 
+        enum eMoves
+        {
+            MoveNone,
+            MoveSecond
+        };
+
         struct npc_foundry_zipline_stalkerAI : public ScriptedAI
         {
-            npc_foundry_zipline_stalkerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_foundry_zipline_stalkerAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_Vehicle(p_Creature->GetVehicleKit()) { }
+
+            Vehicle* m_Vehicle;
 
             void Reset() override
             {
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
                 me->CastSpell(me, eSpell::ZiplineStalkerVisual, true);
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                /*if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE || m_Vehicle == nullptr)
+                    return;
+
+                switch (p_ID)
+                {
+                    case eMoves::MoveSecond:
+                    {
+                        for (int8 l_SeatID = 0; l_SeatID < MAX_VEHICLE_SEATS; ++l_SeatID)
+                        {
+                            if (m_Vehicle->GetPassenger(l_SeatID) == nullptr)
+                                continue;
+
+                            if (Creature* l_Passenger = m_Vehicle->GetPassenger(l_SeatID)->ToCreature())
+                            {
+                                if (l_Passenger->IsAIEnabled)
+                                    l_Passenger->AI()->DoAction(eIronMaidensActions::ActionZiplineArrived);
+                            }
+                        }
+
+                        break;
+                    }
+                    default:
+                        break;
+                }*/
+            }
+
+            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            {
+                /*if (p_Apply)
+                {
+                    if (p_Passenger->GetEntry() == eFoundryCreatures::BossAdmiralGaran)
+                    {
+                        if (Creature* l_Garan = p_Passenger->ToCreature())
+                        {
+                            if (l_Garan->IsAIEnabled)
+                                l_Garan->AI()->DoAction(eIronMaidensActions::ActionEnteredZipline);
+                        }
+                    }
+                }*/
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
             }
         };
 

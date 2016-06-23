@@ -44,6 +44,8 @@ struct GameObjectTemplate
     float   size;
     uint32  questItems[MAX_GAMEOBJECT_QUEST_ITEMS];
     int32   unkInt32;
+    uint32  WorldEffectID;
+
     union                                                   // different GO types have different data field
     {
         //0 GAMEOBJECT_TYPE_DOOR

@@ -191,6 +191,7 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void CustomJump(Unit* p_Target, float speedXY, float speedZ, uint32 id = 0);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
         void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk);
+        void MoveSmoothFlyPath(uint32 p_PointID, std::vector<G3D::Vector3> const p_Path);
         void MoveFall(uint32 id = 0);
 
         void MoveSeekAssistance(float x, float y, float z);

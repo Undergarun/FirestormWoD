@@ -96,6 +96,7 @@ enum eFoundryCreatures
     BossAdmiralGaran        = 77557,
     BossEnforcerSorka       = 77231,
     BossMarakTheBlooded     = 77477,
+    ZiplineStalker          = 82538,
     /// Blackhand's Crucible - Part 4
     /// Blackhand
     BossBlackhand           = 77325
@@ -169,6 +170,8 @@ enum eFoundryGameObjects
     MassiveDoorTrack2Left       = 231849,
     MassiveDoorTrack1Left       = 231850,
     FreightElevatorDoor         = 236848,
+    IronMaidensRampDoor         = 232392,
+    AmmoLoader                  = 234028,
     /// Blackhand's Crucible - Part 4
     SpikeGate                   = 232556,
     CrucibleDoor                = 233006
@@ -269,7 +272,8 @@ enum eFoundryVisuals
     ConveyorsStart  = 7621,
     ConveyorsStop   = 7336,
     ConveyorsStart2 = 6975,
-    ConveyorsStart3 = 6974
+    ConveyorsStart3 = 6974,
+    AmmoLoaderAnim  = 4397
 };
 
 enum eFoundryDungeons

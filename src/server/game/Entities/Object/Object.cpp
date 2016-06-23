@@ -799,7 +799,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_HAS_GAMEOBJECT)
     {
-        *p_Data << uint32(0);                                                           ///< World Effect ID
+        *p_Data << uint32(l_GameObject->GetGOInfo()->WorldEffectID);
 
         if (p_Data->WriteBit(0))
         {

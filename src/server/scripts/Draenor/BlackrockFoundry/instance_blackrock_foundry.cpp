@@ -26,6 +26,7 @@ DoorData const g_DoorData[] =
     { eFoundryGameObjects::TheBeastGate,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::TerminusDoor,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::FreightElevatorDoor,         eFoundryDatas::DataOperatorThogar,      DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::IronMaidensRampDoor,         eFoundryDatas::DataIronMaidens,         DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -91,6 +92,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_AdmiralGaranGuid          = 0;
                 m_EnforcerSorkaGuid         = 0;
                 m_MarakTheBloodedGuid       = 0;
+                m_ZiplineStalkerGuid        = 0;
 
                 m_SpikeGateGuid             = 0;
                 m_CrucibleEntrance          = 0;
@@ -165,6 +167,7 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_AdmiralGaranGuid;
             uint64 m_EnforcerSorkaGuid;
             uint64 m_MarakTheBloodedGuid;
+            uint64 m_ZiplineStalkerGuid;
 
             /// Blackhand's Crucible
             uint64 m_SpikeGateGuid;
@@ -392,6 +395,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                         m_MarakTheBloodedGuid = p_Creature->GetGUID();
                         break;
                     }
+                    case eFoundryCreatures::ZiplineStalker:
+                    {
+                        m_ZiplineStalkerGuid = p_Creature->GetGUID();
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -417,6 +425,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::TheBeastGate:
                     case eFoundryGameObjects::TerminusDoor:
                     case eFoundryGameObjects::FreightElevatorDoor:
+                    case eFoundryGameObjects::IronMaidensRampDoor:
                         AddDoor(p_GameObject, true);
                         break;
                     case eFoundryGameObjects::VolatileBlackrockOre:
@@ -476,6 +485,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::IronGate:
                         m_IronGateDoorGuid = p_GameObject->GetGUID();
                         break;
+                    case eFoundryGameObjects::AmmoLoader:
+                        p_GameObject->SetAIAnimKitId(eFoundryVisuals::AmmoLoaderAnim);
+                        break;
                     default:
                         break;
                 }
@@ -501,6 +513,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::TheBeastGate:
                     case eFoundryGameObjects::TerminusDoor:
                     case eFoundryGameObjects::FreightElevatorDoor:
+                    case eFoundryGameObjects::IronMaidensRampDoor:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -1060,6 +1073,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_EnforcerSorkaGuid;
                     case eFoundryCreatures::BossMarakTheBlooded:
                         return m_MarakTheBloodedGuid;
+                    case eFoundryCreatures::ZiplineStalker:
+                        return m_ZiplineStalkerGuid;
                     default:
                         break;
                 }
