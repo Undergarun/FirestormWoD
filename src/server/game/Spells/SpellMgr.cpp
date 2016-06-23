@@ -4946,6 +4946,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 137639: ///< Storm, Earth and Fire
                 spellInfo->AttributesCu &= ~(SPELL_ATTR0_CU_NEGATIVE_EFF1|SPELL_ATTR0_CU_NEGATIVE_EFF0);
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
             case 138130: ///< Storm, Earth and Fire (for spirits)
                 spellInfo->Effects[0].Effect = 0;
