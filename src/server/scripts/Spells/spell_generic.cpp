@@ -5928,6 +5928,27 @@ class spell_gen_capturing : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+class PlayerScript_second_talent_spec : public PlayerScript
+{
+public:
+    PlayerScript_second_talent_spec() : PlayerScript("PlayerScript_second_talent_spec") { }
+
+    enum eSpells
+    {
+        FirstSpecButton     = 63645,
+        SecondSpecButton    = 63644,
+        LearningSpell       = 63680
+    };
+
+    void OnLogin(Player* p_Player)
+    {
+        /// Prevent double specialisation to not be enable but present
+        if (p_Player->GetSpecsCount() == MAX_TALENT_SPECS && (!p_Player->HasSpell(eSpells::FirstSpecButton) || !p_Player->HasSpell(eSpells::SecondSpecButton)))
+            p_Player->CastSpell(p_Player, eSpells::LearningSpell, true);
+
+    }
+};
 
 #ifndef __clang_analyzer__
 void AddSC_generic_spell_scripts()
@@ -6043,6 +6064,7 @@ void AddSC_generic_spell_scripts()
     new spell_nullification_barrier();
 
     /// PlayerScript
+    new PlayerScript_second_talent_spec();
     new PlayerScript_Touch_Of_Elune();
     new PlayerScript_gen_remove_rigor_mortis();
     new Resolve::PlayerScript_Resolve();
