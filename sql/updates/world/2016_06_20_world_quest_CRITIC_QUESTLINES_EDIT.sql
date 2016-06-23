@@ -1,6 +1,9 @@
 -- Make NextQuestID work by using the proper field
 UPDATE quest_template SET nextquestidchain = nextquestid WHERE nextquestid > 0 AND nextquestidchain = 0;
 
+-- Remove flag auto accept and add auto take where prevquestid is not null and quest has autoaccept and not autotake ans which is not bonus objective quest
+UPDATE quest_template SET flags = flags & ~0x00080000, flags = flags | 0x00200000 WHERE prevquestid != 0 AND flags & 0x00080000 AND NOT flags & 0x00200000 AND id NOT IN (34504, 34076, 34496, 34728, 36590, 36660, 35649, 36792, 34505, 34501, 33145, 36603, 36571, 36563, 36480, 36476, 35881, 34724, 36504, 36566, 36564, 36473, 36500, 35379, 34723, 37280, 34639, 34667, 35237, 35236, 34660, 37421, 37422);
+
 -- Remove flag autoaccept from quest which aren't bonus objective quests
 UPDATE quest_template SET flags = flags & ~0x00080000 WHERE id NOT IN (34504, 34076, 34496, 34728, 36590, 36660, 35649, 36792, 34505, 34501, 33145, 36603, 36571, 36563, 36480, 36476, 35881, 34724, 36504, 36566, 36564, 36473, 36500, 35379, 34723, 37280, 34639, 34667, 35237, 35236, 34660, 37421, 37422);
 
@@ -1538,3 +1541,13 @@ WHERE id IN (
 38427,
 38929,
 38927);
+
+-- Greenfire Questline fix
+
+UPDATE quest_template SET flags =0x110000 WHERE id = 32295; -- AUTOSUB AUTOCOMP
+UPDATE quest_template SET flags =0x200000 WHERE id = 32307; -- AUTOTAKE
+UPDATE quest_template SET flags =0x000000 WHERE id = 32309;
+UPDATE quest_template SET flags =0x000000 WHERE id = 32310;
+UPDATE quest_template SET flags =0x210000 WHERE id = 32317; -- AUTOTAKE AUTUSUB
+UPDATE quest_template SET flags =0x210000 WHERE id = 32324; -- AUTOTAKE AUTOSUB
+UPDATE quest_template SET flags =0x200000 WHERE id = 32325; -- AUTOTAKE
