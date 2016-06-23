@@ -4675,16 +4675,25 @@ namespace MS { namespace Garrison
 
             /// Elemental Rune & Abrogator Stone - Legendary Questline  NYI
             if (l_RewardEntry->ItemID == 115510 || l_RewardEntry->ItemID == 115280)
-            {
                 l_RewardCount = 0;
-                break;
-            }
 
             /// Special case for XP item, if the owner is already at max level he doesn't need this item anymore
             if (m_Owner->getLevel() == MAX_LEVEL && l_RewardEntry->ItemID == 120205)
-            {
                 l_RewardCount = 0;
-                break;
+
+            switch (l_RewardEntry->RewardCurrencyID)
+            {
+                case 1101:
+                    l_RewardCount = 0; ///< Related to shipyards
+                    break;
+                case 821:
+                case 828:
+                case 829:
+                    if (m_Owner->HasSkill(SKILL_ARCHAEOLOGY))
+                    l_RewardCount = 0;
+                    break;
+                default:
+                    break;
             }
 
             /// Follower case
@@ -4699,13 +4708,13 @@ namespace MS { namespace Garrison
                     if (l_Spell && l_Spell->Effects[0].Effect == SPELL_EFFECT_ADD_GARRISON_FOLLOWER)
                     {
                         if (GetFollower(l_Spell->Effects[0].MiscValue) != nullptr)
-                        {
                             l_RewardCount = 0;
-                            break;
-                        }
                     }
                 }
             }
+
+            if (!l_RewardCount)
+                break;
 
             ++l_RewardCount;
         }
