@@ -2615,6 +2615,9 @@ namespace MS { namespace Garrison
                 if (!l_It->IsNPC())
                     return;
 
+                if (GetActiveFollowersCount(FollowerType::NPC) >= Globals::MaxActiveFollowerAllowedCount + GetFollowersCountBarracksBonus())
+                    return;
+
                 m_Owner->ModifyMoney(-Globals::FollowerActivationCost);
 
                 m_NumFollowerActivation--;
@@ -4383,8 +4386,10 @@ namespace MS { namespace Garrison
         /// Do ramdom mission distribution
         if (p_Force || ((time(nullptr) - m_MissionDistributionLastUpdate) > Globals::MissionDistributionInterval))
         {
+            uint32 l_MinCap = std::min(Globals::MaxActiveFollowerAllowedCount + GetFollowersCountBarracksBonus(), uint32(GetFollowers().size()));
+
             /// Random, no detail about how blizzard do
-            uint32 l_MaxMissionCount         = p_ForcedCount ? p_ForcedCount : ceil(GetTotalFollowerCount(FollowerType::NPC) * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
+            uint32 l_MaxMissionCount         = p_ForcedCount ? p_ForcedCount : ceil(l_MinCap * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
             uint32 l_CurrentAvailableMission = 0;
 
             std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission& p_Mission) -> void
@@ -4648,6 +4653,14 @@ namespace MS { namespace Garrison
 
         if (p_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
             return false;
+
+        std::map<Mission::Type, Building::Type>::const_iterator l_Iterator = Mission::g_MissionBuildingTypesMap.find(Mission::Type(p_Entry->MissionType));;
+
+        if (l_Iterator != Mission::g_MissionBuildingTypesMap.end())
+        {
+            if (!HasBuildingType(l_Iterator->second))
+                return false;
+        }
 
         uint32 l_RewardCount = 0;
         for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
@@ -4917,6 +4930,20 @@ namespace MS { namespace Garrison
         });
     }
 
+    uint32 Manager::GetActiveFollowersCount(uint32 p_Type)
+    {
+        return (uint32)std::count_if(m_Followers.begin(), m_Followers.end(), [p_Type](GarrisonFollower l_Follower) -> bool
+        {
+            GarrFollowerEntry const* l_Entry = l_Follower.GetEntry();
+            return l_Entry && l_Entry->Type == p_Type && !(l_Follower.Flags & GarrisonFollowerFlags::GARRISON_FOLLOWER_FLAG_INACTIVE);
+        });
+    }
+
+    uint32 Manager::GetFollowersCountBarracksBonus()
+    {
+        return HasActiveBuilding(Building::ID::Barracks_Barracks_Level3) ? 5 : 0;
+    }
+
     void Manager::SendPacketToOwner(WorldPacket* p_Data)
     {
         m_Owner->SendDirectMessage(p_Data);
@@ -4933,6 +4960,7 @@ namespace MS { namespace Garrison
             if (l_GarrAbility->AbilityType == 1 || l_GarrAbility->AbilityType == 9 || l_GarrAbility->AbilityType == 3 || l_GarrAbility->AbilityType == 5)
                 return true;
         }
+
         return false;
     }
 

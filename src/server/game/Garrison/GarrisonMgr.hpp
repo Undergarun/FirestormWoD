@@ -311,6 +311,10 @@ namespace MS { namespace Garrison
             /// Gets the follower count of specified type
             uint32 GetTotalFollowerCount(uint32 p_Type);
 
+            uint32 GetActiveFollowersCount(uint32 p_Type);
+
+            uint32 GetFollowersCountBarracksBonus();
+
             /// Sends a packet to owner
             void SendPacketToOwner(WorldPacket* p_Data);
 

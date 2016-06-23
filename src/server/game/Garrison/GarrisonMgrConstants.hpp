@@ -38,7 +38,8 @@ namespace MS { namespace Garrison
             DefaultFollowerItemLevel        = 600,
             ShipyardBuildingType            = 9,
             ShipyardBuildingID              = 205,
-            ShipyardPlotID                  = 98
+            ShipyardPlotID                  = 98,
+            MaxActiveFollowerAllowedCount   = 20
         };
     }
 
@@ -240,7 +241,17 @@ namespace MS { namespace Garrison
             Error = 1
         };
 
-        static const std::map<Mission::Type, Building::Type> g_Map;
+        static const std::map<Mission::Type, Building::Type> g_MissionBuildingTypesMap
+        {
+            { Mission::Type::Alchemy,        Building::Type::Alchemy        },
+            { Mission::Type::LeatherWorking, Building::Type::Leatherworking },
+            { Mission::Type::BlackSmithing,  Building::Type::Blacksmith     },
+            { Mission::Type::Enchanting,     Building::Type::Enchanting     },
+            { Mission::Type::JewelCrafting,  Building::Type::Jewelcrafting  },
+            { Mission::Type::Engineering,    Building::Type::Engineering    },
+            { Mission::Type::Tailoring,      Building::Type::Tailoring      },
+            { Mission::Type::Inscription,    Building::Type::Inscription    }
+        };
     }
 
     namespace FollowerType
