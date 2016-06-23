@@ -8237,6 +8237,13 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
                     p_Pet->m_spells.erase(l_Iter);
                 }
 
+                /// Bestial Wrath stampe should have same duration of Bestial Wrath
+                if (l_SpellInfo->Id == 167135)
+                {
+                    Aura* l_Aura = l_Owner->GetAura(19574);
+                    p_Pet->SetDuration(l_Aura->GetDuration());
+                }
+
                 p_Pet->m_autospells.clear();
                 p_Pet->m_Events.KillAllEvents(true);    ///< Disable automatic cast spells
 
