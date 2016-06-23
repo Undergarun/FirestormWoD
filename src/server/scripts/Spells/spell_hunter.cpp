@@ -1173,6 +1173,11 @@ class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
             {
                 if (Unit* l_Target = GetTarget())
                 {
+                    if (Pet* l_Pet = l_Target->ToPet())
+                    {
+                        if (l_Pet->m_Stampeded)
+                            return;
+                    }
                     uint32 l_Mechanic = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
                                         | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
                                         | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
