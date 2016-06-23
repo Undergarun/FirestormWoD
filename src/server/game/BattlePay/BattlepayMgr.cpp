@@ -402,6 +402,7 @@ namespace Battlepay
         l_Node["Expansion"]    = std::to_string(5);    ///< WoD
         l_Node["Type"]         = std::to_string(WebsiteType);
         l_Node["Quantity"]     = std::to_string(1);
+        l_Node["IngameShop"]   = 1;
 
         l_Node["CustomData"]   = sScriptMgr->BattlePayGetCustomData(*this);
 
