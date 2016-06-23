@@ -1028,6 +1028,7 @@ void AddSC_item_strongboxes();
 
 /// Draenor Scenario
 void AddSC_instance_scenario_fate_of_karabor();
+void AddSC_instance_scenario_black_temple();
 
 /// Skyreach Dungeon
 void AddSC_instance_Skyreach();
@@ -2092,6 +2093,7 @@ void AddDraenorScripts()
 
     /// Draenor Scenario
     AddSC_instance_scenario_fate_of_karabor();
+    AddSC_instance_scenario_black_temple();
 #endif
 }
 
