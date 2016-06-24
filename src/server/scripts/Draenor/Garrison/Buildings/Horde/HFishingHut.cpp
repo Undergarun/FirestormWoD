@@ -61,7 +61,7 @@ namespace MS { namespace Garrison
                     p_Player->RewardQuest(l_Quest, 0, p_Creature, false);
                 }
 
-                GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_GarrisonMgr->GetBuildingWithType(BuildingType::Fishing).BuildingID);
+                GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_GarrisonMgr->GetBuildingWithType(Building::Type::Fishing).BuildingID);
                 Position l_Pos = *p_Player;
 
                 if (l_BuildingEntry)

@@ -8237,6 +8237,13 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
                     p_Pet->m_spells.erase(l_Iter);
                 }
 
+                /// Bestial Wrath stampe should have same duration of Bestial Wrath
+                if (l_SpellInfo->Id == 167135)
+                {
+                    Aura* l_Aura = l_Owner->GetAura(19574);
+                    p_Pet->SetDuration(l_Aura->GetDuration());
+                }
+
                 p_Pet->m_autospells.clear();
                 p_Pet->m_Events.KillAllEvents(true);    ///< Disable automatic cast spells
 
@@ -8396,7 +8403,7 @@ void Spell::EffectFinishGarrisonMission(SpellEffIndex /*p_EffIndex*/)
         {
             if (MS::Garrison::GarrisonMission* l_Mission = l_GarrisonMgr->GetMissionWithID(m_Misc[0]))
             {
-                if (l_Mission->State == MS::Garrison::MissionStates::InProgress)
+                if (l_Mission->State == MS::Garrison::Mission::State::InProgress)
                     l_Mission->StartTime = time(0) - (l_GarrisonMgr->GetMissionTravelDuration(l_Mission->MissionID) + l_GarrisonMgr->GetMissionDuration(l_Mission->MissionID));
 
                 WorldPacket l_PlaceHolder;
@@ -8423,7 +8430,7 @@ void Spell::EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex)
             if (l_ContainerEntry == nullptr)
                 return;
 
-            uint32 l_PlotInstanceID = l_GarrisonMgr->GetBuildingWithType(BuildingType::Type(l_ContainerEntry->BuildingType)).PlotInstanceID;
+            uint32 l_PlotInstanceID = l_GarrisonMgr->GetBuildingWithType(Building::Type(l_ContainerEntry->BuildingType)).PlotInstanceID;
 
             if (l_PlotInstanceID)
             {

@@ -138,15 +138,15 @@ namespace MS { namespace Garrison
     {
         switch (p_BuildingID)
         {
-        case Buildings::Barn_Barn_Level1:
+        case Building::ID::Barn_Barn_Level1:
             if (p_Player->GetQuestStatus(Quests::Alliance_BreakingIntoTheTrapGame) == QUEST_STATUS_INCOMPLETE)
                 p_Player->KilledMonsterCredit(40662);
             break;
-        case Buildings::Barn_Barn_Level2:
+        case Building::ID::Barn_Barn_Level2:
             if (p_Player->GetQuestStatus(Quests::Alliance_FeedingAnArmy) == QUEST_STATUS_INCOMPLETE)
                 p_Player->QuestObjectiveSatisfy(40672, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
             break;
-        case Buildings::Barn_Barn_Level3:
+        case Building::ID::Barn_Barn_Level3:
             if (p_Player->GetQuestStatus(Quests::Alliance_BiggerTrapBetterRewards) == QUEST_STATUS_INCOMPLETE)
                 p_Player->QuestObjectiveSatisfy(40695, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
             break;
@@ -192,11 +192,11 @@ namespace MS { namespace Garrison
 
         switch (l_Building.BuildingID)
         {
-            case Buildings::Barn_Barn_Level1:
+            case Building::ID::Barn_Barn_Level1:
                 return HandleGossipActions(p_Player, p_Creature, Quests::Alliance_BreakingIntoTheTrapGame, GOSSIP_ACTION_INFO_DEF + 1);
-            case Buildings::Barn_Barn_Level2:
+            case Building::ID::Barn_Barn_Level2:
                 return HandleGossipActions(p_Player, p_Creature, Quests::Alliance_FeedingAnArmy, GOSSIP_ACTION_INFO_DEF + 2);
-            case Buildings::Barn_Barn_Level3:
+            case Building::ID::Barn_Barn_Level3:
                 return HandleGossipActions(p_Player, p_Creature, Quests::Alliance_BiggerTrapBetterRewards, GOSSIP_ACTION_INFO_DEF + 3);
             default:
                 break;
