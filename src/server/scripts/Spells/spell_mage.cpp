@@ -1289,16 +1289,17 @@ class spell_mage_combustion: public SpellScriptLoader
 
             enum eSpells
             {
-                InfernoBlast = 108853
+                InfernoBlast = 108853,
+                Combustion = 11129
             };
 
             void HandleOnHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
-                SpellInfo const* l_SpellInfoCombustion = sSpellMgr->GetSpellInfo(SPELL_MAGE_COMBUSTION_DOT);
+                SpellInfo const* l_SpellInfoCombustionDoT = sSpellMgr->GetSpellInfo(SPELL_MAGE_COMBUSTION_DOT);
 
-                if (l_Player == nullptr || l_Target == nullptr || l_SpellInfoCombustion == nullptr)
+                if (l_Player == nullptr || l_Target == nullptr || l_SpellInfoCombustionDoT == nullptr)
                     return;
 
                 if (SpellInfo const* l_InfernoBlast = sSpellMgr->GetSpellInfo(eSpells::InfernoBlast))
@@ -1321,7 +1322,7 @@ class spell_mage_combustion: public SpellScriptLoader
                     int32 l_Amount = l_Player->SpellDamageBonusDone(l_Target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
                     l_Amount = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Amount, DOT);
 
-                    combustionBp = (l_Amount * (l_SpellInfoCombustion)->Effects[EFFECT_0].BasePoints) / (l_SpellInfoCombustion->GetMaxDuration() / l_SpellInfoCombustion->Effects[EFFECT_0].Amplitude);
+                    combustionBp = (l_Amount * (sSpellMgr->GetSpellInfo(eSpells::Combustion))->Effects[EFFECT_0].BasePoints) / (l_SpellInfoCombustionDoT->GetMaxDuration() / l_SpellInfoCombustionDoT->Effects[EFFECT_0].Amplitude);
                 }
 
                 if (combustionBp)
