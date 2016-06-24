@@ -3458,6 +3458,7 @@ void AddSC_warrior_spell_scripts()
 {
     new spell_warr_shout();
     new spell_warr_taunt();
+    new spell_warr_shield_block_aura();
     new spell_warr_crazed_berserker();
     new spell_warr_stances();
     new spell_warr_raging_blow_proc();
