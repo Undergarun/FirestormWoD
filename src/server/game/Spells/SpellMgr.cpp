@@ -6481,6 +6481,7 @@ void SpellMgr::LoadSpellCustomAttr()
 			case 165905: ///< Item - Paladin WoD PvP Protection 2P Bonus
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
             case 166009: ///< Item - Hunter WoD PvP 2P Bonus
+            case 165519: ///< Item - Hunter WoD PvP 2P Bonus
             case 171383: ///< Item - Warlock WoD PvP Destruction 2P Bonus
             case 171379: ///< Item - Warlock WoD PvP Affliction 4P Bonus
             case 165482: ///< Item - Rogue T17 Subtlety 2P Bonus
