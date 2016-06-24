@@ -18547,7 +18547,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                         {
                             if (MS::Garrison::Manager* l_Garr = l_RefPlayer->GetGarrison())
                             {
-                                if (l_Garr->HasBuildingType(MS::Garrison::BuildingType::SparringArena))
+                                if (l_Garr->HasBuildingType(MS::Garrison::Building::Type::SparringArena))
                                     l_RefPlayer->CastSpell(l_RefPlayer, 173417, true);
                             }
                         }
@@ -18587,7 +18587,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                 {
                     if (MS::Garrison::Manager* l_Garr = l_KillerPlayer->GetGarrison())
                     {
-                        if (l_Garr->HasBuildingType(MS::Garrison::BuildingType::SparringArena))
+                        if (l_Garr->HasBuildingType(MS::Garrison::Building::Type::SparringArena))
                             l_KillerPlayer->CastSpell(l_KillerPlayer, 173417, true);
                     }
                 }
