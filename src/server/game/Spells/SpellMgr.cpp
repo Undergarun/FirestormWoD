@@ -3759,6 +3759,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 173790: ///< Spirit Bond (Stubborn Ironhoof)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
+            case 151271: ///< Collect Mask
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_NONE;
+                break;
             case 155049: ///< Singe (Cinder Wolf)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
