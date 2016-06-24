@@ -27,6 +27,7 @@ DoorData const g_DoorData[] =
     { eFoundryGameObjects::TerminusDoor,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::FreightElevatorDoor,         eFoundryDatas::DataOperatorThogar,      DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::IronMaidensRampDoor,         eFoundryDatas::DataIronMaidens,         DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::IronMaidensExitDoor,         eFoundryDatas::DataIronMaidens,         DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -426,6 +427,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::TerminusDoor:
                     case eFoundryGameObjects::FreightElevatorDoor:
                     case eFoundryGameObjects::IronMaidensRampDoor:
+                    case eFoundryGameObjects::IronMaidensExitDoor:
                         AddDoor(p_GameObject, true);
                         break;
                     case eFoundryGameObjects::VolatileBlackrockOre:
@@ -514,6 +516,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::TerminusDoor:
                     case eFoundryGameObjects::FreightElevatorDoor:
                     case eFoundryGameObjects::IronMaidensRampDoor:
+                    case eFoundryGameObjects::IronMaidensExitDoor:
                         AddDoor(p_GameObject, false);
                         break;
                     default:

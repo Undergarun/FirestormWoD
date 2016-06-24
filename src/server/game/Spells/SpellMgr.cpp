@@ -3627,6 +3627,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
             case 159632: ///< Insatiable Hunger
+            case 156631: ///< Rapid Fire (Admiral Gar'an - Iron Maidens)
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 160665: ///< Rolling Box (Oregorger)
@@ -7517,6 +7518,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165195: ///< Prototype Pulse Grenade - DoT (Operator Thogar)
             case 156553: ///< Moving Train (Operator Thogar)
             case 171614: ///< Inferno (Inferno Totem - Iron Earthbinder)
+            case 156637: ///< Rapid Fire - AoE (Admiral Gar'an - Iron Maidens)
+            case 158078: ///< Blood Ritual - AoE (Marak the Blooded - Iron Maidens)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:

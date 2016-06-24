@@ -171,6 +171,7 @@ enum eFoundryGameObjects
     MassiveDoorTrack1Left       = 231850,
     FreightElevatorDoor         = 236848,
     IronMaidensRampDoor         = 232392,
+    IronMaidensExitDoor         = 232393,
     AmmoLoader                  = 234028,
     /// Blackhand's Crucible - Part 4
     SpikeGate                   = 232556,

@@ -16,7 +16,12 @@ enum eIronMaidensCreatures
     IronMauler          = 85748,
     IronCleaver         = 84859,
     LoadingChain        = 78767,
-    Ukurogg             = 78341
+    Ukurogg             = 78341,
+    RapidFireStalker    = 77636,
+    Uktar               = 78351,
+    BattleMedicRogg     = 78352,
+    Gorak               = 78343,
+    IronEviscerator     = 78347
 };
 
 enum eIronMaidensActions
@@ -37,7 +42,15 @@ enum eIronMaidensDatas
     MaxIntroMovesCount      = 4,
     /// Getters
     LoadingChainID          = 0,
-    LoadingChainAvailable   = 1
+    LoadingChainAvailable   = 1,
+    /// Event schedulers
+    FirstIronFuryAbility    = 30,
+    SecondIronFuryAbility   = 100
+};
+
+enum eIronMaidensSpells
+{
+    ZeroPowerZeroRegen = 118357
 };
 
 static void RespawnMaidens(InstanceScript* p_Instance, Creature* p_Source)
@@ -89,6 +102,8 @@ static void WipeMaidens(InstanceScript* p_Instance)
     if (p_Instance->GetBossState(eFoundryDatas::DataIronMaidens) != EncounterState::IN_PROGRESS)
         return; ///< Prevent recursive calls
 
+    p_Instance->SetBossState(eFoundryDatas::DataIronMaidens, EncounterState::FAIL);
+
     for (uint8 l_I = 0; l_I < 3; ++l_I)
     {
         if (Creature* l_Maiden = p_Instance->instance->GetCreature(p_Instance->GetData64(g_IronMaidensEntries[l_I])))
@@ -99,12 +114,10 @@ static void WipeMaidens(InstanceScript* p_Instance)
             p_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, l_Maiden);
         }
     }
-
-    p_Instance->SetBossState(eFoundryDatas::DataIronMaidens, EncounterState::FAIL);
 }
 
 Position const g_MarakHomePos = { 442.363f, 3136.75f, 135.219f, 1.710423f };
-Position const g_GaranHomePos = { 434.845f, 3141.18f, 135.219f, 1.393350f };
+Position const g_GaranHomePos = { 434.845f, 3141.18f, 135.219f, 1.640610f };
 Position const g_SorkaHomePos = { 425.965f, 3138.43f, 135.219f, 1.753770f };
 
 /// For Gar'an and Marak

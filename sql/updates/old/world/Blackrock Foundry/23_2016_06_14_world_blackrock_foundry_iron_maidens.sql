@@ -21,6 +21,8 @@ UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_ukuro
 UPDATE creature_template SET unit_flags = 768, unit_flags2 = 1140885504, InhabitType = 4, ScriptName = "npc_foundry_loading_chain" WHERE entry = 78767;
 UPDATE creature_template SET minlevel = 102, maxlevel = 102, ScriptName = "npc_foundry_inferno_totem" WHERE entry = 85922;
 UPDATE creature_template SET InhabitType = 4, ScriptName = "npc_foundry_zipline_stalker" WHERE entry = 82538;
+UPDATE creature_template SET ScriptName = "npc_foundry_rapid_fire_stalker" WHERE entry = 77636;
+UPDATE creature_template SET modelid1 = 55871, modelid2 = 0 WHERE entry = 80622;
 
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (@REF_SORKA, 1, 114966, 113965, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (@REF_GARAN, 1, 0, 0, 112344);
@@ -30,6 +32,10 @@ REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEnt
 DELETE FROM `areatrigger_template` WHERE spell_id IN (171545);
 INSERT INTO `areatrigger_template` (`spell_id`, `eff_index`, `entry`, `type`, `scale_x`, `scale_y`, `flags`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName`) VALUES
 (171545, 0, 171545, 2, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_workers_solidarity");
+
+DELETE FROM spell_script_names WHERE spell_id IN (158078);
+INSERT INTO spell_script_names VALUES
+(158078, "spell_foundry_blood_ritual");
 
 DELETE FROM `conversation_template` WHERE `Entry` IN (118, 119);
 INSERT INTO `conversation_template` VALUES
