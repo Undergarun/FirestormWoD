@@ -5950,9 +5950,98 @@ public:
     }
 };
 
+/// Called By Appraisal - 134280
+class spell_gen_appraisal : public SpellScriptLoader
+{
+public:
+    spell_gen_appraisal() : SpellScriptLoader("spell_gen_appraisal") { }
+
+    class spell_gen_appraisal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_appraisal_SpellScript);
+
+        void HandleAfterCast()
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (!l_Player)
+                return;
+
+            int32 reward = 0;
+
+            static std::map<int32, int32> l_Loots = {
+                {92602, 92603}, ///< Large Pile of Gold Coins
+                {92580, 92581}, ///< Fragrant Perfume
+                {92586, 92587}, ///< Sparkling Sapphire
+                {92598, 92599}, ///< Gold Ring
+                {92584, 92585}, ///< Expensive Ruby
+                {92594, 92595}, ///< Diamond Ring
+                {92600, 92601}, ///< Small Pile of Gold Coins
+                {92590, 92591}, ///< Ruby Necklace
+                {92610, 92611}, ///< Golden Platter
+                {92588, 92589}, ///< Jade Kitten Figurine
+                {92604, 92605}, ///< Golden Goblet
+                {92614, 92615}, ///< Taric's Family Jewels
+                {92592, 92593}, ///< Spellstone Necklace
+                {92582, 92583}, ///< Cheap Cologne
+                {92620, 92621}, ///< Elysia's Bindings
+                {92624, 92624}, ///< Theldren's rusted runeblade
+                {92606, 92607}, ///< Golden High Elf Statuette
+                {92612, 92613}, ///< Zena's Ridiculously Rich Yarnball
+                {92622, 92623}, ///< Ancient Orcish Shield
+            };
+
+            int32 count;
+            for (std::map<int32, int32>::const_iterator l_Itr = l_Loots.begin(); l_Itr != l_Loots.end(); ++l_Itr)
+            {
+                count = l_Player->GetItemCount(l_Itr->first);
+                while (count > 0)
+                {
+                    Item* l_Item = l_Player->GetItemByEntry(l_Itr->first);
+                    uint32 l_ItemCount = l_Item->GetCount();
+
+                    uint8 l_BagSlot = l_Item->GetBagSlot();
+                    uint8 l_Slot = l_Item->GetSlot();
+                    l_Player->DestroyItem(l_BagSlot, l_Slot, false);
+
+                    ItemPosCountVec l_Dest;
+                    InventoryResult l_Result = l_Player->CanStoreNewItem(l_BagSlot, l_Slot, l_Dest, l_Itr->second, l_ItemCount);
+                    if (l_Result != EQUIP_ERR_OK || l_Dest.empty())
+                    {
+                        ChatHandler(l_Player).PSendSysMessage("An error occurred, returning your item...");
+                        l_Player->AddItem(l_Itr->first, l_ItemCount);
+                        return;
+                    }
+
+                    l_Item = l_Player->StoreNewItem(l_Dest, l_Itr->second, true, Item::GenerateItemRandomPropertyId(l_Itr->second));
+                    if (!l_Item)
+                    {
+                        ChatHandler(l_Player).PSendSysMessage("An error occurred, returning your item...");
+                        l_Player->AddItem(l_Itr->first, l_ItemCount);
+                        return;
+                    }
+
+                    count -= l_ItemCount;
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_gen_appraisal_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_appraisal_SpellScript();
+    }
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_appraisal();
     new spell_gen_capturing();
     new spell_gen_pvp_trinket();
     new spell_gen_ironbeards_hat();
