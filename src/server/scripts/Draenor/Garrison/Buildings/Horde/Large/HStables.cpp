@@ -206,7 +206,7 @@ namespace MS { namespace Garrison
         if (l_GarrisonMgr == nullptr)
             return;
 
-        switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(BuildingType::Stable)))
+        switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(Building::Type::Stable)))
         {
             case 1:
                 ProcessSummonPlotCreatures(-1);

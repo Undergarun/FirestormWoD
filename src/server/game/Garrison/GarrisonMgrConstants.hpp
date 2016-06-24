@@ -14,7 +14,7 @@
 #include "GarrisonMgrStructures.hpp"
 
 /// @Hatters gonna hate, float doesn't go into the Globals enum, Change standard ?
-#define GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF (1.5f)
+#define GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF (0.8f)
 
 namespace MS { namespace Garrison
 {
@@ -38,7 +38,8 @@ namespace MS { namespace Garrison
             DefaultFollowerItemLevel        = 600,
             ShipyardBuildingType            = 9,
             ShipyardBuildingID              = 205,
-            ShipyardPlotID                  = 98
+            ShipyardPlotID                  = 98,
+            MaxActiveFollowerAllowedCount   = 20
         };
     }
 
@@ -71,29 +72,124 @@ namespace MS { namespace Garrison
         };
     }
 
-    namespace MissionStates
+    namespace Building
     {
+        enum ID : uint8
+        {
+            DwarvenBunker_WarMill_Level1                = 8,
+            DwarvenBunker_WarMill_Level2                = 9,
+            DwarvenBunker_WarMill_Level3                = 10,
+            Barracks_Barracks_Level1                    = 26,
+            Barracks_Barracks_Level2                    = 27,
+            Barracks_Barracks_Level3                    = 28,
+            Storehouse_Storehouse_Level1                = 51,
+            Storehouse_Storehouse_Level2                = 142,
+            Storehouse_Storehouse_Level3                = 143,
+            TheForge_TheForge_Level1                    = 60,
+            TheForge_TheForge_Level2                    = 117,
+            TheForge_TheForge_Level3                    = 118,
+            TradingPost_TradingPost_Level1              = 111,
+            TradingPost_TradingPost_Level2              = 144,
+            TradingPost_TradingPost_Level3              = 145,
+            TailoringEmporium_TailoringEmporium_Level1  = 94,
+            TailoringEmporium_TailoringEmporium_Level2  = 127,
+            TailoringEmporium_TailoringEmporium_Level3  = 128,
+            AlchemyLab_AlchemyLab_Level1                = 76,
+            AlchemyLab_AlchemyLab_Level2                = 119,
+            AlchemyLab_AlchemyLab_Level3                = 120,
+            TheTannery_TheTannery_Level1                = 90,
+            TheTannery_TheTannery_Level2                = 121,
+            TheTannery_TheTannery_Level3                = 122,
+            EnchanterStudy_EnchanterStudy_Level1        = 93,
+            EnchanterStudy_EnchanterStudy_Level2        = 125,
+            EnchanterStudy_EnchanterStudy_Level3        = 126,
+            GemBoutique_GemBoutique_Level1              = 96,
+            GemBoutique_GemBoutique_Level2              = 131,
+            GemBoutique_GemBoutique_Level3              = 132,
+            EngineeringWorks_EngineeringWorks_Level1    = 91,
+            EngineeringWorks_EngineeringWorks_Level2    = 123,
+            EngineeringWorks_EngineeringWorks_Level3    = 124,
+            ScribesQuarters_ScribesQuarters_Level1      = 95,
+            ScribesQuarters_ScribesQuarters_Level2      = 129,
+            ScribesQuarters_ScribesQuarters_Level3      = 130,
+            HerbGarden_HerbGarden_Level1                = 29,
+            HerbGarden_HerbGarden_Level2                = 136,
+            HerbGarden_HerbGarden_Level3                = 137,
+            Barn_Barn_Level1                            = 24,
+            Barn_Barn_Level2                            = 25,
+            Barn_Barn_Level3                            = 133,
+            SalvageYard_SalvageYard_Level1              = 52,
+            SalvageYard_SalvageYard_Level2              = 140,
+            SalvageYard_SalvageYard_Level3              = 141,
+            LumberMill_LumberMill_Level1                = 40,
+            LumberMill_LumberMill_Level2                = 41,
+            LumberMill_LumberMill_Level3                = 138,
+            LunarfallExcavation_FrostwallMines_Level1   = 61,
+            LunarfallExcavation_FrostwallMines_Level2   = 62,
+            LunarfallExcavation_FrostwallMines_Level3   = 63,
+            LunarfallInn_FrostwallTavern_Level1         = 34,
+            LunarfallInn_FrostwallTavern_Level2         = 35,
+            LunarfallInn_FrostwallTavern_Level3         = 36,
+            MageTower_SpiritLodge_Level1                = 37,
+            MageTower_SpiritLodge_Level2                = 38,
+            MageTower_SpiritLodge_Level3                = 39,
+            Stables_Stables_Level1                      = 65,
+            Stables_Stables_Level2                      = 66,
+            Stables_Stables_Level3                      = 67,
+            GladiatorsSanctum_GladiatorsSanctum_Level1  = 159,
+            GladiatorsSanctum_GladiatorsSanctum_Level2  = 160,
+            GladiatorsSanctum_GladiatorsSanctum_Level3  = 161,
+            GnomishGearworks_GoblinWorkshop_Level1      = 162,
+            GnomishGearworks_GoblinWorkshop_Level2      = 163,
+            GnomishGearworks_GoblinWorkshop_Level3      = 164,
+            FishingShack_FishingShack_Level1            = 64,
+            FishingShack_FishingShack_Level2            = 134,
+            FishingShack_FishingShack_Level3            = 135
+        };
+
         enum Type : uint8
         {
-            Available             = 0,
-            InProgress            = 1,
-            CompleteSuccess       = 2,
-            CompleteFailed        = 5
+            Unk                 = 0,    ///< Unused 1
+            Mine                = 1,
+            Farm                = 2,
+            Barn                = 3,
+            LumberMill          = 4,
+            Inn                 = 5,
+            TradingPost         = 6,
+            PetMenagerie        = 7,
+            Barracks            = 8,
+            Orchard             = 9,    ///< Unused 2
+            Armory              = 10,   ///< War mill/Dwarven Bunker
+            Stable              = 11,
+            Academy             = 12,
+            MageTower           = 13,
+            SalvageYard         = 14,
+            StoreHouse          = 15,
+            Alchemy             = 16,
+            Blacksmith          = 17,
+            Enchanting          = 18,
+            Engineering         = 19,
+            Inscription         = 20,
+            Jewelcrafting       = 21,
+            Leatherworking      = 22,
+            Tailoring           = 23,
+            Fishing             = 24,
+            SparringArena       = 25,
+            Workshop            = 26
         };
     }
 
-    namespace FollowerType
+    namespace Mission
     {
-        enum : uint32
+        enum State : uint8
         {
-            NPC     = 1,
-            Ship    = 2
+            Available       = 0,
+            InProgress      = 1,
+            CompleteSuccess = 2,
+            CompleteFailed  = 5
         };
-    }
 
-    namespace MissionType
-    {
-        enum : uint8
+        enum Type : uint8
         {
             Combat         = 3,
             Generic        = 4,
@@ -131,15 +227,39 @@ namespace MS { namespace Garrison
             ShipSiegeIHA   = 49,
             ShipSiegeIHH   = 50
         };
-    }
 
-    namespace MissionFlags
-    {
-        enum : uint8
+        enum Flags : uint8
         {
             Rare        = 0x01,
             Unk2        = 0x02,
             Exhausting  = 0x04
+        };
+
+        enum BonusRollResults : uint8
+        {
+            Ok    = 0,
+            Error = 1
+        };
+
+        static const std::map<Mission::Type, Building::Type> g_MissionBuildingTypesMap
+        {
+            { Mission::Type::Alchemy,        Building::Type::Alchemy        },
+            { Mission::Type::LeatherWorking, Building::Type::Leatherworking },
+            { Mission::Type::BlackSmithing,  Building::Type::Blacksmith     },
+            { Mission::Type::Enchanting,     Building::Type::Enchanting     },
+            { Mission::Type::JewelCrafting,  Building::Type::Jewelcrafting  },
+            { Mission::Type::Engineering,    Building::Type::Engineering    },
+            { Mission::Type::Tailoring,      Building::Type::Tailoring      },
+            { Mission::Type::Inscription,    Building::Type::Inscription    }
+        };
+    }
+
+    namespace FollowerType
+    {
+        enum : uint32
+        {
+            NPC  = 1,
+            Ship = 2
         };
     }
 
@@ -181,15 +301,6 @@ namespace MS { namespace Garrison
             RequireBluePrint    = 22,
             NotEnoughCurrency   = 46,
             NotEnoughGold       = 47
-        };
-    }
-
-    namespace MissionBonusRollResults
-    {
-        enum Type
-        {
-            Ok      = 0,
-            Error   = 1
         };
     }
 
@@ -304,82 +415,6 @@ namespace MS { namespace Garrison
         };
     }
 
-    namespace Buildings
-    {
-        enum
-        {
-            DwarvenBunker_WarMill_Level1                = 8,
-            DwarvenBunker_WarMill_Level2                = 9,
-            DwarvenBunker_WarMill_Level3                = 10,
-            Barracks_Barracks_Level1                    = 26,
-            Barracks_Barracks_Level2                    = 27,
-            Barracks_Barracks_Level3                    = 28,
-            Storehouse_Storehouse_Level1                = 51,
-            Storehouse_Storehouse_Level2                = 142,
-            Storehouse_Storehouse_Level3                = 143,
-            TheForge_TheForge_Level1                    = 60,
-            TheForge_TheForge_Level2                    = 117,
-            TheForge_TheForge_Level3                    = 118,
-            TradingPost_TradingPost_Level1              = 111,
-            TradingPost_TradingPost_Level2              = 144,
-            TradingPost_TradingPost_Level3              = 145,
-            TailoringEmporium_TailoringEmporium_Level1  = 94,
-            TailoringEmporium_TailoringEmporium_Level2  = 127,
-            TailoringEmporium_TailoringEmporium_Level3  = 128,
-            AlchemyLab_AlchemyLab_Level1                = 76,
-            AlchemyLab_AlchemyLab_Level2                = 119,
-            AlchemyLab_AlchemyLab_Level3                = 120,
-            TheTannery_TheTannery_Level1                = 90,
-            TheTannery_TheTannery_Level2                = 121,
-            TheTannery_TheTannery_Level3                = 122,
-            EnchanterStudy_EnchanterStudy_Level1        = 93,
-            EnchanterStudy_EnchanterStudy_Level2        = 125,
-            EnchanterStudy_EnchanterStudy_Level3        = 126,
-            GemBoutique_GemBoutique_Level1              = 96,
-            GemBoutique_GemBoutique_Level2              = 131,
-            GemBoutique_GemBoutique_Level3              = 132,
-            EngineeringWorks_EngineeringWorks_Level1    = 91,
-            EngineeringWorks_EngineeringWorks_Level2    = 123,
-            EngineeringWorks_EngineeringWorks_Level3    = 124,
-            ScribesQuarters_ScribesQuarters_Level1      = 95,
-            ScribesQuarters_ScribesQuarters_Level2      = 129,
-            ScribesQuarters_ScribesQuarters_Level3      = 130,
-            HerbGarden_HerbGarden_Level1                = 29,
-            HerbGarden_HerbGarden_Level2                = 136,
-            HerbGarden_HerbGarden_Level3                = 137,
-            Barn_Barn_Level1                            = 24,
-            Barn_Barn_Level2                            = 25,
-            Barn_Barn_Level3                            = 133,
-            SalvageYard_SalvageYard_Level1              = 52,
-            SalvageYard_SalvageYard_Level2              = 140,
-            SalvageYard_SalvageYard_Level3              = 141,
-            LumberMill_LumberMill_Level1                = 40,
-            LumberMill_LumberMill_Level2                = 41,
-            LumberMill_LumberMill_Level3                = 138,
-            LunarfallExcavation_FrostwallMines_Level1   = 61,
-            LunarfallExcavation_FrostwallMines_Level2   = 62,
-            LunarfallExcavation_FrostwallMines_Level3   = 63,
-            LunarfallInn_FrostwallTavern_Level1         = 34,
-            LunarfallInn_FrostwallTavern_Level2         = 35,
-            LunarfallInn_FrostwallTavern_Level3         = 36,
-            MageTower_SpiritLodge_Level1                = 37,
-            MageTower_SpiritLodge_Level2                = 38,
-            MageTower_SpiritLodge_Level3                = 39,
-            Stables_Stables_Level1                      = 65,
-            Stables_Stables_Level2                      = 66,
-            Stables_Stables_Level3                      = 67,
-            GladiatorsSanctum_GladiatorsSanctum_Level1  = 159,
-            GladiatorsSanctum_GladiatorsSanctum_Level2  = 160,
-            GladiatorsSanctum_GladiatorsSanctum_Level3  = 161,
-            GnomishGearworks_GoblinWorkshop_Level1      = 162,
-            GnomishGearworks_GoblinWorkshop_Level2      = 163,
-            GnomishGearworks_GoblinWorkshop_Level3      = 164,
-            FishingShack_FishingShack_Level1            = 64,
-            FishingShack_FishingShack_Level2            = 134,
-            FishingShack_FishingShack_Level3            = 135
-        };
-    }
-
     enum GarrisonFollowerFlags
     {
         GARRISON_FOLLOWER_FLAG_EXHAUSTED    = 0x2,
@@ -387,39 +422,6 @@ namespace MS { namespace Garrison
     };
 
     /// 6.1.2 19865 - SceneScript.db2 "Garrison - Building Activation Init"
-    namespace BuildingType
-    {
-        enum Type
-        {
-            Unk                 = 0,    ///< Unused 1
-            Mine                = 1,
-            Farm                = 2,
-            Barn                = 3,
-            LumberMill          = 4,
-            Inn                 = 5,
-            TradingPost         = 6,
-            PetMenagerie        = 7,
-            Barracks            = 8,
-            Orchard             = 9,    ///< Unused 2
-            Armory              = 10,   ///< War mill/Dwarven Bunker
-            Stable              = 11,
-            Academy             = 12,
-            MageTower           = 13,
-            SalvageYard         = 14,
-            StoreHouse          = 15,
-            Alchemy             = 16,
-            Blacksmith          = 17,
-            Enchanting          = 18,
-            Engineering         = 19,
-            Inscription         = 20,
-            Jewelcrafting       = 21,
-            Leatherworking      = 22,
-            Tailoring           = 23,
-            Fishing             = 24,
-            SparringArena       = 25,
-            Workshop            = 26
-        };
-    }
 
     namespace BuildingCategory
     {
