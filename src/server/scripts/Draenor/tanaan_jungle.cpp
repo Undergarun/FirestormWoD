@@ -3731,7 +3731,7 @@ class npc_tanaan_khadgar_final : public CreatureScript
                     Position l_Pos;
                     p_Player->GetPosition(&l_Pos);
 
-                    if (Quest const* l_QuestTemplate = sObjectMgr->GetQuestTemplate(33868)) ///< Home of the Frostwolves
+                    if (Quest const* l_QuestTemplate = sObjectMgr->GetQuestTemplate(34575)) ///< Step Three: Prophet!
                         p_Player->AddQuest(l_QuestTemplate, p_Player);
 
                     if (g_SceneAllianceBoatPlayerScript)
@@ -3744,7 +3744,7 @@ class npc_tanaan_khadgar_final : public CreatureScript
                     Position l_Pos;
                     p_Player->GetPosition(&l_Pos);
 
-                    if (Quest const* l_QuestTemplate = sObjectMgr->GetQuestTemplate(34575)) ///< Step Three: Prophet!
+                    if (Quest const* l_QuestTemplate = sObjectMgr->GetQuestTemplate(33868)) ///< Home of the Frostwolves
                         p_Player->AddQuest(l_QuestTemplate, p_Player);
 
                     if (g_SceneHordeBoatPlayerScript)
