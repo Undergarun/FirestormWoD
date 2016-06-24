@@ -51,20 +51,22 @@ build:
 
 publish:
   docker:
-    username: $$DOCKER_USER
-    password: $$DOCKER_PASS
-    email: $$DOCKER_EMAIL
-    repo: milleniumstudio/docker-wod
+    registry: registry.fat.sh
+    username: $$FATREGISTRY_USER
+    password: $$FATREGISTRY_PASSWD
+    email: contact@fat.sh
+    repo: firestorm/wod
     tag: latest-ptr
     file: dist/Dockerfile
     context: dist/
     when:
       branch: wod_ptr
   docker:
-    username: $$DOCKER_USER
-    password: $$DOCKER_PASS
-    email: $$DOCKER_EMAIL
-    repo: milleniumstudio/docker-wod
+    registry: registry.fat.sh
+    username: $$FATREGISTRY_USER
+    password: $$FATREGISTRY_PASSWD
+    email: contact@fat.sh
+    repo: firestorm/wod
     tag: latest
     file: dist/Dockerfile
     context: dist/
@@ -77,4 +79,4 @@ notify:
     channel: wow-notification
     username: Drone
     template: >
-      Build <https://drone.firestorm-servers.com/{{ repo.full_name }}/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> ({{ build.branch }}) by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}
+      Build <https://drone-1.fat.sh/{{ repo.full_name }}/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> ({{ build.branch }}) by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}

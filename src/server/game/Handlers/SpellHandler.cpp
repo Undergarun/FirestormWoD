@@ -763,6 +763,20 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
             spellInfo = actualSpellInfo;
     }
 
+    switch (l_SpellID) ///< Hackfix for codex of Xerrath effect on Abyssal (Guardian) and Abyssal (Summon)
+    {
+        case 112921: //< Abyssal(Guardian)
+            if (m_Player->HasAura(137206)) 
+                spellInfo = sSpellMgr->GetSpellInfo(140763);
+            break;
+        case 157899: //< Abyssal (Summon)
+            if (m_Player->HasAura(137206)) 
+                spellInfo = sSpellMgr->GetSpellInfo(157904);
+            break;
+        default:
+            break;
+    }
+
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, 0, false);
     spell->m_cast_count = l_CastCount;                       // set count of casts
     spell->m_Misc[0] = l_Misc[0];

@@ -4982,6 +4982,7 @@ class spell_monk_uplift : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Call by Roll - 107427 and Chi Torpedo - 115008
 /// Glyph of rapid rolling - 146951
 class spell_monk_glyph_of_rapid_rolling : public SpellScriptLoader
@@ -4993,22 +4994,31 @@ class spell_monk_glyph_of_rapid_rolling : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_glyph_of_rapid_rolling_SpellScript);
 
+            enum eSpells
+            {
+                IntertieTalent  = 115174,
+                IntertieProc    = 119085
+            };
+
             void HandleAfterCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_RAPID_ROLLING))
-                        l_Caster->CastSpell(l_Caster, SPELL_MONK_RAPID_ROLLING, true);
-                }
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_RAPID_ROLLING))
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_RAPID_ROLLING, true);
+                if (l_Caster->HasAura(eSpells::IntertieTalent))
+                    l_Caster->CastSpell(l_Caster, eSpells::IntertieProc, true);
             }
 
-            void Register()
+            void Register() override
             {
                 AfterCast += SpellCastFn(spell_monk_glyph_of_rapid_rolling_SpellScript::HandleAfterCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_glyph_of_rapid_rolling_SpellScript();
         }

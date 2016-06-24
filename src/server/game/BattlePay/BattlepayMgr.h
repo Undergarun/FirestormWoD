@@ -135,6 +135,7 @@ namespace Battlepay
 
     struct Product
     {
+        /// Databases fields
         uint32                      ProductID;
         uint64                      NormalPriceFixedPoint;
         uint64                      CurrentPriceFixedPoint;
@@ -146,6 +147,9 @@ namespace Battlepay
         uint32                      ClassMask;
         std::string                 ScriptName;
         uint8                       WebsiteType;
+
+        /// Custom fields
+        std::string                 CustomData;
 
         /*
          * Serialize the product data to json

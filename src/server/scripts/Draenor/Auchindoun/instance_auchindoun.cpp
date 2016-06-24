@@ -19,29 +19,6 @@ static BossScenarios const g_BossScenarios[] =
     { 0,                                    0 }
 };
 
-/// Event teleports player to Kaathar hall.
-class EventTeleportPlayer : public BasicEvent
-{
-public:
-
-    explicit EventTeleportPlayer(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
-    {
-    }
-
-    bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
-    {
-        if (m_Obj && m_Obj->IsPlayer())
-          m_Obj->ToPlayer()->TeleportTo(1182, 1904.29f, 3185.111f, 30.799f, 3.34086f);
-
-        return true;
-    }
-
-private:
-    Unit* m_Obj;
-    int m_Modifier;
-    int m_Event;
-};
-
 class instance_auchindoun : public InstanceMapScript
 {
 public:
@@ -90,6 +67,7 @@ public:
         uint64 m_SoulTransport01Guid;
         uint64 m_SoulTransport02Guid;
         uint64 m_SoulTransport03Guid;
+		uint64 m_AuchindounCrystal;
         /// Triggers
         uint64 m_TriggerBubbleMiddleNyamiGuid;
         uint64 m_TriggerAzzakelFelPortalGuid;
@@ -125,8 +103,10 @@ public:
             m_SoulTransport01Guid             = 0;
             m_SoulTransport02Guid             = 0;
             m_SoulTransport03Guid             = 0;
+			m_AuchindounCrystal				  = 0;
             /// Triggers
             m_TriggerBubbleMiddleNyamiGuid    = 0;
+			m_KaatharDied					  = false;
 
             instance->SetObjectVisibility(150.0f);
 
@@ -140,7 +120,7 @@ public:
             InstanceScript::OnPlayerEnter(p_Player);
 
             if (m_KaatharDied)
-                p_Player->m_Events.AddEvent(new EventTeleportPlayer(p_Player, 101), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
+                p_Player->ToPlayer()->TeleportTo(1182, 1904.29f, 3185.111f, 30.799f, 3.34086f);
         }
 
         void OnGameObjectCreate(GameObject* p_Go) override
@@ -149,6 +129,9 @@ public:
             {
                 switch (p_Go->GetEntry())
                 {
+					case eAuchindounObjects::GameObjectAuchindounCrystal:
+						m_AuchindounCrystal = p_Go->GetGUID();
+						break;
                     case eAuchindounObjects::GameobjectHolyBarrier:
                         m_HolyBarrierKathaarObjectGuid = p_Go->GetGUID();
                         break;
@@ -369,6 +352,9 @@ public:
         {
             switch (p_Data)
             {
+				case eAuchindounDatas::DataCrystal:
+					return m_AuchindounCrystal;
+					break;
                 case eAuchindounDatas::DataTuulani02:
                     return m_Tuulani02Guid;
                     break;

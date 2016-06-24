@@ -2051,6 +2051,8 @@ class spell_warl_drain_soul: public SpellScriptLoader
                             if (AuraEffect* l_AuraEffect = l_Aura->GetEffect(l_Aura->GetEffectIndexByType(SPELL_AURA_PERIODIC_DAMAGE)))
                             {
                                 int32 l_Bp0 = CalculatePct(l_AuraEffect->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+                                l_Bp0 = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp0, 0, DOT);
+                                l_Bp0 = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Bp0, DOT);
 
                                 if (Aura* l_AuraGoS = l_Caster->GetAura(eSpells::GrimoireOfSacrifice))
                                 {
@@ -2093,14 +2095,14 @@ class spell_warl_drain_soul: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodicDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_warl_drain_soul_AuraScript();
         }
@@ -3267,13 +3269,17 @@ class spell_warl_unstable_affliction: public SpellScriptLoader
 
             void HandleDispel(DispelInfo* dispelInfo)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
                     if (AuraEffect const* aurEff = GetEffect(EFFECT_0))
                     {
-                        int32 damage = aurEff->GetAmount() * 8;
+                        Unit* l_Dispeller = dispelInfo->GetDispeller();
+                        int32 l_Damage = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * aurEff->GetAmount() * 8);
+                        l_Damage = l_Caster->SpellDamageBonusDone(l_Dispeller, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                        l_Damage = l_Dispeller->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                        l_Damage = l_Damage / 1000;
                         // backfire damage and silence
-                        caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, &damage, NULL, true);
+                        l_Caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &l_Damage, &l_Damage, NULL, true);
                     }
                 }
             }

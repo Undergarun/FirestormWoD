@@ -4946,6 +4946,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 137639: ///< Storm, Earth and Fire
                 spellInfo->AttributesCu &= ~(SPELL_ATTR0_CU_NEGATIVE_EFF1|SPELL_ATTR0_CU_NEGATIVE_EFF0);
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
             case 138130: ///< Storm, Earth and Fire (for spirits)
                 spellInfo->Effects[0].Effect = 0;
@@ -5433,6 +5434,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 154294: ///< Power Conduit
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO | SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                break;
+            case 170493: ///< Honorbound
+                spellInfo->Attributes |= SPELL_ATTR0_CANT_CANCEL;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
+                spellInfo->AttributesEx4 |= SPELL_ATTR4_NOT_STEALABLE;
                 break;
             case 57723:  ///< Exhaustion
             case 57724:  ///< Sated
@@ -6297,6 +6303,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
+            case 137211: ///< Tremendous Fortitude
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
+                break;
             case 115315: ///< Summon Black Ox Statue
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -6331,10 +6340,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
-                break;
-            case 106734:///< Guardian Overrides Passive
-                spellInfo->Effects[5].Effect = 0;
-                spellInfo->Effects[6].Effect = 0;
                 break;
             case 52610: ///< Savage Roar
                 spellInfo->Effects[2].BasePoints = 40;
@@ -6484,6 +6489,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 116768: ///< Combo Breaker (blackout kick)
             case 64803: ///< Entrapment
             case 135373: ///< Entrapment
+            case 115174: ///< Unertie
                 spellInfo->ProcFlags = 0;
                 break;
             /// All spells - ProcCharges = 1
@@ -6561,6 +6567,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].Effect = 0;
                 break;
             case 115008: ///< Chi Torpedo
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(596); // 900 ms
                 spellInfo->OverrideSpellList.push_back(121828); ///< Override List with Chi Torpedo - Talent
                 spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_SPEED_NOT_STACK;
                 break;
@@ -7271,7 +7278,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->StackAmount = 2;
                 break;
             case 1543: ///< Flare
-                spellInfo->Effects[0].TriggerSpell = 109772;
+                spellInfo->Effects[0].TriggerSpell = 132950;
                 spellInfo->ProcChance = 100;
                 break;
             case 109772: ///< Flare

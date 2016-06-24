@@ -146,11 +146,13 @@ class EventTuulaniIntroduction : public BasicEvent
 
                                     l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 15, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(12 * TimeConstants::IN_MILLISECONDS));
                                     l_Tuulina->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani09, g_PositionTuulaniMovements[9]);
+
+									l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 12, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(5 * TimeConstants::IN_MILLISECONDS));
+
                                     break;
                                 }
                                 case 12:
-                                {
-								
+								{							
 
                                     l_Tuulina->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani10, g_PositionTuulaniMovements[10]);
                                     break;
@@ -839,6 +841,7 @@ class auchindoun_mob_sargerei_defender : public CreatureScript
         auchindoun_mob_sargerei_defenderAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
+			m_False = true;
         }
 
         enum eSargereiDefenderSpells
@@ -854,10 +857,16 @@ class auchindoun_mob_sargerei_defender : public CreatureScript
         };
 
         InstanceScript* m_Instance;
+		bool m_False;
 
         void Reset() override
         {
             events.Reset();
+
+			if (m_False)
+			{
+				m_False = false;
+			}
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -910,6 +919,7 @@ class auchindoun_mob_sargerei_magus : public CreatureScript
     {
         auchindoun_mob_sargerei_magusAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
+			m_False = true;
             m_Instance = me->GetInstanceScript();
         }
 
@@ -928,10 +938,16 @@ class auchindoun_mob_sargerei_magus : public CreatureScript
         };
 
         InstanceScript* m_Instance;
+		bool m_False;
         std::list<uint64> l_Prisoners;
 
         void Reset() override
         {
+			if (m_False)
+			{
+				m_False = false;
+			}
+
             events.Reset();
             me->CastSpell(me, eSargereiMagusSpells::SpellArcaneChanneling);
         }
@@ -1025,6 +1041,7 @@ class auchindoun_mob_soul_priest : public CreatureScript
         auchindoun_mob_soul_priestAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
+			m_False = true;
         }
 
         enum eSoulPriestSpells
@@ -1040,11 +1057,17 @@ class auchindoun_mob_soul_priest : public CreatureScript
         };
 
         InstanceScript* m_Instance;
+		bool m_False;
 
-        void Reset() override
-        {
-            events.Reset();
-        }
+		void Reset() override
+		{
+			events.Reset();
+
+			if (m_False)
+			{
+				m_False = false;
+			}
+		}
 
         void EnterCombat(Unit* p_Attacker) override
         {
@@ -1097,6 +1120,7 @@ class auchindoun_mob_sargeri_warden : public CreatureScript
         auchindoun_mob_sargeri_wardenAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
+			m_False = true;
         }
 
         enum eWardenSpells
@@ -1112,11 +1136,17 @@ class auchindoun_mob_sargeri_warden : public CreatureScript
         };
 
         InstanceScript* m_Instance;
+		bool m_False;
 
         void Reset() override
         {
             events.Reset();
-        }
+
+			if (m_False)
+			{
+				m_False = false;
+			}
+		}
 
         void EnterCombat(Unit* p_Attacker) override
         {

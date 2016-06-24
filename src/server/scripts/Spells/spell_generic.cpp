@@ -3520,16 +3520,16 @@ class spell_vote_buff: public SpellScriptLoader
                 if (!GetUnitOwner())
                     return;
 
-                p_Amount = GetUnitOwner()->getLevel() * 2;
+                /*p_Amount = GetUnitOwner()->getLevel() * 2;*/
             }
 
-            void Register()
+            void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_vote_buff_AuraScript::CalculateEffectAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_vote_buff_AuraScript();
         }
@@ -5895,9 +5895,65 @@ class spell_gen_mass_resurrection : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Capturing - 156098
+class spell_gen_capturing : public SpellScriptLoader
+{
+    public:
+        spell_gen_capturing() : SpellScriptLoader("spell_gen_capturing") { }
+
+        class spell_gen_capturing_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_capturing_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                l_Caster->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+                l_Caster->RemoveAurasByType(SPELL_AURA_MOD_CAMOUFLAGE);
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_capturing_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_capturing_SpellScript();
+        }
+};
+
+/// Last Update 6.2.3
+class PlayerScript_second_talent_spec : public PlayerScript
+{
+public:
+    PlayerScript_second_talent_spec() : PlayerScript("PlayerScript_second_talent_spec") { }
+
+    enum eSpells
+    {
+        FirstSpecButton     = 63645,
+        SecondSpecButton    = 63644,
+        LearningSpell       = 63680
+    };
+
+    void OnLogin(Player* p_Player)
+    {
+        /// Prevent double specialisation to not be enable but present
+        if (p_Player->GetSpecsCount() == MAX_TALENT_SPECS && (!p_Player->HasSpell(eSpells::FirstSpecButton) || !p_Player->HasSpell(eSpells::SecondSpecButton)))
+            p_Player->CastSpell(p_Player, eSpells::LearningSpell, true);
+
+    }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_capturing();
     new spell_gen_pvp_trinket();
     new spell_gen_ironbeards_hat();
     new spell_gen_coin_of_many_faces();
@@ -6008,6 +6064,7 @@ void AddSC_generic_spell_scripts()
     new spell_nullification_barrier();
 
     /// PlayerScript
+    new PlayerScript_second_talent_spec();
     new PlayerScript_Touch_Of_Elune();
     new PlayerScript_gen_remove_rigor_mortis();
     new Resolve::PlayerScript_Resolve();

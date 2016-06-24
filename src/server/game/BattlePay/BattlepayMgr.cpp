@@ -399,9 +399,12 @@ namespace Battlepay
     std::string Product::Serialize() const
     {
         EasyJSon::Node<std::string> l_Node;
-        l_Node["Expansion"] = std::to_string(5);    ///< WoD
-        l_Node["Type"]      = std::to_string(WebsiteType);
-        l_Node["Quantity"]  = std::to_string(1);
+        l_Node["Expansion"]    = std::to_string(5);    ///< WoD
+        l_Node["Type"]         = std::to_string(WebsiteType);
+        l_Node["Quantity"]     = std::to_string(1);
+        l_Node["IngameShop"]   = 1;
+
+        l_Node["CustomData"]   = sScriptMgr->BattlePayGetCustomData(*this);
 
         uint32 l_Idx = 0;
         for (Battlepay::ProductItem const& l_ItemProduct : Items)
@@ -453,8 +456,13 @@ namespace Battlepay
         for (auto l_Itr : l_IngameToWebsiteLocale)
         {
             std::string l_Value = "";
-            if (Battlepay::DisplayInfoLocale const* l_Locale = sBattlepayMgr->GetDisplayInfoLocale(DisplayInfoID))
-                ObjectMgr::GetLocaleString(l_Locale->Name, l_Itr.first, l_Value);
+            if (l_Itr.first != DEFAULT_LOCALE)
+            {
+                if (Battlepay::DisplayInfoLocale const* l_Locale = sBattlepayMgr->GetDisplayInfoLocale(DisplayInfoID))
+                    ObjectMgr::GetLocaleString(l_Locale->Name, l_Itr.first, l_Value);
+            }
+            else if (Battlepay::DisplayInfo const* l_DisplayInfo = sBattlepayMgr->GetDisplayInfo(DisplayInfoID))
+                l_Value = l_DisplayInfo->Name1;
 
             l_Node["Name"][std::to_string(l_Itr.second)]["Locale"] = l_Itr.second;
             l_Node["Name"][std::to_string(l_Itr.second)]["Value"]  = l_Value;

@@ -1152,7 +1152,8 @@ class spell_hun_glyph_of_animal_bond : public SpellScriptLoader
         }
 };
 
-// Bestial Wrath - 19574 and The Beast Within - 34471
+/// Last Update 6.2.3
+/// Bestial Wrath - 19574 and The Beast Within - 34471
 class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
 {
     public:
@@ -1173,6 +1174,11 @@ class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
             {
                 if (Unit* l_Target = GetTarget())
                 {
+                    if (Pet* l_Pet = l_Target->ToPet())
+                    {
+                        if (l_Pet->m_Stampeded)
+                            return;
+                    }
                     uint32 l_Mechanic = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
                                         | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
                                         | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
@@ -1199,15 +1205,15 @@ class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 switch (m_scriptSpellId)
                 {
-                    case 19574: // Bestial Wrath
-                        OnEffectApply += AuraEffectApplyFn(spell_hun_bestial_wrath_dispel_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                    case 19574: /// Bestial Wrath
+                        AfterEffectApply += AuraEffectApplyFn(spell_hun_bestial_wrath_dispel_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                         break;
-                    case 34471: // The Beast Within
-                        OnEffectApply += AuraEffectApplyFn(spell_hun_bestial_wrath_dispel_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                    case 34471: /// The Beast Within
+                        AfterEffectApply += AuraEffectApplyFn(spell_hun_bestial_wrath_dispel_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
                         break;
                     default:
                         break;
@@ -1215,7 +1221,7 @@ class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_hun_bestial_wrath_dispel_AuraScript();
         }
