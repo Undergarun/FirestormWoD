@@ -1544,10 +1544,158 @@ WHERE id IN (
 
 -- Greenfire Questline fix
 
-UPDATE quest_template SET flags =0x110000 WHERE id = 32295; -- AUTOSUB AUTOCOMP
-UPDATE quest_template SET flags =0x200000 WHERE id = 32307; -- AUTOTAKE
-UPDATE quest_template SET flags =0x000000 WHERE id = 32309;
-UPDATE quest_template SET flags =0x000000 WHERE id = 32310;
-UPDATE quest_template SET flags =0x210000 WHERE id = 32317; -- AUTOTAKE AUTUSUB
-UPDATE quest_template SET flags =0x210000 WHERE id = 32324; -- AUTOTAKE AUTOSUB
-UPDATE quest_template SET flags =0x200000 WHERE id = 32325; -- AUTOTAKE
+UPDATE quest_template SET flags =0x080000 WHERE id = 32307;
+UPDATE quest_template SET flags =0x080000 WHERE id = 32309;
+UPDATE quest_template SET flags =0x080000 WHERE id = 32310;
+UPDATE quest_template SET flags =0x090000 WHERE id = 32317;
+UPDATE quest_template SET flags =0x090000 WHERE id = 32324;
+UPDATE quest_template SET flags =0x080000 WHERE id = 32325;
+
+DELETE FROM creature_questender WHERE quest IN (32295,
+32307,
+32310,
+32309,
+32317,
+32324,
+32325);
+DELETE FROM creature_queststarter WHERE quest IN (32295,
+32307,
+32310,
+32309,
+32317,
+32324,
+32325);
+INSERT INTO creature_queststarter VALUE (88705, 32307);
+INSERT INTO creature_queststarter VALUE (5496, 32307);
+INSERT INTO creature_queststarter VALUE (88705, 32309);
+INSERT INTO creature_queststarter VALUE (5496, 32310);
+INSERT INTO creature_queststarter VALUE (88705, 32317);
+INSERT INTO creature_queststarter VALUE (5496, 32317);
+INSERT INTO creature_queststarter VALUE (88705, 32324);
+INSERT INTO creature_queststarter VALUE (5496, 32324);
+INSERT INTO creature_queststarter VALUE (88705, 32325);
+INSERT INTO creature_queststarter VALUE (5496, 32325);
+INSERT INTO creature_questender VALUE (88705, 32307);
+INSERT INTO creature_questender VALUE (5496, 32307);
+INSERT INTO creature_questender VALUE (88705, 32309);
+INSERT INTO creature_questender VALUE (5496, 32310);
+INSERT INTO creature_questender VALUE (70270, 32325);
+
+-- =========================================================
+-- =========================================================
+-- =========================================================
+
+-- PIG ALERT
+-- PIG ALERT
+
+DELIMITER @@
+
+CREATE PROCEDURE `Test3`(IN `p_NextQuestID` INT, IN `p_NPCID` INT, OUT `p_Boule` BOOL)
+
+BEGIN
+	DECLARE done INT DEFAULT FALSE;
+	DECLARE l_ResultItr INT;
+	DECLARE l_ResultCursor CURSOR FOR SELECT id FROM creature_queststarter WHERE quest = p_NextQuestID;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+	OPEN l_ResultCursor;
+	
+	read_loop: LOOP
+		FETCH l_ResultCursor INTO l_ResultItr;
+		
+		IF done THEN
+			LEAVE read_loop;
+		END IF;
+		
+		IF l_ResultItr = p_NPCID THEN
+			SET p_Boule = TRUE;
+		END IF;
+		
+	END LOOP;
+
+	CLOSE l_ResultCursor;
+	
+END @@
+DELIMITER ;
+
+-- =========================================================
+-- =========================================================
+-- =========================================================
+
+DELIMITER @@
+
+CREATE PROCEDURE `Test2`(IN `p_QuestID` INT, IN `p_NextQuestID` INT, OUT `p_Boule` BOOL)
+
+BEGIN
+	DECLARE done INT DEFAULT FALSE;
+	DECLARE l_ResultItr INT;
+	DECLARE l_ResultCursor CURSOR FOR SELECT id FROM creature_questender WHERE quest = p_QuestID;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+	OPEN l_ResultCursor;
+	
+	read_loop: LOOP
+		FETCH l_ResultCursor INTO l_ResultItr;
+		
+		IF done THEN
+			LEAVE read_loop;
+		END IF;
+		
+		CALL `Test3`(p_NextQuestID, l_ResultItr, @testbool);
+		
+		SET p_Boule = @testbool;
+	END LOOP;
+
+	CLOSE l_ResultCursor;
+	
+END @@
+DELIMITER ;
+
+-- =========================================================
+-- =========================================================
+-- =========================================================
+
+DELIMITER @@
+
+CREATE PROCEDURE `Test`()
+BEGIN
+	
+	DECLARE done INT DEFAULT FALSE;
+	DECLARE l_Quest, l_NextQuest INT;
+	DECLARE l_ResultCursor CURSOR FOR SELECT id, nextquestidchain FROM quest_template WHERE id IN (SELECT NextQuestIdChain FROM quest_template WHERE NextQuestIdChain != 0 AND ExclusiveGroup = 0 AND NOT flags & 0x00200000) AND ExclusiveGroup = 0;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+	OPEN l_ResultCursor;
+	
+	read_loop: LOOP
+		FETCH l_ResultCursor INTO l_Quest, l_NextQuest;
+		IF done THEN
+			LEAVE read_loop;
+		END IF;
+		
+		CALL `Test2`(l_Quest, l_NextQuest, @booltest);
+		
+		IF (@booltest = TRUE) THEN
+			UPDATE quest_template SET flags = flags | 0x00200000 WHERE id = l_NextQuest;
+		END IF;
+	END LOOP;
+
+	CLOSE l_ResultCursor;
+	
+END @@
+DELIMITER ;
+
+CALL `Test`();
+	
+DROP PROCEDURE `Test`;
+DROP PROCEDURE `Test2`;
+DROP PROCEDURE `Test3`;
+
+
+
+-- =========================================================
+-- =========================================================
+-- =========================================================
+
+-- END ALERT
+-- GL HF
