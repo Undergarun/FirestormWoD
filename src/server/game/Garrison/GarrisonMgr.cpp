@@ -4673,6 +4673,8 @@ namespace MS { namespace Garrison
             if (l_RewardEntry->MissionID != p_Entry->MissionRecID)
                 continue;
 
+            ++l_RewardCount;
+
             /// Elemental Rune & Abrogator Stone - Legendary Questline  NYI
             if (l_RewardEntry->ItemID == 115510 || l_RewardEntry->ItemID == 115280)
                 l_RewardCount = 0;
@@ -4689,8 +4691,8 @@ namespace MS { namespace Garrison
                 case 821:
                 case 828:
                 case 829:
-                    if (m_Owner->HasSkill(SKILL_ARCHAEOLOGY))
-                    l_RewardCount = 0;
+                    if (!m_Owner->HasSkill(SKILL_ARCHAEOLOGY))
+                        l_RewardCount = 0;
                     break;
                 default:
                     break;
@@ -4715,8 +4717,6 @@ namespace MS { namespace Garrison
 
             if (!l_RewardCount)
                 break;
-
-            ++l_RewardCount;
         }
 
         /// If player has Tavern lvl 3, he'll have 50% chance to get a treasure hunter type mission
