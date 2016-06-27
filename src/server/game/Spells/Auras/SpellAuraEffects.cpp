@@ -1863,6 +1863,8 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
         default:
             break;
     }
+
+    GetBase()->CallScriptAfterEffectPeriodicHandlers(this, aurApp);
 }
 
 void AuraEffect::HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
