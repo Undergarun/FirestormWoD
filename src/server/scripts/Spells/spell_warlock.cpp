@@ -1457,6 +1457,12 @@ class spell_warl_soul_leech: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_soul_leech_SpellScript);
 
+            enum eSpells
+            {
+                DrainSoul = 103103
+            };
+
+            int32 l_SpellID[12] = {48181 , 103103, 686, 6353, 104027, 103964, 6353, 104027, 29722, 17877, 116858, 108370};
             void HandleAfterHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -1468,8 +1474,10 @@ class spell_warl_soul_leech: public SpellScriptLoader
                 if (!l_Player->HasAura(WARLOCK_SOUL_LEECH_AURA))
                     return;
 
-                int32 l_Bp = l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, GetSpellInfo()->Id);
-
+                int32 l_Bp = 0;
+                
+                for (int i = 0; i < 12; ++i)
+                    l_Bp += l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, l_SpellID[i]);
                 /// Affliction - 30%
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_WARLOCK_AFFLICTION)
                     l_Bp = CalculatePct(l_Bp, 30);
@@ -1483,15 +1491,68 @@ class spell_warl_soul_leech: public SpellScriptLoader
                 l_Player->CastCustomSpell(l_Player, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
             }
 
-            void Register()
+            void Register() override
             {
-                AfterHit += SpellHitFn(spell_warl_soul_leech_SpellScript::HandleAfterHit);
+                if (m_scriptSpellId != eSpells::DrainSoul)
+                    AfterHit += SpellHitFn(spell_warl_soul_leech_SpellScript::HandleAfterHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        class spell_warl_soul_leech_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_soul_leech_AuraScript);
+
+            enum eSpells
+            {
+                DrainSoul = 103103
+            };
+
+            int32 l_SpellID[12] = { 48181 , 103103, 686, 6353, 104027, 103964, 6353, 104027, 29722, 17877, 116858, 108370 };
+            void OnTick(AuraEffect const* /*aurEff*/)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_SOUL_LEECH_AURA);
+
+                if (l_Player == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (!l_Player->HasAura(WARLOCK_SOUL_LEECH_AURA))
+                    return;
+
+                int l_Bp = 0;
+                for (int i = 0; i < 12; ++i)
+                    l_Bp += l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, l_SpellID[i]);
+                /// Affliction - 30%
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_WARLOCK_AFFLICTION)
+                    l_Bp = CalculatePct(l_Bp, 30);
+                /// Demonology and Destruction - 15%
+                else
+                    l_Bp = CalculatePct(l_Bp, 15);
+
+                if (Pet* l_Pet = l_Player->GetPet())
+                    l_Player->CastCustomSpell(l_Pet, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+
+                l_Player->CastCustomSpell(l_Player, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+            }
+
+            void Register() override
+            {
+                if (m_scriptSpellId != eSpells::DrainSoul)
+                    AfterEffectPeriodic += AuraEffectPeriodicFn(spell_warl_soul_leech_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
             return new spell_warl_soul_leech_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warl_soul_leech_AuraScript();
         }
 };
 
@@ -2051,6 +2112,8 @@ class spell_warl_drain_soul: public SpellScriptLoader
                             if (AuraEffect* l_AuraEffect = l_Aura->GetEffect(l_Aura->GetEffectIndexByType(SPELL_AURA_PERIODIC_DAMAGE)))
                             {
                                 int32 l_Bp0 = CalculatePct(l_AuraEffect->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+                                l_Bp0 = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp0, 0, DOT);
+                                l_Bp0 = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Bp0, DOT);
 
                                 if (Aura* l_AuraGoS = l_Caster->GetAura(eSpells::GrimoireOfSacrifice))
                                 {
@@ -2093,14 +2156,14 @@ class spell_warl_drain_soul: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodicDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_warl_drain_soul_AuraScript();
         }
@@ -3267,13 +3330,17 @@ class spell_warl_unstable_affliction: public SpellScriptLoader
 
             void HandleDispel(DispelInfo* dispelInfo)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
                     if (AuraEffect const* aurEff = GetEffect(EFFECT_0))
                     {
-                        int32 damage = aurEff->GetAmount() * 8;
+                        Unit* l_Dispeller = dispelInfo->GetDispeller();
+                        int32 l_Damage = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * aurEff->GetAmount() * 8);
+                        l_Damage = l_Caster->SpellDamageBonusDone(l_Dispeller, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                        l_Damage = l_Dispeller->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                        l_Damage = l_Damage / 1000;
                         // backfire damage and silence
-                        caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, &damage, NULL, true);
+                        l_Caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &l_Damage, &l_Damage, NULL, true);
                     }
                 }
             }
@@ -3975,7 +4042,7 @@ class spell_warl_doom_bolt : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Demonic Servitude - 152107
 class spell_warl_demonic_servitude : public SpellScriptLoader
 {
@@ -3993,6 +4060,13 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
                 GrimoireInfernal    = 157901,
                 GrimoireofSupremacy = 108499,
                 SummonAbyssal       = 157899
+            };
+
+            enum eNPCs
+            {
+                Infernal    = 78217,
+                Abyssal     = 78216,
+                Terrorguard = 78215
             };
 
             void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
@@ -4040,6 +4114,15 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
                     l_Player->removeSpell(eSpells::GrimoireInfernal, false, false);
                 if (l_Player->HasSpell(eSpells::SummonAbyssal))
                     l_Player->removeSpell(eSpells::SummonAbyssal, false, false);
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet == nullptr)
+                    return;
+
+                /// Prevent Doomguard/Infernal/Abyssal to keep summon after removing the talent
+                if (l_Pet->GetEntry() == eNPCs::Abyssal || l_Pet->GetEntry() == eNPCs::Infernal || l_Pet->GetEntry() == eNPCs::Terrorguard)
+                    l_Player->GetPet()->UnSummon();
             }
 
             void Register()
@@ -4622,57 +4705,70 @@ class spell_warl_demonbolt : public SpellScriptLoader
 };
 
 /// Last Update 6.2.3
-/// Glyph of soul consumption
+/// Glyph of soul consumption - 58070
 class spell_warl_glyph_of_soul_consumption : public SpellScriptLoader
 {
-public:
-    spell_warl_glyph_of_soul_consumption() : SpellScriptLoader("spell_warl_glyph_of_soul_consumption") { }
+    public:
+        spell_warl_glyph_of_soul_consumption() : SpellScriptLoader("spell_warl_glyph_of_soul_consumption") { }
 
-    class spell_warl_glyph_of_soul_consumption_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warl_glyph_of_soul_consumption_AuraScript);
-
-        enum eSpells
+        class spell_warl_glyph_of_soul_consumption_AuraScript : public AuraScript
         {
-            ChaosBolt = 116858,
-            DrainSoul = 103103,
-            Metamorphosis = 103958,
-            GlyphOfSoulConsumption = 58068
+            PrepareAuraScript(spell_warl_glyph_of_soul_consumption_AuraScript);
+
+            enum eSpells
+            {
+                ChaosBolt = 116858,
+                DrainSoul = 103103,
+                Metamorphosis = 103958,
+                GlyphOfSoulConsumption = 58068
+            };
+
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                if (p_EventInfo.GetDamageInfo() == nullptr)
+                    return;
+
+                uint32 l_Spec = l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+                SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
+
+                if (l_Victim == nullptr)
+                    return;
+
+                if (!l_Player->isHonorOrXPTarget(l_Victim))
+                    return;
+
+                if (l_Victim->GetHealth() > p_EventInfo.GetDamageInfo()->GetDamage())
+                    return;
+
+                if ((l_Spec == SPEC_WARLOCK_DEMONOLOGY && l_Player->HasAura(eSpells::Metamorphosis)) ||
+                    (l_SpellInfo != nullptr && ((l_Spec == SPEC_WARLOCK_DESTRUCTION && l_SpellInfo->Id == eSpells::ChaosBolt) ||
+                    (l_Spec == SPEC_WARLOCK_AFFLICTION && l_SpellInfo->Id == eSpells::DrainSoul))))
+                {
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfSoulConsumption, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warl_glyph_of_soul_consumption_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
         };
 
-        void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+        AuraScript* GetAuraScript() const override
         {
-            PreventDefaultAction();
-
-            Unit* l_Caster = GetCaster();
-            if (!l_Caster)
-                return;
-
-            Player* l_Player = l_Caster->ToPlayer();
-            if (!l_Player)
-                return;
-
-            uint32 l_Spec = l_Player->GetSpecializationId(l_Player->GetActiveSpec());
-            SpellInfo const* l_Spell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
-
-            if ((l_Spec == SPEC_WARLOCK_DEMONOLOGY && l_Player->HasAura(Metamorphosis)) ||
-                ( l_Spell != nullptr && ((l_Spec == SPEC_WARLOCK_DESTRUCTION && l_Spell->Id == ChaosBolt) ||
-                                        (l_Spec == SPEC_WARLOCK_AFFLICTION && l_Spell->Id == DrainSoul))))
-            {
-                l_Caster->CastSpell(l_Caster, GlyphOfSoulConsumption, true);
-            }
+            return new spell_warl_glyph_of_soul_consumption_AuraScript();
         }
-
-        void Register()
-        {
-            OnEffectProc += AuraEffectProcFn(spell_warl_glyph_of_soul_consumption_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_warl_glyph_of_soul_consumption_AuraScript();
-    }
 };
 
 /// last update 6.2.3

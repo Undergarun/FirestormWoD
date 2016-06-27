@@ -2438,7 +2438,7 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
     if (obj->IsAlwaysDetectableFor(seer))
         return true;
 
-    if (!ignoreStealth && !seer->CanDetectInvisibilityOf(obj))
+    if (!seer->CanDetectInvisibilityOf(obj))
         return false;
 
     if (!ignoreStealth && !seer->CanDetectStealthOf(obj))
@@ -3073,6 +3073,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempS
 void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration, PetSlot slotID, bool stampeded, std::function<void(Pet*, bool)> p_Callback, bool p_ByPass)
 {
     Pet* pet = new Pet(this, petType);
+    pet->m_Stampeded = stampeded;
 
     bool currentPet = (slotID != PET_SLOT_UNK_SLOT);
     if (pet->GetOwner() && pet->GetOwner()->getClass() != CLASS_HUNTER)
@@ -3221,7 +3222,6 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, 0);
     pet->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
 
-    pet->m_Stampeded = stampeded;
     pet->InitStatsForLevel(getLevel());
 
     // Only slot 100, as it's not hunter pet.

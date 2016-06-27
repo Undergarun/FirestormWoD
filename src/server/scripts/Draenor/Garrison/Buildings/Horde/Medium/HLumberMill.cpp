@@ -113,7 +113,7 @@ namespace MS { namespace Garrison
 
     void npc_LumberLordOktron::OnShipmentCreated(Player* p_Player, Creature* /*p_Creature*/, uint32 p_BuildingID)
     {
-        if (p_BuildingID == Buildings::LumberMill_LumberMill_Level1)
+        if (p_BuildingID == Building::ID::LumberMill_LumberMill_Level1)
         {
             if (p_Player->GetQuestStatus(Quests::Horde_TurningTimberIntoProfit) == QUEST_STATUS_INCOMPLETE)
                 p_Player->QuestObjectiveSatisfy(ObjectIDs::TimberWorkOrderHorde, 1, QuestObjectiveType::QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);

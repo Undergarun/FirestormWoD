@@ -5788,6 +5788,7 @@ class spell_dru_item_t17_feral_4p_bonus_proc_driver : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Called by Tooth and Claw buff - 135286
 /// Item - Druid T17 Guardian 2P Bonus - 165410
 class spell_dru_item_t17_guardian_2p_bonus : public SpellScriptLoader
@@ -5801,8 +5802,8 @@ class spell_dru_item_t17_guardian_2p_bonus : public SpellScriptLoader
 
             enum eSpells
             {
-                T17Guardian2P       = 165432,
-                ToothAndClawProc    = 166639
+                T17Guardian2P       = 165410,
+                ToothAndClawProc    = 165411
             };
 
             void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
@@ -5822,8 +5823,8 @@ class spell_dru_item_t17_guardian_2p_bonus : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_dru_item_t17_guardian_2p_bonus_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectApplyFn(spell_dru_item_t17_guardian_2p_bonus_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_item_t17_guardian_2p_bonus_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectApplyFn(spell_dru_item_t17_guardian_2p_bonus_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 

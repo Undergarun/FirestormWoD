@@ -54,7 +54,8 @@ enum eKaatharEvents
 enum eKaatharActions
 {
     ActionActivateBoss = 1,
-    ActionFateHallowedGround
+    ActionFateHallowedGround,
+	ActionDespawnCreatures
 };
 
 enum eKaatharTalks
@@ -75,6 +76,40 @@ enum eKaatharCreatures
 };
 
 Position const g_KaatharNewHomePosition = { 1911.47f, 3152.13f, 30.972f, 1.166194f };
+
+
+/// 1st Starting Event
+class EventKaatharDespawnCreatures : public BasicEvent
+{
+public:
+
+	explicit EventKaatharDespawnCreatures(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
+	{
+	}
+
+	bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
+	{
+		if (m_Obj)
+		{
+			if (InstanceScript * l_Instance = m_Obj->GetInstanceScript())
+			{
+				if (Creature* l_Kaathar = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossKathaar)))
+				{
+					if (l_Kaathar->IsAIEnabled)
+						l_Kaathar->GetAI()->DoAction(eKaatharActions::ActionDespawnCreatures);
+				}
+			}
+		}
+
+		return true;
+	}
+
+private:
+	InstanceScript* m_InstanceScript;
+	Unit* m_Obj;
+	int m_Modifier;
+	int m_Event;
+};
 
 class EventNyamiEscape : public BasicEvent
 {
@@ -104,41 +139,78 @@ class EventNyamiEscape : public BasicEvent
                                     {
                                         l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK6);
                                         l_Nyami->CastSpell(l_Nyami, eAuchindounSpells::SpellNyamiExplodeCrystal);
-                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 1), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                        if (GameObject* l_Crystal = l_Instance->instance->GetGameObject(l_Instance->GetData64(eAuchindounDatas::DataCrystal)))
+                                            l_Crystal->Delete();
+
+
+                                        if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
+                                        {
+                                            l_Caster->m_Events.AddEvent(new EventNyamiEscape(l_Caster, 51), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                            l_Nyami->m_Events.AddEvent(new EventNyamiEscape(l_Nyami, 1), l_Tuulani->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
+
+                                            l_Caster->m_Events.AddEvent(new EventNyamiEscape(l_Caster, 51), l_Tuulani->m_Events.CalculateTime(19 * TimeConstants::IN_MILLISECONDS));
+                                            l_Nyami->m_Events.AddEvent(new EventNyamiEscape(l_Nyami, 50), l_Tuulani->m_Events.CalculateTime(14 * TimeConstants::IN_MILLISECONDS));
+
+                                            l_Nyami->m_Events.AddEvent(new EventNyamiEscape(l_Nyami, 2), l_Tuulani->m_Events.CalculateTime(12 * TimeConstants::IN_MILLISECONDS));
+                                        }
                                         break;
                                     }
                                     case 1:
                                     {
                                         /// Cosmetic crystal projectiles flies toward the middle
-                                        if (Creature* l_Teronagar = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+                                        if (Creature* l_Teronoger = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
                                         {
-                                            for (uint8 l_I = 0; l_I < 20; l_I++)
+                                            if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
                                             {
-                                                if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
-                                                {
-                                                    G3D::Vector3 l_Source(l_Caster->m_positionX, l_Caster->m_positionY, l_Caster->m_positionZ);
-                                                    G3D::Vector3 l_Dest(l_Teronagar->m_positionX, l_Teronagar->m_positionY, l_Teronagar->m_positionZ);
-                                                    G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
+                                                G3D::Vector3 l_Source(1911.741f, 3183.639f, 56.50413f);
+                                                G3D::Vector3 l_Dest(1911.731f, 3183.639f, 56.50413f);
+                                                G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
 
-                                                    l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 1.0f);
-                                                }
+                                                l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 8.0f);
+                                                l_Caster->m_Events.AddEvent(new EventNyamiEscape(l_Caster, 1), l_Tuulani->m_Events.CalculateTime(100));
                                             }
                                         }
 
-                                        l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK7);
-                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 2), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                        l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK7);                                
                                         break;
                                     }
                                     case 2:
                                     {
-                                        l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK8);
-                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 3), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+										/// Cosmetic crystal projectiles flies toward the middle
+										if (Creature* l_Teronoger = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+										{
+											for (uint8 l_I = 0; l_I < 20; l_I++)
+											{
+												if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
+												{
+													G3D::Vector3 l_Source(1911.741f, 3183.639f, 56.50413f);
+													G3D::Vector3 l_Dest(l_Teronoger->m_positionX, l_Teronoger->m_positionY, l_Teronoger->m_positionZ);
+													G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
+
+													l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 8.0f);
+                                                    l_Caster->m_Events.AddEvent(new EventNyamiEscape(l_Caster, 3), l_Tuulani->m_Events.CalculateTime(100));                                                
+												}
+											}
+										}
+									                        
                                         break;
                                     }
+                                    case 50:
+                                        if (Creature* l_AuchindounProtection = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureShieldStalker, 1000.0f, true))
+                                            l_AuchindounProtection->DespawnOrUnsummon();
+
+                                        l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK8);
+                                        break;
+                                    case 51:
+                                        if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
+                                        {
+                                            l_Caster->m_Events.KillAllEvents(true);
+                                        }
+                                        break;
                                     case 3:
                                     {
                                         l_Nyami->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformNyamiEscape06, g_PositionNyamiEscapeMovement[1]);
-                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 4), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 4), l_Tuulani->m_Events.CalculateTime(5 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     }
                                     case 4:
@@ -156,20 +228,20 @@ class EventNyamiEscape : public BasicEvent
                                     }
                                     case 7:
                                     {
+                                        l_Nyami->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
                                         l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK10);
-                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 8), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 8), l_Tuulani->m_Events.CalculateTime(5 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     }
                                     case 8:
                                     {
                                         l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK11);
-                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 9), l_Tuulani->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
+                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 9), l_Tuulani->m_Events.CalculateTime(5 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     }
                                     case 9:
                                     {
-                                        l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK9);
-                                        l_Nyami->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
+                                        l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK9);                          
                                         l_Tuulani->AddAura(eAuchindounSpells::SpellTuulaniCapturedVoidPrison, l_Tuulani);                                        
                                         break;
                                     }
@@ -226,37 +298,40 @@ public:
                                     }
                                 }
 
+								if (Creature* l_Nyami = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossNyami)))
+									l_Nyami->SetPhaseMask(1, true);
+
                                 if (Creature* l_Magus = m_Obj->SummonCreature(eAuchindounCreatures::CreatureAucheniMagus, g_PositionMageSpawning, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                                 {
                                     l_Magus->GetMotionMaster()->MovePoint(0, g_PositionMageMoveTo);
-                                    l_Magus->m_Events.AddEvent(new EventPostKaathar(l_Magus, 1), l_Magus->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                    l_Magus->m_Events.AddEvent(new EventPostKaathar(l_Magus, 1), l_Magus->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));			
+									l_Magus->m_Events.AddEvent(new EventPostKaathar(l_Magus, 2), l_Magus->m_Events.CalculateTime(55 * TimeConstants::IN_MILLISECONDS));
                                 }                      
                                 break;
                             }
-                            case 1:
-                            {                 
-                                l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK15);
-                                /// Summoning a boss
-                                l_Tuulani->SummonCreature(eAuchindounBosses::BossNyami, g_PositionNyamiSpawn, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                                /// Holy Wall, Object In MIddle
-                                l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInMiddleFromNyami.GetPositionX(), g_PositionWallInMiddleFromNyami.GetPositionY(), g_PositionWallInMiddleFromNyami.GetPositionZ(), g_PositionWallInMiddleFromNyami.GetOrientation(), 0, 0, 0, 0, 0);
-                                /// Holy Wall, Object Behind
-                                l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInBackFromNyami.GetPositionX(), g_PositionWallInBackFromNyami.GetPositionY(), g_PositionWallInBackFromNyami.GetPositionZ(), g_PositionWallInBackFromNyami.GetOrientation(), 0, 0, 0, 0, 0);
+							case 1:
+							{
+								l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK15);
 
-                                /// Three prisonners
-                                for (int8 l_I = 0; l_I < 3; l_I++)
-                                {
-                                    if (Creature* l_Prisoners = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniSoulPriest, g_PositionThreePrisoners[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
-                                    {
-                                        l_Prisoners->SetCanFly(true);
+								/// Holy Wall, Object In MIddle
+								l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInMiddleFromNyami.GetPositionX(), g_PositionWallInMiddleFromNyami.GetPositionY(), g_PositionWallInMiddleFromNyami.GetPositionZ(), g_PositionWallInMiddleFromNyami.GetOrientation(), 0, 0, 0, 0, 0);
+								/// Holy Wall, Object Behind
+								l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInBackFromNyami.GetPositionX(), g_PositionWallInBackFromNyami.GetPositionY(), g_PositionWallInBackFromNyami.GetPositionZ(), g_PositionWallInBackFromNyami.GetOrientation(), 0, 0, 0, 0, 0);
+
+								/// Three prisonners
+								for (int8 l_I = 0; l_I < 3; l_I++)
+								{
+									if (Creature* l_Prisoners = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniSoulPriest, g_PositionThreePrisoners[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+									{
+										l_Prisoners->SetCanFly(true);
                                         l_Prisoners->SetDisableGravity(true);
                                         l_Prisoners->SetReactState(ReactStates::REACT_PASSIVE);
                                         l_Prisoners->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                                         l_Prisoners->CastSpell(l_Prisoners, eAuchindounSpells::SpellPrisonAura, true);
-                                        l_Prisoners->CastSpell(l_Prisoners, eAuchindounSpells::SpellStrangulate, true);                                          
+                                        l_Prisoners->CastSpell(l_Prisoners, eAuchindounSpells::SpellStrangulate, true);
                                         l_Prisoners->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                                         l_Prisoners->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                                        l_Prisoners->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);                                                                      
+                                        l_Prisoners->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
                                     }
                                 }
 
@@ -272,7 +347,7 @@ public:
                                         l_Prisoners->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
                                     }
                                 }
-                                
+
                                 /// Defenders
                                 for (int8 l_I = 0; l_I < 4; l_I++)
                                 {
@@ -280,10 +355,10 @@ public:
                                     {
                                         l_Defenders->SetReactState(ReactStates::REACT_PASSIVE);
                                         l_Defenders->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                                       
+
                                         if (Creature* l_Stalker = l_Defenders->FindNearestCreature(eAuchindounCreatures::CreatureLightWallTargets, 8.0f))
                                             l_Defenders->CastSpell(l_Stalker, eAuchindounSpells::SpellHolyBeam);
-                                    } 
+                                    }
                                 }
 
                                 /// Cosmetic Wardens
@@ -297,15 +372,110 @@ public:
                                         if (Creature* l_Stalker = l_Defenders->FindNearestCreature(eAuchindounCreatures::CreatureLightWallTargets, 15.0f))
                                             l_Defenders->CastSpell(l_Stalker, eAuchindounSpells::SpellHolyBeam);
                                     }
-                                }     
+                                }
+
+                                l_Tuulani->SummonCreature(eAuchindounBosses::BossNyami, g_PositionNyamiSpawn, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+
+                                // Corpses		                          
+                                for (int8 l_I = 0; l_I < 2; l_I++)                              /// Holy Wall, Object In MIddle
+                                    l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInMiddleFromNyami.GetPositionX(), g_PositionWallInMiddleFromNyami.GetPositionY(), g_PositionWallInMiddleFromNyami.GetPositionZ(), g_PositionWallInMiddleFromNyami.GetOrientation(), 0, 0, 0, 0, 0);
+
+                                l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSargereiDefender, g_PositionMagusAndDefenderHostile[1], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
+
+                                // Hostile near Two corpses          		
+                                l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSargereiMagus, g_PositionMagusAndDefenderHostile[0], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
+
+                                // Two defender		
+                                for (int8 l_I = 0; l_I < 2; l_I++)
+                                {
+                                    l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSargereiDefender, g_PositionSargereiDefenders[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
+                                }
+
+                                // Magus p_Who control footmans                                  		
+                                l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSargereiMagus, g_PositionMagusp_WhoControlFootmans, TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
+
+                                // Twelve prisoners (cosmetic)		
+                                for (int8 l_I = 0; l_I < 11; l_I++)
+                                {
+                                    if (Creature* l_Prisoner = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniDefender, g_PositionCorpsesNearNyomi[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                                    {
+                                        l_Prisoner->SetReactState(ReactStates::REACT_PASSIVE);
+                                        l_Prisoner->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+                                        l_Prisoner->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
+                                    }
+                                }
+
+                                // Pack of arbitrer and magus and defender.		                                 /// Defenders
+                                l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSpitefulArbitrerTrash, g_PositionThreeHostileArbitrerMagusSoulPriest[0], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
+                                l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSargereiMagus, g_PositionThreeHostileArbitrerMagusSoulPriest[1], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
+                                l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSargeriSoulPriest, g_PositionThreeHostileArbitrerMagusSoulPriest[2], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
+
+                                // Warden		
+                                l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSargeriWarden, g_PositionWardenAndGuards, TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
+
+                                // Defenders		
+                                // Twelve prisoners (cosmetic)		
+                                for (int8 l_I = 0; l_I < 2; l_I++)
+                                {
+                                    l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSargereiDefender, g_PositionGuardsAndWardens[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
+                                }
+
+                                /*
+                                    uint32 l_EntriesOfSargereiDraeneis[8] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
+                                    eAuchindounCreatures::CreatureSargeriSoulPriest, eAuchindounCreatures::CreatureSargeriWarden,
+                                    eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating, eAuchindounCreatures::CreatureWardenAzzakael, eAuchindounBosses::BossNyami };
+
+                                    std::list<Creature*> l_ListSargereiDraeneis;
+                                    for (uint8 l_I = 0; l_I < 8; l_I)
+                                    {
+                                    l_Tuulani->GetCreatureListWithEntryInGrid(l_ListSargereiDraeneis, l_EntriesOfSargereiDraeneis[l_I], 1000.0f);
+                                    }
+
+                                    if (!l_ListSargereiDraeneis.empty())
+                                    {
+                                    for (Creature* l_Itr : l_ListSargereiDraeneis)
+                                    {
+                                    l_Itr->SetPhaseMask(1, true);
+                                    l_Itr->setFaction(HostileFaction);
+                                    l_Itr->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                                    l_Itr->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                                    }
+                                    }
+                                */
 
                                 /// Magus
                                 m_Obj->CastSpell(m_Obj, eAuchindounSpells::SpellArcaneChanneling);
                                 m_Obj->SummonGameObject(eAuchindounObjects::GameobjectTaladorPortal, g_PositionTuulaniGobjectPortalSpawn.GetPositionX(), g_PositionTuulaniGobjectPortalSpawn.GetPositionY(), g_PositionTuulaniGobjectPortalSpawn.GetPositionZ(), g_PositionTuulaniGobjectPortalSpawn.GetOrientation(), 0, 0, 0, 0, 0);
                                 break;
-                            default:
+                            }
+                            case 2:
+                            {
+                                /// Phases Teronogor and all the other creatures back to phase 1
+                                uint32 l_CreaturesTeronogorPhaseIn[7] = { eAuchindounCreatures::CreatureZipteq, eAuchindounCreatures::CreatureZashoo, eAuchindounCreatures::CreatureShaadum,
+                                    eAuchindounCreatures::CreatureGromtashTheDestructor, eAuchindounCreatures::CreatureGulkosh, eAuchindounCreatures::CreatureDurem, eAuchindounBosses::BossTeronogor };
+
+                                std::list<Creature*> l_CreaturesTeronogorPhaseInList;
+
+                                for (uint8 l_I = 0; l_I < 7; l_I++)
+                                {
+                                    l_Tuulani->GetCreatureListWithEntryInGrid(l_CreaturesTeronogorPhaseInList, l_CreaturesTeronogorPhaseIn[l_I], 700.0f);
+                                }
+
+                                if (!l_CreaturesTeronogorPhaseInList.empty())
+                                {
+                                    for (Creature* l_Itr : l_CreaturesTeronogorPhaseInList)
+                                    {
+                                        if (!l_Itr)
+                                            continue;
+
+                                        l_Itr->SetPhaseMask(1, true);
+                                    }
+                                }
                                 break;
                             }
+                            default:
+                                break;
+                            
                         }
                      
                     }
@@ -396,17 +566,19 @@ class boss_kaathar : public CreatureScript
                 }
             }
 
+            ActivateDoors();
+
             if (m_False)
             {
                 m_Counting = 0;
                 m_Intro = false;
                 m_False = false;
                 m_IntroDone = false;
-                ActivateDoors();
                 me->setFaction(FriendlyFaction);
                 me->CastSpell(me, eAuchindounSpells::SpellGuard);
+				ActivateDoors();
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);                                                
-            }
+            }	
         }
 
         void ActivateDoors()
@@ -425,7 +597,7 @@ class boss_kaathar : public CreatureScript
         {
             _JustReachedHome();      
             summons.DespawnAll();
-            ActivateDoors();        
+			ActivateDoors();
         }
 
         void MoveInLineOfSight(Unit* p_Who) override
@@ -490,6 +662,9 @@ class boss_kaathar : public CreatureScript
                         me->m_Events.AddEvent(new EventNyamiEscape(me, 0), me->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
                     }
                     break;
+				case eKaatharActions::ActionDespawnCreatures:
+					DespawnAllAucheniDraeneis();
+					break;
                 }
                 default:
                     break;
@@ -506,54 +681,24 @@ class boss_kaathar : public CreatureScript
                     if (Creature* l_AssinatedGuard = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataAssinatedGuard)))
                     {
                         l_AssinatingGuard->GetMotionMaster()->MovePoint(0, *l_AssinatedGuard);
-
                         l_AssinatingGuard->Attack(l_AssinatedGuard, true);
                         l_AssinatedGuard->Kill(l_AssinatedGuard);
                     }
                 }
             }
 
-            int32 l_Entries[13] = { 77693, 76595, eAuchindounCreatures::CreatureAuchenaiDefenderUnique, eAuchindounCreatures::CreatureAucheniMagus2, eAuchindounCreatures::CreatureAucheniHoplite,
+            uint32 l_Entries[13] = { 77693, 76595, eAuchindounCreatures::CreatureAuchenaiDefenderUnique, eAuchindounCreatures::CreatureAucheniMagus2, eAuchindounCreatures::CreatureAucheniHoplite,
                 eAuchindounCreatures::CreatureAucheniZealot, eAuchindounCreatures::CreatureAucheniWarden, eAuchindounCreatures::CreatureAucheniRitualist, eAuchindounCreatures::CreatureAucheniMagus,
                 eAuchindounCreatures::CreatureAucheniSoulPriest, eAuchindounCreatures::CreatureAucheniArbiter, eAuchindounCreatures::CreatureAucheniCleric, eAuchindounCreatures::CreatureAucheniDefender };
 
             for (uint8 l_I = 0; l_I < 13; l_I++)
                 DespawnCreaturesInArea(l_Entries[l_I], me);
-
-            SpawnSargereiDraenies();
-        }
-
-        /// Responsible for the phase change after Kaathar fight - Spawning
-        void SpawnSargereiDraenies()
-        {
-            uint32 l_EntriesOfSargereiDraeneis[6] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
-                eAuchindounCreatures::CreatureSargeriSoulPriest, eAuchindounCreatures::CreatureSargeriWarden,
-                eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating};
-
-            std::list<Creature*> l_ListSargereiDraeneis;
-            for (uint8 l_I = 0; l_I < 6; l_I++)
-            {
-                me->GetCreatureListInGrid(l_ListSargereiDraeneis, l_EntriesOfSargereiDraeneis[l_I]);              
-            }
-
-            if (!l_ListSargereiDraeneis.empty())
-            {
-                for (Creature* l_Itr : l_ListSargereiDraeneis)
-                {
-                    l_Itr->SetPhaseMask(1, true);
-                }
-            }
         }
 
         void JustDied(Unit* /*p_Killer*/) override
         {
             _JustDied();
-
-            AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-            {
-                DespawnAllAucheniDraeneis();
-            });    
-
+		
             /// From here Teronogor spawns
             std::list<Player*> l_ListPlayers;
             me->GetPlayerListInGrid(l_ListPlayers, 600.0f, true);
@@ -569,14 +714,14 @@ class boss_kaathar : public CreatureScript
             }
 
             /// Phases Teronogor and all the other creatures back to phase 1
-            uint32 l_CreaturesTeronogorPhaseIn[8] = { eAuchindounCreatures::CreatureZipteq, eAuchindounCreatures::CreatureZashoo, eAuchindounCreatures::CreatureShaadum,
+            uint32 l_CreaturesTeronogorPhaseIn[7] = { eAuchindounCreatures::CreatureZipteq, eAuchindounCreatures::CreatureZashoo, eAuchindounCreatures::CreatureShaadum,
                 eAuchindounCreatures::CreatureGromtashTheDestructor, eAuchindounCreatures::CreatureGulkosh, eAuchindounCreatures::CreatureDurem, eAuchindounBosses::BossTeronogor };
 
             std::list<Creature*> l_ListCreatures;
 
-            for (uint8 l_I = 0; l_I < 8; l_I++)
+            for (uint8 l_I = 0; l_I < 7; l_I++)
             {
-                me->GetCreatureListWithEntryInGrid(l_ListCreatures, l_CreaturesTeronogorPhaseIn[l_I], 600.0f);
+                me->GetCreatureListWithEntryInGrid(l_ListCreatures, l_CreaturesTeronogorPhaseIn[l_I], 700.0f);
             }
 
             if (!l_ListCreatures.empty())
@@ -589,6 +734,8 @@ class boss_kaathar : public CreatureScript
                     l_Itr->SetPhaseMask(4, true);
                 }
             }
+
+			DespawnAllAucheniDraeneis();
 
             /// Remove the auchenai shield npc
             if (Creature* l_Nearest = me->FindNearestCreature(eAuchindounCreatures::CreatureAuchenaiShield, 300.0f))
@@ -622,7 +769,6 @@ class boss_kaathar : public CreatureScript
                     Position l_Position;
                     me->GetRandomNearPosition(l_Position, 20.0f);
                     me->SummonCreature(eKaatharCreatures::TriggerHallowedGround, l_Position, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 30 * TimeConstants::IN_MILLISECONDS);
-
                     events.ScheduleEvent(eKaatharEvents::EventHallowedGround, 8 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
@@ -1063,7 +1209,7 @@ class auchindoun_kaathar_at_fissure : public AreaTriggerEntityScript
         if (m_Diff <= p_Time)
         {
             std::list<Player*> l_PlayerList;
-            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 2.0f);
+            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 1.0f);
             JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, l_PlayerList, check);
             p_AreaTrigger->VisitNearbyObject(2.0f, searcher);
 

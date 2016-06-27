@@ -2929,6 +2929,27 @@ bool Aura::CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplic
     return preventDefault;
 }
 
+void Aura::CallScriptAfterEffectPeriodicHandlers(AuraEffect const* p_AurEff, AuraApplication const* p_AurApp)
+{
+    uint32 l_ScriptExecuteTime = getMSTime();
+    for (std::list<AuraScript*>::iterator l_Scritr = m_loadedScripts.begin(); l_Scritr != m_loadedScripts.end(); ++l_Scritr)
+    {
+        (*l_Scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_PERIODIC, p_AurApp);
+        std::list<AuraScript::EffectPeriodicHandler>::iterator l_EffEndItr = (*l_Scritr)->AfterEffectPeriodic.end(), l_EffItr = (*l_Scritr)->AfterEffectPeriodic.begin();
+        for (; l_EffItr != l_EffEndItr; ++l_EffItr)
+        {
+            if ((*l_EffItr).IsEffectAffected(m_spellInfo, p_AurEff->GetEffIndex()))
+                (*l_EffItr).Call(*l_Scritr, p_AurEff);
+        }
+        (*l_Scritr)->_FinishScriptCall();
+    }
+
+    l_ScriptExecuteTime = getMSTime() - l_ScriptExecuteTime;
+    if (l_ScriptExecuteTime > 10)
+        sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), l_ScriptExecuteTime);
+}
+
+
 void Aura::CallScriptAuraUpdateHandlers(uint32 diff)
 {
     uint32 scriptExecuteTime = getMSTime();

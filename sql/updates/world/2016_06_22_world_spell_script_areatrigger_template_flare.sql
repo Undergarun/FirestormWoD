@@ -1,0 +1,1 @@
+UPDATE `areatrigger_template` SET ScriptName = 'spell_at_flare' WHERE spell_id = 132950;

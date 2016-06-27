@@ -676,7 +676,10 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
     if (victim->isDead() || victim->GetHealth() == 0)
+    {
+        damage = 0;
         return 0; ///< Prevent double death
+    }
 
     // need for operations with Player class
     Player* plr = victim->ToPlayer();
@@ -2076,6 +2079,13 @@ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* s
                 if (spellInfo->GetEffectMechanicMask(effIndex) & (1<<MECHANIC_BLEED))
                     return false;
         }
+
+        for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
+        {
+            if (spellInfo->Effects[i].Effect == SPELL_EFFECT_SCHOOL_DAMAGE &&
+                spellInfo->GetEffectMechanicMask(i) & (1 << MECHANIC_BLEED))
+                return false;
+        }
     }
     return true;
 }
@@ -2715,7 +2725,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
         {
             if (isPet() && GetOwner())
                 if (GetOwner()->ToPlayer())
-                    l_ExpertisePercentage -= int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
+                    l_ExpertisePercentage = int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
         }
 
         if (victim->getLevel() >= getLevel())
@@ -2756,7 +2766,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
 
     // Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
     if (attType != WeaponAttackType::RangedAttack && (IsPlayer() || ToCreature()->isPet()) &&
-        victim->ToCreature() && !victim->ToCreature()->isPet() && victim->getLevel() > (getLevel() + 2))
+        victim->ToCreature() && !victim->ToCreature()->isPet() && victim->getLevel() > (getLevel() + 3))
     {
         ///@todo Patch 6.0.2 (2014-10-14): All characters now have a 100% chance to hit, 0% chance to be dodged, 3% chance to be parried, and 0% chance for glancing blows, when fighting creatures up to 3 levels higher (bosses included).
         // Anytime a character makes a melee attack on a level ?? boss
@@ -8086,8 +8096,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     break;
                 }
                 case 31801: /// Seal of Truth (damage calc on apply aura)
-                {
-                    if (effIndex != 0 || (procSpell && procSpell->Id == 53385))                       // effect 2 used by seal unleashing code
+                {                             /// Shouldn't proc for Divine storm and Hammer of the Righteous
+                    if (effIndex != 0 || (procSpell && (procSpell->Id == 53385 || procSpell->Id == 88263)))  // effect 2 used by seal unleashing code
                         return false;
 
                     triggered_spell_id = 31803;
@@ -11365,6 +11375,9 @@ Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
                 && (IsWithinLOSInMap(magnet)
                 || magnet->isTotem()))
             {
+                /// HackFix for Grounding Totem to not be able to redirect two spells in a row
+                if ((*itr)->GetSpellInfo()->Id == 8178)
+                    victim->RemoveAura(8178);
                 return magnet;
             }
     }
@@ -12380,11 +12393,30 @@ bool Unit::IsAuraAbsorbCrit(SpellInfo const* p_SpellProto, SpellSchoolMask /*p_S
     return roll_chance_f(l_CritAbsorb);
 }
 
+bool Unit::IsUnitAbleToCrit() const
+{
+    uint32 l_Entry = GetEntry();
+    switch (l_Entry)
+    {
+        case 15438:
+        case 63508:
+        case 27829:
+        case 77936:
+        case 55659:
+        case 82927: ///< Inner Demon
+        case 11859: ///< Summon Doomguard
+        case 78158: ///< Grimoire Doomguard
+            return true;
+        default:
+            return false;
+    }
+}
+
 float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) and Ebon Gargoyle can too - but this part is a hack and needs more research
-    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829 && GetEntry() != 77936 && GetEntry() != 55659 && GetEntry() != 82927)
+    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && !IsUnitAbleToCrit())
         return 0.0f;
 
     // not critting spell
@@ -14095,9 +14127,6 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
 
     /// Prismatic Crystal should be attackable only by summoner
     if (target->GetEntry() == 76933 && target->ToTempSummon() && target->ToTempSummon()->GetSummoner() && target->ToTempSummon()->GetSummoner()->GetGUID() != GetGUID())
-        return false;
-
-    if (target->HasAuraType(SPELL_AURA_SEE_WHILE_INVISIBLE))
         return false;
 
     // can't attack unattackable units or GMs
@@ -16640,6 +16669,7 @@ bool InitTriggerAuraData()
         isAlwaysTriggeredAura[i] = false;
     }
     isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT] = true;
+    isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT_2] = true;
     isTriggerAura[SPELL_AURA_DUMMY] = true;
     isTriggerAura[SPELL_AURA_PERIODIC_DUMMY] = true;
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
@@ -17205,6 +17235,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         break;
                     }
                     case SPELL_AURA_PROC_ON_POWER_AMOUNT:
+                    case SPELL_AURA_PROC_ON_POWER_AMOUNT_2:
                     {
                         if (HandleAuraProcOnPowerAmount(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                             takeCharges = true;
@@ -18532,7 +18563,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                         {
                             if (MS::Garrison::Manager* l_Garr = l_RefPlayer->GetGarrison())
                             {
-                                if (l_Garr->HasBuildingType(MS::Garrison::BuildingType::SparringArena))
+                                if (l_Garr->HasBuildingType(MS::Garrison::Building::Type::SparringArena))
                                     l_RefPlayer->CastSpell(l_RefPlayer, 173417, true);
                             }
                         }
@@ -18572,7 +18603,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                 {
                     if (MS::Garrison::Manager* l_Garr = l_KillerPlayer->GetGarrison())
                     {
-                        if (l_Garr->HasBuildingType(MS::Garrison::BuildingType::SparringArena))
+                        if (l_Garr->HasBuildingType(MS::Garrison::Building::Type::SparringArena))
                             l_KillerPlayer->CastSpell(l_KillerPlayer, 173417, true);
                     }
                 }
@@ -21070,6 +21101,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType p_TotemType)
         case SUMMON_TYPE_TOTEM_AIR3:
         case SUMMON_TYPE_TOTEM_AIR4:
         case SUMMON_TYPE_TOTEM_AIR5:
+        case SUMMON_TYPE_TOTEM_AIR6:
             p_TotemType = SUMMON_TYPE_TOTEM_AIR;
             break;
     }

@@ -220,12 +220,12 @@ namespace MS { namespace Garrison
                     l_Mission.OfferTime         = l_Fields[2].GetUInt32();
                     l_Mission.OfferMaxDuration  = l_Fields[3].GetUInt32();
                     l_Mission.StartTime         = l_Fields[4].GetUInt32();
-                    l_Mission.State             = (MissionStates::Type)l_Fields[5].GetUInt32();
+                    l_Mission.State             = (Mission::State)l_Fields[5].GetUInt32();
 
                     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_GARRISON_MISSION, l_Mission.MissionID, m_Owner))
                         continue;
 
-                    if ((l_Mission.OfferTime + l_Mission.OfferMaxDuration) > time(0) || l_Mission.State == MissionStates::InProgress)
+                    if ((l_Mission.OfferTime + l_Mission.OfferMaxDuration) > time(0) || l_Mission.State == Mission::State::InProgress)
                         m_Missions.push_back(l_Mission);
                     else
                     {
@@ -345,7 +345,7 @@ namespace MS { namespace Garrison
             {
                 GarrisonMission& l_Mission = m_Missions[l_I];
 
-                if (l_Mission.State != MissionStates::InProgress)
+                if (l_Mission.State != Mission::State::InProgress)
                     continue;
 
                 uint32 l_FollowerCount = (uint32)std::count_if(m_Followers.begin(), m_Followers.end(), [l_Mission](const GarrisonFollower & p_Follower) -> bool
@@ -410,7 +410,7 @@ namespace MS { namespace Garrison
 
             std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission& p_Mission) -> void
             {
-                if (p_Mission.State == MissionStates::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                if (p_Mission.State == Mission::State::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
                     l_CurrentAvailableMission++;
             });
 
@@ -418,7 +418,7 @@ namespace MS { namespace Garrison
             {
                 m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [l_CurrentAvailableMission, l_MaxMissionCount](const GarrisonMission& p_Mission) -> bool
                 {
-                    if (p_Mission.State == MissionStates::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0) && l_CurrentAvailableMission > l_MaxMissionCount)
+                    if (p_Mission.State == Mission::State::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0) && l_CurrentAvailableMission > l_MaxMissionCount)
                         return true;
 
                     return false;
@@ -438,7 +438,7 @@ namespace MS { namespace Garrison
                         return false;
                     });
 
-                    if (l_It == m_Missions.end() || (*l_It).State == MissionStates::Available)
+                    if (l_It == m_Missions.end() || (*l_It).State == Mission::State::Available)
                         p_Follower.CurrentMissionID = 0;
                 }
 
@@ -566,7 +566,7 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
-            if ((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) > time(0) || m_Missions[l_I].State == MissionStates::InProgress || m_Missions[l_I].State == MissionStates::CompleteSuccess)
+            if ((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) > time(0) || m_Missions[l_I].State == Mission::State::InProgress || m_Missions[l_I].State == Mission::State::CompleteSuccess)
             {
                 PreparedStatement* l_MissionStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_MISSION);
 
@@ -1115,7 +1115,7 @@ namespace MS { namespace Garrison
         l_Mission.MissionID         = p_MissionRecID;
         l_Mission.OfferTime         = time(0);
         l_Mission.OfferMaxDuration  = l_MissionEntry->OfferTime;
-        l_Mission.State             = MissionStates::Available;
+        l_Mission.State             = Mission::State::Available;
         l_Mission.StartTime         = 0;
 
         PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_MISSION);
@@ -1161,8 +1161,8 @@ namespace MS { namespace Garrison
         {
             if (m_Missions[l_I].MissionID == p_MissionRecID)
             {
-                if (m_Missions[l_I].State < MissionStates::CompleteSuccess
-                    && !((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) < time(0) && m_Missions[l_I].State == MissionStates::Available))
+                if (m_Missions[l_I].State < Mission::State::CompleteSuccess
+                    && !((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) < time(0) && m_Missions[l_I].State == Mission::State::Available))
                     return true;
             }
         }
@@ -1260,7 +1260,7 @@ namespace MS { namespace Garrison
 
         if (l_Mission)
         {
-            l_Mission->State        = MissionStates::InProgress;
+            l_Mission->State        = Mission::State::InProgress;
             l_Mission->StartTime    = time(0);
             l_Mission->OfferTime    = time(0);
 
@@ -1377,7 +1377,7 @@ namespace MS { namespace Garrison
         bool l_Succeeded   = roll_chance_i(l_ChestChance);  ///< Seems to be MissionChance
         bool l_CanComplete = true;
 
-        l_Mission->State = l_Succeeded ? MissionStates::CompleteSuccess : MissionStates::CompleteFailed;
+        l_Mission->State = l_Succeeded ? Mission::State::CompleteSuccess : Mission::State::CompleteFailed;
 
         WorldPacket l_Result(SMSG_GARRISON_COMPLETE_MISSION_RESULT, 100);
 
@@ -1527,17 +1527,17 @@ namespace MS { namespace Garrison
                 case 93:
                 case 94:
                 {
-                    if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level1))
+                    if (HasActiveBuilding(Building::ID::SalvageYard_SalvageYard_Level1))
                     {
                         if (roll_chance_i(30))
                             m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
                     }
-                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level2))
+                    else if (HasActiveBuilding(Building::ID::SalvageYard_SalvageYard_Level2))
                     {
                         if (roll_chance_i(50))
                             m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
                     }
-                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level3))
+                    else if (HasActiveBuilding(Building::ID::SalvageYard_SalvageYard_Level3))
                     {
                         if (roll_chance_i(75))
                             m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
@@ -1550,17 +1550,17 @@ namespace MS { namespace Garrison
                 case 98:
                 case 99:
                 {
-                    if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level1))
+                    if (HasActiveBuilding(Building::ID::SalvageYard_SalvageYard_Level1))
                     {
                         if (roll_chance_i(50))
                             m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
                     }
-                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level2))
+                    else if (HasActiveBuilding(Building::ID::SalvageYard_SalvageYard_Level2))
                     {
                         if (roll_chance_i(30))
                             m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemCrateOfSalvage, 1));
                     }
-                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level3))
+                    else if (HasActiveBuilding(Building::ID::SalvageYard_SalvageYard_Level3))
                     {
                         if (roll_chance_i(50))
                             m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemCrateOfSalvage, 1));
@@ -1569,17 +1569,17 @@ namespace MS { namespace Garrison
                 }
                 case 100:
                 {
-                    if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level1))
+                    if (HasActiveBuilding(Building::ID::SalvageYard_SalvageYard_Level1))
                     {
                         if (roll_chance_i(75))
                             m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
                     }
-                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level2))
+                    else if (HasActiveBuilding(Building::ID::SalvageYard_SalvageYard_Level2))
                     {
                         if (roll_chance_i(50))
                             m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemCrateOfSalvage, 1));
                     }
-                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level3))
+                    else if (HasActiveBuilding(Building::ID::SalvageYard_SalvageYard_Level3))
                     {
                         if (roll_chance_i(50))
                             m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBigCrateOfSalvage, 1));
@@ -1635,7 +1635,7 @@ namespace MS { namespace Garrison
     {
         auto l_It = std::find_if(m_Missions.begin(), m_Missions.end(), [p_MissionRecID](const GarrisonMission& p_Mission) -> bool
         {
-            if (p_Mission.State == MissionStates::CompleteFailed || p_Mission.State == MissionStates::CompleteSuccess)
+            if (p_Mission.State == Mission::State::CompleteFailed || p_Mission.State == Mission::State::CompleteSuccess)
             {
                 if (p_Mission.MissionID == p_MissionRecID)
                     return true;
@@ -1649,7 +1649,7 @@ namespace MS { namespace Garrison
         if (l_It != m_Missions.end())
             l_Mission = reinterpret_cast<GarrisonMission*>(&(*l_It));
 
-        if (m_PendingMissionReward.MissionID != p_MissionRecID || m_PendingMissionReward.Rewarded == true || !l_Mission || (l_Mission && l_Mission->State == MissionStates::CompleteFailed))
+        if (m_PendingMissionReward.MissionID != p_MissionRecID || m_PendingMissionReward.Rewarded == true || !l_Mission || (l_Mission && l_Mission->State == Mission::State::CompleteFailed))
         {
             m_PendingMissionReward.Rewarded = true;
 
@@ -1679,7 +1679,7 @@ namespace MS { namespace Garrison
             }
 
             l_Packet << uint32(p_MissionRecID);
-            l_Packet << uint32(MissionBonusRollResults::Error);
+            l_Packet << uint32(Mission::BonusRollResults::Error);
 
             m_Owner->SendDirectMessage(&l_Packet);
 
@@ -1698,7 +1698,7 @@ namespace MS { namespace Garrison
         l_Packet << uint32(l_Mission->State);
 
         l_Packet << uint32(p_MissionRecID);
-        l_Packet << uint32(MissionBonusRollResults::Ok);
+        l_Packet << uint32(Mission::BonusRollResults::Ok);
 
         m_Owner->SendDirectMessage(&l_Packet);
 
@@ -1801,7 +1801,7 @@ namespace MS { namespace Garrison
     {
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
-            if (m_Missions[l_I].State == MissionStates::InProgress)
+            if (m_Missions[l_I].State == Mission::State::InProgress)
                 m_Missions[l_I].StartTime = time(0) - (GetMissionTravelDuration(m_Missions[l_I].MissionID) + GetMissionDuration(m_Missions[l_I].MissionID));
         }
 
@@ -2346,8 +2346,8 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
-            if (m_Missions[l_I].State < MissionStates::CompleteSuccess
-                && !((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) < time(0) && m_Missions[l_I].State == MissionStates::Available))
+            if (m_Missions[l_I].State < Mission::State::CompleteSuccess
+                && !((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) < time(0) && m_Missions[l_I].State == Mission::State::Available))
                 l_Result.push_back(m_Missions[l_I]);
         }
 
@@ -2361,7 +2361,7 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
-            if (m_Missions[l_I].State >= MissionStates::CompleteSuccess)
+            if (m_Missions[l_I].State >= Mission::State::CompleteSuccess)
                 l_Result.push_back(m_Missions[l_I]);
         }
 
@@ -2386,7 +2386,7 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
-            if (m_Missions[l_I].State >= MissionStates::InProgress)
+            if (m_Missions[l_I].State >= Mission::State::InProgress)
                 l_Result.push_back(m_Missions[l_I]);
         }
 
@@ -2397,7 +2397,7 @@ namespace MS { namespace Garrison
     {
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
-            if (m_Missions[l_I].State == MissionStates::InProgress && m_Missions[l_I].MissionID == p_MissionID)
+            if (m_Missions[l_I].State == Mission::State::InProgress && m_Missions[l_I].MissionID == p_MissionID)
                 return true;
         }
 
@@ -2613,6 +2613,9 @@ namespace MS { namespace Garrison
             if (l_It != m_Followers.end())
             {
                 if (!l_It->IsNPC())
+                    return;
+
+                if (GetActiveFollowersCount(FollowerType::NPC) >= Globals::MaxActiveFollowerAllowedCount + GetFollowersCountBarracksBonus())
                     return;
 
                 m_Owner->ModifyMoney(-Globals::FollowerActivationCost);
@@ -2917,7 +2920,7 @@ namespace MS { namespace Garrison
 
             if (l_OldBuildingEntry && l_PlotInstanceEntry && l_OldBuildingEntry->Type == l_BuildingEntry->Type && l_OldBuildingEntry->Level < l_BuildingEntry->Level && l_GarrisonScript)
             {
-                m_LastPlotBuildingType.insert(std::make_pair(l_PlotInstanceEntry->PlotID, l_OldBuildingEntry->Type));
+                m_LastPlotBuildingType.insert(std::make_pair(l_PlotInstanceEntry->PlotID, Building::Type(l_OldBuildingEntry->Type)));
                 l_ForUpgrade = true;
             }
 
@@ -3096,9 +3099,9 @@ namespace MS { namespace Garrison
 
         switch (l_BuildingEntry->Type)
         {
-            case BuildingType::Fishing:
-            case BuildingType::Mine:
-            case BuildingType::Farm:
+            case Building::Type::Fishing:
+            case Building::Type::Mine:
+            case Building::Type::Farm:
             {
                 WorldPacket l_NullPacket;
                 m_Owner->GetSession()->HandleGetGarrisonInfoOpcode(l_NullPacket);
@@ -3233,7 +3236,7 @@ namespace MS { namespace Garrison
     }
 
     /// Has building type
-    bool Manager::HasBuildingType(BuildingType::Type p_BuildingType, bool p_DontNeedActive) const
+    bool Manager::HasBuildingType(Building::Type p_BuildingType, bool p_DontNeedActive) const
     {
         for (std::vector<GarrisonBuilding>::const_iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
         {
@@ -3250,7 +3253,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get building with type
-    GarrisonBuilding Manager::GetBuildingWithType(BuildingType::Type p_BuildingType, bool p_DontNeedActive) const
+    GarrisonBuilding Manager::GetBuildingWithType(Building::Type p_BuildingType, bool p_DontNeedActive) const
     {
         for (GarrisonBuilding l_Building : m_Buildings)
         {
@@ -3311,7 +3314,7 @@ namespace MS { namespace Garrison
             if (!l_Building)
                 continue;
 
-            if (l_Building->Type != BuildingType::StoreHouse)
+            if (l_Building->Type != Building::Type::StoreHouse)
                 continue;
 
             l_MaxWorkOrder += l_Building->MaxShipments;
@@ -3610,7 +3613,7 @@ namespace MS { namespace Garrison
 
     /// Get list of creature in a specific building type
     /// @p_Type : Building type
-    std::vector<uint64> Manager::GetBuildingCreaturesByBuildingType(BuildingType::Type p_Type)
+    std::vector<uint64> Manager::GetBuildingCreaturesByBuildingType(Building::Type p_Type)
     {
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
         {
@@ -3765,7 +3768,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry || l_BuildingEntry->BuildingCategory != BuildingCategory::Prebuilt)
                 continue;
 
-            if (HasBuildingType((BuildingType::Type)l_BuildingEntry->Type, true))
+            if (HasBuildingType((Building::Type)l_BuildingEntry->Type, true))
                 continue;
 
             uint32 l_PlotID = 0;
@@ -3928,10 +3931,10 @@ namespace MS { namespace Garrison
                 return;
 
             if (!l_Building.Active &&
-                (l_BuildingEntry->Type != BuildingType::Mine &&
-                 l_BuildingEntry->Type != BuildingType::Farm &&
-                 l_BuildingEntry->Type != BuildingType::Fishing &&
-                 l_BuildingEntry->Type != BuildingType::PetMenagerie))
+                (l_BuildingEntry->Type != Building::Type::Mine &&
+                 l_BuildingEntry->Type != Building::Type::Farm &&
+                 l_BuildingEntry->Type != Building::Type::Fishing &&
+                 l_BuildingEntry->Type != Building::Type::PetMenagerie))
             {
                 l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * PlotTypes::Max)];
 
@@ -3945,10 +3948,10 @@ namespace MS { namespace Garrison
                 l_GobEntry = l_BuildingEntry->GameObjects[GetGarrisonFactionIndex()];
 
                 if (!l_Building.Active && l_BuildingEntry->Level > 1 &&
-                    (l_BuildingEntry->Type == BuildingType::Mine ||
-                     l_BuildingEntry->Type == BuildingType::Farm ||
-                     l_BuildingEntry->Type == BuildingType::Fishing ||
-                     l_BuildingEntry->Type == BuildingType::PetMenagerie))
+                    (l_BuildingEntry->Type == Building::Type::Mine ||
+                     l_BuildingEntry->Type == Building::Type::Farm ||
+                     l_BuildingEntry->Type == Building::Type::Fishing ||
+                     l_BuildingEntry->Type == Building::Type::PetMenagerie))
                 {
                     uint32 l_TargetLevel = l_BuildingEntry->Level - 1;
 
@@ -4040,20 +4043,20 @@ namespace MS { namespace Garrison
                 if (l_IsPlotBuilding)
                     l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
                 else if ((l_Building.Active ||
-                         (l_BuildingEntry && (l_BuildingEntry->Type == BuildingType::Mine
-                                           || l_BuildingEntry->Type == BuildingType::PetMenagerie
-                                           || l_BuildingEntry->Type == BuildingType::Fishing
-                                           || l_BuildingEntry->Type == BuildingType::Farm))
+                         (l_BuildingEntry && (l_BuildingEntry->Type == Building::Type::Mine
+                                           || l_BuildingEntry->Type == Building::Type::PetMenagerie
+                                           || l_BuildingEntry->Type == Building::Type::Fishing
+                                           || l_BuildingEntry->Type == Building::Type::Farm))
                          )
                         && l_Building.BuildingID)
                 {
                     uint32 l_BuildingID = l_Building.BuildingID;
 
                     if (!l_Building.Active && l_BuildingEntry->Level > 1 &&
-                        (l_BuildingEntry->Type == BuildingType::Mine ||
-                         l_BuildingEntry->Type == BuildingType::Farm ||
-                         l_BuildingEntry->Type == BuildingType::Fishing ||
-                         l_BuildingEntry->Type == BuildingType::PetMenagerie))
+                        (l_BuildingEntry->Type == Building::Type::Mine ||
+                         l_BuildingEntry->Type == Building::Type::Farm ||
+                         l_BuildingEntry->Type == Building::Type::Fishing ||
+                         l_BuildingEntry->Type == Building::Type::PetMenagerie))
                     {
                         uint32 l_TargetLevel = l_BuildingEntry->Level - 1;
 
@@ -4152,10 +4155,10 @@ namespace MS { namespace Garrison
                     G3D::Vector3 l_FinalPosition;
                     float l_FinalOrientation = l_PlotInfo.O;
 
-                    if (   l_BuildingEntry->Type == BuildingType::Farm
-                        || l_BuildingEntry->Type == BuildingType::Mine
-                        || l_BuildingEntry->Type == BuildingType::PetMenagerie
-                        || l_BuildingEntry->Type == BuildingType::Fishing)
+                    if (   l_BuildingEntry->Type == Building::Type::Farm
+                        || l_BuildingEntry->Type == Building::Type::Mine
+                        || l_BuildingEntry->Type == Building::Type::PetMenagerie
+                        || l_BuildingEntry->Type == Building::Type::Fishing)
                     {
                         uint32 l_Lvl = GetGarrisonSiteLevelEntry()->Level;
 
@@ -4163,19 +4166,19 @@ namespace MS { namespace Garrison
                         {
                             switch (l_BuildingEntry->Type)
                             {
-                                case BuildingType::Farm:
+                                case Building::Type::Farm:
                                     l_FinalPosition     = (l_Lvl == 2 ? G3D::Vector3(1859.0985f, 155.4274f, 79.0399f) : G3D::Vector3(1855.8151f, 151.5068f, 78.4132f));
                                     l_FinalOrientation  = (l_Lvl == 2 ? 0.956567f : 0.857591f);
                                     break;
-                                case BuildingType::Mine:
+                                case Building::Type::Mine:
                                     l_FinalPosition     = (l_Lvl == 2 ? G3D::Vector3(1898.2411f,  89.8438f, 83.5268f) : G3D::Vector3(1898.6614f,  88.5848f, 83.5269f));
                                     l_FinalOrientation  = (l_Lvl == 2 ? 0.673824f : 0.555211f);
                                     break;
-                                case BuildingType::Fishing:
+                                case Building::Type::Fishing:
                                     l_FinalPosition     = (l_Lvl == 2 ? G3D::Vector3(2010.6321f, 166.1842f, 83.5260f) : G3D::Vector3(2013.2568f, 166.8641f, 83.7605f));
                                     l_FinalOrientation  = (l_Lvl == 2 ? 3.756512f : 3.879798f);
                                     break;
-                                case BuildingType::PetMenagerie:    ///< Only level 3 garrison
+                                case Building::Type::PetMenagerie:    ///< Only level 3 garrison
                                     l_FinalPosition     = G3D::Vector3(1909.9861f, 328.0322f, 88.9653f);
                                     l_FinalOrientation  = 5.132511f;
                                     break;
@@ -4185,19 +4188,19 @@ namespace MS { namespace Garrison
                         {
                             switch (l_BuildingEntry->Type)
                             {
-                                case BuildingType::Farm:
+                                case Building::Type::Farm:
                                     l_FinalPosition     = (l_Lvl == 2 ? G3D::Vector3(5433.7769f, 4574.0503f, 136.0184f) : G3D::Vector3(5431.2168f, 4573.4658f, 136.1743f));
                                     l_FinalOrientation  = (l_Lvl == 2 ? 5.840217f : 5.998074f);
                                     break;
-                                case BuildingType::Mine:
+                                case Building::Type::Mine:
                                     l_FinalPosition     = (l_Lvl == 2 ? G3D::Vector3(5476.3716f, 4446.7773f, 144.4951f) : G3D::Vector3(5474.9707f, 4443.2588f, 144.6435f));
                                     l_FinalOrientation  = (l_Lvl == 2 ? 0.955031f : 0.99013f);
                                     break;
-                                case BuildingType::Fishing:
+                                case Building::Type::Fishing:
                                     l_FinalPosition     = (l_Lvl == 2 ? G3D::Vector3(5476.4160f, 4613.2881f, 134.4511f) : G3D::Vector3(5478.0010f, 4614.4854f, 134.4501f));
                                     l_FinalOrientation  = (l_Lvl == 2 ? 5.023405f : 5.306918f);
                                     break;
-                                case BuildingType::PetMenagerie:    ///< Only level 3 garrison
+                                case Building::Type::PetMenagerie:    ///< Only level 3 garrison
                                     l_FinalPosition     = G3D::Vector3(5620.6782f, 4649.7178f, 142.2780f);
                                     l_FinalOrientation  = 4.230919f;
                                     break;
@@ -4339,7 +4342,7 @@ namespace MS { namespace Garrison
                 const uint32 & l_DisplayID  = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
 
                 /// Destroy old cache if exist
-                GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
+                GameObject* l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
 
                 if (l_Cache)
                 {
@@ -4383,13 +4386,15 @@ namespace MS { namespace Garrison
         /// Do ramdom mission distribution
         if (p_Force || ((time(nullptr) - m_MissionDistributionLastUpdate) > Globals::MissionDistributionInterval))
         {
+            uint32 l_MinCap = std::min(Globals::MaxActiveFollowerAllowedCount + GetFollowersCountBarracksBonus(), uint32(GetFollowers().size()));
+
             /// Random, no detail about how blizzard do
-            uint32 l_MaxMissionCount         = p_ForcedCount ? p_ForcedCount : ceil(GetTotalFollowerCount(FollowerType::NPC) * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
+            uint32 l_MaxMissionCount         = p_ForcedCount ? p_ForcedCount : ceil(l_MinCap * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
             uint32 l_CurrentAvailableMission = 0;
 
             std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission& p_Mission) -> void
             {
-                if (p_Mission.State == MissionStates::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                if (p_Mission.State == Mission::State::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
                     l_CurrentAvailableMission++;
             });
 
@@ -4445,7 +4450,7 @@ namespace MS { namespace Garrison
                     /// If player has Tavern lvl 3, he'll have 50% chance to get a treasure hunter type mission
                     if (l_Entry->MissionType == MissionType::Treasure)
                     {
-                        if (!GetBuildingLevel(GetBuildingWithType(BuildingType::Inn)) == 3)
+                        if (!GetBuildingLevel(GetBuildingWithType(Building::Type::Inn)) == 3)
                             continue;
                         else if (urand(0, 1))
                             continue;
@@ -4565,14 +4570,16 @@ namespace MS { namespace Garrison
 
             if (l_CurrentAvailableMission < l_MaxMissionCount)
             {
-                uint32 l_MaxFollowerLevel = 90;
+                uint32 l_MaxFollowerLevel     = 90;
+                uint32 l_MinFollowerLevel     = 100;
                 uint32 l_MaxFollowerItemLevel = 600;
 
-                std::for_each(m_Followers.begin(), m_Followers.end(), [&l_MaxFollowerLevel, &l_MaxFollowerItemLevel](const GarrisonFollower & p_Follower) -> void
+                std::for_each(m_Followers.begin(), m_Followers.end(), [&l_MaxFollowerLevel, &l_MaxFollowerItemLevel, &l_MinFollowerLevel](const GarrisonFollower& p_Follower) -> void
                 {
                     if (!p_Follower.IsNPC())
                         return;
 
+                    l_MinFollowerLevel      = std::min(l_MinFollowerLevel, (uint32)p_Follower.Level);
                     l_MaxFollowerLevel      = std::max(l_MaxFollowerLevel, (uint32)p_Follower.Level);
                     l_MaxFollowerItemLevel  = std::max(l_MaxFollowerItemLevel, (uint32)((p_Follower.ItemLevelArmor + p_Follower.ItemLevelWeapon) / 2));
                 });
@@ -4594,49 +4601,6 @@ namespace MS { namespace Garrison
                     if (l_Count)
                         continue;
 
-                    if (l_Entry->RequiredFollowersCount > m_Followers.size())
-                        continue;
-
-                    if (l_Entry->Duration <= 10)
-                        continue;
-
-                    if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
-                        continue;
-
-                    /// If player has Tavern lvl 3, he'll have 50% chance to get a treasure hunter type mission
-                    if (l_Entry->MissionType == MissionType::Treasure)
-                    {
-                        if (GetBuildingLevel(GetBuildingWithType(BuildingType::Inn)) != 3)
-                            continue;
-                        else if (urand(0, 1))
-                            continue;
-                    }
-
-                    uint32 l_RewardCount = 0;
-                    for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
-                    {
-                        GarrMissionRewardEntry const* l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_RewardIT);
-
-                        if (!l_RewardEntry)
-                            continue;
-
-                        if (l_RewardEntry->MissionID != l_Entry->MissionRecID)
-                            continue;
-
-                        /// Elemental Rune & Abrogator Stone - Legendary Questline  NYI
-                        if (l_RewardEntry->ItemID == 115510 || l_RewardEntry->ItemID == 115280)
-                        {
-                            l_RewardCount = 0;
-                            break;
-                        }
-
-                        ++ l_RewardCount;
-                    }
-
-                    /// All missions should have a reward
-                    if (!l_RewardCount)
-                        continue;
-
                     /// Max Level cap : 2
                     if (l_Entry->RequiredLevel > (int32)(l_MaxFollowerLevel + 2))
                         continue;
@@ -4644,18 +4608,15 @@ namespace MS { namespace Garrison
                     if (l_Entry->RequiredItemLevel > (int32)l_MaxFollowerItemLevel)
                         continue;
 
-                    /// Ships NYI
-                    if (l_Entry->FollowerType != MS::Garrison::FollowerType::NPC)
-                        continue;
-
-                    /// We are getting too many rare missions compared to retail
-                    if (l_Entry->Flags & MS::Garrison::MissionFlags::Rare)
+                    /// We have less chances to get a low lvl mission if your followers' lowest lvl is higher
+                    if (l_Entry->RequiredLevel < l_MinFollowerLevel)
                     {
-                        if (urand(0, 100) >= 15)
+                        if (urand(0, 100) <= 25)
                             continue;
                     }
 
-                    l_Candidates.push_back(l_Entry);
+                    if (EvaluateMissionConditions(l_Entry))
+                        l_Candidates.push_back(l_Entry);
                 }
 
                 uint32 l_ShuffleCount = std::rand() % 4;
@@ -4675,6 +4636,114 @@ namespace MS { namespace Garrison
             }
             m_MissionDistributionLastUpdate = time(0);
         }
+    }
+
+    bool Manager::EvaluateMissionConditions(GarrMissionEntry const* p_Entry)
+    {
+        if (p_Entry->RequiredFollowersCount > m_Followers.size())
+            return false;
+
+        if (m_Owner->GetTeamId() == TEAM_HORDE && p_Entry->LocPrefixID == 106) ///< Presumed Alliance only
+            return false;
+        else if (m_Owner->GetTeamId() == TEAM_ALLIANCE && p_Entry->LocPrefixID == 101) ///< Presumed Horde only
+            return false;
+
+        if (p_Entry->Duration <= 10)
+            return false;
+
+        if (p_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
+            return false;
+
+        std::map<Mission::Type, Building::Type>::const_iterator l_Iterator = Mission::g_MissionBuildingTypesMap.find(Mission::Type(p_Entry->MissionType));;
+
+        if (l_Iterator != Mission::g_MissionBuildingTypesMap.end())
+        {
+            if (!HasBuildingType(l_Iterator->second))
+                return false;
+        }
+
+        uint32 l_RewardCount = 0;
+        for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
+        {
+            GarrMissionRewardEntry const* l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_RewardIT);
+
+            if (!l_RewardEntry)
+                continue;
+
+            if (l_RewardEntry->MissionID != p_Entry->MissionRecID)
+                continue;
+
+            ++l_RewardCount;
+
+            /// Elemental Rune & Abrogator Stone - Legendary Questline  NYI
+            if (l_RewardEntry->ItemID == 115510 || l_RewardEntry->ItemID == 115280)
+                l_RewardCount = 0;
+
+            /// Special case for XP item, if the owner is already at max level he doesn't need this item anymore
+            if (m_Owner->getLevel() == MAX_LEVEL && l_RewardEntry->ItemID == 120205)
+                l_RewardCount = 0;
+
+            switch (l_RewardEntry->RewardCurrencyID)
+            {
+                case 1101:
+                    l_RewardCount = 0; ///< Related to shipyards
+                    break;
+                case 821:
+                case 828:
+                case 829:
+                    if (!m_Owner->HasSkill(SKILL_ARCHAEOLOGY))
+                        l_RewardCount = 0;
+                    break;
+                default:
+                    break;
+            }
+
+            /// Follower case
+            if (l_RewardEntry->ItemID)
+            {
+                ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_RewardEntry->ItemID);
+
+                if (l_Template && l_Template->Spells[0].SpellId != 0)
+                {
+                    SpellInfo const* l_Spell = sSpellMgr->GetSpellInfo(l_Template->Spells[0].SpellId);
+
+                    if (l_Spell && l_Spell->Effects[0].Effect == SPELL_EFFECT_ADD_GARRISON_FOLLOWER)
+                    {
+                        if (GetFollower(l_Spell->Effects[0].MiscValue) != nullptr)
+                            l_RewardCount = 0;
+                    }
+                }
+            }
+
+            if (!l_RewardCount)
+                break;
+        }
+
+        /// If player has Tavern lvl 3, he'll have 50% chance to get a treasure hunter type mission
+        if (p_Entry->MissionType == Mission::Type::Treasure)
+        {
+            if (GetBuildingLevel(GetBuildingWithType(Building::Type::Inn)) != 3)
+                return false;
+            else if (urand(0, 1))
+                return false;
+        }
+
+        /// All missions should have a reward
+        if (!l_RewardCount)
+            return false;
+
+        /// Ships NYI
+        if (p_Entry->FollowerType != MS::Garrison::FollowerType::NPC)
+            return false;
+
+        /// We are getting too many rare missions compared to retail
+        if (p_Entry->Flags & MS::Garrison::Mission::Flags::Rare)
+        {
+            if (urand(0, 100) <= 15)
+                return false;
+        }
+
+        return true;
     }
 
     /// Update garrison ability
@@ -4870,6 +4939,20 @@ namespace MS { namespace Garrison
         });
     }
 
+    uint32 Manager::GetActiveFollowersCount(uint32 p_Type)
+    {
+        return (uint32)std::count_if(m_Followers.begin(), m_Followers.end(), [p_Type](GarrisonFollower l_Follower) -> bool
+        {
+            GarrFollowerEntry const* l_Entry = l_Follower.GetEntry();
+            return l_Entry && l_Entry->Type == p_Type && !(l_Follower.Flags & GarrisonFollowerFlags::GARRISON_FOLLOWER_FLAG_INACTIVE);
+        });
+    }
+
+    uint32 Manager::GetFollowersCountBarracksBonus()
+    {
+        return HasActiveBuilding(Building::ID::Barracks_Barracks_Level3) ? 5 : 0;
+    }
+
     void Manager::SendPacketToOwner(WorldPacket* p_Data)
     {
         m_Owner->SendDirectMessage(p_Data);
@@ -4886,6 +4969,7 @@ namespace MS { namespace Garrison
             if (l_GarrAbility->AbilityType == 1 || l_GarrAbility->AbilityType == 9 || l_GarrAbility->AbilityType == 3 || l_GarrAbility->AbilityType == 5)
                 return true;
         }
+
         return false;
     }
 
@@ -5454,7 +5538,7 @@ namespace MS { namespace Garrison
 
         if (!p_Remove)
         {
-            switch (GetBuildingLevel(GetBuildingWithType(BuildingType::Stable)))
+            switch (GetBuildingLevel(GetBuildingWithType(Building::Type::Stable)))
             {
                 case 1:
                     m_Owner->AddAura(BonusAuras::StablesAuraLevel1, m_Owner);
@@ -5471,7 +5555,7 @@ namespace MS { namespace Garrison
         }
         else
         {
-            switch (GetBuildingLevel(GetBuildingWithType(BuildingType::Stable)))
+            switch (GetBuildingLevel(GetBuildingWithType(Building::Type::Stable)))
             {
                 case 1:
                     m_Owner->RemoveAura(BonusAuras::StablesAuraLevel1);
@@ -5558,6 +5642,9 @@ namespace MS { namespace Garrison
     void Manager::ResetGarrisonWeeklyTavernData()
     {
         CleanGarrisonWeeklyTavernData();
+
+        m_Owner->SetCharacterWorldState(CharacterWorldStates::GarrisonTavernBoolCanRecruitFollower, 1);
+        SetCanRecruitFollower(true);
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -5583,7 +5670,7 @@ namespace MS { namespace Garrison
         for (uint32 l_Value : g_FirstLevelInventions)
             l_Inventions.push_back(l_Value);
 
-        if (GetBuildingLevel(GetBuildingWithType(BuildingType::Workshop)) > 1)
+        if (GetBuildingLevel(GetBuildingWithType(Building::Type::Workshop)) > 1)
         {
             for (uint32 l_Value : g_SecondLevelInventions)
                 l_Inventions.push_back(l_Value);

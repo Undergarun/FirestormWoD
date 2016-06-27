@@ -138,7 +138,7 @@ void BattlePet::Save(SQLTransaction& p_Transaction)
 //////////////////////////////////////////////////////////////////////////
 
 /// When a player earn a pet it will insert into his account
-void BattlePet::AddToPlayer(Player* p_Player)
+void BattlePet::AddToPlayer(Player* p_Player, SQLTransaction& p_Transaction)
 {
     PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_PETBATTLE);
     l_Statement->setInt32(0, Slot);
@@ -163,8 +163,49 @@ void BattlePet::AddToPlayer(Player* p_Player)
     l_Statement->setString(19, DeclinedNames[3]);
     l_Statement->setString(20, DeclinedNames[4]);
 
-    // We need to execute it sync to be sure we will have it at next async select
-    LoginDatabase.Query(l_Statement);
+    p_Transaction->Append(l_Statement);
+
+    p_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_BATTLEPET, 1);
+}
+
+void BattlePet::AddToPlayer(Player* p_Player)
+{
+    SQLTransaction l_Transaction = LoginDatabase.BeginTransaction();
+
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_PETBATTLE);
+    l_Statement->setInt32(0, Slot);
+    l_Statement->setString(1, Name);
+    l_Statement->setUInt32(2, NameTimeStamp);
+    l_Statement->setUInt32(3, Species);
+    l_Statement->setUInt32(4, Quality);
+    l_Statement->setUInt32(5, Breed);
+    l_Statement->setUInt32(6, Level);
+    l_Statement->setUInt32(7, XP);
+    l_Statement->setUInt32(8, DisplayModelID);
+    l_Statement->setInt32(9, Health);
+    l_Statement->setUInt32(10, Flags);
+    l_Statement->setInt32(11, InfoPower);
+    l_Statement->setInt32(12, InfoMaxHealth);
+    l_Statement->setInt32(13, InfoSpeed);
+    l_Statement->setInt32(14, InfoGender);
+    l_Statement->setInt32(15, p_Player->GetSession()->GetAccountId());
+    l_Statement->setString(16, DeclinedNames[0]);
+    l_Statement->setString(17, DeclinedNames[1]);
+    l_Statement->setString(18, DeclinedNames[2]);
+    l_Statement->setString(19, DeclinedNames[3]);
+    l_Statement->setString(20, DeclinedNames[4]);
+
+    l_Transaction->Append(l_Statement);
+
+    uint64 l_PlayerGUID = p_Player->GetGUID();
+
+    MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_PlayerGUID](bool p_Success) -> void
+    {
+        if (Player* l_Player = HashMapHolder<Player>::Find(l_PlayerGUID))
+            l_Player->ReloadPetBattles();
+    });
+
+    LoginDatabase.CommitTransaction(l_Transaction, l_CallBack);
 
     p_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_BATTLEPET, 1);
 }

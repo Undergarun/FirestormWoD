@@ -146,7 +146,7 @@ namespace MS { namespace Garrison
 
                     switch (GetBuildingID())
                     {
-                        case Buildings::EnchanterStudy_EnchanterStudy_Level2:
+                        case Building::ID::EnchanterStudy_EnchanterStudy_Level2:
                             if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[0], -4.5335f, 0.7829f, 0.7999f, 0.1801f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
@@ -156,7 +156,7 @@ namespace MS { namespace Garrison
                                 AddSummonGUID(l_Creature->GetGUID());
                             }
                             break;
-                        case Buildings::EnchanterStudy_EnchanterStudy_Level3:
+                        case Building::ID::EnchanterStudy_EnchanterStudy_Level3:
                             if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[0], -4.2551f, 2.5098f, 0.7546f, 5.9912f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());

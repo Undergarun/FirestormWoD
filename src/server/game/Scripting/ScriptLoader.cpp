@@ -20,6 +20,7 @@ void AddSC_npc_custom();
 void AddSC_Webshop_Delivery();
 void AddSC_Character_Renderer();
 void AddSC_StressTest();
+void AddSC_CustomPlayerscripts();
 
 /// Spells
 void AddSC_deathknight_spell_scripts();
@@ -1028,6 +1029,7 @@ void AddSC_item_strongboxes();
 
 /// Draenor Scenario
 void AddSC_instance_scenario_fate_of_karabor();
+void AddSC_instance_scenario_black_temple();
 
 /// Skyreach Dungeon
 void AddSC_instance_Skyreach();
@@ -2092,6 +2094,7 @@ void AddDraenorScripts()
 
     /// Draenor Scenario
     AddSC_instance_scenario_fate_of_karabor();
+    AddSC_instance_scenario_black_temple();
 #endif
 }
 
@@ -2140,5 +2143,6 @@ void AddCustomScripts()
     AddSC_npc_custom();
     AddSC_Webshop_Delivery();
     AddSC_Character_Renderer();
+    AddSC_CustomPlayerscripts();
 #endif
 }

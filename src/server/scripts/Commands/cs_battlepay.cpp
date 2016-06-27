@@ -51,7 +51,7 @@ class battlepay_commandscript: public CommandScript
 
             uint32 l_FlagsFilter = atoi(strtok(nullptr, " "));
 
-            QueryResult l_Result = WebDatabase.PQuery("SELECT TypeEntryOrData, Price FROM api_shop_entries WHERE Parent = %u", l_Category);
+            QueryResult l_Result = WebDatabase.PQuery("SELECT TypeEntryOrData, Price FROM api_shop_entries WHERE Parent = %u ORDER by Price DESC", l_Category);
             if (!l_Result)
                 return false;
 
@@ -94,9 +94,9 @@ class battlepay_commandscript: public CommandScript
                             continue;
 
                         l_CreatureDisplayInfoID = l_MountEntry->CreatureDisplayID;
-                        l_Description[0] = l_MountEntry->Description->Get(LocaleConstant::LOCALE_enUS);
+                        /*l_Description[0] = l_MountEntry->Description->Get(LocaleConstant::LOCALE_enUS);
                         l_Description[1] = l_MountEntry->Description->Get(LocaleConstant::LOCALE_frFR);
-                        l_Description[2] = l_MountEntry->Description->Get(LocaleConstant::LOCALE_esES);
+                        l_Description[2] = l_MountEntry->Description->Get(LocaleConstant::LOCALE_esES);*/
                         break;
                     }
                 }

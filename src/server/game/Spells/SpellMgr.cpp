@@ -1405,123 +1405,88 @@ void SpellMgr::LoadSpellRanks()
 {
     uint32 oldMSTime = getMSTime();
 
-    // cleanup core data before reload - remove reference to ChainNode from SpellInfo
-    for (SpellChainMap::iterator itr = mSpellChains.begin(); itr != mSpellChains.end(); ++itr)
+    std::map<uint32 /*spell*/, uint32 /*next*/> chains;
+    std::set<uint32> hasPrev;
+    for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
     {
+        SkillLineAbilityEntry const* SkillInfo = sSkillLineAbilityStore.LookupEntry(i);
+        if (!SkillInfo)
+            continue;
+
+        if (!SkillInfo->learnOnGetSkill)
+            continue;
+
+        if (!GetSpellInfo(SkillInfo->learnOnGetSkill) || !GetSpellInfo(SkillInfo->spellId))
+            continue;
+
+        chains[SkillInfo->learnOnGetSkill] = SkillInfo->spellId;
+        hasPrev.insert(SkillInfo->spellId);
+    }
+
+    // each key in chains that isn't present in hasPrev is a first rank
+    for (auto itr = chains.begin(); itr != chains.end(); ++itr)
+    {
+        if (hasPrev.count(itr->first))
+            continue;
+
+        SpellInfo const* first = GetSpellInfo(itr->first);
+        SpellInfo const* next = GetSpellInfo(itr->second);
+
+        mSpellChains[itr->first].first = first;
+        mSpellChains[itr->first].prev = nullptr;
+        mSpellChains[itr->first].next = next;
+        mSpellChains[itr->first].last = next;
+        mSpellChains[itr->first].rank = 1;
         for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         {
             if (mSpellInfoMap[difficulty][itr->first])
-                mSpellInfoMap[difficulty][itr->first]->ChainEntry = NULL;
+                mSpellInfoMap[difficulty][itr->first]->ChainEntry = &mSpellChains[itr->first];
         }
-    }
-    mSpellChains.clear();
-    //                                                     0             1      2
-    QueryResult result = WorldDatabase.Query("SELECT first_spell_id, spell_id, rank from spell_ranks ORDER BY first_spell_id, rank");
-
-    if (!result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spell rank records. DB table `spell_ranks` is empty.");
-
-        return;
-    }
-
-    uint32 count = 0;
-    bool finished = false;
-
-    do
-    {
-        // spellid, rank
-        std::list < std::pair < int32, int32 > > rankChain;
-        int32 currentSpell = -1;
-        int32 lastSpell = -1;
-
-        // fill one chain
-        while (currentSpell == lastSpell && !finished)
+        mSpellChains[itr->second].first = first;
+        mSpellChains[itr->second].prev = first;
+        mSpellChains[itr->second].next = nullptr;
+        mSpellChains[itr->second].last = next;
+        mSpellChains[itr->second].rank = 2;
+        for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         {
-            Field* fields = result->Fetch();
+            if (mSpellInfoMap[difficulty][itr->second])
+                mSpellInfoMap[difficulty][itr->second]->ChainEntry = &mSpellChains[itr->second];
+        }
 
-            currentSpell = fields[0].GetUInt32();
-            if (lastSpell == -1)
-                lastSpell = currentSpell;
-            uint32 spell_id = fields[1].GetUInt32();
-            uint32 rank = fields[2].GetUInt8();
-
-            // don't drop the row if we're moving to the next rank
-            if (currentSpell == lastSpell)
-            {
-                rankChain.push_back(std::make_pair(spell_id, rank));
-                if (!result->NextRow())
-                    finished = true;
-            }
-            else
+        uint8 rank = 3;
+        auto nextItr = chains.find(itr->second);
+        while (nextItr != chains.end())
+        {
+            SpellInfo const* prev = GetSpellInfo(nextItr->first); // already checked in previous iteration (or above, in case this is the first one)
+            SpellInfo const* last = GetSpellInfo(nextItr->second);
+            if (!last)
                 break;
-        }
-        // check if chain is made with valid first spell
-        SpellInfo const* first = GetSpellInfo(lastSpell);
-        if (!first)
-        {
-            sLog->outError(LOG_FILTER_SQL, "Spell rank identifier(first_spell_id) %u listed in `spell_ranks` does not exist!", lastSpell);
-            continue;
-        }
-        // check if chain is long enough
-        if (rankChain.size() < 2)
-        {
-            sLog->outError(LOG_FILTER_SQL, "There is only 1 spell rank for identifier(first_spell_id) %u in `spell_ranks`, entry is not needed!", lastSpell);
-            continue;
-        }
-        int32 curRank = 0;
-        bool valid = true;
-        // check spells in chain
-        for (std::list<std::pair<int32, int32> >::iterator itr = rankChain.begin(); itr!= rankChain.end(); ++itr)
-        {
-            SpellInfo const* spell = GetSpellInfo(itr->first);
-            if (!spell)
-            {
-                sLog->outError(LOG_FILTER_SQL, "Spell %u (rank %u) listed in `spell_ranks` for chain %u does not exist!", itr->first, itr->second, lastSpell);
-                valid = false;
-                break;
-            }
-            ++curRank;
-            if (itr->second != curRank)
-            {
-                sLog->outError(LOG_FILTER_SQL, "Spell %u (rank %u) listed in `spell_ranks` for chain %u does not have proper rank value(should be %u)!", itr->first, itr->second, lastSpell, curRank);
-                valid = false;
-                break;
-            }
-        }
-        if (!valid)
-            continue;
-        int32 prevRank = 0;
-        // insert the chain
-        std::list<std::pair<int32, int32> >::iterator itr = rankChain.begin();
-        do
-        {
-            ++count;
-            int32 addedSpell = itr->first;
-            mSpellChains[addedSpell].first = GetSpellInfo(lastSpell);
-            mSpellChains[addedSpell].last = GetSpellInfo(rankChain.back().first);
-            mSpellChains[addedSpell].rank = itr->second;
-            mSpellChains[addedSpell].prev = GetSpellInfo(prevRank);
+
+            mSpellChains[nextItr->first].next = last;
+
+            mSpellChains[nextItr->second].first = first;
+            mSpellChains[nextItr->second].prev = prev;
+            mSpellChains[nextItr->second].next = nullptr;
+            mSpellChains[nextItr->second].last = last;
+            mSpellChains[nextItr->second].rank = rank++;
             for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
-                if (mSpellInfoMap[difficulty][addedSpell])
-                    mSpellInfoMap[difficulty][addedSpell]->ChainEntry = &mSpellChains[addedSpell];
-            prevRank = addedSpell;
-            ++itr;
-            if (itr == rankChain.end())
             {
-                mSpellChains[addedSpell].next = NULL;
-                break;
+                if (mSpellInfoMap[difficulty][nextItr->second])
+                    mSpellInfoMap[difficulty][nextItr->second]->ChainEntry = &mSpellChains[nextItr->second];
             }
-            else
-                mSpellChains[addedSpell].next = GetSpellInfo(itr->first);
+
+            // fill 'last'
+            do
+            {
+                mSpellChains[prev->Id].last = last;
+                prev = mSpellChains[prev->Id].prev;
+            } while (prev);
+
+            nextItr = chains.find(nextItr->second);
         }
-        while (true);
     }
-    while
-        (!finished);
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell rank records in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell rank records in %u ms", uint32(mSpellChains.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellRequired()
@@ -3760,6 +3725,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 173790: ///< Spirit Bond (Stubborn Ironhoof)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
+            case 151271: ///< Collect Mask
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_NONE;
+                break;
             case 155049: ///< Singe (Cinder Wolf)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
@@ -4950,6 +4918,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 137639: ///< Storm, Earth and Fire
                 spellInfo->AttributesCu &= ~(SPELL_ATTR0_CU_NEGATIVE_EFF1|SPELL_ATTR0_CU_NEGATIVE_EFF0);
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
             case 138130: ///< Storm, Earth and Fire (for spirits)
                 spellInfo->Effects[0].Effect = 0;
@@ -5437,6 +5406,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 154294: ///< Power Conduit
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO | SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                break;
+            case 170493: ///< Honorbound
+                spellInfo->Attributes |= SPELL_ATTR0_CANT_CANCEL;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
+                spellInfo->AttributesEx4 |= SPELL_ATTR4_NOT_STEALABLE;
                 break;
             case 57723:  ///< Exhaustion
             case 57724:  ///< Sated
@@ -6301,6 +6275,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
+            case 137211: ///< Tremendous Fortitude
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
+                break;
             case 115315: ///< Summon Black Ox Statue
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -6335,10 +6312,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
-                break;
-            case 106734:///< Guardian Overrides Passive
-                spellInfo->Effects[5].Effect = 0;
-                spellInfo->Effects[6].Effect = 0;
                 break;
             case 52610: ///< Savage Roar
                 spellInfo->Effects[2].BasePoints = 40;
@@ -6477,6 +6450,7 @@ void SpellMgr::LoadSpellCustomAttr()
 			case 165905: ///< Item - Paladin WoD PvP Protection 2P Bonus
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
             case 166009: ///< Item - Hunter WoD PvP 2P Bonus
+            case 165519: ///< Item - Hunter WoD PvP 2P Bonus
             case 171383: ///< Item - Warlock WoD PvP Destruction 2P Bonus
             case 171379: ///< Item - Warlock WoD PvP Affliction 4P Bonus
             case 165482: ///< Item - Rogue T17 Subtlety 2P Bonus
@@ -6488,6 +6462,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 116768: ///< Combo Breaker (blackout kick)
             case 64803: ///< Entrapment
             case 135373: ///< Entrapment
+            case 115174: ///< Unertie
                 spellInfo->ProcFlags = 0;
                 break;
             /// All spells - ProcCharges = 1
@@ -6565,6 +6540,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].Effect = 0;
                 break;
             case 115008: ///< Chi Torpedo
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(596); // 900 ms
                 spellInfo->OverrideSpellList.push_back(121828); ///< Override List with Chi Torpedo - Talent
                 spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_SPEED_NOT_STACK;
                 break;
@@ -7275,7 +7251,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->StackAmount = 2;
                 break;
             case 1543: ///< Flare
-                spellInfo->Effects[0].TriggerSpell = 109772;
+                spellInfo->Effects[0].TriggerSpell = 132950;
                 spellInfo->ProcChance = 100;
                 break;
             case 109772: ///< Flare

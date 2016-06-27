@@ -7215,6 +7215,13 @@ void Spell::EffectGiveCurrency(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    /// Champion's Honor (sell in shop) must bypass week cap limit
+    if (m_spellInfo->Id == 190471)
+    {
+        unitTarget->ToPlayer()->ModifyCurrency(m_spellInfo->Effects[effIndex].MiscValue, damage, true, false, true);
+        return;
+    }
+
     unitTarget->ToPlayer()->ModifyCurrency(m_spellInfo->Effects[effIndex].MiscValue, damage);
 }
 
@@ -8200,11 +8207,12 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
     uint64 l_UnitTargetGUID = unitTarget->GetGUID();
 
     uint32 l_MalusSpell          = m_spellInfo->Effects[p_EffIndex].TriggerSpell;
+    uint8 l_MaxTotalPet          = m_spellInfo->Effects[p_EffIndex].BasePoints;
     bool   l_OnlyCurrentPet      = l_Player->HasAuraType(SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET);
     SpellInfo const* l_SpellInfo = GetSpellInfo();
 
     uint32 l_CurrentSlot = l_Player->m_currentPetSlot;
-    for (uint32 l_PetSlotIndex = uint32(PET_SLOT_HUNTER_FIRST); l_PetSlotIndex <= uint32(PET_SLOT_HUNTER_LAST); ++l_PetSlotIndex)
+    for (uint32 l_PetSlotIndex = uint32(PET_SLOT_HUNTER_FIRST); l_PetSlotIndex <= uint32(PET_SLOT_HUNTER_LAST) && l_PetSlotIndex < l_MaxTotalPet; ++l_PetSlotIndex)
     {
         if (l_PetSlotIndex != l_CurrentSlot)
         {
@@ -8239,6 +8247,13 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
                 {
                     auto l_Iter = p_Pet->m_spells.find(l_ID);
                     p_Pet->m_spells.erase(l_Iter);
+                }
+
+                /// Bestial Wrath stampe should have same duration of Bestial Wrath
+                if (l_SpellInfo->Id == 167135)
+                {
+                    Aura* l_Aura = l_Owner->GetAura(19574);
+                    p_Pet->SetDuration(l_Aura->GetDuration());
                 }
 
                 p_Pet->m_autospells.clear();
@@ -8400,7 +8415,7 @@ void Spell::EffectFinishGarrisonMission(SpellEffIndex /*p_EffIndex*/)
         {
             if (MS::Garrison::GarrisonMission* l_Mission = l_GarrisonMgr->GetMissionWithID(m_Misc[0]))
             {
-                if (l_Mission->State == MS::Garrison::MissionStates::InProgress)
+                if (l_Mission->State == MS::Garrison::Mission::State::InProgress)
                     l_Mission->StartTime = time(0) - (l_GarrisonMgr->GetMissionTravelDuration(l_Mission->MissionID) + l_GarrisonMgr->GetMissionDuration(l_Mission->MissionID));
 
                 WorldPacket l_PlaceHolder;
@@ -8427,7 +8442,7 @@ void Spell::EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex)
             if (l_ContainerEntry == nullptr)
                 return;
 
-            uint32 l_PlotInstanceID = l_GarrisonMgr->GetBuildingWithType(BuildingType::Type(l_ContainerEntry->BuildingType)).PlotInstanceID;
+            uint32 l_PlotInstanceID = l_GarrisonMgr->GetBuildingWithType(Building::Type(l_ContainerEntry->BuildingType)).PlotInstanceID;
 
             if (l_PlotInstanceID)
             {

@@ -951,8 +951,7 @@ void Player::UpdateMasteryPercentage()
                 if (AuraEffect* l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
-                    if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
-                        || (l_SpellInfo->Id == 76856)) ///< Mastery : Unshackled Fury
+                    if (l_SpellInfo->Id == 76856) ///< Mastery : Unshackled Fury
                         l_AurEff->ChangeAmount(0, true, true);
                     else
                     {
@@ -1060,10 +1059,7 @@ void Player::UpdateManaRegen()
                 if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(l_Eff->GetSpellInfo(), l_Eff->GetAmount(), l_SameEffectSpellGroup))
                 {
                     auto l_Base = l_Eff->GetBase();
-                    if (l_Base && l_Base->GetMaxDuration() == 3600000) ///< is one-hour aura
-                        l_RegenFromModPowerRegen += l_Eff->GetAmount();
-                    else
-                        l_RegenFromModPowerRegen += l_Eff->GetAmount() / 5.0f;
+                    l_RegenFromModPowerRegen += l_Eff->GetAmount();
                 }
             }
         }
@@ -1680,7 +1676,10 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
         switch (l_PetStat->m_PowerStat)
         {
             case PetStatInfo::PowerStatBase::AttackPower:
-                l_BaseValue       = l_Owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                if (isHunterPet())
+                    l_BaseValue = l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack);
+                else
+                    l_BaseValue = l_Owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
                 l_BaseAttackPower = l_BaseValue * l_PetStat->m_APSPCoef;
                 l_SpellPower      = l_BaseValue * l_PetStat->m_SecondaryStatCoef;
                 break;

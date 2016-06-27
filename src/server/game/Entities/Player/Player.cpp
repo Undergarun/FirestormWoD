@@ -3243,7 +3243,7 @@ void Player::RegenerateHealth()
 
 void Player::ResetAllPowers()
 {
-    if (getPowerType() == POWER_COMBO_POINT)
+    if (getClass() == CLASS_ROGUE || getClass() == CLASS_DRUID)
         ClearComboPoints();
 
     SetHealth(GetMaxHealth());
@@ -4806,7 +4806,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
     bool dependent_set = false;
     bool disabled_case = false;
-    bool superceded_old = false;
 
     PlayerSpellMap::iterator itr = m_spells.find(spellId);
 
@@ -4817,7 +4816,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     {
         uint32 next_active_spell_id = 0;
         // fix activate state for non-stackable low rank (and find next spell for !active case)
-        if (!spellInfo->IsStackableWithRanks() && spellInfo->IsRanked())
+        if (spellInfo->IsRanked())
         {
             if (uint32 next = sSpellMgr->GetNextSpellInChain(spellId))
             {
@@ -4941,8 +4940,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         newspell->IsMountFavorite = p_IsMountFavorite;
         newspell->FromShopItem    = p_FromShopItem;
 
-        // replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
-        if (newspell->active && !newspell->disabled && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked() != 0)
+        /// replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
+        if (newspell->active && !newspell->disabled && spellInfo->IsRanked())
         {
             WorldPacket l_Data(SMSG_SUPERCEDED_SPELL);
 
@@ -4975,7 +4974,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                             l_Iter->second->active = false;
                             if (l_Iter->second->state != PLAYERSPELL_NEW)
                                 l_Iter->second->state = PLAYERSPELL_CHANGED;
-                            superceded_old = true;          // new spell replace old in action bars and spell book.
                         }
                         else
                         {
@@ -5191,7 +5189,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     }
 
     // return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
-    return active && !disabled && !superceded_old;
+    return active && !disabled;
 }
 
 void Player::AddTemporarySpell(uint32 spellId)
@@ -5449,7 +5447,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     if (uint32 prev_id = sSpellMgr->GetPrevSpellInChain(spell_id))
     {
-        if (cur_active && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked())
+        if (cur_active && spellInfo->IsRanked())
         {
             // need manually update dependence state (learn spell ignore like attempts)
             PlayerSpellMap::iterator prev_itr = m_spells.find(prev_id);
@@ -18108,17 +18106,7 @@ void Player::SendPreparedQuest(uint64 guid)
                     return;
                 }
 
-                if (quest->IsAutoAccept() && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
-                {
-                    AddQuest(quest, object);
-                    if (CanCompleteQuest(questId))
-                        CompleteQuest(questId);
-                }
-
-                if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
-                    PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
-                else
-                    PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid);
+                PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid);
             }
         }
     }
@@ -18175,31 +18163,48 @@ bool Player::IsActiveQuest(uint32 quest_id) const
     return m_QuestStatus.find(quest_id) != m_QuestStatus.end();
 }
 
-Quest const* Player::GetNextQuest(uint64 guid, Quest const* quest)
+Quest const* Player::GetNextQuest(uint64 p_Guid, Quest const* p_Quest)
 {
-    QuestRelationBounds objectQR;
+    QuestRelationBounds l_ObjectQR;
 
-    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
-    if (creature)
-        objectQR  = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
-    else
+    WorldObject* l_Object = ObjectAccessor::GetWorldObject(*this, p_Guid);
+
+    if (l_Object == nullptr)
+        return nullptr;
+
+    switch (l_Object->GetTypeId())
     {
-        //we should obtain map pointer from GetMap() in 99% of cases. Special case
-        //only for quests which cast teleport spells on player
-        Map* _map = IsInWorld() ? GetMap() : sMapMgr->FindMap(GetMapId(), GetInstanceId());
-        ASSERT(_map);
-        GameObject* pGameObject = _map->GetGameObject(guid);
-        if (pGameObject)
-            objectQR  = sObjectMgr->GetGOQuestRelationBounds(pGameObject->GetEntry());
-        else
-            return NULL;
+        case TYPEID_UNIT:
+        {
+            if (Creature* l_Creature = l_Object->ToCreature())
+                l_ObjectQR = sObjectMgr->GetCreatureQuestRelationBounds(l_Creature->GetEntry());
+
+            break;
+        }
+        case TYPEID_PLAYER:
+        {
+            if (Player* l_Player = l_Object->ToPlayer())
+                return sObjectMgr->GetQuestTemplate(p_Quest->GetNextQuestInChain());
+
+            break;
+        }
+        case TYPEID_GAMEOBJECT:
+        {
+            if (GameObject* l_Gob = l_Object->ToGameObject())
+                l_ObjectQR = sObjectMgr->GetGOQuestRelationBounds(l_Gob->GetEntry());
+
+            break;
+        }
+        default:
+            break;
     }
 
-    uint32 nextQuestID = quest->GetNextQuestInChain();
-    for (QuestRelations::const_iterator itr = objectQR.first; itr != objectQR.second; ++itr)
+    uint32 l_NextQuestID = p_Quest->GetNextQuestInChain();
+
+    for (QuestRelations::const_iterator l_Itr = l_ObjectQR.first; l_Itr != l_ObjectQR.second; ++l_Itr)
     {
-        if (itr->second == nextQuestID)
-            return sObjectMgr->GetQuestTemplate(nextQuestID);
+        if (l_Itr->second == l_NextQuestID)
+            return sObjectMgr->GetQuestTemplate(l_NextQuestID);
     }
 
     return NULL;
@@ -18349,7 +18354,7 @@ bool Player::CanCompleteRepeatableQuest(const Quest * p_Quest)
 bool Player::CanRewardQuest(Quest const* p_Quest, bool msg)
 {
     // not auto complete quest and not completed quest (only cheating case, then ignore without message)
-    if (!p_Quest->IsDFQuest() && !p_Quest->IsAutoComplete() && !(p_Quest->GetFlags() & QUEST_FLAGS_AUTOCOMPLETE) && GetQuestStatus(p_Quest->GetQuestId()) != QUEST_STATUS_COMPLETE)
+    if (!p_Quest->IsDFQuest() && !p_Quest->IsAutoComplete() && GetQuestStatus(p_Quest->GetQuestId()) != QUEST_STATUS_COMPLETE)
         return false;
 
     // daily quest can't be rewarded (25 daily quest already completed)
@@ -18501,6 +18506,79 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
     return true;
 }
 
+void Player::HandleAutoCompleteQuest(Quest const* p_Quest)
+{
+    if (p_Quest->IsAutoComplete())
+    {
+        for (QuestObjective l_Objective : p_Quest->QuestObjectives)
+        {
+            if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
+            {
+                uint32 id = l_Objective.ObjectID;
+                uint32 count = l_Objective.Amount;
+
+                if (!id || !count)
+                    continue;
+
+                uint32 curItemCount = GetItemCount(id, true);
+
+                ItemPosCountVec dest;
+                uint8 msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, id, count - curItemCount);
+                if (msg == EQUIP_ERR_OK)
+                {
+                    Item* item = StoreNewItem(dest, id, true);
+                    SendNewItem(item, count - curItemCount, true, false);
+                }
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC)
+            {
+                int32 creature = l_Objective.ObjectID;
+                uint32 creaturecount = l_Objective.Amount;
+
+                if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
+                {
+                    for (uint16 z = 0; z < creaturecount; ++z)
+                        KilledMonster(cInfo, 0);
+                }
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_GO)
+            {
+                for (uint16 z = 0; z < l_Objective.Amount; ++z)
+                    CastedCreatureOrGO(l_Objective.ObjectID, 0, 0);
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_SPELL)
+            {
+                /// @TODO
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CURRENCY)
+            {
+                if (!l_Objective.ObjectID || !l_Objective.Amount)
+                    continue;
+
+                ModifyCurrency(l_Objective.ObjectID, l_Objective.Amount);
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2)
+            {
+                if (GetReputationMgr().GetReputation(l_Objective.ObjectID) < l_Objective.Amount)
+                {
+                    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(l_Objective.ObjectID))
+                        GetReputationMgr().SetReputation(factionEntry, l_Objective.Amount);
+                }
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY)
+            {
+                ModifyMoney(l_Objective.Amount);
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CRITERIA_TREE)
+            {
+                QuestObjectiveSatisfy(l_Objective.ObjectID, l_Objective.Amount, l_Objective.Type);
+            }
+        }
+
+        CompleteQuest(p_Quest->GetQuestId());
+    }
+}
+
 void Player::AddQuest(Quest const* quest, Object* questGiver)
 {
     uint16 log_slot = FindQuestSlot(0);
@@ -18578,6 +18656,8 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         m_Garrison->OnQuestStarted(quest);
 
     sScriptMgr->OnQuestAccept(this, quest);
+
+    HandleAutoCompleteQuest(quest);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -18736,9 +18816,9 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
 
                             if (GetGarrison())
                             {
-                                bool l_Level1 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker_WarMill_Level1);
-                                bool l_Level2 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker_WarMill_Level2);
-                                bool l_Level3 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker_WarMill_Level3);
+                                bool l_Level1 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level1);
+                                bool l_Level2 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level2);
+                                bool l_Level3 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level3);
 
                                 if (l_Level1 || l_Level2 || l_Level3)
                                     l_Coeff *= 2.0f;
@@ -22570,7 +22650,7 @@ void Player::_LoadGarrisonDailyTavernDatas(PreparedQueryResult p_Result)
     else
     {
 
-        if (l_GarrisonMgr->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1))
+        if (l_GarrisonMgr->HasActiveBuilding(MS::Garrison::Building::ID::LunarfallInn_FrostwallTavern_Level1))
         {
             if (roll_chance_i(50))
             {
@@ -28127,12 +28207,12 @@ void Player::ResetDailyGarrisonDatas()
 
     if (Manager* l_Garrison = GetGarrison())
     {
-        if (l_Garrison->HasBuildingType(BuildingType::Inn))
+        if (l_Garrison->HasBuildingType(Building::Type::Inn))
         {
             /// Weekly Tavern Reset is done in World::ResetWeeklyGarrisonDatas
 
             l_Garrison->ResetGarrisonDailyTavernData();
-            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Inn);
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(Building::Type::Inn);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
@@ -28144,7 +28224,7 @@ void Player::ResetDailyGarrisonDatas()
             }
         }
 
-        if (l_Garrison->HasBuildingType(BuildingType::Stable))
+        if (l_Garrison->HasBuildingType(Building::Type::Stable))
         {
             if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesFirstQuest))
                 SetCharacterWorldState(CharacterWorldStates::GarrisonStablesFirstQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
@@ -28153,10 +28233,10 @@ void Player::ResetDailyGarrisonDatas()
                 SetCharacterWorldState(CharacterWorldStates::GarrisonStablesSecondQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
         }
 
-        if (l_Garrison->HasBuildingType(BuildingType::Workshop))
+        if (l_Garrison->HasBuildingType(Building::Type::Workshop))
         {
             l_Garrison->ResetGarrisonWorkshopData(this);
-            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Workshop);
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(Building::Type::Workshop);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
@@ -28168,10 +28248,10 @@ void Player::ResetDailyGarrisonDatas()
             }
         }
 
-        if (l_Garrison->HasBuildingType(BuildingType::Type::TradingPost))
+        if (l_Garrison->HasBuildingType(Building::Type::TradingPost))
         {
             l_Garrison->ResetGarrisonTradingPostData(this);
-            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Type::TradingPost);
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(Building::Type::TradingPost);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
@@ -28196,7 +28276,7 @@ void Player::ResetWeeklyGarrisonDatas()
     if (Manager* l_Garrison = GetGarrison())
     {
         ///< Armory token handling
-        if (l_Garrison->GetBuildingWithType(BuildingType::Armory).DatabaseID)
+        if (l_Garrison->GetBuildingWithType(Building::Type::Armory).DatabaseID)
         {
             if (GetCharacterWorldStateValue(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain) == 1)
                 SetCharacterWorldState(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain, 0);
@@ -33723,9 +33803,18 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 {
     m_BattlePets.clear();
 
+    uint64 l_PlayerGUID = GetGUID();
+    MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_PlayerGUID](bool p_Success) -> void
+    {
+        if (Player* l_Player = HashMapHolder<Player>::Find(l_PlayerGUID))
+            l_Player->ReloadPetBattles();
+    });
+
     if (!p_Result)
     {
         bool l_Add = false;
+
+        SQLTransaction l_Transaction = LoginDatabase.BeginTransaction();
 
         for (uint32 l_I = 0; l_I < m_OldPetBattleSpellToMerge.size(); l_I++)
         {
@@ -33758,7 +33847,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
             /// Calculate stats
             l_BattlePet.UpdateStats();
             l_BattlePet.Health = l_BattlePet.InfoMaxHealth;
-            l_BattlePet.AddToPlayer(this);
+            l_BattlePet.AddToPlayer(this, l_Transaction);
 
             l_Add = true;
         }
@@ -33766,7 +33855,10 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
         m_OldPetBattleSpellToMerge.clear();
 
         if (l_Add)
-            return false;
+        {
+            LoginDatabase.CommitTransaction(l_Transaction, l_CallBack);
+            return true;
+        }
     }
 
     for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
@@ -33806,6 +33898,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
     }
 
     bool l_OldPetAdded = false;
+    SQLTransaction l_Transaction = LoginDatabase.BeginTransaction();
     for (uint32 l_I = 0; l_I < m_OldPetBattleSpellToMerge.size(); l_I++)
     {
         if (std::find(l_AlreadyKnownPet.begin(), l_AlreadyKnownPet.end(), m_OldPetBattleSpellToMerge[l_I].second) != l_AlreadyKnownPet.end())
@@ -33843,15 +33936,16 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
         l_BattlePet.UpdateStats();
         l_BattlePet.Health = l_BattlePet.InfoMaxHealth;
 
-        l_BattlePet.AddToPlayer(this);
-
-        ///removeSpell(m_OldPetBattleSpellToMerge[l_I].first);
+        l_BattlePet.AddToPlayer(this, l_Transaction);
     }
 
     m_OldPetBattleSpellToMerge.clear();
 
     if (l_OldPetAdded)
-        return false;
+    {
+        LoginDatabase.CommitTransaction(l_Transaction, l_CallBack);
+        return true;
+    }
 
     GetSession()->SendBattlePetJournal();
 
