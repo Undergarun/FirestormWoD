@@ -367,7 +367,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraMastery,                               //318 SPELL_AURA_MASTERY
     &AuraEffect::HandleModMeleeSpeedPct,                          //319 SPELL_AURA_MOD_MELEE_HASTE_3
     &AuraEffect::HandleAuraModRangedHaste,                        //320 SPELL_AURA_MOD_RANGED_HASTE_2
-    &AuraEffect::HandleNULL,                                      //321 SPELL_AURA_321
+    &AuraEffect::HandleAuraModNoActions,                           //321 SPELL_AURA_MOD_NO_ACTIONS
     &AuraEffect::HandleNULL,                                      //322 SPELL_AURA_INTERFERE_TARGETTING
     &AuraEffect::HandleUnused,                                    //323 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //324 SPELL_AURA_324
@@ -3284,6 +3284,36 @@ void AuraEffect::HandleAuraAllowOnlyAbility(AuraApplication const* aurApp, uint8
                 return;
             target->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY);
         }
+    }
+}
+
+
+void AuraEffect::HandleAuraModNoActions(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+
+    if (p_Apply)
+    {
+        l_Target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_NO_ACTIONS);
+
+        // call functions which may have additional effects after chainging state of unit
+        // Stop cast only spells vs PreventionType & SPELL_PREVENTION_TYPE_SILENCE
+        for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
+            if (Spell* l_Spell = l_Target->GetCurrentSpell(CurrentSpellTypes(i)))
+                if (l_Spell->m_spellInfo->PreventionType & (SpellPreventionMask::NoActions))
+                    // Stop spells on prepare or casting state
+                    l_Target->InterruptSpell(CurrentSpellTypes(i), false);
+    }
+    else
+    {
+        // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+        if (l_Target->HasAuraType(SPELL_AURA_MOD_NO_ACTIONS))
+            return;
+
+        l_Target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_NO_ACTIONS);
     }
 }
 
