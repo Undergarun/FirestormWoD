@@ -72,6 +72,7 @@ enum SpellTargetSelectionCategories
     TARGET_SELECT_CATEGORY_NEARBY,
     TARGET_SELECT_CATEGORY_CONE,
     TARGET_SELECT_CATEGORY_AREA,
+    TARGET_SELECT_CATEGORY_CYLINDER
 };
 
 enum SpellTargetReferenceTypes

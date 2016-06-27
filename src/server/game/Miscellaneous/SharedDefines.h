@@ -2211,7 +2211,7 @@ enum Targets
     TARGET_UNK_131                     = 131,
     TARGET_UNK_132                     = 132,
     TARGET_UNK_133                     = 133,
-    TARGET_UNK_134                     = 134,
+    TARGET_ENNEMIES_IN_CYLINDER        = 134,
     TARGET_UNK_135                     = 135,
     TARGET_UNK_136                     = 136,
     TARGET_DEST_CASTER_DIRECTION       = 137,
