@@ -5969,6 +5969,7 @@ public:
             int32 reward = 0;
 
             static std::map<int32, int32> l_Loots = {
+                {92616, 92617}, ///< Golden Fruit Bowl
                 {92602, 92603}, ///< Large Pile of Gold Coins
                 {92580, 92581}, ///< Fragrant Perfume
                 {92586, 92587}, ///< Sparkling Sapphire
