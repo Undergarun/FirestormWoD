@@ -18659,6 +18659,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     sScriptMgr->OnQuestAccept(this, quest);
 
+    if (quest->QuestObjectives.empty())
+        CompleteQuest(quest->GetQuestId());
+
     HandleAutoCompleteQuest(quest);
 }
 
