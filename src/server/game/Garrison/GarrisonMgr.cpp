@@ -5120,8 +5120,8 @@ namespace MS { namespace Garrison
                 continue;
 
             /// Wrong Faction (According to a serious tester, traits dont need that kind of restriction)
-            /*if (l_Entry->AbilityType != l_OtherFactionType)
-                continue;*/
+            if (l_Entry->AbilityType != l_OtherFactionType)
+                continue;
 
             if (std::find(p_KnownAbilities.begin(), p_KnownAbilities.end(), l_ID) != p_KnownAbilities.end())
                 continue;
