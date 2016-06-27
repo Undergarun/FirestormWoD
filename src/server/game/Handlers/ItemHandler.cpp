@@ -504,6 +504,13 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
             return;
         }
 
+        /// Prevent sell of store items
+        if (l_PlayerItem->HasCustomFlags(ItemCustomFlags::FromStore))
+        {
+            m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, l_Creature, l_ItemGUID);
+            return;
+        }
+
         // prevent selling item for sellprice when the item is still refundable
         // this probably happens when right clicking a refundable item, the client sends both
         // CMSG_SELL_ITEM and CMSG_REFUND_ITEM (unverified)

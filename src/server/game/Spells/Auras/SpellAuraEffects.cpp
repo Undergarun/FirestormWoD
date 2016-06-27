@@ -7391,18 +7391,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
         damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
 
-        /// Apply versatility rating for players
-        if (caster->GetSpellModOwner())
-            damage += CalculatePct(damage, caster->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-
-        // Calculate armor mitigation
-        if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
-        {
-            uint32 damageReductedArmor = caster->CalcArmorReducedDamage(target, damage, GetSpellInfo());
-            cleanDamage.mitigated_damage += damage - damageReductedArmor;
-            damage = damageReductedArmor;
-        }
-
         /// Ignite should remove Polymorph
         if (GetSpellInfo()->Id == 12654 && caster && target)
         {
@@ -7488,6 +7476,18 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     }
     else
         damage = uint32(target->CountPctFromMaxHealth((int32)damage));
+
+    /// Apply versatility rating for players
+    if (caster->GetSpellModOwner())
+        damage += CalculatePct(damage, caster->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+
+    // Calculate armor mitigation
+    if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
+    {
+        uint32 damageReductedArmor = caster->CalcArmorReducedDamage(target, damage, GetSpellInfo());
+        cleanDamage.mitigated_damage += damage - damageReductedArmor;
+        damage = damageReductedArmor;
+    }
 
     // WoD: Apply factor on damages depending on creature level and expansion
     if ((caster->IsPlayer() || caster->IsPetGuardianStuff()) && target->GetTypeId() == TYPEID_UNIT)

@@ -3759,6 +3759,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 173790: ///< Spirit Bond (Stubborn Ironhoof)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
+            case 151271: ///< Collect Mask
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_NONE;
+                break;
             case 155049: ///< Singe (Cinder Wolf)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
@@ -6478,6 +6481,7 @@ void SpellMgr::LoadSpellCustomAttr()
 			case 165905: ///< Item - Paladin WoD PvP Protection 2P Bonus
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
             case 166009: ///< Item - Hunter WoD PvP 2P Bonus
+            case 165519: ///< Item - Hunter WoD PvP 2P Bonus
             case 171383: ///< Item - Warlock WoD PvP Destruction 2P Bonus
             case 171379: ///< Item - Warlock WoD PvP Affliction 4P Bonus
             case 165482: ///< Item - Rogue T17 Subtlety 2P Bonus

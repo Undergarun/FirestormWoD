@@ -55,7 +55,7 @@ namespace MS { namespace Garrison
         /// @p_SourceInfo  : Player
         virtual bool OnConditionCheck(uint32 /*p_ConditionID*/, PlayerConditionEntry const* /*p_Condition*/, Player* p_Player) override
         {
-            if (!p_Player || !p_Player->GetGarrison() || !p_Player->GetGarrison()->HasBuildingType((BuildingType)t_BuildingTypeID))
+            if (!p_Player || !p_Player->GetGarrison() || !p_Player->GetGarrison()->HasBuildingType((Building::Type)t_BuildingTypeID))
                 return false;
 
             return true;
