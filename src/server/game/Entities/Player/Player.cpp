@@ -18816,15 +18816,8 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                             float l_Roll = frand(0.0f, 100.0f);
                             float l_Coeff = 1.0f;
 
-                            if (GetGarrison())
-                            {
-                                bool l_Level1 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level1);
-                                bool l_Level2 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level2);
-                                bool l_Level3 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level3);
-
-                                if (l_Level1 || l_Level2 || l_Level3)
-                                    l_Coeff *= 2.0f;
-                            }
+                            if (GetGarrison() && GetGarrison()->HasBuildingType(MS::Garrison::Building::Type::Armory))
+                                l_Coeff *= 2.0f;
 
                             //bool  l_SendDisplayToast = false;
 
