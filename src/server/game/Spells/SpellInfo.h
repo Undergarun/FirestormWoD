@@ -484,11 +484,9 @@ public:
     bool IsExplicitDiscovery() const;
     bool IsLootCrafting() const;
     bool IsQuestTame() const;
-    bool IsProfessionOrRiding() const;
     bool IsProfession() const;
     bool IsPrimaryProfession() const;
     bool IsPrimaryProfessionFirstRank() const;
-    bool IsAbilityLearnedWithProfession() const;
     bool IsAbilityOfSkillType(uint32 skillType) const;
 
     bool IsAffectingArea() const;
