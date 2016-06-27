@@ -714,7 +714,7 @@ enum eUnitFlags2
     UNIT_FLAG2_UNK2                         = 0x00010000,
     UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
     UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,   // allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
-    UNIT_FLAG2_UNK3                         = 0x00080000,   ///< Remove Hightlight on cursor
+    UNIT_FLAG2_NO_ACTIONS                   = 0x00080000,   ///< Remove Hightlight on cursor
     UNIT_FLAG2_UNK4                         = 0x00100000,
     UNIT_FLAG2_UNK5                         = 0x00200000,
     UNIT_FLAG2_UNK6                         = 0x00400000,

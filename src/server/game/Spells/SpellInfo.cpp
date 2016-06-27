@@ -261,7 +261,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     { TARGET_OBJECT_TYPE_DEST,      TARGET_REFERENCE_TYPE_TARGET,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ENEMY,         TARGET_DIR_NONE         },  ///< 53 TARGET_DEST_TARGET_ENEMY
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,         TARGET_DIR_FRONT        },  ///< 54 TARGET_UNIT_CONE_ENEMY_54
     { TARGET_OBJECT_TYPE_DEST,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 55 TARGET_DEST_CASTER_FRONT_LEAP
-    { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 56 TARGET_UNIT_CASTER_AREA_RAID
+    { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 56 TARGET_UNIT_CASTER_AREA_RAID
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_TARGET,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 57 TARGET_UNIT_TARGET_RAID
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 58 TARGET_UNIT_NEARBY_RAID
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_RAID,          TARGET_DIR_FRONT        },  ///< 59 TARGET_UNIT_CONE_ALLY
@@ -1323,21 +1323,6 @@ bool SpellInfo::IsQuestTame() const
     return Effects[0].Effect == SPELL_EFFECT_THREAT && Effects[1].Effect == SPELL_EFFECT_APPLY_AURA && Effects[1].ApplyAuraName == SPELL_AURA_DUMMY;
 }
 
-bool SpellInfo::IsProfessionOrRiding() const
-{
-    for (uint8 i = 0; i < EffectCount; ++i)
-    {
-        if (Effects[i].Effect == SPELL_EFFECT_SKILL)
-        {
-            uint32 skill = Effects[i].MiscValue;
-
-            if (IsProfessionOrRidingSkill(skill))
-                return true;
-        }
-    }
-    return false;
-}
-
 bool SpellInfo::IsProfession() const
 {
     for (uint8 i = 0; i < EffectCount; ++i)
@@ -1371,23 +1356,6 @@ bool SpellInfo::IsPrimaryProfession() const
 bool SpellInfo::IsPrimaryProfessionFirstRank() const
 {
     return IsPrimaryProfession() && GetRank() == 1;
-}
-
-bool SpellInfo::IsAbilityLearnedWithProfession() const
-{
-    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
-
-    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-    {
-        SkillLineAbilityEntry const* pAbility = _spell_idx->second;
-        if (!pAbility || pAbility->learnOnGetSkill != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
-            continue;
-
-        if (pAbility->req_skill_value > 0)
-            return true;
-    }
-
-    return false;
 }
 
 bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
@@ -1465,11 +1433,6 @@ bool SpellInfo::IsStackableWithRanks() const
     if (IsPassive())
         return false;
     if (PowerType != POWER_MANA && PowerType != POWER_HEALTH)
-        return false;
-    if (IsProfessionOrRiding())
-        return false;
-
-    if (IsAbilityLearnedWithProfession())
         return false;
 
     // All stance spells. if any better way, change it.

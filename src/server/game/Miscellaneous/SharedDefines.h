@@ -2271,7 +2271,7 @@ enum SpellPreventionMask
 {
     Silence          = 0x01,
     Pacify           = 0x02,
-    UnknowPrevention = 0x04     ///< Maybe crowd control ?
+    NoActions        = 0x04
 };
 
 enum GameobjectTypes
