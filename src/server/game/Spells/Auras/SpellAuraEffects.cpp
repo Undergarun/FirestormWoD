@@ -7346,21 +7346,21 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     if (!caster || !target->isAlive())
         return;
 
-    if (target->HasUnitState(UNIT_STATE_ISOLATED) || target->IsImmunedToDamage(GetSpellInfo()))
+    if (target->HasUnitState(UNIT_STATE_ISOLATED) || target->IsImmunedToDamage(m_spellInfo))
     {
         SendTickImmune(target, caster);
         return;
     }
 
     // Consecrate ticks can miss and will not show up in the combat log
-    if (GetSpellInfo()->Effects[GetEffIndex()].Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
-        caster->SpellHitResult(target, GetSpellInfo(), false) != SPELL_MISS_NONE)
+    if (m_spellInfo->Effects[GetEffIndex()].Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
+        caster->SpellHitResult(target, m_spellInfo, false) != SPELL_MISS_NONE)
         return;
 
     // some auras remove at specific health level or more
     if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
     {
-        switch (GetSpellInfo()->Id)
+        switch (m_spellInfo->Id)
         {
             case 1120:  // Soul Drain
             {
@@ -7375,16 +7375,16 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             case 35321: case 38363: case 39215:  // Gushing Wound
                 if (target->IsFullHealth())
                 {
-                    target->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+                    target->RemoveAurasDueToSpell(m_spellInfo->Id);
                     return;
                 }
                 break;
             case 38772: // Grievous Wound
             {
-                uint32 percent = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster);
+                uint32 percent = m_spellInfo->Effects[EFFECT_1].CalcValue(caster);
                 if (!target->HealthBelowPct(percent))
                 {
-                    target->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+                    target->RemoveAurasDueToSpell(m_spellInfo->Id);
                     return;
                 }
                 break;
@@ -7393,7 +7393,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     }
     else
     {
-        switch (GetSpellInfo()->Id)
+        switch (m_spellInfo->Id)
         {
             case 49016:
             {
@@ -7415,16 +7415,16 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
     if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
     {
-        damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
+        damage = caster->SpellDamageBonusDone(target, m_spellInfo, damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
         if (isAreaAura)
             damage = uint32(float(damage) * caster->SpellDamagePctDone(target, m_spellInfo, DOT));
         else
             damage = uint32(float(damage) * GetDonePct()); // Single target DOTs have their % done bonus applied in Aura::HandleAuraSpecificPeriodics
 
-        damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
+        damage = target->SpellDamageBonusTaken(caster, m_spellInfo, damage, DOT, GetBase()->GetStackAmount());
 
         /// Ignite should remove Polymorph
-        if (GetSpellInfo()->Id == 12654 && caster && target)
+        if (m_spellInfo->Id == 12654 && caster && target)
         {
             /// Polymorph
             if (target->IsPolymorphed())
@@ -7432,12 +7432,12 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         }
 
         /// Poisoned Ammo and Devouring Plague
-        if (GetSpellInfo()->Id == 162543 || GetSpellInfo()->Id == 158831)
+        if (m_spellInfo->Id == 162543 || m_spellInfo->Id == 158831)
             /// To prevent double multiplication
             damage = std::max(GetAmount(), 0);
 
         // Deep Wounds
-        if (GetSpellInfo()->Id == 115767)
+        if (m_spellInfo->Id == 115767)
         {
             if (Player* _player = GetCaster()->ToPlayer())
               if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
@@ -7445,18 +7445,18 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         }
 
         // Nether Tempest and Living Bomb deal 85% of damage if used on player
-        if (GetSpellInfo()->Id == 44457 || GetSpellInfo()->Id == 114923)
+        if (m_spellInfo->Id == 44457 || m_spellInfo->Id == 114923)
         {
             if (target->IsPlayer())
                 damage *= 0.85f;
         }
 
         ///< Glyph of Flame Shock, have to be trigger afer calculating damages bonus
-        if (GetSpellInfo()->Id == 8050 && GetCaster() && GetCaster()->HasAura(55447))
-            GetCaster()->HealBySpell(GetCaster(), GetSpellInfo(), CalculatePct(damage, 45), false);
+        if (m_spellInfo->Id == 8050 && GetCaster() && GetCaster()->HasAura(55447))
+            GetCaster()->HealBySpell(GetCaster(), m_spellInfo, CalculatePct(damage, 45), false);
 
         // Holy Fire ticks can trigger Atonement
-        if (GetSpellInfo()->Id == 14914 && GetCaster() && GetCaster()->HasAura(81749))
+        if (m_spellInfo->Id == 14914 && GetCaster() && GetCaster()->HasAura(81749))
         {
             if (Player* _player = GetCaster()->ToPlayer())
             {
@@ -7480,7 +7480,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 }
             }
         }
-        if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_GENERIC)
+        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_GENERIC)
         {
             switch (GetId())
             {
@@ -7494,7 +7494,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     break;
             }
         }
-        if (GetAmplitude() && GetTickNumber() <= 1 && GetTotalTicks() == GetSpellInfo()->GetDuration() / GetAmplitude()) ///< Some spells should not deal damage at first tick of first apply
+        if (GetAmplitude() && GetTickNumber() <= 1 && GetTotalTicks() == m_spellInfo->GetDuration() / GetAmplitude()) ///< Some spells should not deal damage at first tick of first apply
         {
             switch (GetId())
             {
@@ -7514,9 +7514,9 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         damage += CalculatePct(damage, caster->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     // Calculate armor mitigation
-    if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
+    if (Unit::IsDamageReducedByArmor(m_spellInfo->GetSchoolMask(), m_spellInfo, GetEffIndex()))
     {
-        uint32 damageReductedArmor = caster->CalcArmorReducedDamage(target, damage, GetSpellInfo());
+        uint32 damageReductedArmor = caster->CalcArmorReducedDamage(target, damage, m_spellInfo);
         cleanDamage.mitigated_damage += damage - damageReductedArmor;
         damage = damageReductedArmor;
     }
@@ -7540,11 +7540,12 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     /// In WoD blizzards have implemented system of "not full finaly tick damage"
     if (Aura* l_Aura = target->GetAura(GetSpellInfo()->Id, caster->GetGUID()))
     {
-        /// Check if we need to use new wod aura system
-        if (GetSpellInfo() && GetSpellInfo()->IsAffectedByWodAuraSystem())
+        int32 l_LeftDuration = l_Aura->GetDuration();
+        int32 l_MaxDuration = l_Aura->GetMaxDuration();
+
+        /// Check if we need to use new wod aura system - Don't handle infinite auras
+        if (m_spellInfo->IsAffectedByWodAuraSystem() && l_LeftDuration > 0 && l_MaxDuration > 0)
         {
-            int32 l_LeftDuration = l_Aura->GetDuration();
-            int32 l_MaxDuration = l_Aura->GetMaxDuration();
             int32 l_Amplitude = GetAmplitude();
             int32 l_MaxTicksCount = l_Amplitude == 0 ? 0 : int32(l_MaxDuration / l_Amplitude);
 
@@ -7560,7 +7561,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 if (l_CritAdditional)
                     damage = caster->SpellCriticalDamageBonus(m_spellInfo, l_LeftDamage, target);
 
-                SpellSchoolMask schoolMask = caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, l_LeftDamage, &l_AbsorbAdditional, &l_ResistAdditional, GetSpellInfo());
+                SpellSchoolMask schoolMask = caster->CalcAbsorbResist(target, m_spellInfo->GetSchoolMask(), DOT, l_LeftDamage, &l_AbsorbAdditional, &l_ResistAdditional, m_spellInfo);
 
                 caster->DealDamageMods(target, damage, &l_AbsorbAdditional);
 
@@ -7582,9 +7583,9 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 SpellPeriodicAuraLogInfo pInfo(this, l_LeftDamage, l_OverkillAdditional, l_AbsorbAdditional, l_ResistAdditional, 0.0f, l_CritAdditional);
                 target->SendPeriodicAuraLog(&pInfo);
 
-                caster->ProcDamageAndSpell(target, l_ProcAttacker, l_ProcVictim, l_ProcEx, l_LeftDamage, l_AbsorbAdditional, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, this);
+                caster->ProcDamageAndSpell(target, l_ProcAttacker, l_ProcVictim, l_ProcEx, l_LeftDamage, l_AbsorbAdditional, WeaponAttackType::BaseAttack, m_spellInfo, NULL, this);
 
-                caster->DealDamage(target, l_LeftDamage, NULL, DOT, schoolMask, GetSpellInfo(), true);
+                caster->DealDamage(target, l_LeftDamage, NULL, DOT, schoolMask, m_spellInfo, true);
             }
         }
     }

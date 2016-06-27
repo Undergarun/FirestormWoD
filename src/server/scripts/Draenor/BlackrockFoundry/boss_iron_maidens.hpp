@@ -134,6 +134,8 @@ std::vector<G3D::Vector3> const g_BoatBossFlyingMoves =
 Position const g_ZiplineBossPos = { 461.8629f, 3187.325f, 180.6749f, 0.0f };
 Position const g_ZiplineBoatPos = { 520.7656f, 3271.337f, 174.8700f, 0.0f };
 
+Position const g_RoomCenterPos = { 434.86f, 3165.41f, 135.22f, 0.0f };
+
 float const g_MarakFinalFacing = 1.710423f;
 float const g_GaranFinalFacing = 1.64061f;
 

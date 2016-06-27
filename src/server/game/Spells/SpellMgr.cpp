@@ -3695,6 +3695,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 154932: ///< Molten Torrent (aura - Flamebender Ka'graz)
             case 161570: ///< Searing Plates (DoT - Franzok)
             case 159481: ///< Delayed Siege Bomb (Channel - Iron Gunnery Sergeant)
+            case 164271: ///< Penetrating Shot - Aura (Admiral Gar'an - Iron Maidens)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 156039: ///< Drop the Hammer (Aknor Steelbringer)
@@ -3774,6 +3775,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 154951: ///< Pin Down (Beastlord Darmac)
             case 163045: ///< Flame Vent Cosmetics (Flame Vent)
+            case 158599: ///< Deploy Turret (Admiral Gar'an - Iron Maidens)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
@@ -7496,6 +7498,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 171614: ///< Inferno (Inferno Totem - Iron Earthbinder)
             case 156637: ///< Rapid Fire - AoE (Admiral Gar'an - Iron Maidens)
             case 158078: ///< Blood Ritual - AoE (Marak the Blooded - Iron Maidens)
+            case 164279: ///< Penetrating Shot (Admiral Gar'an - Iron Maidens)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:

@@ -22,6 +22,7 @@ UPDATE creature_template SET unit_flags = 768, unit_flags2 = 1140885504, Inhabit
 UPDATE creature_template SET minlevel = 102, maxlevel = 102, ScriptName = "npc_foundry_inferno_totem" WHERE entry = 85922;
 UPDATE creature_template SET InhabitType = 4, ScriptName = "npc_foundry_zipline_stalker" WHERE entry = 82538;
 UPDATE creature_template SET ScriptName = "npc_foundry_rapid_fire_stalker" WHERE entry = 77636;
+UPDATE creature_template SET ScriptName = "npc_foundry_dominator_turret" WHERE entry = 78583;
 UPDATE creature_template SET modelid1 = 55871, modelid2 = 0 WHERE entry = 80622;
 
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (@REF_SORKA, 1, 114966, 113965, 0);
@@ -29,13 +30,18 @@ REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEnt
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (@REF_MARAK, 1, 114962, 114971, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (85711, 1, 0, 0, 108504);
 
-DELETE FROM `areatrigger_template` WHERE spell_id IN (171545);
+DELETE FROM `areatrigger_template` WHERE spell_id IN (171545, 158602);
 INSERT INTO `areatrigger_template` (`spell_id`, `eff_index`, `entry`, `type`, `scale_x`, `scale_y`, `flags`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName`) VALUES
-(171545, 0, 171545, 2, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_workers_solidarity");
+(171545, 0, 171545, 2, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_workers_solidarity"),
+(158602, 0, 6641, 2, 1, 1, 8192, 1, 1, 3, 3, 0.5, 0.5, 0, 0, "areatrigger_foundry_dominator_blast");
 
-DELETE FROM spell_script_names WHERE spell_id IN (158078);
+DELETE FROM spell_script_names WHERE spell_id IN (158078, 164271, 164279, 156214, 158315);
 INSERT INTO spell_script_names VALUES
-(158078, "spell_foundry_blood_ritual");
+(158078, "spell_foundry_blood_ritual"),
+(164271, "spell_foundry_penetrating_shot"),
+(164279, "spell_foundry_penetrating_shot_damage"),
+(156214, "spell_foundry_convulsive_shadows"),
+(158315, "spell_foundry_dark_hunt");
 
 DELETE FROM `conversation_template` WHERE `Entry` IN (118, 119);
 INSERT INTO `conversation_template` VALUES
@@ -137,6 +143,6 @@ INSERT INTO npc_text (ID, SoundID, text0_0, text0_1) VALUE
     "Don't worry, I'm coming... this looks fun."
 );
 
-DELETE FROM locales_npc_text WHERE entry IN (87897, 87898, 87921, 87899, 87937, 87900, 87922, 87923, 87902, 87924, 87901, 87925);
+-- DELETE FROM locales_npc_text WHERE entry IN (87897, 87898, 87921, 87899, 87937, 87900, 87922, 87923, 87902, 87924, 87901, 87925);
 --                                   French                      German                      Spanish                     Russian
-INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+-- INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
