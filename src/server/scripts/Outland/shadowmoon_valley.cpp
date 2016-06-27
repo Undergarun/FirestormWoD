@@ -2069,7 +2069,6 @@ class mob_collidus_the_warp_watcher : public CreatureScript
 #ifndef __clang_analyzer__
 void AddSC_shadowmoon_valley()
 {
->>>>>>> Spell/Generic: Appraisal
     new mob_mature_netherwing_drake();
     new mob_enslaved_netherwing_drake();
     new mob_dragonmaw_peon();
