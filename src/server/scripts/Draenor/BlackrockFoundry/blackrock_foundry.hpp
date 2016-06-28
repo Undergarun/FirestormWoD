@@ -97,6 +97,7 @@ enum eFoundryCreatures
     BossEnforcerSorka       = 77231,
     BossMarakTheBlooded     = 77477,
     ZiplineStalker          = 82538,
+    IronCannon              = 78152,
     /// Blackhand's Crucible - Part 4
     /// Blackhand
     BossBlackhand           = 77325

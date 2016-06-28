@@ -94,6 +94,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_EnforcerSorkaGuid         = 0;
                 m_MarakTheBloodedGuid       = 0;
                 m_ZiplineStalkerGuid        = 0;
+                m_IronCannonGuid            = 0;
 
                 m_SpikeGateGuid             = 0;
                 m_CrucibleEntrance          = 0;
@@ -169,6 +170,7 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_EnforcerSorkaGuid;
             uint64 m_MarakTheBloodedGuid;
             uint64 m_ZiplineStalkerGuid;
+            uint64 m_IronCannonGuid;
 
             /// Blackhand's Crucible
             uint64 m_SpikeGateGuid;
@@ -399,6 +401,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryCreatures::ZiplineStalker:
                     {
                         m_ZiplineStalkerGuid = p_Creature->GetGUID();
+                        break;
+                    }
+                    case eFoundryCreatures::IronCannon:
+                    {
+                        m_IronCannonGuid = p_Creature->GetGUID();
                         break;
                     }
                     default:
@@ -1078,6 +1085,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_MarakTheBloodedGuid;
                     case eFoundryCreatures::ZiplineStalker:
                         return m_ZiplineStalkerGuid;
+                    case eFoundryCreatures::IronCannon:
+                        return m_IronCannonGuid;
                     default:
                         break;
                 }

@@ -29,7 +29,8 @@ enum eIronMaidensActions
     ActionIntro,
     ActionAfterTrashesIntro,
     ActionEnteredZipline,
-    ActionZiplineArrived
+    ActionZiplineArrived,
+    ActionJumpToShip
 };
 
 enum eIronMaidensDatas
@@ -40,9 +41,13 @@ enum eIronMaidensDatas
     MaxDockworkerPos        = 2,
     MaxIronCleaverMoves     = 4,
     MaxIntroMovesCount      = 4,
-    /// Getters
+    MaxHeartseekerTargets   = 3,
+    MaxHealthForIronWill    = 20,
+    /// Misc Getters
     LoadingChainID          = 0,
     LoadingChainAvailable   = 1,
+    /// Boss Getters
+    IsAvailableForShip      = 0,
     /// Event schedulers
     FirstIronFuryAbility    = 30,
     SecondIronFuryAbility   = 100
@@ -50,7 +55,9 @@ enum eIronMaidensDatas
 
 enum eIronMaidensSpells
 {
-    ZeroPowerZeroRegen = 118357
+    ZeroPowerZeroRegen  = 118357,
+    IronWill            = 159337,
+    PermanentFeignDeath = 70628
 };
 
 static void RespawnMaidens(InstanceScript* p_Instance, Creature* p_Source)
@@ -116,6 +123,23 @@ static void WipeMaidens(InstanceScript* p_Instance)
     }
 }
 
+static void TriggerIronWill(InstanceScript* p_Instance)
+{
+    if (p_Instance == nullptr)
+        return;
+
+    for (uint8 l_I = 0; l_I < 3; ++l_I)
+    {
+        if (Creature* l_Maiden = p_Instance->instance->GetCreature(p_Instance->GetData64(g_IronMaidensEntries[l_I])))
+        {
+            if (l_Maiden->HasAura(eIronMaidensSpells::IronWill))
+                continue;
+
+            l_Maiden->CastSpell(l_Maiden, eIronMaidensSpells::IronWill, true);
+        }
+    }
+}
+
 Position const g_MarakHomePos = { 442.363f, 3136.75f, 135.219f, 1.710423f };
 Position const g_GaranHomePos = { 434.845f, 3141.18f, 135.219f, 1.640610f };
 Position const g_SorkaHomePos = { 425.965f, 3138.43f, 135.219f, 1.753770f };
@@ -131,8 +155,29 @@ std::vector<G3D::Vector3> const g_BoatBossFlyingMoves =
     { 463.2691f, 3186.117f, 176.3029f }
 };
 
+std::vector<G3D::Vector3> const g_ZiplineFlyingMoves =
+{
+    { 463.9948f, 3190.459f, 180.3531f },
+    { 468.0139f, 3195.972f, 179.9773f },
+    { 471.1076f, 3200.292f, 179.7583f },
+    { 475.1285f, 3206.103f, 179.2168f },
+    { 478.3837f, 3210.953f, 179.0443f },
+    { 482.4601f, 3216.684f, 178.6539f },
+    { 485.8767f, 3221.579f, 178.3048f },
+    { 489.3160f, 3226.421f, 177.9685f },
+    { 492.8403f, 3231.653f, 177.6089f },
+    { 498.5035f, 3239.773f, 177.0412f },
+    { 503.0677f, 3246.305f, 176.6152f },
+    { 507.5764f, 3252.608f, 176.2642f },
+    { 515.6563f, 3264.310f, 175.4255f },
+    { 520.7656f, 3271.337f, 174.8700f }
+};
+
 Position const g_ZiplineBossPos = { 461.8629f, 3187.325f, 180.6749f, 0.0f };
 Position const g_ZiplineBoatPos = { 520.7656f, 3271.337f, 174.8700f, 0.0f };
+
+Position const g_EnterZiplinePos = { 451.2829f, 3175.634f, 135.4688f, 0.0f };
+Position const g_ExitZiplinePos = { 520.7656f, 3271.337f, 174.87f, 1.605687f };
 
 Position const g_RoomCenterPos = { 434.86f, 3165.41f, 135.22f, 0.0f };
 

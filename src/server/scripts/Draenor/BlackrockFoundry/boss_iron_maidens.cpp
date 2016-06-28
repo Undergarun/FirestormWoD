@@ -18,6 +18,7 @@ class boss_admiral_garan : public CreatureScript
         {
             IronMaidenIntroConversation = 172658,
             AfterTrashesConversation    = 172686,
+            RideLoadingChain            = 158646,
             /// Combat spells
             /// Iron Shot
             SpellIronShotSearcher       = 156666,
@@ -39,7 +40,8 @@ class boss_admiral_garan : public CreatureScript
             EventRapidFire = 1,
             EventRegenIronFury,
             EventPenetratingShot,
-            EventDeployTurret
+            EventDeployTurret,
+            EventJumpToShip
         };
 
         enum eTimers
@@ -48,7 +50,9 @@ class boss_admiral_garan : public CreatureScript
             TimerRapidFireCD        = 30 * TimeConstants::IN_MILLISECONDS,
             TimerEnergyRegen        = 6 * TimeConstants::IN_MILLISECONDS + 333,
             TimerPenetratingShotCD  = 30 * TimeConstants::IN_MILLISECONDS,
-            TimerDeployTurretCD     = 21 * TimeConstants::IN_MILLISECONDS + 300
+            TimerDeployTurretCD     = 21 * TimeConstants::IN_MILLISECONDS + 300,
+            TimerJumpToShip         = 60 * TimeConstants::IN_MILLISECONDS,
+            TimerJumpToShipCD       = 198 * TimeConstants::IN_MILLISECONDS
         };
 
         enum eTalks
@@ -59,7 +63,9 @@ class boss_admiral_garan : public CreatureScript
         {
             MoveJump = 1,
             MoveDown,
-            MoveLast
+            MoveLast,
+            MoveToZipline,
+            MoveExitZipline = 50
         };
 
         enum eVisual
@@ -79,6 +85,7 @@ class boss_admiral_garan : public CreatureScript
 
             InstanceScript* m_Instance;
 
+            EventMap m_CustomEvent;
             EventMap m_Events;
 
             bool m_IntroDone;
@@ -86,14 +93,32 @@ class boss_admiral_garan : public CreatureScript
 
             bool m_DeployTurret;
 
+            bool m_IronWillTriggered;
+            bool m_BossDisabled;
+            bool m_CanJumpToShip;
+            bool m_IsOnBoat;
+
             void Reset() override
             {
                 me->setPowerType(Powers::POWER_ENERGY);
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
                 me->SetPower(Powers::POWER_ENERGY, 0);
 
+                me->SetCanFly(false);
+                me->SetDisableGravity(false);
+                me->SetHover(false);
+
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
                 me->CastSpell(me, eIronMaidensSpells::ZeroPowerZeroRegen, true);
 
+                me->RemoveAura(eIronMaidensSpells::IronWill);
+                me->RemoveAura(eIronMaidensSpells::PermanentFeignDeath);
+
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_UNK_29);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_UNK5);
+
+                m_CustomEvent.Reset();
                 m_Events.Reset();
 
                 RespawnMaidens(m_Instance, me);
@@ -142,7 +167,12 @@ class boss_admiral_garan : public CreatureScript
                     });
                 }
 
-                m_DeployTurret = false;
+                m_DeployTurret      = false;
+
+                m_IronWillTriggered = false;
+                m_BossDisabled      = false;
+                m_CanJumpToShip     = true;
+                m_IsOnBoat          = false;
             }
 
             void SetGUID(uint64 p_Guid, int32 p_ID /*= 0*/) override
@@ -172,6 +202,33 @@ class boss_admiral_garan : public CreatureScript
                 }
             }
 
+            uint32 GetData(uint32 p_ID) override
+            {
+                switch (p_ID)
+                {
+                    case eIronMaidensDatas::IsAvailableForShip:
+                        return uint32(m_CanJumpToShip);
+                    default:
+                        break;
+                }
+
+                return 0;
+            }
+
+            void SetData(uint32 p_ID, uint32 p_Value) override
+            {
+                switch (p_ID)
+                {
+                    case eIronMaidensDatas::IsAvailableForShip:
+                    {
+                        m_CanJumpToShip = p_Value != 0;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
             void KilledUnit(Unit* p_Killed) override
             {
                 /*if (p_Killed->IsPlayer())
@@ -184,8 +241,10 @@ class boss_admiral_garan : public CreatureScript
 
                 _EnterCombat();
 
-                ///m_Events.ScheduleEvent(eEvents::EventRapidFire, eTimers::TimerRapidFire);
-                ///m_Events.ScheduleEvent(eEvents::EventRegenIronFury, eTimers::TimerEnergyRegen);
+                m_Events.ScheduleEvent(eEvents::EventRapidFire, eTimers::TimerRapidFire);
+
+                m_CustomEvent.ScheduleEvent(eEvents::EventRegenIronFury, eTimers::TimerEnergyRegen);
+                m_CustomEvent.ScheduleEvent(eEvents::EventJumpToShip, eTimers::TimerJumpToShip);
             }
 
             void JustDied(Unit* /*p_Killer*/) override
@@ -246,6 +305,13 @@ class boss_admiral_garan : public CreatureScript
                             me->GetMotionMaster()->MoveJump(g_BoatBossFirstJumpPos, 30.0f, 20.0f, eMoves::MoveJump);
                         });
 
+                        break;
+                    }
+                    case eIronMaidensActions::ActionJumpToShip:
+                    {
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                        me->GetMotionMaster()->MovePoint(eMoves::MoveToZipline, g_EnterZiplinePos);
                         break;
                     }
                     default:
@@ -319,6 +385,21 @@ class boss_admiral_garan : public CreatureScript
                         me->CastSpell(*me, eSpells::SpellDeployTurretSummon, false);
                         break;
                     }
+                    case eMoves::MoveToZipline:
+                    {
+                        AddTimedDelayedOperation(10, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            m_IsOnBoat = true;
+
+                            if (Creature* l_Zipline = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::ZiplineStalker)))
+                                me->CastSpell(l_Zipline, eSpells::RideLoadingChain, true);
+                        });
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -332,26 +413,16 @@ class boss_admiral_garan : public CreatureScript
 
             void SetPower(Powers p_Power, int32 p_Value) override
             {
-                switch (p_Value)
+                if (p_Value >= eIronMaidensDatas::FirstIronFuryAbility)
                 {
-                    case eIronMaidensDatas::FirstIronFuryAbility:
-                    {
-                        if (m_Events.HasEvent(eEvents::EventPenetratingShot))
-                            break;
-
+                    if (!m_Events.HasEvent(eEvents::EventPenetratingShot))
                         m_Events.ScheduleEvent(eEvents::EventPenetratingShot, 1);
-                        break;
-                    }
-                    case eIronMaidensDatas::SecondIronFuryAbility:
-                    {
-                        if (m_Events.HasEvent(eEvents::EventDeployTurret))
-                            break;
+                }
 
+                if (p_Value >= eIronMaidensDatas::SecondIronFuryAbility)
+                {
+                    if (!m_Events.HasEvent(eEvents::EventDeployTurret))
                         m_Events.ScheduleEvent(eEvents::EventDeployTurret, 1);
-                        break;
-                    }
-                    default:
-                        break;
                 }
             }
 
@@ -365,6 +436,12 @@ class boss_admiral_garan : public CreatureScript
                     case eSpells::SpellIronShotSearcher:
                     {
                         me->CastSpell(p_Target, eSpells::SpellIronShotDamage, false);
+                        break;
+                    }
+                    case eIronMaidensSpells::IronWill:
+                    {
+                        me->SetPower(Powers::POWER_ENERGY, me->GetMaxPower(Powers::POWER_ENERGY));
+                        m_CustomEvent.CancelEvent(eEvents::EventRegenIronFury);
                         break;
                     }
                     default:
@@ -389,6 +466,38 @@ class boss_admiral_garan : public CreatureScript
                 }
             }
 
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
+            {
+                if (m_BossDisabled)
+                {
+                    p_Damage = 0;
+                    return;
+                }
+
+                if (!m_IronWillTriggered && me->HealthBelowPctDamaged(int32(eIronMaidensDatas::MaxHealthForIronWill), p_Damage))
+                {
+                    m_IronWillTriggered = true;
+                    TriggerIronWill(m_Instance);
+                }
+                else if (p_Damage >= me->GetHealth())
+                {
+                    m_BossDisabled = true;
+                    m_CanJumpToShip = false;
+
+                    p_Damage = 0;
+
+                    me->SetHealth(1);
+
+                    me->CastSpell(me, eIronMaidensSpells::PermanentFeignDeath, true);
+
+                    me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                    /// From retail
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_UNK_29);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_UNK5);
+                }
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
@@ -396,13 +505,60 @@ class boss_admiral_garan : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (me->GetDistance(me->GetHomePosition()) >= 80.0f)
+                if (!m_IsOnBoat && me->GetDistance(me->GetHomePosition()) >= 80.0f)
                 {
                     EnterEvadeMode();
                     return;
                 }
 
+                m_CustomEvent.Update(p_Diff);
                 m_Events.Update(p_Diff);
+
+                switch (m_CustomEvent.ExecuteEvent())
+                {
+                    case eEvents::EventRegenIronFury:
+                    {
+                        me->ModifyPower(Powers::POWER_ENERGY, 1);
+                        m_CustomEvent.ScheduleEvent(eEvents::EventRegenIronFury, eTimers::TimerEnergyRegen);
+                        break;
+                    }
+                    case eEvents::EventJumpToShip:
+                    {
+                        if (m_Instance == nullptr)
+                            break;
+
+                        Creature* l_Boss    = nullptr;
+                        float l_HealthPct   = 100.0f;
+
+                        for (uint8 l_I = 0; l_I < 3; ++l_I)
+                        {
+                            if (Creature* l_Maiden = Creature::GetCreature(*me, m_Instance->GetData64(g_IronMaidensEntries[l_I])))
+                            {
+                                /// Boss cannot go to ship
+                                if (!l_Maiden->IsAIEnabled || !l_Maiden->AI()->GetData(eIronMaidensDatas::IsAvailableForShip))
+                                    continue;
+
+                                if (l_Maiden->GetHealthPct() < l_HealthPct)
+                                {
+                                    l_Boss      = l_Maiden;
+                                    l_HealthPct = l_Boss->GetHealthPct();
+                                }
+                            }
+                        }
+
+                        if (l_Boss == nullptr)
+                            break;
+
+                        /// Prevent boss to go to ship again
+                        l_Boss->AI()->SetData(eIronMaidensDatas::IsAvailableForShip, uint32(false));
+                        l_Boss->AI()->DoAction(eIronMaidensActions::ActionJumpToShip);
+
+                        m_CustomEvent.ScheduleEvent(eEvents::EventJumpToShip, eTimers::TimerJumpToShipCD);
+                        break;
+                    }
+                    default:
+                        break;
+                }
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -437,12 +593,6 @@ class boss_admiral_garan : public CreatureScript
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventRapidFire, eTimers::TimerRapidFireCD);
-                        break;
-                    }
-                    case eEvents::EventRegenIronFury:
-                    {
-                        me->ModifyPower(Powers::POWER_ENERGY, 1);
-                        m_Events.ScheduleEvent(eEvents::EventRegenIronFury, eTimers::TimerEnergyRegen);
                         break;
                     }
                     case eEvents::EventPenetratingShot:
@@ -529,7 +679,7 @@ class boss_enforcer_sorka : public CreatureScript
         {
             TimerBladeDash              = 11 * TimeConstants::IN_MILLISECONDS,
             TimerBladeDashCD            = 20 * TimeConstants::IN_MILLISECONDS,
-            TimerEnergyRegen            = /*6 * TimeConstants::IN_MILLISECONDS + 333*/1000,
+            TimerEnergyRegen            = 6 * TimeConstants::IN_MILLISECONDS + 333,
             TimerConvulsiveShadowsCD    = 56 * TimeConstants::IN_MILLISECONDS,
             TimerDarkHuntCD             = 13 * TimeConstants::IN_MILLISECONDS + 500
         };
@@ -538,9 +688,11 @@ class boss_enforcer_sorka : public CreatureScript
         {
         };
 
-        enum eMove
+        enum eMoves
         {
-            MoveJump = 1
+            MoveJump = 1,
+            MoveToZipline,
+            MoveExitZipline = 50
         };
 
         struct boss_enforcer_sorkaAI : public BossAI
@@ -554,19 +706,38 @@ class boss_enforcer_sorka : public CreatureScript
 
             InstanceScript* m_Instance;
 
+            EventMap m_CustomEvent;
             EventMap m_Events;
 
             bool m_IsInBladeDash;
             std::set<uint64> m_BladeDashTargets;
 
+            bool m_IronWillTriggered;
+            bool m_BossDisabled;
+            bool m_CanJumpToShip;
+            bool m_IsOnBoat;
+
             void Reset() override
             {
                 me->setPowerType(Powers::POWER_ENERGY);
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
-                me->SetPower(Powers::POWER_ENERGY, /*0*/25);
+                me->SetPower(Powers::POWER_ENERGY, 0);
+
+                me->SetCanFly(false);
+                me->SetDisableGravity(false);
+                me->SetHover(false);
+
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
                 me->CastSpell(me, eIronMaidensSpells::ZeroPowerZeroRegen, true);
 
+                me->RemoveAura(eIronMaidensSpells::IronWill);
+                me->RemoveAura(eIronMaidensSpells::PermanentFeignDeath);
+
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_UNK_29);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_UNK5);
+
+                m_CustomEvent.Reset();
                 m_Events.Reset();
 
                 RespawnMaidens(m_Instance, me);
@@ -575,6 +746,38 @@ class boss_enforcer_sorka : public CreatureScript
 
                 m_IsInBladeDash = false;
                 m_BladeDashTargets.clear();
+
+                m_IronWillTriggered = false;
+                m_BossDisabled      = false;
+                m_CanJumpToShip     = true;
+                m_IsOnBoat          = false;
+            }
+
+            uint32 GetData(uint32 p_ID) override
+            {
+                switch (p_ID)
+                {
+                    case eIronMaidensDatas::IsAvailableForShip:
+                        return uint32(m_CanJumpToShip);
+                    default:
+                        break;
+                }
+
+                return 0;
+            }
+
+            void SetData(uint32 p_ID, uint32 p_Value) override
+            {
+                switch (p_ID)
+                {
+                    case eIronMaidensDatas::IsAvailableForShip:
+                    {
+                        m_CanJumpToShip = p_Value != 0;
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -589,8 +792,9 @@ class boss_enforcer_sorka : public CreatureScript
 
                 _EnterCombat();
 
-                ///m_Events.ScheduleEvent(eEvents::EventBladeDash, eTimers::TimerBladeDash);
-                m_Events.ScheduleEvent(eEvents::EventRegenIronFury, eTimers::TimerEnergyRegen);
+                m_Events.ScheduleEvent(eEvents::EventBladeDash, eTimers::TimerBladeDash);
+
+                m_CustomEvent.ScheduleEvent(eEvents::EventRegenIronFury, eTimers::TimerEnergyRegen);
             }
 
             void JustDied(Unit* /*p_Killer*/) override
@@ -628,9 +832,16 @@ class boss_enforcer_sorka : public CreatureScript
                     {
                         AddTimedDelayedOperation(13 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            me->GetMotionMaster()->MoveJump(g_SorkaHomePos, 30.0f, 20.0f, eMove::MoveJump);
+                            me->GetMotionMaster()->MoveJump(g_SorkaHomePos, 30.0f, 20.0f, eMoves::MoveJump);
                         });
 
+                        break;
+                    }
+                    case eIronMaidensActions::ActionJumpToShip:
+                    {
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                        me->GetMotionMaster()->MovePoint(eMoves::MoveToZipline, g_EnterZiplinePos);
                         break;
                     }
                     default:
@@ -643,8 +854,31 @@ class boss_enforcer_sorka : public CreatureScript
                 if (p_Type != MovementGeneratorType::EFFECT_MOTION_TYPE)
                     return;
 
-                if (p_ID == eMove::MoveJump)
-                    me->SetHomePosition(g_SorkaHomePos);
+                switch (p_ID)
+                {
+                    case eMoves::MoveJump:
+                    {
+                        me->SetHomePosition(g_SorkaHomePos);
+                        break;
+                    }
+                    case eMoves::MoveToZipline:
+                    {
+                        AddTimedDelayedOperation(10, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            m_IsOnBoat = true;
+
+                            if (Creature* l_Zipline = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::ZiplineStalker)))
+                                me->EnterVehicle(l_Zipline);
+                        });
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void RegeneratePower(Powers /*p_Power*/, int32& p_Value) override
@@ -655,26 +889,16 @@ class boss_enforcer_sorka : public CreatureScript
 
             void SetPower(Powers p_Power, int32 p_Value) override
             {
-                switch (p_Value)
+                if (p_Value >= eIronMaidensDatas::FirstIronFuryAbility)
                 {
-                    case eIronMaidensDatas::FirstIronFuryAbility:
-                    {
-                        if (m_Events.HasEvent(eEvents::EventConvulsiveShadows))
-                            break;
-
+                    if (!m_Events.HasEvent(eEvents::EventConvulsiveShadows))
                         m_Events.ScheduleEvent(eEvents::EventConvulsiveShadows, 1);
-                        break;
-                    }
-                    case eIronMaidensDatas::SecondIronFuryAbility:
-                    {
-                        if (m_Events.HasEvent(eEvents::EventDarkHunt))
-                            break;
+                }
 
+                if (p_Value >= eIronMaidensDatas::SecondIronFuryAbility)
+                {
+                    if (!m_Events.HasEvent(eEvents::EventDarkHunt))
                         m_Events.ScheduleEvent(eEvents::EventDarkHunt, 1);
-                        break;
-                    }
-                    default:
-                        break;
                 }
             }
 
@@ -691,6 +915,13 @@ class boss_enforcer_sorka : public CreatureScript
                             break;
 
                         DashToTarget(p_Target);
+
+                        /// Just for safety...
+                        AddTimedDelayedOperation(12 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            m_IsInBladeDash = false;
+                        });
+
                         break;
                     }
                     case eSpells::SpellBladeDashDamage:
@@ -746,8 +977,46 @@ class boss_enforcer_sorka : public CreatureScript
 
                         break;
                     }
+                    case eIronMaidensSpells::IronWill:
+                    {
+                        me->SetPower(Powers::POWER_ENERGY, me->GetMaxPower(Powers::POWER_ENERGY));
+                        m_CustomEvent.CancelEvent(eEvents::EventRegenIronFury);
+                        break;
+                    }
                     default:
                         break;
+                }
+            }
+
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
+            {
+                if (m_BossDisabled)
+                {
+                    p_Damage = 0;
+                    return;
+                }
+
+                if (!m_IronWillTriggered && me->HealthBelowPctDamaged(int32(eIronMaidensDatas::MaxHealthForIronWill), p_Damage))
+                {
+                    m_IronWillTriggered = true;
+                    TriggerIronWill(m_Instance);
+                }
+                else if (p_Damage >= me->GetHealth())
+                {
+                    m_BossDisabled = true;
+                    m_CanJumpToShip = false;
+
+                    p_Damage = 0;
+
+                    me->SetHealth(1);
+
+                    me->CastSpell(me, eIronMaidensSpells::PermanentFeignDeath, true);
+
+                    me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                    /// From retail
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_UNK_29);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_UNK5);
                 }
             }
 
@@ -758,13 +1027,26 @@ class boss_enforcer_sorka : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (me->GetDistance(me->GetHomePosition()) >= 80.0f)
+                if (!m_IsOnBoat && me->GetDistance(me->GetHomePosition()) >= 80.0f)
                 {
                     EnterEvadeMode();
                     return;
                 }
 
+                m_CustomEvent.Update(p_Diff);
                 m_Events.Update(p_Diff);
+
+                switch (m_CustomEvent.ExecuteEvent())
+                {
+                    case eEvents::EventRegenIronFury:
+                    {
+                        me->ModifyPower(Powers::POWER_ENERGY, 1);
+                        m_CustomEvent.ScheduleEvent(eEvents::EventRegenIronFury, eTimers::TimerEnergyRegen);
+                        break;
+                    }
+                    default:
+                        break;
+                }
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || m_IsInBladeDash)
                     return;
@@ -789,12 +1071,6 @@ class boss_enforcer_sorka : public CreatureScript
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventBladeDash, eTimers::TimerBladeDashCD);
-                        break;
-                    }
-                    case eEvents::EventRegenIronFury:
-                    {
-                        me->ModifyPower(Powers::POWER_ENERGY, 1);
-                        m_Events.ScheduleEvent(eEvents::EventRegenIronFury, eTimers::TimerEnergyRegen);
                         break;
                     }
                     case eEvents::EventConvulsiveShadows:
@@ -858,23 +1134,30 @@ class boss_marak_the_blooded : public CreatureScript
         {
             /// Combat Spells
             /// Blood Ritual
-            SpellBloodRitualAura    = 159724,
-            SpellBloodRitualCast    = 158078
+            SpellBloodRitualAura                = 159724,
+            SpellBloodRitualCast                = 158078,
+            /// Bloodsoaked Heartseeker
+            SpellBloodsoakedHeartseekerMarker   = 158010,
+            SpellBloodsoakedHeartseekerCast     = 158008,
+            SpellBloodsoakedHeartseekerDamage   = 158009,
+            SpellBloodsoakedHeartseekerBounce   = 157950,
+            /// Sanguine Strikes
+            SpellSanguineStrikesAura            = 156601
         };
 
         enum eEvents
         {
             EventBloodRitual = 1,
             EventRegenIronFury,
-            EventBloodsoakedHeartseeker,
-            EventSanguineStrikes
+            EventBloodsoakedHeartseeker
         };
 
         enum eTimers
         {
-            TimerBloodRitual    = 5 * TimeConstants::IN_MILLISECONDS,
-            TimerBloodRitualCD  = 20 * TimeConstants::IN_MILLISECONDS,
-            TimerEnergyRegen    = 6 * TimeConstants::IN_MILLISECONDS + 333
+            TimerBloodRitual                = 5 * TimeConstants::IN_MILLISECONDS,
+            TimerBloodRitualCD              = 20 * TimeConstants::IN_MILLISECONDS,
+            TimerEnergyRegen                = 6 * TimeConstants::IN_MILLISECONDS + 333,
+            TimerBloodsoakedHeartseekerCD   = 70 * TimeConstants::IN_MILLISECONDS
         };
 
         enum eTalks
@@ -890,7 +1173,9 @@ class boss_marak_the_blooded : public CreatureScript
         {
             MoveJump = 1,
             MoveDown,
-            MoveLast
+            MoveLast,
+            MoveToZipline,
+            MoveExitZipline = 50
         };
 
         struct boss_marak_the_bloodedAI : public BossAI
@@ -904,7 +1189,16 @@ class boss_marak_the_blooded : public CreatureScript
 
             InstanceScript* m_Instance;
 
+            EventMap m_CustomEvent;
             EventMap m_Events;
+
+            uint8 m_HeartseekerID;
+            std::array<uint64, eIronMaidensDatas::MaxHeartseekerTargets> m_HeartseekerTargets;
+
+            bool m_IronWillTriggered;
+            bool m_BossDisabled;
+            bool m_CanJumpToShip;
+            bool m_IsOnBoat;
 
             void Reset() override
             {
@@ -912,13 +1206,62 @@ class boss_marak_the_blooded : public CreatureScript
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
                 me->SetPower(Powers::POWER_ENERGY, 0);
 
+                me->SetCanFly(false);
+                me->SetDisableGravity(false);
+                me->SetHover(false);
+
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
                 me->CastSpell(me, eIronMaidensSpells::ZeroPowerZeroRegen, true);
 
+                me->RemoveAura(eSpells::SpellSanguineStrikesAura);
+
+                me->RemoveAura(eIronMaidensSpells::IronWill);
+                me->RemoveAura(eIronMaidensSpells::PermanentFeignDeath);
+
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_UNK_29);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_UNK5);
+
+                m_CustomEvent.Reset();
                 m_Events.Reset();
 
                 RespawnMaidens(m_Instance, me);
 
                 _Reset();
+
+                ResetHeartseekerTargets();
+
+                m_IronWillTriggered = false;
+                m_BossDisabled      = false;
+                m_CanJumpToShip     = true;
+                m_IsOnBoat          = false;
+            }
+
+            uint32 GetData(uint32 p_ID) override
+            {
+                switch (p_ID)
+                {
+                    case eIronMaidensDatas::IsAvailableForShip:
+                        return uint32(m_CanJumpToShip);
+                    default:
+                        break;
+                }
+
+                return 0;
+            }
+
+            void SetData(uint32 p_ID, uint32 p_Value) override
+            {
+                switch (p_ID)
+                {
+                    case eIronMaidensDatas::IsAvailableForShip:
+                    {
+                        m_CanJumpToShip = p_Value != 0;
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -933,8 +1276,9 @@ class boss_marak_the_blooded : public CreatureScript
 
                 _EnterCombat();
 
-                ///m_Events.ScheduleEvent(eEvents::EventBloodRitual, eTimers::TimerBloodRitual);
-                ///m_Events.ScheduleEvent(eEvents::EventRegenIronFury, eTimers::TimerEnergyRegen);
+                m_Events.ScheduleEvent(eEvents::EventBloodRitual, eTimers::TimerBloodRitual);
+
+                m_CustomEvent.ScheduleEvent(eEvents::EventRegenIronFury, eTimers::TimerEnergyRegen);
             }
 
             void JustDied(Unit* /*p_Killer*/) override
@@ -946,9 +1290,9 @@ class boss_marak_the_blooded : public CreatureScript
                 _JustDied();
 
                 if (m_Instance != nullptr)
-                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
-                }
+
+                RemoveCombatAuras();
             }
 
             void EnterEvadeMode() override
@@ -960,6 +1304,8 @@ class boss_marak_the_blooded : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 summons.DespawnAll();
+
+                RemoveCombatAuras();
             }
 
             void DoAction(int32 const p_Action) override
@@ -969,6 +1315,13 @@ class boss_marak_the_blooded : public CreatureScript
                     case eIronMaidensActions::ActionAfterTrashesIntro:
                     {
                         me->GetMotionMaster()->MoveJump(g_BoatBossFirstJumpPos, 30.0f, 20.0f, eMoves::MoveJump);
+                        break;
+                    }
+                    case eIronMaidensActions::ActionJumpToShip:
+                    {
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                        me->GetMotionMaster()->MovePoint(eMoves::MoveToZipline, g_EnterZiplinePos);
                         break;
                     }
                     default:
@@ -1021,6 +1374,21 @@ class boss_marak_the_blooded : public CreatureScript
 
                         break;
                     }
+                    case eMoves::MoveToZipline:
+                    {
+                        AddTimedDelayedOperation(10, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            m_IsOnBoat = true;
+
+                            if (Creature* l_Zipline = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::ZiplineStalker)))
+                                me->EnterVehicle(l_Zipline);
+                        });
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1034,16 +1402,32 @@ class boss_marak_the_blooded : public CreatureScript
 
             void SetPower(Powers p_Power, int32 p_Value) override
             {
-                switch (p_Value)
+                if (p_Value >= eIronMaidensDatas::FirstIronFuryAbility)
                 {
-                    case eIronMaidensDatas::FirstIronFuryAbility:
-                    {
+                    if (!m_Events.HasEvent(eEvents::EventBloodsoakedHeartseeker))
                         m_Events.ScheduleEvent(eEvents::EventBloodsoakedHeartseeker, 1);
+                }
+
+                if (p_Value >= eIronMaidensDatas::SecondIronFuryAbility)
+                    me->CastSpell(me, eSpells::SpellSanguineStrikesAura, true);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::SpellBloodsoakedHeartseekerDamage:
+                    {
+                        HandleNextHeartseeker(false);
                         break;
                     }
-                    case eIronMaidensDatas::SecondIronFuryAbility:
+                    case eIronMaidensSpells::IronWill:
                     {
-                        m_Events.ScheduleEvent(eEvents::EventSanguineStrikes, 1);
+                        me->SetPower(Powers::POWER_ENERGY, me->GetMaxPower(Powers::POWER_ENERGY));
+                        m_CustomEvent.CancelEvent(eEvents::EventRegenIronFury);
                         break;
                     }
                     default:
@@ -1073,8 +1457,45 @@ class boss_marak_the_blooded : public CreatureScript
 
                         break;
                     }
+                    case eSpells::SpellBloodsoakedHeartseekerCast:
+                    {
+                        HandleNextHeartseeker();
+                        break;
+                    }
                     default:
                         break;
+                }
+            }
+
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
+            {
+                if (m_BossDisabled)
+                {
+                    p_Damage = 0;
+                    return;
+                }
+
+                if (!m_IronWillTriggered && me->HealthBelowPctDamaged(int32(eIronMaidensDatas::MaxHealthForIronWill), p_Damage))
+                {
+                    m_IronWillTriggered = true;
+                    TriggerIronWill(m_Instance);
+                }
+                else if (p_Damage >= me->GetHealth())
+                {
+                    m_BossDisabled = true;
+                    m_CanJumpToShip = false;
+
+                    p_Damage = 0;
+
+                    me->SetHealth(1);
+
+                    me->CastSpell(me, eIronMaidensSpells::PermanentFeignDeath, true);
+
+                    me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                    /// From retail
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_UNK_29);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_UNK5);
                 }
             }
 
@@ -1085,13 +1506,26 @@ class boss_marak_the_blooded : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (me->GetDistance(me->GetHomePosition()) >= 80.0f)
+                if (!m_IsOnBoat && me->GetDistance(me->GetHomePosition()) >= 80.0f)
                 {
                     EnterEvadeMode();
                     return;
                 }
 
+                m_CustomEvent.Update(p_Diff);
                 m_Events.Update(p_Diff);
+
+                switch (m_CustomEvent.ExecuteEvent())
+                {
+                    case eEvents::EventRegenIronFury:
+                    {
+                        me->ModifyPower(Powers::POWER_ENERGY, 1);
+                        m_CustomEvent.ScheduleEvent(eEvents::EventRegenIronFury, eTimers::TimerEnergyRegen);
+                        break;
+                    }
+                    default:
+                        break;
+                }
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -1109,10 +1543,23 @@ class boss_marak_the_blooded : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventBloodRitual, eTimers::TimerBloodRitualCD);
                         break;
                     }
-                    case eEvents::EventRegenIronFury:
+                    case eEvents::EventBloodsoakedHeartseeker:
                     {
-                        me->ModifyPower(Powers::POWER_ENERGY, 1);
-                        m_Events.ScheduleEvent(eEvents::EventRegenIronFury, eTimers::TimerEnergyRegen);
+                        ResetHeartseekerTargets();
+
+                        for (uint8 l_I = 0; l_I < eIronMaidensDatas::MaxHeartseekerTargets; ++l_I)
+                        {
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true, -int32(eSpells::SpellBloodsoakedHeartseekerMarker)))
+                            {
+                                m_HeartseekerTargets[l_I] = l_Target->GetGUID();
+
+                                me->CastSpell(l_Target, eSpells::SpellBloodsoakedHeartseekerMarker, true);
+                            }
+                        }
+
+                        me->CastSpell(me, eSpells::SpellBloodsoakedHeartseekerCast, false);
+
+                        m_Events.ScheduleEvent(eEvents::EventBloodsoakedHeartseeker, eTimers::TimerBloodsoakedHeartseekerCD);
                         break;
                     }
                     default:
@@ -1120,6 +1567,39 @@ class boss_marak_the_blooded : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+            }
+
+            void ResetHeartseekerTargets()
+            {
+                m_HeartseekerID = 0;
+
+                for (uint8 l_I = 0; l_I < eIronMaidensDatas::MaxHeartseekerTargets; ++l_I)
+                    m_HeartseekerTargets[l_I] = 0;
+            }
+
+            void HandleNextHeartseeker(bool p_FromBoss = true)
+            {
+                if (m_HeartseekerID >= eIronMaidensDatas::MaxHeartseekerTargets)
+                    return;
+
+                Unit* l_Caster = p_FromBoss ? me : Unit::GetUnit(*me, m_HeartseekerTargets[m_HeartseekerID > 0 ? m_HeartseekerID - 1 : 0]);
+                if (l_Caster == nullptr)
+                    return;
+
+                if (Unit* l_Target = Unit::GetUnit(*me, m_HeartseekerTargets[m_HeartseekerID++]))
+                {
+                    l_Caster->CastSpell(l_Target, eSpells::SpellBloodsoakedHeartseekerDamage, true, nullptr, nullptr, me->GetGUID());
+                    l_Caster->CastSpell(l_Target, eSpells::SpellBloodsoakedHeartseekerBounce, true, nullptr, nullptr, me->GetGUID());
+                }
+            }
+
+            void RemoveCombatAuras()
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellBloodRitualAura);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellBloodsoakedHeartseekerMarker);
             }
         };
 
@@ -1347,11 +1827,11 @@ class npc_foundry_ukurogg : public CreatureScript
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                switch (m_Events.ExecuteEvent())
+                /*switch (m_Events.ExecuteEvent())
                 {
                     default:
                         break;
-                }
+                }*/
 
                 DoMeleeAttackIfReady();
             }
@@ -1376,8 +1856,8 @@ class npc_foundry_zipline_stalker : public CreatureScript
 
         enum eMoves
         {
-            MoveNone,
-            MoveSecond
+            MoveToShip,
+            MoveExitZipline = 50
         };
 
         struct npc_foundry_zipline_stalkerAI : public ScriptedAI
@@ -1397,45 +1877,49 @@ class npc_foundry_zipline_stalker : public CreatureScript
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
             {
-                /*if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE || m_Vehicle == nullptr)
+                if (p_Type != MovementGeneratorType::EFFECT_MOTION_TYPE)
                     return;
 
                 switch (p_ID)
                 {
-                    case eMoves::MoveSecond:
+                    case eMoves::MoveToShip:
                     {
-                        for (int8 l_SeatID = 0; l_SeatID < MAX_VEHICLE_SEATS; ++l_SeatID)
-                        {
-                            if (m_Vehicle->GetPassenger(l_SeatID) == nullptr)
-                                continue;
+                        if (m_Vehicle == nullptr)
+                            break;
 
-                            if (Creature* l_Passenger = m_Vehicle->GetPassenger(l_SeatID)->ToCreature())
+                        if (Unit* l_Passenger = m_Vehicle->GetPassenger(0))
+                        {
+                            l_Passenger->ExitVehicle();
+
+                            uint64 l_Guid = l_Passenger->GetGUID();
+                            AddTimedDelayedOperation(10, [this, l_Guid]() -> void
                             {
-                                if (l_Passenger->IsAIEnabled)
-                                    l_Passenger->AI()->DoAction(eIronMaidensActions::ActionZiplineArrived);
-                            }
+                                if (Unit* l_Passenger = Unit::GetUnit(*me, l_Guid))
+                                    l_Passenger->GetMotionMaster()->MoveJump(g_ExitZiplinePos, 30.0f, 10.0f, eMoves::MoveExitZipline);
+                            });
                         }
 
                         break;
                     }
                     default:
                         break;
-                }*/
+                }
             }
 
             void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
             {
-                /*if (p_Apply)
+                if (p_Apply)
                 {
-                    if (p_Passenger->GetEntry() == eFoundryCreatures::BossAdmiralGaran)
+                    p_Passenger->SetCanFly(true);
+                    p_Passenger->SetDisableGravity(true);
+                    p_Passenger->SetHover(true);
+
+                    AddTimedDelayedOperation(10, [this]() -> void
                     {
-                        if (Creature* l_Garan = p_Passenger->ToCreature())
-                        {
-                            if (l_Garan->IsAIEnabled)
-                                l_Garan->AI()->DoAction(eIronMaidensActions::ActionEnteredZipline);
-                        }
-                    }
-                }*/
+                        me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FLYING);
+                        me->GetMotionMaster()->MoveSmoothFlyPath(eMoves::MoveToShip, g_ZiplineFlyingMoves);
+                    });
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1756,6 +2240,87 @@ class spell_foundry_dark_hunt : public SpellScriptLoader
         }
 };
 
+/// Bloodsoaked Heartseeker - 158009
+class spell_foundry_bloodsoaked_heartseeker_damage : public SpellScriptLoader
+{
+    public:
+        spell_foundry_bloodsoaked_heartseeker_damage() : SpellScriptLoader("spell_foundry_bloodsoaked_heartseeker_damage") { }
+
+        class spell_foundry_bloodsoaked_heartseeker_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_bloodsoaked_heartseeker_damage_SpellScript)
+
+            void HandleDamage(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                float l_ReducedDamage   = 1.6f;
+                float l_Damage          = float(GetSpell()->GetDamage());
+                float l_Distance        = l_Caster->GetDistance(l_Target);
+                float l_NewDamages      = std::max(1.0f, l_Damage - (l_Damage * l_Distance * l_ReducedDamage / 100.0f));
+
+                GetSpell()->SetDamage(uint32(l_NewDamages));
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_foundry_bloodsoaked_heartseeker_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_bloodsoaked_heartseeker_damage_SpellScript();
+        }
+};
+
+/// Sanguine Strikes - 156601
+class spell_foundry_sanguine_strikes_proc : public SpellScriptLoader
+{
+    public:
+        spell_foundry_sanguine_strikes_proc() : SpellScriptLoader("spell_foundry_sanguine_strikes_proc") { }
+
+        enum eSpell
+        {
+            SanguineStrikesProc = 156610
+        };
+
+        class spell_foundry_sanguine_strikes_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_sanguine_strikes_proc_AuraScript)
+
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                /// Can proc only for melee attacks
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() != nullptr)
+                    return;
+
+                if (Creature* l_Marak = GetTarget()->ToCreature())
+                {
+                    int32 l_Damage = p_EventInfo.GetDamageInfo()->GetDamage();
+
+                    l_Marak->CastCustomSpell(l_Marak, eSpell::SanguineStrikesProc, &l_Damage, nullptr, nullptr, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_foundry_sanguine_strikes_proc_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_sanguine_strikes_proc_AuraScript();
+        }
+};
+
 /// Dominator Blast - 158602
 class areatrigger_foundry_dominator_blast : public AreaTriggerEntityScript
 {
@@ -1849,6 +2414,8 @@ void AddSC_boss_iron_maidens()
     new spell_foundry_penetrating_shot_damage();
     new spell_foundry_convulsive_shadows();
     new spell_foundry_dark_hunt();
+    new spell_foundry_bloodsoaked_heartseeker_damage();
+    new spell_foundry_sanguine_strikes_proc();
 
     /// AreaTrigger (spell)
     new areatrigger_foundry_dominator_blast();

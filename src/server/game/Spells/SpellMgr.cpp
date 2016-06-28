@@ -3696,6 +3696,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 161570: ///< Searing Plates (DoT - Franzok)
             case 159481: ///< Delayed Siege Bomb (Channel - Iron Gunnery Sergeant)
             case 164271: ///< Penetrating Shot - Aura (Admiral Gar'an - Iron Maidens)
+            case 158010: ///< Bloodsoaked Heartseeker - Marker (Marak the Blooded - Iron Maidens)
+            case 159724: ///< Blood Ritual - Aura (Marak the Blooded - Iron Maidens)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 156039: ///< Drop the Hammer (Aknor Steelbringer)
@@ -3811,6 +3813,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 171209: ///< Load Crate (Iron Dockworker - Iron Maidens intro)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 158008: ///< Bloodsoaked Heartseeker - Cast (Marak the Blooded - Iron Maidens)
+                spellInfo->SpellPowers.clear();
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
@@ -7499,6 +7504,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156637: ///< Rapid Fire - AoE (Admiral Gar'an - Iron Maidens)
             case 158078: ///< Blood Ritual - AoE (Marak the Blooded - Iron Maidens)
             case 164279: ///< Penetrating Shot (Admiral Gar'an - Iron Maidens)
+            case 156610: ///< Sanguine Strikes - proc (Marak the Blooded - Iron Maidens)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:
