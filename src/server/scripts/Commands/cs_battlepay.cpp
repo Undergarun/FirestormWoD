@@ -132,12 +132,16 @@ class battlepay_commandscript: public CommandScript
                         if (l_ItemEntry != nullptr)
                             l_FileDataID = l_ItemEntry->DisplayId;
                     }
+
+                    l_Description[0] = "|itemid|" + std::to_string(l_ItemID) + "|";
+                    l_Description[1] = l_Description[0];
+                    l_Description[2] = l_Description[1];
                 }
 
                 l_StrBuilder << "INSERT INTO `battlepay_shop_entry` (GroupID, ProductID, Ordering, Flags, BannerType, DisplayInfoID) VALUES (" << l_Group << ",@PRODUCTID, @ORDER, 0, 0, 0);" << std::endl;
                 l_StrBuilder << "INSERT INTO `battlepay_product` (ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, ChoiceType, Flags, DisplayInfoID) VALUES (" << "@PRODUCTID" << "," << l_Price << "," << l_FakePrice << ",0,2,47," << "@DISPLAYINFOID" << ");" << std::endl;
                 l_StrBuilder << "INSERT INTO `battlepay_product_item` (ProductID, ItemID, Quantity, DisplayID, PetResult) VALUES (" << "@PRODUCTID" << "," << l_ItemID << ",1,0,0);" << std::endl;
-                l_StrBuilder << "INSERT INTO `battlepay_display_info` (DisplayInfoId, CreatureDisplayInfoID, FileDataID, Name1, Name2, Name3, Flags) VALUES (" << "@DISPLAYINFOID" << "," << l_CreatureDisplayInfoID << "," << l_FileDataID << ",\"" << l_Item->Name1->Get(LocaleConstant::LOCALE_enUS) << "\", '',\"" << "" << "\", 0);" << std::endl;
+                l_StrBuilder << "INSERT INTO `battlepay_display_info` (DisplayInfoId, CreatureDisplayInfoID, FileDataID, Name1, Name2, Name3, Flags) VALUES (" << "@DISPLAYINFOID" << "," << l_CreatureDisplayInfoID << "," << l_FileDataID << ",\"" << l_Item->Name1->Get(LocaleConstant::LOCALE_enUS) << "\", '',\"" << l_Description[0] << "\", 0);" << std::endl;
                 l_StrBuilder << "INSERT INTO `locales_battlepay_display_info` (DisplayInfoID, Name_loc2, Name_loc6, Name_loc7, Description_loc2, Description_loc6, Description_loc7) VALUES (@DISPLAYINFOID,\"" << l_Item->Name1->Get(LocaleConstant::LOCALE_frFR) << "\",\"" << l_Item->Name1->Get(LocaleConstant::LOCALE_esES) << "\",\"" << l_Item->Name1->Get(LocaleConstant::LOCALE_esES) << "\",\"" << l_Description[1] << "\",\"" << l_Description[2] << "\",\"" << l_Description[2] << "\");" << std::endl;
                 l_StrBuilder << "SET @PRODUCTID := @PRODUCTID + 1;" << std::endl;
                 l_StrBuilder << "SET @ORDER := @ORDER + 1;" << std::endl;
