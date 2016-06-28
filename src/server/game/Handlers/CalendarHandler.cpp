@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -571,3 +572,4 @@ void WorldSession::SendCalendarRaidLockout(InstanceSave const* /*save*/, bool /*
     data << uint64(save->GetInstanceId());
     SendPacket(&data);*/
 }
+#endif

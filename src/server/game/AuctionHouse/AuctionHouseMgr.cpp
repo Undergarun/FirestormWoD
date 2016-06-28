@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifnef CROSS
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
@@ -852,3 +853,4 @@ std::string AuctionEntry::BuildAuctionMailBody(uint32 p_LowGUID, uint64 p_BID, u
 
     return l_Body.str();
 }
+#endif

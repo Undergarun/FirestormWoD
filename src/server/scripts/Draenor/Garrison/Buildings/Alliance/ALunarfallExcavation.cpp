@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "../Horde/HFrostwallMines.hpp"
 #include "ALunarfallExcavation.hpp"
 #include "ScriptMgr.h"
@@ -272,3 +273,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

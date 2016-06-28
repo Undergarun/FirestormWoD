@@ -13,6 +13,7 @@ Comment: All guild related commands
 Category: commandscripts
 EndScriptData */
 
+#ifndef CROSS
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "Guild.h"
@@ -291,4 +292,5 @@ void AddSC_guild_commandscript()
 {
     new guild_commandscript();
 }
+#endif
 #endif

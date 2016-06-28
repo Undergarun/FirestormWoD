@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 # ifndef _BATTLEPAY_MGR_HPP
 # define _BATTLEPAY_MGR_HPP
 
@@ -386,4 +387,5 @@ namespace Battlepay
 }
 
 #define sBattlepayMgr ACE_Singleton<Battlepay::Manager, ACE_Null_Mutex>::instance()
+#endif
 #endif

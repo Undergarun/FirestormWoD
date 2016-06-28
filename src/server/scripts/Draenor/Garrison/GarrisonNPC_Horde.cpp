@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "Common.h"
 #include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
@@ -599,3 +600,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

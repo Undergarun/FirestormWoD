@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "DatabaseEnv.h"
 #include "Mail.h"
 #include "WorldPacket.h"
@@ -791,3 +792,4 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
 
     SendPacket(&l_Data);
 }
+#endif

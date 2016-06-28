@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "GarrisonQuest.hpp"
 #include "Buildings/BuildingScripts.hpp"
 #include "ScriptMgr.h"
@@ -701,4 +702,5 @@ void AddSC_Garrison_Quest()
     new MS::Garrison::playerScript_Garrison_Quests_Phases;
     new MS::Garrison::spell_learning_blueprint;
 }
+#endif
 #endif

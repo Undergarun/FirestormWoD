@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_SHIPMENT_MANAGER_HPP_GARRISON
 # define GARRISON_SHIPMENT_MANAGER_HPP_GARRISON
 
@@ -44,3 +45,4 @@ namespace MS { namespace Garrison
 #define sGarrisonShipmentManager ACE_Singleton<MS::Garrison::ShipmentManager, ACE_Null_Mutex>::instance()
 
 #endif  ///< GARRISON_SHIPMENT_MANAGER_HPP_GARRISON
+#endif

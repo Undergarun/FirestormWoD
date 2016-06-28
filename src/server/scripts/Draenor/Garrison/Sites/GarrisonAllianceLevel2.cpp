@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "GarrisonAllianceLevel2.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -338,4 +339,5 @@ void AddSC_Garrison_A2()
 {
     new MS::Garrison::Sites::InstanceMapScript_GarrisonAllianceLevel2();
 }
+#endif
 #endif

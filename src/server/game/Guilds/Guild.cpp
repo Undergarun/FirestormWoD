@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "DatabaseEnv.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -3694,3 +3695,4 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& p_Data)
         p_Data.FlushBits();
     }
 }
+#endif

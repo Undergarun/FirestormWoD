@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "Common.h"
 #include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
@@ -1667,4 +1668,5 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_FleetCommandTable;
     }
 }
+#endif
 #endif

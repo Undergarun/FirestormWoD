@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "ALunarfallInn.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -222,3 +223,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

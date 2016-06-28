@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef __TRINITY_GUILDFINDER_H
 #define __TRINITY_GUILDFINDER_H
 
@@ -284,3 +285,4 @@ class GuildFinderMgr
 #define sGuildFinderMgr ACE_Singleton<GuildFinderMgr, ACE_Null_Mutex>::instance()
 
 #endif // __TRINITY_GUILDFINDER_H
+#endif

@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "ATheTannery.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -185,3 +186,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

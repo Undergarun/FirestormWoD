@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_THE_FORGE_HORDE_HPP_GARRISON
 #define GARRISON_THE_FORGE_HORDE_HPP_GARRISON
 
@@ -112,3 +113,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_THE_FORGE_HORDE_HPP_GARRISON
+#endif

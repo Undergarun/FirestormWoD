@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef TRINITY_CALENDARMGR_H
 #define TRINITY_CALENDARMGR_H
 
@@ -329,4 +330,5 @@ class CalendarMgr
 
 #define sCalendarMgr CalendarMgr::instance()
 
+#endif
 #endif

@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_BUILDING_HPP_GARRISON
 #define GARRISON_BUILDING_HPP_GARRISON
 
@@ -51,3 +52,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_BUILDING_HPP_GARRISON
+#endif

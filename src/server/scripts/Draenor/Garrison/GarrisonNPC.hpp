@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_NPC_HPP_GARRISON
 # define GARRISON_NPC_HPP_GARRISON
 
@@ -970,3 +971,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_NPC_HPP_GARRISON
+#endif

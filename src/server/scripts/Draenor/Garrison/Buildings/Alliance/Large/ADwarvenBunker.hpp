@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_DWARVEN_BUNKER_ALLIANCE_HPP_GARRISON
 #define GARRISON_DWARVEN_BUNKER_ALLIANCE_HPP_GARRISON
 
@@ -80,3 +81,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_DWARVEN_BUNKER_ALLIANCE_HPP_GARRISON
+#endif

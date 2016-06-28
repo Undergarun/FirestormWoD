@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "HSpiritLodge.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../../GarrisonScriptData.hpp"
@@ -151,3 +152,4 @@ namespace MS { namespace Garrison
     }
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

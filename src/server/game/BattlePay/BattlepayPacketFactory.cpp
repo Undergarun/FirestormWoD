@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "BattlepayPacketFactory.h"
 #include "Chat.h"
 #include "ObjectMgr.h"
@@ -277,3 +278,4 @@ namespace Battlepay
         }
     }
 }
+#endif

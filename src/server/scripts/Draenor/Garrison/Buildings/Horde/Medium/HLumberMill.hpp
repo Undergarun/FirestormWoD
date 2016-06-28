@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_LUMBER_MILL_HORDE_HPP_GARRISON
 #define GARRISON_LUMBER_MILL_HORDE_HPP_GARRISON
 
@@ -75,3 +76,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_LUMBER_MILL_HORDE_HPP_GARRISON
+#endif

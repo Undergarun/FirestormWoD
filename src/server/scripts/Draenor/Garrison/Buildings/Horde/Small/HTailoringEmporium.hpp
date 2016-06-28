@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_TAILORING_EMPORIUM_HORDE_HPP_GARRISON
+#ifndef CROSS
 #define GARRISON_TAILORING_EMPORIUM_HORDE_HPP_GARRISON
 
 #include "../../../GarrisonScriptData.hpp"
@@ -111,3 +112,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_TAILORING_EMPORIUM_HORDE_HPP_GARRISON
+#endif

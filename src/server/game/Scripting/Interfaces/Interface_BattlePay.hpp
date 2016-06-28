@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifnedef CROSS
 #pragma once
 #ifndef SCRIPTING_INTERFACES_BATTLEPAY_HPP_INCLUDED
 #define SCRIPTING_INTERFACES_BATTLEPAY_HPP_INCLUDED
@@ -47,3 +48,4 @@ class BattlePayProductScript : public ScriptObjectImpl<false>
 };
 
 #endif  ///< SCRIPTING_INTERFACES_BATTLEPAY_HPP_INCLUDED
+#endif

@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_CONSTANTS_HPP_GARRISON
 #define GARRISON_CONSTANTS_HPP_GARRISON
 
@@ -668,3 +669,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_CONSTANTS_HPP_GARRISON
+#endif

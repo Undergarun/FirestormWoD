@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef CROSS
 #include "Common.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -704,3 +705,4 @@ void WorldSession::HandleGuildRequestGuildRecipes(WorldPacket& p_Packet)
             l_Guild->SendGuildRecipes(this);
     }
 }
+#endif

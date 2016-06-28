@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_SITE_HPP_INTERFACES
 #define GARRISON_SITE_HPP_INTERFACES
 
@@ -88,3 +89,4 @@ namespace MS { namespace Garrison { namespace Interfaces
 }   ///< namespace MS
 
 #endif  ///< GARRISON_SITE_HPP_INTERFACES
+#endif

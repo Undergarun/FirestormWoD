@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "Common.h"
 #include "TicketMgr.h"
 #include "DatabaseEnv.h"
@@ -502,3 +503,4 @@ void TicketMgr::SendTicket(WorldSession* p_Session, GmTicket* p_Ticket) const
             p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_DELETED");
     }
 }
+#endif

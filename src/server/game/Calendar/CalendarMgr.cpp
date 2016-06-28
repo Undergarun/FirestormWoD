@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "CalendarMgr.h"
 #include "QueryResult.h"
 #include "Log.h"
@@ -705,3 +706,4 @@ void CalendarMgr::SendPacketToAllEventRelatives(WorldPacket& p_Packet, CalendarE
     }
 }
 /////////////////////////////////////////////////////////////////////
+#endif

@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_ENGINEERING_WORKS_ALLIANCE_HPP_GARRISON
+#ifndef CROSS
 #define GARRISON_ENGINEERING_WORKS_ALLIANCE_HPP_GARRISON
 
 #include "../../../GarrisonScriptData.hpp"
@@ -113,3 +114,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_ENGINEERING_WORKS_ALLIANCE_HPP_GARRISON
+#endif

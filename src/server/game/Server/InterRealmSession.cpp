@@ -1,3 +1,4 @@
+#ifndef CROSS
 #include "InterRealmOpcodes.h"
 #include "InterRealmSession.h"
 #include "World.h"
@@ -1926,3 +1927,4 @@ void InterRealmSession::Update(const uint32 diff)
         }
     }
 }
+#endif

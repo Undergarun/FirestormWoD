@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_GLADIATORS_SANCTUM_ALLIANCE_GARRISON
 #define GARRISON_GLADIATORS_SANCTUM_ALLIANCE_GARRISON
 
@@ -108,3 +109,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_GLADIATORS_SANCTUM_ALLIANCE_GARRISON
+#endif

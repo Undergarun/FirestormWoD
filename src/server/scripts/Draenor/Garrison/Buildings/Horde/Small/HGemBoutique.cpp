@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "HGemBoutique.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -170,3 +171,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

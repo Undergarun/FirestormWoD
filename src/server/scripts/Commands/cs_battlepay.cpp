@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "AccountMgr.h"
@@ -299,4 +300,5 @@ void AddSC_battlepay_commandscript()
 {
     new battlepay_commandscript();
 }
+#endif
 #endif

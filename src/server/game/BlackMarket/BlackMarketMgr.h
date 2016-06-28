@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef _BLACK_MARKET_MGR_H
 #define _BLACK_MARKET_MGR_H
 
@@ -136,4 +137,5 @@ class BlackMarketMgr
 
 #define sBlackMarketMgr ACE_Singleton<BlackMarketMgr, ACE_Null_Mutex>::instance()
 
+#endif
 #endif

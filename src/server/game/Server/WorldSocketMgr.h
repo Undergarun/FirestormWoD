@@ -12,6 +12,7 @@
  *  \author Derex <derex101@gmail.com>
  */
 
+#ifndef CROSS
 #ifndef __WORLDSOCKETMGR_H
 #define __WORLDSOCKETMGR_H
 
@@ -60,3 +61,4 @@ private:
 
 #endif
 /// @}
+#endif

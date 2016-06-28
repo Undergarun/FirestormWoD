@@ -116,17 +116,13 @@ set(game_STAT_SRCS
   ${sources_Spells}
   ${sources_Texts}
   ${sources_Tools}
-#ifndef CROSS
   ${sources_Tickets}
-#endif /* not CROSS */
   ${sources_Warden}
   ${sources_Weather}
   ${sources_World}
   ${sources_Cinematic}
   ${sources_PetBattle}
-#ifndef CROSS
   ${sources_Garrison}
-#endif /* not CROSS */
   ${sources_shared_ptrs}
   ${sources_Vignette}
 )

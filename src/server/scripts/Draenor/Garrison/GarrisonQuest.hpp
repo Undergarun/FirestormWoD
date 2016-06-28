@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_QUEST_HPP_GARRISON
+#ifndef CROSS
 #define GARRISON_QUEST_HPP_GARRISON
 
 #include "GarrisonScriptData.hpp"
@@ -92,3 +93,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_QUEST_HPP_GARRISON
+#endif

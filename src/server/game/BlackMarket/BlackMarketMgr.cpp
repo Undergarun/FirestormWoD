@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "Common.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -371,3 +372,4 @@ void BlackMarketMgr::SendAuctionWon(BMAuctionEntry* p_Auction, SQLTransaction& p
     .AddItem(l_Item)
     .SendMailTo(p_Transaction, MailReceiver(l_Bidder, p_Auction->bidder), MailSender(p_Auction), MAIL_CHECK_MASK_COPIED);
 }
+#endif

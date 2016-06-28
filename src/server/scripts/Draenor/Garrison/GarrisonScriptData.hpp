@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_SCRIPT_DATA_HPP_GARRISON
+#ifndef CROSS
 #define GARRISON_SCRIPT_DATA_HPP_GARRISON
 
 #include "ScriptMgr.h"
@@ -1525,3 +1526,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_SCRIPT_DATA_HPP_GARRISON
+#endif

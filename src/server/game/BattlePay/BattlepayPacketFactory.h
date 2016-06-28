@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 # ifndef _BATTLEPAY_PACKET_FACTORY_HPP
 # define _BATTLEPAY_PACKET_FACTORY_HPP
 
@@ -145,3 +146,4 @@ namespace Battlepay
 }
 
 # endif
+#endif

@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_GOBLIN_WORKSHOP_HORDE_HPP_GARRISON
+#ifndef CROSS
 #define GARRISON_GOBLIN_WORKSHOP_HORDE_HPP_GARRISON
 
 #include "../../../GarrisonScriptData.hpp"
@@ -70,3 +71,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_GOBLIN_WORKSHOP_HORDE_HPP_GARRISON
+#endif

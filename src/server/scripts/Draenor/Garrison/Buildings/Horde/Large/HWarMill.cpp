@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "HWarMill.hpp"
 #include "HWarMill_Level1Data.hpp"
 #include "ScriptMgr.h"
@@ -267,3 +268,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

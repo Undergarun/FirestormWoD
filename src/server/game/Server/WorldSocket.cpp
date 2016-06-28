@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include <ace/Message_Block.h>
 #include <ace/OS_NS_string.h>
 #include <ace/OS_NS_unistd.h>
@@ -1374,3 +1375,4 @@ int WorldSocket::HandlePing(WorldPacket& recvPacket)
     packet << ping;
     return SendPacket(packet);
 }
+#endif

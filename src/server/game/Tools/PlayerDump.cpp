@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "gamePCH.h"
 #include "Common.h"
 #include "PlayerDump.h"
@@ -1186,3 +1187,4 @@ void PlayerDump::LoadColumnsName()
         }
     }
 }
+#endif

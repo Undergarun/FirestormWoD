@@ -1,3 +1,4 @@
+#ifndef CROSS
 #include "ScriptMgr.h"
 #include "GameEventMgr.h"
 #include "Chat.h"
@@ -983,4 +984,5 @@ void AddSC_garrison_commandscript()
 {
     new garrison_commandscript();
 }
+#endif
 #endif

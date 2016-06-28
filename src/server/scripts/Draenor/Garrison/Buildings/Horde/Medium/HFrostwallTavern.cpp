@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "../../Alliance/Medium/ALunarfallInn.hpp"
 #include "HFrostwallTavern.hpp"
 #include "ScriptMgr.h"
@@ -226,3 +227,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

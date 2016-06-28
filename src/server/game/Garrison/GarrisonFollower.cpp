@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "GarrisonFollower.hpp"
 #include "GarrisonMgrConstants.hpp"
 #include "DB2Stores.h"
@@ -222,3 +223,4 @@ namespace MS { namespace Garrison
     }
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif
