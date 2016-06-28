@@ -4806,7 +4806,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
     bool dependent_set = false;
     bool disabled_case = false;
-    bool superceded_old = false;
 
     PlayerSpellMap::iterator itr = m_spells.find(spellId);
 
@@ -4817,7 +4816,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     {
         uint32 next_active_spell_id = 0;
         // fix activate state for non-stackable low rank (and find next spell for !active case)
-        if (!spellInfo->IsStackableWithRanks() && spellInfo->IsRanked())
+        if (spellInfo->IsRanked())
         {
             if (uint32 next = sSpellMgr->GetNextSpellInChain(spellId))
             {
@@ -4941,8 +4940,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         newspell->IsMountFavorite = p_IsMountFavorite;
         newspell->FromShopItem    = p_FromShopItem;
 
-        // replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
-        if (newspell->active && !newspell->disabled && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked() != 0)
+        /// replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
+        if (newspell->active && !newspell->disabled && spellInfo->IsRanked())
         {
             WorldPacket l_Data(SMSG_SUPERCEDED_SPELL);
 
@@ -4975,7 +4974,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                             l_Iter->second->active = false;
                             if (l_Iter->second->state != PLAYERSPELL_NEW)
                                 l_Iter->second->state = PLAYERSPELL_CHANGED;
-                            superceded_old = true;          // new spell replace old in action bars and spell book.
                         }
                         else
                         {
@@ -5191,7 +5189,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     }
 
     // return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
-    return active && !disabled && !superceded_old;
+    return active && !disabled;
 }
 
 void Player::AddTemporarySpell(uint32 spellId)
@@ -5449,7 +5447,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     if (uint32 prev_id = sSpellMgr->GetPrevSpellInChain(spell_id))
     {
-        if (cur_active && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked())
+        if (cur_active && spellInfo->IsRanked())
         {
             // need manually update dependence state (learn spell ignore like attempts)
             PlayerSpellMap::iterator prev_itr = m_spells.find(prev_id);
@@ -18659,6 +18657,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     sScriptMgr->OnQuestAccept(this, quest);
 
+    if (quest->QuestObjectives.empty())
+        CompleteQuest(quest->GetQuestId());
+
     HandleAutoCompleteQuest(quest);
 }
 
@@ -18816,15 +18817,8 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                             float l_Roll = frand(0.0f, 100.0f);
                             float l_Coeff = 1.0f;
 
-                            if (GetGarrison())
-                            {
-                                bool l_Level1 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level1);
-                                bool l_Level2 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level2);
-                                bool l_Level3 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level3);
-
-                                if (l_Level1 || l_Level2 || l_Level3)
-                                    l_Coeff *= 2.0f;
-                            }
+                            if (GetGarrison() && GetGarrison()->HasBuildingType(MS::Garrison::Building::Type::Armory))
+                                l_Coeff *= 2.0f;
 
                             //bool  l_SendDisplayToast = false;
 

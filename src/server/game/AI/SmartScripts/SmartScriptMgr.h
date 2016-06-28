@@ -537,6 +537,7 @@ enum SMART_ACTION
     SMART_ACTION_UPDATE_PLOT_INSTANCE               = 1003,
     SMART_ACTION_PLAY_SCENE_OBJECT                  = 1004,
     SMART_ACTION_ENTER_LFG_QUEUE                    = 1005,
+    SMART_ACTION_PLAY_CINEMATIC                     = 1006,
 
     SMART_ACTION_END
 };
@@ -1050,6 +1051,10 @@ struct SmartAction
             uint32 DungeonID;
             uint32 RoleMask;
         } enterLfgQueue;
+        struct
+        {
+            uint32 CinematicID;
+        } playCinematic;
 
         //! Note for any new future actions
         //! All parameters must have type uint32

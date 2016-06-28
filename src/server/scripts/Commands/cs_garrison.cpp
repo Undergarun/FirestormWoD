@@ -77,7 +77,7 @@ class garrison_commandscript: public CommandScript
                 { "setlevel",  SEC_ADMINISTRATOR,  true,   &HandleGarrisonSetLevel,     "", NULL },
                 { "create",    SEC_ADMINISTRATOR,  true,   &HandleGarrisonCreate,       "", NULL },
                 { "prepare",   SEC_ADMINISTRATOR,  true,   &HandleGarrisonPrepare,       "", NULL },
-                { "delete",    SEC_ADMINISTRATOR,  true,   &HandleGarrisonDelete,       "", NULL },
+                { "delete",    SEC_CONSOLE,        true,   &HandleGarrisonDelete,       "", NULL },
                 { "resetdata", SEC_ADMINISTRATOR,  true,   &HandleGarrisonResetDatas,   "", NULL },
                 { NULL,        0,                  false,  NULL,                        "", NULL }
             };

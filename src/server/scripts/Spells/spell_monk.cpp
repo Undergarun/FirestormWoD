@@ -3218,9 +3218,6 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 if (l_Target->HasAura(SPELL_MONK_SOOTHING_MIST_VISUAL))
                     l_Target->RemoveAura(SPELL_MONK_SOOTHING_MIST_VISUAL);
 
-                if (l_Caster->HasAura(eSpells::Mistweaving))
-                    l_Caster->RemoveAura(eSpells::Mistweaving);
-
                 if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_SHOOTING_MIST_AURA))
                 {
                     SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_GLYPH_OF_SHOOTING_MIST_AURA);
