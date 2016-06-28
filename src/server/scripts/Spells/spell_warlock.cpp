@@ -1457,6 +1457,12 @@ class spell_warl_soul_leech: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_soul_leech_SpellScript);
 
+            enum eSpells
+            {
+                DrainSoul = 103103
+            };
+
+            int32 l_SpellID[12] = {48181 , 103103, 686, 6353, 104027, 103964, 6353, 104027, 29722, 17877, 116858, 108370};
             void HandleAfterHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -1468,8 +1474,10 @@ class spell_warl_soul_leech: public SpellScriptLoader
                 if (!l_Player->HasAura(WARLOCK_SOUL_LEECH_AURA))
                     return;
 
-                int32 l_Bp = l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, GetSpellInfo()->Id);
-
+                int32 l_Bp = 0;
+                
+                for (int i = 0; i < 12; ++i)
+                    l_Bp += l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, l_SpellID[i]);
                 /// Affliction - 30%
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_WARLOCK_AFFLICTION)
                     l_Bp = CalculatePct(l_Bp, 30);
@@ -1483,15 +1491,68 @@ class spell_warl_soul_leech: public SpellScriptLoader
                 l_Player->CastCustomSpell(l_Player, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
             }
 
-            void Register()
+            void Register() override
             {
-                AfterHit += SpellHitFn(spell_warl_soul_leech_SpellScript::HandleAfterHit);
+                if (m_scriptSpellId != eSpells::DrainSoul)
+                    AfterHit += SpellHitFn(spell_warl_soul_leech_SpellScript::HandleAfterHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        class spell_warl_soul_leech_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_soul_leech_AuraScript);
+
+            enum eSpells
+            {
+                DrainSoul = 103103
+            };
+
+            int32 l_SpellID[12] = { 48181 , 103103, 686, 6353, 104027, 103964, 6353, 104027, 29722, 17877, 116858, 108370 };
+            void OnTick(AuraEffect const* /*aurEff*/)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_SOUL_LEECH_AURA);
+
+                if (l_Player == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (!l_Player->HasAura(WARLOCK_SOUL_LEECH_AURA))
+                    return;
+
+                int l_Bp = 0;
+                for (int i = 0; i < 12; ++i)
+                    l_Bp += l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, l_SpellID[i]);
+                /// Affliction - 30%
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_WARLOCK_AFFLICTION)
+                    l_Bp = CalculatePct(l_Bp, 30);
+                /// Demonology and Destruction - 15%
+                else
+                    l_Bp = CalculatePct(l_Bp, 15);
+
+                if (Pet* l_Pet = l_Player->GetPet())
+                    l_Player->CastCustomSpell(l_Pet, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+
+                l_Player->CastCustomSpell(l_Player, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+            }
+
+            void Register() override
+            {
+                if (m_scriptSpellId != eSpells::DrainSoul)
+                    AfterEffectPeriodic += AuraEffectPeriodicFn(spell_warl_soul_leech_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
             return new spell_warl_soul_leech_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warl_soul_leech_AuraScript();
         }
 };
 
