@@ -532,9 +532,6 @@ public:
     {
 #ifndef CROSS
         if (!*args)
-#else /* CROSS */
-        /*if (!*args)
-#endif /* CROSS */
             return false;
 
         char* id = strtok((char*)args, " ");
@@ -561,11 +558,8 @@ public:
         else
             player->SaveRecallPosition();
 
-#ifndef CROSS
         ticket->TeleportTo(player);
-#else /* CROSS */
-        ticket->TeleportTo(player);*/
-#endif /* CROSS */
+#endif
         return true;
     }
 

@@ -1,11 +1,5 @@
-#ifndef CROSS
 #ifndef INTERREALM_OPCODES_H
 #define INTERREALM_OPCODES_H
-#else /* CROSS */
-
-#ifndef INTERREALM_OPCODES_H_
-#define INTERREALM_OPCODES_H_
-#endif /* CROSS */
 
 #include "WorldPacket.h"
 #ifndef CROSS

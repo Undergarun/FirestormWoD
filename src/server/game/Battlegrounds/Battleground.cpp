@@ -970,23 +970,17 @@ void Battleground::EndBattleground(uint32 p_Winner)
                 if (!l_Player)
                     continue;
 
+                /// @TODO: Cross sync
 #ifndef CROSS
                 if (l_Player->GetGroup() && l_Player->GetGroup()->IsGuildGroup(0, true, true))
-#else /* CROSS */
-                /// @TODO: Cross sync
-                /*if (l_Player->GetGroup() && l_Player->GetGroup()->IsGuildGroup(0, true, true))
-#endif /* CROSS */
                 {
                     if (Guild* l_Guild = l_Player->GetGuild())
                     {
                         l_Guild->CompleteGuildChallenge(ChallengeRatedBG);
                         break;
                     }
-#ifndef CROSS
                 }
-#else /* CROSS */
-                }*/
-#endif /* CROSS */
+#endif
             }
         }
     }
@@ -1172,13 +1166,11 @@ void Battleground::EndBattleground(uint32 p_Winner)
             }
 
             l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
-#ifndef CROSS
             if (!guildAwarded)
-#else /* CROSS */
 
             /// @TODO: Cross sync
-            /*if (!guildAwarded)
-#endif /* CROSS */
+#ifndef CROSS
+            if (!guildAwarded)
             {
                 guildAwarded = true;
                 if (uint32 guildId = GetBgMap()->GetOwnerGuildId(l_Player->GetTeam()))
@@ -1188,11 +1180,8 @@ void Battleground::EndBattleground(uint32 p_Winner)
                         if (isArena() && !IsSkirmish() && winner_team && loser_team && winner_team != loser_team)
                             guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winner_team->GetRating(Arena::GetSlotByType(GetArenaType())), 1), 0, 0, nullptr, l_Player);
                     }
-#ifndef CROSS
             }
-#else /* CROSS */
-            }*/
-#endif /* CROSS */
+#endif
         }
         else
         {

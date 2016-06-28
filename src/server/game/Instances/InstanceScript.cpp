@@ -398,15 +398,10 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                         }
                     }
 
-#ifdef CROSS
                     /// @TODO: cross sync
-#endif /* CROSS */
+                    #ifndef CROSS
                     /// Handle Guild challenges
-#ifndef CROSS
                     {
-#else /* CROSS */
-                    /*{
-#endif /* CROSS */
                         InstanceMap::PlayerList const& l_PlayersMap = instance->GetPlayers();
                         for (InstanceMap::PlayerList::const_iterator l_Itr = l_PlayersMap.begin(); l_Itr != l_PlayersMap.end(); ++l_Itr)
                         {
@@ -427,11 +422,8 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                                 }
                             }
                         }
-#ifndef CROSS
                     }
-#else /* CROSS */
-                    }*/
-#endif /* CROSS */
+                    #endif
 
                     m_EncounterTime = 0;
 

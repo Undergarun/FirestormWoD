@@ -412,9 +412,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     }
 
     uint64 l_RequesterGuid = 0;
-#else /* CROSS */
-    /*uint64 l_RequesterGuid = 0;
-#endif /* CROSS */
     uint32 l_QueueSlotID = 0;                           ///< guessed
     uint32 l_Time = 0;
     uint32 l_Type = 0;                                  ///< type id from dbc
@@ -436,7 +433,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
         return;
     }
 
-#ifndef CROSS
     if (l_InterRealmEnable)
     {
         if (l_AcceptedInvite == 1)
@@ -942,13 +938,8 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
     if (m_Player->InBattleground())
         return;
 
-#ifndef CROSS
     uint32 l_ArenaRating        = 0;
     uint32 l_MatchmakerRating   = 0;
-#else /* CROSS */
-    uint32 l_ArenaRating = 0;
-    uint32 l_MatchmakerRating = 0;
-#endif /* CROSS */
 
     ArenaType l_ArenaType = Arena::GetTypeBySlot(l_TeamSizeIndex);
 
@@ -967,19 +958,12 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
         return;
     }
 
-#ifndef CROSS
-    BattlegroundTypeId      l_BGTypeId      = l_Battleground->GetTypeID();
-#else /* CROSS */
+
     BattlegroundTypeId      l_BGTypeId = l_Battleground->GetTypeID();
-#endif /* CROSS */
     MS::Battlegrounds::BattlegroundType::Type l_BGQueueTypeID = MS::Battlegrounds::GetTypeFromId(l_BGTypeId, l_ArenaType);
 
     MS::Battlegrounds::Bracket const* l_BracketEntry = MS::Battlegrounds::Brackets::FindForLevel(m_Player->getLevel());
-#ifndef CROSS
-    
-#else /* CROSS */
 
-#endif /* CROSS */
     if (!l_BracketEntry)
         return;
 
@@ -1000,13 +984,8 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
     {
         if (const Player * l_GroupMember = l_GroupReference->getSource())
         {
-#ifndef CROSS
             l_ArenaRating       += l_GroupMember->GetArenaPersonalRating(l_TeamSizeIndex);
             l_MatchmakerRating  += l_GroupMember->GetArenaMatchMakerRating(l_TeamSizeIndex);
-#else /* CROSS */
-            l_ArenaRating += l_GroupMember->GetArenaPersonalRating(l_TeamSizeIndex);
-            l_MatchmakerRating += l_GroupMember->GetArenaMatchMakerRating(l_TeamSizeIndex);
-#endif /* CROSS */
 
             ++l_PlayerDivider;
         }
@@ -1015,13 +994,8 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
     if (!l_PlayerDivider)
         return;
 
-#ifndef CROSS
     l_ArenaRating       /= l_PlayerDivider;
     l_MatchmakerRating  /= l_PlayerDivider;
-#else /* CROSS */
-    l_ArenaRating /= l_PlayerDivider;
-    l_MatchmakerRating /= l_PlayerDivider;
-#endif /* CROSS */
 
     if (l_ArenaRating <= 0)
         l_ArenaRating = 1;
@@ -1036,11 +1010,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
     GroupQueueInfo * l_GroupQueueInfo = nullptr;
 
     l_ResultError = l_Group->CanJoinBattlegroundQueue(l_Battleground, l_BGQueueTypeID, l_ArenaType);
-#ifndef CROSS
-    
-#else /* CROSS */
 
-#endif /* CROSS */
     if (!l_ResultError || (l_ResultError && sBattlegroundMgr->isArenaTesting()))
     {
 #ifndef CROSS

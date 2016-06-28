@@ -45,24 +45,6 @@ public:
 
     static bool HandleResetAchievementsCommand(ChatHandler* handler, char const* args)
     {
-#ifndef CROSS
-        Player* target;
-#else /* CROSS */
-        /*Player* target;
-#endif /* CROSS */
-        uint64 targetGuid;
-        if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid))
-            return false;
-
-        if (target)
-            target->GetAchievementMgr().Reset();
-        else
-#ifndef CROSS
-            AchievementMgr<Player>::DeleteFromDB(GUID_LOPART(targetGuid));
-#else /* CROSS */
-            AchievementMgr<Player>::DeleteFromDB(GUID_LOPART(targetGuid));*/
-#endif /* CROSS */
-
         return true;
     }
 

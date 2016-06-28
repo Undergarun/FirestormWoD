@@ -6,8 +6,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifnedef CROSS
+
 #pragma once
+#ifndef CROSS
 #ifndef SCRIPTING_INTERFACES_BATTLEPAY_HPP_INCLUDED
 #define SCRIPTING_INTERFACES_BATTLEPAY_HPP_INCLUDED
 

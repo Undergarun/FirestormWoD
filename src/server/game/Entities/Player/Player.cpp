@@ -9660,13 +9660,10 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, 1, 0, 0, victim);
 
 #ifndef CROSS
+            /// @TODO: cross sync
             if (Guild* l_Guild = GetGuild())
                 l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD, 1, 0, 0, nullptr, this);
-#else /* CROSS */
-            /// @TODO: cross sync
-            //if (Guild* l_Guild = GetGuild())
-            //    l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD, 1, 0, 0, nullptr, this);
-#endif /* CROSS */
+#endif
         }
         else
         {
@@ -10287,17 +10284,10 @@ uint8 Player::GetRankFromDB(uint64 guid)
 {
 #ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
-#else /* CROSS */
-    /*PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
-#endif /* CROSS */
     stmt->setUInt32(0, GUID_LOPART(guid));
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-#ifndef CROSS
         return result->Fetch()[1].GetUInt8();
-#else /* CROSS */
-        return result->Fetch()[1].GetUInt8();*/
-#endif /* CROSS */
-
+#endif
     return 0;
 }
 

@@ -333,9 +333,6 @@ public:
     {
 #ifndef CROSS
         char* nameStr;
-#else /* CROSS */
-        /*char* nameStr;
-#endif /* CROSS */
         char* levelStr;
         handler->extractOptFirstArg((char*)args, &nameStr, &levelStr);
         if (!levelStr)
@@ -368,11 +365,8 @@ public:
         {
             std::string nameLink = handler->playerLink(targetName);
             handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, nameLink.c_str(), newlevel);
-#ifndef CROSS
         }
-#else /* CROSS */
-        }*/
-#endif /* CROSS */
+#endif
 
         return true;
     }
@@ -700,9 +694,6 @@ public:
     {
 #ifndef CROSS
         char* nameStr;
-#else /* CROSS */
-        /*char* nameStr;
-#endif /* CROSS */
         char* levelStr;
         handler->extractOptFirstArg((char*)args, &nameStr, &levelStr);
 
@@ -735,11 +726,9 @@ public:
         {
             std::string nameLink = handler->playerLink(targetName);
             handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, nameLink.c_str(), newlevel);
-#ifndef CROSS
         }
-#else /* CROSS */
-        }*/
-#endif /* CROSS */
+
+#endif
 
         return true;
     }

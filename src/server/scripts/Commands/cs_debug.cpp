@@ -2882,24 +2882,16 @@ class debug_commandscript: public CommandScript
         /// This can be reported by static analyse, yes l_Pig is free and make it crash that the point !
         static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
-#ifndef CROSS
             p_Handler->PSendSysMessage("You've crash the server by adding pigs in farm that doesn't exists!");
-#else /* CROSS */
             Player* l_CrashPlayer = nullptr;
             uint64 l_Guid         = GUID_LOPART(l_CrashPlayer->GetPetGUID());
 
             p_Handler->PSendSysMessage("You've crash the server ! (%lu)", l_Guid);
-#endif /* CROSS */
 
             Player* l_Pig = new Player(p_Handler->GetSession());
             delete l_Pig;
-#ifndef CROSS
-#ifndef __clang_analyzer__
-#endif /* not CROSS */
+
             l_Pig->isAFK();
-#ifndef CROSS
-#endif
-#endif /* not CROSS */
             return true;
         }
 
@@ -3537,11 +3529,7 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugPacketProfiler(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
-#ifndef CROSS
             gPacketProfilerMutex.lock();
-#else /* CROSS */
-            /*gPacketProfilerMutex.lock();
-#endif /* CROSS */
             p_Handler->PSendSysMessage("----------------");
 
             for (auto l_Pair : gPacketProfilerData)
@@ -3550,11 +3538,8 @@ class debug_commandscript: public CommandScript
             }
 
             p_Handler->PSendSysMessage("----------------");
-#ifndef CROSS
             gPacketProfilerMutex.unlock();
-#else /* CROSS */
-            gPacketProfilerMutex.unlock();*/
-#endif /* CROSS */
+
             return true;
         }
 
@@ -3942,13 +3927,7 @@ class debug_commandscript: public CommandScript
         }
 };
 
-#ifndef __clang_analyzer__
 void AddSC_debug_commandscript()
 {
     new debug_commandscript();
 }
-#ifndef CROSS
-#endif
-#else /* CROSS */
-#endif
-#endif /* CROSS */

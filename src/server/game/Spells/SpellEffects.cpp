@@ -7513,22 +7513,13 @@ void Spell::EffectUnlockGuildVaultTab(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
-
-#ifdef CROSS
     /// @TODO: cross sync
-#endif /* CROSS */
+#ifndef CROSS
     // Safety checks done in Spell::CheckCast
-#ifndef CROSS
     Player* caster = m_caster->ToPlayer();
-#else /* CROSS */
-    /*Player* caster = m_caster->ToPlayer();
-#endif /* CROSS */
     if (Guild* guild = caster->GetGuild())
-#ifndef CROSS
         guild->HandleBuyBankTab(caster->GetSession(), m_spellInfo->Effects[effIndex].BasePoints - 1); // Bank tabs start at zero internally
-#else /* CROSS */
-        guild->HandleBuyBankTab(caster->GetSession(), m_spellInfo->Effects[effIndex].BasePoints - 1); // Bank tabs start at zero internally*/
-#endif /* CROSS */
+#endif
 }
 
 void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
