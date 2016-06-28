@@ -6167,6 +6167,7 @@ class spell_dru_charm_woodland_creature : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_germination();

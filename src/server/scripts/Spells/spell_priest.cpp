@@ -4597,6 +4597,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_shadowform();
