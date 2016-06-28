@@ -31535,7 +31535,7 @@ Item* Player::AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonus
         l_Item->AddItemBonuses(l_Bonus);
 
         if (p_FromShop)
-            l_Item->SetCustomFlags(ItemCustomFlags::FromStore);
+            l_Item->ApplyCustomFlags(ItemCustomFlags::FromStore);
 
         SendNewItem(l_Item, p_Count, true, false);
 
