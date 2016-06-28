@@ -7,15 +7,11 @@ commit=@COMMIT@
 function sendToSlack {
     msg=$1
     color=$2
-    slack_hook_urls=("https://hooks.slack.com/services/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")
+    slack_hook="https://hooks.slack.com/services/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"
 
-    for hook_url in "${slack_hook_urls[@]}"
-    do
-        curl -X POST \
-             --max-time 15 \
-             --data-urlencode 'payload={"attachments": [{"pretext": "*'"$REALM_VERSION"'*", "text": "'"$msg"'", "color": "'"$color"'", "mrkdwn_in": ["pretext", "text"]}]}' \
-             $hook_url
-    done
+    curl -X POST \
+        --data-urlencode 'payload={"attachments": [{"pretext": "*'"$REALM_VERSION"'*", "text": "'"$msg"'", "color": "'"$color"'", "mrkdwn_in": ["pretext", "text"]}]}' \
+        $slack_hook
 }
 
 function updateSQL {
