@@ -184,6 +184,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
             case SPELL_EFFECT_TEACH_FOLLOWER_ABILITY:
             case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
             case SPELL_EFFECT_FINISH_GARRISON_MISSION:
+            case SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE:
                 l_TargetGUID = pUser->GetGUID();
                 break;
             default:
