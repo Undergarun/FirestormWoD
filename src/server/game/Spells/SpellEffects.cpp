@@ -3886,6 +3886,10 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             std::string l_NewName = sObjectMgr->GeneratePetName(petentry);
             if (!l_NewName.empty())
                 p_Pet->SetName(l_NewName);
+
+            /// Glyph of the Unbound Elemental
+            if (p_Pet->GetEntry() == 78116 && p_Pet->GetOwner() && p_Pet->GetOwner()->HasAura(146976))
+                p_Pet->CastSpell(p_Pet, 147358, true);
         }
     });
 
