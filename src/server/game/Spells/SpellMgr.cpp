@@ -5982,12 +5982,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 136494: ///< Word of Glory (overide by Glyph of Harsh Words
             case 130551: ///< Word of Glory (overide by Glyph of Harsh Words)
-            case 20066: ///< Repentance
+            case 20066:  ///< Repentance
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 114163: ///< Eternal Flame
                 spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 974: ///< Earth Shield
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_HEALING_RECEIVED;
@@ -6530,6 +6531,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 85222: ///< Light of Dawn
                 spellInfo->MaxAffectedTargets = 6;
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 2641: ///< Dismiss Pet
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
