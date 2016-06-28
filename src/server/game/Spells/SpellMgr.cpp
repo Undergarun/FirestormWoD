@@ -6428,6 +6428,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81292:  ///< Glyph of Mind Spike (Shadow)
                 spellInfo->ProcFlags = 0;
                 break;
+            case 7268: ///< Arcane Missile
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
