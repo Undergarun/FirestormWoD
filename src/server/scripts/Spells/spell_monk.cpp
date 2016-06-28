@@ -984,8 +984,9 @@ class spell_monk_dampen_harm: public SpellScriptLoader
         }
 };
 
-// Called by Thunder Focus Tea - 116680
-// Item S12 4P - Mistweaver - 124487
+/// Last Update 6.2.3
+/// Called by Thunder Focus Tea - 116680
+/// Item S12 4P - Mistweaver - 124487
 class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
 {
     public:
@@ -999,7 +1000,7 @@ class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
             {
                 GlyphofZenFocusAura = 159545,
                 GlyphofZenFocus     = 159546,
-                T17Mistweaver4P     = 167718,
+                T17Mistweaver4P     = 167717,
                 ChiEnergizer        = 169719
             };
 
@@ -1013,8 +1014,12 @@ class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
                 if (l_Caster->HasAura(eSpells::GlyphofZenFocusAura))
                     l_Caster->CastSpell(l_Caster, eSpells::GlyphofZenFocus, true);
 
-                if (l_Caster->HasAura(eSpells::T17Mistweaver4P))
-                    l_Caster->CastSpell(l_Caster, eSpells::ChiEnergizer, true);
+                if (Aura* l_Aura = l_Caster->GetAura(eSpells::T17Mistweaver4P))
+                {
+                    for (int i = 0; i < l_Aura->GetStackAmount(); ++i)
+                        l_Caster->CastSpell(l_Caster, eSpells::ChiEnergizer, true);
+                    l_Caster->RemoveAura(l_Aura);
+                }
             }
 
             void Register()
@@ -5892,6 +5897,7 @@ class spell_monk_item_t17_brewmaster_2p_bonus : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Item - Monk T17 Mistweaver 4P Bonus - 167718
 class spell_monk_item_t17_mistweaver_4p_bonus : public SpellScriptLoader
 {
@@ -5905,7 +5911,7 @@ class spell_monk_item_t17_mistweaver_4p_bonus : public SpellScriptLoader
             enum eSpells
             {
                 T17Mistweaver4P = 167718,
-                SurgingMist     = 116694,
+                SurgingMist     = 116995,
                 ChiJisGuidance  = 167717
             };
 
@@ -6075,6 +6081,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_crackling_tiger_lightning();
     new spell_monk_item_t17_brewmaster_2p_bonus();
     new spell_monk_vital_mists();
+    new spell_monk_item_t17_mistweaver_4p_bonus();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
