@@ -9,6 +9,12 @@
 #include "ScriptedCreature.h"
 #include "auchindoun.hpp"
 
+enum eEmotes
+{
+    EMOTE_HELLO_NYAMI = 3,
+ 
+};
+
 Position const g_PositionKaatharCrystalPosition = { 1909.75f, 3188.70f, 66.786f, 5.401960f };
 
 /// 1st Starting Event
@@ -270,7 +276,16 @@ class auchindoun_mob_tuulani : public CreatureScript
             me->SetSpeed(UnitMoveType::MOVE_RUN, 1.2f, true);
             me->SetSpeed(UnitMoveType::MOVE_WALK, 1.2f, true);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-            me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani01, g_PositionTuulaniMovements[0]);
+
+            AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+            {
+                 me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani01, g_PositionTuulaniMovements[0]);
+            });      
+        }
+
+        void UpdateAI(const uint32 p_Diff) override
+        {
+            UpdateOperations(p_Diff);
         }
 
         void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override

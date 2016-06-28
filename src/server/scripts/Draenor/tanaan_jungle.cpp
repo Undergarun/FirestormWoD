@@ -1159,7 +1159,7 @@ class playerScript_add_tanaan_for_max_level : public PlayerScript
 
         void OnLogin(Player* p_Player) override
         {
-            if (p_Player->GetMapId() != TanaanZones::MapTanaan && p_Player->getLevel() == 100 && p_Player->GetQuestStatus(TanaanQuests::QuestStartDraenor) == QUEST_STATUS_NONE)
+            if (p_Player->getLevel() >= 90 && p_Player->GetQuestStatus(TanaanQuests::QuestStartDraenor) == QUEST_STATUS_NONE)
             {
                 if (const Quest* l_StartDraenor = sObjectMgr->GetQuestTemplate(TanaanQuests::QuestStartDraenor))
                     p_Player->AddQuest(l_StartDraenor, nullptr);

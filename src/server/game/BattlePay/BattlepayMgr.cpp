@@ -306,7 +306,7 @@ namespace Battlepay
             {
                 auto l_Item = l_Player->AddItem(l_ItemProduct.ItemID, l_ItemProduct.Quantity);
                 if (l_Item)
-                    l_Item->SetCustomFlags(ItemCustomFlags::FromStore);
+                    l_Item->ApplyCustomFlags(ItemCustomFlags::FromStore);
             }
         }
 
