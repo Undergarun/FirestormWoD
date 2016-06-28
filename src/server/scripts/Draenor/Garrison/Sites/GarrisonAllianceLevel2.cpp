@@ -102,6 +102,8 @@ namespace MS { namespace Garrison { namespace Sites
                 p_Owner->QuestObjectiveSatisfy(39422, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Find Blueprint
                 p_Owner->QuestObjectiveSatisfy(36163, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Learn Blueprint
                 p_Owner->QuestObjectiveSatisfy(36173, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Plot Finalize
+
+                p_Owner->CompleteQuest(Quests::Alliance_BuildYourBarracks);
             }
 
             p_Owner->CompleteQuest(Quests::Alliance_BuildYourBarracks);
