@@ -14,37 +14,6 @@ function sendToSlack {
         $slack_hook
 }
 
-function updateSQL {
-    cat /usr/local/share/firestorm/sql/characters/*.sql > /tmp/characters.sql
-    mysql \
-        -h "$MYSQL_CHAR_ADDR" \
-        -u $MYSQL_CHAR_USER \
-        -p$MYSQL_CHAR_PASSWD \
-        -f \
-        $MYSQL_CHAR_TABLE < /tmp/characters.sql 2> /tmp/sql-updates-errors.log
-
-    cat /usr/local/share/firestorm/sql/world/*.sql > /tmp/world.sql
-    mysql \
-        -h "$MYSQL_WORLD_ADDR" \
-        -u $MYSQL_WORLD_USER \
-        -p$MYSQL_WORLD_PASSWD \
-        -f \
-        $MYSQL_WORLD_TABLE < /tmp/world.sql 2>> /tmp/sql-updates-errors.log
-
-    #cat /usr/local/share/firestorm/sql/hotfix/*.sql > /tmp/hotfix.sql
-    #mysql \
-    #    -h "$MYSQL_HOTFIX_ADDR" \
-    #    -u $MYSQL_HOTFIX_USER \
-    #    -p$MYSQL_HOTFIX_PASSWD \
-    #    -f \
-    #    $MYSQL_HOTFIX_TABLE < /tmp/hotfix.sql 2>> /tmp/sql-updates-errors.log
-
-    if [ -f /tmp/sql-updates-errors.log -a -s /tmp/sql-updates-errors.log ]; then
-        mv /tmp/sql-updates-errors.log /usr/local/var/log/firestorm
-        sendToSlack "_${REALM_NAME}_ is starting with SQL errors in update files <$HOST_ADDR/logs_42x/$REALM_NAME/sql-updates-errors.log|Show more...>" "warning"
-    fi
-}
-
 function runWorldserver {
     # Increase allowed file descriptors
     ulimit -n 4096
@@ -119,7 +88,6 @@ function isKilled {
 
 ###### MAIN ######
 
-updateSQL
 runWorldserver
 worldserver_exit_code=$?
 
