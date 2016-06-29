@@ -4372,7 +4372,8 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                     | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
                     | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
                     | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
-                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
+                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN)
+                    | (1 << MECHANIC_BANISH);
 
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, apply);
@@ -4386,6 +4387,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, apply);
+                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_BANISH, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, apply);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
