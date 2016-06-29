@@ -26034,7 +26034,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
     }
 
     data.appendPackGUID(playerGuid);
-    data << uint8(1);
+    data << uint8(0);
     data << uint32(counter);
     data.append(dataBuffer);
 
