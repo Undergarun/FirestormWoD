@@ -2671,9 +2671,10 @@ class spell_warl_shadowburn: public SpellScriptLoader
         }
 };
 
-// Called By : Incinerate - 29722 and Incinerate (Fire and Brimstone) - 114654
-// Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
-// Burning Embers generate
+/// Last Upadte 6.2.3
+/// Called By : Incinerate - 29722 and Incinerate (Fire and Brimstone) - 114654
+/// Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
+/// Burning Embers generate
 class spell_warl_burning_embers: public SpellScriptLoader
 {
     public:
@@ -2683,10 +2684,10 @@ class spell_warl_burning_embers: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_burning_embers_SpellScript);
 
-            void HandleOnHit()
+            void HandleAfterCast()
             {
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
+                Unit* l_Target = GetExplTargetUnit();
 
                 if (!l_Target)
                     return;
@@ -2703,13 +2704,13 @@ class spell_warl_burning_embers: public SpellScriptLoader
                 l_Caster->ModifyPower(POWER_BURNING_EMBERS, l_BurningEmbersPct * l_Caster->GetPowerCoeff(POWER_BURNING_EMBERS));
             }
 
-            void Register()
+            void Register() override
             {
-                OnHit += SpellHitFn(spell_warl_burning_embers_SpellScript::HandleOnHit);
+                AfterCast += SpellCastFn(spell_warl_burning_embers_SpellScript::HandleAfterCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_warl_burning_embers_SpellScript();
         }
