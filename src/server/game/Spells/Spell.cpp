@@ -6977,12 +6977,12 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 Player* l_Player = m_caster->ToPlayer();
 
-                if (!l_Player)
+                if (l_Player == nullptr)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 MS::Garrison::Manager* l_Garrison = l_Player->GetGarrison();
 
-                if (!l_Garrison)
+                if (l_Garrison == nullptr)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 SpellCastResult l_Result = l_Garrison->CanLearnTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), i);
@@ -6995,17 +6995,36 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 Player* l_Player = m_caster->ToPlayer();
 
-                if (!l_Player)
+                if (l_Player == nullptr)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 MS::Garrison::Manager* l_Garrison = l_Player->GetGarrison();
 
-                if (!l_Garrison)
+                if (l_Garrison == nullptr)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 SpellCastResult l_Result = l_Garrison->CanUpgradeItemLevelWith(m_Misc[0], GetSpellInfo());
                 if (l_Result != SPELL_CAST_OK)
                     return l_Result;
+
+                break;
+            }
+            case SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE:
+            {
+                Player* l_Player = m_caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                MS::Garrison::Manager* l_Garrison = l_Player->GetGarrison();
+
+                if (l_Garrison == nullptr)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                MS::Garrison::GarrisonFollower* l_Follower = l_Garrison->GetFollower(m_Misc[0]);
+
+                if (l_Follower == nullptr || !l_Follower->CanXP())
+                    return SPELL_FAILED_BAD_TARGETS;
 
                 break;
             }

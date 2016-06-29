@@ -7971,10 +7971,7 @@ void Spell::EffectIncreaseFollowerExperience(SpellEffIndex p_EffIndex)
     if (l_GarrisonMgr == nullptr)
         return;
 
-    uint8 l_Bab1 = m_Misc[0];
-    uint8 l_Bab2 = m_Misc[1];
-
-    if (MS::Garrison::GarrisonFollower* l_Follower = l_GarrisonMgr->GetFollower(l_Bab1))
+    if (MS::Garrison::GarrisonFollower* l_Follower = l_GarrisonMgr->GetFollower(m_Misc[0]))
         l_Follower->EarnXP(m_spellInfo->Effects[p_EffIndex].BasePoints, l_Player);
 }
 
