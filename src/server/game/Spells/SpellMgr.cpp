@@ -7505,6 +7505,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158078: ///< Blood Ritual - AoE (Marak the Blooded - Iron Maidens)
             case 164279: ///< Penetrating Shot (Admiral Gar'an - Iron Maidens)
             case 156610: ///< Sanguine Strikes - proc (Marak the Blooded - Iron Maidens)
+            case 158710: ///< Chain Lightning (Battle Medic Rogg - Iron Maidens)
+            case 158695: ///< Grapeshot Blast (Uktar - Iron Maidens)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:

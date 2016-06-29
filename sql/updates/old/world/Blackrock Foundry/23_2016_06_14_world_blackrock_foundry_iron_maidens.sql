@@ -18,25 +18,32 @@ UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_mauler" WHERE entry = 85748;
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_cleaver" WHERE entry = 84859;
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_ukurogg" WHERE entry = 78341;
+UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_uktar" WHERE entry = 78351;
+UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_battle_medic_rogg" WHERE entry = 78352;
+UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_gorak" WHERE entry = 78343;
+UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_eviscerator" WHERE entry = 78347;
 UPDATE creature_template SET unit_flags = 768, unit_flags2 = 1140885504, InhabitType = 4, ScriptName = "npc_foundry_loading_chain" WHERE entry = 78767;
 UPDATE creature_template SET minlevel = 102, maxlevel = 102, ScriptName = "npc_foundry_inferno_totem" WHERE entry = 85922;
 UPDATE creature_template SET InhabitType = 4, ScriptName = "npc_foundry_zipline_stalker" WHERE entry = 82538;
 UPDATE creature_template SET ScriptName = "npc_foundry_rapid_fire_stalker" WHERE entry = 77636;
 UPDATE creature_template SET ScriptName = "npc_foundry_dominator_turret" WHERE entry = 78583;
 UPDATE creature_template SET modelid1 = 55871, modelid2 = 0 WHERE entry = 80622;
-UPDATE creature_template SET InhabitType = 4 WHERE entry = 78152;
+UPDATE creature_template SET InhabitType = 4, ScriptName = "npc_foundry_iron_cannon" WHERE entry = 78152;
+UPDATE creature_template SET ScriptName = "npc_foundry_cluster_bomb_alpha" WHERE entry = 78177;
 
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (@REF_SORKA, 1, 114966, 113965, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (@REF_GARAN, 1, 0, 0, 112344);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (@REF_MARAK, 1, 114962, 114971, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (85711, 1, 0, 0, 108504);
+REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (78351, 1, 0, 0, 108507);
 
-DELETE FROM `areatrigger_template` WHERE spell_id IN (171545, 158602);
+DELETE FROM `areatrigger_template` WHERE spell_id IN (171545, 158602, 158707);
 INSERT INTO `areatrigger_template` (`spell_id`, `eff_index`, `entry`, `type`, `scale_x`, `scale_y`, `flags`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName`) VALUES
 (171545, 0, 171545, 2, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_workers_solidarity"),
-(158602, 0, 6641, 2, 1, 1, 8192, 1, 1, 3, 3, 0.5, 0.5, 0, 0, "areatrigger_foundry_dominator_blast");
+(158602, 0, 6641, 2, 1, 1, 8192, 1, 1, 3, 3, 0.5, 0.5, 0, 0, "areatrigger_foundry_dominator_blast"),
+(158707, 0, 158707, 2, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_protective_earth");
 
-DELETE FROM spell_script_names WHERE spell_id IN (158078, 164271, 164279, 156214, 158315, 158009, 156601);
+DELETE FROM spell_script_names WHERE spell_id IN (158078, 164271, 164279, 156214, 158315, 158009, 156601, 158148);
 INSERT INTO spell_script_names VALUES
 (158078, "spell_foundry_blood_ritual"),
 (164271, "spell_foundry_penetrating_shot"),
@@ -44,7 +51,8 @@ INSERT INTO spell_script_names VALUES
 (156214, "spell_foundry_convulsive_shadows"),
 (158315, "spell_foundry_dark_hunt"),
 (158009, "spell_foundry_bloodsoaked_heartseeker_damage"),
-(156601, "spell_foundry_sanguine_strikes_proc");
+(156601, "spell_foundry_sanguine_strikes_proc"),
+(158148, "spell_foundry_sabotage");
 
 DELETE FROM `conversation_template` WHERE `Entry` IN (118, 119);
 INSERT INTO `conversation_template` VALUES

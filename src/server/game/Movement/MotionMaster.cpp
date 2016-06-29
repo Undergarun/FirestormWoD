@@ -512,7 +512,7 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints
     //MovePoint(EVENT_CHARGE_PREPATH, pos, false);
 }
 
-void MotionMaster::MoveSmoothFlyPath(uint32 p_PointID, std::vector<G3D::Vector3> const p_Path)
+void MotionMaster::MoveSmoothFlyPath(uint32 p_PointID, G3D::Vector3 const* p_Path, size_t p_Size)
 {
     Movement::MoveSplineInit l_Init(_owner);
 
@@ -520,8 +520,8 @@ void MotionMaster::MoveSmoothFlyPath(uint32 p_PointID, std::vector<G3D::Vector3>
     l_Init.SetFly();
     l_Init.SetUncompressed();
 
-    for (G3D::Vector3 const l_Point : p_Path)
-        l_Init.Path().push_back(l_Point);
+    for (uint32 l_Count = 0; l_Count < uint32(p_Size); ++l_Count)
+        l_Init.Path().push_back(*p_Path++);
 
     l_Init.Launch();
 

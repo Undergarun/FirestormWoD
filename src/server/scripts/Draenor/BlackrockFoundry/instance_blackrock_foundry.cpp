@@ -95,6 +95,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_MarakTheBloodedGuid       = 0;
                 m_ZiplineStalkerGuid        = 0;
                 m_IronCannonGuid            = 0;
+                m_AmmoLoaderGuid            = 0;
 
                 m_SpikeGateGuid             = 0;
                 m_CrucibleEntrance          = 0;
@@ -171,6 +172,7 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_MarakTheBloodedGuid;
             uint64 m_ZiplineStalkerGuid;
             uint64 m_IronCannonGuid;
+            uint64 m_AmmoLoaderGuid;
 
             /// Blackhand's Crucible
             uint64 m_SpikeGateGuid;
@@ -495,6 +497,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                         m_IronGateDoorGuid = p_GameObject->GetGUID();
                         break;
                     case eFoundryGameObjects::AmmoLoader:
+                        m_AmmoLoaderGuid = p_GameObject->GetGUID();
                         p_GameObject->SetAIAnimKitId(eFoundryVisuals::AmmoLoaderAnim);
                         break;
                     default:
@@ -893,6 +896,23 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                         break;
                     }
+                    case eFoundryDatas::DataIronMaidens:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::FAIL:
+                            {
+                                if (GameObject* l_AmmoLoader = instance->GetGameObject(m_AmmoLoaderGuid))
+                                    l_AmmoLoader->SetFlag(EGameObjectFields::GAMEOBJECT_FIELD_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
+
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1087,6 +1107,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_ZiplineStalkerGuid;
                     case eFoundryCreatures::IronCannon:
                         return m_IronCannonGuid;
+                    case eFoundryGameObjects::AmmoLoader:
+                        return m_AmmoLoaderGuid;
                     default:
                         break;
                 }
