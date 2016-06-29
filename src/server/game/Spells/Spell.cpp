@@ -4368,7 +4368,8 @@ void Spell::SendSpellCooldown()
     if (m_CastItem && (m_CastItem->IsPotion() || m_CastItem->IsHealthstone() || m_spellInfo->IsCooldownStartedOnEvent()))
     {
         // need in some way provided data for Spell::finish SendCooldownEvent
-        l_Player->SetLastPotionId(m_CastItem->GetEntry());
+        l_Player->SetLastPotionItemID(m_CastItem->GetEntry());
+        l_Player->SetLastPotionSpellID(m_spellInfo->Id);
         return;
     }
 
@@ -6165,7 +6166,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
 
         // check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
-        if (l_Player->GetLastPotionId() && m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))
+        if (l_Player->GetLastPotionItemId() && m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))
             return SPELL_FAILED_NOT_READY;
     }
 

@@ -403,7 +403,9 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_LegacyRaidDifficulty = Difficulty10N;
     m_PrevMapDifficulty = DifficultyRaidNormal;
 
-    m_lastPotionId = 0;
+    m_LastPotion.m_LastPotionItemID = 0;
+    m_LastPotion.m_LastPotionSpellID = 0;
+
     _talentMgr = new PlayerTalentInfo();
 
     m_glyphsChanged = false;
@@ -26879,24 +26881,36 @@ void Player::SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID, S
 void Player::UpdatePotionCooldown(Spell* spell)
 {
     // no potion used in combat or still in combat
-    if (!m_lastPotionId || isInCombat())
+    if (!m_LastPotion.m_LastPotionItemID || isInCombat())
         return;
 
     // Call not from spell cast, send cooldown event for item spells if no in combat
     if (!spell)
     {
         // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
-        if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_lastPotionId))
+        if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_LastPotion.m_LastPotionItemID))
+        {
             for (uint8 idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
+            {
                 if (proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
+                {
                     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[idx].SpellId))
-                            SendCooldownEvent(spellInfo, m_lastPotionId);
+                        SendCooldownEvent(spellInfo, m_LastPotion.m_LastPotionItemID);
+                    else if (m_LastPotion.m_LastPotionSpellID)
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(m_LastPotion.m_LastPotionSpellID);
+                        SendCooldownEvent(l_SpellInfo, m_LastPotion.m_LastPotionItemID);
+                    }
+                }
+            }
+        }
     }
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
     else
-        SendCooldownEvent(spell->m_spellInfo, m_lastPotionId, spell);
+        SendCooldownEvent(spell->m_spellInfo, m_LastPotion.m_LastPotionItemID, spell);
 
-    m_lastPotionId = 0;
+    m_LastPotion.m_LastPotionItemID = 0;
+    m_LastPotion.m_LastPotionSpellID = 0;
 }
                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
