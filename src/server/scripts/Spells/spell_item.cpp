@@ -4901,6 +4901,56 @@ class spell_item_enduring_elixir_of_wisdom : public SpellScriptLoader
         }
 };
 
+/// Spike-Toed Booterang - 129295
+/// Called by Spike-Toed Booterang - 193832
+class spell_item_spike_toed_booterang : public SpellScriptLoader
+{
+    public:
+        spell_item_spike_toed_booterang() : SpellScriptLoader("spell_item_spike_toed_booterang") { }
+
+        class spell_item_spike_toed_booterang_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_spike_toed_booterang_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (Unit* l_Target = l_Player->GetSelectedUnit())
+                {
+                    if (l_Target->getLevel() > 100)
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void HandleDummy()
+            {
+                Unit* l_Target = GetHitUnit();
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->IsMounted())
+                    l_Target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_spike_toed_booterang_SpellScript::CheckRequirement);
+                AfterHit += SpellHitFn(spell_item_spike_toed_booterang_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_spike_toed_booterang_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
 {
@@ -4917,6 +4967,7 @@ void AddSC_item_spell_scripts()
     // 23075 Mithril Mechanical Dragonling
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
     new spell_item_deviate_fish();
+    new spell_item_spike_toed_booterang();
     new spell_item_flask_of_the_north();
     new spell_item_gnomish_death_ray();
     new spell_item_make_a_wish();
