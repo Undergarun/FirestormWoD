@@ -7207,9 +7207,6 @@ void Player::DeleteOldCharacters(uint32 keepDays)
 {
 #ifndef CROSS
     sLog->outInfo(LOG_FILTER_PLAYER, "Player::DeleteOldChars: Deleting all characters which have been deleted %u days before...", keepDays);
-#else /* CROSS */
-    /*sLog->outInfo(LOG_FILTER_PLAYER, "Player::DeleteOldChars: Deleting all characters which have been deleted %u days before...", keepDays);
-#endif /* CROSS */
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_OLD_CHARS);
     stmt->setUInt32(0, uint32(time(NULL) - time_t(keepDays * DAY)));
@@ -7224,12 +7221,8 @@ void Player::DeleteOldCharacters(uint32 keepDays)
             Player::DeleteFromDB(fields[0].GetUInt32(), fields[1].GetUInt32(), true, true);
          }
          while (result->NextRow());
-#ifndef CROSS
     }
-#else /* CROSS */
-    }*/
-
-#endif /* CROSS */
+#endif
 }
 
 /* Preconditions:
@@ -10293,13 +10286,10 @@ uint8 Player::GetRankFromDB(uint64 guid)
 
 uint32 Player::GetZoneIdFromDB(uint64 guid)
 {
+    uint32 zone = 0;
 #ifndef CROSS
     uint32 guidLow = GUID_LOPART(guid);
-#else /* CROSS */
-    return 0;
 
-    /*uint32 guidLow = GUID_LOPART(guid);
-#endif /* CROSS */
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ZONE);
     stmt->setUInt32(0, guidLow);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -10307,7 +10297,7 @@ uint32 Player::GetZoneIdFromDB(uint64 guid)
     if (!result)
         return 0;
     Field* fields = result->Fetch();
-    uint32 zone = fields[0].GetUInt16();
+    zone = fields[0].GetUInt16();
 
     if (!zone)
     {
@@ -10339,22 +10329,17 @@ uint32 Player::GetZoneIdFromDB(uint64 guid)
             CharacterDatabase.Execute(stmt);
         }
     }
+#endif
 
-#ifndef CROSS
     return zone;
-#else /* CROSS */
-    return zone;*/
-#endif /* CROSS */
 }
 
 uint32 Player::GetLevelFromDB(uint64 guid)
 {
+    uint8 level = 0;
+
 #ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
-#else /* CROSS */
-    return 0;
-    /*PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
-#endif /* CROSS */
     stmt->setUInt32(0, GUID_LOPART(guid));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -10362,13 +10347,10 @@ uint32 Player::GetLevelFromDB(uint64 guid)
         return 0;
 
     Field* fields = result->Fetch();
-    uint8 level = fields[0].GetUInt8();
+    level = fields[0].GetUInt8();
+#endif
 
-#ifndef CROSS
     return level;
-#else /* CROSS */
-    return level;*/
-#endif /* CROSS */
 }
 
 void Player::UpdateArea(uint32 newArea)
@@ -21147,9 +21129,6 @@ bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, flo
 {
 #ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_POSITION);
-#else /* CROSS */
-    /*PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_POSITION);
-#endif /* CROSS */
     stmt->setUInt32(0, GUID_LOPART(guid));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -21163,12 +21142,8 @@ bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, flo
     z = fields[2].GetFloat();
     o = fields[3].GetFloat();
     mapid = fields[4].GetUInt16();
-#ifndef CROSS
     in_flight = !fields[5].GetString().empty();
-#else /* CROSS */
-    in_flight = !fields[5].GetString().empty();*/
-#endif /* CROSS */
-
+#endif
     return true;
 }
 
@@ -21872,9 +21847,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetSpecsCount(fields[54].GetUInt8());
     SetActiveSpec(fields[55].GetUInt8());
 
-#ifdef CROSS
-
-#endif /* CROSS */
     SetSpecializationId(0, fields[56].GetUInt32(), true);
     SetSpecializationId(1, fields[57].GetUInt32(), true);
 
@@ -25454,9 +25426,6 @@ void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, 
 {
 #ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
-#else /* CROSS */
-    /*PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
-#endif /* CROSS */
 
     stmt->setFloat(0, x);
     stmt->setFloat(1, y);
@@ -25466,10 +25435,7 @@ void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, 
     stmt->setUInt16(5, uint16(zone));
     stmt->setUInt32(6, GUID_LOPART(guid));
 
-#ifndef CROSS
     CharacterDatabase.Execute(stmt);
-#else /* CROSS */
-    CharacterDatabase.Execute(stmt);*/
 #endif /* CROSS */
 }
 
@@ -25487,15 +25453,8 @@ void Player::Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 
 {
 #ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PLAYERBYTES2);
-#else /* CROSS */
-    /*PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PLAYERBYTES2);
-#endif /* CROSS */
     stmt->setUInt32(0, GUID_LOPART(guid));
-#ifndef CROSS
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
-#else /* CROSS */
-    PreparedQueryResult result = RealmDatabase.Query(stmt);
-#endif /* CROSS */
 
     if (!result)
         return;
@@ -25513,10 +25472,7 @@ void Player::Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 
     stmt->setUInt32(2, playerBytes2);
     stmt->setUInt32(3, GUID_LOPART(guid));
 
-#ifndef CROSS
     CharacterDatabase.Execute(stmt);
-#else /* CROSS */
-    CharacterDatabase.Execute(stmt);*/
 #endif /* CROSS */
 }
 
@@ -26604,9 +26560,6 @@ void Player::RemovePetitionsAndSigns(uint64 guid, uint32 type)
 {
 #ifndef CROSS
     PreparedStatement* stmt;
-#else /* CROSS */
-    /*PreparedStatement* stmt;
-#endif /* CROSS */
 
     if (type == 10)
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIG_BY_GUID);
@@ -26676,11 +26629,8 @@ void Player::RemovePetitionsAndSigns(uint64 guid, uint32 type)
         stmt->setUInt8(1, uint8(type));
         trans->Append(stmt);
     }
-#ifndef CROSS
     CharacterDatabase.CommitTransaction(trans);
-#else /* CROSS */
-    CharacterDatabase.CommitTransaction(trans);*/
-#endif /* CROSS */
+#endif
 }
 
 void Player::SetRestBonus (float rest_bonus_new)

@@ -415,7 +415,7 @@ void InterRealmClient::Handle_RegisterGroup(WorldPacket& p_Packet)
 
     for (std::vector<uint64>::const_iterator l_Itr = l_PlayerGuids.begin(); l_Itr != l_PlayerGuids.end(); ++l_Itr)
     {
-        if (sWorld->HasPlayer((*l_Itr)) || sWorld->FindPlayerOnMaps((*l_Itr)))
+        if (sWorld->HasPlayer(*l_Itr))
         {
             WorldPacket l_ErrorPacket(IR_SMSG_REGISTER_PLAYER_RESP, 1);
             l_ErrorPacket << uint8(IR_REG_ALREADY_REGISTRED);
@@ -582,7 +582,7 @@ void InterRealmClient::Handle_RegisterArena(WorldPacket& p_Packet)
 
     for (std::vector<uint64>::const_iterator l_Itr = l_PlayersGuid.begin(); l_Itr != l_PlayersGuid.end(); ++l_Itr)
     {
-        if (sWorld->HasPlayer((*l_Itr)) || sWorld->FindPlayerOnMaps((*l_Itr)))
+        if (sWorld->HasPlayer(*l_Itr))
         {
             WorldPacket l_ErrorPacket(IR_SMSG_REGISTER_PLAYER_RESP, 1);
             l_ErrorPacket << uint8(IR_REG_ALREADY_REGISTRED);
@@ -828,7 +828,7 @@ void InterRealmClient::Handle_RegisterRated(WorldPacket& p_Packet)
 
     for (std::vector<uint64>::const_iterator l_Itr = l_PlayersGuids.begin(); l_Itr != l_PlayersGuids.end(); ++l_Itr)
     {
-        if (sWorld->HasPlayer((*l_Itr)) || sWorld->FindPlayerOnMaps((*l_Itr)))
+        if (sWorld->HasPlayer(*l_Itr))
         {
             SendRegisterRated(IR_REG_ALREADY_REGISTRED, *l_Itr);
             return;

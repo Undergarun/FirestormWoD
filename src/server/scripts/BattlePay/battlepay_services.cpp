@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "BattlepayMgr.h"
 
 template<uint32 t_Level> class BattlePay_Level : BattlePayProductScript
@@ -110,4 +111,5 @@ void AddSC_BattlePay_Services()
     new BattlePay_CharacterService<AtLoginFlags::AT_LOGIN_CUSTOMIZE>("battlepay_service_customize");
     //new BattlePay_AccountService<ServiceFlags::PremadePve>("battlepay_service_premade");
 }
+#endif
 #endif

@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "BattlepayMgr.h"
 
 namespace BattlePay
@@ -61,4 +62,5 @@ void AddSC_BattlePay_Golds()
     new BattlePay_Gold<BattlePay::Gold100k>("battlepay_gold_100k");
     new BattlePay_Gold<BattlePay::Gold300k>("battlepay_gold_300k");
 }
+#endif
 #endif

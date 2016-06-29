@@ -232,7 +232,7 @@ public:
 
 
 #define EPSILON 0.000001
-#define CROSS(dest,v1,v2) \
+#define CROSS_RAY(dest,v1,v2) \
           dest[0]=v1[1]*v2[2]-v1[2]*v2[1]; \
           dest[1]=v1[2]*v2[0]-v1[0]*v2[2]; \
           dest[2]=v1[0]*v2[1]-v1[1]*v2[0];
@@ -260,7 +260,7 @@ inline float Ray::intersectionTime(
     float tvec[3], pvec[3], qvec[3];
     
     // begin calculating determinant - also used to calculate U parameter
-    CROSS(pvec, m_direction, edge2);
+    CROSS_RAY(pvec, m_direction, edge2);
     
     // if determinant is near zero, ray lies in plane of triangle
     const float det = DOT(edge1, pvec);
@@ -280,7 +280,7 @@ inline float Ray::intersectionTime(
     }
     
     // prepare to test V parameter
-    CROSS(qvec, tvec, edge1);
+    CROSS_RAY(qvec, tvec, edge1);
     
     // calculate V parameter and test bounds
     v = DOT(m_direction, qvec);
@@ -322,7 +322,7 @@ inline float Ray::intersectionTime
     float tvec[3], pvec[3], qvec[3];
 
     // begin calculating determinant - also used to calculate U parameter
-    CROSS(pvec, m_direction, edge2);
+    CROSS_RAY(pvec, m_direction, edge2);
     
     // if determinant is near zero, ray lies in plane of triangle
     const float det = DOT(edge1, pvec);
@@ -342,7 +342,7 @@ inline float Ray::intersectionTime
     }
     
     // prepare to test V parameter
-    CROSS(qvec, tvec, edge1);
+    CROSS_RAY(qvec, tvec, edge1);
     
     // calculate V parameter and test bounds
     v = DOT(m_direction, qvec);
@@ -371,7 +371,7 @@ inline float Ray::intersectionTime
 }
 
 #undef EPSILON
-#undef CROSS
+#undef CROSS_RAY
 #undef DOT
 #undef SUB
 

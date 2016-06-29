@@ -20,7 +20,7 @@
 #include "LFGListMgr.h"
 #include "MSCallback.hpp"
 #ifdef CROSS
-#include "InterRealmClient.h"
+#include "Cross/InterRealmClient.h"
 #endif /* CROSS */
 
 class Creature;

@@ -1166,8 +1166,6 @@ void Battleground::EndBattleground(uint32 p_Winner)
             }
 
             l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
-            if (!guildAwarded)
-
             /// @TODO: Cross sync
 #ifndef CROSS
             if (!guildAwarded)

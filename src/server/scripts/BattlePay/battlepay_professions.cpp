@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "BattlepayMgr.h"
 
 namespace BattlePay
@@ -149,4 +150,5 @@ void AddSC_BattlePay_Professions()
     new BattlePay_Profession<SkillType::SKILL_ARCHAEOLOGY,    700>("battlepay_profession_archaeology");
     new BattlePay_Profession<SkillType::SKILL_FISHING,        700>("battlepay_profession_fishing");
 }
+#endif
 #endif

@@ -39,7 +39,7 @@
 #include "Reporter.hpp"
 
 #ifdef CROSS
-#include "IRSocketMgr.h"
+#include "Cross/IRSocketMgr.h"
 
 #endif /* CROSS */
 #ifdef _WIN32

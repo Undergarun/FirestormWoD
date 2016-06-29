@@ -6,7 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef CROSS
+#ifndef CROSS
 #include "Common.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"

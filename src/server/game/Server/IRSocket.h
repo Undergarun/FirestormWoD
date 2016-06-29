@@ -1,4 +1,3 @@
-#ifdef CROSS
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
@@ -6,13 +5,11 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#endif /* CROSS */
+
 #ifndef _IRSOCKET_H
 #define _IRSOCKET_H
 
-#ifndef CROSS
 #include <ace/Basic_Types.h>
-#endif /* not CROSS */
 #include <ace/Synch_Traits.h>
 #include <ace/Svc_Handler.h>
 #include <ace/SOCK_Stream.h>
@@ -26,19 +23,20 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "Common.h"
+
 #ifdef CROSS
 #include "AuthCrypt.h"
-#endif /* CROSS */
+#endif
 
 class ACE_Message_Block;
 class WorldPacket;
+
 #ifndef CROSS
 class InterRealmSession;
-#else /* CROSS */
+#else
 class InterRealmClient;
-
 struct z_stream_s;
-#endif /* CROSS */
+#endif
 
 /// Handler that can communicate over stream sockets.
 typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> IRHandler;
@@ -46,17 +44,12 @@ typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> IRHandler;
 class IRSocket : public IRHandler
 {
     public:
-#ifndef CROSS
         IRSocket (void);
-#else /* CROSS */
-        IRSocket ();
-#endif /* CROSS */
         virtual ~IRSocket (void);
 
 #ifdef CROSS
         friend class WorldSocketMgr;
-
-#endif /* CROSS */
+#endif
         /// Mutex type used for various synchronizations.
         typedef ACE_Thread_Mutex LockType;
         typedef ACE_Guard<LockType> GuardType;
@@ -106,11 +99,6 @@ class IRSocket : public IRHandler
         size_t m_OutBufferSize;
 
     private:
-#ifdef CROSS
-
-        int Handle_Ping(WorldPacket* packet);
-
-#endif /* CROSS */
         /// Helper functions for processing incoming data.
         int handle_input_header (void);
         int handle_input_payload (void);
@@ -130,25 +118,17 @@ class IRSocket : public IRHandler
 
 #ifndef CROSS
         int Handle_TunneledPacket(WorldPacket* new_pct);
+#else
+        int Handle_Ping(WorldPacket* packet);
+#endif
 
-#endif /* not CROSS */
     private:
         /// Time in which the last ping was received
         ACE_Time_Value m_LastPingTime;
 
-#ifndef CROSS
-        /// Keep track of over-speed pings, to prevent ping flood.
-        uint32 m_OverSpeedPings;
-
-#endif /* not CROSS */
         /// Address of the remote peer
         std::string m_Address;
 
-#ifndef CROSS
-        /// Mutex lock to protect m_Session
-        LockType m_SessionLock;
-
-#endif /* not CROSS */
         /// here are stored the fragments of the received data
         WorldPacket* m_RecvWPct;
 
@@ -166,18 +146,26 @@ class IRSocket : public IRHandler
         /// Buffer used for writing output.
         ACE_Message_Block* m_OutBuffer;
 
-#ifdef CROSS
-        InterRealmClient* m_InterRealmClient;
-
-#endif /* CROSS */
         /// True if the socket is registered with the reactor for output
         bool m_OutActive;
-#ifndef CROSS
+
+#ifdef CROSS
+        /// === Cross specific === //
+        InterRealmClient* m_InterRealmClient;
+
+#else
+        /// === Realm specific === //
+
+        /// Keep track of over-speed pings, to prevent ping flood.
+        uint32 m_OverSpeedPings;
+
+        /// Mutex lock to protect m_Session
+        LockType m_SessionLock;
 
         uint32 m_Seed;
 
         InterRealmSession* m_InterRealmSession;
-#endif /* not CROSS */
+#endif
 };
 
 #endif  /* _IRSOCKET_H */

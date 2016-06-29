@@ -1163,6 +1163,7 @@ void AddScripts()
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
+#endif
 #ifndef CROSS
     AddBattlePayScripts();
 #endif
@@ -1170,11 +1171,10 @@ void AddScripts()
 
 void AddBattlePayScripts()
 {
-#ifdef SCRIPTS
+#ifndef CROSS
     AddSC_BattlePay_Services();
     AddSC_BattlePay_Golds();
     AddSC_BattlePay_Professions();
-#endif /* not CROSS */
 #endif
 }
 

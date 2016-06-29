@@ -4393,137 +4393,30 @@ const PlayerMap& World::GetAllPlayers()
 #endif /* CROSS */
 }
 
-#ifndef CROSS
+#ifndef CROSS 
 std::string World::GetNormalizedRealmName() const
-#else /* CROSS */
-void World::CheckPlayerMaps(Player* player)
-#endif /* CROSS */
 {
-#ifndef CROSS
     std::string l_NormalizedName = "";
     for (uint32 l_I = 0; l_I < m_realmName.length(); l_I++)
-#else /* CROSS */
-    std::vector<Map*> mapsVector;
-    std::vector<Player*> playersVector;
-    int count = 0;
-    /*MapMapType const& maps = sMapMgr->GetMaps();
-    for (MapMapType::const_iterator itrMaps = maps.begin(); itrMaps != maps.end(); ++itrMaps)
-#endif /* CROSS */
     {
-#ifndef CROSS
         if (m_realmName[l_I] == ' ')
             continue;
-#else /* CROSS */
-    Map* _map = itrMaps->second;
-#endif /* CROSS */
 
-#ifndef CROSS
         l_NormalizedName += m_realmName[l_I];
-#else /* CROSS */
-    Map::PlayerList const& _players = _map->GetPlayers();
-    for (Map::PlayerList::const_iterator _itrMap = _players.begin(); _itrMap != _players.end(); ++_itrMap)
-    {
-    if (player->GetGUID() == _itrMap->getSource()->GetGUID())
-    {
-    count++;
-    mapsVector.push_back(_map);
-    playersVector.push_back(_itrMap->getSource());
-#endif /* CROSS */
     }
-#ifdef CROSS
-    }
-    if (MapInstanced* iMap = _map->ToMapInstanced())
-    {
-    MapInstanced::InstancedMaps& iMaps = iMap->GetInstancedMaps();
-    for (MapInstanced::InstancedMaps::const_iterator itrIMaps = iMaps.begin(); itrIMaps != iMaps.end(); ++itrIMaps)
-    {
-    Map* map = itrIMaps->second;
-    Map::PlayerList const& players = map->GetPlayers();
-    for (Map::PlayerList::const_iterator itrMap = players.begin(); itrMap != players.end(); ++itrMap)
-    {
-    if (player->GetGUID() == itrMap->getSource()->GetGUID())
-    {
-    count++;
-    mapsVector.push_back(map);
-    playersVector.push_back(itrMap->getSource());
-    }
-    }
-    }
-    }
-    }*/
-#endif /* CROSS */
 
-#ifndef CROSS
     return l_NormalizedName;
-#else /* CROSS */
-    if (count > 1)
-    {
-        for (std::vector<Player*>::const_iterator itr = playersVector.begin(); itr != playersVector.end(); ++itr)
-        {
-            sLog->outInfo(LOG_FILTER_WORLDSERVER, "Player %s (GUID %u), needremove %u, isinworld %u",
-                player->GetName(), player->GetRealGUIDLow(), player->IsNeedRemove(), player->IsInWorld());
-        }
-        for (std::vector<Map*>::const_iterator itr = mapsVector.begin(); itr != mapsVector.end(); ++itr)
-        {
-            Map* vecMap = (*itr);
-            sLog->outInfo(LOG_FILTER_WORLDSERVER, "Map id %u, name %s, instanceId %u, is bg %u",
-                vecMap->GetId(), vecMap->GetMapName(),
-                vecMap->GetInstanceId(), vecMap->IsBattlegroundOrArena());
-        }
-        ASSERT(false);
-    }
-#endif /* CROSS */
 }
+#endif
 
 #ifndef CROSS
 bool World::ModerateMessage(std::string l_Text)
-#else /* CROSS */
-bool World::FindPlayerOnMaps(uint64 guid)
-#endif /* CROSS */
 {
-#ifndef CROSS
     if (!m_lexicsCutter)
         return false;
-#else /* CROSS */
-    int count = 0;
-    /*MapMapType const& maps = sMapMgr->GetMaps();
-    for (MapMapType::const_iterator itrMaps = maps.begin(); itrMaps != maps.end(); ++itrMaps)
-    {
-    Map* _map = itrMaps->second;
-#endif /* CROSS */
-
-#ifndef CROSS
     return m_lexicsCutter->CheckLexics(l_Text);
-#else /* CROSS */
-    Map::PlayerList const& _players = _map->GetPlayers();
-    for (Map::PlayerList::const_iterator _itrMap = _players.begin(); _itrMap != _players.end(); ++_itrMap)
-    {
-    if (guid == _itrMap->getSource()->GetGUID())
-    {
-    count++;
-    }
-    }
-    if (MapInstanced* iMap = _map->ToMapInstanced())
-    {
-    MapInstanced::InstancedMaps& iMaps = iMap->GetInstancedMaps();
-    for (MapInstanced::InstancedMaps::const_iterator itrIMaps = iMaps.begin(); itrIMaps != iMaps.end(); ++itrIMaps)
-    {
-    Map* map = itrIMaps->second;
-    Map::PlayerList const& players = map->GetPlayers();
-    for (Map::PlayerList::const_iterator itrMap = players.begin(); itrMap != players.end(); ++itrMap)
-    {
-    if (guid == itrMap->getSource()->GetGUID())
-    {
-    count++;
-    }
-    }
-    }
-    }
-    }*/
-
-    return (count > 0);
-#endif /* CROSS */
 }
+#endif
 
 #ifndef CROSS
 void World::_updateTransfers()

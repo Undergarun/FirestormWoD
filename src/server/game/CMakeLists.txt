@@ -47,6 +47,7 @@ file(GLOB_RECURSE sources_Quests Quests/*.cpp Quests/*.h)
 file(GLOB_RECURSE sources_Reputation Reputation/*.cpp Reputation/*.h)
 file(GLOB_RECURSE sources_Scripting Scripting/*.cpp Scripting/*.h Scripting/*.hpp)
 file(GLOB_RECURSE sources_Server Server/*.cpp Server/*.h)
+file(GLOB_RECURSE sources_Cross Server/Cross/*.cpp Server/Cross/*.h)
 file(GLOB_RECURSE sources_Skills Skills/*.cpp Skills/*.h Skills/*.hpp)
 file(GLOB_RECURSE sources_Spells Spells/*.cpp Spells/*.h)
 file(GLOB_RECURSE sources_Texts Texts/*.cpp Texts/*.h)
@@ -112,6 +113,7 @@ set(game_STAT_SRCS
   ${sources_Reputation}
   ${sources_Scripting}
   ${sources_Server}
+  ${sources_Cross}
   ${sources_Skills}
   ${sources_Spells}
   ${sources_Texts}

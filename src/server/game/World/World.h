@@ -1015,9 +1015,6 @@ class World
         Player* GetPlayer(uint64 guid);
         const PlayerMap& GetAllPlayers();
 
-        void CheckPlayerMaps(Player* player);
-        bool FindPlayerOnMaps(uint64 guid);
-
         void RemovePlayer(uint64 p_Guid) { m_players.erase(p_Guid); }
 
 #endif /* CROSS */

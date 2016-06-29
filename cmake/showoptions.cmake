@@ -19,7 +19,7 @@ message("")
 
 if ( CROSS )
     message("* Build crossrealm core")
-	add_definitions(CROSS)
+	add_definitions(-DCROSS)
 else()
 	message("* build realm core")
 endif()
