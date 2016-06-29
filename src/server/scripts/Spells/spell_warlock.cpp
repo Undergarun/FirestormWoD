@@ -4220,7 +4220,7 @@ class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
                     p_Player->CastSpell(p_Player, WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus, true);
 
                 /// Remove aura if player has more than 20% life
-                if (p_Player->GetHealthPct() >= 20.0f)
+                if (p_Player->GetHealthPct() >= 20.0f && !(p_Player->GetPet() && p_Player->GetPet()->GetHealthPct() < 20.0f))
                     p_Player->RemoveAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus);
             }
         }
