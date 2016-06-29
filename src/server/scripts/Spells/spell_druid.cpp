@@ -2956,9 +2956,6 @@ class spell_dru_shooting_stars_proc : public SpellScriptLoader
                         l_SpellInfo->Id != eSpells::MoonfireOverrided && l_SpellInfo->Id != eSpells::SunfireOverrided)
                         return;
 
-                    uint64 l_Test1 = l_Caster->GetLastMoonfireTarget();
-                    uint64 l_Test2 = l_Caster->GetLastSunfireTarget();
-
                     /// Can proc only from last applied Moonfire/Sunfire
                     if (((l_SpellInfo->Id == eSpells::Moonfire || l_SpellInfo->Id == eSpells::MoonfireOverrided) && l_Caster->GetLastMoonfireTarget() != l_TargetGUID) ||
                         ((l_SpellInfo->Id == eSpells::Sunfire || l_SpellInfo->Id == eSpells::SunfireOverrided) && l_Caster->GetLastSunfireTarget() != l_TargetGUID))
