@@ -11899,7 +11899,11 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
 
                 /// Fingers of Frost
                 if (Aura* l_Aura = GetAura(44544))
-                    AddPct(DoneTotalMod, l_Aura->GetEffect(1)->GetAmount());
+                {
+                    SpellInfo const* l_FingersOfFrost = sSpellMgr->GetSpellInfo(44544);
+                    if (l_FingersOfFrost)
+                        AddPct(DoneTotalMod, l_FingersOfFrost->Effects[1].BasePoints);
+                }
             }
 
             /// Torment the weak
