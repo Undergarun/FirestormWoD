@@ -26878,36 +26878,40 @@ void Player::SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID, S
     SendDirectMessage(&l_Data);
 }
 
-void Player::UpdatePotionCooldown(Spell* spell)
+void Player::UpdatePotionCooldown(Spell* p_Spell)
 {
     // no potion used in combat or still in combat
     if (!m_LastPotion.m_LastPotionItemID || isInCombat())
         return;
 
     // Call not from spell cast, send cooldown event for item spells if no in combat
-    if (!spell)
+    if (!p_Spell)
     {
+        bool l_Success = false;
         // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
-        if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_LastPotion.m_LastPotionItemID))
+        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(m_LastPotion.m_LastPotionItemID))
         {
             for (uint8 idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
             {
-                if (proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
+                if (l_Proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
                 {
-                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[idx].SpellId))
-                        SendCooldownEvent(spellInfo, m_LastPotion.m_LastPotionItemID);
-                    else if (m_LastPotion.m_LastPotionSpellID)
+                    if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Proto->Spells[idx].SpellId))
                     {
-                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(m_LastPotion.m_LastPotionSpellID);
+                        l_Success = true;
                         SendCooldownEvent(l_SpellInfo, m_LastPotion.m_LastPotionItemID);
                     }
                 }
             }
         }
+        if (!l_Success && m_LastPotion.m_LastPotionSpellID)
+        {
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(m_LastPotion.m_LastPotionSpellID);
+            SendCooldownEvent(l_SpellInfo, m_LastPotion.m_LastPotionItemID);
+        }
     }
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
     else
-        SendCooldownEvent(spell->m_spellInfo, m_LastPotion.m_LastPotionItemID, spell);
+        SendCooldownEvent(p_Spell->m_spellInfo, m_LastPotion.m_LastPotionItemID, p_Spell);
 
     m_LastPotion.m_LastPotionItemID = 0;
     m_LastPotion.m_LastPotionSpellID = 0;
