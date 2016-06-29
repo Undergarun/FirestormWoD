@@ -5069,6 +5069,55 @@ class spell_item_super_simian_sphere : public SpellScriptLoader
         }
 };
 
+/// The Perfect Blossom - 127766
+/// Called by The Perfect Blossom - 187676
+class spell_item_the_perfect_blossom : public SpellScriptLoader
+{
+    public:
+        spell_item_the_perfect_blossom() : SpellScriptLoader("spell_item_the_perfect_blossom") { }
+
+        class spell_item_the_perfect_blossom_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_the_perfect_blossom_SpellScript);
+
+            enum eSpells
+            {
+                FelPetal = 127768,
+                minEntry = 1,
+                maxEntry = 5
+            };
+
+            void HandleCast()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                uint32 l_Count = urand(eSpells::minEntry, eSpells::maxEntry);
+                if (!l_Count)
+                    return;
+
+                l_Player->AddItem(eSpells::FelPetal, l_Count);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_the_perfect_blossom_SpellScript::HandleCast);
+
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_the_perfect_blossom_SpellScript();
+        }
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
 {
@@ -5086,6 +5135,7 @@ void AddSC_item_spell_scripts()
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
     new spell_item_deviate_fish();
     new spell_item_super_simian_sphere();
+    new spell_item_the_perfect_blossom();
     new spell_item_mystic_image();
     new spell_item_sunreaver_beacon();
     new spell_item_spike_toed_booterang();
