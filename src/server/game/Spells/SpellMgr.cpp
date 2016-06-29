@@ -6435,6 +6435,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 174004:///< Spirit of Shinri
                 spellInfo->Effects[1].MiscValue = 82415;
                 break;
+            case 165201:///< Mind Blast (cooldown reduce)
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_COOLDOWN_BY_HASTE;
+                spellInfo->Effects[1].MiscValue = 11;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
