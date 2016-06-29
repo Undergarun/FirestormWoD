@@ -4249,6 +4249,13 @@ class spell_pri_focused_will : public SpellScriptLoader
                 if (!l_Caster)
                     return;
 
+                if (!p_EventInfo.GetDamageInfo())
+                    return;
+
+                /// Should proc only from damage
+                if (p_EventInfo.GetDamageInfo()->GetDamage() == 0)
+                    return;
+
                 if (p_EventInfo.GetActor()->GetGUID() == l_Caster->GetGUID())
                     PreventDefaultAction();
             }
