@@ -6435,6 +6435,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 7268: ///< Arcane Missile
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
                 break;
+            case 174004:///< Spirit of Shinri
+                spellInfo->Effects[1].MiscValue = 82415;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
