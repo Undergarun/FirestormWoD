@@ -7358,6 +7358,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159456: ///< Glyph of Travel
                 spellInfo->Stances = 0;
                 break;
+            case 174556:
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
             case 91809: ///< Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
@@ -7558,6 +7562,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 102793: ///< Ursol's Vortex
                 case 123986: ///< Chi Butst
                 case 155738: ///< Slag Pool (Heart of the Mountain)
+                case 174556:
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 116011:///< Rune of Power
