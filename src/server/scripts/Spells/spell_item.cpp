@@ -4996,6 +4996,42 @@ class spell_item_mystic_image : public SpellScriptLoader
         }
 };
 
+/// Sunreaver Beacon(For Horde) - 95568, Called by: 140300
+class spell_item_sunreaver_beacon : public SpellScriptLoader
+{
+    public:
+        spell_item_sunreaver_beacon() : SpellScriptLoader("spell_item_sunreaver_beacon") { }
+
+        class spell_item_sunreaver_beacon_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_sunreaver_beacon_SpellScript);
+
+            void HandleDummy()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->TeleportTo(1064, 7250.192871f, 6277.653320f, 19.352745f, 5.504922f);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_item_sunreaver_beacon_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_sunreaver_beacon_SpellScript();
+        }
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
 {
@@ -5013,6 +5049,7 @@ void AddSC_item_spell_scripts()
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
     new spell_item_deviate_fish();
     new spell_item_mystic_image();
+    new spell_item_sunreaver_beacon();
     new spell_item_spike_toed_booterang();
     new spell_item_flask_of_the_north();
     new spell_item_gnomish_death_ray();
