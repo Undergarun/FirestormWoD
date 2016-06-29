@@ -12610,6 +12610,11 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     {
                         switch (spellProto->Id)
                         {
+                            case 5221:  ///< Shred
+                                /// Incarnation: King of the Jungle increase crit of Shred
+                                if (HasAura(102543))
+                                    crit_chance *= 2.0f;
+                                break;
                             case 22568: // Ferocious Bite
                                 // Critical strike chance doubled against bleeding targets.
                                 if (victim->HasAuraState(AURA_STATE_BLEEDING))
