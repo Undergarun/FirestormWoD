@@ -4951,6 +4951,51 @@ class spell_item_spike_toed_booterang : public SpellScriptLoader
         }
 };
 
+/// Magic Pet Mirror - 127696
+/// Called by Mystic Image - 187356
+class spell_item_mystic_image : public SpellScriptLoader
+{
+    public:
+        spell_item_mystic_image() : SpellScriptLoader("spell_item_mystic_image") { }
+
+        class spell_item_mystic_image_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_mystic_image_SpellScript);
+
+            enum eSpells
+            {
+                MysticImage = 187358
+            };
+
+            void HandleDummy()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                Unit* l_Target = l_Player->GetSelectedUnit();   ///< Our minipet
+                if (l_Target == nullptr)
+                    return;
+
+                l_Target->CastSpell(l_Player, eSpells::MysticImage, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_mystic_image_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_mystic_image_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
 {
@@ -4967,6 +5012,7 @@ void AddSC_item_spell_scripts()
     // 23075 Mithril Mechanical Dragonling
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
     new spell_item_deviate_fish();
+    new spell_item_mystic_image();
     new spell_item_spike_toed_booterang();
     new spell_item_flask_of_the_north();
     new spell_item_gnomish_death_ray();

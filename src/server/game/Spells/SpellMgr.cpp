@@ -6429,6 +6429,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81292:  ///< Glyph of Mind Spike (Shadow)
                 spellInfo->ProcFlags = 0;
                 break;
+            case 187356: ///< Mysic Image (Magic Pet Mirror)
+                spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo();
+                break;
             case 7268: ///< Arcane Missile
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
                 break;
