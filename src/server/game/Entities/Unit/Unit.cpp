@@ -259,6 +259,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     simulacrumTargetGUID = 0;
     m_GlaiveOfTossTargetGUID = 0;
     iciclesTargetGUID    = 0;
+    lastMoonfireTargetGUID = 0;
+    lastSunfireTargetGUID = 0;
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         m_threatModifier[i] = 1.0f;

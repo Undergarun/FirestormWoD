@@ -2840,6 +2840,12 @@ class spell_dru_moonfire_sunfire_damage : public SpellScriptLoader
     public:
         spell_dru_moonfire_sunfire_damage() : SpellScriptLoader("spell_dru_moonfire_sunfire_damage") { }
 
+        enum eSpells
+        {
+            moonfire = 164812,
+            sunfire = 164815
+        };
+
         class spell_dru_moonfire_sunfire_damage_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dru_moonfire_sunfire_damage_SpellScript);
@@ -2848,11 +2854,20 @@ class spell_dru_moonfire_sunfire_damage : public SpellScriptLoader
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (l_Player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DRUID_RESTORATION &&
-                        (l_Player->HasAura(Eclipse::Spell::LunarPeak) || l_Player->HasAura(Eclipse::Spell::SolarPeak)))
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (Unit* l_Target = l_Player->GetNextRandomRaidMember(15.0f))
-                            l_Player->CastSpell(l_Target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, true);
+                        /// Save last target, for Shooting Stars
+                        if (GetSpellInfo()->Id == eSpells::moonfire)
+                            l_Player->SetLastMoonfireTarget(l_Target->GetGUID());
+                        else if (GetSpellInfo()->Id == eSpells::sunfire)
+                            l_Player->SetLastSunfireTarget(l_Target->GetGUID());
+
+                        if (l_Player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DRUID_RESTORATION &&
+                            (l_Player->HasAura(Eclipse::Spell::LunarPeak) || l_Player->HasAura(Eclipse::Spell::SolarPeak)))
+                        {
+                            if (Unit* l_Target = l_Player->GetNextRandomRaidMember(15.0f))
+                                l_Player->CastSpell(l_Target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, true);
+                        }
                     }
                 }
             }
@@ -2929,8 +2944,24 @@ class spell_dru_shooting_stars_proc : public SpellScriptLoader
                     if (l_SpellInfo == nullptr)
                         return;
 
+                    Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
+                    if (l_Target == nullptr)
+                        return;
+
+                    uint64 l_TargetGUID = l_Target->GetGUID();
+                    if (!l_TargetGUID)
+                        return;
+
                     if (l_SpellInfo->Id != eSpells::Moonfire && l_SpellInfo->Id != eSpells::Sunfire &&
                         l_SpellInfo->Id != eSpells::MoonfireOverrided && l_SpellInfo->Id != eSpells::SunfireOverrided)
+                        return;
+
+                    uint64 l_Test1 = l_Caster->GetLastMoonfireTarget();
+                    uint64 l_Test2 = l_Caster->GetLastSunfireTarget();
+
+                    /// Can proc only from last applied Moonfire/Sunfire
+                    if (((l_SpellInfo->Id == eSpells::Moonfire || l_SpellInfo->Id == eSpells::MoonfireOverrided) && l_Caster->GetLastMoonfireTarget() != l_TargetGUID) ||
+                        ((l_SpellInfo->Id == eSpells::Sunfire || l_SpellInfo->Id == eSpells::SunfireOverrided) && l_Caster->GetLastSunfireTarget() != l_TargetGUID))
                         return;
 
                     int32 l_Chance = p_AurEff->GetAmount();
