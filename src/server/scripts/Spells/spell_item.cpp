@@ -5031,6 +5031,43 @@ class spell_item_sunreaver_beacon : public SpellScriptLoader
         }
 };
 
+/// Super Simian Sphere - 37254
+/// Called by Going Ape - 48333
+class spell_item_super_simian_sphere : public SpellScriptLoader
+{
+    public:
+        spell_item_super_simian_sphere() : SpellScriptLoader("spell_item_super_simian_sphere") { }
+
+        class  spell_item_super_simian_sphere_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_super_simian_sphere_AuraScript);
+
+            enum eSpells
+            {
+                GoingApe = 48332
+            };
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(eSpells::GoingApe))
+                    l_Player->RemoveAura(eSpells::GoingApe);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_item_super_simian_sphere_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_item_super_simian_sphere_AuraScript();
+        }
+};
 
 #ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
@@ -5048,6 +5085,7 @@ void AddSC_item_spell_scripts()
     // 23075 Mithril Mechanical Dragonling
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
     new spell_item_deviate_fish();
+    new spell_item_super_simian_sphere();
     new spell_item_mystic_image();
     new spell_item_sunreaver_beacon();
     new spell_item_spike_toed_booterang();
