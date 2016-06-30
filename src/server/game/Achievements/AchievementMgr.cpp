@@ -1727,6 +1727,13 @@ bool AchievementMgr<T>::IsCompletedCriteria(CriteriaEntry const* p_AchievementCr
 }
 
 template<class T>
+bool AchievementMgr<T>::IsCompletedCriteriaTree(CriteriaTreeEntry const* p_CriteriaTree)
+{
+    CriteriaEntry const* l_Criteria = sAchievementMgr->GetAchievementCriteria(p_CriteriaTree->CriteriaID);
+    return IsCriteriaCompleted(l_Criteria, p_CriteriaTree);
+}
+
+template<class T>
 bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p_Criteria, AchievementEntry const* p_Achievement)
 {
     if (!p_Criteria || !p_Achievement)
@@ -1759,6 +1766,15 @@ bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p
         if (sAchievementMgr->IsRealmCompleted(p_Achievement, GetInstanceId(GetOwner())))
             return false;
     }
+
+    return IsCriteriaCompleted(p_Criteria, l_CriteriaTree);
+}
+
+template<class T>
+bool AchievementMgr<T>::IsCriteriaCompleted(CriteriaEntry const* p_Criteria, CriteriaTreeEntry const* p_CriteriaTree)
+{
+    if (!p_Criteria || !p_CriteriaTree)
+        return false;
 
     CriteriaProgress const* l_Progress = GetCriteriaProgress(p_Criteria);
     if (!l_Progress)
@@ -1837,7 +1853,7 @@ bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p
         case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
         case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS:
         case ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER:
-            return l_Progress->counter >= l_CriteriaTree->Amount;
+            return l_Progress->counter >= p_CriteriaTree->Amount;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
@@ -1845,11 +1861,11 @@ bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON:
             return l_Progress->counter >= 1;
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
-            return l_Progress->counter >= (l_CriteriaTree->Amount * 75);
+            return l_Progress->counter >= (p_CriteriaTree->Amount * 75);
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
             return l_Progress->counter >= 9000;
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
-            return l_CriteriaTree->Amount && l_Progress->counter >= l_CriteriaTree->Amount;
+            return p_CriteriaTree->Amount && l_Progress->counter >= p_CriteriaTree->Amount;
             // handle all statistic-only criteria here
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
@@ -1990,7 +2006,7 @@ bool AchievementMgr<T>::IsCompletedAchievement(AchievementEntry const* p_Entry)
             CriteriaTreeEntry const* l_CriteriaTree = *l_Iter;
             if (CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(l_CriteriaTree->CriteriaID))
             {
-                l_IsCompleted = IsCompletedCriteriaForAchievement(l_Criteria, p_Entry);
+                l_IsCompleted = IsCompletedCriteriaTree(l_CriteriaTree);
 
                 if (l_IsCompleted)
                     break;
@@ -2142,7 +2158,7 @@ void AchievementMgr<T>::SetCompletedAchievementsIfNeeded(CriteriaEntry const* p_
         if (!l_Achievement)
             continue;
 
-        if (IsCompletedCriteriaForAchievement(p_Criteria, l_Achievement))
+        if (IsCompletedCriteriaForAchievement(p_Criteria, l_Achievement) || IsCompletedCriteriaTree(*l_Iter))
             CompletedCriteriaFor(l_Achievement, p_RefPlayer, p_LoginCheck);
 
         // check again the completeness for SUMM and REQ COUNT achievements,
