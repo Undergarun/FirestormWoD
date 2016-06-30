@@ -20,6 +20,8 @@ void AddSC_npc_custom();
 void AddSC_Webshop_Delivery();
 void AddSC_Character_Renderer();
 void AddSC_StressTest();
+void AddSC_CustomPlayerscripts();
+void AddSC_midsummer_fire_festival();
 
 /// Spells
 void AddSC_deathknight_spell_scripts();
@@ -2140,5 +2142,7 @@ void AddCustomScripts()
     AddSC_npc_custom();
     AddSC_Webshop_Delivery();
     AddSC_Character_Renderer();
+    AddSC_CustomPlayerscripts();
+    AddSC_midsummer_fire_festival();
 #endif
 }
