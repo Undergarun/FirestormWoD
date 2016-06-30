@@ -12760,17 +12760,18 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
     if (l_ModOwner != nullptr && l_ModOwner->getClass() == CLASS_MAGE && p_Victim->GetTypeId() == TYPEID_UNIT && p_Victim->HasAura(155153))
         l_CritPctBonus = 50;
 
+    int32 l_DamageTmp = p_Damage;
+
     if (p_SpellProto)
     {
         l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
         /// adds additional damage to p_Damage (from talents)
-        int32 l_DamageTmp = p_Damage;
+
 
         if (l_ModOwner)
-            l_Diff = l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, l_DamageTmp);
+            l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, l_DamageTmp);
+        l_PctSpellMod = 100.0f * (float)(l_DamageTmp - p_Damage) / (float)p_Damage;
     }
-    if (l_Diff > 0)
-        l_PctSpellMod = 100.0f / ((float)p_Damage / (float)l_Diff);
 
     l_CritPctBonus += l_PctSpellMod;
     p_Damage += CalculatePct(p_Damage, l_CritPctBonus);

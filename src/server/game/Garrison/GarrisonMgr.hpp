@@ -183,7 +183,7 @@ namespace MS { namespace Garrison
             /// Returns error message of upgrade attempt
             SpellCastResult CanUpgradeItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo) const;
             /// Upgrades follower with spell
-            void UpgradeFollowerItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo);
+            void UpgradeFollowerItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo, SpellEffIndex p_EffIndex);
             /// Check if any followers has ability in parameter
             bool HasFollowerAbility(uint32 p_AbilityID) const;
 
