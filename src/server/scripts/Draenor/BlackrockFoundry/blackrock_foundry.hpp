@@ -236,7 +236,8 @@ enum eFoundryDatas
     DataIronCrackShot       = 2,
     DataGromkarFiremender   = 2,
     /// Iron Maidens
-    IronMaidensCount        = 3
+    IronMaidensCount        = 3,
+    ShipExplosionSceneID    = 777
 };
 
 enum eFoundrySpells

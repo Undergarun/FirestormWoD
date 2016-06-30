@@ -30,7 +30,8 @@ enum eIronMaidensActions
     ActionAfterTrashesIntro,
     ActionEnteredZipline,
     ActionZiplineArrived,
-    ActionJumpToShip
+    ActionJumpToShip,
+    ActionSabotageShip
 };
 
 enum eIronMaidensDatas
@@ -186,6 +187,7 @@ Position const g_SorkaHomePos = { 425.965f, 3138.43f, 135.219f, 1.753770f };
 /// For Gar'an and Marak
 Position const g_BoatBossFirstJumpPos = { 506.106f, 3250.79f, 170.375f, 0.0f };
 
+Position const g_ShipExplosionScenePos = { 494.2526f, 3282.585f, 141.3935f, 0.06420326f };
 Position const g_AfterShipPlayerJumpPos = { 433.3941f, 3176.948f, 135.2187f, 4.199047f };
 
 static std::array<G3D::Vector3, eIronMaidensDatas::MaxBoatBossFlyingMoves> g_BoatBossFlyingMoves =
@@ -215,6 +217,26 @@ static std::array<G3D::Vector3, eIronMaidensDatas::MaxZiplineFlyingMoves> g_Zipl
         { 507.5764f, 3252.608f, 176.2642f },
         { 515.6563f, 3264.310f, 175.4255f },
         { 520.7656f, 3271.337f, 174.8700f }
+    }
+};
+
+static std::array<G3D::Vector3, eIronMaidensDatas::MaxZiplineFlyingMoves> g_ReverseZiplineFlyingMoves =
+{
+    {
+        { 520.7656f, 3271.337f, 174.8700f },
+        { 515.6563f, 3264.310f, 175.4255f },
+        { 507.5764f, 3252.608f, 176.2642f },
+        { 503.0677f, 3246.305f, 176.6152f },
+        { 498.5035f, 3239.773f, 177.0412f },
+        { 492.8403f, 3231.653f, 177.6089f },
+        { 489.3160f, 3226.421f, 177.9685f },
+        { 485.8767f, 3221.579f, 178.3048f },
+        { 482.4601f, 3216.684f, 178.6539f },
+        { 478.3837f, 3210.953f, 179.0443f },
+        { 475.1285f, 3206.103f, 179.2168f },
+        { 471.1076f, 3200.292f, 179.7583f },
+        { 468.0139f, 3195.972f, 179.9773f },
+        { 463.9948f, 3190.459f, 180.3531f }
     }
 };
 

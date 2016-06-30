@@ -900,11 +900,14 @@ class instance_blackrock_foundry : public InstanceMapScript
                     {
                         switch (p_State)
                         {
+                            case EncounterState::DONE:
                             case EncounterState::FAIL:
+                            case EncounterState::NOT_STARTED:
                             {
                                 if (GameObject* l_AmmoLoader = instance->GetGameObject(m_AmmoLoaderGuid))
                                     l_AmmoLoader->SetFlag(EGameObjectFields::GAMEOBJECT_FIELD_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
 
+                                DoRemoveAurasDueToSpellOnPlayers(eIronMaidensSpells::OnABoatPeriodic);
                                 break;
                             }
                             default:
@@ -1262,16 +1265,6 @@ class instance_blackrock_foundry : public InstanceMapScript
                 {
                     if (Player* l_Player = l_Iter->getSource())
                         l_Player->SendUpdateWorldState(p_Field, p_Value);
-                }
-            }
-
-            void PlaySceneForPlayers(Position const p_Pos, uint32 p_ScenePackageID)
-            {
-                Map::PlayerList const& l_Players = instance->GetPlayers();
-                for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
-                {
-                    if (Player* l_Player = l_Iter->getSource())
-                        l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
                 }
             }
 

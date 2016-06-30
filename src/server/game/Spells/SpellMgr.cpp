@@ -3569,6 +3569,16 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_1].TargetB = 0;
                 break;
+            case 158724: ///< End Ship Phase (Iron Maidens)
+                spellInfo->Effects[EFFECT_2].Effect = 0;
+                break;
+            case 158730: ///< Dreadnaught Destruction (Iron Maidens)
+                spellInfo->Effects[EFFECT_1].ValueMultiplier = 40.0f;
+                spellInfo->Effects[EFFECT_1].MiscValue = 250;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_1].TargetB = 0;
+                spellInfo->Effects[EFFECT_2].Effect = 0;
+                break;
             case 175643: ///< Spinning Blade (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
@@ -3599,6 +3609,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160833: ///< Bust Loose (Heart of the Mountain)
             case 155738: ///< Slag Pool (Heart of the Mountain)
             case 155224: ///< Melt (Heart of the Mountain)
+            case 156220: ///< Tactical Retreat
+            case 156883: ///< Tactical Retreat (Other)
+            case 163636: ///< Firestorm V2 Missile (Firestorm Stalker)
+            case 162757: ///< Ice Trap (Iron Marksman)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 114956: ///< Nether Tempest (launcher visual)
@@ -3634,6 +3648,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
+            case 158702: ///< Fixate (Iron Eviscerator - Iron Maidens)
+                spellInfo->MaxAffectedTargets = 1;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
             case 159115: ///< Erupt (Firecaller)
                 spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
                 break;
@@ -3666,12 +3684,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155890: ///< Molten Torrent (Dummy visual - Molten Torrent Stalker)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
-                break;
-            case 156220: ///< Tactical Retreat
-            case 156883: ///< Tactical Retreat (Other)
-            case 163636: ///< Firestorm V2 Missile (Firestorm Stalker)
-            case 162757: ///< Ice Trap (Iron Marksman)
-                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 155747: ///< Body Slam
             case 157923: ///< Jump Slam
@@ -7507,6 +7519,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156610: ///< Sanguine Strikes - proc (Marak the Blooded - Iron Maidens)
             case 158710: ///< Chain Lightning (Battle Medic Rogg - Iron Maidens)
             case 158695: ///< Grapeshot Blast (Uktar - Iron Maidens)
+            case 158684: ///< Corrupted Blood - DoT (Uk'urogg - Iron Maidens)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:
