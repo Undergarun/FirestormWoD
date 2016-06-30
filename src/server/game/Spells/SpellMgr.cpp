@@ -5520,6 +5520,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 109306: ///< Thrill of the Hunt
                 spellInfo->ProcChance = 0;
                 break;
+            case 4074: ///< Explosive Sheep
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(25); ///< 3min
+                break;
             case 24529: ///< Glyph of Animal Bond
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA_ON_PET;
