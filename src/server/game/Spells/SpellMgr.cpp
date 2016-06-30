@@ -5792,6 +5792,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 = SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;
+            case 45819: // Midsummer - Throw Torch
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
+                spellInfo->Effects[EFFECT_0].SetRadiusIndex(15);
+                spellInfo->MaxAffectedTargets = 1;
+                break;
             case 125327: ///< Blade Tempest (jump on Ta'yak) (HoF - #2 Ta'yak)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
