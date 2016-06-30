@@ -14,6 +14,11 @@ set(scripts_STAT_SRCS
 	Custom/warning_update_client.cpp
 	Custom/npc_custom.cpp
         Custom/stress_test.cpp
+<<<<<<< HEAD
+=======
+	Custom/custom_playerscripts.cpp
+	Custom/midsummer_fire_festival.cpp
+>>>>>>> dadb162... Core/Script: Spell torch + Ribbon pool
 )
 
 message("  -> Prepared: Custom")
