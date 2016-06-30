@@ -27,7 +27,7 @@ enum YseraGiftSpells
     SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY   = 145110
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Ysera's Gift - 145108
 class spell_dru_yseras_gift: public SpellScriptLoader
 {
@@ -47,22 +47,54 @@ class spell_dru_yseras_gift: public SpellScriptLoader
                 if (!l_Caster->IsFullHealth())
                 {
                     int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount());
-                    l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER, &l_HealAmount, NULL, NULL, true);
+                    SpellInfo const* l_YseraHeal = sSpellMgr->GetSpellInfo(SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER);
+
+                    l_Caster->HealBySpell(l_Caster, l_YseraHeal, l_HealAmount, false, false);
                 }
                 else
                 {
+                    float l_Radius = 30.0f;
+                    std::list<Unit*> l_TargetList;
+                    JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(l_Caster, l_Caster, l_Radius);
+                    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(l_Caster, l_TargetList, u_check);
+                    l_Caster->VisitNearbyObject(l_Radius, searcher);
+
+                    l_TargetList.remove_if([l_Caster](Unit* p_Unit) -> bool
+                    {
+                        if (p_Unit == nullptr)
+                            return true;
+
+                        if (!l_Caster->IsValidAssistTarget(p_Unit))
+                            return true;
+
+                        if (p_Unit->ToUnit()->IsFullHealth() || p_Unit->GetGUID() == l_Caster->GetGUID())
+                            return true;
+
+                        return false;
+                    });
+
+                    if (l_TargetList.size() > 1)
+                    {
+                        l_TargetList.sort(JadeCore::HealthPctOrderPred());
+                        l_TargetList.resize(1);
+                    }
+                    if (l_TargetList.size() < 1)
+                        return;
+
+                    SpellInfo const* l_YseraHeal = sSpellMgr->GetSpellInfo(SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY);
+
                     int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount());
-                    l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY, &l_HealAmount, NULL, NULL, true);
+                    l_Caster->HealBySpell(l_TargetList.front(), l_YseraHeal, l_HealAmount, false, false);
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_yseras_gift_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_dru_yseras_gift_AuraScript();
         }
