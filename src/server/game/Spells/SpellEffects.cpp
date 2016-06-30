@@ -7932,7 +7932,7 @@ void Spell::EffectCreateGarrison(SpellEffIndex /*p_EffIndex*/)
 
 }
 
-void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex /*p_EffIndex*/)
+void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -7950,7 +7950,7 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex /*p_EffIndex*/)
     if (l_GarrisonMgr == nullptr)
         return;
 
-    l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
+    l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo(), p_EffIndex);
 }
 
 void Spell::EffectIncreaseFollowerExperience(SpellEffIndex p_EffIndex)

@@ -2843,7 +2843,7 @@ namespace MS { namespace Garrison
         return SPELL_CAST_OK;
     }
 
-    void Manager::UpgradeFollowerItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo)
+    void Manager::UpgradeFollowerItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo, SpellEffIndex p_EffectIndex)
     {
         if (CanUpgradeItemLevelWith(p_FollowerID, p_SpellInfo) != SPELL_CAST_OK)
             return;
@@ -2851,12 +2851,12 @@ namespace MS { namespace Garrison
         auto l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerID](GarrisonFollower const& p_Follower) { return p_Follower.FollowerID == p_FollowerID; });
         GarrisonFollower* l_Follower = const_cast<GarrisonFollower*>(&(*l_It));
 
-        SpellEffectInfo const* l_SpellEffect = p_SpellInfo->GetEffectByType(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL);
+        SpellEffectInfo const l_SpellEffect = p_SpellInfo->Effects[p_EffectIndex];
         SpellEffectInfo const* l_Dummy = p_SpellInfo->GetEffectByType(SPELL_EFFECT_DUMMY);
         int32 l_Cap = l_Dummy ? l_Dummy->BasePoints : GetMaxFollowerItemLevel(l_Follower->GetEntry()->Type);
-        int32 &l_Ilvl = l_SpellEffect->MiscValue == 1 || l_SpellEffect->MiscValue == 3 ? l_Follower->ItemLevelArmor : l_Follower->ItemLevelWeapon;
+        int32 &l_Ilvl = l_SpellEffect.MiscValue == 1 || l_SpellEffect.MiscValue == 3 ? l_Follower->ItemLevelArmor : l_Follower->ItemLevelWeapon;
 
-        l_Ilvl = std::min(l_Cap, l_Ilvl + l_SpellEffect->BasePoints);
+        l_Ilvl = std::min(l_Cap, l_Ilvl + l_SpellEffect.BasePoints);
 
         WorldPacket l_Data(SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL, 4 + 4 + 4 + 1);
         l_Follower->Write(l_Data);
