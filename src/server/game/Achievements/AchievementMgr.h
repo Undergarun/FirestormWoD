@@ -421,6 +421,15 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_TOTAL                             = 190
 };
 
+namespace CriteriaTreeOperator
+{
+    enum
+    {
+        And = 4,
+        Or = 8
+    };
+}
+
 #define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               22 // maximum value in AchievementCriteriaDataType enum
 
 class Player;

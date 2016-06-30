@@ -1919,6 +1919,8 @@ bool AchievementMgr<T>::IsCompletedAchievement(AchievementEntry const* p_Entry)
     if (CriteriaTreeEntry const* l_CriteriaTree = sCriteriaTreeStore.LookupEntry(p_Entry->CriteriaTree))
         l_AchievementForTestCount = l_CriteriaTree->Amount;
 
+    std::list<AchievementCriteriaTreeList const*>  l_ExclusiveList;
+
     AchievementCriteriaEntryList l_CriteriaList;
     AchievementCriteriaTreeList const* l_List = sAchievementMgr->GetSubCriteriaTreeById(p_Entry->CriteriaTree);
     for (AchievementCriteriaTreeList::const_iterator l_Iter = l_List->begin(); l_Iter != l_List->end(); l_Iter++)
@@ -1926,9 +1928,12 @@ bool AchievementMgr<T>::IsCompletedAchievement(AchievementEntry const* p_Entry)
         CriteriaTreeEntry const* l_CriteriaTree = *l_Iter;
         if (CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(l_CriteriaTree->CriteriaID))
             l_CriteriaList.push_back(l_Criteria);
+
+        if (l_CriteriaTree->Operator == CriteriaTreeOperator::Or)
+            l_ExclusiveList.push_back(sAchievementMgr->GetSubCriteriaTreeById(l_CriteriaTree->ID));
     }
 
-    if (!l_CriteriaList.size())
+    if (!l_CriteriaList.size() && !l_ExclusiveList.size())
         return false;
 
     uint64 l_Counter = 0;
@@ -1951,6 +1956,9 @@ bool AchievementMgr<T>::IsCompletedAchievement(AchievementEntry const* p_Entry)
             if (l_Counter >= sCriteriaTreeStore.LookupEntry(p_Entry->CriteriaTree)->Amount)
                 return true;
         }
+
+        /// @TODO: Do we need to handle operator or here ?
+
         return false;
     }
 
@@ -1963,6 +1971,32 @@ bool AchievementMgr<T>::IsCompletedAchievement(AchievementEntry const* p_Entry)
         bool l_IsCompleted = IsCompletedCriteriaForAchievement(l_Criteria, p_Entry);
 
         // found an uncompleted criteria, but DONT return false yet - there might be a completed criteria with ACHIEVEMENT_CRITERIA_COMPLETE_FLAG_ALL
+        if (l_IsCompleted)
+            ++l_Counter;
+        else
+            l_IsAllCompleted = false;
+
+        // completed as have req. count of completed criterias
+        if (l_AchievementForTestCount > 0 && l_AchievementForTestCount <= l_Counter)
+            return true;
+    }
+
+    for (AchievementCriteriaTreeList const* l_CriteriaTreeList : l_ExclusiveList)
+    {
+        bool l_IsCompleted = false;
+
+        for (AchievementCriteriaTreeList::const_iterator l_Iter = l_CriteriaTreeList->begin(); l_Iter != l_CriteriaTreeList->end(); l_Iter++)
+        {
+            CriteriaTreeEntry const* l_CriteriaTree = *l_Iter;
+            if (CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(l_CriteriaTree->CriteriaID))
+            {
+                l_IsCompleted = IsCompletedCriteriaForAchievement(l_Criteria, p_Entry);
+
+                if (l_IsCompleted)
+                    break;
+            }
+        }
+
         if (l_IsCompleted)
             ++l_Counter;
         else
