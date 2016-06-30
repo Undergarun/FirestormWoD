@@ -5460,12 +5460,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
                 break;
-            case 165336:///< Item - Warrior T17 Arms 2P Bonus
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
-                spellInfo->Effects[EFFECT_1].Effect = 0;
-                spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
-                break;
             case 165437:///< Item - Druid T17 Restoration 2P Bonus
                 spellInfo->Effects[EFFECT_0].BasePoints = 2;
                 break;
