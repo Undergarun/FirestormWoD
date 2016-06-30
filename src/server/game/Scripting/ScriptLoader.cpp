@@ -1084,6 +1084,13 @@ void AddSC_boss_skulloc();
 void AddSC_boss_grimrail();
 void AddSC_boss_oshir();
 
+/* Grimrail Depot Dungeon */
+void AddSC_RocketsparkandBorka();
+void AddSC_grimrail_depot();
+void AddSC_boss_skylord_tovra();
+void AddSC_instance_grimrail_depot();
+void AddSC_boss_nitrogg_thundertower();
+
 /* Shadowmoon Burial Grounds Dungeon */
 void AddSC_boss_nhalish();
 void AddSC_boss_sadana();
@@ -2081,6 +2088,13 @@ void AddDraenorScripts()
     AddSC_boss_skulloc();
     AddSC_boss_grimrail();
     AddSC_boss_oshir();
+
+    /* Grimrail Depot Dungeon */
+    AddSC_RocketsparkandBorka();
+    AddSC_grimrail_depot();
+    AddSC_boss_skylord_tovra();
+    AddSC_instance_grimrail_depot();
+    AddSC_boss_nitrogg_thundertower();
 
     /// Instance Shadowmoon Burial Grounds
     AddSC_boss_nhalish();
