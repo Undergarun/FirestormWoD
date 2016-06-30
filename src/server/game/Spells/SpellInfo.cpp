@@ -4056,6 +4056,24 @@ bool SpellInfo::CanTriggerBladeFlurry() const
     return false;
 }
 
+bool SpellInfo::IsTargetingFollower() const
+{
+    for (uint8 l_Index = 0; l_Index < EffectCount; ++l_Index)
+    {
+        switch (Effects[l_Index].Effect)
+        {
+            case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
+            case SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE:
+            case SPELL_EFFECT_TEACH_FOLLOWER_ABILITY:
+                return true;
+            default:
+                break;
+        }
+    }
+
+    return false;
+}
+
 bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell, Unit* caster) const
 {
     switch (Id)

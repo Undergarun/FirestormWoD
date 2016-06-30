@@ -102,6 +102,9 @@ namespace MS { namespace Garrison { namespace Sites
                 p_Owner->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Find Blueprint
                 p_Owner->QuestObjectiveSatisfy(39012, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Learn Blueprint
                 p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Plot Finalize
+                p_Owner->QuestObjectiveSatisfy(78466, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Owner->GetGUID());           ///< Follow Gazlowe
+
+                p_Owner->CompleteQuest(Quests::Horde_BuildYourBarracks);
             }
 
             p_Owner->CompleteQuest(Quests::Horde_BuildYourBarracks);

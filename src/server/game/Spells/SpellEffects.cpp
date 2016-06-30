@@ -296,7 +296,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228                     Recruit A Friend Summon Effect
     &Spell::EffectNULL,                                     //229 SPELL_EFFECT_SET_FOLLOWER_QUALITY
     &Spell::EffectUpgradeFolloweriLvl,                      //230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL   Upgrade follower iLvL
-    &Spell::EffectNULL,                                     //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
+    &Spell::EffectIncreaseFollowerExperience,               //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
     &Spell::EffectNULL,                                     //232 SPELL_EFFECT_REMOVE_PHASE
     &Spell::EffectRerollFollowerAbilities,                  //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
     &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234                     Unused 6.1.2
@@ -7936,7 +7936,7 @@ void Spell::EffectCreateGarrison(SpellEffIndex /*p_EffIndex*/)
 
 }
 
-void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex /*p_EffIndex*/)
+void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -7954,7 +7954,29 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex /*p_EffIndex*/)
     if (l_GarrisonMgr == nullptr)
         return;
 
-    l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
+    l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo(), p_EffIndex);
+}
+
+void Spell::EffectIncreaseFollowerExperience(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Player = unitTarget->ToPlayer();
+
+    if (l_Player == nullptr)
+        return;
+
+    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    if (MS::Garrison::GarrisonFollower* l_Follower = l_GarrisonMgr->GetFollower(m_Misc[0]))
+        l_Follower->EarnXP(m_spellInfo->Effects[p_EffIndex].BasePoints, l_Player);
 }
 
 void Spell::EffectRerollFollowerAbilities(SpellEffIndex /*p_EffIndex*/)
