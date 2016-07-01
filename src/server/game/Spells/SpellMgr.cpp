@@ -3827,6 +3827,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 158008: ///< Bloodsoaked Heartseeker - Cast (Marak the Blooded - Iron Maidens)
+            case 159585: ///< Deploy Turret - Jump (Admiral Gar'an - Iron Maidens)
                 spellInfo->SpellPowers.clear();
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
@@ -7520,6 +7521,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158710: ///< Chain Lightning (Battle Medic Rogg - Iron Maidens)
             case 158695: ///< Grapeshot Blast (Uktar - Iron Maidens)
             case 158684: ///< Corrupted Blood - DoT (Uk'urogg - Iron Maidens)
+            case 160733: ///< Bomb Impact - AoE (Iron Cannon - Iron Maidens)
+            case 157884: ///< Detonation Sequence - AoE (Cluster Bomb Alpha - Iron Maidens)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:

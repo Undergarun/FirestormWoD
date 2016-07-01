@@ -22,9 +22,9 @@ UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_uktar
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_battle_medic_rogg" WHERE entry = 78352;
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_gorak" WHERE entry = 78343;
 UPDATE creature_template SET dmg_multiplier = 4, ScriptName = "npc_foundry_iron_eviscerator" WHERE entry = 78347;
-UPDATE creature_template SET unit_flags = 768, unit_flags2 = 1140885504, InhabitType = 4, ScriptName = "npc_foundry_loading_chain" WHERE entry = 78767;
+UPDATE creature_template SET speed_walk = 2.5, speed_run = 8, speed_fly = 7, unit_flags = 768, unit_flags2 = 1140885504, InhabitType = 4, ScriptName = "npc_foundry_loading_chain" WHERE entry = 78767;
 UPDATE creature_template SET minlevel = 102, maxlevel = 102, ScriptName = "npc_foundry_inferno_totem" WHERE entry = 85922;
-UPDATE creature_template SET InhabitType = 4, ScriptName = "npc_foundry_zipline_stalker" WHERE entry = 82538;
+UPDATE creature_template SET speed_walk = 2.5, speed_run = 8, speed_fly = 7, InhabitType = 4, ScriptName = "npc_foundry_zipline_stalker" WHERE entry = 82538;
 UPDATE creature_template SET ScriptName = "npc_foundry_rapid_fire_stalker" WHERE entry = 77636;
 UPDATE creature_template SET ScriptName = "npc_foundry_dominator_turret" WHERE entry = 78583;
 UPDATE creature_template SET modelid1 = 55871, modelid2 = 0 WHERE entry = 80622;
@@ -44,7 +44,7 @@ INSERT INTO `areatrigger_template` (`spell_id`, `eff_index`, `entry`, `type`, `s
 (158707, 0, 158707, 2, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_protective_earth"),
 (158684, 0, 158684, 2, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_corrupted_blood");
 
-DELETE FROM spell_script_names WHERE spell_id IN (158078, 164271, 164279, 156214, 158315, 158009, 156601, 158148, 158724, 158849);
+DELETE FROM spell_script_names WHERE spell_id IN (158078, 164271, 164279, 156214, 158315, 158009, 156601, 158148, 158724, 158849, 157854, 157867);
 INSERT INTO spell_script_names VALUES
 (158078, "spell_foundry_blood_ritual"),
 (164271, "spell_foundry_penetrating_shot"),
@@ -55,7 +55,9 @@ INSERT INTO spell_script_names VALUES
 (156601, "spell_foundry_sanguine_strikes_proc"),
 (158148, "spell_foundry_sabotage"),
 (158724, "spell_foundry_end_ship_phase"),
-(158849, "spell_foundry_warming_up");
+(158849, "spell_foundry_warming_up"),
+(157854, "spell_foundry_bombardment_pattern_alpha"),
+(157867, "spell_foundry_detonation_sequence");
 
 DELETE FROM `conversation_template` WHERE `Entry` IN (118, 119);
 INSERT INTO `conversation_template` VALUES

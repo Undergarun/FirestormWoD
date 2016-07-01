@@ -21,7 +21,8 @@ enum eIronMaidensCreatures
     Uktar               = 78351,
     BattleMedicRogg     = 78352,
     Gorak               = 78343,
-    IronEviscerator     = 78347
+    IronEviscerator     = 78347,
+    ClusterBombAlpha    = 78177
 };
 
 enum eIronMaidensActions
@@ -46,6 +47,7 @@ enum eIronMaidensDatas
     MaxHealthForIronWill    = 20,
     MaxBoatBossFlyingMoves  = 4,
     MaxZiplineFlyingMoves   = 14,
+    MaxClusterBombAlpha     = 36,
     /// Misc Getters
     LoadingChainID          = 0,
     LoadingChainAvailable   = 1,
@@ -62,7 +64,8 @@ enum eIronMaidensSpells
     IronWill            = 159337,
     PermanentFeignDeath = 70628,
     WarmingUpAura       = 158849,
-    OnABoatPeriodic     = 158726
+    OnABoatPeriodic     = 158726,
+    RideLoadingChain    = 158646
 };
 
 static void RespawnMaidens(InstanceScript* p_Instance, Creature* p_Source)
@@ -145,6 +148,48 @@ static void TriggerIronWill(InstanceScript* p_Instance)
     }
 }
 
+static std::array<Position, eIronMaidensDatas::MaxClusterBombAlpha> g_ClusterBombAlphaSpawnPos =
+{
+    {
+        { 420.6754f, 3150.357f, 135.3315f, 4.5379f },
+        { 430.5874f, 3140.294f, 135.3315f, 5.5676f },
+        { 460.3235f, 3140.294f, 135.3315f, 5.1313f },
+        { 410.7633f, 3170.482f, 135.3315f, 1.3439f },
+        { 430.5874f, 3160.420f, 135.3315f, 2.8100f },
+        { 450.4115f, 3170.482f, 135.3315f, 3.3860f },
+        { 410.7633f, 3190.608f, 135.3315f, 1.3090f },
+        { 430.5874f, 3180.545f, 135.3315f, 0.8727f },
+        { 460.3235f, 3190.608f, 135.3315f, 3.2463f },
+        { 421.0353f, 3189.048f, 135.3315f, 4.9044f },
+        { 439.8194f, 3179.185f, 135.3315f, 3.3859f },
+        { 418.8354f, 3169.322f, 135.3315f, 1.0123f },
+        { 460.8435f, 3179.505f, 135.3315f, 4.0492f },
+        { 439.5794f, 3139.214f, 135.3315f, 0.8901f },
+        { 438.5394f, 3189.968f, 135.3315f, 5.2360f },
+        { 429.5074f, 3192.248f, 135.3315f, 5.6723f },
+        { 432.2274f, 3169.202f, 135.3315f, 4.6949f },
+        { 421.7953f, 3159.340f, 135.3315f, 2.6704f },
+        { 440.4994f, 3150.317f, 135.3315f, 1.0472f },
+        { 452.0515f, 3190.688f, 135.3315f, 2.3387f },
+        { 452.2115f, 3160.460f, 135.3315f, 5.9516f },
+        { 441.5794f, 3170.762f, 135.3315f, 1.5708f },
+        { 462.1235f, 3149.597f, 135.3315f, 5.5502f },
+        { 409.1633f, 3180.545f, 135.3315f, 4.1713f },
+        { 421.9954f, 3141.294f, 135.3315f, 3.9270f },
+        { 440.5394f, 3161.500f, 135.3315f, 1.5533f },
+        { 459.7635f, 3172.362f, 135.3315f, 0.1745f },
+        { 410.5233f, 3149.237f, 135.3315f, 2.8623f },
+        { 450.6915f, 3179.505f, 135.3315f, 5.2884f },
+        { 410.1633f, 3160.260f, 135.3315f, 4.8869f },
+        { 460.0435f, 3161.220f, 135.3315f, 3.5256f },
+        { 450.8515f, 3149.757f, 135.3315f, 2.3737f },
+        { 430.8674f, 3151.717f, 135.3315f, 3.1416f },
+        { 409.0433f, 3139.534f, 135.3315f, 1.3090f },
+        { 448.5315f, 3141.294f, 135.3315f, 4.0666f },
+        { 421.0753f, 3179.025f, 135.3315f, 1.4312f }
+    }
+};
+
 static std::map<uint32, std::vector<Position>> g_ShipSpawnPos =
 {
     {
@@ -162,7 +207,7 @@ static std::map<uint32, std::vector<Position>> g_ShipSpawnPos =
     {
         eIronMaidensCreatures::Ukurogg,
         {
-            { 441.8681f, 3136.766f, 135.3021f, 1.677542f }
+            { 478.2083f, 3280.669f, 141.388f, 2.859696f }
         }
     },
     {
