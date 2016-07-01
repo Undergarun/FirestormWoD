@@ -711,8 +711,8 @@ class PlayerScript : public ScriptObjectImpl<false>
         {
             UNUSED(p_Player);
             UNUSED(p_Achievement);
+            UNUSED(p_SendAchievement);
         }
-
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER_HPP_INCLUDED
