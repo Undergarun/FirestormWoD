@@ -38,9 +38,9 @@ class PlayerScript_meta_achievement_midsummer : public PlayerScript
             eDatas::IceTheFrostLord
         };
 
-        void OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement) override
+        void OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement, bool p_After) override
         {
-            if (!p_Player)
+            if (!p_Player ||!p_Achievement)
                 return;
 
             bool l_AllCompleted = true;
@@ -57,15 +57,21 @@ class PlayerScript_meta_achievement_midsummer : public PlayerScript
             if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::TheFiresOfAzerothY) && !p_Player->GetAchievementMgr().HasAchieved(eDatas::TheFiresOfAzerothX))
                 l_AllCompleted = false;
 
-            if (l_AllCompleted)
+            if (!p_After)
             {
-                if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::TheFlameKeeper))
-                    p_Player->CompletedAchievement(sAchievementStore.LookupEntry(eDatas::TheFlameKeeper));
-                if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::TheFlameWarden))
-                    p_Player->CompletedAchievement(sAchievementStore.LookupEntry(eDatas::TheFlameWarden));
+                if ((p_Achievement == sAchievementStore.LookupEntry(eDatas::TheFlameKeeper) || p_Achievement == sAchievementStore.LookupEntry(eDatas::TheFlameWarden)) && !l_AllCompleted)
+                    p_SendAchievement = false;
             }
-            else if (p_Achievement == sAchievementStore.LookupEntry(eDatas::TheFlameKeeper) || p_Achievement == sAchievementStore.LookupEntry(eDatas::TheFlameWarden))
-                p_SendAchievement = false;
+            else
+            {
+                if (l_AllCompleted)
+                {
+                    if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::TheFlameKeeper))
+                        p_Player->CompletedAchievement(sAchievementStore.LookupEntry(eDatas::TheFlameKeeper));
+                    if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::TheFlameWarden))
+                        p_Player->CompletedAchievement(sAchievementStore.LookupEntry(eDatas::TheFlameWarden));
+                }
+            }
         }
 };
 

@@ -2167,9 +2167,10 @@ void ScriptMgr::OnPlayerBlock(Player* p_Player, Unit* p_Attacker)
 /// @p_Player : Player instance
 /// @p_Attacker  : Achievement
 /// @p_SendAchievement : Set to false to cancel achievement earned
-void OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement)
+/// @p_After : True when the hook is after achievement earned, else : false
+void ScriptMgr::OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement, bool p_After)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnAchievementEarned(p_Player, p_Achievement, p_SendAchievement);
+    FOREACH_SCRIPT(PlayerScript)->OnAchievementEarned(p_Player, p_Achievement, p_SendAchievement, p_After);
 }
 
 //////////////////////////////////////////////////////////////////////////
