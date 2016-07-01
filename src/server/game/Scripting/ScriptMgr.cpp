@@ -2166,9 +2166,10 @@ void ScriptMgr::OnPlayerBlock(Player* p_Player, Unit* p_Attacker)
 /// Called when player earn achievement
 /// @p_Player : Player instance
 /// @p_Attacker  : Achievement
-void OnAchivementEarned(Player* p_Player, AchievementEntry const* p_Achievement)
+/// @p_SendAchievement : Set to false to cancel achievement earned
+void OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnAchivementEarned(p_Player, p_Achievement);
+    FOREACH_SCRIPT(PlayerScript)->OnAchievementEarned(p_Player, p_Achievement, p_SendAchievement);
 }
 
 //////////////////////////////////////////////////////////////////////////

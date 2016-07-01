@@ -706,7 +706,8 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when player earn achievement
         /// @p_Player : Player instance
         /// @p_Attacker  : Achievement
-        virtual void OnAchivementEarned(Player* p_Player, AchievementEntry const* p_Achievement)
+        /// @p_SendAchievement : Set to false to cancel achievement earned
+        virtual void OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement)
         {
             UNUSED(p_Player);
             UNUSED(p_Achievement);

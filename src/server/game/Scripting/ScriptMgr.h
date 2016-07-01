@@ -887,7 +887,8 @@ class ScriptMgr
         /// Called when player earn achievement
         /// @p_Player : Player instance
         /// @p_Attacker  : Achievement
-        void OnAchivementEarned(Player* p_Player, AchievementEntry const* p_Achievement);
+        /// @p_SendAchievement : Set to false to cancel achievement earned
+        void OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement);
 
     /// BattlegroundScript
     public:
