@@ -7551,7 +7551,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             int32 l_MaxTicksCount = l_Amplitude == 0 ? 0 : int32(l_MaxDuration / l_Amplitude);
 
             /// If it was last tick, we should deal instant damage, according to left duration and this left damage can be dealed just if left duration smaller then amplitude
-            if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)
+            if (l_MaxDuration != -1 && l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)
             {
                 uint32 l_LeftDamage = int32((float(l_LeftDuration) / float(l_Amplitude)) * damage);
 
