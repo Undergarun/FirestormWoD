@@ -702,6 +702,17 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_SpellID);
             UNUSED(p_TargetGUID);
         }
+
+        /// Called when player earn achievement
+        /// @p_Player : Player instance
+        /// @p_Attacker  : Achievement
+        /// @p_SendAchievement : Set to false to cancel achievement earned
+        virtual void OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Achievement);
+            UNUSED(p_SendAchievement);
+        }
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER_HPP_INCLUDED

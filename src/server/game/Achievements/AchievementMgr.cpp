@@ -2233,6 +2233,9 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
             GetOwner()->GetSession()->SendBattlePetTrapLevel();
             break;
     }
+    
+    bool l_SendAchievement = true;
+    sScriptMgr->OnAchievementEarned(p_ReferencePlayer, p_Achievement, l_SendAchievement);
 
     if (!GetOwner()->GetSession()->PlayerLoading() && !p_LoginCheck)
         SendAchievementEarned(p_Achievement);
