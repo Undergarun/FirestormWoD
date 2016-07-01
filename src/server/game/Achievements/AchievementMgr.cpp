@@ -2285,7 +2285,10 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
     }
 
     if (!GetOwner()->GetSession()->PlayerLoading() && !p_LoginCheck)
+    {
         SendAchievementEarned(p_Achievement);
+        sScriptMgr->OnAchivementEarned(p_ReferencePlayer, p_Achievement);
+    }
 
     if (HasAccountAchieved(p_Achievement->ID))
     {
