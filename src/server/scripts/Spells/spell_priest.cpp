@@ -4359,7 +4359,9 @@ class PlayerScript_word_of_mending : public PlayerScript
             if (skipCheck && !(p_Spell->GetSpellInfo()->Id == eSpells::FlashHeal && p_Player->HasAura(eSpells::SurgeOfLight)))
                 return;
 
-            if (p_Player->HasAura(eSpells::WordOfMendingAura) && p_Spell->GetSpellInfo() && (p_Spell->GetSpellInfo()->IsHealingSpell() || p_Spell->GetSpellInfo()->IsShieldingSpell()) && p_Spell->GetSpellInfo()->Id != 146347)
+            if (p_Player->HasAura(eSpells::WordOfMendingAura) && p_Spell->GetSpellInfo() && (p_Spell->GetSpellInfo()->IsHealingSpell() ||
+                p_Spell->GetSpellInfo()->Id == 121135 || ///< Cascade
+                p_Spell->GetSpellInfo()->IsShieldingSpell()) && p_Spell->GetSpellInfo()->Id != 146347)
             {
                 if (!p_Player->HasAura(eSpells::WordOfMendingProc))
                     p_Player->CastSpell(p_Player, eSpells::WordOfMendingStack, true);
