@@ -2235,7 +2235,10 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
     }
     
     bool l_SendAchievement = true;
-    sScriptMgr->OnAchievementEarned(p_ReferencePlayer, p_Achievement, l_SendAchievement);
+    sScriptMgr->OnAchievementEarned(p_ReferencePlayer, p_Achievement, l_SendAchievement, false);
+
+    if (!l_SendAchievement)
+        return;
 
     if (!GetOwner()->GetSession()->PlayerLoading() && !p_LoginCheck)
         SendAchievementEarned(p_Achievement);
@@ -2274,6 +2277,8 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, p_Achievement->Points, 0, 0, NULL, p_ReferencePlayer);
 
     RewardAchievement(p_Achievement);
+
+    sScriptMgr->OnAchievementEarned(p_ReferencePlayer, p_Achievement, l_SendAchievement, true);
 }
 
 template<>
