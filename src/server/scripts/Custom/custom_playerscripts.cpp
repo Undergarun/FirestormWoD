@@ -10,6 +10,7 @@
 #include "ScriptMgr.h"
 #include "Config.h"
 
+/*
 class PlayerScript_meta_achievement_midsummer : public PlayerScript
 {
     public:
@@ -74,10 +75,11 @@ class PlayerScript_meta_achievement_midsummer : public PlayerScript
             }
         }
 };
+*/
 
 #ifndef __clang_analyzer__
 void AddSC_CustomPlayerscripts()
 {
-    new PlayerScript_meta_achievement_midsummer();
+    //new PlayerScript_meta_achievement_midsummer();
 }
 #endif
