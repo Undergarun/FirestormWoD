@@ -12,59 +12,61 @@
 
 class PlayerScript_meta_achievement_midsummer : public PlayerScript
 {
-public:
-    PlayerScript_meta_achievement_midsummer() : PlayerScript("PlayerScript_meta_achievement_midsummer") { }
+    public:
+        PlayerScript_meta_achievement_midsummer() : PlayerScript("PlayerScript_meta_achievement_midsummer") { }
 
-    enum eDatas
-    {
-        LaDanseDuFeu                = 271,
-        Jongleur                    = 272,
-        LeRoiDeLaFeteDuFeu          = 1145,
-        TelEstGlaceQuiCroyaitGeler  = 263,
-        MaxAchievements             = 4,
-        ProfanationDeLAlliance      = 1037,
-        ProfanationDeLaHorde        = 1035,
-        LesFeuxDAzerothX            = 1036,
-        LesFeuxDAzerothY            = 1034,
-        LeGardienDesFlammes         = 1038,
-        LeGardeFlammes              = 1039
-    };
-
-    std::array<uint32, eDatas::MaxAchievements> m_Achievements =
-    {
-        eDatas::LaDanseDuFeu,
-        eDatas::Jongleur,
-        eDatas::LeRoiDeLaFeteDuFeu,
-        eDatas::TelEstGlaceQuiCroyaitGeler
-    };
-
-    void OnAchivementEarned(Player* p_Player, AchievementEntry const* /*p_Achievement*/)
-    {
-        if (!p_Player)
-            return;
-
-        bool l_AllCompleted = true;
-        
-        for (uint32 l_AchievementID : m_Achievements)
+        enum eDatas
         {
-            if (!p_Player->GetAchievementMgr().HasAchieved(l_AchievementID))
+            BurningHotPoleDance = 271,
+            TorchJuggler = 272,
+            KingOfTheFireFestival = 1145,
+            IceTheFrostLord = 263,
+            MaxAchievements = 4,
+            DesacrationOfTheAlliance = 1037,
+            DesacrationOfTheHorde = 1035,
+            TheFiresOfAzerothX = 1036,
+            TheFiresOfAzerothY = 1034,
+            TheFlameWarden = 1038,
+            TheFlameKeeper = 1039
+        };
+
+        std::array<uint32, eDatas::MaxAchievements> m_Achievements =
+        {
+            eDatas::BurningHotPoleDance,
+            eDatas::TorchJuggler,
+            eDatas::KingOfTheFireFestival,
+            eDatas::IceTheFrostLord
+        };
+
+        void OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement) override
+        {
+            if (!p_Player)
+                return;
+
+            bool l_AllCompleted = true;
+
+            for (uint32 l_AchievementID : m_Achievements)
+            {
+                if (!p_Player->GetAchievementMgr().HasAchieved(l_AchievementID))
+                    l_AllCompleted = false;
+            }
+
+            if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::DesacrationOfTheHorde) && !p_Player->GetAchievementMgr().HasAchieved(eDatas::DesacrationOfTheAlliance))
                 l_AllCompleted = false;
+
+            if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::TheFiresOfAzerothY) && !p_Player->GetAchievementMgr().HasAchieved(eDatas::TheFiresOfAzerothX))
+                l_AllCompleted = false;
+
+            if (l_AllCompleted)
+            {
+                if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::TheFlameKeeper))
+                    p_Player->CompletedAchievement(sAchievementStore.LookupEntry(eDatas::TheFlameKeeper));
+                if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::TheFlameWarden))
+                    p_Player->CompletedAchievement(sAchievementStore.LookupEntry(eDatas::TheFlameWarden));
+            }
+            else if (p_Achievement == sAchievementStore.LookupEntry(eDatas::TheFlameKeeper) || p_Achievement == sAchievementStore.LookupEntry(eDatas::TheFlameWarden))
+                p_SendAchievement = false;
         }
-
-        if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::ProfanationDeLaHorde) && !p_Player->GetAchievementMgr().HasAchieved(eDatas::ProfanationDeLAlliance))
-            l_AllCompleted = false;
-
-        if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::LesFeuxDAzerothY) && !p_Player->GetAchievementMgr().HasAchieved(eDatas::LesFeuxDAzerothX))
-            l_AllCompleted = false;
-
-        if (l_AllCompleted)
-        {
-            if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::LeGardeFlammes))
-                p_Player->CompletedAchievement(sAchievementStore.LookupEntry(eDatas::LeGardeFlammes));
-            if (!p_Player->GetAchievementMgr().HasAchieved(eDatas::LeGardienDesFlammes))
-                p_Player->CompletedAchievement(sAchievementStore.LookupEntry(eDatas::LeGardienDesFlammes));
-        }
-    }
 };
 
 #ifndef __clang_analyzer__
