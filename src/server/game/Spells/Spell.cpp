@@ -9453,6 +9453,11 @@ bool Spell::IsMorePowerfulAura(Unit const* target) const
 
 bool Spell::IsSpellTriggeredAfterCast() const
 {
+    if (AuraEffect* l_AuraEffect = GetCaster()->GetAuraEffect(53817, EFFECT_0)) ///< Maelstrom Weapon
+    {
+        if (l_AuraEffect->IsAffectingSpell(m_spellInfo))
+            return true;
+    }
     switch (m_spellInfo->Id)
     {
         case 29722:  ///< Incinerate
