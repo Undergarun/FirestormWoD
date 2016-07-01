@@ -1479,6 +1479,7 @@ enum KillerInstinct
     SPELL_DRUID_KILLER_INSTINCT_MOD_STAT = 108300
 };
 
+/// Last Updatr 6.2.3
 /// Called by Cat Form - 768 and Bear Form - 5487
 /// Killer Instinct - 108299
 class spell_dru_killer_instinct: public SpellScriptLoader
@@ -1486,13 +1487,13 @@ class spell_dru_killer_instinct: public SpellScriptLoader
     public:
         spell_dru_killer_instinct() : SpellScriptLoader("spell_dru_killer_instinct") { }
 
-        class spell_dru_killer_instinct_SpellScript : public SpellScript
+        class spell_dru_killer_instinct_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_dru_killer_instinct_SpellScript);
+            PrepareAuraScript(spell_dru_killer_instinct_AuraScript);
 
-            void HandleOnHit()
+            void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetTarget()->ToPlayer())
                 {
                     if (l_Player->HasAura(SPELL_DRUID_KILLER_INSTINCT))
                     {
@@ -1503,15 +1504,25 @@ class spell_dru_killer_instinct: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
             {
-                OnHit += SpellHitFn(spell_dru_killer_instinct_SpellScript::HandleOnHit);
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                {
+                    if (l_Player->HasAura(SPELL_DRUID_KILLER_INSTINCT))
+                        l_Player->RemoveAura(SPELL_DRUID_KILLER_INSTINCT_MOD_STAT);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_killer_instinct_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_killer_instinct_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const override
         {
-            return new spell_dru_killer_instinct_SpellScript();
+            return new spell_dru_killer_instinct_AuraScript();
         }
 };
 
