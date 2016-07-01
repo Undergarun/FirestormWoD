@@ -688,12 +688,28 @@ namespace MS { namespace Garrison
         }
     }
 
+    /// Garrison Buddies (9132, 9210)
+    class achievement_highmaul_annihilation : public AchievementCriteriaScript
+    {
+        public:
+            achievement_highmaul_annihilation() : AchievementCriteriaScript("achievement_highmaul_annihilation") { }
+
+            bool OnCheck(Player* p_Player, Unit* p_ReferenceUnit)
+            {
+                if (p_Player->GetGarrison() && p_Player->IsInGarrison())
+                    return true;
+
+                return false;
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
 #ifndef __clang_analyzer__
 void AddSC_Garrison_Quest()
 {
+    new MS::Garrison::achievement_highmaul_annihilation;
     new MS::Garrison::GarrisonBuildingAuraPlayerScript;
     new MS::Garrison::GarrisonQuestPlayerScript;
     new MS::Garrison::playerScript_Garrison_TradingPost;

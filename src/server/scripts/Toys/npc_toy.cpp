@@ -99,7 +99,7 @@ class npc_train_wrecker : public CreatureScript
                 return nullptr;
             }
 
-            void UpdateAI(uint32 p_Diff) override
+            void UpdateAI(uint32 const p_Diff) override
             {
                 if (m_IsSearching)
                 {

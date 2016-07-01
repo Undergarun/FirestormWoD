@@ -33497,7 +33497,7 @@ uint32 Player::GetFreeReagentBankSlot() const
     return REAGENT_BANK_SLOT_BAG_END;
 }
 
-MS::Garrison::Manager * Player::GetGarrison()
+MS::Garrison::Manager* Player::GetGarrison()
 {
     return m_Garrison;
 }

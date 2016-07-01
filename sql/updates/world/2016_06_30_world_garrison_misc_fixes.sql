@@ -1,0 +1,1 @@
+REPLACE INTO `achievement_criteria_data` VALUE (25311, 54, 0, 0, "achievement_highmaul_annihilation");
