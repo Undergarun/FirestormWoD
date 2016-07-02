@@ -537,11 +537,7 @@ enum Opcodes
         /// Garrison
         SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP                       = 0x1657, ///< 6.2.3 20726
         SMSG_GET_SHIPMENT_INFO_RESPONSE                         = 0x0BF7, ///< 6.2.3 20726
-#ifndef CROSS
         SMSG_GARRISON_LANDING_PAGE_SHIPMENT_INFO                = 0x1AF7, ///< 6.2.3 20726
-#else /* CROSS */
-        SMSG_GET_SHIPMENTS                                      = 0x1AF7, ///< 6.2.3 20726
-#endif /* CROSS */
         SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x0EFF, ///< 6.2.3 20726
 
         /// Twitter
@@ -1031,9 +1027,6 @@ enum Opcodes
     CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x08B1, ///< 6.2.3 20779
     CMSG_GET_SHIPMENT_INFO                                  = 0x00EA, ///< 6.2.3 20779
     CMSG_CREATE_SHIPMENT                                    = 0x0575, ///< 6.2.3 20779
-#ifdef CROSS
-    CMSG_GET_SHIPMENTS                                      = 0x18AA, ///< 6.2.3 20779
-#endif /* CROSS */
     CMSG_REQUEST_SET_MISSION_NPC                            = 0x092D, ///< 6.2.3 20779
 
     /// Shipyard
@@ -1998,14 +1991,13 @@ enum PacketProcessing
     PROCESS_THREADSAFE                                          // packet is thread-safe - process it in Map::Update()
 };
 
-#ifndef CROSS
 enum IRPacketProcessing
  {
      PROCESS_LOCAL           = 0,                            // Never send to interrealm
      PROCESS_DISTANT_IF_NEED = 1,                            // Send to interrealm if needed (player is on bg)
  };
 
-#endif /* not CROSS */
+
 class WorldPacket;
 class WorldSession;
 
@@ -2014,21 +2006,14 @@ typedef void(WorldSession::*g_OpcodeHandlerType)(WorldPacket& recvPacket);
 struct OpcodeHandler
 {
     OpcodeHandler() {}
-#ifndef CROSS
     OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, g_OpcodeHandlerType _handler, IRPacketProcessing _forwardToIR)
         : name(_name), status(_status), packetProcessing(_processing), handler(_handler), forwardToIR(_forwardToIR) {}
-#else /* CROSS */
-    OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, g_OpcodeHandlerType _handler)
-        : name(_name), status(_status), packetProcessing(_processing), handler(_handler) {}
-#endif /* CROSS */
 
     char const* name;
     SessionStatus status;
     PacketProcessing packetProcessing;
     g_OpcodeHandlerType handler;
-#ifndef CROSS
 	IRPacketProcessing forwardToIR;
-#endif /* not CROSS */
 };
 
 extern OpcodeHandler* g_OpcodeTable[TRANSFER_DIRECTION_MAX][NUM_OPCODE_HANDLERS];
@@ -2055,8 +2040,8 @@ inline std::string GetOpcodeNameForLogging(uint16 id, int p_Direction)
 
     ss << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
     return ss.str();
-#ifndef CROSS
 }
+
 
 inline bool CanBeSentDuringInterRealm(uint16 id)
 {
@@ -2073,7 +2058,6 @@ inline bool CanBeSentDuringInterRealm(uint16 id)
     }
 
     return false;
-#endif /* not CROSS */
 }
 
 #endif
