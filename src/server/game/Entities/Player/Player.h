@@ -270,6 +270,17 @@ enum ActionButtonType
     ACTION_BUTTON_ITEM = 0x80
 };
 
+enum ReputationSource
+{
+    REPUTATION_SOURCE_KILL,
+    REPUTATION_SOURCE_QUEST,
+    REPUTATION_SOURCE_DAILY_QUEST,
+    REPUTATION_SOURCE_WEEKLY_QUEST,
+    REPUTATION_SOURCE_MONTHLY_QUEST,
+    REPUTATION_SOURCE_REPEATABLE_QUEST,
+    REPUTATION_SOURCE_SPELL
+};
+
 #define ACTION_BUTTON_ACTION(X) (uint64(X) & 0x00000000FFFFFFFF)
 #define ACTION_BUTTON_TYPE(X)   ((uint64(X) & 0xFF00000000000000) >> 56)
 #define MAX_ACTION_BUTTON_ACTION_VALUE (0x0000000000FFFFFF)
@@ -1839,6 +1850,7 @@ class Player : public Unit, public GridObject<Player>
         bool CanCompleteRepeatableQuest(Quest const* quest);
         bool CanRewardQuest(Quest const* quest, bool msg);
         bool CanRewardQuest(Quest const* quest, uint32 reward, bool msg);
+        void HandleAutoCompleteQuest(Quest const* quest);
         void AddQuest(Quest const* quest, Object* questGiver);
         void CompleteQuest(uint32 quest_id);
         void IncompleteQuest(uint32 quest_id);
@@ -2249,8 +2261,10 @@ class Player : public Unit, public GridObject<Player>
         void _LoadChargesCooldowns(PreparedQueryResult p_Result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
         void _SaveChargesCooldowns(SQLTransaction& p_Transaction);
-        uint32 GetLastPotionId() { return m_lastPotionId; }
-        void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
+        uint32 GetLastPotionItemId() { return  m_LastPotion.m_LastPotionItemID; }
+        void SetLastPotionItemID(uint32 m_ItemId) { m_LastPotion.m_LastPotionItemID = m_ItemId; }
+        uint32 GetLastPotionSpellId() { return  m_LastPotion.m_LastPotionSpellID; }
+        void SetLastPotionSpellID(uint32 m_SpellId) { m_LastPotion.m_LastPotionSpellID = m_SpellId; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
         void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura, SpellInfo const* p_ResSpell = nullptr)
@@ -3390,8 +3404,10 @@ class Player : public Unit, public GridObject<Player>
         ChargeStorageType m_CategoryCharges;
 
         void SendSpellCharges();
+        void SendSpellCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
         void SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry);
         void UpdateCharges();
+        void UpdateCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
         bool ConsumeCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
         void ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntry, uint64 p_Reductiontime);
         void RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
@@ -3761,7 +3777,12 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
-        uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
+        struct lastPotion_struct
+        {
+            uint32 m_LastPotionItemID;
+            uint32 m_LastPotionSpellID;
+        };
+        lastPotion_struct m_LastPotion;                              // last used health/mana potion in combat, that block next potion use
 
         GlobalCooldownMgr m_GlobalCooldownMgr;
         struct prohibited_struct
@@ -3904,7 +3925,7 @@ class Player : public Unit, public GridObject<Player>
         // know currencies are not removed at any point (0 displayed)
         void AddKnownCurrency(uint32 itemId);
 
-        int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest, bool noQuestBonus = false);
+        int32 CalculateReputationGain(ReputationSource source, uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool noQuestBonus = false);
         void AdjustQuestReqItemCount(Quest const* quest);
 
         bool IsCanDelayTeleport() const { return m_bCanDelayTeleport; }

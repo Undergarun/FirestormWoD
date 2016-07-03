@@ -369,7 +369,7 @@ enum AuraType
     SPELL_AURA_MASTERY                                      = 318,
     SPELL_AURA_MOD_MELEE_HASTE_3                            = 319,
     SPELL_AURA_MOD_RANGED_HASTE_2                           = 320,
-    SPELL_AURA_321                                          = 321,
+    SPELL_AURA_MOD_NO_ACTIONS                               = 321,
     SPELL_AURA_INTERFERE_TARGETTING                         = 322,  // NYI
     SPELL_AURA_323                                          = 323,  // Not used in 4.3.4
     SPELL_AURA_324                                          = 324,  // spell critical chance (probably by school mask)
@@ -444,7 +444,7 @@ enum AuraType
     SPELL_AURA_DEFLECT_FRONT_SPELLS                         = 393,  // SPELL_AURA_DEFLECT_FRONT_SPELLS
     SPELL_AURA_TRIGGER_BONUS_LOOT                           = 394,  // SPELL_AURA_TRIGGER_BONUS_LOOT
     SPELL_AURA_AREATRIGGER                                  = 395,  // SPELL_AURA_AREATRIGGER
-    SPELL_AURA_396                                          = 396,  // 5.0.5 unk aura
+    SPELL_AURA_PROC_ON_POWER_AMOUNT_2                       = 396,  // SPELL_AURA_PROC_ON_POWER_AMOUNT_2
     SPELL_AURA_397                                          = 397,  // 5.0.5 unk aura
     SPELL_AURA_398                                          = 398,  // 5.0.5 unk aura
     SPELL_AURA_399                                          = 399,  // 5.0.5 unk aura

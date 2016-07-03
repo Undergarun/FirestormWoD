@@ -1,2 +1,0 @@
-ALTER TABLE character_stats_mop
-ADD COLUMN ilvl INT(10) UNSIGNED DEFAULT 0 NOT NULL;

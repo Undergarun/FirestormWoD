@@ -77,11 +77,12 @@ DBCStorage <DurabilityCostsEntry>         sDurabilityCostsStore(DurabilityCostsf
 DBCStorage <EmotesEntry>                  sEmotesStore(EmotesEntryfmt);
 DBCStorage <EmotesTextEntry>              sEmotesTextStore(EmotesTextEntryfmt);
 
+
 typedef std::tuple<uint32, uint32, uint32> EmotesTextSoundKey;
 static std::map<EmotesTextSoundKey, EmotesTextSoundEntry const*> sEmotesTextSoundMap;
 DBCStorage <EmotesTextSoundEntry>         sEmotesTextSoundStore(EmotesTextSoundEntryfmt);
 
-typedef std::map<uint32, SimpleFactionsList> FactionTeamMap;
+typedef std::map<uint32, std::vector<uint32>> FactionTeamMap;
 static FactionTeamMap                     sFactionTeamMap;
 DBCStorage <FactionEntry>                 sFactionStore(FactionEntryfmt);
 DBCStorage <FactionTemplateEntry>         sFactionTemplateStore(FactionTemplateEntryfmt);
@@ -306,7 +307,7 @@ void LoadDBCStores(const std::string& dataPath)
         FactionEntry const* faction = sFactionStore.LookupEntry(i);
         if (faction && faction->ParentFactionID)
         {
-            SimpleFactionsList &flist = sFactionTeamMap[faction->ParentFactionID];
+            std::vector<uint32> &flist = sFactionTeamMap[faction->ParentFactionID];
             flist.push_back(i);
         }
     }
@@ -633,7 +634,7 @@ void LoadDBCStores(const std::string& dataPath)
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Initialized %d DBC data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
-SimpleFactionsList const* GetFactionTeamList(uint32 faction)
+std::vector<uint32> const* GetFactionTeamList(uint32 faction)
 {
     FactionTeamMap::const_iterator itr = sFactionTeamMap.find(faction);
     if (itr != sFactionTeamMap.end())

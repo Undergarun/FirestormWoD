@@ -412,26 +412,42 @@ class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_of_anger_overcome_by_anger_AuraScript);
  
+            enum eNpcs
+            {
+                ShaOfAngerBunny = 35114
+            };
+
             void OnUpdate(uint32 /*p_Diff*/)
             {
-                if (Unit* target = GetUnitOwner())
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                float l_Radius = 20.0f;
+                float l_ShaOfAngerBunnyPresent = false;
+
+                std::list<Unit*> l_UnitList;
+                JadeCore::AnyUnitInObjectRangeCheck u_check(l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(l_Caster, l_UnitList, u_check);
+                l_Caster->VisitNearbyObject(l_Radius, searcher);
+
+                for (Unit* l_Target : l_UnitList)
                 {
-                    if (Unit* caster = GetCaster())
-                    {
-                        if (target->GetMapId() != caster->GetMapId() ||
-                            !target->IsWithinDist(caster, 30.0f))
-                            target->RemoveAura(SPELL_OVERCOME_BY_ANGER);
-                    }
+                    if (l_Target->GetEntry() == eNpcs::ShaOfAngerBunny)
+                        l_ShaOfAngerBunnyPresent = true;
                 }
+
+                if (!l_ShaOfAngerBunnyPresent)
+                    l_Caster->RemoveAura(SPELL_OVERCOME_BY_ANGER);
             }
  
-            void Register()
+            void Register() override
             {
                 OnAuraUpdate += AuraUpdateFn(spell_sha_of_anger_overcome_by_anger_AuraScript::OnUpdate);
             }
         };
  
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_sha_of_anger_overcome_by_anger_AuraScript();
         }

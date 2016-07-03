@@ -2425,26 +2425,26 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
 
     static float const qualityMultipliers[MAX_ITEM_QUALITY] =
     {
-        1.0f, 1.0f, 1.0f, 1.17f, 1.37f, 1.68f, 0.0f, 0.0f
+        0.92f, 0.92f, 0.92f, 1.11f, 1.32f, 1.61f, 0.0f, 0.0f
     };
 
     static float const armorMultipliers[MAX_INVTYPE] =
     {
         0.00f, // INVTYPE_NON_EQUIP
-        0.59f, // INVTYPE_HEAD
+        0.60f, // INVTYPE_HEAD
         0.00f, // INVTYPE_NECK
-        0.59f, // INVTYPE_SHOULDERS
+        0.60f, // INVTYPE_SHOULDERS
         0.00f, // INVTYPE_BODY
         1.00f, // INVTYPE_CHEST
-        0.35f, // INVTYPE_WAIST
-        0.75f, // INVTYPE_LEGS
-        0.49f, // INVTYPE_FEET
-        0.35f, // INVTYPE_WRISTS
-        0.35f, // INVTYPE_HANDS
+        0.33f, // INVTYPE_WAIST
+        0.72f, // INVTYPE_LEGS
+        0.48f, // INVTYPE_FEET
+        0.33f, // INVTYPE_WRISTS
+        0.33f, // INVTYPE_HANDS
         0.00f, // INVTYPE_FINGER
         0.00f, // INVTYPE_TRINKET
         0.00f, // INVTYPE_WEAPON
-        1.00f, // INVTYPE_SHIELD
+        0.72f, // INVTYPE_SHIELD
         0.00f, // INVTYPE_RANGED
         0.00f, // INVTYPE_CLOAK
         0.00f, // INVTYPE_2HWEAPON
@@ -2463,27 +2463,27 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
 
     static float const weaponMultipliers[MAX_ITEM_SUBCLASS_WEAPON] =
     {
-        0.89f, // ITEM_SUBCLASS_WEAPON_AXE
-        1.03f, // ITEM_SUBCLASS_WEAPON_AXE2
-        0.77f, // ITEM_SUBCLASS_WEAPON_BOW
-        0.77f, // ITEM_SUBCLASS_WEAPON_GUN
-        0.89f, // ITEM_SUBCLASS_WEAPON_MACE
-        1.03f, // ITEM_SUBCLASS_WEAPON_MACE2
-        1.03f, // ITEM_SUBCLASS_WEAPON_POLEARM
-        0.89f, // ITEM_SUBCLASS_WEAPON_SWORD
-        1.03f, // ITEM_SUBCLASS_WEAPON_SWORD2
+        0.91f, // ITEM_SUBCLASS_WEAPON_AXE
+        1.00f, // ITEM_SUBCLASS_WEAPON_AXE2
+        1.00f, // ITEM_SUBCLASS_WEAPON_BOW
+        1.00f, // ITEM_SUBCLASS_WEAPON_GUN
+        0.91f, // ITEM_SUBCLASS_WEAPON_MACE
+        1.00f, // ITEM_SUBCLASS_WEAPON_MACE2
+        1.00f, // ITEM_SUBCLASS_WEAPON_POLEARM
+        0.91f, // ITEM_SUBCLASS_WEAPON_SWORD
+        1.00f, // ITEM_SUBCLASS_WEAPON_SWORD2
         0.00f, // ITEM_SUBCLASS_WEAPON_Obsolete
-        1.03f, // ITEM_SUBCLASS_WEAPON_STAFF
+        1.00f, // ITEM_SUBCLASS_WEAPON_STAFF
         0.00f, // ITEM_SUBCLASS_WEAPON_EXOTIC
         0.00f, // ITEM_SUBCLASS_WEAPON_EXOTIC2
-        0.64f, // ITEM_SUBCLASS_WEAPON_FIST_WEAPON
+        0.66f, // ITEM_SUBCLASS_WEAPON_FIST_WEAPON
         0.00f, // ITEM_SUBCLASS_WEAPON_MISCELLANEOUS
-        0.64f, // ITEM_SUBCLASS_WEAPON_DAGGER
-        0.64f, // ITEM_SUBCLASS_WEAPON_THROWN
+        0.66f, // ITEM_SUBCLASS_WEAPON_DAGGER
+        0.00f, // ITEM_SUBCLASS_WEAPON_THROWN
         0.00f, // ITEM_SUBCLASS_WEAPON_SPEAR
-        0.77f, // ITEM_SUBCLASS_WEAPON_CROSSBOW
-        0.64f, // ITEM_SUBCLASS_WEAPON_WAND
-        0.64f, // ITEM_SUBCLASS_WEAPON_FISHING_POLE
+        1.00f, // ITEM_SUBCLASS_WEAPON_CROSSBOW
+        0.66f, // ITEM_SUBCLASS_WEAPON_WAND
+        0.66f, // ITEM_SUBCLASS_WEAPON_FISHING_POLE
     };
 
     float levelPenalty = 1.0f;
@@ -2495,10 +2495,10 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
         if (inventoryType > INVTYPE_ROBE)
             return 0;
 
-        return 5 * uint32(23.0f * qualityMultipliers[quality] * armorMultipliers[inventoryType] * levelPenalty + 0.5f);
+        return 5 * uint32(round(25.0f * qualityMultipliers[quality] * armorMultipliers[inventoryType] * levelPenalty));
     }
 
-    return 5 * uint32(17.0f * qualityMultipliers[quality] * weaponMultipliers[itemSubClass] * levelPenalty + 0.5f);
+    return 5 * uint32(round(18.0f * qualityMultipliers[quality] * weaponMultipliers[itemSubClass] * levelPenalty));
 };
 
 void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill, ItemTemplate const& itemTemplate)
@@ -4679,17 +4679,17 @@ void ObjectMgr::LoadBonusQuests()
 {
     for (uint32 l_I = 0; l_I < sCriteriaStore.GetNumRows(); ++l_I)
     {
-        const CriteriaEntry * l_Criteria = sCriteriaStore.LookupEntry(l_I);
+        CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(l_I);
 
         if (!l_Criteria || l_Criteria->Type != ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST)
             continue;
 
-        const QuestV2CliTaskEntry * l_QuestV2CliTask = sQuestV2CliTaskStore.LookupEntry(l_Criteria->complete_quest.questID);
+        const QuestV2CliTaskEntry* l_QuestV2CliTask = sQuestV2CliTaskStore.LookupEntry(l_Criteria->complete_quest.questID);
 
         if (!l_QuestV2CliTask)
             continue;
 
-        const Quest * l_Quest = GetQuestTemplate(l_Criteria->complete_quest.questID);
+        Quest const* l_Quest = GetQuestTemplate(l_Criteria->complete_quest.questID);
         
         if (!l_Quest || l_Quest->Method != QUEST_METHOD_AUTO_SUBMITED || !(l_Quest->GetZoneOrSort() > 0))
             continue;
@@ -4700,7 +4700,7 @@ void ObjectMgr::LoadBonusQuests()
         {
             for (QuestPOIVector::const_iterator l_It = l_POIs->begin(); l_It != l_POIs->end(); ++l_It)
             {
-                const QuestObjective * l_Objective = l_Quest->GetQuestObjectiveXIndex(l_It->ObjectiveIndex);
+                QuestObjective const* l_Objective = l_Quest->GetQuestObjectiveXIndex(l_It->ObjectiveIndex);
 
                 int32 l_MinX = 0, l_MinY = 0, l_MaxX = 0, l_MaxY = 0;
                 bool l_FirstIter = true;

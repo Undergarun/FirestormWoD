@@ -1467,10 +1467,18 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                 if (!l_Caster || m_AmountAbsorb == 0)
                     return;
 
+                Unit* l_AuraTarget = GetTargetApplication()->GetTarget();
+                if (!l_AuraTarget)
+                    return;
+
                 if (Aura* l_Aura = l_Caster->GetAura(eSpells::GlyphOfRegenerativeMagic))
                 {
                     SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::AntiMagicShell);
                     if (l_SpellInfo == nullptr)
+                        return;
+
+                    /// Fix usebug when DK has Glyph of Regenarative Magic and even shields from party members reduce his cooldown
+                    if (l_Caster != l_AuraTarget)
                         return;
 
                     float l_RemainingPct = 0.0f;

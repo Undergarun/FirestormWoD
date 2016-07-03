@@ -1579,30 +1579,10 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
         if (m_spellInfo->Id == 5246 && p_EffIndex != EFFECT_0)
             l_UnitTargets.remove(m_targets.GetUnitTarget());
 
-        // Custom MoP Script
-        if (m_caster->IsPlayer())
-        {
-            switch (m_spellInfo->Id)
-            {
-                // Spinning Crane Kick / Rushing Jade Wind : Give 1 Chi if the spell hits at least 3 targets
-                case 107270:
-                case 117640:
-                case 148187:
-                    if (m_caster->ToPlayer()->HasSpellCooldown(129881) || l_UnitTargets.size() < 3)
-                        break;
-
-                    m_caster->CastSpell(m_caster, 129881, true);
-                    m_caster->ToPlayer()->AddSpellCooldown(129881, 0, 3 * IN_MILLISECONDS);
-                    break;
-                default:
-                    break;
-            }
-        }
-
         if (m_caster->IsPlayer() && m_spellInfo->Id == 1449)
             if (m_caster->ToPlayer()->GetSpecializationId() == SPEC_MAGE_ARCANE)
                 if (roll_chance_i(30))
-                    m_caster->AddAura(36032, m_caster);
+                    m_caster->CastSpell(m_caster, 36032, true);
 
         // Other special target selection goes here
         if (uint32 l_MaxTargets = m_spellValue->MaxAffectedTargets)
@@ -3107,13 +3087,24 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
 
-    if (!m_spellInfo->IsIgnoringCombat() && missInfo != SPELL_MISS_EVADE && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
+    if (!m_spellInfo->IsIgnoringCombat() && missInfo != SPELL_MISS_EVADE && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && m_caster->_IsValidAttackTarget(unit, m_spellInfo))
     {
-        m_caster->CombatStart(unit, !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO));
+        bool l_ShouldAttack = true;
+        if (Creature* l_Creature = unit->ToCreature())
+        {
+            uint32 l_CreatureType = l_Creature->GetCreatureTemplate()->type;
+            if (l_CreatureType == CREATURE_TYPE_CRITTER || l_CreatureType == CREATURE_TYPE_WILD_PET)
+                l_ShouldAttack = false;
+        }
 
-        if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_AURA_CC)
-            if (!unit->IsStandState())
-                unit->SetStandState(UNIT_STAND_STATE_STAND);
+        if (l_ShouldAttack)
+        {
+            m_caster->CombatStart(unit, !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO));
+
+            if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_AURA_CC)
+                if (!unit->IsStandState())
+                    unit->SetStandState(UNIT_STAND_STATE_STAND);
+        }
     }
 
     if (spellHitTarget)
@@ -4377,7 +4368,8 @@ void Spell::SendSpellCooldown()
     if (m_CastItem && (m_CastItem->IsPotion() || m_CastItem->IsHealthstone() || m_spellInfo->IsCooldownStartedOnEvent()))
     {
         // need in some way provided data for Spell::finish SendCooldownEvent
-        l_Player->SetLastPotionId(m_CastItem->GetEntry());
+        l_Player->SetLastPotionItemID(m_CastItem->GetEntry());
+        l_Player->SetLastPotionSpellID(m_spellInfo->Id);
         return;
     }
 
@@ -6174,7 +6166,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
 
         // check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
-        if (l_Player->GetLastPotionId() && m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))
+        if (l_Player->GetLastPotionItemId() && m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))
             return SPELL_FAILED_NOT_READY;
     }
 
@@ -6986,12 +6978,12 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 Player* l_Player = m_caster->ToPlayer();
 
-                if (!l_Player)
+                if (l_Player == nullptr)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 MS::Garrison::Manager* l_Garrison = l_Player->GetGarrison();
 
-                if (!l_Garrison)
+                if (l_Garrison == nullptr)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 SpellCastResult l_Result = l_Garrison->CanLearnTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), i);
@@ -7004,17 +6996,36 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 Player* l_Player = m_caster->ToPlayer();
 
-                if (!l_Player)
+                if (l_Player == nullptr)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 MS::Garrison::Manager* l_Garrison = l_Player->GetGarrison();
 
-                if (!l_Garrison)
+                if (l_Garrison == nullptr)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 SpellCastResult l_Result = l_Garrison->CanUpgradeItemLevelWith(m_Misc[0], GetSpellInfo());
                 if (l_Result != SPELL_CAST_OK)
                     return l_Result;
+
+                break;
+            }
+            case SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE:
+            {
+                Player* l_Player = m_caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                MS::Garrison::Manager* l_Garrison = l_Player->GetGarrison();
+
+                if (l_Garrison == nullptr)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                MS::Garrison::GarrisonFollower* l_Follower = l_Garrison->GetFollower(m_Misc[0]);
+
+                if (l_Follower == nullptr || !l_Follower->CanXP())
+                    return SPELL_FAILED_BAD_TARGETS;
 
                 break;
             }
@@ -7353,6 +7364,8 @@ SpellCastResult Spell::CheckCasterAuras() const
         prevented_reason = SPELL_FAILED_SILENCED;
     else if (unitflag & UNIT_FLAG_PACIFIED && m_spellInfo->PreventionType & (SpellPreventionMask::Pacify))
         prevented_reason = SPELL_FAILED_PACIFIED;
+    else if (m_caster->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_NO_ACTIONS) && m_spellInfo->PreventionType & (SpellPreventionMask::NoActions))
+        prevented_reason = SPELL_FAILED_NO_ACTIONS;
 
     // Barkskin & Hex hotfix 4.3 patch http://eu.battle.net/wow/ru/blog/10037151
     if (m_spellInfo->Id == 22812 && m_caster->HasAura(51514))
@@ -9440,6 +9453,11 @@ bool Spell::IsMorePowerfulAura(Unit const* target) const
 
 bool Spell::IsSpellTriggeredAfterCast() const
 {
+    if (AuraEffect* l_AuraEffect = GetCaster()->GetAuraEffect(53817, EFFECT_0)) ///< Maelstrom Weapon
+    {
+        if (l_AuraEffect->IsAffectingSpell(m_spellInfo))
+            return true;
+    }
     switch (m_spellInfo->Id)
     {
         case 29722:  ///< Incinerate

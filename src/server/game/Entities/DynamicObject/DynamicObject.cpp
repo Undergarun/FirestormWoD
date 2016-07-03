@@ -99,6 +99,11 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo 
     if (spellInfo)
     {
         uint32 visual = spellInfo->SpellVisual[0] ? spellInfo->SpellVisual[0] : spellInfo->SpellVisual[1];
+        if (spellInfo->Id == 104232 || spellInfo->Id == 5740) // Rain of Fire
+        {
+            if (caster->HasAura(101508)) // green fire spells
+                visual = 25761;
+        }
         SetUInt32Value(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, 0x10000000 | visual);
     }
 

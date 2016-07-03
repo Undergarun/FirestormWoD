@@ -286,8 +286,8 @@ namespace MS { namespace Garrison
 
                     switch (GetBuildingID())
                     {
-                        case Buildings::TheForge_TheForge_Level2:
-                        case Buildings::TheForge_TheForge_Level3:
+                        case Building::ID::TheForge_TheForge_Level2:
+                        case Building::ID::TheForge_TheForge_Level3:
                             if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[0], -4.1991f, -0.8694f, 0.8636f, 0.4778f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());

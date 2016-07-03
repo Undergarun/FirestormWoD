@@ -296,7 +296,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228                     Recruit A Friend Summon Effect
     &Spell::EffectNULL,                                     //229 SPELL_EFFECT_SET_FOLLOWER_QUALITY
     &Spell::EffectUpgradeFolloweriLvl,                      //230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL   Upgrade follower iLvL
-    &Spell::EffectNULL,                                     //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
+    &Spell::EffectIncreaseFollowerExperience,               //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
     &Spell::EffectNULL,                                     //232 SPELL_EFFECT_REMOVE_PHASE
     &Spell::EffectRerollFollowerAbilities,                  //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
     &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234                     Unused 6.1.2
@@ -3886,6 +3886,10 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             std::string l_NewName = sObjectMgr->GeneratePetName(petentry);
             if (!l_NewName.empty())
                 p_Pet->SetName(l_NewName);
+
+            /// Glyph of the Unbound Elemental
+            if (p_Pet->GetEntry() == 78116 && p_Pet->GetOwner() && p_Pet->GetOwner()->HasAura(146976))
+                p_Pet->CastSpell(p_Pet, 147358, true);
         }
     });
 
@@ -7932,7 +7936,7 @@ void Spell::EffectCreateGarrison(SpellEffIndex /*p_EffIndex*/)
 
 }
 
-void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex /*p_EffIndex*/)
+void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -7950,7 +7954,29 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex /*p_EffIndex*/)
     if (l_GarrisonMgr == nullptr)
         return;
 
-    l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
+    l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo(), p_EffIndex);
+}
+
+void Spell::EffectIncreaseFollowerExperience(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Player = unitTarget->ToPlayer();
+
+    if (l_Player == nullptr)
+        return;
+
+    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    if (MS::Garrison::GarrisonFollower* l_Follower = l_GarrisonMgr->GetFollower(m_Misc[0]))
+        l_Follower->EarnXP(m_spellInfo->Effects[p_EffIndex].BasePoints, l_Player);
 }
 
 void Spell::EffectRerollFollowerAbilities(SpellEffIndex /*p_EffIndex*/)
@@ -8195,11 +8221,12 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
     uint64 l_UnitTargetGUID = unitTarget->GetGUID();
 
     uint32 l_MalusSpell          = m_spellInfo->Effects[p_EffIndex].TriggerSpell;
+    uint8 l_MaxTotalPet          = m_spellInfo->Effects[p_EffIndex].BasePoints;
     bool   l_OnlyCurrentPet      = l_Player->HasAuraType(SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET);
     SpellInfo const* l_SpellInfo = GetSpellInfo();
 
     uint32 l_CurrentSlot = l_Player->m_currentPetSlot;
-    for (uint32 l_PetSlotIndex = uint32(PET_SLOT_HUNTER_FIRST); l_PetSlotIndex <= uint32(PET_SLOT_HUNTER_LAST); ++l_PetSlotIndex)
+    for (uint32 l_PetSlotIndex = uint32(PET_SLOT_HUNTER_FIRST); l_PetSlotIndex <= uint32(PET_SLOT_HUNTER_LAST) && l_PetSlotIndex < l_MaxTotalPet; ++l_PetSlotIndex)
     {
         if (l_PetSlotIndex != l_CurrentSlot)
         {
@@ -8234,6 +8261,13 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
                 {
                     auto l_Iter = p_Pet->m_spells.find(l_ID);
                     p_Pet->m_spells.erase(l_Iter);
+                }
+
+                /// Bestial Wrath stampe should have same duration of Bestial Wrath
+                if (l_SpellInfo->Id == 167135)
+                {
+                    Aura* l_Aura = l_Owner->GetAura(19574);
+                    p_Pet->SetDuration(l_Aura->GetDuration());
                 }
 
                 p_Pet->m_autospells.clear();
@@ -8395,7 +8429,7 @@ void Spell::EffectFinishGarrisonMission(SpellEffIndex /*p_EffIndex*/)
         {
             if (MS::Garrison::GarrisonMission* l_Mission = l_GarrisonMgr->GetMissionWithID(m_Misc[0]))
             {
-                if (l_Mission->State == MS::Garrison::MissionStates::InProgress)
+                if (l_Mission->State == MS::Garrison::Mission::State::InProgress)
                     l_Mission->StartTime = time(0) - (l_GarrisonMgr->GetMissionTravelDuration(l_Mission->MissionID) + l_GarrisonMgr->GetMissionDuration(l_Mission->MissionID));
 
                 WorldPacket l_PlaceHolder;
@@ -8422,7 +8456,7 @@ void Spell::EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex)
             if (l_ContainerEntry == nullptr)
                 return;
 
-            uint32 l_PlotInstanceID = l_GarrisonMgr->GetBuildingWithType(BuildingType::Type(l_ContainerEntry->BuildingType)).PlotInstanceID;
+            uint32 l_PlotInstanceID = l_GarrisonMgr->GetBuildingWithType(Building::Type(l_ContainerEntry->BuildingType)).PlotInstanceID;
 
             if (l_PlotInstanceID)
             {

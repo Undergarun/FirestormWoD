@@ -287,7 +287,8 @@ enum eAuchindounDatas
     DataSoulTransport1,
     DataSoulTransport2,
     DataSoulTransport3,
-    DataSoulTransport4
+    DataSoulTransport4,
+	DataCrystal
 };
 
 enum eAuchindounBosses
@@ -524,7 +525,8 @@ enum eAuchindounObjects
     GameobjectSoulTransport1     = 345366,
     GameobjectSoulTransport2     = 345367,
     GameobjectSoulTransport3     = 345368,
-    GameobjectHolyBarrierEntra   = 231679
+    GameobjectHolyBarrierEntra   = 231679,
+	GameObjectAuchindounCrystal	 = 23524
 };
 
 enum eAuchindounAchievements

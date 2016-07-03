@@ -884,6 +884,13 @@ class ScriptMgr
         /// @p_Attacker  : Damage Infos
         void OnPlayerBlock(Player* p_Player, Unit* p_Attacker);
 
+        /// Called when player earn achievement
+        /// @p_Player : Player instance
+        /// @p_Attacker  : Achievement
+        /// @p_SendAchievement : Set to false to cancel achievement earned
+        /// @p_After : True when the hook is after achievement earned, else : false
+        void OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement, bool p_After);
+
     /// BattlegroundScript
     public:
         /// Should return a fully valid Battleground object for the type ID.

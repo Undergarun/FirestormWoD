@@ -29,7 +29,7 @@ namespace MS { namespace Garrison
         if (l_GarrisonMgr == nullptr)
             return;
 
-        if (l_GarrisonMgr->HasActiveBuilding(MS::Garrison::Buildings::MageTower_SpiritLodge_Level1) && !p_Player->HasAura(Spells::SpellAuraRunesOfPower))
+        if (l_GarrisonMgr->HasActiveBuilding(MS::Garrison::Building::ID::MageTower_SpiritLodge_Level1) && !p_Player->HasAura(Spells::SpellAuraRunesOfPower))
             p_Player->AddAura(Spells::SpellAuraRunesOfPower, p_Player);
     }
 }   ///< namespace Garrison

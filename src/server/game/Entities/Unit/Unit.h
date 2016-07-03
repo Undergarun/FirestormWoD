@@ -714,7 +714,7 @@ enum eUnitFlags2
     UNIT_FLAG2_UNK2                         = 0x00010000,
     UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
     UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,   // allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
-    UNIT_FLAG2_UNK3                         = 0x00080000,   ///< Remove Hightlight on cursor
+    UNIT_FLAG2_NO_ACTIONS                   = 0x00080000,   ///< Remove Hightlight on cursor
     UNIT_FLAG2_UNK4                         = 0x00100000,
     UNIT_FLAG2_UNK5                         = 0x00200000,
     UNIT_FLAG2_UNK6                         = 0x00400000,
@@ -1409,7 +1409,8 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_AIR2   = 3405,
     SUMMON_TYPE_TOTEM_AIR3   = 3407,
     SUMMON_TYPE_TOTEM_AIR4   = 3406,
-    SUMMON_TYPE_TOTEM_AIR5   = 3399
+    SUMMON_TYPE_TOTEM_AIR5   = 3399,
+    SUMMON_TYPE_TOTEM_AIR6   = 3401
 };
 
 /// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
@@ -2416,6 +2417,7 @@ class Unit : public WorldObject
         uint32 SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim);
         uint32 SpellCriticalHealingBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim);
         uint32 SpellCriticalAuraAbsorbBonus(SpellInfo const* p_SpellProto, uint32 p_Damage);
+        bool   IsUnitAbleToCrit() const;
 
         void SetContestedPvP(Player* attackedPlayer = NULL);
 
@@ -2653,6 +2655,13 @@ class Unit : public WorldObject
         // Movement info
         Movement::MoveSpline * movespline;
 
+
+        /// Helper for Rushing Jade Wind
+        bool GetRushingJadeWindTargets(uint64 p_Guid) { return m_RushingJadeWindTargetsGUID.count(p_Guid); }
+        int8 GetRushingJadeWindNbTargets () { return m_RushingJadeWindTargetsGUID.size(); }
+        void AddRushingJadeWindTargets(uint64 p_Guid) { m_RushingJadeWindTargetsGUID.insert(p_Guid); }
+        void CleanRushingJadeWindTargets() { m_RushingJadeWindTargetsGUID.clear(); }
+
         /// Helper for Glaive of Toss
         uint64 GetGlaiveOfTossTargetGUID() { return m_GlaiveOfTossTargetGUID;  }
         void SetGlaiveTossTarget(uint64 guid) { m_GlaiveOfTossTargetGUID = guid; }
@@ -2683,6 +2692,12 @@ class Unit : public WorldObject
         // helpers for Icicles spells
         uint64 GetIciclesTarget() const { return iciclesTargetGUID; }
         void SetIciclesTarget(uint64 guid) { iciclesTargetGUID = guid; }
+
+        /// helepers for Shooting Stars
+        uint64 GetLastMoonfireTarget() const { return lastMoonfireTargetGUID; }
+        void SetLastMoonfireTarget(uint64 guid) { lastMoonfireTargetGUID = guid; }
+        uint64 GetLastSunfireTarget() const { return lastSunfireTargetGUID; }
+        void SetLastSunfireTarget(uint64 guid) { lastSunfireTargetGUID = guid; }
 
         // helpers for Psychic Horror
         bool GetPsychicHorrorGainedPower() const { return psychicHorrorGainedPower; }
@@ -2899,7 +2914,10 @@ class Unit : public WorldObject
         uint64 simulacrumTargetGUID;
         uint64 m_GlaiveOfTossTargetGUID;
         std::set<uint64> m_FistsOfFuryStunTargetsGUID;
+        std::set<uint64> m_RushingJadeWindTargetsGUID;
         uint64 iciclesTargetGUID;
+        uint64 lastMoonfireTargetGUID;
+        uint64 lastSunfireTargetGUID;
         uint32 m_AmountOfComets;
         float m_CometCoordinateX;
         float m_CometCoordinateY;

@@ -38,6 +38,9 @@ namespace Battlepay
 
                         if (l_ItemTemplate->AllowableRace && (l_ItemTemplate->AllowableRace & l_Player->getRaceMask()) == 0)
                             return false;
+
+                        if (l_ItemTemplate->RequiredReputationFaction && uint32(l_Player->GetReputationRank(l_ItemTemplate->RequiredReputationFaction)) < l_ItemTemplate->RequiredReputationRank)
+                            return false;
                     }
                 }
 
@@ -83,6 +86,12 @@ namespace Battlepay
                         }
 
                         if (l_ItemTemplate->AllowableRace && (l_ItemTemplate->AllowableRace & l_Player->getRaceMask()) == 0)
+                        {
+                            l_Continue = true;
+                            break;
+                        }
+
+                        if (l_ItemTemplate->RequiredReputationFaction && uint32(l_Player->GetReputationRank(l_ItemTemplate->RequiredReputationFaction)) < l_ItemTemplate->RequiredReputationRank)
                         {
                             l_Continue = true;
                             break;

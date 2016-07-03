@@ -181,10 +181,10 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
             case SPELL_EFFECT_APPLY_GLYPH:
                 l_IsGlyph = true;
                 break;
+            case SPELL_EFFECT_TEACH_FOLLOWER_ABILITY:
             case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
-                l_TargetGUID = pUser->GetGUID();
-                break;
             case SPELL_EFFECT_FINISH_GARRISON_MISSION:
+            case SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE:
                 l_TargetGUID = pUser->GetGUID();
                 break;
             default:
@@ -761,6 +761,20 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         // if rank not found then function return NULL but in explicit cast case original spell can be casted and later failed with appropriate error message
         if (actualSpellInfo)
             spellInfo = actualSpellInfo;
+    }
+
+    switch (l_SpellID) ///< Hackfix for codex of Xerrath effect on Abyssal (Guardian) and Abyssal (Summon)
+    {
+        case 112921: //< Abyssal(Guardian)
+            if (m_Player->HasAura(137206)) 
+                spellInfo = sSpellMgr->GetSpellInfo(140763);
+            break;
+        case 157899: //< Abyssal (Summon)
+            if (m_Player->HasAura(137206)) 
+                spellInfo = sSpellMgr->GetSpellInfo(157904);
+            break;
+        default:
+            break;
     }
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, 0, false);

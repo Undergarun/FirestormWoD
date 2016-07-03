@@ -27,7 +27,7 @@ enum YseraGiftSpells
     SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY   = 145110
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Ysera's Gift - 145108
 class spell_dru_yseras_gift: public SpellScriptLoader
 {
@@ -47,22 +47,54 @@ class spell_dru_yseras_gift: public SpellScriptLoader
                 if (!l_Caster->IsFullHealth())
                 {
                     int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount());
-                    l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER, &l_HealAmount, NULL, NULL, true);
+                    SpellInfo const* l_YseraHeal = sSpellMgr->GetSpellInfo(SPELL_DRUID_YSERAS_GIFT_HEAL_CASTER);
+
+                    l_Caster->HealBySpell(l_Caster, l_YseraHeal, l_HealAmount, false, false);
                 }
                 else
                 {
+                    float l_Radius = 30.0f;
+                    std::list<Unit*> l_TargetList;
+                    JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(l_Caster, l_Caster, l_Radius);
+                    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(l_Caster, l_TargetList, u_check);
+                    l_Caster->VisitNearbyObject(l_Radius, searcher);
+
+                    l_TargetList.remove_if([l_Caster](Unit* p_Unit) -> bool
+                    {
+                        if (p_Unit == nullptr)
+                            return true;
+
+                        if (!l_Caster->IsValidAssistTarget(p_Unit))
+                            return true;
+
+                        if (p_Unit->ToUnit()->IsFullHealth() || p_Unit->GetGUID() == l_Caster->GetGUID())
+                            return true;
+
+                        return false;
+                    });
+
+                    if (l_TargetList.size() > 1)
+                    {
+                        l_TargetList.sort(JadeCore::HealthPctOrderPred());
+                        l_TargetList.resize(1);
+                    }
+                    if (l_TargetList.size() < 1)
+                        return;
+
+                    SpellInfo const* l_YseraHeal = sSpellMgr->GetSpellInfo(SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY);
+
                     int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount());
-                    l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY, &l_HealAmount, NULL, NULL, true);
+                    l_Caster->HealBySpell(l_TargetList.front(), l_YseraHeal, l_HealAmount, false, false);
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_yseras_gift_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_dru_yseras_gift_AuraScript();
         }
@@ -1447,6 +1479,7 @@ enum KillerInstinct
     SPELL_DRUID_KILLER_INSTINCT_MOD_STAT = 108300
 };
 
+/// Last Updatr 6.2.3
 /// Called by Cat Form - 768 and Bear Form - 5487
 /// Killer Instinct - 108299
 class spell_dru_killer_instinct: public SpellScriptLoader
@@ -1454,13 +1487,13 @@ class spell_dru_killer_instinct: public SpellScriptLoader
     public:
         spell_dru_killer_instinct() : SpellScriptLoader("spell_dru_killer_instinct") { }
 
-        class spell_dru_killer_instinct_SpellScript : public SpellScript
+        class spell_dru_killer_instinct_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_dru_killer_instinct_SpellScript);
+            PrepareAuraScript(spell_dru_killer_instinct_AuraScript);
 
-            void HandleOnHit()
+            void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetTarget()->ToPlayer())
                 {
                     if (l_Player->HasAura(SPELL_DRUID_KILLER_INSTINCT))
                     {
@@ -1471,15 +1504,25 @@ class spell_dru_killer_instinct: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
             {
-                OnHit += SpellHitFn(spell_dru_killer_instinct_SpellScript::HandleOnHit);
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                {
+                    if (l_Player->HasAura(SPELL_DRUID_KILLER_INSTINCT))
+                        l_Player->RemoveAura(SPELL_DRUID_KILLER_INSTINCT_MOD_STAT);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_killer_instinct_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_killer_instinct_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const override
         {
-            return new spell_dru_killer_instinct_SpellScript();
+            return new spell_dru_killer_instinct_AuraScript();
         }
 };
 
@@ -2840,6 +2883,12 @@ class spell_dru_moonfire_sunfire_damage : public SpellScriptLoader
     public:
         spell_dru_moonfire_sunfire_damage() : SpellScriptLoader("spell_dru_moonfire_sunfire_damage") { }
 
+        enum eSpells
+        {
+            moonfire = 164812,
+            sunfire = 164815
+        };
+
         class spell_dru_moonfire_sunfire_damage_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dru_moonfire_sunfire_damage_SpellScript);
@@ -2848,11 +2897,20 @@ class spell_dru_moonfire_sunfire_damage : public SpellScriptLoader
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (l_Player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DRUID_RESTORATION &&
-                        (l_Player->HasAura(Eclipse::Spell::LunarPeak) || l_Player->HasAura(Eclipse::Spell::SolarPeak)))
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (Unit* l_Target = l_Player->GetNextRandomRaidMember(15.0f))
-                            l_Player->CastSpell(l_Target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, true);
+                        /// Save last target, for Shooting Stars
+                        if (GetSpellInfo()->Id == eSpells::moonfire)
+                            l_Player->SetLastMoonfireTarget(l_Target->GetGUID());
+                        else if (GetSpellInfo()->Id == eSpells::sunfire)
+                            l_Player->SetLastSunfireTarget(l_Target->GetGUID());
+
+                        if (l_Player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DRUID_RESTORATION &&
+                            (l_Player->HasAura(Eclipse::Spell::LunarPeak) || l_Player->HasAura(Eclipse::Spell::SolarPeak)))
+                        {
+                            if (Unit* l_Target = l_Player->GetNextRandomRaidMember(15.0f))
+                                l_Player->CastSpell(l_Target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, true);
+                        }
                     }
                 }
             }
@@ -2929,8 +2987,21 @@ class spell_dru_shooting_stars_proc : public SpellScriptLoader
                     if (l_SpellInfo == nullptr)
                         return;
 
+                    Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
+                    if (l_Target == nullptr)
+                        return;
+
+                    uint64 l_TargetGUID = l_Target->GetGUID();
+                    if (!l_TargetGUID)
+                        return;
+
                     if (l_SpellInfo->Id != eSpells::Moonfire && l_SpellInfo->Id != eSpells::Sunfire &&
                         l_SpellInfo->Id != eSpells::MoonfireOverrided && l_SpellInfo->Id != eSpells::SunfireOverrided)
+                        return;
+
+                    /// Can proc only from last applied Moonfire/Sunfire
+                    if (((l_SpellInfo->Id == eSpells::Moonfire || l_SpellInfo->Id == eSpells::MoonfireOverrided) && l_Caster->GetLastMoonfireTarget() != l_TargetGUID) ||
+                        ((l_SpellInfo->Id == eSpells::Sunfire || l_SpellInfo->Id == eSpells::SunfireOverrided) && l_Caster->GetLastSunfireTarget() != l_TargetGUID))
                         return;
 
                     int32 l_Chance = p_AurEff->GetAmount();
@@ -3760,7 +3831,7 @@ class spell_dru_rake: public SpellScriptLoader
                 }
             }
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -3788,8 +3859,8 @@ class spell_dru_rake: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_rake_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnPrepare += SpellOnPrepareFn(spell_dru_rake_SpellScript::HandleOnPrepare);
-                OnHit += SpellHitFn(spell_dru_rake_SpellScript::HandleOnHit);
             }
         };
 
@@ -5788,6 +5859,7 @@ class spell_dru_item_t17_feral_4p_bonus_proc_driver : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Called by Tooth and Claw buff - 135286
 /// Item - Druid T17 Guardian 2P Bonus - 165410
 class spell_dru_item_t17_guardian_2p_bonus : public SpellScriptLoader
@@ -5801,8 +5873,8 @@ class spell_dru_item_t17_guardian_2p_bonus : public SpellScriptLoader
 
             enum eSpells
             {
-                T17Guardian2P       = 165432,
-                ToothAndClawProc    = 166639
+                T17Guardian2P       = 165410,
+                ToothAndClawProc    = 165411
             };
 
             void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
@@ -5822,8 +5894,8 @@ class spell_dru_item_t17_guardian_2p_bonus : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_dru_item_t17_guardian_2p_bonus_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectApplyFn(spell_dru_item_t17_guardian_2p_bonus_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_item_t17_guardian_2p_bonus_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectApplyFn(spell_dru_item_t17_guardian_2p_bonus_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
@@ -6081,6 +6153,7 @@ public:
     }
 };
 
+/// Glyph of Charm Woodland Creature - 57855
 class spell_dru_glyph_of_charm_woodland_creature : public SpellScriptLoader
 {
     public:
@@ -6092,32 +6165,76 @@ class spell_dru_glyph_of_charm_woodland_creature : public SpellScriptLoader
 
             enum eSpells
             {
-                GlyphOfCharmWoodlandCreature = 57855,
                 CharmWoodlandCreature = 127757
             };
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->learnSpell(CharmWoodlandCreature, true);
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->learnSpell(eSpells::CharmWoodlandCreature, false);
             }
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->removeSpell(CharmWoodlandCreature);
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->removeSpell(eSpells::CharmWoodlandCreature, false, false);
             }
 
-            void Register() override
+            void Register()
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const override
+        AuraScript* GetAuraScript() const
         {
             return new spell_dru_glyph_of_charm_woodland_creature_AuraScript();
+        }
+};
+
+/// Glyph of Charm Woodland Creature - 57855
+class spell_dru_charm_woodland_creature : public SpellScriptLoader
+{
+    public:
+        spell_dru_charm_woodland_creature() : SpellScriptLoader("spell_dru_charm_woodland_creature") { }
+
+        class spell_dru_charm_woodland_creature_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_charm_woodland_creature_SpellScript);
+
+            void HandleDummy()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                Unit* l_Target = l_Player->GetSelectedUnit();   ///< Woodland Creature
+                if (l_Target == nullptr)
+                    return;
+
+                l_Target->GetMotionMaster()->MoveFollow(l_Player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE, MOTION_SLOT_CONTROLLED);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_dru_charm_woodland_creature_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_charm_woodland_creature_SpellScript();
         }
 };
 
@@ -6224,6 +6341,8 @@ void AddSC_druid_spell_scripts()
     new spell_dru_item_t17_feral_4p_bonus_proc_driver();
     new spell_dru_item_t17_guardian_2p_bonus();
     new spell_dru_item_t17_restoration_4p_bonus();
+    new spell_dru_glyph_of_charm_woodland_creature();
+    new spell_dru_charm_woodland_creature();
 
     /// PlayerScript
     new PlayerScript_soul_of_the_forest();

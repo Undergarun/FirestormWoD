@@ -259,6 +259,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     simulacrumTargetGUID = 0;
     m_GlaiveOfTossTargetGUID = 0;
     iciclesTargetGUID    = 0;
+    lastMoonfireTargetGUID = 0;
+    lastSunfireTargetGUID = 0;
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         m_threatModifier[i] = 1.0f;
@@ -676,7 +678,10 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
     if (victim->isDead() || victim->GetHealth() == 0)
+    {
+        damage = 0;
         return 0; ///< Prevent double death
+    }
 
     // need for operations with Player class
     Player* plr = victim->ToPlayer();
@@ -2075,6 +2080,13 @@ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* s
                 spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_SCHOOL_DAMAGE)
                 if (spellInfo->GetEffectMechanicMask(effIndex) & (1<<MECHANIC_BLEED))
                     return false;
+        }
+
+        for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
+        {
+            if (spellInfo->Effects[i].Effect == SPELL_EFFECT_SCHOOL_DAMAGE &&
+                spellInfo->GetEffectMechanicMask(i) & (1 << MECHANIC_BLEED))
+                return false;
         }
     }
     return true;
@@ -8085,9 +8097,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     basepoints0 = triggerAmount;
                     break;
                 }
-                case 31801: // Seal of Truth (damage calc on apply aura)
-                {
-                    if (effIndex != 0)                       // effect 2 used by seal unleashing code
+                case 31801: /// Seal of Truth (damage calc on apply aura)
+                {                             /// Shouldn't proc for Divine storm and Hammer of the Righteous
+                    if (effIndex != 0 || (procSpell && (procSpell->Id == 53385 || procSpell->Id == 88263)))  // effect 2 used by seal unleashing code
                         return false;
 
                     triggered_spell_id = 31803;
@@ -8590,7 +8602,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
 
                     if (Creature* targetCreature = victim->ToCreature())
-                        if (!targetCreature->isCanGiveSpell(caster) && !l_IsStolenSpell)
+                        if (!targetCreature->isCanGiveSpell(caster, procSpell) && !l_IsStolenSpell)
                             return false;
 
                     caster->setSimulacrumTarget(victim->GetGUID());
@@ -9664,7 +9676,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             if (!procSpell)
                 return false;
 
-            if (procSpell->Id == 4143 || procSpell->Id == 7268)
+            if (procSpell->Id == 4143 || procSpell->Id == 7268 || procSpell->Id == 155152)
                 return false;
 
             if (ToPlayer()->GetSpecializationId() != SPEC_MAGE_ARCANE)
@@ -11365,6 +11377,9 @@ Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
                 && (IsWithinLOSInMap(magnet)
                 || magnet->isTotem()))
             {
+                /// HackFix for Grounding Totem to not be able to redirect two spells in a row
+                if ((*itr)->GetSpellInfo()->Id == 8178)
+                    victim->RemoveAura(8178);
                 return magnet;
             }
     }
@@ -11592,7 +11607,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         return pdamage;
 
     // small exception for Crimson Tempest, can't find any general rule
-    // should ignore ALL damage mods, they already calculated in trigger spell
+    // should ignore ALL damage mods, they already calculated in trigger spellSPELL_ATTR3_NO_DONE_BONUS
     if (spellProto->Id == 122233 || spellProto->Id == 96172) // Crimson Tempest and Hand of Light
         return pdamage;
 
@@ -11806,7 +11821,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
 
     /// Apply Versatility damage bonus done
     if (GetSpellModOwner())
-        AddPct(DoneTotalMod, CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT)));
+        AddPct(DoneTotalMod, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     /// Some spells damages are modify on pvp
     if (GetSpellModOwner() && victim->GetSpellModOwner())
@@ -11884,7 +11899,11 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
 
                 /// Fingers of Frost
                 if (Aura* l_Aura = GetAura(44544))
-                    AddPct(DoneTotalMod, l_Aura->GetEffect(1)->GetAmount());
+                {
+                    SpellInfo const* l_FingersOfFrost = sSpellMgr->GetSpellInfo(44544);
+                    if (l_FingersOfFrost)
+                        AddPct(DoneTotalMod, l_FingersOfFrost->Effects[1].BasePoints);
+                }
             }
 
             /// Torment the weak
@@ -12202,7 +12221,7 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* /*p_Target*
     uint8 l_ProcTimes = 0;
 
     /// Hackfix for Blade Flurry
-    if (p_ProcSpell && p_ProcSpell->Id == 22482)
+    if (p_ProcSpell && (p_ProcSpell->Id == 22482 || p_ProcSpell->Id == 12654))
         l_MaxProcTimes = 0;
 
     for (uint8 l_Idx = 0; l_Idx < l_MaxProcTimes; l_Idx++)
@@ -12380,11 +12399,30 @@ bool Unit::IsAuraAbsorbCrit(SpellInfo const* p_SpellProto, SpellSchoolMask /*p_S
     return roll_chance_f(l_CritAbsorb);
 }
 
+bool Unit::IsUnitAbleToCrit() const
+{
+    uint32 l_Entry = GetEntry();
+    switch (l_Entry)
+    {
+        case 15438:
+        case 63508:
+        case 27829:
+        case 77936:
+        case 55659:
+        case 82927: ///< Inner Demon
+        case 11859: ///< Summon Doomguard
+        case 78158: ///< Grimoire Doomguard
+            return true;
+        default:
+            return false;
+    }
+}
+
 float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) and Ebon Gargoyle can too - but this part is a hack and needs more research
-    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829 && GetEntry() != 77936 && GetEntry() != 55659 && GetEntry() != 82927)
+    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && !IsUnitAbleToCrit())
         return 0.0f;
 
     // not critting spell
@@ -12572,6 +12610,11 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     {
                         switch (spellProto->Id)
                         {
+                            case 5221:  ///< Shred
+                                /// Incarnation: King of the Jungle increase crit of Shred
+                                if (HasAura(102543))
+                                    crit_chance *= 2.0f;
+                                break;
                             case 22568: // Ferocious Bite
                                 // Critical strike chance doubled against bleeding targets.
                                 if (victim->HasAuraState(AURA_STATE_BLEEDING))
@@ -12717,17 +12760,18 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
     if (l_ModOwner != nullptr && l_ModOwner->getClass() == CLASS_MAGE && p_Victim->GetTypeId() == TYPEID_UNIT && p_Victim->HasAura(155153))
         l_CritPctBonus = 50;
 
+    int32 l_DamageTmp = p_Damage;
+
     if (p_SpellProto)
     {
         l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
         /// adds additional damage to p_Damage (from talents)
-        int32 l_DamageTmp = p_Damage;
+
 
         if (l_ModOwner)
-            l_Diff = l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, l_DamageTmp);
+            l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, l_DamageTmp);
+        l_PctSpellMod = 100.0f * (float)(l_DamageTmp - p_Damage) / (float)p_Damage;
     }
-    if (l_Diff > 0)
-        l_PctSpellMod = 100.0f / ((float)p_Damage / (float)l_Diff);
 
     l_CritPctBonus += l_PctSpellMod;
     p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
@@ -14095,9 +14139,6 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
 
     /// Prismatic Crystal should be attackable only by summoner
     if (target->GetEntry() == 76933 && target->ToTempSummon() && target->ToTempSummon()->GetSummoner() && target->ToTempSummon()->GetSummoner()->GetGUID() != GetGUID())
-        return false;
-
-    if (target->HasAuraType(SPELL_AURA_SEE_WHILE_INVISIBLE))
         return false;
 
     // can't attack unattackable units or GMs
@@ -15906,8 +15947,10 @@ void Unit::SetHealth(uint32 val)
                 owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_HP);
             if (owner && (owner->IsPlayer()) && owner->HasAura(171393))
             {
-                if (l_Pet->GetHealthPct() < 20.0f && !owner->HasAura(171397))
+                if (l_Pet->GetHealthPct() < 20.0f)
                     owner->CastSpell(owner, 171397, true);
+                if (l_Pet->GetHealthPct() >= 20.0f && owner->GetHealthPct() >= 20.0f)
+                    owner->RemoveAura(171397);
             }
         }
     }
@@ -16640,6 +16683,7 @@ bool InitTriggerAuraData()
         isAlwaysTriggeredAura[i] = false;
     }
     isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT] = true;
+    isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT_2] = true;
     isTriggerAura[SPELL_AURA_DUMMY] = true;
     isTriggerAura[SPELL_AURA_PERIODIC_DUMMY] = true;
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
@@ -16888,11 +16932,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Hack Fix Ice Floes - Drop charges
-    if (IsPlayer() && !isVictim && ToPlayer()->getClass() == CLASS_MAGE && HasAura(108839) && procSpell && procSpell->Id != 108839 &&
+    if (IsPlayer() && !isVictim && ToPlayer()->getClass() == CLASS_MAGE && HasAura(108839) && procSpell && procSpell->Id != 108839 && !(procExtra & PROC_EX_INTERNAL_DOT) &&
         ((procSpell->CastTimeEntry && procSpell->CastTimeEntry->CastTime > 0 && procSpell->CastTimeEntry->CastTime < 4000)
-        || (procSpell->DurationEntry && procSpell->DurationEntry->Duration[0] > 0 && procSpell->DurationEntry->Duration[0] < 4000 && procSpell->AttributesEx & SPELL_ATTR1_CHANNELED_2)))
+            || (procSpell->DurationEntry && procSpell->DurationEntry->Duration[0] > 0 && procSpell->DurationEntry->Duration[0] < 4000 && procSpell->AttributesEx & SPELL_ATTR1_CHANNELED_2)))
+    {
         if (AuraApplication* aura = GetAuraApplication(108839, GetGUID()))
             aura->GetBase()->DropStack();
+    }
 
     // Fix Drop charge for Killing Machine
     if (IsPlayer() && HasAura(51124) && getClass() == CLASS_DEATH_KNIGHT && procSpell && (procSpell->Id == 49020 || procSpell->Id == 49143 || procSpell->Id == 66198 || procSpell->Id == 66196))
@@ -16937,6 +16983,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (procAura && procAura->Id == itr->first)
             continue;
         ProcTriggeredData triggerData(itr->second->GetBase());
+
         // Defensive procs are active on absorbs (so absorption effects are not a hindrance)
         bool active = (damage + absorb) || (procExtra & PROC_EX_BLOCK && isVictim);
         if (isVictim)
@@ -17202,6 +17249,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         break;
                     }
                     case SPELL_AURA_PROC_ON_POWER_AMOUNT:
+                    case SPELL_AURA_PROC_ON_POWER_AMOUNT_2:
                     {
                         if (HandleAuraProcOnPowerAmount(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                             takeCharges = true;
@@ -18513,7 +18561,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                         {
                             if (MS::Garrison::Manager* l_Garr = l_RefPlayer->GetGarrison())
                             {
-                                if (l_Garr->HasBuildingType(MS::Garrison::BuildingType::SparringArena))
+                                if (l_Garr->HasBuildingType(MS::Garrison::Building::Type::SparringArena))
                                     l_RefPlayer->CastSpell(l_RefPlayer, 173417, true);
                             }
                         }
@@ -18553,7 +18601,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                 {
                     if (MS::Garrison::Manager* l_Garr = l_KillerPlayer->GetGarrison())
                     {
-                        if (l_Garr->HasBuildingType(MS::Garrison::BuildingType::SparringArena))
+                        if (l_Garr->HasBuildingType(MS::Garrison::Building::Type::SparringArena))
                             l_KillerPlayer->CastSpell(l_KillerPlayer, 173417, true);
                     }
                 }
@@ -21051,6 +21099,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType p_TotemType)
         case SUMMON_TYPE_TOTEM_AIR3:
         case SUMMON_TYPE_TOTEM_AIR4:
         case SUMMON_TYPE_TOTEM_AIR5:
+        case SUMMON_TYPE_TOTEM_AIR6:
             p_TotemType = SUMMON_TYPE_TOTEM_AIR;
             break;
     }

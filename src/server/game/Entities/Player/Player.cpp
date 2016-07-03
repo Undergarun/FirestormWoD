@@ -403,7 +403,9 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_LegacyRaidDifficulty = Difficulty10N;
     m_PrevMapDifficulty = DifficultyRaidNormal;
 
-    m_lastPotionId = 0;
+    m_LastPotion.m_LastPotionItemID = 0;
+    m_LastPotion.m_LastPotionSpellID = 0;
+
     _talentMgr = new PlayerTalentInfo();
 
     m_glyphsChanged = false;
@@ -3243,7 +3245,7 @@ void Player::RegenerateHealth()
 
 void Player::ResetAllPowers()
 {
-    if (getPowerType() == POWER_COMBO_POINT)
+    if (getClass() == CLASS_ROGUE || getClass() == CLASS_DRUID)
         ClearComboPoints();
 
     SetHealth(GetMaxHealth());
@@ -4806,7 +4808,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
     bool dependent_set = false;
     bool disabled_case = false;
-    bool superceded_old = false;
 
     PlayerSpellMap::iterator itr = m_spells.find(spellId);
 
@@ -4817,7 +4818,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     {
         uint32 next_active_spell_id = 0;
         // fix activate state for non-stackable low rank (and find next spell for !active case)
-        if (!spellInfo->IsStackableWithRanks() && spellInfo->IsRanked())
+        if (spellInfo->IsRanked())
         {
             if (uint32 next = sSpellMgr->GetNextSpellInChain(spellId))
             {
@@ -4941,8 +4942,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         newspell->IsMountFavorite = p_IsMountFavorite;
         newspell->FromShopItem    = p_FromShopItem;
 
-        // replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
-        if (newspell->active && !newspell->disabled && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked() != 0)
+        /// replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
+        if (newspell->active && !newspell->disabled && spellInfo->IsRanked())
         {
             WorldPacket l_Data(SMSG_SUPERCEDED_SPELL);
 
@@ -4975,7 +4976,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                             l_Iter->second->active = false;
                             if (l_Iter->second->state != PLAYERSPELL_NEW)
                                 l_Iter->second->state = PLAYERSPELL_CHANGED;
-                            superceded_old = true;          // new spell replace old in action bars and spell book.
                         }
                         else
                         {
@@ -5191,7 +5191,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     }
 
     // return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
-    return active && !disabled && !superceded_old;
+    return active && !disabled;
 }
 
 void Player::AddTemporarySpell(uint32 spellId)
@@ -5449,7 +5449,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     if (uint32 prev_id = sSpellMgr->GetPrevSpellInChain(spell_id))
     {
-        if (cur_active && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked())
+        if (cur_active && spellInfo->IsRanked())
         {
             // need manually update dependence state (learn spell ignore like attempts)
             PlayerSpellMap::iterator prev_itr = m_spells.find(prev_id);
@@ -8845,43 +8845,88 @@ ReputationRank Player::GetReputationRank(uint32 faction) const
     return GetReputationMgr().GetRank(factionEntry);
 }
 
-//Calculate total reputation percent player gain with quest/creature level
-int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest, bool noQuestBonus)
+/// Calculate total reputation percent player gain with quest/creature level
+int32 Player::CalculateReputationGain(ReputationSource p_Source, uint32 p_CreatureOrQuestLevel, int32 p_Reputation, int32 faction, bool p_NoQuestBonus)
 {
-    float percent = 100.0f;
+    float l_Percent         = 100.0f;
+    float l_ReputationMod   = p_NoQuestBonus ? 0.0f : float(GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN));
 
-    // Get the generic rate first
-    if (RepRewardRate const* repData = sObjectMgr->GetRepRewardRate(faction))
+    /// faction specific auras only seem to apply to kills
+    if (p_Source == REPUTATION_SOURCE_KILL)
+        l_ReputationMod += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction);
+
+    l_Percent += p_Reputation > 0 ? l_ReputationMod : -l_ReputationMod;
+
+    float l_Rate;
+    switch (p_Source)
     {
-        float repRate = for_quest ? repData->quest_rate : repData->creature_rate;
-        percent *= repRate;
+        case REPUTATION_SOURCE_KILL:
+            l_Rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_KILL);
+            break;
+
+        case REPUTATION_SOURCE_QUEST:
+        case REPUTATION_SOURCE_DAILY_QUEST:
+        case REPUTATION_SOURCE_WEEKLY_QUEST:
+        case REPUTATION_SOURCE_MONTHLY_QUEST:
+        case REPUTATION_SOURCE_REPEATABLE_QUEST:
+            l_Rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_QUEST);
+            break;
+
+        case REPUTATION_SOURCE_SPELL:
+        default:
+            l_Rate = 1.0f;
+            break;
     }
 
-    float rate = for_quest ? sWorld->getRate(RATE_REPUTATION_LOWLEVEL_QUEST) : sWorld->getRate(RATE_REPUTATION_LOWLEVEL_KILL);
+    if (l_Rate != 1.0f && p_CreatureOrQuestLevel < JadeCore::XP::GetGrayLevel(getLevel()))
+        l_Percent *= l_Rate;
 
-    if (rate != 1.0f && creatureOrQuestLevel <= JadeCore::XP::GetGrayLevel(getLevel()))
-        percent *= rate;
-
-    float repMod = noQuestBonus ? 0.0f : (float)GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN);
-
-    if (!for_quest)
-        repMod += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction);
-
-    percent += rep > 0 ? repMod : -repMod;
-
-    if (percent <= 0.0f)
+    if (l_Percent <= 0.0f)
         return 0;
 
-    return int32(rep*percent/100);
+    /// Multiply result with the faction specific rate
+    if (RepRewardRate const* repData = sObjectMgr->GetRepRewardRate(faction))
+    {
+        float l_ReputationRate = 0.0f;
+        switch (p_Source)
+        {
+            case REPUTATION_SOURCE_KILL:
+                l_ReputationRate = repData->creature_rate;
+                break;
+
+            case REPUTATION_SOURCE_QUEST:
+            case REPUTATION_SOURCE_DAILY_QUEST:         ///< @TODO
+            case REPUTATION_SOURCE_WEEKLY_QUEST:        ///< @TODO
+            case REPUTATION_SOURCE_MONTHLY_QUEST:       ///< @TODO
+            case REPUTATION_SOURCE_REPEATABLE_QUEST:    ///< @TODO
+                l_ReputationRate = repData->quest_rate;
+                break;
+
+            case REPUTATION_SOURCE_SPELL:
+                l_ReputationRate = repData->spell_rate;
+                break;
+        }
+
+        /// for custom, a rate of 0.0 will totally disable reputation gain for this faction/type
+        if (l_ReputationRate <= 0.0f)
+            return 0;
+
+        l_Percent *= l_ReputationRate;
+    }
+
+    if (p_Source != REPUTATION_SOURCE_SPELL && GetsRecruitAFriendBonus(false))
+        l_Percent *= 1.0f + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS);
+
+    return CalculatePct(p_Reputation, l_Percent);
 }
 
 /// Calculates how many reputation points player gains in victim's enemy factions
-void Player::RewardReputation(Unit* victim, float rate)
+void Player::RewardReputation(Unit* p_Victim, float p_Rate)
 {
-    if (!victim || victim->IsPlayer())
+    if (!p_Victim || p_Victim->IsPlayer())
         return;
 
-    if (victim->ToCreature()->IsReputationGainDisabled())
+    if (p_Victim->ToCreature()->IsReputationGainDisabled())
         return;
 
     if (HasAura(186404)) ///< Sign of the Emissary (Weekly event bonus)
@@ -8889,7 +8934,7 @@ void Player::RewardReputation(Unit* victim, float rate)
         uint32 l_Zone = GetZoneId();
         uint32 l_Team = GetTeam();
 
-        Creature* l_Creature = victim->ToCreature();
+        Creature* l_Creature = p_Victim->ToCreature();
 
         if (l_Creature == nullptr)
             return;
@@ -8927,116 +8972,133 @@ void Player::RewardReputation(Unit* victim, float rate)
         }
     }
 
-    ReputationOnKillEntry const* Rep = sObjectMgr->GetReputationOnKilEntry(victim->ToCreature()->GetCreatureTemplate()->Entry);
+    ReputationOnKillEntry const* l_Reputation = sObjectMgr->GetReputationOnKilEntry(p_Victim->ToCreature()->GetCreatureTemplate()->Entry);
 
-    if (!Rep)
-        return;
-
-    uint32 ChampioningFaction = 0;
-
-    if (GetChampioningFaction())
+    if (GetChampioningFaction() && !l_Reputation && p_Victim->ToCreature())
     {
-        // support for: Championing - http://www.wowwiki.com/Championing
+        /// Support for: Championing - http://www.wowwiki.com/Championing
 
-        Map const* map = GetMap();
-        if (map && map->IsDungeon())
+        Map const* l_Map = GetMap();
+        if (l_Map && l_Map->IsDungeon() && !l_Map->IsRaid())
         {
-            InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(map->GetId());
-            if (instance)
+            AccessRequirement const* l_AccessRequirement = sObjectMgr->GetAccessRequirement(l_Map->GetId(), ((InstanceMap*)l_Map)->GetDifficultyID());
+            if (l_AccessRequirement && l_AccessRequirement->levelMin >= 80)
             {
-                AccessRequirement const* pAccessRequirement = sObjectMgr->GetAccessRequirement(map->GetId(), ((InstanceMap*)map)->GetDifficultyID());
-                if (pAccessRequirement)
+                uint32 l_ReputationGain = 0;
+
+                switch (p_Victim->ToCreature()->GetCreatureTemplate()->rank)
                 {
-                    if (!map->IsRaid() && pAccessRequirement->levelMin == 80)
-                        ChampioningFaction = GetChampioningFaction();
+                    case CREATURE_ELITE_TRIVIAL:
+                    case CREATURE_ELITE_NORMAL:
+                    case CREATURE_ELITE_RARE:
+                        l_ReputationGain = l_Map->GetDifficultyID() == DifficultyHeroic ? 5 : 3;
+                        break;
+                    case CREATURE_ELITE_ELITE:
+                        l_ReputationGain = 15;
+                        break;
+                    case CREATURE_ELITE_RAREELITE:
+                    case CREATURE_ELITE_WORLDBOSS:
+                        l_ReputationGain = 300;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (l_ReputationGain)
+                {
+                    FactionEntry const* l_FactionEntry = sFactionStore.LookupEntry(GetChampioningFaction());
+
+                    if (l_FactionEntry)
+                        GetReputationMgr().ModifyReputation(l_FactionEntry, l_ReputationGain, true);
                 }
             }
         }
     }
 
-    // Favored reputation increase START
-    uint32 zone = GetZoneId();
-    uint32 team = GetTeam();
-    float favored_rep_mult = 0;
+    if (!l_Reputation)
+        return;
 
-    if ((HasAura(32096) || HasAura(32098)) && (zone == 3483 || zone == 3562 || zone == 3836 || zone == 3713 || zone == 3714)) favored_rep_mult = 0.25; // Thrallmar's Favor and Honor Hold's Favor
-    else if (HasAura(30754) && (Rep->RepFaction1 == 609 || Rep->RepFaction2 == 609) && !ChampioningFaction)                   favored_rep_mult = 0.25; // Cenarion Favor
+    uint32 l_Zone = GetZoneId();
+    uint32 l_Team = GetTeam();
+    float l_BonusReputationRate = 0;
 
-    if (favored_rep_mult > 0) favored_rep_mult *= 2; // Multiplied by 2 because the reputation is divided by 2 for some reason (See "donerep1 / 2" and "donerep2 / 2") -- if you know why this is done, please update/explain :)
-    // Favored reputation increase END
+    /// Thrallmar's Favor and Honor Hold's Favor
+    if ((l_Zone == 3483 || l_Zone == 3562 || l_Zone == 3836 || l_Zone == 3713 || l_Zone == 3714) && (HasAura(32096) || HasAura(32098)))
+        l_BonusReputationRate = 0.25;
 
-    bool recruitAFriend = GetsRecruitAFriendBonus(false);
+    /// Cenarion Favor
+    if ((l_Reputation->RepFaction1 == 609 || l_Reputation->RepFaction2 == 609) && HasAura(30754))
+        l_BonusReputationRate = 0.25;
 
-    if (Rep->RepFaction1 && (!Rep->TeamDependent || team == ALLIANCE))
+    if (l_Reputation->RepFaction1 && (!l_Reputation->TeamDependent || l_Team == ALLIANCE))
     {
-        int32 donerep1 = CalculateReputationGain(victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : Rep->RepFaction1, false);
-        donerep1 = int32(donerep1*(rate + favored_rep_mult));
+        int32 l_StandingA = CalculateReputationGain(REPUTATION_SOURCE_KILL, p_Victim->getLevel(), l_Reputation->RepValue1, l_Reputation->RepFaction1, false);
+        l_StandingA = int32(float(l_StandingA) * (p_Rate + l_BonusReputationRate));
 
-        if (recruitAFriend)
-            donerep1 = int32(donerep1 * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
-
-        FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
-        uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
-        if (factionEntry1 && current_reputation_rank1 <= Rep->ReputationMaxCap1)
-            GetReputationMgr().ModifyReputation(factionEntry1, donerep1);
+        if (FactionEntry const* l_FactionEntryA = sFactionStore.LookupEntry(l_Reputation->RepFaction1))
+        {
+            if (GetReputationMgr().GetRank(l_FactionEntryA) <= l_Reputation->ReputationMaxCap1)
+                GetReputationMgr().ModifyReputation(l_FactionEntryA, l_StandingA);
+        }
     }
 
-    if (Rep->RepFaction2 && (!Rep->TeamDependent || team == HORDE))
+    if (l_Reputation->RepFaction2 && (!l_Reputation->TeamDependent || l_Team == HORDE))
     {
-        int32 donerep2 = CalculateReputationGain(victim->getLevel(), Rep->RepValue2, ChampioningFaction ? ChampioningFaction : Rep->RepFaction2, false);
-        donerep2 = int32(donerep2*(rate + favored_rep_mult));
+        int32 l_StandingB = CalculateReputationGain(REPUTATION_SOURCE_KILL, p_Victim->getLevel(), l_Reputation->RepValue2, l_Reputation->RepFaction2, false);
+        l_StandingB = int32(float(l_StandingB) * (p_Rate + l_BonusReputationRate));
 
-        if (recruitAFriend)
-            donerep2 = int32(donerep2 * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
-
-        FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction2);
-        uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
-        if (factionEntry2 && current_reputation_rank2 <= Rep->ReputationMaxCap2)
-            GetReputationMgr().ModifyReputation(factionEntry2, donerep2);
+        if (FactionEntry const* l_FactionEntryB = sFactionStore.LookupEntry(l_Reputation->RepFaction2))
+        {
+            if (GetReputationMgr().GetRank(l_FactionEntryB) <= l_Reputation->ReputationMaxCap2)
+                GetReputationMgr().ModifyReputation(l_FactionEntryB, l_StandingB);
+        }
     }
 }
 
 //Calculate how many reputation points player gain with the quest
-void Player::RewardReputation(Quest const* quest)
+void Player::RewardReputation(Quest const* p_Quest)
 {
-    bool recruitAFriend = GetsRecruitAFriendBonus(false);
-
     // quest reputation reward/loss
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    for (uint8 l_I = 0; l_I < QUEST_REPUTATIONS_COUNT; ++l_I)
     {
-        if (!quest->RewardFactionId[i])
+        if (!p_Quest->RewardFactionId[l_I])
             continue;
-        if (quest->RewardFactionValueIdOverride[i])
+
+        int32 l_Reputation = 0;
+        bool l_NoQuestBonus = false;
+
+        if (p_Quest->RewardFactionValueIdOverride[l_I])
         {
-            int32 rep = CalculateReputationGain(GetQuestLevel(quest), quest->RewardFactionValueIdOverride[i]/100, quest->RewardFactionId[i], true, true);
-
-            if (recruitAFriend)
-                rep = int32(rep * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
-
-            if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i]))
-                GetReputationMgr().ModifyReputation(factionEntry, rep);
+            l_Reputation = p_Quest->RewardFactionValueIdOverride[l_I] / 100;
+            l_NoQuestBonus = true;
         }
         else
         {
-            uint32 row = ((quest->RewardFactionValueId[i] < 0) ? 1 : 0) + 1;
-            uint32 field = abs(quest->RewardFactionValueId[i]);
-
-            if (const QuestFactionRewEntry* pRow = sQuestFactionRewardStore.LookupEntry(row))
+            uint32 l_Row = ((p_Quest->RewardFactionValueId[l_I] < 0) ? 1 : 0) + 1;
+            if (QuestFactionRewEntry const* questFactionRewEntry = sQuestFactionRewardStore.LookupEntry(l_Row))
             {
-                int32 repPoints = pRow->QuestRewFactionValue[field];
-
-                if (!repPoints)
-                    continue;
-
-                repPoints = CalculateReputationGain(GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
-
-                if (recruitAFriend)
-                    repPoints = int32(repPoints * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
-
-                if (const FactionEntry* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i]))
-                    GetReputationMgr().ModifyReputation(factionEntry, repPoints);
+                uint32 field = abs(p_Quest->RewardFactionValueId[l_I]);
+                l_Reputation = questFactionRewEntry->QuestRewFactionValue[field];
             }
         }
+
+        if (!l_Reputation)
+            continue;
+
+        /// @TODO
+        ///if (quest->IsDaily())
+        ///    rep = CalculateReputationGain(REPUTATION_SOURCE_DAILY_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
+        ///else if (quest->IsWeekly())
+        ///    rep = CalculateReputationGain(REPUTATION_SOURCE_WEEKLY_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
+        ///else if (quest->IsMonthly())
+        ///    rep = CalculateReputationGain(REPUTATION_SOURCE_MONTHLY_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
+        ///else if (quest->IsRepeatable())
+        ///    rep = CalculateReputationGain(REPUTATION_SOURCE_REPEATABLE_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
+        ///else
+            l_Reputation = CalculateReputationGain(REPUTATION_SOURCE_QUEST, GetQuestLevel(p_Quest), l_Reputation, p_Quest->RewardFactionId[l_I], l_NoQuestBonus);
+
+        if (FactionEntry const* l_FactionEntry = sFactionStore.LookupEntry(p_Quest->RewardFactionId[l_I]))
+            GetReputationMgr().ModifyReputation(l_FactionEntry, l_Reputation);
     }
 }
 
@@ -9085,7 +9147,7 @@ void Player::RewardGuildReputation(Quest const* quest)
             break;
     }
 
-    rep = CalculateReputationGain(GetQuestLevel(quest), rep, REP_GUILD, true);
+    rep = CalculateReputationGain(REPUTATION_SOURCE_DAILY_QUEST, GetQuestLevel(quest), rep, REP_GUILD, true);
 
     if (GetsRecruitAFriendBonus(false))
         rep = int32(rep * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
@@ -18046,17 +18108,7 @@ void Player::SendPreparedQuest(uint64 guid)
                     return;
                 }
 
-                if (quest->IsAutoAccept() && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
-                {
-                    AddQuest(quest, object);
-                    if (CanCompleteQuest(questId))
-                        CompleteQuest(questId);
-                }
-
-                if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
-                    PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
-                else
-                    PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid);
+                PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid);
             }
         }
     }
@@ -18113,31 +18165,48 @@ bool Player::IsActiveQuest(uint32 quest_id) const
     return m_QuestStatus.find(quest_id) != m_QuestStatus.end();
 }
 
-Quest const* Player::GetNextQuest(uint64 guid, Quest const* quest)
+Quest const* Player::GetNextQuest(uint64 p_Guid, Quest const* p_Quest)
 {
-    QuestRelationBounds objectQR;
+    QuestRelationBounds l_ObjectQR;
 
-    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
-    if (creature)
-        objectQR  = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
-    else
+    WorldObject* l_Object = ObjectAccessor::GetWorldObject(*this, p_Guid);
+
+    if (l_Object == nullptr)
+        return nullptr;
+
+    switch (l_Object->GetTypeId())
     {
-        //we should obtain map pointer from GetMap() in 99% of cases. Special case
-        //only for quests which cast teleport spells on player
-        Map* _map = IsInWorld() ? GetMap() : sMapMgr->FindMap(GetMapId(), GetInstanceId());
-        ASSERT(_map);
-        GameObject* pGameObject = _map->GetGameObject(guid);
-        if (pGameObject)
-            objectQR  = sObjectMgr->GetGOQuestRelationBounds(pGameObject->GetEntry());
-        else
-            return NULL;
+        case TYPEID_UNIT:
+        {
+            if (Creature* l_Creature = l_Object->ToCreature())
+                l_ObjectQR = sObjectMgr->GetCreatureQuestRelationBounds(l_Creature->GetEntry());
+
+            break;
+        }
+        case TYPEID_PLAYER:
+        {
+            if (Player* l_Player = l_Object->ToPlayer())
+                return sObjectMgr->GetQuestTemplate(p_Quest->GetNextQuestInChain());
+
+            break;
+        }
+        case TYPEID_GAMEOBJECT:
+        {
+            if (GameObject* l_Gob = l_Object->ToGameObject())
+                l_ObjectQR = sObjectMgr->GetGOQuestRelationBounds(l_Gob->GetEntry());
+
+            break;
+        }
+        default:
+            break;
     }
 
-    uint32 nextQuestID = quest->GetNextQuestInChain();
-    for (QuestRelations::const_iterator itr = objectQR.first; itr != objectQR.second; ++itr)
+    uint32 l_NextQuestID = p_Quest->GetNextQuestInChain();
+
+    for (QuestRelations::const_iterator l_Itr = l_ObjectQR.first; l_Itr != l_ObjectQR.second; ++l_Itr)
     {
-        if (itr->second == nextQuestID)
-            return sObjectMgr->GetQuestTemplate(nextQuestID);
+        if (l_Itr->second == l_NextQuestID)
+            return sObjectMgr->GetQuestTemplate(l_NextQuestID);
     }
 
     return NULL;
@@ -18287,7 +18356,7 @@ bool Player::CanCompleteRepeatableQuest(const Quest * p_Quest)
 bool Player::CanRewardQuest(Quest const* p_Quest, bool msg)
 {
     // not auto complete quest and not completed quest (only cheating case, then ignore without message)
-    if (!p_Quest->IsDFQuest() && !p_Quest->IsAutoComplete() && !(p_Quest->GetFlags() & QUEST_FLAGS_AUTOCOMPLETE) && GetQuestStatus(p_Quest->GetQuestId()) != QUEST_STATUS_COMPLETE)
+    if (!p_Quest->IsDFQuest() && !p_Quest->IsAutoComplete() && GetQuestStatus(p_Quest->GetQuestId()) != QUEST_STATUS_COMPLETE)
         return false;
 
     // daily quest can't be rewarded (25 daily quest already completed)
@@ -18439,6 +18508,79 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
     return true;
 }
 
+void Player::HandleAutoCompleteQuest(Quest const* p_Quest)
+{
+    if (p_Quest->IsAutoComplete())
+    {
+        for (QuestObjective l_Objective : p_Quest->QuestObjectives)
+        {
+            if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
+            {
+                uint32 id = l_Objective.ObjectID;
+                uint32 count = l_Objective.Amount;
+
+                if (!id || !count)
+                    continue;
+
+                uint32 curItemCount = GetItemCount(id, true);
+
+                ItemPosCountVec dest;
+                uint8 msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, id, count - curItemCount);
+                if (msg == EQUIP_ERR_OK)
+                {
+                    Item* item = StoreNewItem(dest, id, true);
+                    SendNewItem(item, count - curItemCount, true, false);
+                }
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC)
+            {
+                int32 creature = l_Objective.ObjectID;
+                uint32 creaturecount = l_Objective.Amount;
+
+                if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
+                {
+                    for (uint16 z = 0; z < creaturecount; ++z)
+                        KilledMonster(cInfo, 0);
+                }
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_GO)
+            {
+                for (uint16 z = 0; z < l_Objective.Amount; ++z)
+                    CastedCreatureOrGO(l_Objective.ObjectID, 0, 0);
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_SPELL)
+            {
+                /// @TODO
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CURRENCY)
+            {
+                if (!l_Objective.ObjectID || !l_Objective.Amount)
+                    continue;
+
+                ModifyCurrency(l_Objective.ObjectID, l_Objective.Amount);
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2)
+            {
+                if (GetReputationMgr().GetReputation(l_Objective.ObjectID) < l_Objective.Amount)
+                {
+                    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(l_Objective.ObjectID))
+                        GetReputationMgr().SetReputation(factionEntry, l_Objective.Amount);
+                }
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY)
+            {
+                ModifyMoney(l_Objective.Amount);
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CRITERIA_TREE)
+            {
+                QuestObjectiveSatisfy(l_Objective.ObjectID, l_Objective.Amount, l_Objective.Type);
+            }
+        }
+
+        CompleteQuest(p_Quest->GetQuestId());
+    }
+}
+
 void Player::AddQuest(Quest const* quest, Object* questGiver)
 {
     uint16 log_slot = FindQuestSlot(0);
@@ -18516,6 +18658,11 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         m_Garrison->OnQuestStarted(quest);
 
     sScriptMgr->OnQuestAccept(this, quest);
+
+    if (quest->QuestObjectives.empty())
+        CompleteQuest(quest->GetQuestId());
+
+    HandleAutoCompleteQuest(quest);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -18583,8 +18730,14 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
         {
             case QUEST_OBJECTIVE_TYPE_ITEM:
             {
-                if (!(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
-                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                {
+                    if (ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(l_Objective.ObjectID))
+                    {
+                        if (!l_ItemProto->IsQuestItem())
+                            DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                    }
+                }
                 break;
             }
             case QUEST_OBJECTIVE_TYPE_CURRENCY:
@@ -18666,15 +18819,8 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                             float l_Roll = frand(0.0f, 100.0f);
                             float l_Coeff = 1.0f;
 
-                            if (GetGarrison())
-                            {
-                                bool l_Level1 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker_WarMill_Level1);
-                                bool l_Level2 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker_WarMill_Level2);
-                                bool l_Level3 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker_WarMill_Level3);
-
-                                if (l_Level1 || l_Level2 || l_Level3)
-                                    l_Coeff *= 2.0f;
-                            }
+                            if (GetGarrison() && GetGarrison()->HasBuildingType(MS::Garrison::Building::Type::Armory))
+                                l_Coeff *= 2.0f;
 
                             //bool  l_SendDisplayToast = false;
 
@@ -19680,7 +19826,13 @@ void Player::RemoveActiveQuest(uint32 quest_id, bool p_BonusQuest)
                     m_questObjectiveStatus[l_Objective.ID] = 0;
 
                     if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
-                        DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                    {
+                        if (ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(l_Objective.ObjectID))
+                        {
+                            if (l_ItemProto->IsQuestItem())
+                                DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                        }
+                    }
                 }
             }
         }
@@ -22496,7 +22648,7 @@ void Player::_LoadGarrisonDailyTavernDatas(PreparedQueryResult p_Result)
     else
     {
 
-        if (l_GarrisonMgr->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1))
+        if (l_GarrisonMgr->HasActiveBuilding(MS::Garrison::Building::ID::LunarfallInn_FrostwallTavern_Level1))
         {
             if (roll_chance_i(50))
             {
@@ -25882,7 +26034,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
     }
 
     data.appendPackGUID(playerGuid);
-    data << uint8(1);
+    data << uint8(0);
     data << uint32(counter);
     data.append(dataBuffer);
 
@@ -26726,27 +26878,43 @@ void Player::SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID, S
     SendDirectMessage(&l_Data);
 }
 
-void Player::UpdatePotionCooldown(Spell* spell)
+void Player::UpdatePotionCooldown(Spell* p_Spell)
 {
     // no potion used in combat or still in combat
-    if (!m_lastPotionId || isInCombat())
+    if (!m_LastPotion.m_LastPotionItemID || isInCombat())
         return;
 
     // Call not from spell cast, send cooldown event for item spells if no in combat
-    if (!spell)
+    if (!p_Spell)
     {
+        bool l_Success = false;
         // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
-        if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_lastPotionId))
+        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(m_LastPotion.m_LastPotionItemID))
+        {
             for (uint8 idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
-                if (proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
-                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[idx].SpellId))
-                            SendCooldownEvent(spellInfo, m_lastPotionId);
+            {
+                if (l_Proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
+                {
+                    if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Proto->Spells[idx].SpellId))
+                    {
+                        l_Success = true;
+                        SendCooldownEvent(l_SpellInfo, m_LastPotion.m_LastPotionItemID);
+                    }
+                }
+            }
+        }
+        if (!l_Success && m_LastPotion.m_LastPotionSpellID)
+        {
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(m_LastPotion.m_LastPotionSpellID);
+            SendCooldownEvent(l_SpellInfo, m_LastPotion.m_LastPotionItemID);
+        }
     }
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
     else
-        SendCooldownEvent(spell->m_spellInfo, m_lastPotionId, spell);
+        SendCooldownEvent(p_Spell->m_spellInfo, m_LastPotion.m_LastPotionItemID, p_Spell);
 
-    m_lastPotionId = 0;
+    m_LastPotion.m_LastPotionItemID = 0;
+    m_LastPotion.m_LastPotionSpellID = 0;
 }
                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
@@ -28053,12 +28221,12 @@ void Player::ResetDailyGarrisonDatas()
 
     if (Manager* l_Garrison = GetGarrison())
     {
-        if (l_Garrison->HasBuildingType(BuildingType::Inn))
+        if (l_Garrison->HasBuildingType(Building::Type::Inn))
         {
             /// Weekly Tavern Reset is done in World::ResetWeeklyGarrisonDatas
 
             l_Garrison->ResetGarrisonDailyTavernData();
-            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Inn);
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(Building::Type::Inn);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
@@ -28070,7 +28238,7 @@ void Player::ResetDailyGarrisonDatas()
             }
         }
 
-        if (l_Garrison->HasBuildingType(BuildingType::Stable))
+        if (l_Garrison->HasBuildingType(Building::Type::Stable))
         {
             if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::GarrisonStablesFirstQuest))
                 SetCharacterWorldState(CharacterWorldStates::GarrisonStablesFirstQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
@@ -28079,10 +28247,10 @@ void Player::ResetDailyGarrisonDatas()
                 SetCharacterWorldState(CharacterWorldStates::GarrisonStablesSecondQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
         }
 
-        if (l_Garrison->HasBuildingType(BuildingType::Workshop))
+        if (l_Garrison->HasBuildingType(Building::Type::Workshop))
         {
             l_Garrison->ResetGarrisonWorkshopData(this);
-            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Workshop);
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(Building::Type::Workshop);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
@@ -28094,10 +28262,10 @@ void Player::ResetDailyGarrisonDatas()
             }
         }
 
-        if (l_Garrison->HasBuildingType(BuildingType::Type::TradingPost))
+        if (l_Garrison->HasBuildingType(Building::Type::TradingPost))
         {
             l_Garrison->ResetGarrisonTradingPostData(this);
-            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Type::TradingPost);
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(Building::Type::TradingPost);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
@@ -28122,7 +28290,7 @@ void Player::ResetWeeklyGarrisonDatas()
     if (Manager* l_Garrison = GetGarrison())
     {
         ///< Armory token handling
-        if (l_Garrison->GetBuildingWithType(BuildingType::Armory).DatabaseID)
+        if (l_Garrison->GetBuildingWithType(Building::Type::Armory).DatabaseID)
         {
             if (GetCharacterWorldStateValue(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain) == 1)
                 SetCharacterWorldState(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain, 0);
@@ -31385,7 +31553,7 @@ Item* Player::AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonus
         l_Item->AddItemBonuses(l_Bonus);
 
         if (p_FromShop)
-            l_Item->SetCustomFlags(ItemCustomFlags::FromStore);
+            l_Item->ApplyCustomFlags(ItemCustomFlags::FromStore);
 
         SendNewItem(l_Item, p_Count, true, false);
 
@@ -33649,9 +33817,18 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 {
     m_BattlePets.clear();
 
+    uint64 l_PlayerGUID = GetGUID();
+    MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_PlayerGUID](bool p_Success) -> void
+    {
+        if (Player* l_Player = HashMapHolder<Player>::Find(l_PlayerGUID))
+            l_Player->ReloadPetBattles();
+    });
+
     if (!p_Result)
     {
         bool l_Add = false;
+
+        SQLTransaction l_Transaction = LoginDatabase.BeginTransaction();
 
         for (uint32 l_I = 0; l_I < m_OldPetBattleSpellToMerge.size(); l_I++)
         {
@@ -33684,7 +33861,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
             /// Calculate stats
             l_BattlePet.UpdateStats();
             l_BattlePet.Health = l_BattlePet.InfoMaxHealth;
-            l_BattlePet.AddToPlayer(this);
+            l_BattlePet.AddToPlayer(this, l_Transaction);
 
             l_Add = true;
         }
@@ -33692,7 +33869,10 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
         m_OldPetBattleSpellToMerge.clear();
 
         if (l_Add)
-            return false;
+        {
+            LoginDatabase.CommitTransaction(l_Transaction, l_CallBack);
+            return true;
+        }
     }
 
     for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
@@ -33732,6 +33912,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
     }
 
     bool l_OldPetAdded = false;
+    SQLTransaction l_Transaction = LoginDatabase.BeginTransaction();
     for (uint32 l_I = 0; l_I < m_OldPetBattleSpellToMerge.size(); l_I++)
     {
         if (std::find(l_AlreadyKnownPet.begin(), l_AlreadyKnownPet.end(), m_OldPetBattleSpellToMerge[l_I].second) != l_AlreadyKnownPet.end())
@@ -33769,15 +33950,16 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
         l_BattlePet.UpdateStats();
         l_BattlePet.Health = l_BattlePet.InfoMaxHealth;
 
-        l_BattlePet.AddToPlayer(this);
-
-        ///removeSpell(m_OldPetBattleSpellToMerge[l_I].first);
+        l_BattlePet.AddToPlayer(this, l_Transaction);
     }
 
     m_OldPetBattleSpellToMerge.clear();
 
     if (l_OldPetAdded)
-        return false;
+    {
+        LoginDatabase.CommitTransaction(l_Transaction, l_CallBack);
+        return true;
+    }
 
     GetSession()->SendBattlePetJournal();
 
@@ -33809,6 +33991,30 @@ void Player::SendSpellCharges()
     SendDirectMessage(&l_Data);
 }
 
+void Player::SendSpellCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
+{
+    WorldPacket l_Data(SMSG_SEND_SPELL_CHARGES, 4 + 1 * 9);
+
+    l_Data << uint32(1);
+
+    Clock::time_point l_Now = Clock::now();
+    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
+    if (l_Itr != m_CategoryCharges.end())
+    {
+        if (!l_Itr->second.empty())
+        {
+            std::chrono::milliseconds l_CooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(l_Itr->second.front().RechargeEnd - l_Now);
+            if (l_CooldownDuration.count() > 0)
+            {
+                l_Data << uint32(l_Itr->first);
+                l_Data << uint32(l_CooldownDuration.count());
+                l_Data << uint8(l_Itr->second.size());
+            }
+        }
+    }
+    SendDirectMessage(&l_Data);
+}
+
 void Player::SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry)
 {
     if (!p_ChargeCategoryEntry)
@@ -33816,7 +34022,7 @@ void Player::SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry
 
     Clock::time_point l_Now = Clock::now(); ///< l_Now is unused
     auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
-    if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
+    if (l_Itr != m_CategoryCharges.end())
     {
         uint32 l_ConsumedCharges = l_Itr->second.size();
         bool   l_IsPet = false;
@@ -33850,8 +34056,24 @@ void Player::UpdateCharges()
         while (!l_ChargeRefreshTimes.empty() && l_ChargeRefreshTimes.front().RechargeEnd <= l_Now)
         {
             l_ChargeRefreshTimes.pop_front();
-            SendSpellCharges();
+
+            SpellCategoryEntry const* l_CategoryEntry = sSpellCategoryStore.LookupEntry(l_CategoryCharge.first);
+            if (l_CategoryEntry != nullptr)
+                SendSetSpellCharges(l_CategoryEntry);
         }
+    }
+}
+
+void Player::UpdateCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
+{
+    Clock::time_point l_Now = Clock::now();
+
+    std::deque<ChargeEntry>& l_Charges = m_CategoryCharges[p_ChargeCategoryEntry->Id];
+
+    while (!l_Charges.empty() && l_Charges.front().RechargeEnd <= l_Now)
+    {
+        l_Charges.pop_front();
+        SendSetSpellCharges(p_ChargeCategoryEntry);
     }
 }
 
@@ -33886,17 +34108,14 @@ void Player::ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntr
 
     Clock::time_point l_Now = Clock::now();
 
-    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
-    if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
+    std::deque<ChargeEntry>& l_Charges = m_CategoryCharges[p_ChargeCategoryEntry->Id];
+    for (ChargeEntry& l_Entry : l_Charges)
     {
-        Clock::time_point l_NewRechargeEnd = l_Itr->second.back().RechargeEnd - std::chrono::milliseconds(p_Reductiontime);
-        if (l_NewRechargeEnd > l_Now)
-            l_Itr->second.back().RechargeEnd = l_NewRechargeEnd;
-        else
-            l_Itr->second.pop_back();
-
-        SendSpellCharges();
+        l_Entry.RechargeStart -= std::chrono::milliseconds(p_Reductiontime);
+        l_Entry.RechargeEnd -= std::chrono::milliseconds(p_Reductiontime);
     }
+    UpdateCharge(p_ChargeCategoryEntry);
+    SendSpellCharge(p_ChargeCategoryEntry);
 }
 
 void Player::RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
