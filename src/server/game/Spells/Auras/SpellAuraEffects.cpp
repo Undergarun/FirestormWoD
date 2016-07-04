@@ -2523,6 +2523,11 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
                 break;
             }
+            case FORM_GLADIATORSTANCE:
+            case FORM_BATTLESTANCE:
+            case FORM_DEFENSIVESTANCE:
+            case FORM_BERSERKERSTANCE:
+                modelid = 0;
             default:
                break;
         }
