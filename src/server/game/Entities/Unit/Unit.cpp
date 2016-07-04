@@ -15947,9 +15947,9 @@ void Unit::SetHealth(uint32 val)
                 owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_HP);
             if (owner && (owner->IsPlayer()) && owner->HasAura(171393))
             {
-                if (l_Pet->GetHealthPct() < 20.0f)
+                if (l_Pet->GetHealthPct() < 20.0f && l_Pet->GetHealthPct() > 0.0f)
                     owner->CastSpell(owner, 171397, true);
-                if (l_Pet->GetHealthPct() >= 20.0f && owner->GetHealthPct() >= 20.0f)
+                if ((l_Pet->GetHealthPct() >= 20.0f && owner->GetHealthPct() >= 20.0f) || l_Pet->GetHealthPct() == 0.0f)
                     owner->RemoveAura(171397);
             }
         }
