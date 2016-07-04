@@ -380,7 +380,7 @@ INSERT INTO spell_script_names VALUES
 (163532, 'spell_foundry_slag_pool_periodic');
 
 DELETE FROM gameobject_template WHERE entry = 227616;
-INSERT INTO gameobject_template VALUE
+INSERT INTO gameobject_template (entry, type, displayId, name, IconName, castBarCaption, unk1, faction, flags, size, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, data13, data14, data15, data16, data17, data18, data19, data20, data21, data22, data23, data24, data25, data26, data27, data28, data29, data30, data31, data32, unkInt32, WorldEffectID, AIName, ScriptName, BuildVerified) VALUE
 (227616, 0, 10267, 'Volcanic Bomb', '', '', '', 16, 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 19865);
 
 DELETE FROM conditions WHERE SourceEntry IN (155180, 155188, 155265, 155239, 177434);

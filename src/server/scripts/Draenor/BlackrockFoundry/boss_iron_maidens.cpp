@@ -2349,7 +2349,9 @@ class npc_foundry_zipline_stalker : public CreatureScript
 
                 me->CastSpell(me, eSpell::ZiplineStalkerVisual, true);
 
-                if (!me->IsNearPosition(&me->GetHomePosition(), 1.0f))
+                Position const l_Pos = me->GetHomePosition();
+
+                if (!me->IsNearPosition(&l_Pos, 1.0f))
                     me->NearTeleportTo(me->GetHomePosition());
 
                 m_IsOnBoat = false;
