@@ -5480,9 +5480,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].BasePoints = 20;
                 break;
             case 181608:///< Inner Demon (for Warlock T17 Demonology 2P Bonus)
-            case 166881:///< Shadow Strikes (for Rogue T17 Subtlety 4P Bonus)
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
+                break;
+            case 166881: ///< Shadow Strikes (for Rogue T17 Subtlety 4P Bonus)
+                spellInfo->ProcFlags = 0;
                 break;
             case 165437:///< Item - Druid T17 Restoration 2P Bonus
                 spellInfo->Effects[EFFECT_0].BasePoints = 2;

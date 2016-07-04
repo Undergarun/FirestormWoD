@@ -2724,7 +2724,7 @@ class PlayerScript_ruthlessness : public PlayerScript
             if (!p_After)
                 return;
 
-            if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_ROGUE || !p_Player->HasAura(eSpells::Ruthlessness))
+            if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_ROGUE)
                 return;
 
             /// Get the power earn (if > 0 ) or consum (if < 0)
@@ -3318,6 +3318,7 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
             {
                 T17Subtlety2PBonus  = 165482,
                 QuickBlades         = 165509,
+                T17Subtlety4PBonus  = 165514,
                 ShadowStrikes       = 166881
             };
 
@@ -3334,7 +3335,12 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
 
             void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::T17Subtlety4PBonus))
                     l_Caster->CastSpell(l_Caster, eSpells::ShadowStrikes, true);
             }
 
