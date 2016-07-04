@@ -671,20 +671,12 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& p_RecvData)
     if (!normalizePlayerName(l_FriendName))
         return;
 
-#ifndef CROSS
-    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
-#else /* CROSS */
     PreparedStatement* l_Stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
-#endif /* CROSS */
 
     l_Stmt->setString(0, l_FriendName);
 
     _addFriendCallback.SetParam(l_FriendNote);
-#ifndef CROSS
-    _addFriendCallback.SetFutureResult(CharacterDatabase.AsyncQuery(l_Stmt));
-#else /* CROSS */
     _addFriendCallback.SetFutureResult(SessionRealmDatabase.AsyncQuery(l_Stmt));
-#endif /* CROSS */
 }
 
 void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std::string friendNote)
@@ -782,19 +774,11 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& p_RecvData)
     if (!normalizePlayerName(l_IgnoreName))
         return;
 
-#ifndef CROSS
-    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
-#else /* CROSS */
     PreparedStatement* l_Stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
-#endif /* CROSS */
 
     l_Stmt->setString(0, l_IgnoreName);
 
-#ifndef CROSS
-    m_AddIgnoreCallback = CharacterDatabase.AsyncQuery(l_Stmt);
-#else /* CROSS */
     m_AddIgnoreCallback = SessionRealmDatabase.AsyncQuery(l_Stmt);
-#endif /* CROSS */
 }
 
 void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
@@ -892,18 +876,10 @@ void WorldSession::HandleReportBugOpcode(WorldPacket& p_RecvData)
     p_RecvData.FlushBits();
     l_Content = p_RecvData.ReadString(l_ContentLen);
 
-#ifndef CROSS
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
-#else /* CROSS */
     PreparedStatement* l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
-#endif /* CROSS */
     l_Statement->setString(0, "Bug");
     l_Statement->setString(1, l_Content);
-#ifndef CROSS
-    CharacterDatabase.Execute(l_Statement);
-#else /* CROSS */
     SessionRealmDatabase.Execute(l_Statement);
-#endif /* CROSS */
 }
 
 void WorldSession::HandleReportSuggestionOpcode(WorldPacket& p_RecvData)
@@ -919,18 +895,10 @@ void WorldSession::HandleReportSuggestionOpcode(WorldPacket& p_RecvData)
     p_RecvData.FlushBits();
     l_Content = p_RecvData.ReadString(l_ContentLen);
 
-#ifndef CROSS
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
-#else /* CROSS */
     PreparedStatement* l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
-#endif /* CROSS */
     l_Statement->setString(0, "Suggestion");
     l_Statement->setString(1, l_Content);
-#ifndef CROSS
-    CharacterDatabase.Execute(l_Statement);
-#else /* CROSS */
     SessionRealmDatabase.Execute(l_Statement);
-#endif /* CROSS */
 }
 
 void WorldSession::HandleRequestGmTicket(WorldPacket& /*recvPakcet*/)
@@ -1717,7 +1685,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
     l_Data.FlushBits();
     l_Data.WriteString(msg);
     SendPacket(&l_Data);
-#endif /* not CROSS */
+#endif
 }
 
 void WorldSession::HandleComplainOpcode(WorldPacket& /*recvData*/)
@@ -2058,8 +2026,8 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
         if (l_GarrisonMgr->IsTrainingMount())
             return;
     }
+#endif
 
-#endif /* not CROSS */
     if (m_Player->isInFlight())                               // not blizz like; no any messages on blizz
     {
         ChatHandler(this).SendSysMessage(LANG_YOU_IN_FLIGHT);
@@ -2108,7 +2076,7 @@ void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& p_Packet)
 
     if (Guild * l_Guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
         l_Guild->GetAchievementMgr().SendAchievementInfo(m_Player, l_AchievementID);
-#endif /* not CROSS */
+#endif
 }
 
 void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*p_RecvData*/)
@@ -2438,19 +2406,10 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& p_RecvPacket)
 
     m_Player->SendCUFProfiles();
 
-#ifndef CROSS
-    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
     SQLTransaction l_Transaction = SessionRealmDatabase.BeginTransaction();
-#endif /* CROSS */
 
-#ifndef CROSS
-    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CUF_PROFILE);
-    l_Stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
-#else /* CROSS */
     PreparedStatement* l_Stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_DEL_CUF_PROFILE);
     l_Stmt->setUInt32(0, GetPlayer()->GetRealGUIDLow());
-#endif /* CROSS */
     l_Transaction->Append(l_Stmt);
 
     for (uint32 l_I = 0; l_I < l_ProfileCount; ++l_I)
@@ -2458,23 +2417,14 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& p_RecvPacket)
         CUFProfile& profile = l_Profiles[l_I];
         CUFProfileData data = profile.data;
 
-#ifndef CROSS
-        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CUF_PROFILE);
-        l_Stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
-#else /* CROSS */
         l_Stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_INS_CUF_PROFILE);
         l_Stmt->setUInt32(0, GetPlayer()->GetRealGUIDLow());
-#endif /* CROSS */
         l_Stmt->setString(1, profile.Name);
         l_Stmt->setString(2, PackDBBinary(&data, sizeof(CUFProfileData)));
         l_Transaction->Append(l_Stmt);
     }
 
-#ifndef CROSS
-    CharacterDatabase.CommitTransaction(l_Transaction);
-#else /* CROSS */
     SessionRealmDatabase.CommitTransaction(l_Transaction);
-#endif /* CROSS */
 }
 
 void WorldSession::HandleMountSetFavoriteOpcode(WorldPacket & p_Packet)

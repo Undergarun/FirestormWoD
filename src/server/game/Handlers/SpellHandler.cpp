@@ -286,8 +286,8 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
             }
         }
     }
+#endif
 
-#endif /* not CROSS */
     Unit* mover = pUser->m_mover;
     if (mover != pUser && mover->IsPlayer())
         return;
@@ -381,23 +381,9 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
         /// Wrapped?
         if (l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
         {
-#ifndef CROSS
-            PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
-#else /* CROSS */
             PreparedStatement* l_Stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
-#endif /* CROSS */
-
-#ifndef CROSS
-            l_Stmt->setUInt32(0, l_Item->GetGUIDLow());
-#else /* CROSS */
             l_Stmt->setUInt32(0, l_Item->GetRealGUIDLow());
-#endif /* CROSS */
-
-#ifndef CROSS
-            PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
-#else /* CROSS */
             PreparedQueryResult l_Result = SessionRealmDatabase.Query(l_Stmt);
-#endif /* CROSS */
 
             if (l_Result)
             {
@@ -418,23 +404,9 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
                 return;
             }
 
-#ifndef CROSS
-            l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
-#else /* CROSS */
             l_Stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
-#endif /* CROSS */
-
-#ifndef CROSS
-            l_Stmt->setUInt32(0, l_Item->GetGUIDLow());
-#else /* CROSS */
             l_Stmt->setUInt32(0, l_Item->GetRealGUIDLow());
-#endif /* CROSS */
-
-#ifndef CROSS
-            CharacterDatabase.Execute(l_Stmt);
-#else /* CROSS */
             SessionRealmDatabase.Execute(l_Stmt);
-#endif /* CROSS */
         }
         else
             m_Player->SendLoot(l_Item->GetGUID(), LOOT_CORPSE);

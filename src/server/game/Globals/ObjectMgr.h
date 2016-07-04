@@ -1779,14 +1779,15 @@ class ObjectMgr
         }
 
     private:
+
 #ifndef CROSS
         std::atomic<uint32> m_HighItemGuid;
         std::atomic<uint32> m_MailId;
         std::atomic<uint32> m_PetNumber;
         std::atomic<uint64> m_EquipmentSetGuid;
-#else /* CROSS */
+#endif
+
         // first free id for selected id type
-#endif /* CROSS */
         std::atomic<unsigned int>  _auctionId;
         std::atomic<unsigned long> _equipmentSetGuid;
         std::atomic<unsigned int>  _itemTextId;
@@ -1811,10 +1812,10 @@ class ObjectMgr
         std::atomic<unsigned int> m_GarrisonWorkOrderID;
         std::atomic<unsigned int> m_HiVignetteGuid;
         std::atomic<unsigned int> m_StandaloneSceneInstanceID;
-#ifdef CROSS
 
+#ifdef CROSS
         std::atomic<unsigned int> m_HighItemGuid;
-#endif /* CROSS */
+#endif
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;

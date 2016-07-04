@@ -1172,7 +1172,9 @@ void InstanceScript::SendChallengeNewPlayerRecord()
         {
 #ifdef CROSS
             InterRealmDatabasePool l_RealmDatabase = *l_Player->GetSession()->GetInterRealmClient()->GetDatabase();
-#endif /* CROSS */
+#else
+            auto l_RealmDatabase = CharacterDatabase;
+#endif
             if (l_Player->HasChallengeCompleted(l_MapID))
             {
                 CompletedChallenge* l_Challenge = l_Player->GetCompletedChallenge(l_MapID);
@@ -1183,27 +1185,15 @@ void InstanceScript::SendChallengeNewPlayerRecord()
                 bool l_NewBestTime = m_ChallengeTime < l_Challenge->m_BestTime;
                 bool l_NewBestMedal = m_MedalType > l_Challenge->m_BestMedal;
 
-#ifndef CROSS
-                PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_COMPLETED_CHALLENGE);
-#else /* CROSS */
-
                 PreparedStatement* l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_UPD_COMPLETED_CHALLENGE);
-#endif /* CROSS */
+
                 l_Statement->setUInt32(0, l_NewBestTime ? m_ChallengeTime : l_Challenge->m_BestTime);
                 l_Statement->setUInt32(1, m_ChallengeTime);
                 l_Statement->setUInt8(2, l_NewBestMedal ? m_MedalType : l_Challenge->m_BestMedal);
                 l_Statement->setUInt32(3, l_NewBestMedal ? uint32(time(nullptr)) : l_Challenge->m_BestMedalDate);
-#ifndef CROSS
-                l_Statement->setUInt32(4, l_Player->GetGUIDLow());
-#else /* CROSS */
                 l_Statement->setUInt32(4, l_Player->GetRealGUIDLow());
-#endif /* CROSS */
                 l_Statement->setUInt32(5, l_MapID);
-#ifndef CROSS
-                CharacterDatabase.Execute(l_Statement);
-#else /* CROSS */
                 l_RealmDatabase.Execute(l_Statement);
-#endif /* CROSS */
 
                 if (l_NewBestMedal)
                 {
@@ -1222,23 +1212,14 @@ void InstanceScript::SendChallengeNewPlayerRecord()
             }
             else
             {
-#ifndef CROSS
-                PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_COMPLETED_CHALLENGE);
-                l_Statement->setUInt32(0, l_Player->GetGUIDLow());
-#else /* CROSS */
                 PreparedStatement* l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_INS_COMPLETED_CHALLENGE);
                 l_Statement->setUInt32(0, l_Player->GetRealGUIDLow());
-#endif /* CROSS */
                 l_Statement->setUInt32(1, l_MapID);
                 l_Statement->setUInt32(2, m_ChallengeTime);
                 l_Statement->setUInt32(3, m_ChallengeTime);
                 l_Statement->setUInt8(4, m_MedalType);
                 l_Statement->setUInt32(5, uint32(time(nullptr)));
-#ifndef CROSS
-                CharacterDatabase.Execute(l_Statement);
-#else /* CROSS */
                 l_RealmDatabase.Execute(l_Statement);
-#endif /* CROSS */
 
                 CompletedChallenge l_Challenge;
                 l_Challenge.m_BestMedal = m_MedalType;

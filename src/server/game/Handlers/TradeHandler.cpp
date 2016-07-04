@@ -487,18 +487,10 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*p_RecvData*/)
         l_Trader->m_trade = NULL;
 
         // Desynchronized with the other saves here (SaveInventoryAndGoldToDB() not have own transaction guards)
-#ifndef CROSS
-        SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
         SQLTransaction l_Transaction = SessionRealmDatabase.BeginTransaction();
-#endif /* CROSS */
         m_Player->SaveInventoryAndGoldToDB(l_Transaction);
         l_Trader->SaveInventoryAndGoldToDB(l_Transaction);
-#ifndef CROSS
-        CharacterDatabase.CommitTransaction(l_Transaction);
-#else /* CROSS */
         SessionRealmDatabase.CommitTransaction(l_Transaction);
-#endif /* CROSS */
 
         l_Trader->GetSession()->SendTradeStatus(TRADE_STATUS_COMPLETE);
         SendTradeStatus(TRADE_STATUS_COMPLETE);

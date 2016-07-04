@@ -255,17 +255,9 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
 
     SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_NO_ERROR);
 
-#ifndef CROSS
-    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
     SQLTransaction l_Transaction = SessionRealmDatabase.BeginTransaction();
-#endif /* CROSS */
     m_Player->SaveInventoryAndGoldToDB(l_Transaction);
-#ifndef CROSS
-    CharacterDatabase.CommitTransaction(l_Transaction);
-#else /* CROSS */
     SessionRealmDatabase.CommitTransaction(l_Transaction);
-#endif /* CROSS */
 }
 
 void WorldSession::HandleVoidSwapItem(WorldPacket & p_Packet)

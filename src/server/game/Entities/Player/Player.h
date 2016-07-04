@@ -1505,8 +1505,8 @@ namespace InterRealmPlayerState
 }
 
 typedef std::list<Channel*> JoinedChannelsList;
+#endif
 
-#endif /* not CROSS */
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1607,8 +1607,8 @@ class Player : public Unit, public GridObject<Player>
         int32 GetShipyardMapID() const;
         void DeleteGarrison();
         uint32 GetPlotInstanceID() const;
+#endif
 
-#endif /* not CROSS */
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
 
         PlayerSocial *GetSocial() { return m_social; }
@@ -2946,11 +2946,7 @@ class Player : public Unit, public GridObject<Player>
         bool InBattlegroundQueue() const
         {
             for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
-#ifndef CROSS
-                if (m_bgBattlegroundQueueID[i].BgType <= MS::Battlegrounds::BattlegroundType::DeepwindGorge)
-#else /* CROSS */
                 if (m_bgBattlegroundQueueID[i].BgType != MS::Battlegrounds::BattlegroundType::None)
-#endif /* CROSS */
                     return true;
             return false;
         }
@@ -3053,11 +3049,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint8 GetBGLastActiveSpec() const { return m_bgData.m_LastActiveSpec; }
         void SaveBGLastSpecialization() { m_bgData.m_LastActiveSpec = GetActiveSpec(); }
-#ifndef CROSS
 
-#else /* CROSS */
-        
-#endif /* CROSS */
         void LeaveBattleground(bool teleportToEntryPoint = true);
         bool CanJoinToBattleground() const;
         bool CanReportAfkDueToLimit();
@@ -4239,14 +4231,13 @@ class Player : public Unit, public GridObject<Player>
         /***                  SCENES SYSTEM                    ***/
         /*********************************************************/
         SceneObject* m_LastPlayedScene;
-#ifndef CROSS
 
+#ifndef CROSS
         uint32 m_irZoneId;
         uint32 m_irAreaId;
         uint32 m_irMapId;
-
         InterRealmPlayerState::Type m_InterRealmPlayerState;
-#endif /* not CROSS */
+#endif
 
         uint32 m_PvPCombatTimer;
         bool m_pvpCombat;

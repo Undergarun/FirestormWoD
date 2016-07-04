@@ -1102,7 +1102,7 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
 #ifndef CROSS
     // check for seasonal quest reset.
     sWorld->ResetEventSeasonalQuests(event_id);
-#endif /* not CROSS */
+#endif
 }
 
 void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)

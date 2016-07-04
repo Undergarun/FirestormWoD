@@ -605,8 +605,8 @@ void Map::Update(const uint32 t_diff)
 {
 #ifdef CROSS
     SetUpdating(true);
+#endif
 
-#endif /* CROSS */
     uint32 l_Time = getMSTime();
 
     _dynamicTree.update(t_diff);
@@ -616,19 +616,19 @@ void Map::Update(const uint32 t_diff)
         Player* player = m_mapRefIter->getSource();
         if (player && player->IsInWorld())
         {
-#ifndef CROSS
-            //player->Update(t_diff);
-#else /* CROSS */
+#ifdef CROSS
             if (player->IsNeedRemove())
                 continue;
 
-#endif /* CROSS */
+#endif
+
             WorldSession* session = player->GetSession();
+
 #ifdef CROSS
             if (!session->GetPlayer())
                 continue;
+#endif
 
-#endif /* CROSS */
             MapSessionFilter updater(session);
             session->Update(t_diff, updater);
         }
@@ -717,13 +717,9 @@ void Map::Update(const uint32 t_diff)
 
     sScriptMgr->OnMapUpdate(this, t_diff);
 
-#ifndef CROSS
-    //uint32 l_TimeElapsed = getMSTime() - l_Time; ///< l_TimeElapsed is never read 01/18/16
-    //if (l_TimeElapsed > 10)
-    //    sMapMgr->RegisterMapDelay(GetId(), l_TimeElapsed);
-#else /* CROSS */
+#ifdef CROSS
     SetUpdating(false);
-#endif /* CROSS */
+#endif
 }
 
 void Map::RemovePlayerFromMap(Player* player, bool remove)

@@ -38,11 +38,7 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
             break;
         case TYPEID_PLAYER:
             m_messageType = MAIL_NORMAL;
-#ifndef CROSS
-            m_senderId = sender->GetGUIDLow();
-#else /* CROSS */
             m_senderId = sender->GetRealGUIDLow();
-#endif /* CROSS */
             break;
         default:
             m_messageType = MAIL_NORMAL;
@@ -286,11 +282,7 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
         Item* pItem = mailItemIter->second;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
         stmt->setUInt32(0, mailId);
-#ifndef CROSS
-        stmt->setUInt32(1, pItem->GetGUIDLow());
-#else /* CROSS */
         stmt->setUInt32(1, pItem->GetRealGUIDLow());
-#endif /* CROSS */
         stmt->setUInt32(2, receiver.GetPlayerGUIDLow());
         trans->Append(stmt);
     }
@@ -311,11 +303,7 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
         for (MailItemMap::const_iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
         {
             Item* item = mailItemIter->second;
-#ifndef CROSS
-            m->AddItem(item->GetGUIDLow(), item->GetEntry());
-#else /* CROSS */
             m->AddItem(item->GetRealGUIDLow(), item->GetEntry());
-#endif /* CROSS */
         }
 
         m->messageType = sender.GetMailMessageType();

@@ -2721,11 +2721,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
         {
             if (isPet() && GetOwner())
                 if (GetOwner()->ToPlayer())
-#ifndef CROSS
                     l_ExpertisePercentage = int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
-#else /* CROSS */
-                    l_ExpertisePercentage -= int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
-#endif /* CROSS */
         }
 
         if (victim->getLevel() >= getLevel())
@@ -2766,11 +2762,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
 
     // Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
     if (attType != WeaponAttackType::RangedAttack && (IsPlayer() || ToCreature()->isPet()) &&
-#ifndef CROSS
         victim->ToCreature() && !victim->ToCreature()->isPet() && victim->getLevel() > (getLevel() + 3))
-#else /* CROSS */
-        victim->ToCreature() && !victim->ToCreature()->isPet() && victim->getLevel() > (getLevel() + 2))
-#endif /* CROSS */
     {
         ///@todo Patch 6.0.2 (2014-10-14): All characters now have a 100% chance to hit, 0% chance to be dodged, 3% chance to be parried, and 0% chance for glancing blows, when fighting creatures up to 3 levels higher (bosses included).
         // Anytime a character makes a melee attack on a level ?? boss
@@ -15883,11 +15875,11 @@ void Unit::SetLevel(uint8 lvl)
     // group update
     if (IsPlayer() && ToPlayer()->GetGroup())
         ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_LEVEL);
-#ifndef CROSS
 
+#ifndef CROSS
     if (IsPlayer())
         sWorld->UpdateCharacterInfoLevel(ToPlayer()->GetGUIDLow(), lvl);
-#endif /* not CROSS */
+#endif
 }
 
 void Unit::SetHealth(uint32 val)
@@ -18565,8 +18557,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                     }
                 }
             }
-
-#endif /* not CROSS */
+#endif
             l_Group->BroadcastPacket(&l_Data, l_Group->GetMemberGroup(l_KillerPlayer->GetGUID()));
 
             if (l_KilledCreature)
@@ -18605,8 +18596,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                     }
                 }
             }
-
-#endif /* not CROSS */
+#endif
             if (l_KilledCreature)
             {
                 WorldPacket l_LootListPacket(SMSG_LOOT_LIST);

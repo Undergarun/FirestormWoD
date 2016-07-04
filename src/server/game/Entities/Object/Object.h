@@ -171,8 +171,13 @@ class Object
         uint32 GetRealGUIDMid() const { return GUID_ENPART(m_realGUID); }
         uint32 GetRealGUIDHigh() const { return GUID_HIPART(m_realGUID); }
         const ByteBuffer& GetRealPackGUID() const { return m_realPackGUID; }
+#else
+        uint64 GetRealGUID() { return GetGUID(); }
+        uint32 GetRealGUIDLow() const { GetGUIDLow(); }
+        uint32 GetRealGUIDMid() const { GetGUIDMid(); }
+        uint32 GetRealGUIDHigh() const { return GetRealGUIDHigh(); }
+#endif
 
-#endif /* CROSS */
         uint64 GetGUID() const { return GetGuidValue(0); }
         uint32 GetGUIDLow() const { return GUID_LOPART(GetGuidValue(0)); }
         uint32 GetGUIDMid() const { return GUID_ENPART(GetGuidValue(0)); }

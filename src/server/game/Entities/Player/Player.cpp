@@ -6396,9 +6396,6 @@ uint32 Player::GetRoleForGroup(uint32 specializationId) const
     return GetRoleBySpecializationId(specializationId);
 }
 
-#ifdef CROSS
-
-#endif /* CROSS */
 bool Player::IsRangedDamageDealer(bool p_AllowHeal /*= true*/) const
 {
     if (GetRoleForGroup() != Roles::ROLE_DAMAGE && !(p_AllowHeal && GetRoleForGroup() == Roles::ROLE_HEALER))
@@ -9774,10 +9771,6 @@ void Player::_LoadCurrency(PreparedQueryResult result)
 
 void Player::_SaveCurrency(SQLTransaction& trans)
 {
-#ifdef CROSS
-    InterRealmDatabasePool* l_Database = GetRealmDatabase();
-
-#endif /* CROSS */
     PreparedStatement* stmt = NULL;
     for (PlayerCurrenciesMap::iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
@@ -9788,13 +9781,8 @@ void Player::_SaveCurrency(SQLTransaction& trans)
         switch (itr->second.state)
         {
             case PLAYERCURRENCY_NEW:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_CURRENCY);
-                stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
-                stmt = l_Database->GetPreparedStatement(CHAR_REP_PLAYER_CURRENCY);
+                stmt = RealmDatabase.GetPreparedStatement(CHAR_REP_PLAYER_CURRENCY);
                 stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt16(1, itr->first);
                 stmt->setUInt32(2, itr->second.weekCount);
                 stmt->setUInt32(3, itr->second.totalCount);
@@ -9805,22 +9793,14 @@ void Player::_SaveCurrency(SQLTransaction& trans)
                 trans->Append(stmt);
                 break;
             case PLAYERCURRENCY_CHANGED:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_CURRENCY);
-#else /* CROSS */
-                stmt = l_Database->GetPreparedStatement(CHAR_UPD_PLAYER_CURRENCY);
-#endif /* CROSS */
+                stmt = RealmDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_CURRENCY);
                 stmt->setUInt32(0, itr->second.weekCount);
                 stmt->setUInt32(1, itr->second.totalCount);
                 stmt->setUInt32(2, itr->second.seasonTotal);
                 stmt->setUInt32(3, itr->second.flags);
                 stmt->setUInt32(4, itr->second.weekCap);
                 stmt->setUInt8(5, itr->second.needResetCap);
-#ifndef CROSS
-                stmt->setUInt32(6, GetGUIDLow());
-#else /* CROSS */
                 stmt->setUInt32(6, GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt16(7, itr->first);
                 trans->Append(stmt);
                 break;
@@ -15700,21 +15680,11 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
             for (++itr; itr != allowedLooters.end(); ++itr)
                 ss << ' ' << *itr;
 
-#ifndef CROSS
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_BOP_TRADE);
-            stmt->setUInt32(0, pItem->GetGUIDLow());
-#else /* CROSS */
-            InterRealmDatabasePool* l_Database = GetRealmDatabase();
 
-            PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_INS_ITEM_BOP_TRADE);
+            PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_ITEM_BOP_TRADE);
             stmt->setUInt32(0, pItem->GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setString(1, ss.str());
-#ifndef CROSS
-            CharacterDatabase.Execute(stmt);
-#else /* CROSS */
-            l_Database->Execute(stmt);
-#endif /* CROSS */
+            RealmDatabase.Execute(stmt);
         }
     }
     return pItem;
@@ -16277,25 +16247,9 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         if (pItem->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
         {
-#ifndef CROSS
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
-#else /* CROSS */
-            InterRealmDatabasePool* l_Database = GetRealmDatabase();
-#endif /* CROSS */
-
-#ifndef CROSS
-            stmt->setUInt32(0, pItem->GetGUIDLow());
-#else /* CROSS */
-            PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_GIFT);
-#endif /* CROSS */
-
-#ifndef CROSS
-            CharacterDatabase.Execute(stmt);
-#else /* CROSS */
+            PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
             stmt->setUInt32(0, pItem->GetRealGUIDLow());
-
-            l_Database->Execute(stmt);
-#endif /* CROSS */
+            RealmDatabase.Execute(stmt);
         }
 
         RemoveEnchantmentDurations(pItem);
@@ -19044,8 +18998,8 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 #ifndef CROSS
     if (m_Garrison && IsInGarrison())
         m_Garrison->OnQuestStarted(quest);
+#endif
 
-#endif /* not CROSS */
     sScriptMgr->OnQuestAccept(this, quest);
 }
 
@@ -19085,12 +19039,7 @@ void Player::CompleteQuest(uint32 quest_id)
 #ifndef CROSS
         if (Guild* l_Guild = GetGuild())
             l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD, 1, 0, 0, nullptr, this);
-#else /* CROSS */
-        // @TODO: cross sync
-        //if (Guild* l_Guild = GetGuild())
-        //    l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD, 1, 0, 0, nullptr, this);
-#endif /* CROSS */
-
+#endif
     }
 }
 
@@ -19214,7 +19163,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                                     l_Coeff *= 2.0f;
                             }
 
-#endif /* not CROSS */
+#endif
                             //bool  l_SendDisplayToast = false;
 
                             // If item is uncommon & chance match, add uncommun to rare modifier
@@ -19365,8 +19314,8 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
         MailDraft(mail_template_id).SendMailTo(trans, this, p_QuestGiver, MAIL_CHECK_MASK_HAS_BODY, p_Quest->GetRewMailDelaySecs());
         CharacterDatabase.CommitTransaction(trans);
     }
+#endif
 
-#endif /* not CROSS */
     if (p_Quest->IsDaily() || p_Quest->IsDFQuest())
     {
         SetDailyQuestStatus(l_QuestId);
@@ -19417,8 +19366,8 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
 #ifndef CROSS
     if (m_Garrison && IsInGarrison())
         m_Garrison->OnQuestReward(p_Quest);
+#endif
 
-#endif /* not CROSS */
     if (p_Quest->GetZoneOrSort() > 0)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE, p_Quest->GetZoneOrSort());
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT);
@@ -20238,8 +20187,8 @@ void Player::RemoveActiveQuest(uint32 quest_id, bool p_BonusQuest)
 #ifndef CROSS
         if (m_Garrison && IsInGarrison())
             m_Garrison->OnQuestAbandon(l_Quest);
+#endif
 
-#endif /* not CROSS */
         if (!IsQuestRewarded(quest_id))
             sScriptMgr->OnQuestAbandon(this, l_Quest);
 
@@ -21095,13 +21044,8 @@ void Player::_LoadBGData(PreparedQueryResult result)
 
     Field* fields = result->Fetch();
     // Expecting only one row
-#ifndef CROSS
     //        0           1     2      3      4      5      6          7          8        9            10
     // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell, lastActiveSpec FROM character_battleground_data WHERE guid = ?
-#else /* CROSS */
-    //        0           1     2      3      4      5      6          7          8        9            10             11
-    // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell, lastActiveSpec, bgTypeId FROM character_battleground_data WHERE guid = ?
-#endif /* CROSS */
 
 #ifndef CROSS
     m_bgData.bgInstanceID = fields[0].GetUInt32();
@@ -21120,9 +21064,7 @@ void Player::_LoadBGData(PreparedQueryResult result)
     m_bgData.m_LastActiveSpec = fields[10].GetUInt16();
 #ifndef CROSS
     m_bgData.bgTypeID = (BattlegroundTypeId)fields[11].GetUInt32();
-#else /* CROSS */
-    //m_bgData.bgTypeID = (BattlegroundTypeId)fields[11].GetUInt32();
-#endif /* CROSS */
+#endif
 }
 
 bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, uint64 guid)
@@ -21155,28 +21097,15 @@ void Player::SetHomebind(WorldLocation const& loc, uint32 area_id)
     m_homebindY      = loc.GetPositionY();
     m_homebindZ      = loc.GetPositionZ();
 
-#ifdef CROSS
-    InterRealmDatabasePool* l_Database = GetRealmDatabase();
-
-#endif /* CROSS */
     // update sql homebind
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_HOMEBIND);
-#else /* CROSS */
-    PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_UPD_PLAYER_HOMEBIND);
-#endif /* CROSS */
+    PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_HOMEBIND);
     stmt->setUInt16(0, m_homebindMapId);
     stmt->setUInt16(1, m_homebindAreaId);
     stmt->setFloat (2, m_homebindX);
     stmt->setFloat (3, m_homebindY);
     stmt->setFloat (4, m_homebindZ);
-#ifndef CROSS
-    stmt->setUInt32(5, GetGUIDLow());
-    CharacterDatabase.Execute(stmt);
-#else /* CROSS */
     stmt->setUInt32(5, GetRealGUIDLow());
-    l_Database->Execute(stmt);
-#endif /* CROSS */
+    RealmDatabase.Execute(stmt);
 }
 
 uint32 Player::GetUInt32ValueFromArray(Tokenizer const& data, uint16 index)
@@ -21422,8 +21351,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
 #ifndef CROSS
     _LoadGroup(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGROUP));
+#endif
 
-#endif /* not CROSS */
     _LoadArenaData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENADATA));
     _LoadCurrency(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADCURRENCY));
     SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, fields[40].GetUInt32());
@@ -21842,8 +21771,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     //mails are loaded only when needed ;-) - when player in game click on mailbox.
     _LoadMail(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADMAIL));
     _LoadMailedItems(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADMAIL_ITEMS));
+#endif
 
-#endif /* not CROSS */
     SetSpecsCount(fields[54].GetUInt8());
     SetActiveSpec(fields[55].GetUInt8());
 
@@ -22120,8 +22049,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetGUID()))
         if (!ticket->IsClosed() && ticket->IsCompleted())
             ticket->SendResponse(GetSession());
+#endif
 
-#endif /* not CROSS */
     l_Times.push_back(getMSTime() - l_StartTime);
 
     // Set realmID
@@ -22405,8 +22334,10 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 
 #ifdef CROSS
     InterRealmDatabasePool* l_Database = GetRealmDatabase();
+#else
+    auto l_Database = CharacterDatabase;
+#endif
 
-#endif /* CROSS */
     if (result)
     {
         uint32 zoneId = GetZoneId(true);
@@ -22414,11 +22345,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
         std::map<uint32, Bag*> bagMap;                                  // fast guid lookup for bags
         std::map<uint32, Item*> invalidBagMap;                          // fast guid lookup for bags
         std::list<Item*> problematicItems;
-#ifndef CROSS
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
         SQLTransaction trans = l_Database->BeginTransaction();
-#endif /* CROSS */
 
         // Prevent items from being added to the queue while loading
         m_itemUpdateQueueBlocked = true;
@@ -22471,20 +22398,12 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     {
                         if (IsBagPos(item->GetPos()))
                             if (Bag* pBag = item->ToBag())
-#ifndef CROSS
-                                bagMap[item->GetGUIDLow()] = pBag;
-#else /* CROSS */
                                 bagMap[item->GetRealGUIDLow()] = pBag;
-#endif /* CROSS */
                     }
                     else
                         if (IsBagPos(item->GetPos()))
                             if (item->IsBag())
-#ifndef CROSS
-                                invalidBagMap[item->GetGUIDLow()] = item;
-#else /* CROSS */
                                 invalidBagMap[item->GetRealGUIDLow()] = item;
-#endif /* CROSS */
                 }
                 else
                 {
@@ -22548,11 +22467,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             }
             draft.SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
         }
-#ifndef CROSS
-        CharacterDatabase.CommitTransaction(trans);
-#else /* CROSS */
         l_Database->CommitTransaction(trans);
-#endif /* CROSS */
     }
     //if (isAlive())
     _ApplyAllItemMods();
@@ -22609,16 +22524,16 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = NULL;
+
 #ifdef CROSS
-
     InterRealmDatabasePool* l_Database = GetRealmDatabase();
+#else
+    auto l_Database = CharacterDatabase;
+#endif
 
-#endif /* CROSS */
     uint32 itemGuid  = fields[18].GetUInt32();
     uint32 itemEntry = fields[19].GetUInt32();
-#ifdef CROSS
 
-#endif /* CROSS */
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;
@@ -22648,13 +22563,8 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with expired refund time (%u). Deleting refund data and removing refundable flag.",
                         GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry(), item->GetPlayedTime());
 
-#ifndef CROSS
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
-                    stmt->setUInt32(0, item->GetGUIDLow());
-#else /* CROSS */
                     stmt = l_Database->GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
                     stmt->setUInt32(0, item->GetRealGUIDLow());
-#endif /* CROSS */
                     trans->Append(stmt);
 
                     item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
@@ -22663,21 +22573,11 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 {
                     uint64 l_PlayerGUID = GetGUID();
 
-#ifndef CROSS
-                    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_REFUNDS);
-                    l_Statement->setUInt32(0, item->GetGUIDLow());
-                    l_Statement->setUInt32(1, GetGUIDLow());
-#else /* CROSS */
                     PreparedStatement* l_Statement = l_Database->GetPreparedStatement(CHAR_SEL_ITEM_REFUNDS);
                     l_Statement->setUInt32(0, item->GetRealGUIDLow());
                     l_Statement->setUInt32(1, GetRealGUIDLow());
-#endif /* CROSS */
 
-#ifndef CROSS
-                    CharacterDatabase.AsyncQuery(l_Statement, [itemGuid, l_PlayerGUID](PreparedQueryResult p_Result) -> void
-#else /* CROSS */
                     l_Database->AsyncQuery(l_Statement, [itemGuid, l_PlayerGUID](PreparedQueryResult p_Result) -> void
-#endif /* CROSS */
                     {
                         Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
                         if (l_Player == nullptr)
@@ -22707,19 +22607,10 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
             {
                 uint64 l_PlayerGUID = GetGUID();
 
-#ifndef CROSS
-                PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_BOP_TRADE);
-                l_Statement->setUInt32(0, item->GetGUIDLow());
-#else /* CROSS */
                 PreparedStatement* l_Statement = l_Database->GetPreparedStatement(CHAR_SEL_ITEM_BOP_TRADE);
                 l_Statement->setUInt32(0, item->GetRealGUIDLow());
-#endif /* CROSS */
 
-#ifndef CROSS
-                CharacterDatabase.AsyncQuery(l_Statement, [itemGuid, l_PlayerGUID](PreparedQueryResult p_Result) -> void
-#else /* CROSS */
                 l_Database->AsyncQuery(l_Statement, [itemGuid, l_PlayerGUID](PreparedQueryResult p_Result) -> void
-#endif /* CROSS */
                 {
                     Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
                     if (l_Player == nullptr)
@@ -22771,11 +22662,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
         // Remove item from inventory if necessary
         if (remove)
         {
-#ifndef CROSS
-            Item::DeleteFromInventoryDB(trans, itemGuid);
-#else /* CROSS */
             Item::DeleteFromInventoryDB(trans, itemGuid, GetSession()->GetInterRealmNumber());
-#endif /* CROSS */
             item->FSetState(ITEM_REMOVED);
             item->SaveToDB(trans);                           // it also deletes item object!
             item = NULL;
@@ -22785,12 +22672,6 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
     {
         sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadInventory: player (GUID: %u, name: '%s') has unknown item (entry: %u) in inventory. Deleting item.",
             GetGUIDLow(), GetName(), itemEntry);
-#ifndef CROSS
-        /* Delete de cette foutue fonction, jamais tu ne delete des items !
-        Item::DeleteFromInventoryDB(trans, itemGuid);
-        Item::DeleteFromDB(trans, itemGuid);
-        */
-#endif /* not CROSS */
     }
     return item;
 }
@@ -23323,8 +23204,8 @@ void Player::_LoadCharacterGarrisonWeeklyTavernDatas(PreparedQueryResult p_Resul
         while (p_Result->NextRow());
     }
 }
+#endif
 
-#endif /* not CROSS */
 void Player::_LoadGroup(PreparedQueryResult result)
 {
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUIDLow());
@@ -23470,31 +23351,17 @@ void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficu
     {
         if (!unload)
         {
-#ifndef CROSS
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE_GUID);
-#else /* CROSS */
             PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE_GUID);
-#endif /* CROSS */
-
-#ifndef CROSS
-            stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
             stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setUInt32(1, itr->second.save->GetInstanceId());
-
-#ifndef CROSS
-            CharacterDatabase.Execute(stmt);
-#else /* CROSS */
             RealmDatabase.Execute(stmt);
-#endif /* CROSS */
         }
 
 #ifndef CROSS
         if (itr->second.perm)
             GetSession()->SendCalendarRaidLockout(itr->second.save, false);
+#endif
 
-#endif /* not CROSS */
         itr->second.save->RemovePlayer(this);               // save can become invalid
         m_boundInstances[difficulty].erase(itr++);
     }
@@ -23512,24 +23379,12 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* p_InstanceSave, bool p_
             {
                 if (!p_Load)
                 {
-#ifndef CROSS
-                    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE);
-#else /* CROSS */
                     PreparedStatement* l_Statement = RealmDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE);
-#endif /* CROSS */
                     l_Statement->setUInt32(0, p_InstanceSave->GetInstanceId());
                     l_Statement->setBool(1, p_Permanent);
-#ifndef CROSS
-                    l_Statement->setUInt32(2, GetGUIDLow());
-#else /* CROSS */
                     l_Statement->setUInt32(2, GetRealGUIDLow());
-#endif /* CROSS */
                     l_Statement->setUInt32(3, l_InstanceBind.save->GetInstanceId());
-#ifndef CROSS
-                    CharacterDatabase.Execute(l_Statement);
-#else /* CROSS */
                     RealmDatabase.Execute(l_Statement);
-#endif /* CROSS */
                 }
             }
         }
@@ -23538,18 +23393,10 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* p_InstanceSave, bool p_
             if (!p_Load)
             {
                 PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INSTANCE);
-#ifndef CROSS
-                l_Statement->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
                 l_Statement->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
                 l_Statement->setUInt32(1, p_InstanceSave->GetInstanceId());
                 l_Statement->setBool(2, p_Permanent);
-#ifndef CROSS
-                CharacterDatabase.Execute(l_Statement);
-#else /* CROSS */
                 RealmDatabase.Execute(l_Statement);
-#endif /* CROSS */
             }
         }
 
@@ -23587,10 +23434,10 @@ void Player::BindToInstance()
     data.WriteBit(false);
     GetSession()->SendPacket(&data);
     BindToInstance(mapSave, true);
-#ifndef CROSS
 
+#ifndef CROSS
     GetSession()->SendCalendarRaidLockout(mapSave, true);
-#endif /* not CROSS */
+#endif
 }
 
 void Player::SendRaidInfo()
@@ -23831,15 +23678,9 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
             ok = true;
         else
         {
-#ifndef CROSS
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
-            stmt->setUInt32(0, GetGUIDLow());
-            CharacterDatabase.Execute(stmt);
-#else /* CROSS */
             PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
             stmt->setUInt32(0, GetRealGUIDLow());
             RealmDatabase.Execute(stmt);
-#endif /* CROSS */
         }
     }
 
@@ -23851,23 +23692,14 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
         m_homebindY = info->positionY;
         m_homebindZ = info->positionZ;
 
-#ifndef CROSS
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_HOMEBIND);
-        stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
         PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_PLAYER_HOMEBIND);
         stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
         stmt->setUInt16(1, m_homebindMapId);
         stmt->setUInt16(2, m_homebindAreaId);
         stmt->setFloat (3, m_homebindX);
         stmt->setFloat (4, m_homebindY);
         stmt->setFloat (5, m_homebindZ);
-#ifndef CROSS
-        CharacterDatabase.Execute(stmt);
-#else /* CROSS */
         RealmDatabase.Execute(stmt);
-#endif /* CROSS */
     }
 
     sLog->outDebug(LOG_FILTER_PLAYER, "Setting player home position - mapid: %u, areaid: %u, X: %f, Y: %f, Z: %f",
@@ -23922,13 +23754,8 @@ void Player::SaveToDB(bool create /*=false*/, MS::Utilities::CallBackPtr p_Callb
     {
         //! Insert query
         //! TO DO: Filter out more redundant fields that can take their default value at player create
-#ifndef CROSS
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER);
-        stmt->setUInt32(index++, GetGUIDLow());
-#else /* CROSS */
         stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHARACTER);
         stmt->setUInt32(index++, GetRealGUIDLow());
-#endif /* CROSS */
         stmt->setUInt32(index++, GetSession()->GetAccountId());
         stmt->setString(index++, GetName());
         stmt->setUInt8(index++, getRace());
@@ -24057,11 +23884,7 @@ void Player::SaveToDB(bool create /*=false*/, MS::Utilities::CallBackPtr p_Callb
     else
     {
         // Update query
-#ifndef CROSS
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER);
-#else /* CROSS */
         stmt = RealmDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER);
-#endif /* CROSS */
         stmt->setString(index++, GetName());
         stmt->setUInt8(index++, getRace());
         stmt->setUInt8(index++, getClass());
@@ -24215,18 +24038,10 @@ void Player::SaveToDB(bool create /*=false*/, MS::Utilities::CallBackPtr p_Callb
         stmt->setUInt32(index++, m_petSlotUsed);
 
         // Index
-#ifndef CROSS
-        stmt->setUInt32(index++, GetGUIDLow());
-#else /* CROSS */
         stmt->setUInt32(index++, GetRealGUIDLow());
-#endif /* CROSS */
     }
 
-#ifndef CROSS
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
     SQLTransaction trans = RealmDatabase.BeginTransaction();
-#endif /* CROSS */
     SQLTransaction accountTrans = LoginDatabase.BeginTransaction();
 
     trans->Append(stmt);
@@ -24234,8 +24049,8 @@ void Player::SaveToDB(bool create /*=false*/, MS::Utilities::CallBackPtr p_Callb
 #ifndef CROSS
     if (m_Garrison)
         m_Garrison->Save();
+#endif
 
-#endif /* not CROSS */
     if (m_mailsUpdated)                                     //save mails only when needed
         _SaveMail(trans);
 
@@ -24281,11 +24096,7 @@ void Player::SaveToDB(bool create /*=false*/, MS::Utilities::CallBackPtr p_Callb
         l_Pet->Save(accountTrans);
     }
 
-#ifndef CROSS
-    CharacterDatabase.CommitTransaction(trans, p_CallBack);
-#else /* CROSS */
     RealmDatabase.CommitTransaction(trans, p_Callback);
-#endif /* CROSS */
     LoginDatabase.CommitTransaction(accountTrans);
 
     // we save the data here to prevent spamming
@@ -24307,17 +24118,9 @@ void Player::SaveInventoryAndGoldToDB(SQLTransaction& trans)
 
 void Player::SaveGoldToDB(SQLTransaction& trans)
 {
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_MONEY);
-#else /* CROSS */
     PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_UDP_CHAR_MONEY);
-#endif /* CROSS */
     stmt->setUInt64(0, GetMoney());
-#ifndef CROSS
-    stmt->setUInt32(1, GetGUIDLow());
-#else /* CROSS */
     stmt->setUInt32(1, GetRealGUIDLow());
-#endif /* CROSS */
     trans->Append(stmt);
 }
 
@@ -24330,13 +24133,8 @@ void Player::_SaveActions(SQLTransaction& trans)
         switch (itr->second.uState)
         {
             case ACTIONBUTTON_NEW:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACTION);
-                stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
                 stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACTION);
                 stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt8(1, GetActiveSpec());
                 stmt->setUInt8(2, itr->first);
                 stmt->setUInt32(3, itr->second.GetAction());
@@ -24347,18 +24145,10 @@ void Player::_SaveActions(SQLTransaction& trans)
                 ++itr;
                 break;
             case ACTIONBUTTON_CHANGED:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACTION);
-#else /* CROSS */
                 stmt = RealmDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACTION);
-#endif /* CROSS */
                 stmt->setUInt32(0, itr->second.GetAction());
                 stmt->setUInt8(1, uint8(itr->second.GetType()));
-#ifndef CROSS
-                stmt->setUInt32(2,  GetGUIDLow());
-#else /* CROSS */
                 stmt->setUInt32(2,  GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt8(3, itr->first);
                 stmt->setUInt8(4, GetActiveSpec());
                 trans->Append(stmt);
@@ -24367,13 +24157,8 @@ void Player::_SaveActions(SQLTransaction& trans)
                 ++itr;
                 break;
             case ACTIONBUTTON_DELETED:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION_BY_BUTTON_SPEC);
-                stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
                 stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION_BY_BUTTON_SPEC);
                 stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt8(1, itr->first);
                 stmt->setUInt8(2, GetActiveSpec());
                 trans->Append(stmt);
@@ -24389,21 +24174,11 @@ void Player::_SaveActions(SQLTransaction& trans)
 
 void Player::_SaveAuras(SQLTransaction& trans)
 {
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
-    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
     PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     trans->Append(stmt);
-#ifndef CROSS
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_EFFECT);
-    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
     stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_EFFECT);
     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     trans->Append(stmt);
 
     for (AuraMap::const_iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end(); ++itr)
@@ -24428,13 +24203,8 @@ void Player::_SaveAuras(SQLTransaction& trans)
             if (AuraEffect const* effect = aura->GetEffect(i))
             {
                 index = 0;
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA_EFFECT);
-                stmt->setUInt32(index++, GetGUIDLow());
-#else /* CROSS */
                 stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_AURA_EFFECT);
                 stmt->setUInt32(index++, GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt8(index++, foundAura->GetSlot());
                 stmt->setUInt8(index++, i);
                 stmt->setInt32(index++, effect->GetBaseAmount());
@@ -24456,13 +24226,8 @@ void Player::_SaveAuras(SQLTransaction& trans)
         }
 
         index = 0;
-#ifndef CROSS
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
-        stmt->setUInt32(index++, GetGUIDLow());
-#else /* CROSS */
         stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_AURA);
         stmt->setUInt32(index++, GetRealGUIDLow());
-#endif /* CROSS */
         stmt->setUInt8(index++, foundAura->GetSlot());
         stmt->setUInt64(index++, itr->second->GetCasterGUID());
         stmt->setUInt64(index++, itr->second->GetCastItemGUID());
@@ -24488,13 +24253,8 @@ void Player::_SaveInventory(SQLTransaction& trans)
         if (!item || item->GetState() == ITEM_NEW)
             continue;
 
-#ifndef CROSS
-        trans->PAppend("DELETE FROM character_inventory WHERE item = %u", item->GetGUIDLow());
-        trans->PAppend("DELETE FROM item_instance WHERE guid = %u", item->GetGUIDLow());
-#else /* CROSS */
         trans->PAppend("DELETE FROM character_inventory WHERE item = %u", item->GetRealGUIDLow());
         trans->PAppend("DELETE FROM item_instance WHERE guid = %u", item->GetRealGUIDLow());
-#endif /* CROSS */
 
         m_items[i]->FSetState(ITEM_NEW);
     }
@@ -24531,11 +24291,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
     if (m_itemUpdateQueue.empty())
         return;
 
-#ifndef CROSS
-    uint32 lowGuid = GetGUIDLow();
-#else /* CROSS */
     uint32 lowGuid = GetRealGUIDLow();
-#endif /* CROSS */
     for (size_t i = 0; i < m_itemUpdateQueue.size(); ++i)
     {
         Item* item = m_itemUpdateQueue[i];
@@ -24543,11 +24299,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
             continue;
 
         Bag* container = item->GetContainer();
-#ifndef CROSS
-        uint32 bag_guid = container ? container->GetGUIDLow() : 0;
-#else /* CROSS */
         uint32 bag_guid = container ? container->GetRealGUIDLow() : 0;
-#endif /* CROSS */
 
         if (item->GetState() != ITEM_REMOVED)
         {
@@ -24556,11 +24308,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
             {
                 uint32 bagTestGUID = 0;
                 if (Item* test2 = GetItemByPos(INVENTORY_SLOT_BAG_0, item->GetBagSlot()))
-#ifndef CROSS
-                    bagTestGUID = test2->GetGUIDLow();
-#else /* CROSS */
                     bagTestGUID = test2->GetRealGUIDLow();
-#endif /* CROSS */
                 sLog->outError(LOG_FILTER_PLAYER, "Player(GUID: %u Name: %s)::_SaveInventory - the bag(%u) and slot(%u) values for the item with guid %u (state %d) are incorrect, the player doesn't have an item at that position!", lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), (int32)item->GetState());
                 // according to the test that was just performed nothing should be in this slot, delete
 
@@ -24587,18 +24335,10 @@ void Player::_SaveInventory(SQLTransaction& trans)
         {
             case ITEM_NEW:
             case ITEM_CHANGED:
-#ifndef CROSS
-                trans->PAppend("REPLACE INTO character_inventory (guid, bag, slot, item) VALUES ('%u', '%u', '%u', '%u')", lowGuid, bag_guid, item->GetSlot(), item->GetGUIDLow());
-#else /* CROSS */
                 trans->PAppend("REPLACE INTO character_inventory (guid, bag, slot, item) VALUES ('%u', '%u', '%u', '%u')", lowGuid, bag_guid, item->GetSlot(), item->GetRealGUIDLow());
-#endif /* CROSS */
                 break;
             case ITEM_REMOVED:
-#ifndef CROSS
-                trans->PAppend("DELETE FROM character_inventory WHERE item = '%u'", item->GetGUIDLow());
-#else /* CROSS */
                 trans->PAppend("DELETE FROM character_inventory WHERE item = '%u'", item->GetRealGUIDLow());
-#endif /* CROSS */
                 break;
             case ITEM_UNCHANGED:
                 break;
@@ -24615,33 +24355,21 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
         return;
 
     PreparedStatement* stmt = NULL;
-#ifndef CROSS
-    uint32 lowGuid = GetGUIDLow();
-#else /* CROSS */
     uint32 lowGuid = GetRealGUIDLow();
-#endif /* CROSS */
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
     {
         if (!_voidStorageItems[i]) // unused item
         {
             // DELETE FROM void_storage WHERE slot = ? AND playerGuid = ?
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_VOID_STORAGE_ITEM_BY_SLOT);
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_VOID_STORAGE_ITEM_BY_SLOT);
-#endif /* CROSS */
             stmt->setUInt8(0, i);
             stmt->setUInt32(1, lowGuid);
         }
         else
         {
             // REPLACE INTO character_inventory (itemId, playerGuid, itemEntry, slot, creatorGuid) VALUES (?, ?, ?, ?, ?)
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_VOID_STORAGE_ITEM);
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_REP_CHAR_VOID_STORAGE_ITEM);
-#endif /* CROSS */
             stmt->setUInt64(0, _voidStorageItems[i]->ItemId);
             stmt->setUInt32(1, lowGuid);
             stmt->setUInt32(2, _voidStorageItems[i]->ItemEntry);
@@ -24675,11 +24403,7 @@ void Player::_SaveMail(SQLTransaction& trans)
         Mail* m = (*itr);
         if (m->state == MAIL_STATE_CHANGED)
         {
-#ifndef CROSS
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL);
-#else /* CROSS */
             PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_UPD_MAIL);
-#endif /* CROSS */
             stmt->setUInt8(0, uint8(m->HasItems() ? 1 : 0));
             stmt->setUInt32(1, uint32(m->expire_time));
             stmt->setUInt32(2, uint32(m->deliver_time));
@@ -24694,11 +24418,7 @@ void Player::_SaveMail(SQLTransaction& trans)
             {
                 for (std::vector<uint32>::iterator itr2 = m->removedItems.begin(); itr2 != m->removedItems.end(); ++itr2)
                 {
-#ifndef CROSS
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
-#else /* CROSS */
                     stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
-#endif /* CROSS */
                     stmt->setUInt32(0, *itr2);
                     trans->Append(stmt);
                 }
@@ -24713,28 +24433,16 @@ void Player::_SaveMail(SQLTransaction& trans)
                 PreparedStatement* stmt = NULL;
                 for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
                 {
-#ifndef CROSS
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-#else /* CROSS */
                     stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-#endif /* CROSS */
                     stmt->setUInt32(0, itr2->item_guid);
                     trans->Append(stmt);
                 }
             }
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-#endif /* CROSS */
             stmt->setUInt32(0, m->messageID);
             trans->Append(stmt);
 
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-#endif /* CROSS */
             stmt->setUInt32(0, m->messageID);
             trans->Append(stmt);
         }
@@ -24761,11 +24469,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
 {
     bool isTransaction = trans.get() != nullptr;
     if (!isTransaction)
-#ifndef CROSS
-        trans = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
         trans = RealmDatabase.BeginTransaction();
-#endif /* CROSS */
 
     QuestStatusSaveMap::iterator saveItr;
     QuestStatusMap::iterator statusItr;
@@ -24789,17 +24493,8 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
             if (statusItr != m_QuestStatus.end() && (keepAbandoned || statusItr->second.Status != QUEST_STATUS_NONE))
             {
                 uint8 index = 0;
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_QUESTSTATUS);
-#else /* CROSS */
                 stmt = RealmDatabase.GetPreparedStatement(CHAR_REP_CHAR_QUESTSTATUS);
-#endif /* CROSS */
-
-#ifndef CROSS
-                stmt->setUInt32(index++, GetGUIDLow());
-#else /* CROSS */
                 stmt->setUInt32(index++, GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt32(index++, statusItr->first);
                 stmt->setUInt8(index++, uint8(statusItr->second.Status));
                 stmt->setBool(index++, statusItr->second.Explored);
@@ -24810,13 +24505,8 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
         }
         else
         {
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_BY_QUEST);
-            stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_BY_QUEST);
             stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setUInt32(1, saveItr->first);
             trans->Append(stmt);
         }
@@ -24826,26 +24516,16 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
     {
         if (saveItr->second)
         {
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_QUESTSTATUS);
-            stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHAR_QUESTSTATUS);
             stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setUInt32(1, saveItr->first);
             trans->Append(stmt);
 
         }
         else if (!keepAbandoned)
         {
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_REWARDED_BY_QUEST);
-            stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_REWARDED_BY_QUEST);
             stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setUInt32(1, saveItr->first);
             trans->Append(stmt);
         }
@@ -24871,26 +24551,16 @@ void Player::_SaveQuestObjectiveStatus(SQLTransaction& trans)
 
         if (citrSave->second)
         {
-#ifndef CROSS
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_QUESTSTATUS_OBJECTIVE);
-            stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
             PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_REP_CHAR_QUESTSTATUS_OBJECTIVE);
             stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setUInt32(1, citr->first);
             stmt->setUInt32(2, citr->second);
             trans->Append(stmt);
         }
         else
         {
-#ifndef CROSS
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVE);
-            stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
             PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVE);
             stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setUInt32(1, citr->first);
             trans->Append(stmt);
         }
@@ -24909,24 +24579,14 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     // save last daily quest time for all quests: we need only mostly reset time for reset check anyway
 
     // we don't need transactions here.
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY_CHAR);
-    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
     PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY_CHAR);
     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     trans->Append(stmt);
 
     for (auto id : m_dailyQuestStorage)
     {
-#ifndef CROSS
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
-        stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
         stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
         stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
         stmt->setUInt32(1, id);
         stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
         trans->Append(stmt);
@@ -24936,13 +24596,8 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     {
         for (DFQuestsDoneList::iterator itr = m_DFQuests.begin(); itr != m_DFQuests.end(); ++itr)
         {
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
-            stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
             stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setUInt32(1, (*itr));
             stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
             trans->Append(stmt);
@@ -24956,26 +24611,16 @@ void Player::_SaveWeeklyQuestStatus(SQLTransaction& trans)
         return;
 
     // we don't need transactions here.
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY_CHAR);
-    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
     PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY_CHAR);
     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     trans->Append(stmt);
 
     for (QuestSet::const_iterator iter = m_weeklyquests.begin(); iter != m_weeklyquests.end(); ++iter)
     {
         uint32 quest_id  = *iter;
 
-#ifndef CROSS
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_WEEKLYQUESTSTATUS);
-        stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
         stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_WEEKLYQUESTSTATUS);
         stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
         stmt->setUInt32(1, quest_id);
         trans->Append(stmt);
     }
@@ -24989,13 +24634,8 @@ void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
         return;
 
     // we don't need transactions here.
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_SEASONAL_CHAR);
-    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
     PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_SEASONAL_CHAR);
     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     trans->Append(stmt);
 
     for (SeasonalEventQuestMap::const_iterator iter = m_seasonalquests.begin(); iter != m_seasonalquests.end(); ++iter)
@@ -25005,13 +24645,8 @@ void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
         {
             uint32 quest_id = (*itr);
 
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SEASONALQUESTSTATUS);
-            stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SEASONALQUESTSTATUS);
             stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setUInt32(1, quest_id);
             stmt->setUInt32(2, event_id);
             trans->Append(stmt);
@@ -25027,25 +24662,15 @@ void Player::_SaveMonthlyQuestStatus(SQLTransaction& trans)
         return;
 
     // we don't need transactions here.
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_MONTHLY_CHAR);
-    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
     PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_MONTHLY_CHAR);
     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     trans->Append(stmt);
 
     for (QuestSet::const_iterator iter = m_monthlyquests.begin(); iter != m_monthlyquests.end(); ++iter)
     {
         uint32 quest_id = *iter;
-#ifndef CROSS
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_MONTHLYQUESTSTATUS);
-        stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
         stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_MONTHLYQUESTSTATUS);
         stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
         stmt->setUInt32(1, quest_id);
         trans->Append(stmt);
     }
@@ -25067,13 +24692,8 @@ void Player::_SaveSkills(SQLTransaction& trans)
 
         if (itr->second.uState == SKILL_DELETED)
         {
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SKILL_BY_SKILL);
-            stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SKILL_BY_SKILL);
             stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setUInt32(1, itr->first);
             trans->Append(stmt);
 
@@ -25090,31 +24710,18 @@ void Player::_SaveSkills(SQLTransaction& trans)
         switch (itr->second.uState)
         {
             case SKILL_NEW:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILLS);
-                stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
                 stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILLS);
                 stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt16(1, uint16(itr->first));
                 stmt->setUInt16(2, value);
                 stmt->setUInt16(3, max);
                 trans->Append(stmt);
                 break;
             case SKILL_CHANGED:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_SKILLS);
-#else /* CROSS */
                 stmt = RealmDatabase.GetPreparedStatement(CHAR_UDP_CHAR_SKILLS);
-#endif /* CROSS */
                 stmt->setUInt16(0, value);
                 stmt->setUInt16(1, max);
-#ifndef CROSS
-                stmt->setUInt32(2, GetGUIDLow());
-#else /* CROSS */
                 stmt->setUInt32(2, GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt16(3, uint16(itr->first));
                 trans->Append(stmt);
                 break;
@@ -25132,17 +24739,15 @@ void Player::_SaveSkills(SQLTransaction& trans)
 
 void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans)
 {
-    PreparedStatement* stmt = NULL;
 #ifndef CROSS
-    
     uint32 l_GroupRealmMask     = sWorld->getIntConfig(WorldIntConfigs::CONFIG_ACCOUNT_BIND_GROUP_MASK);
-#else /* CROSS */
-
+#else
     InterRealmDatabaseConfig const* l_Config = sInterRealmMgr->GetConfig(GetSession()->GetInterRealmNumber());
-
     uint32 l_GroupRealmMask     = l_Config->groupRealmMask;
-#endif /* CROSS */
+#endif
+
     uint32 l_ShopGroupRealmMask = sWorld->getIntConfig(WorldIntConfigs::CONFIG_ACCOUNT_BIND_SHOP_GROUP_MASK);
+    PreparedStatement* stmt = NULL;
 
     for (PlayerSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end();)
     {
@@ -25164,17 +24769,9 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
                 }
                 else
                 {
-#ifndef CROSS
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
-#else /* CROSS */
                     stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
-#endif /* CROSS */
                     stmt->setUInt32(0, itr->first);
-#ifndef CROSS
-                    stmt->setUInt32(1, GetGUIDLow());
-#else /* CROSS */
                     stmt->setUInt32(1, GetRealGUIDLow());
-#endif /* CROSS */
                     charTrans->Append(stmt);
                 }
             }
@@ -25202,13 +24799,8 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
                 }
                 else
                 {
-#ifndef CROSS
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
-                    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
                     stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
                     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
                     stmt->setUInt32(1, itr->first);
                     stmt->setBool(2, itr->second->active);
                     stmt->setBool(3, itr->second->disabled);
@@ -25241,24 +24833,14 @@ void Player::_SaveStats(SQLTransaction& trans)
 
     PreparedStatement* stmt = NULL;
 
-#ifndef CROSS
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_STATS);
-    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
     stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_STATS);
     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     trans->Append(stmt);
 
     uint8 index = 0;
 
-#ifndef CROSS
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_STATS);
-    stmt->setUInt32(index++, GetGUIDLow());
-#else /* CROSS */
     stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHAR_STATS);
     stmt->setUInt32(index++, GetRealGUIDLow());
-#endif /* CROSS */
     stmt->setUInt32(index++, GetMaxHealth());
 
     for (uint8 i = 0; i < MAX_POWERS_PER_CLASS; ++i)
@@ -25436,7 +25018,7 @@ void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, 
     stmt->setUInt32(6, GUID_LOPART(guid));
 
     CharacterDatabase.Execute(stmt);
-#endif /* CROSS */
+#endif
 }
 
 void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 /*value*/)
@@ -25473,7 +25055,7 @@ void Player::Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 
     stmt->setUInt32(3, GUID_LOPART(guid));
 
     CharacterDatabase.Execute(stmt);
-#endif /* CROSS */
+#endif
 }
 
 void Player::SendAttackSwingError(AttackSwingError p_Error)
@@ -25753,10 +25335,10 @@ void Player::StopCastingCharm()
 #ifndef CROSS
         else if (charm->IsVehicle())
             ExitVehicle();
-#endif /* not CROSS */
+#endif
     }
-#ifdef CROSS
 
+#ifdef CROSS
     if (charm->IsVehicle())
     {
         /// Prevent exit vehicle at map switch
@@ -25778,8 +25360,8 @@ void Player::StopCastingCharm()
 
         ExitVehicle();
     }
+#endif
 
-#endif /* CROSS */
     if (GetCharmGUID())
         charm->RemoveCharmAuras();
 
@@ -25796,11 +25378,7 @@ void Player::StopCastingCharm()
     }
 }
 
-#ifndef CROSS
-void Player::BuildPlayerChat(WorldPacket* p_Data, Player* p_Target, uint8 p_MsgType, std::string const& p_Text, uint32 p_LangID, char const* p_AddonPrefix /*= nullptr*/, std::string const& p_Channel /*= ""*/) const
-#else /* CROSS */
 void Player::BuildPlayerChat(WorldPacket* p_Data, uint64 p_TargetGuid, uint8 p_MsgType, std::string const& p_Text, uint32 p_LangID, char const* p_AddonPrefix /*= nullptr*/, std::string const& p_Channel /*= ""*/) const
-#endif /* CROSS */
 {
     uint32 l_SenderNameLen = strlen(GetName());
     uint64 l_GuildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
@@ -25811,11 +25389,7 @@ void Player::BuildPlayerChat(WorldPacket* p_Data, uint64 p_TargetGuid, uint8 p_M
     p_Data->appendPackGUID(GetGUID());
     p_Data->appendPackGUID(l_GuildGuid);
     p_Data->appendPackGUID(0);
-#ifndef CROSS
-    p_Data->appendPackGUID(p_Target != nullptr ? p_Target->GetGUID() : 0);
-#else /* CROSS */
     p_Data->appendPackGUID(p_TargetGuid);
-#endif /* CROSS */
     *p_Data << uint32(g_RealmID);
     *p_Data << uint32(g_RealmID);
     p_Data->appendPackGUID(GetGroup() ? GetGroup()->GetGUID() : 0);
@@ -25857,11 +25431,7 @@ void Player::Say(std::string const& p_Text, uint32 const p_LangID)
         if (WorldSession* l_Session = l_Target->GetSession())
         {
             WorldPacket l_Data;
-#ifndef CROSS
-            BuildPlayerChat(&l_Data, l_Target, CHAT_MSG_SAY, l_Text, p_LangID);
-#else /* CROSS */
             BuildPlayerChat(&l_Data, l_Target->GetGUID(), CHAT_MSG_SAY, l_Text, p_LangID);
-#endif /* CROSS */
             l_Session->SendPacket(&l_Data);
         }
     }
@@ -25880,11 +25450,7 @@ void Player::Yell(std::string const& p_Text, uint32 const p_LangID)
         if (WorldSession* l_Session = l_Target->GetSession())
         {
             WorldPacket l_Data;
-#ifndef CROSS
-            BuildPlayerChat(&l_Data, l_Target, CHAT_MSG_YELL, l_Text, p_LangID);
-#else /* CROSS */
             BuildPlayerChat(&l_Data, l_Target->GetGUID(), CHAT_MSG_YELL, l_Text, p_LangID);
-#endif /* CROSS */
             l_Session->SendPacket(&l_Data);
         }
     }
@@ -25907,11 +25473,7 @@ void Player::TextEmote(std::string const& p_Text)
         {
             WorldPacket l_Data;
             /// No specific target needed
-#ifndef CROSS
-            BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_EMOTE, l_Text, LANG_UNIVERSAL);
-#else /* CROSS */
             BuildPlayerChat(&l_Data, 0, CHAT_MSG_EMOTE, l_Text, LANG_UNIVERSAL);
-#endif /* CROSS */
             l_Session->SendPacket(&l_Data);
         }
     }
@@ -25926,12 +25488,7 @@ void Player::WhisperAddon(std::string const& p_Text, std::string const& p_Prefix
         return;
 
     WorldPacket l_Data;
-#ifndef CROSS
-    BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_WHISPER, l_Text, LANG_ADDON, p_Prefix.c_str());
-#else /* CROSS */
     BuildPlayerChat(&l_Data, 0, CHAT_MSG_WHISPER, l_Text, LANG_ADDON, p_Prefix.c_str());
-
-#endif /* CROSS */
     p_Receiver->GetSession()->SendPacket(&l_Data);
 }
 
@@ -25964,18 +25521,10 @@ void Player::Whisper(std::string const& p_Text, uint32 p_LangID, uint64 p_Receiv
     if (!l_Target->isDND() || isGameMaster())
     {
         WorldPacket l_Data;
-#ifndef CROSS
-        BuildPlayerChat(&l_Data, l_Target, CHAT_MSG_WHISPER, l_Text, p_LangID);
-#else /* CROSS */
         BuildPlayerChat(&l_Data, l_Target->GetGUID(), CHAT_MSG_WHISPER, l_Text, p_LangID);
-#endif /* CROSS */
         l_Target->GetSession()->SendPacket(&l_Data);
 
-#ifndef CROSS
-        l_Target->BuildPlayerChat(&l_Data, this, CHAT_MSG_WHISPER_INFORM, l_Text, p_LangID);
-#else /* CROSS */
         l_Target->BuildPlayerChat(&l_Data, GetGUID(), CHAT_MSG_WHISPER_INFORM, l_Text, p_LangID);
-#endif /* CROSS */
         GetSession()->SendPacket(&l_Data);
     }
     else ///< Announce to player that player he is whispering to is dnd and cannot receive his message
@@ -28505,8 +28054,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
 #ifndef CROSS
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
     GetSocial()->SendSocialList(this);
+#endif
 
-#endif /* not CROSS */
     // Guild bank list wtf?
 
     // Homebind
@@ -28750,8 +28299,8 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (IsInGarrison())
         m_Garrison->OnPlayerEnter();
+#endif
 
-#endif /* not CROSS */
     std::map<uint32, bool> l_MountSpells;
     for (PlayerSpellMap::iterator l_It = m_spells.begin(); l_It != m_spells.end(); l_It++)
     {
@@ -29634,22 +29183,14 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
     else
     {
         MoveItemFromInventory(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND, true);
-#ifndef CROSS
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
         SQLTransaction trans = RealmDatabase.BeginTransaction();
-#endif /* CROSS */
         offItem->DeleteFromInventoryDB(trans);                   // deletes item from character's inventory
         offItem->SaveToDB(trans);                                // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
         std::string subject = GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM);
         MailDraft(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
 
-#ifndef CROSS
-        CharacterDatabase.CommitTransaction(trans);
-#else /* CROSS */
         RealmDatabase.CommitTransaction(trans);
-#endif /* CROSS */
     }
 }
 
@@ -31233,8 +30774,8 @@ bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone, uint32 spellId) const
 #ifndef CROSS
     if (mapid == MS::Garrison::Globals::BaseMap || (m_Garrison && (mapid == (m_Garrison->GetGarrisonSiteLevelEntry() ? m_Garrison->GetGarrisonSiteLevelEntry()->MapID : -1) || (mapid == m_Garrison->GetShipyardMapId()))))
         return HasSpell(191645);    ///< Draenor Pathfinder
+#endif
 
-#endif /* not CROSS */
     return false;
 }
 
@@ -31313,19 +30854,10 @@ void Player::_LoadSkills(PreparedQueryResult result)
             if (value == 0)
             {
                 sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u with value 0. Will be deleted.", GetGUIDLow(), skill);
-#ifndef CROSS
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SKILL);
-                stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
                 PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SKILL);
                 stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt16(1, skill);
-#ifndef CROSS
-                CharacterDatabase.Execute(stmt);
-#else /* CROSS */
                 RealmDatabase.Execute(stmt);
-#endif /* CROSS */
                 continue;
             }
 
@@ -31694,11 +31226,7 @@ void Player::UnsummonPetTemporaryIfAny()
 
     if (!m_temporaryUnsummonedPetNumber && pet->isControlled() && !pet->isTemporarySummoned())
     {
-#ifndef CROSS
-        m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetPetNumber();
-#else /* CROSS */
         m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetRealmPetNumber();
-#endif /* CROSS */
         m_oldpetspell = pet->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
     }
 
@@ -31932,11 +31460,7 @@ void Player::BuildEnchantmentsInfoData(WorldPacket* data)
 
 void Player::SendEquipmentSetList()
 {
-#ifndef CROSS
-    /// Clear old equipmentset with cross realm guid
-#else /* CROSS */
     /// Clear old equipmentset with local realm guid
-#endif /* CROSS */
     WorldPacket l_Data(SMSG_EQUIPMENT_SET_LIST);
     l_Data << uint32(0);
     GetSession()->SendPacket(&l_Data);
@@ -32036,21 +31560,13 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 ++itr;
                 break;                                      // nothing do
             case EQUIPMENT_SET_CHANGED:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_EQUIP_SET);
-#else /* CROSS */
                 stmt = RealmDatabase.GetPreparedStatement(CHAR_UPD_EQUIP_SET);
-#endif /* CROSS */
                 stmt->setString(j++, eqset.Name.c_str());
                 stmt->setString(j++, eqset.IconName.c_str());
                 stmt->setUInt32(j++, eqset.IgnoreMask);
                 for (uint8 i=0; i<EQUIPMENT_SLOT_END; ++i)
                     stmt->setUInt32(j++, eqset.Items[i]);
-#ifndef CROSS
-                stmt->setUInt32(j++, GetGUIDLow());
-#else /* CROSS */
                 stmt->setUInt32(j++, GetRealGUID());
-#endif /* CROSS */
                 stmt->setUInt64(j++, eqset.Guid);
                 stmt->setUInt32(j, index);
                 trans->Append(stmt);
@@ -32058,13 +31574,8 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 ++itr;
                 break;
             case EQUIPMENT_SET_NEW:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_EQUIP_SET);
-                stmt->setUInt32(j++, GetGUIDLow());
-#else /* CROSS */
                 stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_EQUIP_SET);
                 stmt->setUInt32(j++, GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt64(j++, eqset.Guid);
                 stmt->setUInt32(j++, index);
                 stmt->setString(j++, eqset.Name.c_str());
@@ -32077,11 +31588,7 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 ++itr;
                 break;
             case EQUIPMENT_SET_DELETED:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EQUIP_SET);
-#else /* CROSS */
                 stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_EQUIP_SET);
-#endif /* CROSS */
                 stmt->setUInt64(0, eqset.Guid);
                 trans->Append(stmt);
                 m_EquipmentSets.erase(itr++);
@@ -32106,26 +31613,16 @@ void Player::SaveArenaData()
 
     conn->CommitTransaction(trans);
 }
+#endif
 
-#endif /* CROSS */
 void Player::_SaveArenaData(SQLTransaction& trans)
 {
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_ARENA_DATA);
-    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
     PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_ARENA_DATA);
     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     trans->Append(stmt);
 
-#ifndef CROSS
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_ARENA_DATA);
-    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
     stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_ARENA_DATA);
     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
 
     uint8 j = 1;
     for (uint8 i = 0; i < MAX_PVP_SLOT; ++i)
@@ -32146,22 +31643,12 @@ void Player::_SaveArenaData(SQLTransaction& trans)
 
 void Player::_SaveBGData(SQLTransaction& trans)
 {
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
-    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
     PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     trans->Append(stmt);
     /* guid, bgInstanceID, bgTeam, x, y, z, o, map, taxi[0], taxi[1], mountSpell, lastActiveSpec, lastSpecId */
-#ifndef CROSS
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_BGDATA);
-    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
     stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_PLAYER_BGDATA);
     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     stmt->setUInt32(1, m_bgData.bgInstanceID);
     stmt->setUInt16(2, m_bgData.bgTeam);
     stmt->setFloat (3, m_bgData.joinPos.GetPositionX());
@@ -32199,8 +31686,8 @@ void Player::SaveCrossServerArenaData()
 
     CharacterDatabase.CommitTransaction(trans);
 }
+#endif
 
-#endif /* CROSS */
 void Player::DeleteEquipmentSet(uint64 setGuid)
 {
     for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
@@ -32222,19 +31709,9 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
 
     if (persist)
     {
-#ifndef CROSS
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_REM_AT_LOGIN_FLAG);
-#else /* CROSS */
         PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_UPD_REM_AT_LOGIN_FLAG);
-#endif /* CROSS */
-
         stmt->setUInt16(0, uint16(flags));
-#ifndef CROSS
-        stmt->setUInt32(1, GetGUIDLow());
-#else /* CROSS */
         stmt->setUInt32(1, GetRealGUIDLow());
-#endif /* CROSS */
-
         CharacterDatabase.Execute(stmt);
     }
 }
@@ -32304,14 +31781,8 @@ void Player::_SaveGlyphs(SQLTransaction& trans)
     {
         uint8 index = 0;
 
-#ifndef CROSS
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GLYPHS);
-        stmt->setUInt32(index++, GetGUIDLow());
-#else /* CROSS */
         stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHAR_GLYPHS);
         stmt->setUInt32(index++, GetRealGUIDLow());
-#endif /* CROSS */
-
         stmt->setUInt8(index++, spec);
 
         for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
@@ -32344,13 +31815,8 @@ void Player::_SaveTalents(SQLTransaction& trans)
         {
             if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->state == PLAYERSPELL_CHANGED)
             {
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TALENT_BY_SPELL_SPEC);
-                stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
                 stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TALENT_BY_SPELL_SPEC);
                 stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt32(1, itr->first);
                 stmt->setUInt8(2, itr->second->spec);
                 trans->Append(stmt);
@@ -32364,13 +31830,8 @@ void Player::_SaveTalents(SQLTransaction& trans)
                     continue;
                 }
 
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TALENT);
-                stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
                 stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHAR_TALENT);
                 stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
                 stmt->setUInt32(1, itr->first);
                 stmt->setUInt8(2, itr->second->spec);
                 trans->Append(stmt);
@@ -32399,11 +31860,7 @@ void Player::UpdateSpecCount(uint8 count)
     if (GetActiveSpec() >= count)
         ActivateSpec(0);
 
-#ifndef CROSS
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
     SQLTransaction trans = RealmDatabase.BeginTransaction();
-#endif /* CROSS */
     PreparedStatement* stmt = NULL;
 
     // Copy spec data
@@ -32412,13 +31869,8 @@ void Player::UpdateSpecCount(uint8 count)
         _SaveActions(trans); // make sure the button list is cleaned up
         for (ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end(); ++itr)
         {
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACTION);
-            stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACTION);
             stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setUInt8(1, 1);
             stmt->setUInt8(2, itr->first);
             stmt->setUInt32(3, itr->second.GetAction());
@@ -32431,26 +31883,14 @@ void Player::UpdateSpecCount(uint8 count)
     {
         _SaveActions(trans);
 
-#ifndef CROSS
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION_EXCEPT_SPEC);
-#else /* CROSS */
         stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION_EXCEPT_SPEC);
-#endif /* CROSS */
         stmt->setUInt8(0, GetActiveSpec());
-#ifndef CROSS
-        stmt->setUInt32(1, GetGUIDLow());
-#else /* CROSS */
         stmt->setUInt32(1, GetRealGUIDLow());
-#endif /* CROSS */
         trans->Append(stmt);
 
     }
 
-#ifndef CROSS
-    CharacterDatabase.CommitTransaction(trans);
-#else /* CROSS */
     RealmDatabase.CommitTransaction(trans);
-#endif /* CROSS */
 
     SetSpecsCount(count);
 
@@ -32468,17 +31908,9 @@ void Player::ActivateSpec(uint8 spec)
     if (IsNonMeleeSpellCasted(false))
         InterruptNonMeleeSpells(false);
 
-#ifndef CROSS
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
     SQLTransaction trans = RealmDatabase.BeginTransaction();
-#endif /* CROSS */
     _SaveActions(trans);
-#ifndef CROSS
-    CharacterDatabase.CommitTransaction(trans);
-#else /* CROSS */
     RealmDatabase.CommitTransaction(trans);
-#endif /* CROSS */
 
     // TO-DO: We need more research to know what happens with warlock's reagent
     if (Pet* pet = GetPet())
@@ -32611,19 +32043,10 @@ void Player::ActivateSpec(uint8 spec)
         UpdateMaxPower(l_PowerType);
 
     {
-#ifndef CROSS
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACTIONS_SPEC);
-        stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
         PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACTIONS_SPEC);
         stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
         stmt->setUInt8(1, GetActiveSpec());
-#ifndef CROSS
-        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-#else /* CROSS */
         if (PreparedQueryResult result = RealmDatabase.Query(stmt))
-#endif /* CROSS */
             _LoadActions(result);
     }
 
@@ -32956,44 +32379,17 @@ void Player::RefundItem(Item* p_Item)
 
     SaveInventoryAndGoldToDB(l_Transaction);
 
-#ifndef CROSS
-    CharacterDatabase.CommitTransaction(l_Transaction);
-#else /* CROSS */
     RealmDatabase.CommitTransaction(l_Transaction);
-#endif /* CROSS */
 }
 
-#ifndef CROSS
-void Player::SetRandomWinner(bool isWinner)
-#else /* CROSS */
 void Player::SetRandomWinner(bool p_IsWinner, bool p_DatabaseUpdate)
-#endif /* CROSS */
 {
-#ifndef CROSS
-    m_IsBGRandomWinner = isWinner;
-    if (m_IsBGRandomWinner)
-#else /* CROSS */
     m_IsBGRandomWinner = p_IsWinner;
     if (m_IsBGRandomWinner && p_DatabaseUpdate)
-#endif /* CROSS */
     {
-#ifndef CROSS
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BATTLEGROUND_RANDOM);
-#else /* CROSS */
         PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_BATTLEGROUND_RANDOM);
-#endif /* CROSS */
-
-#ifndef CROSS
-        stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
         stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
-
-#ifndef CROSS
-        CharacterDatabase.Execute(stmt);
-#else /* CROSS */
         RealmDatabase.Execute(stmt);
-#endif /* CROSS */
     }
 }
 
@@ -33390,21 +32786,13 @@ void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
     if (_instanceResetTimes.empty())
         return;
 
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACCOUNT_INSTANCE_LOCK_TIMES);
-#else /* CROSS */
     PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_ACCOUNT_INSTANCE_LOCK_TIMES);
-#endif /* CROSS */
     stmt->setUInt32(0, GetSession()->GetAccountId());
     trans->Append(stmt);
 
     for (InstanceTimeMap::const_iterator itr = _instanceResetTimes.begin(); itr != _instanceResetTimes.end(); ++itr)
     {
-#ifndef CROSS
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_INSTANCE_LOCK_TIMES);
-#else /* CROSS */
         stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_INSTANCE_LOCK_TIMES);
-#endif /* CROSS */
         stmt->setUInt32(0, GetSession()->GetAccountId());
         stmt->setUInt32(1, itr->first);
         stmt->setUInt64(2, itr->second);
@@ -33659,19 +33047,10 @@ void Player::SetPersonnalXpRate(float p_PersonnalXPRate)
 {
     m_PersonnalXpRate = p_PersonnalXPRate;
 
-#ifndef CROSS
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_XP_RATE);
-#else /* CROSS */
     PreparedStatement* l_Statement = RealmDatabase.GetPreparedStatement(CHAR_UPD_XP_RATE);
-#endif /* CROSS */
     l_Statement->setFloat(0, p_PersonnalXPRate);
-#ifndef CROSS
-    l_Statement->setUInt32(1, GetGUIDLow());
-    CharacterDatabase.Execute(l_Statement);
-#else /* CROSS */
     l_Statement->setUInt32(1, GetRealGUIDLow());
     RealmDatabase.Execute(l_Statement);
-#endif /* CROSS */
 }
 
 void Player::HandleStoreGoldCallback(PreparedQueryResult result)
@@ -33696,35 +33075,15 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
             goldCount+= gold;
             ModifyMoney(gold);
 
-#ifndef CROSS
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_GOLD);
-#else /* CROSS */
             PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_GOLD);
-#endif /* CROSS */
             stmt->setInt32(0, transaction);
-#ifndef CROSS
-            CharacterDatabase.Execute(stmt);
-#else /* CROSS */
             RealmDatabase.Execute(stmt);
-#endif /* CROSS */
 
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BOUTIQUE_GOLD_LOG);
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_BOUTIQUE_GOLD_LOG);
-#endif /* CROSS */
             stmt->setInt32(0, transaction);
-#ifndef CROSS
-            stmt->setInt32(1, GetGUIDLow());
-#else /* CROSS */
             stmt->setInt32(1, GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setInt64(2, gold);
-#ifndef CROSS
-            CharacterDatabase.Execute(stmt);
-#else /* CROSS */
             RealmDatabase.Execute(stmt);
-#endif /* CROSS */
         }
         while(result->NextRow());
 
@@ -33744,35 +33103,15 @@ void Player::HandleStoreTitleCallback(PreparedQueryResult p_Result)
             uint32 l_Title = l_TitleField[0].GetUInt32();
             uint32 l_Transaction = l_TitleField[1].GetUInt32();
 
-#ifndef CROSS
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_TITLE);
-#else /* CROSS */
             PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_TITLE);
-#endif /* CROSS */
             stmt->setInt32(0, l_Transaction);
-#ifndef CROSS
-            CharacterDatabase.Execute(stmt);
-#else /* CROSS */
             RealmDatabase.Execute(stmt);
-#endif /* CROSS */
 
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BOUTIQUE_TITLE_LOG);
-#else /* CROSS */
             stmt = RealmDatabase.GetPreparedStatement(CHAR_INS_BOUTIQUE_TITLE_LOG);
-#endif /* CROSS */
             stmt->setInt32(0, l_Transaction);
-#ifndef CROSS
-            stmt->setInt32(1, GetGUIDLow());
-#else /* CROSS */
             stmt->setInt32(1, GetRealGUIDLow());
-#endif /* CROSS */
             stmt->setInt32(2, l_Title);
-#ifndef CROSS
-            CharacterDatabase.Execute(stmt);
-#else /* CROSS */
             RealmDatabase.Execute(stmt);
-#endif /* CROSS */
 
             CharTitlesEntry const* l_TitleInfo = sCharTitlesStore.LookupEntry(l_Title);
             if (!l_TitleInfo)
@@ -34795,20 +34134,11 @@ void Player::AddBossLooted(Creature* p_Creature)
 
     m_BossLooted.insert(l_Value);
 
-#ifndef CROSS
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_BOSS_LOOTED);
-    l_Statement->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
     PreparedStatement* l_Statement = RealmDatabase.GetPreparedStatement(CHAR_INS_BOSS_LOOTED);
     l_Statement->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     l_Statement->setUInt32(1, p_Creature->GetEntry());
     l_Statement->setUInt32(2, p_Creature->GetNativeDisplayId());
-#ifndef CROSS
-    CharacterDatabase.Execute(l_Statement);
-#else /* CROSS */
     RealmDatabase.Execute(l_Statement);
-#endif /* CROSS */
 }
 
 bool Player::HasUnlockedReagentBank()
@@ -35679,19 +35009,10 @@ void Player::AddDailyLootCooldown(uint32 p_Entry)
     {
         m_DailyLootsCooldowns.insert(p_Entry);
 
-#ifndef CROSS
-        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAILY_LOOT_COOLDOWNS);
-        l_Statement->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
         PreparedStatement* l_Statement = RealmDatabase.GetPreparedStatement(CHAR_INS_DAILY_LOOT_COOLDOWNS);
         l_Statement->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
         l_Statement->setUInt32(1, p_Entry);
-#ifndef CROSS
-        CharacterDatabase.Execute(l_Statement);
-#else /* CROSS */
         RealmDatabase.Execute(l_Statement);
-#endif /* CROSS */
     }
 }
 
@@ -36154,13 +35475,8 @@ void Player::_SaveCharacterWorldStates(SQLTransaction& p_Transaction)
         if (!l_WorldState.Changed)
             continue;
 
-#ifndef CROSS
-        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_REP_WORLD_STATES);
-        l_Statement->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
         PreparedStatement* l_Statement = RealmDatabase.GetPreparedStatement(CHAR_REP_WORLD_STATES);
         l_Statement->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
         l_Statement->setUInt32(1, l_Iterator.first);
         l_Statement->setUInt64(2, l_WorldState.Value);
 

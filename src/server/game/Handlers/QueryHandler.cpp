@@ -28,11 +28,7 @@ enum NameQueryResponse
     NAME_QUERY_RESULT_RETRY = 2,
 };
 
-#ifndef CROSS
-void WorldSession::SendNameQueryOpcode(uint64 guid)
-#else /* CROSS */
 void WorldSession::SendNameQueryOpcode(uint64 guid, bool atLeave)
-#endif /* CROSS */
 {
 #ifndef CROSS
     Player* player = ObjectAccessor::FindPlayer(guid);

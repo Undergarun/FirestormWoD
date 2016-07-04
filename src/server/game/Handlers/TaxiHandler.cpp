@@ -247,12 +247,8 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
 {
     HandleMovementOpcodes(p_RecvPacket);
 
-#ifndef CROSS
     if (p_RecvPacket.rpos() != p_RecvPacket.size())
         p_RecvPacket.read_skip<uint32>();
-#else /* CROSS */
-    uint32 l_SplineID = p_RecvPacket.read<uint32>(); ///< l_SplineID is never read 01/18/16
-#endif /* CROSS */
 
     /// in taxi flight packet received in 2 case:
     /// 1) end taxi path in far (multi-node) flight
@@ -265,8 +261,8 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
         TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
 
         uint32 l_PlayerMapID = GetPlayer()->GetMapId();
-#ifndef CROSS
 
+#ifndef CROSS
         /// Special case for taxi in garrison phased map
         for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
         {
@@ -278,7 +274,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
                 break;
             }
         }
-#endif /* not CROSS */
+#endif
 
         /// Far teleport case
         if (curDestNode && curDestNode->MapID != l_PlayerMapID)

@@ -471,22 +471,14 @@ void WorldSession::SendBindPoint(Creature* npc)
     uint32 bindspell = 3286;
 
     // update sql homebind
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_HOMEBIND);
-#else /* CROSS */
     PreparedStatement* stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_HOMEBIND);
-#endif /* CROSS */
     stmt->setUInt16(0, m_Player->GetMapId());
     stmt->setUInt16(1, m_Player->GetAreaId());
     stmt->setFloat (2, m_Player->GetPositionX());
     stmt->setFloat (3, m_Player->GetPositionY());
     stmt->setFloat (4, m_Player->GetPositionZ());
     stmt->setUInt32(5, m_Player->GetGUIDLow());
-#ifndef CROSS
-    CharacterDatabase.Execute(stmt);
-#else /* CROSS */
     SessionRealmDatabase.Execute(stmt);
-#endif /* CROSS */
 
     m_Player->m_homebindMapId = m_Player->GetMapId();
     m_Player->m_homebindAreaId = m_Player->GetAreaId();
@@ -525,26 +517,14 @@ void WorldSession::SendStablePet(uint64 guid)
     if (m_Player == nullptr)
         return;
 
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS_DETAIL);
-#else /* CROSS */
     PreparedStatement* stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS_DETAIL);
-#endif /* CROSS */
 
-#ifndef CROSS
-    stmt->setUInt32(0, m_Player->GetGUIDLow());
-#else /* CROSS */
     stmt->setUInt32(0, m_Player->GetRealGUIDLow());
-#endif /* CROSS */
     stmt->setUInt8(1, PET_SLOT_HUNTER_FIRST);
     stmt->setUInt8(2, PET_SLOT_STABLE_LAST);
 
     _sendStabledPetCallback.SetParam(guid);
-#ifndef CROSS
-    _sendStabledPetCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
-#else /* CROSS */
     _sendStabledPetCallback.SetFutureResult(SessionRealmDatabase.AsyncQuery(stmt));
-#endif /* CROSS */
 }
 
 void WorldSession::SendStablePetCallback(PreparedQueryResult p_QueryResult, uint64 p_Guid)
@@ -630,36 +610,20 @@ void WorldSession::HandleStableSetPetSlot(WorldPacket& p_RecvData)
     Pet* pet = m_Player->GetPet();
 
     //If we move the pet already summoned...
-#ifndef CROSS
-    if (pet && pet->GetCharmInfo() && pet->GetCharmInfo()->GetPetNumber() == l_PetNumber)
-#else /* CROSS */
     if (pet && pet->GetCharmInfo() && pet->GetCharmInfo()->GetRealmPetNumber() == l_PetNumber)
-#endif /* CROSS */
         m_Player->RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, false, pet->m_Stampeded);
 
     //If we move to the pet already summoned...
     if (pet && GetPlayer()->m_currentPetSlot == l_NewSlot)
         m_Player->RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, false, pet->m_Stampeded);
 
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOT_BY_ID);
-#else /* CROSS */
     PreparedStatement* stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOT_BY_ID);
-#endif /* CROSS */
 
-#ifndef CROSS
-    stmt->setUInt32(0, m_Player->GetGUIDLow());
-#else /* CROSS */
     stmt->setUInt32(0, m_Player->GetRealGUIDLow());
-#endif /* CROSS */
     stmt->setUInt32(1, l_PetNumber);
 
     _setPetSlotCallback.SetParam(l_NewSlot);
-#ifndef CROSS
-    _setPetSlotCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
-#else /* CROSS */
     _setPetSlotCallback.SetFutureResult(SessionRealmDatabase.AsyncQuery(stmt));
-#endif /* CROSS */
 }
 
 void WorldSession::HandleStableSetPetSlotCallback(PreparedQueryResult p_Result, uint32 l_NewSlot)
@@ -696,52 +660,28 @@ void WorldSession::HandleStableSetPetSlotCallback(PreparedQueryResult p_Result, 
         return;
     }
 
-#ifndef CROSS
-    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
     SQLTransaction l_Transaction = SessionRealmDatabase.BeginTransaction();
-#endif /* CROSS */
 
-#ifndef CROSS
-    auto l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER);
-#else /* CROSS */
     auto l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER);
-#endif /* CROSS */
     {
         l_Statement->setUInt32(0, l_NewSlot);
         l_Statement->setUInt32(1, l_OldSlot);
-#ifndef CROSS
-        l_Statement->setUInt32(2, GetPlayer()->GetGUIDLow());
-#else /* CROSS */
         l_Statement->setUInt32(2, GetPlayer()->GetRealGUIDLow());
-#endif /* CROSS */
 
         l_Transaction->Append(l_Statement);
     }
 
-#ifndef CROSS
-    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER_ID);
-#else /* CROSS */
     l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER_ID);
-#endif /* CROSS */
     {
         l_Statement->setUInt32(0, l_OldSlot);
         l_Statement->setUInt32(1, l_NewSlot);
-#ifndef CROSS
-        l_Statement->setUInt32(2, GetPlayer()->GetGUIDLow());
-#else /* CROSS */
         l_Statement->setUInt32(2, GetPlayer()->GetRealGUIDLow());
-#endif /* CROSS */
         l_Statement->setUInt32(3, l_PetNumber);
 
         l_Transaction->Append(l_Statement);
     }
 
-#ifndef CROSS
-    CharacterDatabase.CommitTransaction(l_Transaction);
-#else /* CROSS */
     SessionRealmDatabase.CommitTransaction(l_Transaction);
-#endif /* CROSS */
 
     if (l_NewSlot != PET_SLOT_OTHER_PET)
     {
