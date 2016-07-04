@@ -2317,12 +2317,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_PLAY_SCENE_OBJECT:
         {
-            WorldObject* l_Object = GetBaseObject();
-
-            if (l_Object == nullptr)
-                break;
-
-            Player* l_Player = l_Object->ToPlayer();
+            Player* l_Player = unit->ToPlayer();
 
             if (l_Player == nullptr)
                 return;

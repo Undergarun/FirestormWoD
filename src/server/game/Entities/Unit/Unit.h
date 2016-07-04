@@ -2696,6 +2696,12 @@ class Unit : public WorldObject
         uint64 GetIciclesTarget() const { return iciclesTargetGUID; }
         void SetIciclesTarget(uint64 guid) { iciclesTargetGUID = guid; }
 
+        /// helepers for Shooting Stars
+        uint64 GetLastMoonfireTarget() const { return lastMoonfireTargetGUID; }
+        void SetLastMoonfireTarget(uint64 guid) { lastMoonfireTargetGUID = guid; }
+        uint64 GetLastSunfireTarget() const { return lastSunfireTargetGUID; }
+        void SetLastSunfireTarget(uint64 guid) { lastSunfireTargetGUID = guid; }
+
         // helpers for Psychic Horror
         bool GetPsychicHorrorGainedPower() const { return psychicHorrorGainedPower; }
         void SetPsychicHorrorGainedPower(bool gained) { psychicHorrorGainedPower = gained; }
@@ -2913,6 +2919,8 @@ class Unit : public WorldObject
         std::set<uint64> m_FistsOfFuryStunTargetsGUID;
         std::set<uint64> m_RushingJadeWindTargetsGUID;
         uint64 iciclesTargetGUID;
+        uint64 lastMoonfireTargetGUID;
+        uint64 lastSunfireTargetGUID;
         uint32 m_AmountOfComets;
         float m_CometCoordinateX;
         float m_CometCoordinateY;

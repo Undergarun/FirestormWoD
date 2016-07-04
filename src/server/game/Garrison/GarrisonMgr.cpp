@@ -2431,6 +2431,18 @@ namespace MS { namespace Garrison
         l_Follower.CurrentMissionID     = 0;
         l_Follower.Flags                = 0;
 
+        /// Handle Quality auto-update case
+        {
+            float l_Roll = frand(0.0f, 100.0f);
+
+            /// If Follower is uncommon & chance match, set rare quality
+            if (l_Follower.Quality == ItemQualities::ITEM_QUALITY_UNCOMMON && l_Roll > gQuestRewardBonusRareChanceRange[0] && l_Roll < gQuestRewardBonusRareChanceRange[1])
+                l_Follower.Quality = ItemQualities::ITEM_QUALITY_RARE;
+
+            if (l_Roll > gQuestRewardBonusEpicChanceRange[0] && l_Roll < gQuestRewardBonusEpicChanceRange[1])
+                l_Follower.Quality = ItemQualities::ITEM_QUALITY_EPIC;
+        }
+
         GenerateFollowerAbilities(l_Follower);
 
         std::ostringstream l_Abilities;
@@ -2831,7 +2843,7 @@ namespace MS { namespace Garrison
         return SPELL_CAST_OK;
     }
 
-    void Manager::UpgradeFollowerItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo)
+    void Manager::UpgradeFollowerItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo, SpellEffIndex p_EffectIndex)
     {
         if (CanUpgradeItemLevelWith(p_FollowerID, p_SpellInfo) != SPELL_CAST_OK)
             return;
@@ -2839,12 +2851,12 @@ namespace MS { namespace Garrison
         auto l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerID](GarrisonFollower const& p_Follower) { return p_Follower.FollowerID == p_FollowerID; });
         GarrisonFollower* l_Follower = const_cast<GarrisonFollower*>(&(*l_It));
 
-        SpellEffectInfo const* l_SpellEffect = p_SpellInfo->GetEffectByType(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL);
+        SpellEffectInfo const l_SpellEffect = p_SpellInfo->Effects[p_EffectIndex];
         SpellEffectInfo const* l_Dummy = p_SpellInfo->GetEffectByType(SPELL_EFFECT_DUMMY);
         int32 l_Cap = l_Dummy ? l_Dummy->BasePoints : GetMaxFollowerItemLevel(l_Follower->GetEntry()->Type);
-        int32 &l_Ilvl = l_SpellEffect->MiscValue == 1 || l_SpellEffect->MiscValue == 3 ? l_Follower->ItemLevelArmor : l_Follower->ItemLevelWeapon;
+        int32 &l_Ilvl = l_SpellEffect.MiscValue == 1 || l_SpellEffect.MiscValue == 3 ? l_Follower->ItemLevelArmor : l_Follower->ItemLevelWeapon;
 
-        l_Ilvl = std::min(l_Cap, l_Ilvl + l_SpellEffect->BasePoints);
+        l_Ilvl = std::min(l_Cap, l_Ilvl + l_SpellEffect.BasePoints);
 
         WorldPacket l_Data(SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL, 4 + 4 + 4 + 1);
         l_Follower->Write(l_Data);
@@ -5021,6 +5033,10 @@ namespace MS { namespace Garrison
             if (l_Entry->AbilityType != 0)
                 continue;
 
+            /// Not ability but trait
+            if (std::find(GarrisonAbilities::g_FollowerAbilities.begin(), GarrisonAbilities::g_FollowerAbilities.end(), l_Entry->ID) == GarrisonAbilities::g_FollowerAbilities.end())
+                continue;
+
             l_PossibleEntiers.push_back(l_Entry->ID);
         }
 
@@ -5069,33 +5085,29 @@ namespace MS { namespace Garrison
         std::vector<uint32> l_PossibleEntiers;
         std::vector<uint32> l_KnownTraits;
 
-        uint32 l_MyFactionType = GetGarrisonFactionIndex() == FactionIndex::Alliance ? 5 : 9;
+        uint32 l_MyFactionType    = GetGarrisonFactionIndex() == FactionIndex::Alliance ? 5 : 9;
         uint32 l_OtherFactionType = GetGarrisonFactionIndex() == FactionIndex::Alliance ? 9 : 5;
 
         if (p_Type != FollowerType::Ship)
         {
-            for (auto l_Ability : p_KnownAbilities)
+            for (auto l_AbilityID : p_KnownAbilities)
             {
-                if (GarrAbilityEntry const* l_Entry = sGarrAbilityStore.LookupEntry(l_Ability))
+                if (GarrAbilityEntry const* l_Entry = sGarrAbilityStore.LookupEntry(l_AbilityID))
                 {
-                    l_KnownTraits.push_back(l_Entry->AbilityType);
+                    if (std::find(GarrisonAbilities::g_FollowerTraits.begin(), GarrisonAbilities::g_FollowerTraits.end(), l_AbilityID) != GarrisonAbilities::g_FollowerTraits.end())
+                        l_KnownTraits.push_back(l_Entry->ID);
                 }
             }
-
-            l_KnownTraits.push_back(0);                 ///< Abilities
-            l_KnownTraits.push_back(2);                 ///< Abilities
         }
         else if (p_Type == FollowerType::Ship)
         {
             /// Ships do not gain crew
             l_KnownTraits.push_back(l_MyFactionType);
-            l_KnownTraits.push_back(1);                 ///< Neutral Crews
-            l_KnownTraits.push_back(3);                 ///< Ship Specific crews
-            l_KnownTraits.push_back(51);                ///< Ship Abilities
+            l_KnownTraits.push_back(1);                  ///< Neutral Crews
+            l_KnownTraits.push_back(3);                  ///< Ship Specific crews
+            l_KnownTraits.push_back(51);                 ///< Ship Abilities
+            l_KnownTraits.push_back(l_OtherFactionType);
         }
-
-        l_KnownTraits.push_back(l_OtherFactionType);
-
 
         for (uint32 l_ID = 0; l_ID < sGarrAbilityStore.GetNumRows(); ++l_ID)
         {
@@ -5107,17 +5119,22 @@ namespace MS { namespace Garrison
             if (l_Entry->FollowerType != p_Type)
                 continue;
 
-            if (std::find(l_KnownTraits.begin(), l_KnownTraits.end(), l_Entry->AbilityType) != l_KnownTraits.end())
+            /// Wrong Faction (According to a serious tester, traits dont need that kind of restriction)
+            if (l_Entry->AbilityType == l_OtherFactionType)
                 continue;
 
             if (std::find(p_KnownAbilities.begin(), p_KnownAbilities.end(), l_ID) != p_KnownAbilities.end())
+                continue;
+
+            /// Not trait but ability
+            if (std::find(GarrisonAbilities::g_FollowerTraits.begin(), GarrisonAbilities::g_FollowerTraits.end(), l_ID) == GarrisonAbilities::g_FollowerTraits.end())
                 continue;
 
             /// Test Entiers
             if (l_ID == 300 || l_ID == 299 || l_ID == 257)
                 continue;
 
-            l_PossibleEntiers.push_back(l_Entry->ID);
+            l_PossibleEntiers.push_back(l_ID);
         }
 
         if (!l_PossibleEntiers.size())
@@ -5154,25 +5171,47 @@ namespace MS { namespace Garrison
         }
         else if (p_Follower.IsNPC())
         {
-            if (p_Follower.Quality >= ITEM_QUALITY_EPIC)
+            using namespace GarrisonAbilities;
+
+            uint8 l_MaxAbilities = p_Follower.Quality >= ITEM_QUALITY_EPIC ? 2 : 1;
+
+            uint32 l_AbilitiesCount = std::count_if(g_FollowerAbilities.begin(), g_FollowerAbilities.end(), [p_Follower](uint32 p_AbilityID) -> bool
             {
-                if ((CountFollowerAbilitiesByType(p_Follower.DatabaseID, 0) + CountFollowerAbilitiesByType(p_Follower.DatabaseID, 2)) < 2)
+                for (auto l_Ability : p_Follower.Abilities)
                 {
-                    if (uint32 l_NewAbility = GenerateRandomAbility())
-                        p_Follower.Abilities.push_back(l_NewAbility);
+                    if (l_Ability == p_AbilityID)
+                        return true;
+                }
+
+                return false;
+            });
+
+            while (l_AbilitiesCount < l_MaxAbilities)
+            {
+                if (uint32 l_NewAbility = GenerateRandomAbility())
+                {
+                    p_Follower.Abilities.push_back(l_NewAbility);
+                    ++l_AbilitiesCount;
                 }
             }
 
-            uint32 l_TraitCount = p_Follower.Abilities.size() - CountFollowerAbilitiesByType(p_Follower.DatabaseID, 0) - CountFollowerAbilitiesByType(p_Follower.DatabaseID, 2);
+            uint32 l_TraitCount = std::count_if(g_FollowerTraits.begin(), g_FollowerTraits.end(), [p_Follower](uint32 p_TraitID) -> bool
+            {
+                for (auto l_Ability : p_Follower.Abilities)
+                {
+                    if (l_Ability == p_TraitID)
+                        return true;
+                }
+
+                return false;
+            });
 
             while (l_TraitCount < (p_Follower.Quality - ITEM_QUALITY_NORMAL))
             {
                 if (uint32 l_NewAbility = GenerateRandomTrait(FollowerType::NPC, p_Follower.Abilities))
-                {
                     p_Follower.Abilities.push_back(l_NewAbility);
-                }
 
-                l_TraitCount = p_Follower.Abilities.size() - CountFollowerAbilitiesByType(p_Follower.DatabaseID, 0) - CountFollowerAbilitiesByType(p_Follower.DatabaseID, 2);
+                ++l_TraitCount;
             }
         }
 

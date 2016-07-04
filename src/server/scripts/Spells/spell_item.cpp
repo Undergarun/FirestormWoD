@@ -4901,6 +4901,262 @@ class spell_item_enduring_elixir_of_wisdom : public SpellScriptLoader
         }
 };
 
+/// Spike-Toed Booterang - 129295
+/// Called by Spike-Toed Booterang - 193832
+class spell_item_spike_toed_booterang : public SpellScriptLoader
+{
+    public:
+        spell_item_spike_toed_booterang() : SpellScriptLoader("spell_item_spike_toed_booterang") { }
+
+        class spell_item_spike_toed_booterang_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_spike_toed_booterang_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (Unit* l_Target = l_Player->GetSelectedUnit())
+                {
+                    if (l_Target->getLevel() > 100)
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void HandleDummy()
+            {
+                Unit* l_Target = GetHitUnit();
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->IsMounted())
+                    l_Target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_spike_toed_booterang_SpellScript::CheckRequirement);
+                AfterHit += SpellHitFn(spell_item_spike_toed_booterang_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_spike_toed_booterang_SpellScript();
+        }
+};
+
+/// Magic Pet Mirror - 127696
+/// Called by Mystic Image - 187356
+class spell_item_mystic_image : public SpellScriptLoader
+{
+    public:
+        spell_item_mystic_image() : SpellScriptLoader("spell_item_mystic_image") { }
+
+        class spell_item_mystic_image_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_mystic_image_SpellScript);
+
+            enum eSpells
+            {
+                MysticImage = 187358
+            };
+
+            void HandleDummy()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                Unit* l_Target = l_Player->GetSelectedUnit();   ///< Our minipet
+                if (l_Target == nullptr)
+                    return;
+
+                l_Target->CastSpell(l_Player, eSpells::MysticImage, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_mystic_image_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_mystic_image_SpellScript();
+        }
+};
+
+/// Sunreaver Beacon(For Horde) - 95568, Called by: 140300
+class spell_item_sunreaver_beacon : public SpellScriptLoader
+{
+    public:
+        spell_item_sunreaver_beacon() : SpellScriptLoader("spell_item_sunreaver_beacon") { }
+
+        class spell_item_sunreaver_beacon_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_sunreaver_beacon_SpellScript);
+
+            void HandleDummy()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->TeleportTo(1064, 7250.192871f, 6277.653320f, 19.352745f, 5.504922f);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_item_sunreaver_beacon_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_sunreaver_beacon_SpellScript();
+        }
+};
+
+/// Super Simian Sphere - 37254
+/// Called by Going Ape - 48333
+class spell_item_super_simian_sphere : public SpellScriptLoader
+{
+    public:
+        spell_item_super_simian_sphere() : SpellScriptLoader("spell_item_super_simian_sphere") { }
+
+        class  spell_item_super_simian_sphere_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_super_simian_sphere_AuraScript);
+
+            enum eSpells
+            {
+                GoingApe = 48332
+            };
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(eSpells::GoingApe))
+                    l_Player->RemoveAura(eSpells::GoingApe);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_item_super_simian_sphere_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_item_super_simian_sphere_AuraScript();
+        }
+};
+
+/// The Perfect Blossom - 127766
+/// Called by The Perfect Blossom - 187676
+class spell_item_the_perfect_blossom : public SpellScriptLoader
+{
+    public:
+        spell_item_the_perfect_blossom() : SpellScriptLoader("spell_item_the_perfect_blossom") { }
+
+        class spell_item_the_perfect_blossom_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_the_perfect_blossom_SpellScript);
+
+            enum eSpells
+            {
+                FelPetal = 127768,
+                minEntry = 1,
+                maxEntry = 5
+            };
+
+            void HandleCast()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                uint32 l_Count = urand(eSpells::minEntry, eSpells::maxEntry);
+                if (!l_Count)
+                    return;
+
+                l_Player->AddItem(eSpells::FelPetal, l_Count);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_item_the_perfect_blossom_SpellScript::HandleCast);
+
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_the_perfect_blossom_SpellScript();
+        }
+};
+
+/// Swapblaster - 161399
+class spell_item_Swapblaster : public SpellScriptLoader
+{
+    public:
+        spell_item_Swapblaster() : SpellScriptLoader("spell_item_Swapblaster") { }
+
+        class spell_item_Swapblaster_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_Swapblaster_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                float l_X = l_Target->GetPositionX();
+                float l_Y = l_Target->GetPositionY();
+                float l_Z = l_Target->GetPositionZ();
+                float l_Orientation = l_Target->GetOrientation();
+
+                l_Target->NearTeleportTo(l_Caster->GetPositionX(), l_Caster->GetPositionY(), l_Caster->GetPositionZ(), l_Caster->GetOrientation());
+                l_Caster->NearTeleportTo(l_X, l_Y, l_Z, l_Orientation);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_item_Swapblaster_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_Swapblaster_SpellScript();
+        }
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
 {
@@ -4917,6 +5173,12 @@ void AddSC_item_spell_scripts()
     // 23075 Mithril Mechanical Dragonling
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
     new spell_item_deviate_fish();
+    new spell_item_Swapblaster();
+    new spell_item_super_simian_sphere();
+    new spell_item_the_perfect_blossom();
+    new spell_item_mystic_image();
+    new spell_item_sunreaver_beacon();
+    new spell_item_spike_toed_booterang();
     new spell_item_flask_of_the_north();
     new spell_item_gnomish_death_ray();
     new spell_item_make_a_wish();

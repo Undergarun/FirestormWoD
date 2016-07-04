@@ -492,6 +492,7 @@ public:
 
     bool IsAffectingArea() const;
     bool IsTargetingArea() const;
+    bool IsTargetingFollower() const;
     bool NeedsExplicitUnitTarget() const;
     bool NeedsToBeTriggeredByCaster() const;
 

@@ -3508,6 +3508,11 @@ class spell_pri_mind_blast: public SpellScriptLoader
     public:
         spell_pri_mind_blast() : SpellScriptLoader("spell_pri_mind_blast") { }
 
+        enum eSpells
+        {
+            GlyphOfMindSpike = 81292
+        };
+
         class spell_pri_mind_blast_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pri_mind_blast_SpellScript);
@@ -3552,6 +3557,10 @@ class spell_pri_mind_blast: public SpellScriptLoader
                     if (l_Caster->HasSpellCooldown(PRIEST_SPELL_MIND_BLAST))
                         l_Caster->RemoveSpellCooldown(PRIEST_SPELL_MIND_BLAST, true);
                 }
+
+                /// Glyph of Mind Spike
+                if (l_Caster->HasAura(eSpells::GlyphOfMindSpike))
+                    l_Caster->RemoveAura(eSpells::GlyphOfMindSpike);
             }
 
             void HandleAfterHit()
@@ -4240,6 +4249,13 @@ class spell_pri_focused_will : public SpellScriptLoader
                 if (!l_Caster)
                     return;
 
+                if (!p_EventInfo.GetDamageInfo())
+                    return;
+
+                /// Should proc only from damage
+                if (p_EventInfo.GetDamageInfo()->GetDamage() == 0)
+                    return;
+
                 if (p_EventInfo.GetActor()->GetGUID() == l_Caster->GetGUID())
                     PreventDefaultAction();
             }
@@ -4343,7 +4359,9 @@ class PlayerScript_word_of_mending : public PlayerScript
             if (skipCheck && !(p_Spell->GetSpellInfo()->Id == eSpells::FlashHeal && p_Player->HasAura(eSpells::SurgeOfLight)))
                 return;
 
-            if (p_Player->HasAura(eSpells::WordOfMendingAura) && p_Spell->GetSpellInfo() && (p_Spell->GetSpellInfo()->IsHealingSpell() || p_Spell->GetSpellInfo()->IsShieldingSpell()) && p_Spell->GetSpellInfo()->Id != 146347)
+            if (p_Player->HasAura(eSpells::WordOfMendingAura) && p_Spell->GetSpellInfo() && (p_Spell->GetSpellInfo()->IsHealingSpell() ||
+                p_Spell->GetSpellInfo()->Id == 121135 || ///< Cascade
+                p_Spell->GetSpellInfo()->IsShieldingSpell()) && p_Spell->GetSpellInfo()->Id != 146347)
             {
                 if (!p_Player->HasAura(eSpells::WordOfMendingProc))
                     p_Player->CastSpell(p_Player, eSpells::WordOfMendingStack, true);
@@ -4487,6 +4505,107 @@ public:
     }
 };
 
+/// Glyph of Mind Spike - 33371 (Proc - 81292)
+/// Called by Mind Spike - 73510
+class spell_pri_glyph_of_mind_spike : public SpellScriptLoader
+{
+public:
+    spell_pri_glyph_of_mind_spike() : SpellScriptLoader("spell_pri_glyph_of_mind_spike") { }
+
+    class spell_pri_glyph_of_mind_spike_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_glyph_of_mind_spike_SpellScript);
+
+        enum eSpells
+        {
+            GlyphOfMindSpikeAura = 33371,
+            GlyphOfMindSpike = 81292
+        };
+
+        void HandleCast()
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            if (l_Caster->HasAura(eSpells::GlyphOfMindSpikeAura))
+            {
+                uint32 l_CastTime = l_Caster->GetCurrentSpellCastTime(m_scriptSpellId);
+                if (l_CastTime != 0)
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfMindSpike, true);
+            }
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_pri_glyph_of_mind_spike_SpellScript::HandleCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_glyph_of_mind_spike_SpellScript();
+    }
+};
+
+
+/// Glyph of the Heavens - 120581, ItemId - 79538
+/// Called by Levitate: 111758
+class spell_pri_glyph_of_the_heavens : public SpellScriptLoader
+{
+public:
+    spell_pri_glyph_of_the_heavens() : SpellScriptLoader("spell_pri_glyph_of_the_heavens") { }
+
+    class spell_pri_glyph_of_the_heavens_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_glyph_of_the_heavens_AuraScript);
+
+        enum eSpells
+        {
+            LevitateEffect = 111758,
+            Heaven = 124433,
+            GlyphOfTheHeavens = 120581
+        };
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Unit* l_Target = GetUnitOwner();
+            if (l_Target == nullptr)
+                return;
+
+            if (l_Target->HasAura(eSpells::LevitateEffect))
+                if (l_Caster->HasAura(eSpells::GlyphOfTheHeavens))
+                    l_Target->CastSpell(l_Target, eSpells::Heaven, true);
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Target = GetUnitOwner();
+            if (l_Target == nullptr)
+                return;
+
+            if (l_Target->HasAura(eSpells::Heaven))
+                l_Target->RemoveAura(eSpells::Heaven);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_the_heavens_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_the_heavens_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_glyph_of_the_heavens_AuraScript();
+    }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_priest_spell_scripts()
 {
@@ -4569,6 +4688,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_cascade_trigger_holy();
     new spell_pri_cascade_trigger_shadow();
     new spell_pri_cascade_heal();
+    new spell_pri_glyph_of_mind_spike();
+    new spell_pri_glyph_of_the_heavens(); 
 
     /// PlayerScripts
     new PlayerScript_Shadow_Orb();

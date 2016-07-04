@@ -934,6 +934,11 @@ class spell_pal_hand_of_protection: public SpellScriptLoader
     public:
         spell_pal_hand_of_protection() : SpellScriptLoader("spell_pal_hand_of_protection") { }
 
+        enum eSpells
+        {
+            Asphyxiate = 108194
+        };
+
         class spell_pal_hand_of_protection_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pal_hand_of_protection_SpellScript);
@@ -950,9 +955,16 @@ class spell_pal_hand_of_protection: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        _player->CastSpell(target, SPELL_FORBEARANCE, true);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        l_Player->CastSpell(l_Target, SPELL_FORBEARANCE, true);
+
+                        if (l_Target->HasAura(eSpells::Asphyxiate))
+                            l_Target->RemoveAura(eSpells::Asphyxiate);
+                    }
+                }
             }
 
             void Register()

@@ -142,71 +142,60 @@ class EventNyamiEscape : public BasicEvent
                                         if (GameObject* l_Crystal = l_Instance->instance->GetGameObject(l_Instance->GetData64(eAuchindounDatas::DataCrystal)))
                                             l_Crystal->Delete();
 
-
-                                        if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
-                                        {
-                                            l_Caster->m_Events.AddEvent(new EventNyamiEscape(l_Caster, 51), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
-                                            l_Nyami->m_Events.AddEvent(new EventNyamiEscape(l_Nyami, 1), l_Tuulani->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
-
-                                            l_Caster->m_Events.AddEvent(new EventNyamiEscape(l_Caster, 51), l_Tuulani->m_Events.CalculateTime(19 * TimeConstants::IN_MILLISECONDS));
-                                            l_Nyami->m_Events.AddEvent(new EventNyamiEscape(l_Nyami, 50), l_Tuulani->m_Events.CalculateTime(14 * TimeConstants::IN_MILLISECONDS));
-
-                                            l_Nyami->m_Events.AddEvent(new EventNyamiEscape(l_Nyami, 2), l_Tuulani->m_Events.CalculateTime(12 * TimeConstants::IN_MILLISECONDS));
-                                        }
+                                        if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 1000.0f))                                       
+                                            l_Nyami->m_Events.AddEvent(new EventNyamiEscape(l_Nyami, 1), l_Caster->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));                                                                            
                                         break;
                                     }
                                     case 1:
                                     {
+                                        l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK7);
+
                                         /// Cosmetic crystal projectiles flies toward the middle
                                         if (Creature* l_Teronoger = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
                                         {
-                                            if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
+                                            if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 1000.0f))
                                             {
-                                                G3D::Vector3 l_Source(1911.741f, 3183.639f, 56.50413f);
-                                                G3D::Vector3 l_Dest(1911.731f, 3183.639f, 56.50413f);
-                                                G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
+                                                for (uint8 l_I = 0; l_I < 20; l_I++)
+                                                {
+                                                    G3D::Vector3 l_Source(1911.741f, 3183.639f, 56.50413f);
+                                                    G3D::Vector3 l_Dest(1911.731f, 3183.639f, 56.50413f);
+                                                    G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
 
-                                                l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 8.0f);
-                                                l_Caster->m_Events.AddEvent(new EventNyamiEscape(l_Caster, 1), l_Tuulani->m_Events.CalculateTime(100));
+                                                    l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 8.0f);
+                                                }
+
+                                                l_Caster->m_Events.AddEvent(new EventNyamiEscape(l_Caster, 2), l_Caster->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
                                             }
                                         }
-
-                                        l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK7);                                
+                                                                
                                         break;
                                     }
                                     case 2:
                                     {
-										/// Cosmetic crystal projectiles flies toward the middle
-										if (Creature* l_Teronoger = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
-										{
-											for (uint8 l_I = 0; l_I < 20; l_I++)
-											{
-												if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
-												{
-													G3D::Vector3 l_Source(1911.741f, 3183.639f, 56.50413f);
-													G3D::Vector3 l_Dest(l_Teronoger->m_positionX, l_Teronoger->m_positionY, l_Teronoger->m_positionZ);
-													G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
+                                        /// Cosmetic crystal projectiles flies toward the middle
+                                        if (Creature* l_Teronoger = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+                                       {
+                                            if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
+                                            {
+                                                for (uint8 l_I = 0; l_I < 20; l_I++)
+                                                {
+                                                    G3D::Vector3 l_Source(l_Caster->GetPositionX(), l_Caster->GetPositionY(), l_Caster->GetPositionZ());
+                                                    G3D::Vector3 l_Dest(l_Teronoger->m_positionX, l_Teronoger->m_positionY, 59.996f);
+                                                    G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
 
-													l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 8.0f);
-                                                    l_Caster->m_Events.AddEvent(new EventNyamiEscape(l_Caster, 3), l_Tuulani->m_Events.CalculateTime(100));                                                
-												}
-											}
-										}
-									                        
-                                        break;
-                                    }
-                                    case 50:
-                                        if (Creature* l_AuchindounProtection = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureShieldStalker, 1000.0f, true))
-                                            l_AuchindounProtection->DespawnOrUnsummon();
+                                                    l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 8.0f);                                                 
+                                                }
 
-                                        l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK8);
-                                        break;
-                                    case 51:
-                                        if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
-                                        {
-                                            l_Caster->m_Events.KillAllEvents(true);
+                                                l_Caster->m_Events.AddEvent(new EventNyamiEscape(l_Caster, 50), l_Tuulani->m_Events.CalculateTime(4 * TimeConstants::IN_MILLISECONDS));
+                                            }
                                         }
+
                                         break;
+                                    }                            
+                                    case 50:
+                                        l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK8);
+                                        l_Nyami->m_Events.AddEvent(new EventNyamiEscape(l_Nyami, 3), l_Tuulani->m_Events.CalculateTime(5 * TimeConstants::IN_MILLISECONDS));
+                                        break;                                        
                                     case 3:
                                     {
                                         l_Nyami->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformNyamiEscape06, g_PositionNyamiEscapeMovement[1]);
@@ -220,15 +209,15 @@ class EventNyamiEscape : public BasicEvent
                                         l_Nyami->RemoveAura(eAuchindounSpells::SpellTuulaniCapturedVoidPrison);
                                         l_Nyami->AddAura(eAuchindounSpells::SpellDispersionVisualNyami, l_Nyami);                                     
                                         l_Nyami->CastSpell(l_Nyami, eAuchindounSpells::SpellCrystalEarthquake);
-                                        l_Nyami->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformNyamiEscape07, g_PositionNyamiEscapeMovement[2]);                                 
+                                        l_Nyami->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformNyamiEscape07, 1765.926f, 3178.208f, 57.904f, true);                                 
                                         l_Kaathar->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
                                         l_Kaathar->GetMotionMaster()->MoveJump(g_PositionKaatharCombatJump.GetPositionX(), g_PositionKaatharCombatJump.GetPositionY(), g_PositionKaatharCombatJump.GetPositionZ(), 10.0f, 10.0f, 10.0f, 0);
-                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 7), l_Tuulani->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                        l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 7), l_Tuulani->m_Events.CalculateTime(4 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     }
                                     case 7:
                                     {
-                                        l_Nyami->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
+                                        l_Nyami->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
                                         l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK10);
                                         l_Tuulani->m_Events.AddEvent(new EventNyamiEscape(l_Tuulani, 8), l_Tuulani->m_Events.CalculateTime(5 * TimeConstants::IN_MILLISECONDS));
                                         break;
@@ -589,7 +578,7 @@ class boss_kaathar : public CreatureScript
                 {
                     l_HolyBarrier->SetLootState(LootState::GO_READY);
                     l_HolyBarrier->UseDoorOrButton();
-                }
+                }              
             }
         }
 

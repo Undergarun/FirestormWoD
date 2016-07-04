@@ -403,7 +403,9 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_LegacyRaidDifficulty = Difficulty10N;
     m_PrevMapDifficulty = DifficultyRaidNormal;
 
-    m_lastPotionId = 0;
+    m_LastPotion.m_LastPotionItemID = 0;
+    m_LastPotion.m_LastPotionSpellID = 0;
+
     _talentMgr = new PlayerTalentInfo();
 
     m_glyphsChanged = false;
@@ -18657,6 +18659,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     sScriptMgr->OnQuestAccept(this, quest);
 
+    if (quest->QuestObjectives.empty())
+        CompleteQuest(quest->GetQuestId());
+
     HandleAutoCompleteQuest(quest);
 }
 
@@ -18814,15 +18819,8 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                             float l_Roll = frand(0.0f, 100.0f);
                             float l_Coeff = 1.0f;
 
-                            if (GetGarrison())
-                            {
-                                bool l_Level1 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level1);
-                                bool l_Level2 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level2);
-                                bool l_Level3 = GetGarrison()->HasActiveBuilding(MS::Garrison::Building::ID::DwarvenBunker_WarMill_Level3);
-
-                                if (l_Level1 || l_Level2 || l_Level3)
-                                    l_Coeff *= 2.0f;
-                            }
+                            if (GetGarrison() && GetGarrison()->HasBuildingType(MS::Garrison::Building::Type::Armory))
+                                l_Coeff *= 2.0f;
 
                             //bool  l_SendDisplayToast = false;
 
@@ -26036,7 +26034,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
     }
 
     data.appendPackGUID(playerGuid);
-    data << uint8(1);
+    data << uint8(0);
     data << uint32(counter);
     data.append(dataBuffer);
 
@@ -26880,27 +26878,43 @@ void Player::SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID, S
     SendDirectMessage(&l_Data);
 }
 
-void Player::UpdatePotionCooldown(Spell* spell)
+void Player::UpdatePotionCooldown(Spell* p_Spell)
 {
     // no potion used in combat or still in combat
-    if (!m_lastPotionId || isInCombat())
+    if (!m_LastPotion.m_LastPotionItemID || isInCombat())
         return;
 
     // Call not from spell cast, send cooldown event for item spells if no in combat
-    if (!spell)
+    if (!p_Spell)
     {
+        bool l_Success = false;
         // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
-        if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_lastPotionId))
+        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(m_LastPotion.m_LastPotionItemID))
+        {
             for (uint8 idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
-                if (proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
-                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[idx].SpellId))
-                            SendCooldownEvent(spellInfo, m_lastPotionId);
+            {
+                if (l_Proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
+                {
+                    if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Proto->Spells[idx].SpellId))
+                    {
+                        l_Success = true;
+                        SendCooldownEvent(l_SpellInfo, m_LastPotion.m_LastPotionItemID);
+                    }
+                }
+            }
+        }
+        if (!l_Success && m_LastPotion.m_LastPotionSpellID)
+        {
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(m_LastPotion.m_LastPotionSpellID);
+            SendCooldownEvent(l_SpellInfo, m_LastPotion.m_LastPotionItemID);
+        }
     }
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
     else
-        SendCooldownEvent(spell->m_spellInfo, m_lastPotionId, spell);
+        SendCooldownEvent(p_Spell->m_spellInfo, m_LastPotion.m_LastPotionItemID, p_Spell);
 
-    m_lastPotionId = 0;
+    m_LastPotion.m_LastPotionItemID = 0;
+    m_LastPotion.m_LastPotionSpellID = 0;
 }
                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
@@ -31539,7 +31553,7 @@ Item* Player::AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonus
         l_Item->AddItemBonuses(l_Bonus);
 
         if (p_FromShop)
-            l_Item->SetCustomFlags(ItemCustomFlags::FromStore);
+            l_Item->ApplyCustomFlags(ItemCustomFlags::FromStore);
 
         SendNewItem(l_Item, p_Count, true, false);
 
@@ -33977,6 +33991,30 @@ void Player::SendSpellCharges()
     SendDirectMessage(&l_Data);
 }
 
+void Player::SendSpellCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
+{
+    WorldPacket l_Data(SMSG_SEND_SPELL_CHARGES, 4 + 1 * 9);
+
+    l_Data << uint32(1);
+
+    Clock::time_point l_Now = Clock::now();
+    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
+    if (l_Itr != m_CategoryCharges.end())
+    {
+        if (!l_Itr->second.empty())
+        {
+            std::chrono::milliseconds l_CooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(l_Itr->second.front().RechargeEnd - l_Now);
+            if (l_CooldownDuration.count() > 0)
+            {
+                l_Data << uint32(l_Itr->first);
+                l_Data << uint32(l_CooldownDuration.count());
+                l_Data << uint8(l_Itr->second.size());
+            }
+        }
+    }
+    SendDirectMessage(&l_Data);
+}
+
 void Player::SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry)
 {
     if (!p_ChargeCategoryEntry)
@@ -33984,7 +34022,7 @@ void Player::SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry
 
     Clock::time_point l_Now = Clock::now(); ///< l_Now is unused
     auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
-    if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
+    if (l_Itr != m_CategoryCharges.end())
     {
         uint32 l_ConsumedCharges = l_Itr->second.size();
         bool   l_IsPet = false;
@@ -34018,8 +34056,24 @@ void Player::UpdateCharges()
         while (!l_ChargeRefreshTimes.empty() && l_ChargeRefreshTimes.front().RechargeEnd <= l_Now)
         {
             l_ChargeRefreshTimes.pop_front();
-            SendSpellCharges();
+
+            SpellCategoryEntry const* l_CategoryEntry = sSpellCategoryStore.LookupEntry(l_CategoryCharge.first);
+            if (l_CategoryEntry != nullptr)
+                SendSetSpellCharges(l_CategoryEntry);
         }
+    }
+}
+
+void Player::UpdateCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
+{
+    Clock::time_point l_Now = Clock::now();
+
+    std::deque<ChargeEntry>& l_Charges = m_CategoryCharges[p_ChargeCategoryEntry->Id];
+
+    while (!l_Charges.empty() && l_Charges.front().RechargeEnd <= l_Now)
+    {
+        l_Charges.pop_front();
+        SendSetSpellCharges(p_ChargeCategoryEntry);
     }
 }
 
@@ -34054,17 +34108,14 @@ void Player::ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntr
 
     Clock::time_point l_Now = Clock::now();
 
-    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
-    if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
+    std::deque<ChargeEntry>& l_Charges = m_CategoryCharges[p_ChargeCategoryEntry->Id];
+    for (ChargeEntry& l_Entry : l_Charges)
     {
-        Clock::time_point l_NewRechargeEnd = l_Itr->second.back().RechargeEnd - std::chrono::milliseconds(p_Reductiontime);
-        if (l_NewRechargeEnd > l_Now)
-            l_Itr->second.back().RechargeEnd = l_NewRechargeEnd;
-        else
-            l_Itr->second.pop_back();
-
-        SendSpellCharges();
+        l_Entry.RechargeStart -= std::chrono::milliseconds(p_Reductiontime);
+        l_Entry.RechargeEnd -= std::chrono::milliseconds(p_Reductiontime);
     }
+    UpdateCharge(p_ChargeCategoryEntry);
+    SendSpellCharge(p_ChargeCategoryEntry);
 }
 
 void Player::RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)

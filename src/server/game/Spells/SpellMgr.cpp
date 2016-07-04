@@ -4459,6 +4459,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 94954: ///< Heroic Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
+            case 167718:///< Item - Monk T17 Mistweaver 4P Bonus
             case 31220:///< Sinister Calling
             case 17007:///< Leader of the Pack
             case 16864:///< Omen of Clarity
@@ -5483,12 +5484,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
                 break;
-            case 165336:///< Item - Warrior T17 Arms 2P Bonus
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
-                spellInfo->Effects[EFFECT_1].Effect = 0;
-                spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
-                break;
             case 165437:///< Item - Druid T17 Restoration 2P Bonus
                 spellInfo->Effects[EFFECT_0].BasePoints = 2;
                 break;
@@ -5548,6 +5543,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 109306: ///< Thrill of the Hunt
                 spellInfo->ProcChance = 0;
+                break;
+            case 4074: ///< Explosive Sheep
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(25); ///< 3min
                 break;
             case 24529: ///< Glyph of Animal Bond
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -5815,6 +5813,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 = SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;
+            case 45819: // Midsummer - Throw Torch
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
+                spellInfo->Effects[EFFECT_0].SetRadiusIndex(15);
+                spellInfo->MaxAffectedTargets = 1;
+                break;
             case 125327: ///< Blade Tempest (jump on Ta'yak) (HoF - #2 Ta'yak)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
@@ -6005,12 +6008,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 136494: ///< Word of Glory (overide by Glyph of Harsh Words
             case 130551: ///< Word of Glory (overide by Glyph of Harsh Words)
-            case 20066: ///< Repentance
+            case 20066:  ///< Repentance
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 114163: ///< Eternal Flame
                 spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 974: ///< Earth Shield
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_HEALING_RECEIVED;
@@ -6443,6 +6447,27 @@ void SpellMgr::LoadSpellCustomAttr()
             case 117895:///< Eminence (statue)
                 spellInfo->SpellLevel = 100;
                 break;
+            case 189999:///< Grove Warden
+            case 171828:///< Solar Spikehawk
+                spellInfo->Effects[0].MiscValue = 74410;
+                spellInfo->Effects[0].MiscValueB = 248;
+                break;
+            case 81292:  ///< Glyph of Mind Spike (Shadow)
+                spellInfo->ProcFlags = 0;
+                break;
+            case 187356: ///< Mysic Image (Magic Pet Mirror)
+                spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo();
+                break;
+            case 7268: ///< Arcane Missile
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+                break;
+            case 174004:///< Spirit of Shinri
+                spellInfo->Effects[1].MiscValue = 82415;
+                break;
+            case 165201:///< Mind Blast (cooldown reduce)
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_COOLDOWN_BY_HASTE;
+                spellInfo->Effects[1].MiscValue = 11;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
@@ -6492,7 +6517,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 74434:  ///< Soul Burn
             case 23920:  ///< Spell Reflection
             case 124430: ///< Divine Insight (Shadow)
-            case 81292:  ///< Glyph of Mind Spike
             case 114250: ///< Selfless Healer
             case 90174:  ///< Divine Purpose
             case 131567: ///< Holy Spark
@@ -6543,6 +6567,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 85222: ///< Light of Dawn
                 spellInfo->MaxAffectedTargets = 6;
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 2641: ///< Dismiss Pet
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
@@ -7371,6 +7396,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159456: ///< Glyph of Travel
                 spellInfo->Stances = 0;
                 break;
+            case 174556:
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
             case 91809: ///< Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
@@ -7565,8 +7594,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
             }
 
-            ///< This must be re-done if targets changed since the spellinfo load
-            spellInfo->ExplicitTargetMask = spellInfo->Effects[0].Effect == SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL ? TARGET_FLAG_UNIT : spellInfo->_GetExplicitTargetMask();
+            /// This must be re-done if targets changed since the spellinfo load
+            spellInfo->ExplicitTargetMask = spellInfo->IsTargetingFollower() ? TARGET_FLAG_UNIT : spellInfo->_GetExplicitTargetMask();
 
             switch (spellInfo->Id)
             {
@@ -7581,6 +7610,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 102793: ///< Ursol's Vortex
                 case 123986: ///< Chi Butst
                 case 155738: ///< Slag Pool (Heart of the Mountain)
+                case 174556:
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 116011:///< Rune of Power

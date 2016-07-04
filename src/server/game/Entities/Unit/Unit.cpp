@@ -259,6 +259,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     simulacrumTargetGUID = 0;
     m_GlaiveOfTossTargetGUID = 0;
     iciclesTargetGUID    = 0;
+    lastMoonfireTargetGUID = 0;
+    lastSunfireTargetGUID = 0;
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         m_threatModifier[i] = 1.0f;
@@ -11897,7 +11899,11 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
 
                 /// Fingers of Frost
                 if (Aura* l_Aura = GetAura(44544))
-                    AddPct(DoneTotalMod, l_Aura->GetEffect(1)->GetAmount());
+                {
+                    SpellInfo const* l_FingersOfFrost = sSpellMgr->GetSpellInfo(44544);
+                    if (l_FingersOfFrost)
+                        AddPct(DoneTotalMod, l_FingersOfFrost->Effects[1].BasePoints);
+                }
             }
 
             /// Torment the weak
@@ -12604,6 +12610,11 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     {
                         switch (spellProto->Id)
                         {
+                            case 5221:  ///< Shred
+                                /// Incarnation: King of the Jungle increase crit of Shred
+                                if (HasAura(102543))
+                                    crit_chance *= 2.0f;
+                                break;
                             case 22568: // Ferocious Bite
                                 // Critical strike chance doubled against bleeding targets.
                                 if (victim->HasAuraState(AURA_STATE_BLEEDING))
@@ -12749,17 +12760,18 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
     if (l_ModOwner != nullptr && l_ModOwner->getClass() == CLASS_MAGE && p_Victim->GetTypeId() == TYPEID_UNIT && p_Victim->HasAura(155153))
         l_CritPctBonus = 50;
 
+    int32 l_DamageTmp = p_Damage;
+
     if (p_SpellProto)
     {
         l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
         /// adds additional damage to p_Damage (from talents)
-        int32 l_DamageTmp = p_Damage;
+
 
         if (l_ModOwner)
-            l_Diff = l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, l_DamageTmp);
+            l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, l_DamageTmp);
+        l_PctSpellMod = 100.0f * (float)(l_DamageTmp - p_Damage) / (float)p_Damage;
     }
-    if (l_Diff > 0)
-        l_PctSpellMod = 100.0f / ((float)p_Damage / (float)l_Diff);
 
     l_CritPctBonus += l_PctSpellMod;
     p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
@@ -15935,8 +15947,10 @@ void Unit::SetHealth(uint32 val)
                 owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_HP);
             if (owner && (owner->IsPlayer()) && owner->HasAura(171393))
             {
-                if (l_Pet->GetHealthPct() < 20.0f && !owner->HasAura(171397))
+                if (l_Pet->GetHealthPct() < 20.0f)
                     owner->CastSpell(owner, 171397, true);
+                if (l_Pet->GetHealthPct() >= 20.0f && owner->GetHealthPct() >= 20.0f)
+                    owner->RemoveAura(171397);
             }
         }
     }

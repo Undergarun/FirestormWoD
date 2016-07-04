@@ -2827,7 +2827,6 @@ class spell_warr_activate_battle_stance : public SpellScriptLoader
                 ColossusSmash           = 86346,
                 ColossusSmash2          = 167105,
                 DeadlyCalm              = 166587,
-                T17Arms2P               = 165336,
                 ColossusSmashEnergize   = 169587
             };
 
@@ -2847,10 +2846,6 @@ class spell_warr_activate_battle_stance : public SpellScriptLoader
                     /// Colossus Smash has a 40 % chance to reduce the cooldown of Mortal Strike by 50 % for 10 sec.
                     if (l_Caster->HasAura(eSpells::T17Arms4P) && roll_chance_i(40))
                         l_Caster->CastSpell(l_Caster, eSpells::DeadlyCalm, true);
-
-                    /// Colossus Smash now generates 20 Rage.
-                    if (l_Caster->HasAura(eSpells::T17Arms2P))
-                        l_Caster->CastSpell(l_Caster, eSpells::ColossusSmashEnergize, true);
                 }
             }
 

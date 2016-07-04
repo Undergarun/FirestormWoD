@@ -1,0 +1,1 @@
+INSERT INTO `spell_forbidden` (spell_id, COMMENT) VALUES (82726, "Fervor");
