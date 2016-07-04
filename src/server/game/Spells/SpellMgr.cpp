@@ -5483,6 +5483,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
                 break;
+            case 166878: ///< Deceit
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_ADD_COMBO_POINTS;
+                break;
             case 166881: ///< Shadow Strikes (for Rogue T17 Subtlety 4P Bonus)
                 spellInfo->ProcFlags = 0;
                 break;
