@@ -5989,9 +5989,42 @@ class spell_monk_serenity : public SpellScriptLoader
         }
 };
 
+/// last update : 6.2.3
+/// Gift of the Serpent - 135920
+class spell_monk_gift_of_the_serpent : public SpellScriptLoader
+{
+    public:
+        spell_monk_gift_of_the_serpent() : SpellScriptLoader("spell_monk_gift_of_the_serpent") { }
+
+        class spell_monk_gift_of_the_serpent_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_gift_of_the_serpent_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.size() > 1)
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+                    p_Targets.resize(1);
+                }
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_gift_of_the_serpent_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_monk_gift_of_the_serpent_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_gift_of_the_serpent();
     new spell_monk_serenity();
     new spell_monk_breath_of_the_serpent_tick();
     new spell_monk_breath_of_the_serpent_heal();
