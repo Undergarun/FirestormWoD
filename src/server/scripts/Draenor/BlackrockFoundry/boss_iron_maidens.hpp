@@ -53,6 +53,7 @@ enum eIronMaidensDatas
     LoadingChainAvailable   = 1,
     /// Boss Getters
     IsAvailableForShip      = 0,
+    IsDisabled              = 1,
     /// Event schedulers
     FirstIronFuryAbility    = 30,
     SecondIronFuryAbility   = 100
@@ -129,6 +130,29 @@ static void WipeMaidens(InstanceScript* p_Instance)
             p_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, l_Maiden);
         }
     }
+}
+
+static bool IsLastMaidenAlive(InstanceScript* p_Instance, Creature* p_Source)
+{
+    if (p_Instance == nullptr || p_Source == nullptr)
+        return false;
+
+    for (uint8 l_I = 0; l_I < 3; ++l_I)
+    {
+        if (Creature* l_Maiden = Creature::GetCreature(*p_Source, p_Instance->GetData64(g_IronMaidensEntries[l_I])))
+        {
+            if (l_Maiden->GetEntry() == p_Source->GetEntry())
+                continue;
+
+            if (l_Maiden->IsAIEnabled)
+            {
+                if (!l_Maiden->AI()->GetData(eIronMaidensDatas::IsDisabled))
+                    return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 static void TriggerIronWill(InstanceScript* p_Instance)

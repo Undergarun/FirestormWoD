@@ -211,6 +211,7 @@ enum eFoundryDatas
     DarmacBeastMountedFirst,
     DataAfterFightAddCount,
     DataThogarIntroStarted,
+    IronMaidensKillTimer,
 
     /// Counters
     /// Gruul
@@ -254,7 +255,8 @@ enum eFoundryAchievements
     StampStampRevolution    = 8980,
     TheSteelHasBeenBrought  = 8929,
     WouldYouGiveMeAHand     = 8983,
-    FainWouldLieDown        = 8981
+    FainWouldLieDown        = 8981,
+    BeQuickOrBeDead         = 8984
 };
 
 enum eFoundryCriterias

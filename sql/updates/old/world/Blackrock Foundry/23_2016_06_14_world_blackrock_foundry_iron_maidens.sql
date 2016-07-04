@@ -96,6 +96,105 @@ DROP PROCEDURE AddWorldEffectColumn;
 
 UPDATE gameobject_template SET WorldEffectID = 3190 WHERE entry = 234028;
 
+DELETE FROM `reference_loot_template` WHERE entry = @REF_GARAN;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_GARAN, 113977, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113965, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113966, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113967, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113968, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113969, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113970, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113971, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113972, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113973, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113974, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113975, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113976, 0, 1, 1, 1, 1),
+(@REF_GARAN, 113978, 0, 1, 1, 1, 1);
+
+# Set tokens
+DELETE FROM `reference_loot_template` WHERE entry = @REF_GARAN + 1;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_GARAN + 1, 119306, 0, 14, 1, 1, 1),
+(@REF_GARAN + 1, 119311, 0, 14, 1, 1, 1),
+(@REF_GARAN + 1, 119319, 0, 14, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_GARAN WHERE `entry`= @REF_GARAN;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_GARAN;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_GARAN, 1, 100, 1, 0, -@REF_GARAN, 6),
+(@REF_GARAN, 2, 100, 2, 0, -(@REF_GARAN + 1), 2),
+(@REF_GARAN, 3, 100, 4, 0, -(@REF_GARAN + 1), 1),
+(@REF_GARAN, 4, 100, 8, 0, -(@REF_GARAN + 1), 1);
+
+DELETE FROM `reference_loot_template` WHERE entry = @REF_SORKA;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_SORKA, 113977, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113965, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113966, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113967, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113968, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113969, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113970, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113971, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113972, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113973, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113974, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113975, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113976, 0, 1, 1, 1, 1),
+(@REF_SORKA, 113978, 0, 1, 1, 1, 1);
+
+# Set tokens
+DELETE FROM `reference_loot_template` WHERE entry = @REF_SORKA + 1;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_SORKA + 1, 119306, 0, 14, 1, 1, 1),
+(@REF_SORKA + 1, 119311, 0, 14, 1, 1, 1),
+(@REF_SORKA + 1, 119319, 0, 14, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_SORKA WHERE `entry`= @REF_SORKA;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_SORKA;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_SORKA, 1, 100, 1, 0, -@REF_SORKA, 6),
+(@REF_SORKA, 2, 100, 2, 0, -(@REF_SORKA + 1), 2),
+(@REF_SORKA, 3, 100, 4, 0, -(@REF_SORKA + 1), 1),
+(@REF_SORKA, 4, 100, 8, 0, -(@REF_SORKA + 1), 1);
+
+DELETE FROM `reference_loot_template` WHERE entry = @REF_MARAK;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_MARAK, 113977, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113965, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113966, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113967, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113968, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113969, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113970, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113971, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113972, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113973, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113974, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113975, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113976, 0, 1, 1, 1, 1),
+(@REF_MARAK, 113978, 0, 1, 1, 1, 1);
+
+# Set tokens
+DELETE FROM `reference_loot_template` WHERE entry = @REF_MARAK + 1;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_MARAK + 1, 119306, 0, 14, 1, 1, 1),
+(@REF_MARAK + 1, 119311, 0, 14, 1, 1, 1),
+(@REF_MARAK + 1, 119319, 0, 14, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_MARAK WHERE `entry`= @REF_MARAK;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_MARAK;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_MARAK, 1, 100, 1, 0, -@REF_MARAK, 6),
+(@REF_MARAK, 2, 100, 2, 0, -(@REF_MARAK + 1), 2),
+(@REF_MARAK, 3, 100, 4, 0, -(@REF_MARAK + 1), 1),
+(@REF_MARAK, 4, 100, 8, 0, -(@REF_MARAK + 1), 1);
+
 DELETE FROM npc_text WHERE ID IN (87897, 87898, 87921, 87899, 87937, 87900, 87922, 87923, 87902, 87924, 87901, 87925);
 INSERT INTO npc_text (ID, SoundID, text0_0, text0_1) VALUE
 (

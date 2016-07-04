@@ -96,6 +96,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_ZiplineStalkerGuid        = 0;
                 m_IronCannonGuid            = 0;
                 m_AmmoLoaderGuid            = 0;
+                m_IronMaidensKillTime       = 0;
+                m_BeQuickOrBeDeadAchiev     = false;
 
                 m_SpikeGateGuid             = 0;
                 m_CrucibleEntrance          = 0;
@@ -173,6 +175,8 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_ZiplineStalkerGuid;
             uint64 m_IronCannonGuid;
             uint64 m_AmmoLoaderGuid;
+            uint32 m_IronMaidensKillTime;
+            bool m_BeQuickOrBeDeadAchiev;
 
             /// Blackhand's Crucible
             uint64 m_SpikeGateGuid;
@@ -901,9 +905,17 @@ class instance_blackrock_foundry : public InstanceMapScript
                         switch (p_State)
                         {
                             case EncounterState::DONE:
+                            {
+                                if (m_BeQuickOrBeDeadAchiev && !instance->IsLFR())
+                                    DoCompleteAchievement(eFoundryAchievements::BeQuickOrBeDead);
+
+                                /// No break needed here
+                            }
                             case EncounterState::FAIL:
                             case EncounterState::NOT_STARTED:
                             {
+                                m_BeQuickOrBeDeadAchiev = false;
+
                                 if (GameObject* l_AmmoLoader = instance->GetGameObject(m_AmmoLoaderGuid))
                                     l_AmmoLoader->SetFlag(EGameObjectFields::GAMEOBJECT_FIELD_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
 
@@ -1021,6 +1033,24 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryDatas::DataThogarIntroStarted:
                     {
                         m_ThogarIntroStarted = true;
+                        break;
+                    }
+                    case eFoundryDatas::IronMaidensKillTimer:
+                    {
+                        if (instance->IsLFR())
+                            break;
+
+                        if (!m_IronMaidensKillTime)
+                            m_IronMaidensKillTime = p_Data;
+                        else
+                        {
+                            /// Defeat the Iron Maidens within 10 seconds of each other
+                            if (p_Data > (m_IronMaidensKillTime + 10))
+                                m_BeQuickOrBeDeadAchiev = false;
+                            else
+                                m_BeQuickOrBeDeadAchiev = true;
+                        }
+
                         break;
                     }
                     default:

@@ -244,6 +244,8 @@ class boss_admiral_garan : public CreatureScript
                 {
                     case eIronMaidensDatas::IsAvailableForShip:
                         return uint32(m_CanJumpToShip);
+                    case eIronMaidensDatas::IsDisabled:
+                        return uint32(m_BossDisabled);
                     default:
                         break;
                 }
@@ -552,7 +554,7 @@ class boss_admiral_garan : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (m_BossDisabled)
                 {
@@ -567,6 +569,27 @@ class boss_admiral_garan : public CreatureScript
                 }
                 else if (p_Damage >= me->GetHealth())
                 {
+                    if (IsLastMaidenAlive(m_Instance, me))
+                    {
+                        for (uint8 l_I = 0; l_I < 3; ++l_I)
+                        {
+                            if (Creature* l_Maiden = Creature::GetCreature(*me, m_Instance->GetData64(g_IronMaidensEntries[l_I])))
+                            {
+                                if (l_Maiden->GetEntry() == me->GetEntry())
+                                    continue;
+
+                                p_Attacker->Kill(l_Maiden);
+
+                                l_Maiden->SetLootRecipient(nullptr);
+                            }
+                        }
+
+                        return;
+                    }
+
+                    if (m_Instance != nullptr)
+                        m_Instance->SetData(eFoundryDatas::IronMaidensKillTimer, uint32(time(nullptr)));
+
                     m_BossDisabled = true;
                     m_CanJumpToShip = false;
 
@@ -588,7 +611,7 @@ class boss_admiral_garan : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || m_BossDisabled)
                     return;
 
                 if (!m_IsOnBoat && me->GetDistance(me->GetHomePosition()) >= 80.0f)
@@ -874,6 +897,8 @@ class boss_enforcer_sorka : public CreatureScript
                 {
                     case eIronMaidensDatas::IsAvailableForShip:
                         return uint32(m_CanJumpToShip);
+                    case eIronMaidensDatas::IsDisabled:
+                        return uint32(m_BossDisabled);
                     default:
                         break;
                 }
@@ -1076,7 +1101,11 @@ class boss_enforcer_sorka : public CreatureScript
                         if (!m_IsInBladeDash)
                         {
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true))
+                            {
+                                AttackStart(l_Target);
+
                                 me->GetMotionMaster()->MoveChase(l_Target);
+                            }
 
                             me->RemoveAura(eSpells::SpellBladeDashCast);
                             break;
@@ -1135,7 +1164,7 @@ class boss_enforcer_sorka : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (m_BossDisabled)
                 {
@@ -1150,6 +1179,27 @@ class boss_enforcer_sorka : public CreatureScript
                 }
                 else if (p_Damage >= me->GetHealth())
                 {
+                    if (IsLastMaidenAlive(m_Instance, me))
+                    {
+                        for (uint8 l_I = 0; l_I < 3; ++l_I)
+                        {
+                            if (Creature* l_Maiden = Creature::GetCreature(*me, m_Instance->GetData64(g_IronMaidensEntries[l_I])))
+                            {
+                                if (l_Maiden->GetEntry() == me->GetEntry())
+                                    continue;
+
+                                p_Attacker->Kill(l_Maiden);
+
+                                l_Maiden->SetLootRecipient(nullptr);
+                            }
+                        }
+
+                        return;
+                    }
+
+                    if (m_Instance != nullptr)
+                        m_Instance->SetData(eFoundryDatas::IronMaidensKillTimer, uint32(time(nullptr)));
+
                     m_BossDisabled = true;
                     m_CanJumpToShip = false;
 
@@ -1171,7 +1221,7 @@ class boss_enforcer_sorka : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || m_BossDisabled)
                     return;
 
                 if (!m_IsOnBoat && me->GetDistance(me->GetHomePosition()) >= 80.0f)
@@ -1412,6 +1462,8 @@ class boss_marak_the_blooded : public CreatureScript
                 {
                     case eIronMaidensDatas::IsAvailableForShip:
                         return uint32(m_CanJumpToShip);
+                    case eIronMaidensDatas::IsDisabled:
+                        return uint32(m_BossDisabled);
                     default:
                         break;
                 }
@@ -1665,7 +1717,7 @@ class boss_marak_the_blooded : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (m_BossDisabled)
                 {
@@ -1680,6 +1732,27 @@ class boss_marak_the_blooded : public CreatureScript
                 }
                 else if (p_Damage >= me->GetHealth())
                 {
+                    if (IsLastMaidenAlive(m_Instance, me))
+                    {
+                        for (uint8 l_I = 0; l_I < 3; ++l_I)
+                        {
+                            if (Creature* l_Maiden = Creature::GetCreature(*me, m_Instance->GetData64(g_IronMaidensEntries[l_I])))
+                            {
+                                if (l_Maiden->GetEntry() == me->GetEntry())
+                                    continue;
+
+                                p_Attacker->Kill(l_Maiden);
+
+                                l_Maiden->SetLootRecipient(nullptr);
+                            }
+                        }
+
+                        return;
+                    }
+
+                    if (m_Instance != nullptr)
+                        m_Instance->SetData(eFoundryDatas::IronMaidensKillTimer, uint32(time(nullptr)));
+
                     m_BossDisabled = true;
                     m_CanJumpToShip = false;
 
@@ -1701,7 +1774,7 @@ class boss_marak_the_blooded : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || m_BossDisabled)
                     return;
 
                 if (!m_IsOnBoat && me->GetDistance(me->GetHomePosition()) >= 80.0f)
@@ -2508,6 +2581,7 @@ class npc_foundry_iron_cannon : public CreatureScript
                 }
                 else
                 {
+                    m_PassengerGuid     = 0;
                     m_IsWarmingUp       = false;
                     m_ObliterateTimer   = 0;
 
@@ -2537,7 +2611,7 @@ class npc_foundry_iron_cannon : public CreatureScript
                     }
                     case eActions::BombardmentOmega:
                     {
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             me->CastSpell(me, eSpells::BombardmentPatternOmega, false);
                         });
@@ -2555,8 +2629,6 @@ class npc_foundry_iron_cannon : public CreatureScript
 
                 if (m_SummonedBombs.empty() && m_IsWarmingUp)
                     StartBombardment();
-                else
-                    m_PassengerGuid = 0;
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -2578,7 +2650,11 @@ class npc_foundry_iron_cannon : public CreatureScript
                             if (Creature* l_Boss = Creature::GetCreature(*me, m_PassengerGuid))
                             {
                                 if (Creature* l_Bomb = l_Boss->SummonCreature(eIronMaidensCreatures::ClusterBombAlpha, g_ClusterBombAlphaSpawnPos[l_BombID]))
+                                {
+                                    m_SummonedBombs.insert(l_Bomb->GetGUID());
+
                                     me->CastSpell(l_Bomb, eSpells::BombardmentPatternAlphaMissile, true);
+                                }
                             }
                         }
                         while (!m_AvailableBombIDs.empty());
@@ -2601,7 +2677,8 @@ class npc_foundry_iron_cannon : public CreatureScript
                         m_IsWarmingUp       = false;
                         m_ObliterateTimer   = 0;
 
-                        DoCastToAllHostilePlayers(eSpells::Obliterate, true);
+                        if (InstanceScript* l_Instance = me->GetInstanceScript())
+                            l_Instance->DoCastSpellOnPlayers(eSpells::Obliterate);
                     }
                     else
                         m_ObliterateTimer -= p_Diff;
@@ -2618,7 +2695,10 @@ class npc_foundry_iron_cannon : public CreatureScript
 
                 m_SummonedBombs.clear();
 
-                me->CastSpell(me, eSpells::BombardmentPatternAlpha, false);
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->CastSpell(me, eSpells::BombardmentPatternAlpha, false);
+                });
             }
         };
 
