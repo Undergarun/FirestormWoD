@@ -868,6 +868,16 @@ void InstanceScript::RespawnCreature(uint64 p_Guid /*= 0*/)
     }
 }
 
+void InstanceScript::PlaySceneForPlayers(Position const p_Pos, uint32 p_ScenePackageID)
+{
+    Map::PlayerList const& l_Players = instance->GetPlayers();
+    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
+    }
+}
+
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint64 /*miscvalue1*/ /*= 0*/)
 {
     sLog->outError(LOG_FILTER_GENERAL, "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",

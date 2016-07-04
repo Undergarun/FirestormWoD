@@ -890,16 +890,6 @@ class instance_highmaul : public InstanceMapScript
                 }
             }
 
-            void PlaySceneForPlayers(Position const p_Pos, uint32 p_ScenePackageID)
-            {
-                Map::PlayerList const& l_Players = instance->GetPlayers();
-                for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
-                {
-                    if (Player* l_Player = l_Iter->getSource())
-                        l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
-                }
-            }
-
             void Update(uint32 p_Diff) override
             {
                 UpdateOperations(p_Diff);

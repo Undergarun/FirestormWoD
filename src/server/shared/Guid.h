@@ -1,8 +1,15 @@
-#include "Common.h"
+////////////////////////////////////////////////////////////////////////////////
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2016 Millenium-studio SARL
+///  All Rights Reserved.
+///
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRINITY_GUID_H
-#define TRINITY_GUID_H
+# define TRINITY_GUID_H
 
+# include "Common.h"
 
 enum HighGuid
 {
@@ -27,29 +34,31 @@ enum HighGuid
     HIGHGUID_BNET_ACCOUNT       = 0xE4E,
     HIGHGUID_WOW_ACCOUNT        = 0xD4E,
     HIGHGUID_VIGNETTE           = 0x200,
-    HIGHGUID_BATTLE_PET         = 0x201
+    HIGHGUID_BATTLE_PET         = 0x201,
+    HIGHGUID_CONVERSATION       = 0x202
 };
 
-#define IS_EMPTY_GUID(Guid)          (Guid == 0)
+# define IS_EMPTY_GUID(Guid)          (Guid == 0)
 
-#define IS_CREATURE_GUID(Guid)       (GUID_HIPART(Guid) == HIGHGUID_UNIT)
-#define IS_PET_GUID(Guid)            (GUID_HIPART(Guid) == HIGHGUID_PET)
-#define IS_VEHICLE_GUID(Guid)        (GUID_HIPART(Guid) == HIGHGUID_VEHICLE)
-#define IS_CRE_OR_VEH_GUID(Guid)     (IS_CREATURE_GUID(Guid) || IS_VEHICLE_GUID(Guid))
-#define IS_CRE_OR_VEH_OR_PET_GUID(Guid)(IS_CRE_OR_VEH_GUID(Guid) || IS_PET_GUID(Guid))
-#define IS_PLAYER_GUID(Guid)         (GUID_HIPART(Guid) == HIGHGUID_PLAYER && Guid != 0)
-#define IS_GUILD_GUID(Guid)          (GUID_HIPART(Guid) == HIGHGUID_GUILD && Guid != 0)
-#define IS_UNIT_GUID(Guid)           (IS_CRE_OR_VEH_OR_PET_GUID(Guid) || IS_PLAYER_GUID(Guid))
+# define IS_CREATURE_GUID(Guid)       (GUID_HIPART(Guid) == HIGHGUID_UNIT)
+# define IS_PET_GUID(Guid)            (GUID_HIPART(Guid) == HIGHGUID_PET)
+# define IS_VEHICLE_GUID(Guid)        (GUID_HIPART(Guid) == HIGHGUID_VEHICLE)
+# define IS_CRE_OR_VEH_GUID(Guid)     (IS_CREATURE_GUID(Guid) || IS_VEHICLE_GUID(Guid))
+# define IS_CRE_OR_VEH_OR_PET_GUID(Guid)(IS_CRE_OR_VEH_GUID(Guid) || IS_PET_GUID(Guid))
+# define IS_PLAYER_GUID(Guid)         (GUID_HIPART(Guid) == HIGHGUID_PLAYER && Guid != 0)
+# define IS_GUILD_GUID(Guid)          (GUID_HIPART(Guid) == HIGHGUID_GUILD && Guid != 0)
+# define IS_UNIT_GUID(Guid)           (IS_CRE_OR_VEH_OR_PET_GUID(Guid) || IS_PLAYER_GUID(Guid))
 // special case for empty guid need check
-#define IS_ITEM_GUID(Guid)           (GUID_HIPART(Guid) == HIGHGUID_ITEM)
-#define IS_GAMEOBJECT_GUID(Guid)     (GUID_HIPART(Guid) == HIGHGUID_GAMEOBJECT)
-#define IS_DYNAMICOBJECT_GUID(Guid)  (GUID_HIPART(Guid) == HIGHGUID_DYNAMICOBJECT)
-#define IS_CORPSE_GUID(Guid)         (GUID_HIPART(Guid) == HIGHGUID_CORPSE)
-#define IS_TRANSPORT(Guid)           (GUID_HIPART(Guid) == HIGHGUID_TRANSPORT)
-#define IS_MO_TRANSPORT(Guid)        (GUID_HIPART(Guid) == HIGHGUID_MO_TRANSPORT)
-#define IS_GROUP(Guid)               (GUID_HIPART(Guid) == HIGHGUID_GROUP)
-#define IS_GUILD(Guid)               (GUID_HIPART(Guid) == HIGHGUID_GUILD)
-#define IS_AREATRIGGER(Guid)         (GUID_HIPART(Guid) == HIGHGUID_AREATRIGGER);
+# define IS_ITEM_GUID(Guid)           (GUID_HIPART(Guid) == HIGHGUID_ITEM)
+# define IS_GAMEOBJECT_GUID(Guid)     (GUID_HIPART(Guid) == HIGHGUID_GAMEOBJECT)
+# define IS_DYNAMICOBJECT_GUID(Guid)  (GUID_HIPART(Guid) == HIGHGUID_DYNAMICOBJECT)
+# define IS_CORPSE_GUID(Guid)         (GUID_HIPART(Guid) == HIGHGUID_CORPSE)
+# define IS_TRANSPORT(Guid)           (GUID_HIPART(Guid) == HIGHGUID_TRANSPORT)
+# define IS_MO_TRANSPORT(Guid)        (GUID_HIPART(Guid) == HIGHGUID_MO_TRANSPORT)
+# define IS_GROUP(Guid)               (GUID_HIPART(Guid) == HIGHGUID_GROUP)
+# define IS_GUILD(Guid)               (GUID_HIPART(Guid) == HIGHGUID_GUILD)
+# define IS_AREATRIGGER(Guid)         (GUID_HIPART(Guid) == HIGHGUID_AREATRIGGER)
+# define IS_CONVERSATION(Guid)        (GUID_HIPART(Guid) == HIGHGUID_CONVERSATION)
 
 // l - OBJECT_FIELD_GUID
 // e - OBJECT_FIELD_ENTRY for GO (except GAMEOBJECT_TYPE_MO_TRANSPORT) and creatures or UNIT_FIELD_PETNUMBER for pets
@@ -71,10 +80,10 @@ inline uint32 GUID_HIPART(uint64 guid)
 }
 
 // We have different low and middle part size for different guid types
-#define _GUID_ENPART_2(x) 0
-#define _GUID_ENPART_3(x) (uint32)((uint64(x) >> 32) & UI64LIT(0x00000000000FFFFF))
-#define _GUID_LOPART_2(x) (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
-#define _GUID_LOPART_3(x) (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
+# define _GUID_ENPART_2(x) 0
+# define _GUID_ENPART_3(x) (uint32)((uint64(x) >> 32) & UI64LIT(0x00000000000FFFFF))
+# define _GUID_LOPART_2(x) (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
+# define _GUID_LOPART_3(x) (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
 
 inline bool IsGuidHaveEnPart(uint64 guid)
 {
@@ -86,6 +95,7 @@ inline bool IsGuidHaveEnPart(uint64 guid)
         case HIGHGUID_CORPSE:
         case HIGHGUID_GROUP:
         case HIGHGUID_GUILD:
+        case HIGHGUID_CONVERSATION:
             return false;
 
         case HIGHGUID_GAMEOBJECT:
@@ -100,8 +110,8 @@ inline bool IsGuidHaveEnPart(uint64 guid)
     }
 }
 
-#define GUID_ENPART(x) (IsGuidHaveEnPart(x) ? _GUID_ENPART_3(x) : _GUID_ENPART_2(x))
-#define GUID_LOPART(x) (IsGuidHaveEnPart(x) ? _GUID_LOPART_3(x) : _GUID_LOPART_2(x))
+# define GUID_ENPART(x) (IsGuidHaveEnPart(x) ? _GUID_ENPART_3(x) : _GUID_ENPART_2(x))
+# define GUID_LOPART(x) (IsGuidHaveEnPart(x) ? _GUID_LOPART_3(x) : _GUID_LOPART_2(x))
 
 inline char const* GetLogNameForGuid(uint64 guid)
 {
@@ -120,6 +130,8 @@ inline char const* GetLogNameForGuid(uint64 guid)
         case HIGHGUID_GROUP:        return "group";
         case HIGHGUID_GUILD:        return "guild";
         case HIGHGUID_AREATRIGGER:  return "areatrigger";
+        case HIGHGUID_VIGNETTE:     return "vignette";
+        case HIGHGUID_CONVERSATION: return "conversation";
         default:
             return "<unknown>";
     }
@@ -194,13 +206,13 @@ public:
     }
     Guid128(uint64 p_Low, uint64 p_Hight)
     {
-#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+# if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
         m_Data[1] = p_Hight;
         m_Data[0] = p_Low;
-#else
+#  else
         m_Data[1] = p_Low;
         m_Data[0] = p_Hight;
-#endif
+# endif
     }
     Guid128(Guid128Type p_Type, uint32 p_RealmID, uint32 p_Entry, uint64 p_ID)
     {
@@ -217,19 +229,19 @@ public:
     }
     uint64 GetHi() const
     {
-#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+# if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
         return m_Data[1];
-#else
+#  else
         return m_Data[0];
-#endif
+# endif
     }
     uint64 GetLow() const
     {
-#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+# if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
         return m_Data[0];
-#else
+#  else
         return m_Data[1];
-#endif
+# endif
     }
     uint8 GetType() const
     {
@@ -241,13 +253,13 @@ public:
     }
     void Make(Guid128Type p_Type, uint32 p_RealmID, uint32 p_Entry, uint64 p_ID)
     {
-#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+# if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
         m_Data[1] = (uint64(p_Type) << 58) | (uint64(p_RealmID & 0xFFFF) << 42) | (uint64(p_Entry & 0x7FFFFF) << 6);
         m_Data[0] = p_ID;
-#else
+#  else
         m_Data[1] = p_ID;
         m_Data[0] = (uint64(p_Type) << 58) | (uint64(p_RealmID & 0xFFFF) << 42) | (uint64(p_Entry & 0x7FFFFF) << 6);
-#endif
+# endif
     }
 
     inline bool operator==(const Guid128 & p_Other) const

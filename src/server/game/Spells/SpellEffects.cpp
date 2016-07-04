@@ -284,7 +284,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_UPGRADE_GARRISON        171905
     &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218                     Unk 6.0.1
-    &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219                     Unk 6.0.1
+    &Spell::EffectStartConversation,                        //219 SPELL_EFFECT_START_CONVERSATION
     &Spell::EffectObtainFollower,                           //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER     Obtain a garrison follower (contract item)
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221                     Unk 6.0.1
     &Spell::EffectCreateHeirloom,                           //222 SPELL_EFFECT_CREATE_HEIRLOOM         Create Heirloom
@@ -7844,6 +7844,18 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
     }
     else
         SendCastResult(SPELL_FAILED_BLUEPRINT_KNOWN);
+}
+
+void Spell::EffectStartConversation(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_LAUNCH)
+        return;
+
+    uint32 l_Entry = m_spellInfo->Effects[p_EffIndex].MiscValue;
+
+    Conversation* l_Conversation = new Conversation;
+    if (!l_Conversation->StartConversation(m_caster, l_Entry))
+        delete l_Conversation;
 }
 
 void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)

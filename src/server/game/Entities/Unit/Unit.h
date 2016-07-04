@@ -30,6 +30,7 @@
 #include "Timer.h"
 #include "../DynamicObject/DynamicObject.h"
 #include "../AreaTrigger/AreaTrigger.h"
+#include "../Conversation/Conversation.hpp"
 
 #define WORLD_TRIGGER   12999
 
@@ -365,6 +366,7 @@ class Spell;
 class SpellInfo;
 class DynamicObject;
 class AreaTrigger;
+class Conversaton;
 class GameObject;
 class Item;
 class Pet;
@@ -1584,6 +1586,7 @@ class Unit : public WorldObject
         void StopAttackFaction(uint32 faction_id);
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
         void GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Range) const;
+        void GetConversationListInRange(std::list<Conversation*>& p_List, float p_Range) const;
         void GetAreaTriggerListWithSpellIDInRange(std::list<AreaTrigger*>& p_List, uint32 p_SpellID, float p_Range) const;
         Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExludeAuraID = 0, bool p_ExcludeVictim = true, bool p_Alive = true, bool p_ExcludeStealthVictim = false, bool p_CheckValidAttack = false) const;
         Unit* SelectNearbyAlly(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, bool p_CheckValidAssist = false) const;

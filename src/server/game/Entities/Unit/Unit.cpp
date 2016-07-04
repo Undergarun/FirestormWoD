@@ -17821,6 +17821,22 @@ void Unit::GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Ra
     l_Cell.Visit(l_Coords, l_GridSearcher, *GetMap(), *this, p_Range);
 }
 
+void Unit::GetConversationListInRange(std::list<Conversation*>& p_List, float p_Range) const
+{
+    CellCoord l_Coords(JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY()));
+    Cell l_Cell(l_Coords);
+    l_Cell.SetNoCreate();
+
+    JadeCore::AnyConversationInObjectRangeCheck l_Check(this, p_Range);
+    JadeCore::ConversationListSearcher<JadeCore::AnyConversationInObjectRangeCheck> searcher(this, p_List, l_Check);
+
+    TypeContainerVisitor<JadeCore::ConversationListSearcher<JadeCore::AnyConversationInObjectRangeCheck>, WorldTypeMapContainer> l_WorldSearcher(searcher);
+    TypeContainerVisitor<JadeCore::ConversationListSearcher<JadeCore::AnyConversationInObjectRangeCheck>, GridTypeMapContainer>  l_GridSearcher(searcher);
+
+    l_Cell.Visit(l_Coords, l_WorldSearcher, *GetMap(), *this, p_Range);
+    l_Cell.Visit(l_Coords, l_GridSearcher, *GetMap(), *this, p_Range);
+}
+
 void Unit::GetAreaTriggerListWithSpellIDInRange(std::list<AreaTrigger*>& p_List, uint32 p_SpellID, float p_Range) const
 {
     CellCoord l_Coords(JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY()));
