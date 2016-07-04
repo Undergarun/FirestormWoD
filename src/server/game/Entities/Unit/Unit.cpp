@@ -1082,6 +1082,9 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                 killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, 0, victim);
         }
 
+        /// Glyph of Soul Consumption
+        if (ToPet() && GetOwner() && GetOwner()->HasAura(103958) && GetOwner()->HasAura(58070))
+            GetOwner()->CastSpell(GetOwner(), 58068, true);
         Kill(victim, durabilityLoss, spellProto ? spellProto : NULL);
     }
     else
