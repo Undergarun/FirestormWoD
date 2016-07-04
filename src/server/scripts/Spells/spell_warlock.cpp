@@ -3336,10 +3336,9 @@ class spell_warl_unstable_affliction: public SpellScriptLoader
                     if (AuraEffect const* aurEff = GetEffect(EFFECT_0))
                     {
                         Unit* l_Dispeller = dispelInfo->GetDispeller();
-                        int32 l_Damage = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * aurEff->GetAmount() * 8);
+                        int32 l_Damage = int32(aurEff->GetAmount() * 8);
                         l_Damage = l_Caster->SpellDamageBonusDone(l_Dispeller, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                         l_Damage = l_Dispeller->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
-                        l_Damage = l_Damage / 1000;
                         // backfire damage and silence
                         l_Caster->CastCustomSpell(dispelInfo->GetDispeller(), WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &l_Damage, &l_Damage, NULL, true);
                     }
