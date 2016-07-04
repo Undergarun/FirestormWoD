@@ -485,6 +485,7 @@ void Vehicle::RemovePassenger(Unit* unit)
         unit->m_movementInfo.t_pos.Relocate(0, 0, 0, 0);
         unit->m_movementInfo.t_time = 0;
         unit->m_movementInfo.t_seat = 0;
+        unit->m_movementInfo.t_guid = 0;
     }
 
     // only for flyable vehicles

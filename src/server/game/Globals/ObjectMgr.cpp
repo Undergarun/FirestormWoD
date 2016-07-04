@@ -252,7 +252,8 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
 ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
     _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), _hiCharGuid(1),
     _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1),
-    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), m_HiVignetteGuid(1), _skipUpdateCount(1)
+    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), m_HiVignetteGuid(1), _skipUpdateCount(1),
+    m_HighConversationGuid(1)
 {
     m_HighItemGuid = 1;
 
@@ -5665,6 +5666,8 @@ void ObjectMgr::LoadGossipText()
 
         GossipText& gText = _gossipTextStore[Text_ID];
 
+        gText.SoundID = fields[cic++].GetUInt32();
+
         for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; i++)
         {
             gText.Options[i].Text_0           = fields[cic++].GetString();
@@ -6895,6 +6898,11 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             ASSERT(_hiMoTransGuid < 0xFFFFFFFE && "MO Transport guid overflow!");
             return _hiMoTransGuid++;
         }
+        case HIGHGUID_CONVERSATION:
+        {
+            ASSERT(m_HighConversationGuid < 0xFFFFFFFE && "Conversation guid overflow!");
+            return m_HighConversationGuid++;
+        }
         default:
             ASSERT(false && "ObjectMgr::GenerateLowGuid - Unknown HIGHGUID type");
             return 0;
@@ -7003,8 +7011,8 @@ void ObjectMgr::LoadGameObjectTemplate()
                                              "questItem4, questItem5, questItem6, data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, "
     //                                          29      30      31      32      33      34      35      36      37      38      39      40      41      42      43      44
                                              "data13, data14, data15, data16, data17, data18, data19, data20, data21, data22, data23, data24, data25, data26, data27, data28, "
-    //                                          45      46      47       48       49        50      51
-                                             "data29, data30, data31,  data32, unkInt32, AIName, ScriptName "
+    //                                          45      46      47       48       49        50            51        52
+                                             "data29, data30, data31,  data32, unkInt32, WorldEffectID, AIName, ScriptName "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -7041,8 +7049,9 @@ void ObjectMgr::LoadGameObjectTemplate()
             got.raw.data[i] = fields[16 + i].GetUInt32();
 
         got.unkInt32 = fields[49].GetInt32();
-        got.AIName = fields[50].GetString();
-        got.ScriptId = GetScriptId(fields[51].GetCString());
+        got.WorldEffectID = fields[50].GetUInt32();
+        got.AIName = fields[51].GetString();
+        got.ScriptId = GetScriptId(fields[52].GetCString());
 
         // Checks
 
@@ -11147,4 +11156,73 @@ void ObjectMgr::LoadDisabledEncounters()
     while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u disabled ranking in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadConversationTemplates()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    /// For reload case
+    m_ConversationTemplates.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT Entry, Duration, ActorsCount, Actors FROM conversation_template");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 conversation template. DB table `conversation_template` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        ConversationTemplate l_Conversation;
+
+        Field* l_Fields             = l_Result->Fetch();
+        uint8 l_Index               = 0;
+
+        l_Conversation.Entry        = l_Fields[l_Index++].GetUInt32();
+        l_Conversation.Duration     = l_Fields[l_Index++].GetUInt32();
+
+        uint32 l_ActorsCount        = l_Fields[l_Index++].GetUInt32();
+
+        Tokenizer l_Tokens(l_Fields[l_Index++].GetString(), ' ', l_ActorsCount);
+
+        if (l_Tokens.size() == l_ActorsCount)
+        {
+            for (uint8 l_I = 0; l_I < l_Tokens.size(); ++l_I)
+                l_Conversation.Actors.push_back(uint32(atoi(l_Tokens[l_I])));
+        }
+
+        QueryResult l_LinesResult = WorldDatabase.PQuery("SELECT LineID, BroadcastTextID, UnkValue, Timer, Type FROM conversation_lines WHERE Entry = %u", l_Conversation.Entry);
+
+        /// Conversation with no lines must not be loaded
+        if (!l_LinesResult)
+        {
+            sLog->outError(LogFilterType::LOG_FILTER_SERVER_LOADING, "Conversation %u doesn't have any record in conversation_lines!", l_Conversation.Entry);
+            continue;
+        }
+
+        do
+        {
+            ConversationLine l_ConversationLine;
+
+            l_Fields                            = l_LinesResult->Fetch();
+            l_Index                             = 0;
+            l_ConversationLine.LineID           = l_Fields[l_Index++].GetUInt32();
+            l_ConversationLine.BroadcastTextID  = l_Fields[l_Index++].GetUInt32();
+            l_ConversationLine.UnkValue         = l_Fields[l_Index++].GetUInt32();
+            l_ConversationLine.Timer            = l_Fields[l_Index++].GetUInt32();
+            l_ConversationLine.Type             = l_Fields[l_Index++].GetUInt32();
+
+            l_Conversation.Lines.push_back(l_ConversationLine);
+        }
+        while (l_LinesResult->NextRow());
+
+        m_ConversationTemplates.insert(std::make_pair(l_Conversation.Entry, l_Conversation));
+
+        l_Count++;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u conversation templates in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }

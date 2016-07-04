@@ -3569,6 +3569,16 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_1].TargetB = 0;
                 break;
+            case 158724: ///< End Ship Phase (Iron Maidens)
+                spellInfo->Effects[EFFECT_2].Effect = 0;
+                break;
+            case 158730: ///< Dreadnaught Destruction (Iron Maidens)
+                spellInfo->Effects[EFFECT_1].ValueMultiplier = 40.0f;
+                spellInfo->Effects[EFFECT_1].MiscValue = 250;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_1].TargetB = 0;
+                spellInfo->Effects[EFFECT_2].Effect = 0;
+                break;
             case 175643: ///< Spinning Blade (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
@@ -3592,12 +3602,17 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
             case 159632: ///< Insatiable Hunger
+            case 156631: ///< Rapid Fire (Admiral Gar'an - Iron Maidens)
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 160665: ///< Rolling Box (Oregorger)
             case 160833: ///< Bust Loose (Heart of the Mountain)
             case 155738: ///< Slag Pool (Heart of the Mountain)
             case 155224: ///< Melt (Heart of the Mountain)
+            case 156220: ///< Tactical Retreat
+            case 156883: ///< Tactical Retreat (Other)
+            case 163636: ///< Firestorm V2 Missile (Firestorm Stalker)
+            case 162757: ///< Ice Trap (Iron Marksman)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 114956: ///< Nether Tempest (launcher visual)
@@ -3633,6 +3648,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
+            case 158702: ///< Fixate (Iron Eviscerator - Iron Maidens)
+                spellInfo->MaxAffectedTargets = 1;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
             case 159115: ///< Erupt (Firecaller)
                 spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
                 break;
@@ -3666,12 +3685,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
-            case 156220: ///< Tactical Retreat
-            case 156883: ///< Tactical Retreat (Other)
-            case 163636: ///< Firestorm V2 Missile (Firestorm Stalker)
-            case 162757: ///< Ice Trap (Iron Marksman)
-                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
-                break;
             case 155747: ///< Body Slam
             case 157923: ///< Jump Slam
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
@@ -3694,6 +3707,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 154932: ///< Molten Torrent (aura - Flamebender Ka'graz)
             case 161570: ///< Searing Plates (DoT - Franzok)
             case 159481: ///< Delayed Siege Bomb (Channel - Iron Gunnery Sergeant)
+            case 164271: ///< Penetrating Shot - Aura (Admiral Gar'an - Iron Maidens)
+            case 158010: ///< Bloodsoaked Heartseeker - Marker (Marak the Blooded - Iron Maidens)
+            case 159724: ///< Blood Ritual - Aura (Marak the Blooded - Iron Maidens)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 156039: ///< Drop the Hammer (Aknor Steelbringer)
@@ -3773,6 +3789,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 154951: ///< Pin Down (Beastlord Darmac)
             case 163045: ///< Flame Vent Cosmetics (Flame Vent)
+            case 158599: ///< Deploy Turret (Admiral Gar'an - Iron Maidens)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
@@ -3805,6 +3822,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158084: ///< Delayed Siege Bomb - Damage (Iron Gunnery Sergeant)
             case 160050: ///< Delayed Siege Bomb - Damage (Operator Thogar)
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 171209: ///< Load Crate (Iron Dockworker - Iron Maidens intro)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 158008: ///< Bloodsoaked Heartseeker - Cast (Marak the Blooded - Iron Maidens)
+            case 159585: ///< Deploy Turret - Jump (Admiral Gar'an - Iron Maidens)
+                spellInfo->SpellPowers.clear();
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
@@ -7518,6 +7542,16 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160050: ///< Delayed Siege Bomb - Damage (Operator Thogar)
             case 165195: ///< Prototype Pulse Grenade - DoT (Operator Thogar)
             case 156553: ///< Moving Train (Operator Thogar)
+            case 171614: ///< Inferno (Inferno Totem - Iron Earthbinder)
+            case 156637: ///< Rapid Fire - AoE (Admiral Gar'an - Iron Maidens)
+            case 158078: ///< Blood Ritual - AoE (Marak the Blooded - Iron Maidens)
+            case 164279: ///< Penetrating Shot (Admiral Gar'an - Iron Maidens)
+            case 156610: ///< Sanguine Strikes - proc (Marak the Blooded - Iron Maidens)
+            case 158710: ///< Chain Lightning (Battle Medic Rogg - Iron Maidens)
+            case 158695: ///< Grapeshot Blast (Uktar - Iron Maidens)
+            case 158684: ///< Corrupted Blood - DoT (Uk'urogg - Iron Maidens)
+            case 160733: ///< Bomb Impact - AoE (Iron Cannon - Iron Maidens)
+            case 157884: ///< Detonation Sequence - AoE (Cluster Bomb Alpha - Iron Maidens)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:

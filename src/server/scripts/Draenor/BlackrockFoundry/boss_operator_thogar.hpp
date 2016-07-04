@@ -1178,7 +1178,7 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
                                         return;
 
                                     Creature* l_Passenger = sObjectAccessor->FindCreature(l_PassengerGuid);
-                                    if (l_Waggon == nullptr)
+                                    if (l_Passenger == nullptr)
                                         return;
 
                                     l_Passenger->EnterVehicle(l_Waggon, l_OtherSeatID);

@@ -872,6 +872,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
         case TARGET_SELECT_CATEGORY_NEARBY:
         case TARGET_SELECT_CATEGORY_CONE:
         case TARGET_SELECT_CATEGORY_AREA:
+        case TARGET_SELECT_CATEGORY_CYLINDER:
             // targets for effect already selected
             if (effectMask & processedEffectMask)
                 return;
@@ -904,6 +905,9 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
             break;
         case TARGET_SELECT_CATEGORY_AREA:
             SelectImplicitAreaTargets(effIndex, targetType, effectMask);
+            break;
+        case TARGET_SELECT_CATEGORY_CYLINDER:
+            SelectImplicitCylinderTargets(effIndex, targetType, effectMask);
             break;
         case TARGET_SELECT_CATEGORY_DEFAULT:
             switch (targetType.GetObjectType())
@@ -1239,6 +1243,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
             ASSERT(false && "Spell::SelectImplicitAreaTargets: received not implemented target reference type");
             return;
     }
+
     if (!l_Referer)
         return;
 
@@ -1608,6 +1613,96 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
 
         for (std::list<AreaTrigger*>::iterator l_Iterator = l_AreaTriggerTargets.begin(); l_Iterator != l_AreaTriggerTargets.end(); ++l_Iterator)
             AddAreaTriggerTarget(*l_Iterator, p_EffMask);
+    }
+}
+
+void Spell::SelectImplicitCylinderTargets(SpellEffIndex p_EffIndex, SpellImplicitTargetInfo const& p_TargetType, uint32 p_EffMask)
+{
+    Position const* l_Src = m_caster;
+    Position const* l_Dst = nullptr;
+
+    switch (p_TargetType.GetReferenceType())
+    {
+        case SpellTargetReferenceTypes::TARGET_REFERENCE_TYPE_SRC:
+        case SpellTargetReferenceTypes::TARGET_REFERENCE_TYPE_CASTER:
+            l_Dst = m_caster;
+            break;
+        case SpellTargetReferenceTypes::TARGET_REFERENCE_TYPE_DEST:
+            l_Dst = m_targets.GetDstPos();
+            break;
+        case SpellTargetReferenceTypes::TARGET_REFERENCE_TYPE_TARGET:
+            l_Dst = m_targets.GetUnitTarget();
+            break;
+        default:
+            ASSERT(false && "Spell::SelectImplicitCylinderTargets: received not implemented target reference type");
+            return;
+    }
+
+    if (l_Dst == nullptr)
+        return;
+
+    float l_Width   = 0.0f;
+    float l_Radius  = m_spellInfo->Effects[p_EffIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+
+    /// Handle ConeAngle calculation in a generic way, overriding hard coded values if needed
+    if (SpellTargetRestrictionsEntry const* l_Restrictions = m_spellInfo->GetSpellTargetRestrictions())
+    {
+        if (l_Restrictions->Width != 0.0f)
+            l_Width = l_Restrictions->Width;
+    }
+
+    std::list<WorldObject*> l_Targets;
+
+    SpellTargetObjectTypes l_ObjectType     = p_TargetType.GetObjectType();
+    SpellTargetCheckTypes l_SelectionType   = p_TargetType.GetCheckType();
+    ConditionContainer* l_ConditionsList    = m_spellInfo->Effects[p_EffIndex].ImplicitTargetConditions;
+
+    if (uint32 l_ContainerTypeMask = GetSearcherTypeMask(l_ObjectType, l_ConditionsList))
+    {
+        JadeCore::WorldObjectSpellWidthTargetCheck l_Check(l_Width, l_Radius, m_caster, m_spellInfo, l_SelectionType, l_ConditionsList);
+        JadeCore::WorldObjectListSearcher<JadeCore::WorldObjectSpellWidthTargetCheck> l_Searcher(m_caster, l_Targets, l_Check, l_ContainerTypeMask);
+        SearchTargets<JadeCore::WorldObjectListSearcher<JadeCore::WorldObjectSpellWidthTargetCheck> >(l_Searcher, l_ContainerTypeMask, m_caster, m_caster, l_Radius);
+
+        CallScriptObjectAreaTargetSelectHandlers(l_Targets, p_EffIndex);
+
+        if (!l_Targets.empty())
+        {
+            /// Other special target selection goes here
+            if (uint32 l_MaxTargets = m_spellValue->MaxAffectedTargets)
+                JadeCore::Containers::RandomResizeList(l_Targets, l_MaxTargets);
+        }
+
+        std::list<Unit*>        l_UnitTargets;
+        std::list<GameObject*>  l_GObjTargets;
+        std::list<AreaTrigger*> l_AreaTriggerTargets;
+
+        for (WorldObject* l_Iter : l_Targets)
+        {
+            switch (l_Iter->GetTypeId())
+            {
+                case TypeID::TYPEID_UNIT:
+                case TypeID::TYPEID_PLAYER:
+                    l_UnitTargets.push_back(l_Iter->ToUnit());
+                    break;
+                case TypeID::TYPEID_GAMEOBJECT:
+                    l_GObjTargets.push_back(l_Iter->ToGameObject());
+                    break;
+                case TypeID::TYPEID_AREATRIGGER:
+                    l_AreaTriggerTargets.push_back(l_Iter->ToAreaTrigger());
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        for (Unit* l_Iter : l_UnitTargets)
+            AddUnitTarget(l_Iter, p_EffMask, false);
+
+        for (GameObject* l_Iter : l_GObjTargets)
+            AddGOTarget(l_Iter, p_EffMask);
+
+        for (AreaTrigger* l_Iter : l_AreaTriggerTargets)
+            AddAreaTriggerTarget(l_Iter, p_EffMask);
     }
 }
 
@@ -9581,6 +9676,21 @@ bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target)
 {
     if (!target->IsWithinDist3d(_position, _range))
         return false;
+
+    if (Unit* l_Target = target->ToUnit())
+    {
+        if (_caster->IsFriendlyTo(l_Target))
+        {
+            if (!_caster->IsValidAssistTarget(l_Target))
+                return false;
+        }
+        else
+        {
+            if (!_caster->IsValidAttackTarget(l_Target))
+                return false;
+        }
+    }
+
     return WorldObjectSpellTargetCheck::operator ()(target);
 }
 
@@ -9611,6 +9721,26 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)
         }
     }
     return WorldObjectSpellAreaTargetCheck::operator ()(target);
+}
+
+WorldObjectSpellWidthTargetCheck::WorldObjectSpellWidthTargetCheck(float p_Width, float p_Range, Unit* p_Caster,
+    SpellInfo const* p_SpellInfo, SpellTargetCheckTypes p_SelectionType, ConditionContainer* p_CondList)
+    : WorldObjectSpellAreaTargetCheck(p_Range, p_Caster, p_Caster, p_Caster, p_SpellInfo, p_SelectionType, p_CondList), m_Width(p_Width)
+{
+}
+
+bool WorldObjectSpellWidthTargetCheck::operator()(WorldObject* p_Target)
+{
+    if (p_Target == nullptr)
+        return false;
+
+    if (!p_Target->IsPlayer() && _spellInfo->AttributesEx3 & SpellAttr3::SPELL_ATTR3_ONLY_TARGET_PLAYERS)
+        return false;
+
+    if (!_caster->HasInLine(p_Target, m_Width))
+        return false;
+
+    return WorldObjectSpellAreaTargetCheck::operator()(p_Target);
 }
 
 WorldObjectSpellTrajTargetCheck::WorldObjectSpellTrajTargetCheck(float range, Position const* position, Unit* caster, SpellInfo const* spellInfo)

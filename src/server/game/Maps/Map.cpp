@@ -2543,6 +2543,9 @@ void Map::RemoveAllObjectsInRemoveList()
         case TYPEID_AREATRIGGER:
             RemoveFromMap((AreaTrigger*)obj, true);
             break;
+        case TYPEID_CONVERSATION:
+            RemoveFromMap((Conversation*)obj, true);
+            break;
         case TYPEID_GAMEOBJECT:
             RemoveFromMap((GameObject*)obj, true);
             break;
@@ -2676,12 +2679,14 @@ template bool Map::AddToMap(Creature*);
 template bool Map::AddToMap(GameObject*);
 template bool Map::AddToMap(DynamicObject*);
 template bool Map::AddToMap(AreaTrigger*);
+template bool Map::AddToMap(Conversation*);
 
 template void Map::RemoveFromMap(Corpse*, bool);
 template void Map::RemoveFromMap(Creature*, bool);
 template void Map::RemoveFromMap(GameObject*, bool);
 template void Map::RemoveFromMap(DynamicObject*, bool);
 template void Map::RemoveFromMap(AreaTrigger*, bool);
+template void Map::RemoveFromMap(Conversation*, bool);
 
 template void Map::AddToActive(DynamicObject*);
 template void Map::RemoveFromActive(DynamicObject*);
@@ -3325,6 +3330,11 @@ Transport* Map::GetTransport(uint64 guid)
 AreaTrigger* Map::GetAreaTrigger(uint64 p_Guid)
 {
     return ObjectAccessor::GetObjectInMap(p_Guid, this, (AreaTrigger*)nullptr);
+}
+
+Conversation* Map::GetConversation(uint64 p_Guid)
+{
+    return ObjectAccessor::GetObjectInMap(p_Guid, this, (Conversation*)nullptr);
 }
 
 void Map::UpdateIteratorBack(Player* player)

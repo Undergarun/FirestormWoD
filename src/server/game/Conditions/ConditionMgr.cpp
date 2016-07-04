@@ -437,6 +437,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
                 case TYPEID_AREATRIGGER:
                     mask |= GRID_MAP_TYPE_MASK_AREATRIGGER;
                     break;
+                case TYPEID_CONVERSATION:
+                    mask |= GRID_MAP_TYPE_MASK_CONVERSATION;
+                    break;
                 default:
                     break;
             }
@@ -451,6 +454,8 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
                 mask |= GRID_MAP_TYPE_MASK_CORPSE;
             if (ConditionValue1 & TYPEMASK_AREATRIGGER)
                 mask |= GRID_MAP_TYPE_MASK_AREATRIGGER;
+            if (ConditionValue1 & TYPEMASK_CONVERSATION)
+                mask |= GRID_MAP_TYPE_MASK_CONVERSATION;
             break;
         case CONDITION_RELATION_TO:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
@@ -1452,6 +1457,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                     case TARGET_SELECT_CATEGORY_NEARBY:
                     case TARGET_SELECT_CATEGORY_CONE:
                     case TARGET_SELECT_CATEGORY_AREA:
+                    case TARGET_SELECT_CATEGORY_CYLINDER:
                         continue;
                     default:
                         break;
@@ -1462,12 +1468,13 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                     case TARGET_SELECT_CATEGORY_NEARBY:
                     case TARGET_SELECT_CATEGORY_CONE:
                     case TARGET_SELECT_CATEGORY_AREA:
+                    case TARGET_SELECT_CATEGORY_CYLINDER:
                         continue;
                     default:
                         break;
                 }
 
-                sLog->outError(LOG_FILTER_SQL, "SourceEntry %u SourceGroup %u in `condition` table - spell %u does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_ for effect %u, SourceGroup needs correction, ignoring.", cond->SourceEntry, origGroup, cond->SourceEntry, uint32(i));
+                sLog->outError(LOG_FILTER_SQL, "SourceEntry %u SourceGroup %u in `condition` table - spell %u does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_, _CYLINDER_ for effect %u, SourceGroup needs correction, ignoring.", cond->SourceEntry, origGroup, cond->SourceEntry, uint32(i));
                 cond->SourceGroup &= ~(1<<i);
             }
             // all effects were removed, no need to add the condition at all

@@ -64,6 +64,7 @@ WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, uint64 guid)
         case HIGHGUID_DYNAMICOBJECT: return GetDynamicObject(p, guid);
         case HIGHGUID_AREATRIGGER:   return GetAreaTrigger(p, guid);
         case HIGHGUID_CORPSE:        return GetCorpse(p, guid);
+        case HIGHGUID_CONVERSATION:  return GetConversation(p, guid);
         default:                     return NULL;
     }
 }
@@ -105,6 +106,10 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, uint64 guid, u
             break;
         case HIGHGUID_CORPSE:
             break;
+        case HIGHGUID_CONVERSATION:
+            if (typemask & TYPEMASK_CONVERSATION)
+                return GetConversation(p, guid);
+            break;
     }
 
     return NULL;
@@ -137,6 +142,11 @@ DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, uint64 gui
 AreaTrigger* ObjectAccessor::GetAreaTrigger(WorldObject const& u, uint64 guid)
 {
     return GetObjectInMap(guid, u.GetMap(), (AreaTrigger*)NULL);
+}
+
+Conversation* ObjectAccessor::GetConversation(WorldObject const& p_U, uint64 p_Guid)
+{
+    return GetObjectInMap(p_Guid, p_U.GetMap(), (Conversation*)nullptr);
 }
 
 Unit* ObjectAccessor::GetUnit(WorldObject const& u, uint64 guid)
@@ -444,3 +454,4 @@ template GameObject* ObjectAccessor::GetObjectInWorld<GameObject>(uint32 mapid, 
 template DynamicObject* ObjectAccessor::GetObjectInWorld<DynamicObject>(uint32 mapid, float x, float y, uint64 guid, DynamicObject* /*fake*/);
 template Transport* ObjectAccessor::GetObjectInWorld<Transport>(uint32 mapid, float x, float y, uint64 guid, Transport* /*fake*/);
 template AreaTrigger* ObjectAccessor::GetObjectInWorld<AreaTrigger>(uint32 p_MapID, float p_X, float p_Y, uint64 p_Guid, AreaTrigger* /*p_Fake*/);
+template Conversation* ObjectAccessor::GetObjectInWorld<Conversation>(uint32 p_MapID, float p_X, float p_Y, uint64 p_Guid, Conversation* /*p_Fake*/);

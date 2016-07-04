@@ -83,9 +83,19 @@ Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float 
     return SelectTarget(targetType, position, DefaultTargetSelector(me, dist, playerOnly, aura));
 }
 
+Unit* UnitAI::SelectTarget(SelectAggroTarget p_TargetType, uint32 p_Position, float p_Dist, bool p_Player, std::vector<int32> p_ExcludeAuras)
+{
+    return SelectTarget(p_TargetType, p_Position, DefaultTargetSelector(me, p_Dist, p_Player, p_ExcludeAuras));
+}
+
 void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
 {
     SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura), num, targetType);
+}
+
+void UnitAI::SelectTargetList(std::list<Unit*>& p_TargetList, uint32 p_Num, SelectAggroTarget p_TargetType, float p_Dist, bool p_Player, std::vector<int32> p_ExcludeAuras)
+{
+    SelectTargetList(p_TargetList, DefaultTargetSelector(me, p_Dist, p_Player, p_ExcludeAuras), p_Num, p_TargetType);
 }
 
 Player* UnitAI::SelectRangedTarget(bool p_AllowHeal /*= true*/, int32 p_CheckAura /*= 0*/) const
