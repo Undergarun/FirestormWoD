@@ -114,8 +114,6 @@ namespace MS { namespace Garrison
             std::vector<uint32>& GetGarrisonDailyTavernDatas() { return m_GarrisonDailyTavernData; };
             /// Return Weekly Tavern Datas
             std::vector<WeeklyTavernData>& GetGarrisonWeeklyTavernDatas() { return m_GarrisonWeeklyTavernData; };
-            /// Get Garrison Owner
-            Player* GetOwner() { return m_Owner; };
 
         /// Mission section
         public:

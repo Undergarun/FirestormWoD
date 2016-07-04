@@ -3054,8 +3054,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
         default:
             break;
     }
-
-    return sScriptMgr->OnCriteriaCheck(ScriptId, p_ReferencePlayer, p_Unit);
+    return true;
 }
 
 template<class T>
