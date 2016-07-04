@@ -5291,6 +5291,7 @@ class spell_gen_wyrmhunter_hooks : public SpellScriptLoader
 
 /// Last Update 6.2.3
 /// Demon Hunter's Aspect - 113095
+uint32 MaleModels[] = { 20122, 20124, 20130, 20131, 20132, 20133, 20134, 20756, 20757, 20758, 20759 };
 class spell_gen_demon_hunters_aspect : public SpellScriptLoader
 {
     public:
@@ -5302,7 +5303,7 @@ class spell_gen_demon_hunters_aspect : public SpellScriptLoader
 
             enum eDatas
             {
-                MorphMale = 35911
+                FemaleModel = 20126
             };
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -5312,10 +5313,13 @@ class spell_gen_demon_hunters_aspect : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
+                /// Random model
+                uint8 l_RandomModel = urand(0, 10);
+
                 if (l_Player->getGender() == GENDER_MALE)
-                    l_Player->SetDisplayId(eDatas::MorphMale);
+                    l_Player->SetDisplayId(MaleModels[l_RandomModel]);
                 else ///< TODO : Fine display ID female
-                    l_Player->SetDisplayId(eDatas::MorphMale);
+                    l_Player->SetDisplayId(eDatas::FemaleModel);
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

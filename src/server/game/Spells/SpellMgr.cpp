@@ -5460,12 +5460,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
                 break;
-            case 165336:///< Item - Warrior T17 Arms 2P Bonus
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
-                spellInfo->Effects[EFFECT_1].Effect = 0;
-                spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
-                break;
             case 165437:///< Item - Druid T17 Restoration 2P Bonus
                 spellInfo->Effects[EFFECT_0].BasePoints = 2;
                 break;
@@ -5525,6 +5519,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 109306: ///< Thrill of the Hunt
                 spellInfo->ProcChance = 0;
+                break;
+            case 4074: ///< Explosive Sheep
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(25); ///< 3min
                 break;
             case 24529: ///< Glyph of Animal Bond
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -6442,6 +6439,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 174004:///< Spirit of Shinri
                 spellInfo->Effects[1].MiscValue = 82415;
+                break;
+            case 165201:///< Mind Blast (cooldown reduce)
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_COOLDOWN_BY_HASTE;
+                spellInfo->Effects[1].MiscValue = 11;
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)

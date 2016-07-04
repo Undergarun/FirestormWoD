@@ -26034,7 +26034,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
     }
 
     data.appendPackGUID(playerGuid);
-    data << uint8(1);
+    data << uint8(0);
     data << uint32(counter);
     data.append(dataBuffer);
 
@@ -33991,6 +33991,30 @@ void Player::SendSpellCharges()
     SendDirectMessage(&l_Data);
 }
 
+void Player::SendSpellCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
+{
+    WorldPacket l_Data(SMSG_SEND_SPELL_CHARGES, 4 + 1 * 9);
+
+    l_Data << uint32(1);
+
+    Clock::time_point l_Now = Clock::now();
+    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
+    if (l_Itr != m_CategoryCharges.end())
+    {
+        if (!l_Itr->second.empty())
+        {
+            std::chrono::milliseconds l_CooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(l_Itr->second.front().RechargeEnd - l_Now);
+            if (l_CooldownDuration.count() > 0)
+            {
+                l_Data << uint32(l_Itr->first);
+                l_Data << uint32(l_CooldownDuration.count());
+                l_Data << uint8(l_Itr->second.size());
+            }
+        }
+    }
+    SendDirectMessage(&l_Data);
+}
+
 void Player::SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry)
 {
     if (!p_ChargeCategoryEntry)
@@ -33998,7 +34022,7 @@ void Player::SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry
 
     Clock::time_point l_Now = Clock::now(); ///< l_Now is unused
     auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
-    if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
+    if (l_Itr != m_CategoryCharges.end())
     {
         uint32 l_ConsumedCharges = l_Itr->second.size();
         bool   l_IsPet = false;
@@ -34032,8 +34056,24 @@ void Player::UpdateCharges()
         while (!l_ChargeRefreshTimes.empty() && l_ChargeRefreshTimes.front().RechargeEnd <= l_Now)
         {
             l_ChargeRefreshTimes.pop_front();
-            SendSpellCharges();
+
+            SpellCategoryEntry const* l_CategoryEntry = sSpellCategoryStore.LookupEntry(l_CategoryCharge.first);
+            if (l_CategoryEntry != nullptr)
+                SendSetSpellCharges(l_CategoryEntry);
         }
+    }
+}
+
+void Player::UpdateCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
+{
+    Clock::time_point l_Now = Clock::now();
+
+    std::deque<ChargeEntry>& l_Charges = m_CategoryCharges[p_ChargeCategoryEntry->Id];
+
+    while (!l_Charges.empty() && l_Charges.front().RechargeEnd <= l_Now)
+    {
+        l_Charges.pop_front();
+        SendSetSpellCharges(p_ChargeCategoryEntry);
     }
 }
 
@@ -34068,17 +34108,14 @@ void Player::ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntr
 
     Clock::time_point l_Now = Clock::now();
 
-    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
-    if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
+    std::deque<ChargeEntry>& l_Charges = m_CategoryCharges[p_ChargeCategoryEntry->Id];
+    for (ChargeEntry& l_Entry : l_Charges)
     {
-        Clock::time_point l_NewRechargeEnd = l_Itr->second.back().RechargeEnd - std::chrono::milliseconds(p_Reductiontime);
-        if (l_NewRechargeEnd > l_Now)
-            l_Itr->second.back().RechargeEnd = l_NewRechargeEnd;
-        else
-            l_Itr->second.pop_back();
-
-        SendSpellCharges();
+        l_Entry.RechargeStart -= std::chrono::milliseconds(p_Reductiontime);
+        l_Entry.RechargeEnd -= std::chrono::milliseconds(p_Reductiontime);
     }
+    UpdateCharge(p_ChargeCategoryEntry);
+    SendSpellCharge(p_ChargeCategoryEntry);
 }
 
 void Player::RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)

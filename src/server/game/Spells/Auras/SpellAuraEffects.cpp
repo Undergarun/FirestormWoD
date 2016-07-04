@@ -4372,7 +4372,8 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                     | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
                     | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
                     | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
-                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
+                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN)
+                    | (1 << MECHANIC_BANISH);
 
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, apply);
@@ -4386,6 +4387,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, apply);
+                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_BANISH, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, apply);
                 target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, apply);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
@@ -7549,7 +7551,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             int32 l_MaxTicksCount = l_Amplitude == 0 ? 0 : int32(l_MaxDuration / l_Amplitude);
 
             /// If it was last tick, we should deal instant damage, according to left duration and this left damage can be dealed just if left duration smaller then amplitude
-            if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)
+            if (l_MaxDuration != -1 && l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)
             {
                 uint32 l_LeftDamage = int32((float(l_LeftDuration) / float(l_Amplitude)) * damage);
 

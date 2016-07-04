@@ -5117,6 +5117,45 @@ class spell_item_the_perfect_blossom : public SpellScriptLoader
         }
 };
 
+/// Swapblaster - 161399
+class spell_item_Swapblaster : public SpellScriptLoader
+{
+    public:
+        spell_item_Swapblaster() : SpellScriptLoader("spell_item_Swapblaster") { }
+
+        class spell_item_Swapblaster_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_Swapblaster_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                float l_X = l_Target->GetPositionX();
+                float l_Y = l_Target->GetPositionY();
+                float l_Z = l_Target->GetPositionZ();
+                float l_Orientation = l_Target->GetOrientation();
+
+                l_Target->NearTeleportTo(l_Caster->GetPositionX(), l_Caster->GetPositionY(), l_Caster->GetPositionZ(), l_Caster->GetOrientation());
+                l_Caster->NearTeleportTo(l_X, l_Y, l_Z, l_Orientation);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_item_Swapblaster_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_Swapblaster_SpellScript();
+        }
+};
+
 
 #ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
@@ -5134,6 +5173,7 @@ void AddSC_item_spell_scripts()
     // 23075 Mithril Mechanical Dragonling
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
     new spell_item_deviate_fish();
+    new spell_item_Swapblaster();
     new spell_item_super_simian_sphere();
     new spell_item_the_perfect_blossom();
     new spell_item_mystic_image();
