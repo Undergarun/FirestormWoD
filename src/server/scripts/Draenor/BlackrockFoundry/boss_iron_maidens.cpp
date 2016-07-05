@@ -482,7 +482,10 @@ class boss_admiral_garan : public CreatureScript
                         AddTimedDelayedOperation(10, [this]() -> void
                         {
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true))
+                            {
+                                AttackStart(l_Target);
                                 me->GetMotionMaster()->MoveChase(l_Target);
+                            }
                         });
 
                         break;
@@ -1078,7 +1081,10 @@ class boss_enforcer_sorka : public CreatureScript
                         AddTimedDelayedOperation(10, [this]() -> void
                         {
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true))
+                            {
+                                AttackStart(l_Target);
                                 me->GetMotionMaster()->MoveChase(l_Target);
+                            }
                         });
 
                         break;
@@ -1698,7 +1704,10 @@ class boss_marak_the_blooded : public CreatureScript
                         AddTimedDelayedOperation(10, [this]() -> void
                         {
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true))
+                            {
+                                AttackStart(l_Target);
                                 me->GetMotionMaster()->MoveChase(l_Target);
+                            }
                         });
 
                         break;
