@@ -1166,7 +1166,7 @@ class spell_rog_blade_flurry: public SpellScriptLoader
                     if (l_ProcSpell && !l_ProcSpell->CanTriggerBladeFlurry())
                         return;
 
-                    if (Unit* l_Target = l_Caster->SelectNearbyTarget(p_EventInfo.GetActionTarget(), NOMINAL_MELEE_RANGE, 0U, true, true, false, true))
+                    if (Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim())
                         l_Caster->CastCustomSpell(l_Target, ROGUE_SPELL_BLADE_FLURRY_DAMAGE, &l_Damage, NULL, NULL, true);
                 }
             }
@@ -1180,6 +1180,53 @@ class spell_rog_blade_flurry: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_rog_blade_flurry_AuraScript();
+        }
+};
+
+/// Last Update 6.1.2
+/// Blade Flurry (damage) - 22482
+class spell_rog_blade_flurry_damage : public SpellScriptLoader
+{
+    public:
+        spell_rog_blade_flurry_damage() : SpellScriptLoader("spell_rog_blade_flurry_damage") { }
+
+        class spell_rog_blade_flurry_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_blade_flurry_damage_SpellScript);
+
+            uint64 m_MainTargetGUID = 0;
+
+            void HandleOnCast()
+            {
+                Unit* l_MainTarget = GetExplTargetUnit();
+
+                if (l_MainTarget == nullptr)
+                    return;
+
+                m_MainTargetGUID = l_MainTarget->GetGUID();
+            }
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->GetGUID() == m_MainTargetGUID)
+                    PreventHitDamage();
+            }
+
+            void Register() override
+            {
+                OnCast += SpellCastFn(spell_rog_blade_flurry_damage_SpellScript::HandleOnCast);
+                OnEffectHitTarget += SpellEffectFn(spell_rog_blade_flurry_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_rog_blade_flurry_damage_SpellScript();
         }
 };
 
@@ -3587,6 +3634,7 @@ public:
 #ifndef __clang_analyzer__
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_blade_flurry_damage();
     new spell_rog_anticipation_special_procs();
     new spell_rog_kick();
     new spell_rog_distract();
