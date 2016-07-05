@@ -1001,8 +1001,21 @@ class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
                 GlyphofZenFocusAura = 159545,
                 GlyphofZenFocus     = 159546,
                 T17Mistweaver4P     = 167717,
-                ChiEnergizer        = 169719
+                ChiEnergizer        = 169719,
+                SoothingMist        = 115175
             };
+
+            void HandleOnPrepare()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == eSpells::SoothingMist)
+                    {
+                        TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+                        GetSpell()->setTriggerCastFlags(l_Flags);
+                    }
+                }
+            }
 
             void HandleOnHit()
             {
@@ -1022,13 +1035,14 @@ class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_monk_item_s12_4p_mistweaver_SpellScript::HandleOnHit);
+                OnPrepare += SpellOnPrepareFn(spell_monk_item_s12_4p_mistweaver_SpellScript::HandleOnPrepare);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_item_s12_4p_mistweaver_SpellScript();
         }
