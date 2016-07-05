@@ -35,7 +35,7 @@ namespace MS { namespace Garrison
         m_CacheLastTokenAmount = 0;
 
         m_GarrisonScript = nullptr;
-        m_CanRecruitFollower = p_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTavernBoolCanRecruitFollower) == 0;
+        m_CanRecruitFollower = p_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTavernBoolCanRecruitFollower);
 
         /// Select Garrison site ID
         switch (GetGarrisonFactionIndex())

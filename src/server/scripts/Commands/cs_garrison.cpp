@@ -67,19 +67,20 @@ class garrison_commandscript: public CommandScript
 
             static ChatCommand garrisonCommandTable[] =
             {
-                { "blueprint", SEC_ADMINISTRATOR,  true,   NULL, "",       blueprintCommandTable },
-                { "plot",      SEC_ADMINISTRATOR,  true,   NULL, "",       plotCommandTable      },
-                { "follower",  SEC_ADMINISTRATOR,  true,   NULL, "",       followerCommandTable  },
-                { "mission" ,  SEC_ADMINISTRATOR,  true,   NULL, "",       missionCommandTable   },
-                { "building",  SEC_ADMINISTRATOR,  true,   NULL, "",       buildingCommandTable  },
-                { "shipment",  SEC_ADMINISTRATOR,  true,   NULL, "",       shipmentCommandTable  },
-                { "info",      SEC_ADMINISTRATOR,  true,   &HandleGarrisonInfo,         "", NULL },
-                { "setlevel",  SEC_ADMINISTRATOR,  true,   &HandleGarrisonSetLevel,     "", NULL },
-                { "create",    SEC_ADMINISTRATOR,  true,   &HandleGarrisonCreate,       "", NULL },
-                { "prepare",   SEC_ADMINISTRATOR,  true,   &HandleGarrisonPrepare,       "", NULL },
-                { "delete",    SEC_CONSOLE,        true,   &HandleGarrisonDelete,       "", NULL },
-                { "resetdata", SEC_ADMINISTRATOR,  true,   &HandleGarrisonResetDatas,   "", NULL },
-                { NULL,        0,                  false,  NULL,                        "", NULL }
+                { "blueprint",       SEC_ADMINISTRATOR,  true,   NULL,                             "", blueprintCommandTable },
+                { "plot",            SEC_ADMINISTRATOR,  true,   NULL,                             "", plotCommandTable      },
+                { "follower",        SEC_ADMINISTRATOR,  true,   NULL,                             "", followerCommandTable  },
+                { "mission" ,        SEC_ADMINISTRATOR,  true,   NULL,                             "", missionCommandTable   },
+                { "building",        SEC_ADMINISTRATOR,  true,   NULL,                             "", buildingCommandTable  },
+                { "shipment",        SEC_ADMINISTRATOR,  true,   NULL,                             "", shipmentCommandTable  },
+                { "info",            SEC_ADMINISTRATOR,  true,   &HandleGarrisonInfo,              "", NULL                  },
+                { "setlevel",        SEC_ADMINISTRATOR,  true,   &HandleGarrisonSetLevel,          "", NULL                  },
+                { "create",          SEC_ADMINISTRATOR,  true,   &HandleGarrisonCreate,            "", NULL                  },
+                { "prepare",         SEC_ADMINISTRATOR,  true,   &HandleGarrisonPrepare,           "", NULL                  },
+                { "delete",          SEC_CONSOLE,        true,   &HandleGarrisonDelete,            "", NULL                  },
+                { "resetdailydata",  SEC_ADMINISTRATOR,  true,   &HandleGarrisonResetDailyDatas,   "", NULL                  },
+                { "resetweeklydata", SEC_ADMINISTRATOR,  true,   &HandleGarrisonResetWeeklyDatas,  "", NULL                  },
+                { NULL,              0,                  false,  NULL,                             "", NULL                  }
             };
 
             static ChatCommand shipyardCommandTable[] =
@@ -271,7 +272,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGarrisonResetDatas(ChatHandler* p_Handler, char const* /*p_Args*/)
+        static bool HandleGarrisonResetDailyDatas(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -290,6 +291,29 @@ class garrison_commandscript: public CommandScript
             }
 
             l_TargetPlayer->ResetDailyGarrisonDatas();
+
+            return true;
+        }
+
+        static bool HandleGarrisonResetWeeklyDatas(ChatHandler* p_Handler, char const* /*p_Args*/)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer)
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->PSendSysMessage("Player doesnt have a garrison");
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            l_TargetPlayer->ResetWeeklyGarrisonDatas();
 
             return true;
         }

@@ -3504,9 +3504,6 @@ void World::ResetWeeklyGarrisonDatas()
 
         if (l_Player != nullptr)
         {
-            if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
-                l_GarrisonMgr->ResetGarrisonWeeklyTavernData();
-
             l_Player->ResetWeeklyGarrisonDatas();
             l_Player->SaveToDB();
         }

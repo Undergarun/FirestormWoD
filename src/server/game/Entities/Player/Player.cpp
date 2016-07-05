@@ -28295,6 +28295,8 @@ void Player::ResetWeeklyGarrisonDatas()
             if (GetCharacterWorldStateValue(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain) == 1)
                 SetCharacterWorldState(CharacterWorldStates::GarrisonArmoryWeeklyCurrencyGain, 0);
         }
+
+        l_Garrison->ResetGarrisonWeeklyTavernData();
     }
 }
 
