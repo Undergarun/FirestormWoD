@@ -1849,11 +1849,7 @@ bool Pet::IsPermanentPetFor(Player* owner)
     }
 }
 
-#ifndef CROSS
-bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry) ///< pet_number is unused
-#else /* CROSS */
 bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry)
-#endif /* CROSS */
 {
     ASSERT(map);
     SetMap(map);

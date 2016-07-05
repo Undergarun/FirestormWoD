@@ -38,9 +38,6 @@
 #include "CreatureAI.h"
 #include "Formulas.h"
 #include "Group.h"
-#ifndef CROSS
-#include "Guild.h"
-#endif /* not CROSS */
 #include "Pet.h"
 #include "Util.h"
 #include "Transport.h"
@@ -62,34 +59,31 @@
 #include "DisableMgr.h"
 #include "WeatherMgr.h"
 #include "LFGMgr.h"
-#ifndef CROSS
-#include "CharacterDatabaseCleaner.h"
-#endif /* not CROSS */
 #include "InstanceScript.h"
 #include "AccountMgr.h"
 #include "DB2Stores.h"
 #include "DBCStores.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
-#include "BattlefieldMgr.h"
-#ifndef CROSS
-#include "TicketMgr.h"
-#endif /* not CROSS */
+#include "BattlefieldMgr.h"S */
 #include "UpdateFieldFlags.h"
 #include "SceneObject.h"
-#ifndef CROSS
-#include "GarrisonMgr.hpp"
-#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
-#endif /* not CROSS */
 #include "PetBattle.h"
 #include "MSCallback.hpp"
 #include "Vignette.hpp"
 #include "WowTime.hpp"
+
 #ifndef CROSS
-#include "InterRealmOpcodes.h"
-#else /* CROSS */
-#include "InterRealmMgr.h"
-#endif /* CROSS */
+# include "CharacterDatabaseCleaner.h"
+# include "TicketMgr.h"
+# include "Guild.h"
+# include "InterRealmOpcodes.h"
+# include "GarrisonMgr.hpp"
+# include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
+#else
+# include "InterRealmMgr.h"
+#endif
+
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -163,63 +157,42 @@ bool PetQueryHolder::Initialize()
 
 #ifdef CROSS
     InterRealmDatabasePool* l_Database = sInterRealmMgr->GetClientByRealmNumber(m_RealmId)->GetDatabase();
-
-#endif /* CROSS */
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
     PreparedStatement* stmt = NULL;
 
-#ifndef CROSS
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_AURA);
-#else /* CROSS */
     stmt = l_Database->GetPreparedStatement(CHAR_SEL_PET_AURA);
-#endif /* CROSS */
     stmt->setUInt32(0, m_guid);
     res &= SetPreparedQuery(PET_LOGIN_QUERY_LOADAURA, stmt);
 
-#ifndef CROSS
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_AURA_EFFECT);
-#else /* CROSS */
     stmt = l_Database->GetPreparedStatement(CHAR_SEL_PET_AURA_EFFECT);
-#endif /* CROSS */
     stmt->setUInt32(0, m_guid);
     res &= SetPreparedQuery(PET_LOGIN_QUERY_LOADAURAEFFECT, stmt);
 
-#ifndef CROSS
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SPELL);
-#else /* CROSS */
     stmt = l_Database->GetPreparedStatement(CHAR_SEL_PET_SPELL);
-#endif /* CROSS */
     stmt->setUInt32(0, m_guid);
     res &= SetPreparedQuery(PET_LOGIN_QUERY_LOADSPELL, stmt);
 
-#ifndef CROSS
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SPELL_COOLDOWN);
-#else /* CROSS */
     stmt = l_Database->GetPreparedStatement(CHAR_SEL_PET_SPELL_COOLDOWN);
-#endif /* CROSS */
     stmt->setUInt32(0, m_guid);
     res &= SetPreparedQuery(PET_LOGIN_QUERY_LOADSPELLCOOLDOWN, stmt);
 
-#ifndef CROSS
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
-#else /* CROSS */
     stmt = l_Database->GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
-#endif /* CROSS */
     stmt->setUInt32(0, m_guid);
     res &= SetPreparedQuery(PET_LOGIN_QUERY_DECLINED_NAME, stmt);
 
     return res;
 }
 
-#ifndef CROSS
-PreparedStatement* PetQueryHolder::GenerateFirstLoadStatement(uint32 p_PetEntry, uint32 p_PetNumber, uint32 p_OwnerID, bool p_CurrentPet, PetSlot p_SlotID)
-#else /* CROSS */
 PreparedStatement* PetQueryHolder::GenerateFirstLoadStatement(uint32 p_PetEntry, uint32 p_PetNumber, uint32 p_OwnerID, bool p_CurrentPet, PetSlot p_SlotID, uint32 p_RealmID)
-#endif /* CROSS */
 {
 #ifdef CROSS
     InterRealmDatabasePool* l_Database = sInterRealmMgr->GetClientByRealmNumber(p_RealmID)->GetDatabase();
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
 
-#endif /* CROSS */
     PreparedStatement* l_Statement = nullptr;
 
     if (p_PetNumber)
@@ -227,11 +200,7 @@ PreparedStatement* PetQueryHolder::GenerateFirstLoadStatement(uint32 p_PetEntry,
         // Known petnumber entry
         //        0     1      2       3       4     5       6        7     8       9        10        11       12       13           14          15          16
         // SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization
-#ifndef CROSS
-        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY);
-#else /* CROSS */
         l_Statement = l_Database->GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY);
-#endif /* CROSS */
         l_Statement->setUInt32(0, p_OwnerID);
         l_Statement->setUInt32(1, p_PetNumber);
     }
@@ -240,11 +209,7 @@ PreparedStatement* PetQueryHolder::GenerateFirstLoadStatement(uint32 p_PetEntry,
         // Current pet (slot 0)
         //        0     1     2        3       4     5       6        7      8      9        10         11      12      13           14            15          16
         // SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization
-#ifndef CROSS
-        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
-#else /* CROSS */
         l_Statement = l_Database->GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
-#endif /* CROSS */
         l_Statement->setUInt32(0, p_OwnerID);
         l_Statement->setUInt32(1, p_SlotID);
     }
@@ -253,11 +218,7 @@ PreparedStatement* PetQueryHolder::GenerateFirstLoadStatement(uint32 p_PetEntry,
         // Known petentry entry (unique for summoned pet, but non unique for hunter pet (only from current or not stabled pets)
         //        0     1     2        3       4     5       6        7      8      9        10         11      12      13           14            15          16
         // SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization
-#ifndef CROSS
-        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT_2);
-#else /* CROSS */
         l_Statement = l_Database->GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT_2);
-#endif /* CROSS */
         l_Statement->setUInt32(0, p_OwnerID);
         l_Statement->setUInt32(1, p_PetEntry);
         l_Statement->setUInt32(2, PET_SLOT_HUNTER_FIRST);
@@ -269,11 +230,7 @@ PreparedStatement* PetQueryHolder::GenerateFirstLoadStatement(uint32 p_PetEntry,
         // Any current or other non-stabled pet (for hunter "call pet")
         //        0     1     2        3       4     5       6        7      8      9        10         11      12      13           14            15          16
         // SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization
-#ifndef CROSS
-        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_SLOT);
-#else /* CROSS */
         l_Statement = l_Database->GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_SLOT);
-#endif /* CROSS */
         l_Statement->setUInt32(0, p_OwnerID);
         l_Statement->setUInt32(1, PET_SLOT_HUNTER_FIRST);
         l_Statement->setUInt32(2, PET_SLOT_HUNTER_LAST);
@@ -285,8 +242,9 @@ PreparedStatement* PetQueryHolder::GenerateFirstLoadStatement(uint32 p_PetEntry,
 
 #ifdef CROSS
 # define RealmDatabase (*GetRealmDatabase())
-
-#endif /* CROSS */
+#else
+# define RealmDatabase CharacterDatabase
+#endif
 
 // == Player ====================================================
 // we can disable this warning for this since it only
@@ -518,8 +476,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
 #ifndef CROSS
     sWorld->IncreasePlayerCount();
+#endif
 
-#endif /* not CROSS */
     m_ChampioningFaction = 0;
 
     for (uint8 i = 0; i < MAX_POWERS_PER_CLASS; ++i)
@@ -550,12 +508,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_InCinematic               = false;
     m_CinematicClientStartTime  = 0;
 
-#ifndef CROSS
-    m_irZoneId = 0;
-    m_irAreaId = 0;
-    m_irMapId = 0;
-
-#endif /* not CROSS */
     m_BattlePetSummon = 0;
 
     m_ignoreMovementCount = 0;
@@ -608,8 +560,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 #ifdef CROSS
     m_NeedRemove  = false;
     m_PlayOnCross = false;
+#endif
 
-#endif /* CROSS */
     m_PreviousLocationMapId = MAPID_INVALID;
     m_PreviousLocationX = 0;
     m_PreviousLocationY = 0;
@@ -620,10 +572,14 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
         m_StoreDeliveryProcessed[l_I] = false;
 
     m_StoreDeliverySave = false;
-#ifndef CROSS
 
+#ifndef CROSS
     m_InterRealmPlayerState = InterRealmPlayerState::None;
-#endif /* not CROSS */
+    m_irZoneId = 0;
+    m_irAreaId = 0;
+    m_irMapId  = 0;
+#endif
+
     m_BeaconOfFaithTargetGUID = 0;
 
     m_MasteryCache = 0.0f;
@@ -637,8 +593,8 @@ Player::~Player()
 #ifndef CROSS
     if (m_Garrison)
         delete m_Garrison;
+#endif
 
-#endif /* not CROSS */
     if (m_WargameRequest)
         delete m_WargameRequest;
 
@@ -690,10 +646,10 @@ Player::~Player()
         delete _voidStorageItems[i];
 
     ClearResurrectRequestData();
-#ifndef CROSS
 
+#ifndef CROSS
     sWorld->DecreasePlayerCount();
-#endif /* not CROSS */
+#endif
 }
 
 void Player::CleanupsBeforeDelete(bool finalCleanup)
@@ -923,9 +879,11 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     InitTaxiNodesForLevel();
     InitGlyphsForLevel();
     InitTalentForLevel();
+
 #ifndef CROSS
     InitSpellForLevel();
-#endif /* not CROSS */
+#endif
+
     InitPrimaryProfessions();                               // to max set before any spell added
 
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
@@ -1116,8 +1074,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         }
     }
     // all item positions resolved
+#endif
 
-#endif /* not CROSS */
     // Pandaren's start quest
     if (createInfo->Race == RACE_PANDAREN_NEUTRAL)
     {
@@ -1145,8 +1103,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 #ifndef CROSS
     if (WorldSession* l_Session = GetSession())
         l_Session->OnGMTicketGetTicketEvent();
+#endif
 
-#endif /* not CROSS */
     SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 500);
     return true;
 }
@@ -1567,28 +1525,14 @@ void Player::Update(uint32 p_time)
     if (!IsInWorld())
         return;
 
-#ifdef CROSS
-    InterRealmDatabasePool* l_Database = GetRealmDatabase();
-
-#endif /* CROSS */
-    //sAnticheatMgr->HandleHackDetectionTimer(this, p_time);
     if (!m_initializeCallback)
     {
         PreparedStatement* stmt;
 
-#ifndef CROSS
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
-        stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
-        stmt = l_Database->GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
+        stmt = RealmDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
         stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
         stmt->setUInt32(1, m_currentPetSlot);
-#ifndef CROSS
-        _petPreloadCallback = CharacterDatabase.AsyncQuery(stmt);
-#else /* CROSS */
-        _petPreloadCallback = l_Database->AsyncQuery(stmt);
-#endif /* CROSS */
+        _petPreloadCallback = RealmDatabase.AsyncQuery(stmt);
 
         m_initializeCallback = true;
     }
@@ -1913,8 +1857,8 @@ void Player::Update(uint32 p_time)
 
                 m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
             }
-#ifndef CROSS
 
+#ifndef CROSS
             /// Shipyard map has broken area settings
             if (IsInShipyard())
             {
@@ -1948,7 +1892,7 @@ void Player::Update(uint32 p_time)
                     }
                 }
             }
-#endif /* not CROSS */
+#endif
         }
         else
             m_zoneUpdateTimer -= p_time;
@@ -2424,11 +2368,7 @@ uint8 Player::GetChatTag() const
     return tag;
 }
 
-#ifndef CROSS
 bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O, uint32 p_Options, bool forced_far)
-#else /* CROSS */
-bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O, uint32 p_Options)
-#endif /* CROSS */
 {
     if (!MapManager::IsValidMapCoord(p_MapID, p_X, p_Y, p_Z, p_O))
     {
@@ -2775,8 +2715,8 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
         if (l_Battleground->GetMapId() != p_MapID)
             LeaveBattleground(false);
     }
+#endif
 
-#endif /* not CROSS */
     // Remove pet on map change
     if (Pet* l_Pet = GetPet()) ///< l_Pet is unused
         UnsummonPetTemporaryIfAny();
@@ -2849,11 +2789,7 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
     UpdateZone(l_NewZone, l_NewArea);
 }
 
-#ifndef CROSS
 bool Player::TeleportToBGEntryPoint(bool inter_realm /*= false*/)
-#else /* CROSS */
-bool Player::TeleportToBGEntryPoint()
-#endif /* CROSS */
 {
     if (m_bgData.joinPos.m_mapId == MAPID_INVALID)
         return false;
@@ -2861,11 +2797,7 @@ bool Player::TeleportToBGEntryPoint()
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
-#ifndef CROSS
     return TeleportTo(m_bgData.joinPos, 0, inter_realm);
-#else /* CROSS */
-    return TeleportTo(m_bgData.joinPos);
-#endif /* CROSS */
 }
 
 void Player::ProcessDelayedOperations()
@@ -4357,8 +4289,8 @@ void Player::GiveLevel(uint8 level)
         MailDraft(mailReward->mailTemplateId).SendMailTo(trans, this, MailSender(MAIL_CREATURE, mailReward->senderEntry));
         CharacterDatabase.CommitTransaction(trans);
     }
+#endif
 
-#endif /* not CROSS */
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL);
 
     PhaseUpdateData phaseUdateData;
@@ -4402,11 +4334,11 @@ void Player::GiveLevel(uint8 level)
     }
 
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
-#ifndef CROSS
 
+#ifndef CROSS
     if (m_Garrison)
         m_Garrison->OnOwnerLevelChange(level);
-#endif /* not CROSS */
+#endif
 }
 
 void Player::InitTalentForLevel()
@@ -4933,8 +4865,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         return false;
 
     if (sSpellMgr->IsSpellForbidden(spellId) && !isGameMaster() && sWorld->getBoolConfig(CONFIG_SPELL_FORBIDDEN))
-#ifndef CROSS
     {
+#ifndef CROSS
         std::string banString;
         banString = "Auto-ban for spell cheat ";
         char buff[2048];
@@ -4942,11 +4874,9 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         sprintf(buff, "(spellId : %u)", (uint32)spellId);
         banString += buff;
         sWorld->BanAccount(BAN_CHARACTER, GetName(), "-1", banString, "Auto-Ban");
-#endif /* not CROSS */
+#endif
         return false;
-#ifndef CROSS
     }
-#endif /* not CROSS */
 
     /// Prevent load of incorrect passives / spells
     if (!spellInfo->SpecializationIdList.empty() && std::find(spellInfo->SpecializationIdList.begin(), spellInfo->SpecializationIdList.end(), GetSpecializationId()) == spellInfo->SpecializationIdList.end()
@@ -5893,15 +5823,8 @@ void Player::_LoadChargesCooldowns(PreparedQueryResult p_Result)
 
 void Player::_SaveSpellCooldowns(SQLTransaction& trans)
 {
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_COOLDOWN);
-    stmt->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
-    InterRealmDatabasePool* l_Database = GetRealmDatabase();
-
-    PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_SPELL_COOLDOWN);
+    PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_COOLDOWN);
     stmt->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     trans->Append(stmt);
 
     uint64 curTime = 0;
@@ -5926,11 +5849,7 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
             // next new/changed record prefix
             else
                 ss << ',';
-#ifndef CROSS
-            ss << '(' << GetGUIDLow() << ',' << itr->first << ',' << itr->second.itemid << ',' << uint64(itr->second.end / IN_MILLISECONDS) << ')';
-#else /* CROSS */
             ss << '(' << GetRealGUIDLow() << ',' << itr->first << ',' << itr->second.itemid << ',' << uint64(itr->second.end / IN_MILLISECONDS) << ')';
-#endif /* CROSS */
             ++itr;
         }
         else
@@ -5943,28 +5862,22 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
 
 void Player::_SaveChargesCooldowns(SQLTransaction& p_Transaction)
 {
-#ifndef CROSS
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARGES_COOLDOWN);
-    l_Statement->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
+#ifdef CROSS
     InterRealmDatabasePool* l_Database = GetRealmDatabase();
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
 
     PreparedStatement* l_Statement = l_Database->GetPreparedStatement(CHAR_DEL_CHARGES_COOLDOWN);
     l_Statement->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
     p_Transaction->Append(l_Statement);
 
     for (auto const& p : m_CategoryCharges)
     {
         for (ChargeEntry const& l_Charge : p.second)
         {
-#ifndef CROSS
-            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARGES_COOLDOWN);
-            l_Statement->setUInt32(0, GetGUIDLow());
-#else /* CROSS */
             PreparedStatement* l_Statement = l_Database->GetPreparedStatement(CHAR_INS_CHARGES_COOLDOWN);
             l_Statement->setUInt32(0, GetRealGUIDLow());
-#endif /* CROSS */
             l_Statement->setUInt32(1, p.first);
             l_Statement->setUInt32(2, uint32(Clock::to_time_t(l_Charge.RechargeStart)));
             l_Statement->setUInt32(3, uint32(Clock::to_time_t(l_Charge.RechargeEnd)));
@@ -6111,21 +6024,17 @@ bool Player::ResetTalents(bool p_NoCost /*= false*/)
     SetFreeTalentPoints(l_TalentPointsForLevel);
     SetUsedTalentCount(0);
 
-#ifndef CROSS
-    SQLTransaction charTrans = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
+#ifdef CROSS
     InterRealmDatabasePool* l_Database = GetRealmDatabase();
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
 
     SQLTransaction charTrans = l_Database->BeginTransaction();
-#endif /* CROSS */
     SQLTransaction accountTrans = LoginDatabase.BeginTransaction();
     _SaveTalents(charTrans);
     _SaveSpells(charTrans, accountTrans);
-#ifndef CROSS
-    CharacterDatabase.CommitTransaction(charTrans);
-#else /* CROSS */
     l_Database->CommitTransaction(charTrans);
-#endif /* CROSS */
     LoginDatabase.CommitTransaction(accountTrans);
 
     if (!p_NoCost)
@@ -6640,16 +6549,9 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
  * @param updateRealmChars when this flag is set, the amount of characters on that realm will be updated in the realmlist
  * @param deleteFinally    if this flag is set, the config option will be ignored and the character will be permanently removed from the database
  */
-#ifndef CROSS
 void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars, bool deleteFinally)
-#else /* CROSS */
-void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, uint32 realmId, bool updateRealmChars, bool deleteFinally)
-#endif /* CROSS */
 {
-#ifdef CROSS
-    InterRealmDatabasePool* l_Database = sInterRealmMgr->GetClientByRealmNumber(realmId)->GetDatabase();
-
-#endif /* CROSS */
+#ifndef CROSS
     // for not existed account avoid update realm
     if (accountId == 0)
         updateRealmChars = false;
@@ -6659,11 +6561,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, uint32 realmId, b
 
     // if we want to finally delete the character or the character does not meet the level requirement,
     // we set it to mode CHAR_DELETE_REMOVE
-#ifndef CROSS
     if (deleteFinally || Player::GetLevelFromDB(playerguid) < charDelete_minLvl)
-#else /* CROSS */
-    if (deleteFinally /*|| Player::GetLevelFromDB(playerguid) < charDelete_minLvl*/)
-#endif /* CROSS */
         charDelete_method = CHAR_DELETE_REMOVE;
 
     uint32 guid = GUID_LOPART(playerguid);
@@ -6672,24 +6570,14 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, uint32 realmId, b
     // bones will be deleted by corpse/bones deleting thread shortly
     sObjectAccessor->ConvertCorpseForPlayer(playerguid);
 
-#ifndef CROSS
     if (uint32 guildId = GetGuildIdFromDB(playerguid))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
             guild->DeleteMember(guid, false, false, true);
 
-#endif /* not CROSS */
     // the player was uninvited already on logout so just remove from group
-#ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-#else /* CROSS */
-    PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-#endif /* CROSS */
     stmt->setUInt32(0, guid);
-#ifndef CROSS
     PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
-#else /* CROSS */
-    PreparedQueryResult resultGroup = l_Database->Query(stmt);
-#endif /* CROSS */
 
     if (resultGroup)
         if (Group* group = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32()))
@@ -6703,23 +6591,11 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, uint32 realmId, b
         // Completely remove from the database
         case CHAR_DELETE_REMOVE:
         {
-#ifndef CROSS
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
-            SQLTransaction trans = l_Database->BeginTransaction();
-#endif /* CROSS */
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_COD_ITEM_MAIL);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_SEL_CHAR_COD_ITEM_MAIL);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
-#ifndef CROSS
             PreparedQueryResult resultMail = CharacterDatabase.Query(stmt);
-#else /* CROSS */
-            PreparedQueryResult resultMail = l_Database->Query(stmt);
-#endif /* CROSS */
 
             if (resultMail)
             {
@@ -6738,11 +6614,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, uint32 realmId, b
 
                     // We can return mail now
                     // So firstly delete the old one
-#ifndef CROSS
                     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-#else /* CROSS */
-                    PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-#endif /* CROSS */
                     stmt->setUInt32(0, mail_id);
                     trans->Append(stmt);
 
@@ -6751,11 +6623,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, uint32 realmId, b
                     {
                         if (has_items)
                         {
-#ifndef CROSS
                             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-#else /* CROSS */
-                            PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-#endif /* CROSS */
                             stmt->setUInt32(0, mail_id);
                             trans->Append(stmt);
                         }
@@ -6769,17 +6637,9 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, uint32 realmId, b
                     if (has_items)
                     {
                         // Data needs to be at first place for Item::LoadFromDB
-#ifndef CROSS
                         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS);
-#else /* CROSS */
-                        PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_SEL_MAILITEMS);
-#endif /* CROSS */
                         stmt->setUInt32(0, mail_id);
-#ifndef CROSS
                         PreparedQueryResult resultItems = CharacterDatabase.Query(stmt);
-#else /* CROSS */
-                        PreparedQueryResult resultItems = l_Database->Query(stmt);
-#endif /* CROSS */
                         if (resultItems)
                         {
                             do
@@ -6791,11 +6651,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, uint32 realmId, b
                                 ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_template);
                                 if (!itemProto)
                                 {
-#ifndef CROSS
                                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-#else /* CROSS */
-                                    stmt = l_Database->GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-#endif /* CROSS */
                                     stmt->setUInt32(0, item_guidlow);
                                     trans->Append(stmt);
                                     continue;
@@ -6815,201 +6671,107 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, uint32 realmId, b
                         }
                     }
 
-#ifndef CROSS
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-#else /* CROSS */
-                    stmt = l_Database->GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-#endif /* CROSS */
                     stmt->setUInt32(0, mail_id);
                     trans->Append(stmt);
 
                     uint32 pl_account = sObjectMgr->GetPlayerAccountIdByGUID(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
-#ifndef CROSS
 
                     draft.AddMoney(money).SendReturnToSender(pl_account, guid, sender, trans);
-#endif /* not CROSS */
                 }
                 while (resultMail->NextRow());
             }
 
             // Unsummon and delete for pets in world is not required: player deleted from CLI or character list with not loaded pet.
             // NOW we can finally clear other DB data related to character
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PETS);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_SEL_CHAR_PETS);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
-#ifndef CROSS
             PreparedQueryResult resultPets = CharacterDatabase.Query(stmt);
-#else /* CROSS */
-            PreparedQueryResult resultPets = l_Database->Query(stmt);
-#endif /* CROSS */
 
             if (resultPets)
             {
                 do
                 {
                     uint32 petguidlow = (*resultPets)[0].GetUInt32();
-#ifndef CROSS
                     Pet::DeleteFromDB(petguidlow);
-#else /* CROSS */
-                    Pet::DeleteFromDB(petguidlow, realmId);
-#endif /* CROSS */
                 }
                 while
                     (resultPets->NextRow());
             }
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHARACTER);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_ACCOUNT_DATA);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_PLAYER_ACCOUNT_DATA);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_ACTION);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_AURA);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_EFFECT);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_AURA_EFFECT);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GIFT);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_GIFT);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INSTANCE);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_INSTANCE);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVE_ALL);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVE_ALL);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_REWARDED);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_REWARDED);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REPUTATION);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_REPUTATION);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_SPELL);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_COOLDOWN);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_SPELL_COOLDOWN);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_GM_TICKETS);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_PLAYER_GM_TICKETS);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_FRIEND);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_FRIEND);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
@@ -7018,123 +6780,65 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, uint32 realmId, b
             //stmt->setUInt32(0, guid);
             //trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_MAIL);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEMS);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_MAIL_ITEMS);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_OWNER);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_OWNER);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME_BY_OWNER);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME_BY_OWNER);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENTS);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENTS);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENTS);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENTS);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_EQUIPMENTSETS);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_EQUIPMENTSETS);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_EVENTLOG_BY_PLAYER);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_GUILD_EVENTLOG_BY_PLAYER);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             stmt->setUInt32(1, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_BANK_EVENTLOG_BY_PLAYER);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_GUILD_BANK_EVENTLOG_BY_PLAYER);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_DAILY);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_DAILY);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TALENT);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_TALENT);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SKILLS);
-#else /* CROSS */
-            stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_SKILLS);
-#endif /* CROSS */
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-#ifndef CROSS
             MS::Garrison::Manager::DeleteFromDB(playerguid, trans);
 
-#endif /* not CROSS */
             MS::Utilities::CallBackPtr l_CharCreateCallback = nullptr;
 
             if (updateRealmChars)
@@ -7145,34 +6849,23 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, uint32 realmId, b
                 });
             }
 
-#ifndef CROSS
             CharacterDatabase.CommitTransaction(trans, l_CharCreateCallback);
-#else /* CROSS */
-            l_Database->CommitTransaction(trans, l_CharCreateCallback);
-#endif /* CROSS */
             break;
         }
         // The character gets unlinked from the account, the name gets freed up and appears as deleted ingame
         case CHAR_DELETE_UNLINK:
         {
-#ifndef CROSS
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_DELETE_INFO);
-#else /* CROSS */
-            PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_UPD_DELETE_INFO);
-#endif /* CROSS */
 
             stmt->setUInt32(0, guid);
 
-#ifndef CROSS
             CharacterDatabase.Execute(stmt);
-#else /* CROSS */
-            l_Database->Execute(stmt);
-#endif /* CROSS */
             break;
         }
         default:
             sLog->outError(LOG_FILTER_PLAYER, "Player::DeleteFromDB: Unsupported delete method: %u.", charDelete_method);
     }
+#endif
 }
 
 /**
@@ -7767,7 +7460,8 @@ void Player::RepopAtGraveyard(bool p_ForceGraveyard /*= false*/)
         l_ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
     }
     /// Since WoD, when you die in a dungeon and you release your spirit, you are teleported alive at the entrance of the dungeon.
-#endif /* not CROSS */
+#endif
+
     else if (GetMap()->IsDungeon() && !p_ForceGraveyard)
     {
         AreaTriggerStruct const* l_AreaTrigger = sObjectMgr->GetMapEntranceTrigger(GetMapId());
@@ -9671,10 +9365,9 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
 #ifndef CROSS
     honor_f *= sWorld->getRate(RATE_HONOR);
-
     if (GetSession()->IsPremium())
         honor_f *= sWorld->getRate(RATE_HONOR_PREMIUM);
-#else /* CROSS */
+#else
     if (InterRealmClient* client = GetSession()->GetInterRealmClient())
     {
         honor_f *= client->GetHonorRate();
@@ -9682,7 +9375,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
         if (GetSession()->IsPremium())
             honor_f *= client->GetHonorPremiumRate();
     }
-#endif /* CROSS */
+#endif
 
     // Back to int now
     honor = std::max(int32(honor_f), 1);
@@ -10229,25 +9922,17 @@ void Player::SetInGuild(uint32 guildId)
     SetUInt16Value(OBJECT_FIELD_TYPE, 1, guildId != 0);
 }
 
-#ifndef CROSS
-uint32 Player::GetGuildIdFromDB(uint64 guid)
-#else /* CROSS */
 uint32 Player::GetGuildIdFromDB(uint64 guid, uint32 realmId)
-#endif /* CROSS */
 {
 #ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
+    auto l_Database = *CharacterDatabase;
 #else /* CROSS */
     InterRealmDatabasePool* l_Database = sInterRealmMgr->GetClientByRealmNumber(realmId)->GetDatabase();
+#endif
 
     PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
-#endif /* CROSS */
     stmt->setUInt32(0, GUID_LOPART(guid));
-#ifndef CROSS
-    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-#else /* CROSS */
     if (PreparedQueryResult result = l_Database->Query(stmt))
-#endif /* CROSS */
         return result->Fetch()[0].GetUInt32();
 
     return 0;
@@ -20429,8 +20114,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
                         if (!l_GarrisonMgr->CheckGarrisonStablesQuestsConditions(questid, this))
                             continue;
                     }
-
-#endif /* not CROSS */
+#endif
                     uint32 currentCounter = GetQuestObjectiveCounter(l_Objective.ID);
                     if (currentCounter < uint32(l_Objective.Amount))
                     {
@@ -20918,11 +20602,7 @@ void Player::_LoadDeclinedNames(PreparedQueryResult result)
 }
 
 void Player::_LoadEquipmentSets(PreparedQueryResult result)
-#ifndef CROSS
 {
-#else /* CROSS */
- {
-#endif /* CROSS */
     // SetPQuery(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS,   "SELECT setguid, setindex, name, iconname, item0, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18 FROM character_equipmentsets WHERE guid = '%u' ORDER BY setindex", GUID_LOPART(m_guid));
     if (!result)
         return;
@@ -20933,23 +20613,12 @@ void Player::_LoadEquipmentSets(PreparedQueryResult result)
         Field* fields = result->Fetch();
         EquipmentSet eqSet;
 
-#ifndef CROSS
-        eqSet.Guid      = fields[0].GetUInt64();
-        uint8 index    = fields[1].GetUInt8();
-        eqSet.Name      = fields[2].GetString();
-        eqSet.IconName  = fields[3].GetString();
-#else /* CROSS */
         eqSet.Guid       = fields[0].GetUInt64();
         uint8 index      = fields[1].GetUInt8();
         eqSet.Name       = fields[2].GetString();
         eqSet.IconName   = fields[3].GetString();
-#endif /* CROSS */
         eqSet.IgnoreMask = fields[4].GetUInt32();
-#ifndef CROSS
-        eqSet.state     = EQUIPMENT_SET_UNCHANGED;
-#else /* CROSS */
         eqSet.state      = EQUIPMENT_SET_UNCHANGED;
-#endif /* CROSS */
 
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
 #ifndef CROSS
@@ -26292,6 +25961,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     }
 
     uint32 l_MapID = GetMapId();
+
 #ifndef CROSS
     /// Special case for taxi in garrison phased map
     for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
@@ -26304,8 +25974,8 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
             break;
         }
     }
+#endif
 
-#endif /* not CROSS */
     // check node starting pos data set case if provided
     if (node->x != 0.0f || node->y != 0.0f || node->z != 0.0f)
     {
@@ -27061,8 +26731,8 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
                 return false;
             }
     }
+#endif
 
-#endif /* not CROSS */
     if (!price && crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
     {
         uint32 maxCount = MAX_MONEY_AMOUNT / pProto->BuyPrice;
@@ -31266,7 +30936,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
             return;
         }
 
-#ifndef CROSS
+  #ifndef CROSS
         PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), p_Result);
 #else /* CROSS */
         InterRealmClient* l_Client = sInterRealmMgr->GetClientByRealmNumber(l_RealmID);

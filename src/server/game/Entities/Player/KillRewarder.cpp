@@ -12,8 +12,8 @@
 #include "Formulas.h"
 #include "Group.h"
 #ifndef CROSS
-#include "Guild.h"
-#endif /* not CROSS */
+# include "Guild.h"
+#endif
 #include "GuildMgr.h"
 #include "InstanceScript.h"
 #include "Pet.h"
@@ -279,10 +279,7 @@ void KillRewarder::Reward()
 #ifndef CROSS
             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
                 guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
-#else /* CROSS */
-            //if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                //guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
-#endif /* CROSS */
+#endif
         }
     }
 }
