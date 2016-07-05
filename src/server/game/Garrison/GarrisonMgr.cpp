@@ -3416,27 +3416,12 @@ namespace MS { namespace Garrison
 
     uint8 Manager::CalculateAssignedFollowerShipmentBonus(uint32 p_PlotInstanceID)
     {
-        std::map<uint32, uint32> l_FollowerLevelBonus =
-        {
-            { 90, 50 },
-            { 91, 55 },
-            { 92, 60 },
-            { 93, 65 },
-            { 94, 70 },
-            { 95, 75 },
-            { 96, 80 },
-            { 97, 85 },
-            { 98, 90 },
-            { 99, 95 },
-            { 100, 100 }
-        };
-
         GarrisonFollower* l_Follower = GetFollower(GetBuilding(p_PlotInstanceID).FollowerAssigned);
 
         if (l_Follower == nullptr)
             return 1;
 
-        return HasRequiredFollowerAssignedAbility(p_PlotInstanceID) ? roll_chance_i(l_FollowerLevelBonus[l_Follower->Level]) + 1 : 1;
+        return HasRequiredFollowerAssignedAbility(p_PlotInstanceID) ? roll_chance_i(5 * (l_Follower->Level - 90) + 50) + 1 : 1;
     }
 
     GarrisonFollower* Manager::GetAssignedFollower(uint32 p_PlotInstanceID)
