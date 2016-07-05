@@ -1882,13 +1882,45 @@ class spell_warl_demonic_leap: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_demonic_leap_SpellScript);
 
+            enum eSpells
+            {
+                DemonicLeapBack          = 109150,
+                DemonicLeapForward       = 109167,
+                DemonicLeapUpward        = 109152,
+                DemonicLeapLeft          = 109164,
+                DemonicLeapRigt          = 109165,
+                DemonicLeapBackwardLeft  = 111738,
+                DemonicLeapBackwardRight = 111739
+            };
+
             void HandleAfterCast()
             {
                 if (Unit* caster = GetCaster())
                 {
                     if (!caster->HasAura(WARLOCK_DARK_APOTHEOSIS))
                         caster->CastSpell(caster, WARLOCK_METAMORPHOSIS, true);
-                    caster->CastSpell(caster, WARLOCK_DEMONIC_LEAP_JUMP, true);
+
+                    uint32 l_movementflags = caster->GetUnitMovementFlags();
+                    if (l_movementflags & MOVEMENTFLAG_FORWARD)
+                        caster->CastSpell(caster, eSpells::DemonicLeapForward, true);
+                    else if (l_movementflags & MOVEMENTFLAG_BACKWARD)
+                    {
+                        if (l_movementflags & MOVEMENTFLAG_STRAFE_LEFT)
+                            caster->CastSpell(caster, eSpells::DemonicLeapBackwardLeft, true);
+                        else if (l_movementflags & MOVEMENTFLAG_STRAFE_RIGHT)
+                            caster->CastSpell(caster, eSpells::DemonicLeapBackwardRight, true);
+                        else
+                            caster->CastSpell(caster, eSpells::DemonicLeapBack, true);
+                    }
+                    else
+                    {
+                        if (l_movementflags & MOVEMENTFLAG_STRAFE_LEFT)
+                            caster->CastSpell(caster, eSpells::DemonicLeapLeft, true);
+                        else if (l_movementflags & MOVEMENTFLAG_STRAFE_RIGHT)
+                            caster->CastSpell(caster, eSpells::DemonicLeapRigt, true);
+                        else 
+                            caster->CastSpell(caster, eSpells::DemonicLeapUpward, true);
+                    }
                 }
             }
 

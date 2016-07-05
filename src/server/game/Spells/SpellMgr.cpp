@@ -4234,6 +4234,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].Effect = 0;
                 spellInfo->Effects[3].Effect = 0;
                 break;
+            case 109150: ///< Demonic Leap (Backward)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_KNOCK_BACK_DEST;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_FRONT;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8); ///< 5 yards
+                break;
             case 133123: ///< Arcane Barrage
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(10); ///< from 15.0f (RangeEntry.ID 11) to 40.0f
                 break;
