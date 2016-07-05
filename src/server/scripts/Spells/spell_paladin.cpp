@@ -2565,6 +2565,55 @@ class spell_pal_seal_of_justice : public SpellScriptLoader
         }
 };
 
+/// Seal of Insight - 20165
+class spell_pal_seal_of_insight_proc : public SpellScriptLoader
+{
+    public:
+        spell_pal_seal_of_insight_proc() : SpellScriptLoader("spell_pal_seal_of_insight_proc") { }
+
+        class spell_pal_seal_of_insight_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_seal_of_insight_proc_AuraScript);
+
+            enum eSpells
+            {
+                SealofInsightProc = 20167
+            };
+
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                {
+                    if (!(p_EventInfo.GetDamageInfo()->GetSpellInfo()->DmgClass & SPELL_DAMAGE_CLASS_MELEE))
+                        return;
+
+                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == PALADIN_SPELL_JUDGMENT) ///< It does not apply on Judgements.
+                        return;
+                }
+
+                l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), eSpells::SealofInsightProc, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_seal_of_insight_proc_AuraScript::OnProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_seal_of_insight_proc_AuraScript();
+        }
+};
+
+
 /// Last Update 6.2.3
 /// Holy Shield - 152261
 class spell_pal_holy_shield: public SpellScriptLoader
@@ -4002,6 +4051,7 @@ class spell_pal_hammer_of_justice : public SpellScriptLoader
 #ifndef __clang_analyzer__
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_seal_of_insight_proc();
 	new spell_pal_hammer_of_justice();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_glyph_of_pillar_of_light();
