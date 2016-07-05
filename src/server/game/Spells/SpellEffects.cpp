@@ -8462,7 +8462,7 @@ void Spell::EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex)
 
         if (Manager* l_GarrisonMgr = l_Player->GetGarrison())
         {
-            uint32 l_ShipmentCount       = m_spellValue->EffectBasePoints[p_EffIndex];
+            uint32 l_ShipmentCount                             = m_spellValue->EffectBasePoints[p_EffIndex];
             CharShipmentContainerEntry const* l_ContainerEntry = sCharShipmentContainerStore.LookupEntry(m_spellInfo->Effects[p_EffIndex].MiscValue);
 
             if (l_ContainerEntry == nullptr)
@@ -8473,24 +8473,30 @@ void Spell::EffectFinishGarrisonShipment(SpellEffIndex p_EffIndex)
             if (l_PlotInstanceID)
             {
                 std::vector<MS::Garrison::GarrisonWorkOrder>& l_PlotWorkOrder = l_GarrisonMgr->GetWorkOrders();
+                std::vector<MS::Garrison::GarrisonWorkOrder*> l_TempShipmentsList;
+
                 uint8 l_Itr = 0;
+                uint32 l_CurrentTimeStamp = time(0);
 
-                if (l_PlotWorkOrder.size() > 0)
+                for (uint32 l_OrderI = 0; l_OrderI < l_PlotWorkOrder.size(); ++l_OrderI)
                 {
-                    uint32 l_CurrentTimeStamp = time(0);
+                    if (l_PlotWorkOrder[l_OrderI].PlotInstanceID == l_PlotInstanceID)
+                        l_TempShipmentsList.push_back(&l_PlotWorkOrder[l_OrderI]);
+                }
 
-                    for (uint32 l_OrderI = 0; l_OrderI < l_PlotWorkOrder.size(); ++l_OrderI)
-                    {
-                        if (l_PlotWorkOrder[l_OrderI].PlotInstanceID == l_PlotInstanceID)
-                        {
-                            ++l_Itr;
+                std::sort(l_TempShipmentsList.begin(), l_TempShipmentsList.end(), [](MS::Garrison::GarrisonWorkOrder* a, MS::Garrison::GarrisonWorkOrder* b) -> bool
+                {
+                    return a->CreationTime > b->CreationTime;
+                });
 
-                            if (l_Itr > l_ShipmentCount)
-                                break;
+                for (uint32 l_OrderI = 0; l_OrderI < l_TempShipmentsList.size(); ++l_OrderI)
+                {
+                    ++l_Itr;
 
-                            l_PlotWorkOrder[l_OrderI].CompleteTime = l_CurrentTimeStamp;
-                        }
-                    }
+                    if (l_Itr > l_ShipmentCount)
+                        break;
+
+                    l_TempShipmentsList[l_OrderI]->CompleteTime = l_CurrentTimeStamp;
                 }
 
                 m_caster->CastSpell(m_caster, 180704, true); ///< Rush Order visual
