@@ -4199,6 +4199,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_OBS_MOD_POWER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); ///< 1s
                 break;
+            case 143314: /// Glyph of Nightmares
+                spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
+                break;
             case 167625: ///< Blood feather
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
                 spellInfo->Effects[0].TriggerSpell = 167626; ///< Blood Feather
