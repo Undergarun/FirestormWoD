@@ -14,7 +14,7 @@
 #include "GarrisonMgrStructures.hpp"
 
 /// @Hatters gonna hate, float doesn't go into the Globals enum, Change standard ?
-#define GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF (0.8f)
+#define GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF (1.35f)
 
 namespace MS { namespace Garrison
 {
