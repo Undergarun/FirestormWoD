@@ -70,7 +70,8 @@ enum eIronMaidensSpells
     PermanentFeignDeath = 70628,
     WarmingUpAura       = 158849,
     OnABoatPeriodic     = 158726,
-    RideLoadingChain    = 158646
+    RideLoadingChain    = 158646,
+    IronMaidensBonus    = 177538
 };
 
 static void RespawnMaidens(InstanceScript* p_Instance, Creature* p_Source)

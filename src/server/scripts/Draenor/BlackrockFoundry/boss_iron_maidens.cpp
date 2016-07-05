@@ -306,6 +306,15 @@ class boss_admiral_garan : public CreatureScript
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
                 RemoveCombatAuras();
+
+                /// Check if the maiden is the last killed (the one who loots)
+                if (me->GetLootRecipient() != nullptr)
+                {
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eIronMaidensSpells::IronMaidensBonus, true);
+                }
             }
 
             void EnterEvadeMode() override
@@ -987,6 +996,15 @@ class boss_enforcer_sorka : public CreatureScript
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
                 RemoveCombatAuras();
+
+                /// Check if the maiden is the last killed (the one who loots)
+                if (me->GetLootRecipient() != nullptr)
+                {
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eIronMaidensSpells::IronMaidensBonus, true);
+                }
             }
 
             void EnterEvadeMode() override
@@ -1584,6 +1602,15 @@ class boss_marak_the_blooded : public CreatureScript
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
                 RemoveCombatAuras();
+
+                /// Check if the maiden is the last killed (the one who loots)
+                if (me->GetLootRecipient() != nullptr)
+                {
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eIronMaidensSpells::IronMaidensBonus, true);
+                }
             }
 
             void EnterEvadeMode() override
