@@ -7203,6 +7203,17 @@ void SpellMgr::LoadSpellCustomAttr()
             case 89250: ///< Summon Cauldron
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
+            case 175216: ///< Savage Feast
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
+                break;
+            case 175217: ///< Savage Feast
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_1].TriggerSpell = 160598;
+                spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[EFFECT_2].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_2].TriggerSpell = 160599;
+                break;
             case 89268: ///< Throw Food Targeting
             case 89740:
             case 90561:
