@@ -1,7 +1,7 @@
 ## Overview
 World of Warcraft Warlords of Draenor (6.X) emulator based on TrinityCore project, JadeCore (5.0.5), Garrosh (5.4.X)
 
-[![Build Status](https://drone.firestorm-servers.com/api/badges/MilleniumStudio/wod/status.svg)](https://drone.firestorm-servers.com/MilleniumStudio/wod)
+[![Build Status](https://drone-1.fat.sh/api/badges/MilleniumStudio/wod/status.svg)](https://drone-1.fat.sh/MilleniumStudio/wod)
 
 ## Requirements
 
