@@ -3860,6 +3860,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159585: ///< Deploy Turret - Jump (Admiral Gar'an - Iron Maidens)
                 spellInfo->SpellPowers.clear();
                 break;
+            case 156626: ///< Rapid Fire (Admiral Gar'an)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
             /// Skills

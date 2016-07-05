@@ -909,6 +909,15 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 if (m_BeQuickOrBeDeadAchiev && !instance->IsLFR())
                                     DoCompleteAchievement(eFoundryAchievements::BeQuickOrBeDead);
 
+                                AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                                {
+                                    if (Creature* l_Blackhand = instance->GetCreature(m_CosmeticBlackhand))
+                                    {
+                                        if (l_Blackhand->IsAIEnabled)
+                                            l_Blackhand->AI()->Talk(13, 0, TextRange::TEXT_RANGE_MAP);   ///< KromogKilled
+                                    }
+                                });
+
                                 /// No break needed here
                             }
                             case EncounterState::FAIL:

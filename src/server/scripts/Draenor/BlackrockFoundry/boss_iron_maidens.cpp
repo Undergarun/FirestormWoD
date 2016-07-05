@@ -56,6 +56,15 @@ class boss_admiral_garan : public CreatureScript
 
         enum eTalks
         {
+            TalkAggro,
+            TalkRapidFireWarn,
+            TalkRapidFire,
+            TalkDreadnaughtWarn,
+            TalkDreadnaught,
+            TalkPenetratingShot,
+            TalkIronWill,
+            TalkSlay,
+            TalkDeath
         };
 
         enum eMoves
@@ -269,8 +278,8 @@ class boss_admiral_garan : public CreatureScript
 
             void KilledUnit(Unit* p_Killed) override
             {
-                /*if (p_Killed->IsPlayer())
-                    Talk(eThogarTalks::TalkSlay);*/
+                if (p_Killed->IsPlayer())
+                    Talk(eTalks::TalkSlay);
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -515,6 +524,12 @@ class boss_admiral_garan : public CreatureScript
                     {
                         me->SetPower(Powers::POWER_ENERGY, me->GetMaxPower(Powers::POWER_ENERGY));
                         m_CustomEvent.CancelEvent(eEvents::EventRegenIronFury);
+
+                        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS + 500, [this]() -> void
+                        {
+                            Talk(eTalks::TalkIronWill);
+                        });
+
                         break;
                     }
                     default:
@@ -569,6 +584,8 @@ class boss_admiral_garan : public CreatureScript
                 }
                 else if (p_Damage >= me->GetHealth())
                 {
+                    Talk(eTalks::TalkDeath);
+
                     if (IsLastMaidenAlive(m_Instance, me))
                     {
                         for (uint8 l_I = 0; l_I < 3; ++l_I)
@@ -687,14 +704,19 @@ class boss_admiral_garan : public CreatureScript
                 {
                     case eEvents::EventRapidFire:
                     {
-                        if (Creature* l_Stalker = me->SummonCreature(eIronMaidensCreatures::RapidFireStalker, *me))
+                        if (Player* l_Target = SelectPlayerTarget(eTargetTypeMask::TypeMaskNonTank))
                         {
-                            l_Stalker->DespawnOrUnsummon(11 * TimeConstants::IN_MILLISECONDS);
-
-                            me->CastSpell(l_Stalker, eSpells::SpellRapideFirePeriodic, false);
-
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            if (Creature* l_Stalker = me->SummonCreature(eIronMaidensCreatures::RapidFireStalker, *l_Target))
                             {
+                                l_Stalker->DespawnOrUnsummon(11 * TimeConstants::IN_MILLISECONDS);
+
+                                me->CastSpell(l_Stalker, eSpells::SpellRapideFirePeriodic, false);
+
+                                l_Stalker->CastSpell(l_Stalker, eSpells::SpellRapidFireTargetVisual, true);
+
+                                Talk(eTalks::TalkRapidFireWarn, l_Target->GetGUID());
+                                Talk(eTalks::TalkRapidFire);
+
                                 me->CastSpell(l_Target, eSpells::SpellRapidFireRedArrow, true);
 
                                 uint64 l_TargetGUID = l_Target->GetGUID();
@@ -705,8 +727,6 @@ class boss_admiral_garan : public CreatureScript
                                     {
                                         if (l_Stalker->IsAIEnabled)
                                             l_Stalker->AI()->SetGUID(l_TargetGUID);
-
-                                        l_Stalker->CastSpell(l_Stalker, eSpells::SpellRapidFireTargetVisual, true);
                                     }
                                 });
                             }
@@ -719,6 +739,8 @@ class boss_admiral_garan : public CreatureScript
                     {
                         if (Player* l_Target = SelectRangedTarget())
                             me->CastSpell(l_Target, eSpells::SpellPenetratingShotAura, false);
+
+                        Talk(eTalks::TalkPenetratingShot);
 
                         m_Events.ScheduleEvent(eEvents::EventPenetratingShot, eTimers::TimerPenetratingShotCD);
                         break;
@@ -744,6 +766,9 @@ class boss_admiral_garan : public CreatureScript
                     case eEvents::EventJumpToShip:
                     {
                         m_IsOnBoat = true;
+
+                        Talk(eTalks::TalkDreadnaught);
+                        Talk(eTalks::TalkDreadnaughtWarn);
 
                         me->SetReactState(ReactStates::REACT_PASSIVE);
 
@@ -823,6 +848,16 @@ class boss_enforcer_sorka : public CreatureScript
 
         enum eTalks
         {
+            TalkAggro,
+            TalkBladeDash,
+            TalkConvulsiveShadows,
+            TalkDarkHuntBegin,
+            TalkDarkHuntEnd,
+            TalkDreadnaughtWarn,
+            TalkDreadnaught,
+            TalkIronWill,
+            TalkSlay,
+            TalkDeath
         };
 
         enum eMoves
@@ -922,8 +957,8 @@ class boss_enforcer_sorka : public CreatureScript
 
             void KilledUnit(Unit* p_Killed) override
             {
-                /*if (p_Killed->IsPlayer())
-                    Talk(eThogarTalks::TalkSlay);*/
+                if (p_Killed->IsPlayer())
+                    Talk(eTalks::TalkSlay);
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -1157,6 +1192,12 @@ class boss_enforcer_sorka : public CreatureScript
                     {
                         me->SetPower(Powers::POWER_ENERGY, me->GetMaxPower(Powers::POWER_ENERGY));
                         m_CustomEvent.CancelEvent(eEvents::EventRegenIronFury);
+
+                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS + 500, [this]() -> void
+                        {
+                            Talk(eTalks::TalkIronWill);
+                        });
+
                         break;
                     }
                     default:
@@ -1179,6 +1220,8 @@ class boss_enforcer_sorka : public CreatureScript
                 }
                 else if (p_Damage >= me->GetHealth())
                 {
+                    Talk(eTalks::TalkDeath);
+
                     if (IsLastMaidenAlive(m_Instance, me))
                     {
                         for (uint8 l_I = 0; l_I < 3; ++l_I)
@@ -1256,11 +1299,13 @@ class boss_enforcer_sorka : public CreatureScript
                 {
                     case eEvents::EventBladeDash:
                     {
+                        Talk(eTalks::TalkBladeDash);
+
                         m_IsInBladeDash = true;
                         m_BladeDashTargets.clear();
 
                         std::vector<int32> l_ExcludeAuras = { -int32(eIronMaidensSpells::OnABoatPeriodic), -int32(eIronMaidensSpells::RideLoadingChain) };
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 45.0f, true, l_ExcludeAuras))
+                        if (Player* l_Target = SelectPlayerTarget(eTargetTypeMask::TypeMaskNonTank, l_ExcludeAuras, 45.0f))
                         {
                             me->SetFacingTo(me->GetAngle(l_Target));
 
@@ -1277,7 +1322,9 @@ class boss_enforcer_sorka : public CreatureScript
                     }
                     case eEvents::EventConvulsiveShadows:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        Talk(eTalks::TalkConvulsiveShadows);
+
+                        if (Player* l_Target = SelectPlayerTarget(eTargetTypeMask::TypeMaskNonTank))
                             me->CastSpell(l_Target, eSpells::SpellConvulsiveShadowsCast, false);
 
                         m_Events.ScheduleEvent(eEvents::EventConvulsiveShadows, eTimers::TimerConvulsiveShadowsCD);
@@ -1285,7 +1332,9 @@ class boss_enforcer_sorka : public CreatureScript
                     }
                     case eEvents::EventDarkHunt:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        Talk(eTalks::TalkDarkHuntBegin);
+
+                        if (Player* l_Target = SelectPlayerTarget(eTargetTypeMask::TypeMaskNonTank))
                             me->CastSpell(l_Target, eSpells::SpellDarkHuntAura, true);
 
                         m_Events.ScheduleEvent(eEvents::EventDarkHunt, eTimers::TimerDarkHuntCD);
@@ -1294,6 +1343,9 @@ class boss_enforcer_sorka : public CreatureScript
                     case eEvents::EventJumpToShip:
                     {
                         m_IsOnBoat = true;
+
+                        Talk(eTalks::TalkDreadnaughtWarn);
+                        Talk(eTalks::TalkDreadnaught);
 
                         me->SetReactState(ReactStates::REACT_PASSIVE);
 
@@ -1315,7 +1367,10 @@ class boss_enforcer_sorka : public CreatureScript
 
             void DashToTarget(Unit* p_Target)
             {
-                me->NearTeleportTo(*p_Target);
+                Position l_Pos      = *p_Target;
+                l_Pos.m_positionZ   = me->GetPositionZ(); ///< Prevent under map
+
+                me->NearTeleportTo(l_Pos);
 
                 uint64 l_Guid = p_Target->GetGUID();
                 AddTimedDelayedOperation(10, [this, l_Guid]() -> void
@@ -1380,6 +1435,15 @@ class boss_marak_the_blooded : public CreatureScript
 
         enum eTalks
         {
+            TalkAggro,
+            TalkBloodRitual,
+            TalkBloodRitualWarn,
+            TalkBloodsoakedHeartseeker,
+            TalkDreadnaught,
+            TalkDreadnaughtWarn,
+            TalkIronWill,
+            TalkSlay,
+            TalkDeath
         };
 
         enum eVisual
@@ -1487,8 +1551,8 @@ class boss_marak_the_blooded : public CreatureScript
 
             void KilledUnit(Unit* p_Killed) override
             {
-                /*if (p_Killed->IsPlayer())
-                    Talk(eThogarTalks::TalkSlay);*/
+                if (p_Killed->IsPlayer())
+                    Talk(eTalks::TalkSlay);
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -1676,6 +1740,7 @@ class boss_marak_the_blooded : public CreatureScript
                     }
                     case eIronMaidensSpells::IronWill:
                     {
+                        Talk(eTalks::TalkIronWill);
                         me->SetPower(Powers::POWER_ENERGY, me->GetMaxPower(Powers::POWER_ENERGY));
                         m_CustomEvent.CancelEvent(eEvents::EventRegenIronFury);
                         break;
@@ -1732,6 +1797,8 @@ class boss_marak_the_blooded : public CreatureScript
                 }
                 else if (p_Damage >= me->GetHealth())
                 {
+                    Talk(eTalks::TalkDeath);
+
                     if (IsLastMaidenAlive(m_Instance, me))
                     {
                         for (uint8 l_I = 0; l_I < 3; ++l_I)
@@ -1809,8 +1876,12 @@ class boss_marak_the_blooded : public CreatureScript
                 {
                     case eEvents::EventBloodRitual:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                        Talk(eTalks::TalkBloodRitual);
+
+                        if (Player* l_Target = SelectPlayerTarget(eTargetTypeMask::TypeMaskNonTank, { }, 45.0f))
                         {
+                            Talk(eTalks::TalkBloodRitualWarn, l_Target->GetGUID());
+
                             me->CastSpell(l_Target, eSpells::SpellBloodRitualAura, true);
                             me->CastSpell(l_Target, eSpells::SpellBloodRitualCast, false);
                         }
@@ -1820,6 +1891,8 @@ class boss_marak_the_blooded : public CreatureScript
                     }
                     case eEvents::EventBloodsoakedHeartseeker:
                     {
+                        Talk(eTalks::TalkBloodsoakedHeartseeker);
+
                         ResetHeartseekerTargets();
 
                         std::vector<int32> l_ExcludeAuras = { -int32(eSpells::SpellBloodsoakedHeartseekerMarker), -int32(eIronMaidensSpells::OnABoatPeriodic) };
@@ -1842,6 +1915,9 @@ class boss_marak_the_blooded : public CreatureScript
                     case eEvents::EventJumpToShip:
                     {
                         m_IsOnBoat = true;
+
+                        Talk(eTalks::TalkDreadnaught);
+                        Talk(eTalks::TalkDreadnaughtWarn);
 
                         me->SetReactState(ReactStates::REACT_PASSIVE);
 
@@ -2693,7 +2769,8 @@ class npc_foundry_iron_cannon : public CreatureScript
                 for (uint8 l_ID = 0; l_ID < eIronMaidensDatas::MaxClusterBombAlpha; ++l_ID)
                     m_AvailableBombIDs.push_back(l_ID);
 
-                std::random_shuffle(m_AvailableBombIDs.begin(), m_AvailableBombIDs.end());
+                auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                std::shuffle(m_AvailableBombIDs.begin(), m_AvailableBombIDs.end(), std::default_random_engine(uint32(l_Seed)));
 
                 m_SummonedBombs.clear();
 
@@ -3408,12 +3485,24 @@ class spell_foundry_dark_hunt : public SpellScriptLoader
                 DarkHuntExecution = 158321
             };
 
+            enum eTalk
+            {
+                TalkDarkHuntEnd = 4
+            };
+
             void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
+
+                if (Creature* l_Sorka = l_Caster->ToCreature())
+                {
+                    boss_enforcer_sorka::boss_enforcer_sorkaAI* l_AI = CAST_AI(boss_enforcer_sorka::boss_enforcer_sorkaAI, l_Sorka->AI());
+                    if (l_AI != nullptr)
+                        l_AI->Talk(eTalk::TalkDarkHuntEnd);
+                }
 
                 l_Caster->CastSpell(l_Target, eSpell::DarkHuntExecution, true);
             }
@@ -3709,6 +3798,44 @@ class spell_foundry_detonation_sequence : public SpellScriptLoader
         }
 };
 
+/// Rapid Fire (periodic) - 156626
+class spell_foundry_rapid_fire_periodic : public SpellScriptLoader
+{
+    public:
+        spell_foundry_rapid_fire_periodic() : SpellScriptLoader("spell_foundry_rapid_fire_periodic") { }
+
+        enum eSpell
+        {
+            RapidFireMissile = 156628
+        };
+
+        class spell_foundry_rapid_fire_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_rapid_fire_periodic_AuraScript)
+
+            void OnTick(AuraEffect const* p_AurEff)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Target == nullptr || l_Caster == nullptr)
+                    return;
+
+                l_Caster->CastSpell(*l_Target, eSpell::RapidFireMissile, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_rapid_fire_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_rapid_fire_periodic_AuraScript();
+        }
+};
+
 /// Dominator Blast - 158602
 class areatrigger_foundry_dominator_blast : public AreaTriggerEntityScript
 {
@@ -3923,6 +4050,7 @@ void AddSC_boss_iron_maidens()
     new spell_foundry_warming_up();
     new spell_foundry_bombardment_pattern_alpha();
     new spell_foundry_detonation_sequence();
+    new spell_foundry_rapid_fire_periodic();
 
     /// AreaTriggers (spells)
     new areatrigger_foundry_dominator_blast();

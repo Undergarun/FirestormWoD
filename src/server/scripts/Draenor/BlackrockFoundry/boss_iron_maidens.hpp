@@ -56,7 +56,11 @@ enum eIronMaidensDatas
     IsDisabled              = 1,
     /// Event schedulers
     FirstIronFuryAbility    = 30,
-    SecondIronFuryAbility   = 100
+    SecondIronFuryAbility   = 100,
+    /// Misc datas
+    AdmiralGaran            = 0,
+    EnforcerSorka           = 1,
+    MarakTheBlooded         = 2
 };
 
 enum eIronMaidensSpells
@@ -84,16 +88,17 @@ static void RespawnMaidens(InstanceScript* p_Instance, Creature* p_Source)
     }
 }
 
-static bool StartMaidens(InstanceScript* p_Instance, Creature* p_Source, Unit* p_Target)
+static void StartMaidens(InstanceScript* p_Instance, Creature* p_Source, Unit* p_Target)
 {
     if (p_Instance == nullptr || p_Source == nullptr || p_Target == nullptr)
-        return false;
+        return;
 
     if (p_Instance->GetBossState(eFoundryDatas::DataIronMaidens) == EncounterState::IN_PROGRESS)
-        return false; ///< Prevent recursive calls
+        return; ///< Prevent recursive calls
 
     p_Instance->SetBossState(eFoundryDatas::DataIronMaidens, EncounterState::IN_PROGRESS);
 
+    uint8 l_BossID = urand(0, 2);
     for (uint8 l_I = 0; l_I < 3; ++l_I)
     {
         if (Creature* l_Maiden = Creature::GetCreature(*p_Source, p_Instance->GetData64(g_IronMaidensEntries[l_I])))
@@ -101,13 +106,16 @@ static bool StartMaidens(InstanceScript* p_Instance, Creature* p_Source, Unit* p
             p_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, l_Maiden);
 
             if (l_Maiden->IsAIEnabled)
+            {
+                if (l_BossID == l_I)
+                    l_Maiden->AI()->Talk(0);
+
                 l_Maiden->AI()->AttackStart(p_Target);
+            }
 
             l_Maiden->SetInCombatWith(p_Target);
         }
     }
-
-    return true;
 }
 
 static void WipeMaidens(InstanceScript* p_Instance)

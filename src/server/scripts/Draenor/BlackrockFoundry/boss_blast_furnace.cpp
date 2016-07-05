@@ -1122,7 +1122,8 @@ class npc_foundry_blackhand_cosmetic : public CreatureScript
             Phase3Freedom1,
             Phase3Freedom2,
             HeartDeath,
-            KromogKilled
+            KromogKilled,
+            MaidensKilled
         };
 
         enum eActions

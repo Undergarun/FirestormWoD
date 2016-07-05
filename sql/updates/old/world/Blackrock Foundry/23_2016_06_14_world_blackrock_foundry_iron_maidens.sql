@@ -8,6 +8,7 @@ INSERT INTO areatrigger_scripts VALUES
 SET @REF_SORKA = 77231;
 SET @REF_GARAN = 77557;
 SET @REF_MARAK = 77477;
+SET @REF_COSMETIC_BLACKHAND = 76831;
 
 UPDATE creature_template SET unit_flags = unit_flags & ~(0x200000 | 0x04), dmg_multiplier = 10, ScriptName = "boss_enforcer_sorka", mechanic_immune_mask = 617299839 WHERE entry = @REF_SORKA;
 UPDATE creature_template SET unit_flags = unit_flags & ~(0x200000 | 0x04), dmg_multiplier = 10, ScriptName = "boss_admiral_garan", mechanic_immune_mask = 617299839 WHERE entry = @REF_GARAN;
@@ -44,7 +45,7 @@ INSERT INTO `areatrigger_template` (`spell_id`, `eff_index`, `entry`, `type`, `s
 (158707, 0, 158707, 2, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_protective_earth"),
 (158684, 0, 158684, 2, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_corrupted_blood");
 
-DELETE FROM spell_script_names WHERE spell_id IN (158078, 164271, 164279, 156214, 158315, 158009, 156601, 158148, 158724, 158849, 157854, 157867);
+DELETE FROM spell_script_names WHERE spell_id IN (158078, 164271, 164279, 156214, 158315, 158009, 156601, 158148, 158724, 158849, 157854, 157867, 156626);
 INSERT INTO spell_script_names VALUES
 (158078, "spell_foundry_blood_ritual"),
 (164271, "spell_foundry_penetrating_shot"),
@@ -57,7 +58,8 @@ INSERT INTO spell_script_names VALUES
 (158724, "spell_foundry_end_ship_phase"),
 (158849, "spell_foundry_warming_up"),
 (157854, "spell_foundry_bombardment_pattern_alpha"),
-(157867, "spell_foundry_detonation_sequence");
+(157867, "spell_foundry_detonation_sequence"),
+(156626, "spell_foundry_rapid_fire_periodic");
 
 DELETE FROM `conversation_template` WHERE `Entry` IN (118, 119);
 INSERT INTO `conversation_template` VALUES
@@ -196,7 +198,7 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (@REF_MARAK, 4, 100, 8, 0, -(@REF_MARAK + 1), 1);
 
 DELETE FROM npc_text WHERE ID IN (87897, 87898, 87921, 87899, 87937, 87900, 87922, 87923, 87902, 87924, 87901, 87925);
-INSERT INTO npc_text (ID, SoundID, text0_0, text0_1) VALUE
+INSERT INTO npc_text (ID, SoundID, text0_0, text0_1) VALUES
 (
     87897, 41824,
     "Patience, sisters. The sooner we finish our work, the sooner we crush our enemies.",
@@ -258,9 +260,421 @@ INSERT INTO npc_text (ID, SoundID, text0_0, text0_1) VALUE
     "Don't worry, I'm coming... this looks fun."
 );
 
--- DELETE FROM locales_npc_text WHERE entry IN (87897, 87898, 87921, 87899, 87937, 87900, 87922, 87923, 87902, 87924, 87901, 87925);
+DELETE FROM locales_npc_text WHERE entry IN (87897, 87898, 87921, 87899, 87937, 87900, 87922, 87923, 87902, 87924, 87901, 87925);
 --                                   French                      German                      Spanish                     Russian
--- INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUES
+(
+    87897,
+    "Patience, mes sœurs. Plus vite nous aurons terminé, plus vite nous écraserons nos ennemis.",
+    "Patience, mes sœurs. Plus vite nous aurons terminé, plus vite nous écraserons nos ennemis.",
+    "Weiter so, Schwestern. Je schneller wir unsere Arbeit erledigen, desto eher vernichten wir unsere Feinde.",
+    "Weiter so, Schwestern. Je schneller wir unsere Arbeit erledigen, desto eher vernichten wir unsere Feinde.",
+    "Paciencia, hermanas. Entre más pronto terminemos, más pronto aplastaremos al enemigo.",
+    "Paciencia, hermanas. Entre más pronto terminemos, más pronto aplastaremos al enemigo.",
+    "Терпение, сестры. Чем скорее мы закончим, тем скорее сокрушим врага.",
+    "Терпение, сестры. Чем скорее мы закончим, тем скорее сокрушим врага."
+),
+(
+    87898,
+    "Sorka ! Assure-toi que ces péons gardent le rythme !",
+    "Sorka ! Assure-toi que ces péons gardent le rythme !",
+    "Sorka! Stell sicher, dass die Peons ihr Pensum absolvieren!",
+    "Sorka! Stell sicher, dass die Peons ihr Pensum absolvieren!",
+    "¡Sorka! ¡Mira que los peones mantengan el ritmo!",
+    "¡Sorka! ¡Mira que los peones mantengan el ritmo!",
+    "Сорка, следи, чтобы батраки держали темп!",
+    "Сорка, следи, чтобы батраки держали темп!"
+),
+(
+    87921,
+    "Avec plaisir.",
+    "Avec plaisir.",
+    "Mit Vergnügen.",
+    "Mit Vergnügen.",
+    "Un placer.",
+    "Un placer.",
+    "С радостью.",
+    "С радостью."
+),
+(
+    87899,
+    "Marak ! Charge les munitions dans le canon principal !",
+    "Marak ! Charge les munitions dans le canon principal !",
+    "Marak! Lade die Munition in die Hauptkanone!",
+    "Marak! Lade die Munition in die Hauptkanone!",
+    "Marak, ¡carga las municiones en el cañón principal!",
+    "Marak, ¡carga las municiones en el cañón principal!",
+    "Марак! Заряжай главную пушку!",
+    "Марак! Заряжай главную пушку!"
+),
+(
+    87937,
+    "D'accord.",
+    "D'accord.",
+    "Alles klar.",
+    "Alles klar.",
+    "Bien.",
+    "Bien.",
+    "Хорошо.",
+    "Хорошо."
+),
+(
+    87900,
+    "Quoi ? Les trains ont du retard ?",
+    "Quoi ? Les trains ont du retard ?",
+    "Was? Die Züge fahren nicht mehr nach Zeitplan?",
+    "Was? Die Züge fahren nicht mehr nach Zeitplan?",
+    "¡¿Qué?! ¿Los trenes van retrasados?",
+    "¡¿Qué?! ¿Los trenes van retrasados?",
+    "Что?! Поезда задерживаются?",
+    "Что?! Поезда задерживаются?"
+),
+(
+    87922,
+    "... Je crois savoir d'où ça vient.",
+    "... Je crois savoir d'où ça vient.",
+    "... Ich denke, ich weiß, wo das Problem liegt.",
+    "... Ich denke, ich weiß, wo das Problem liegt.",
+    "... Creo que veo el problema.",
+    "... Creo que veo el problema.",
+    "...Кажется, я знаю, почему.",
+    "...Кажется, я знаю, почему."
+),
+(
+    87923,
+    "Voyons si ton entraînement avec nos soldats a porté ses fruits, Gar'an.",
+    "Voyons si ton entraînement avec nos soldats a porté ses fruits, Gar'an.",
+    "Mal sehen, wie gut Ihr unsere Soldaten trainiert habt, Ga'ran.",
+    "Mal sehen, wie gut Ihr unsere Soldaten trainiert habt, Ga'ran.",
+    "Veamos qué tan bien entrenaste a los soldados, Gar'an.",
+    "Veamos qué tan bien entrenaste a los soldados, Gar'an.",
+    "Посмотрим, как ты подготовила солдат, Гар'ан.",
+    "Посмотрим, как ты подготовила солдат, Гар'ан."
+),
+(
+    87902,
+    "Sale petite...",
+    "Sale petite...",
+    "Du widerspenstiges...",
+    "Du widerspenstiges...",
+    "¡Eres insoportable!",
+    "¡Eres insoportable!",
+    "Ах ты, несносная...",
+    "Ах ты, несносная..."
+),
+(
+    87924,
+    "Ha ! Toute cette brutalité, tout ce sang. C'est magnifique.",
+    "Ha ! Toute cette brutalité, tout ce sang. C'est magnifique.",
+    "Ha! Welch Brutalität, welch Blutvergießen. Herrlich.",
+    "Ha! Welch Brutalität, welch Blutvergießen. Herrlich.",
+    "¡Ja! Qué brutalidad, qué matanza. Hermoso.",
+    "¡Ja! Qué brutalidad, qué matanza. Hermoso.",
+    "Ха! Какая ярость, сколько крови! Красота.",
+    "Ха! Какая ярость, сколько крови! Красота."
+),
+(
+    87901,
+    "Sorka, on ne joue pas. Descends de là !",
+    "Sorka, on ne joue pas. Descends de là !",
+    "Sorka, das ist kein Spiel. Runter da!",
+    "Sorka, das ist kein Spiel. Runter da!",
+    "Sorka, no es un juego. ¡Baja de ahí!",
+    "Sorka, no es un juego. ¡Baja de ahí!",
+    "Сорка, это тебе не игра! Иди сюда!",
+    "Сорка, это тебе не игра! Иди сюда!"
+),
+(
+    87925,
+    "Ne t'inquiète pas, j'arrive. On va bien s'amuser.",
+    "Ne t'inquiète pas, j'arrive. On va bien s'amuser.",
+    "Keine Sorge, ich komme. Könnte lustig werden.",
+    "Keine Sorge, ich komme. Könnte lustig werden.",
+    "No te preocupes, ya voy. Se ve divertido.",
+    "No te preocupes, ya voy. Se ve divertido.",
+    "Иду, иду. Будет весело.",
+    "Иду, иду. Будет весело."
+);
+
+DELETE FROM creature_text WHERE entry IN (@REF_GARAN, @REF_SORKA, @REF_MARAK);
+INSERT INTO creature_text VALUES
+(@REF_GARAN, 0, 0, "Sisters, to battle!", 14, 0, 100, 0, 0, 41830, "Aggro"),
+(@REF_GARAN, 1, 0, "|TInterface\\Icons\\ability_hunter_rapidregeneration.blp:20|t Admiral Gar'an looks towards you and readies |cFFFF0000|Hspell:156626|h[Rapid Fire]|h|r!", 42, 0, 100, 0, 0, 0, "Rapid Fire warn"),
+(@REF_GARAN, 2, 0, "Rapid fire!", 14, 0, 100, 0, 0, 41839, "Rapid Fire"),
+(@REF_GARAN, 3, 0, "Admiral Gar'an prepares to man the Dreadnaught's Main Cannon!", 41, 0, 100, 0, 0, 0, "Dreadnaught warn"),
+(@REF_GARAN, 4, 0, "You will burn!", 14, 0, 100, 0, 0, 41836, "Dreadnaught"),
+(@REF_GARAN, 5, 0, "Lining up my sights...", 14, 0, 100, 0, 0, 41837, "Penetrating Shot"),
+(@REF_GARAN, 6, 0, "...than battle to death!", 14, 0, 100, 0, 0, 41840, "Iron Will"),
+(@REF_GARAN, 7, 0, "None will stand against the Iron Horde!", 14, 0, 100, 0, 0, 41832, "Slay 1"),
+(@REF_GARAN, 7, 1, "Enemy down.", 14, 0, 100, 0, 0, 41833, "Slay 2"),
+(@REF_GARAN, 8, 0, "Sisters, I... failed...", 14, 0, 100, 0, 0, 41831, "Death"),
+
+(@REF_SORKA, 0, 0, "I'm going to enjoy this...", 14, 0, 100, 0, 0, 41856, "Aggro"),
+(@REF_SORKA, 1, 0, "Too slow!", 14, 0, 100, 0, 0, 41861, "Blade Dash"),
+(@REF_SORKA, 2, 0, "Catch!", 14, 0, 100, 0, 0, 41862, "Convulsive Shadows"),
+(@REF_SORKA, 3, 0, "You...", 14, 0, 100, 0, 0, 41863, "Dark Hunt begin"),
+(@REF_SORKA, 4, 0, "...die now!", 14, 0, 100, 0, 0, 41864, "Dark Hunt end"),
+(@REF_SORKA, 5, 0, "Enforcer Sorka prepares to man the Dreadnaught's Main Cannon!", 41, 0, 100, 0, 0, 0, "Dreadnaught warn"),
+(@REF_SORKA, 6, 0, "All will burn!", 14, 0, 100, 0, 0, 41865, "Dreadnaught"),
+(@REF_SORKA, 7, 0, "No greater pleasure...", 14, 0, 100, 0, 0, 41866, "Iron Will"),
+(@REF_SORKA, 8, 0, "Oh, look... I broke it.", 14, 0, 100, 0, 0, 41858, "Slay 1"),
+(@REF_SORKA, 8, 1, "I'm just too good.", 14, 0, 100, 0, 0, 41859, "Slay 2"),
+(@REF_SORKA, 9, 0, "It feels... so...", 14, 0, 100, 0, 0, 41857, "Death"),
+
+(@REF_MARAK, 0, 0, "Time to die.", 14, 0, 100, 0, 0, 41711, "Aggro"),
+(@REF_MARAK, 1, 0, "Death...", 14, 0, 100, 0, 0, 41717, "Blood Ritual"),
+(@REF_MARAK, 2, 0, "Marak the Blooded begins to channel a |cFFFF0000|Hspell:158079|h[Blood Ritual]|h|r on you!", 42, 0, 100, 0, 0, 0, "Blood Ritual warn"),
+(@REF_MARAK, 3, 0, "Ancestors, guide my axe...", 14, 0, 100, 0, 0, 41718, "Bloodsoaked Heartseeker 1"),
+(@REF_MARAK, 3, 1, "Dance with my blade!", 14, 0, 100, 0, 0, 41716, "Bloodsoaked Heartseeker 2"),
+(@REF_MARAK, 4, 0, "You will know pain...", 14, 0, 100, 0, 0, 41719, "Dreadnaught"),
+(@REF_MARAK, 5, 0, "Marak the Blooded prepares to man the Dreadnaught's Main Cannon!", 41, 0, 100, 0, 0, 0, "Dreadnaught warn"),
+(@REF_MARAK, 6, 0, "Lok'tar ogar...", 14, 0, 100, 0, 0, 41720, "Iron Will"),
+(@REF_MARAK, 7, 0, "Feast, Koloch'na!", 14, 0, 100, 0, 0, 41713, "Slay 1"),
+(@REF_MARAK, 7, 1, "I win.", 14, 0, 100, 0, 0, 41714, "Slay 2"),
+(@REF_MARAK, 8, 0, "My... blood...", 14, 0, 100, 0, 0, 41712, "Death");
+
+DELETE FROM locales_creature_text WHERE entry IN (@REF_GARAN, @REF_SORKA, @REF_MARAK);
+--                                                       French     German     Spanish    Russian
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUES
+(
+    @REF_GARAN, 0, 0,
+    "Mes sœurs ! Au combat !",
+    "In den Kampf, Schwestern!",
+    "¡Hermanas! ¡A la batalla!",
+    "Сестры! К бою!"
+),
+(
+    @REF_GARAN, 1, 0,
+    "|TInterface\\Icons\\ability_hunter_rapidregeneration.blp:20|tL'Amiral Garan vous regarde et prépare |cFFFF0000|Hspell:156626|h[Tir rapide]|h|r !",
+    "|TInterface\\Icons\\ability_hunter_rapidregeneration.blp:20|t Admiralin Gar'an schaut Euch an und bereitet |cFFFF0000|Hspell:156626|h[Schnellfeuer]|h|r vor!",
+    "|TInterface\\Icons\\ability_hunter_rapidregeneration.blp:20|t La almirante Gar'an voltea a verte y prepara |cFFFF0000|Hspell:156626|h[Fuego rápido]|h|r.",
+    "|TInterface\\Icons\\ability_hunter_rapidregeneration.blp:20|t Адмирал Гар'ан оглядывается на вас и готовится открыть |cFFFF0000|Hspell:156626|h[беглый огонь]|h|r!"
+),
+(
+    @REF_GARAN, 2, 0,
+    "Tir en rafale... !",
+    "Schnellfeuer...!",
+    "¡Fuego rápido...!",
+    "Беглый огонь!.."
+),
+(
+    @REF_GARAN, 3, 0,
+    "L'amiral Gar'an s'apprête à employer le canon principal du Cuirassier !",
+    "Admiralin Gar'an bereitet sich darauf vor, die Hauptkanone des Schlachtschiffs zu bemannen!",
+    "¡La almirante Gar'an se prepara para manejar el cañón principal del Acorazado!",
+    "Адмирал Гар'ан готовится занять позицию у главного орудия дредноута!"
+),
+(
+    @REF_GARAN, 4, 0,
+    "Vous... allez... brûler !",
+    "Ihr... werdet... brennen!",
+    "¡Tu... vas... a arder!",
+    "Ты... сгоришь!"
+),
+(
+    @REF_GARAN, 5, 0,
+    "En ligne de mire...",
+    "Schön stillhalten...",
+    "Alineando la mira...",
+    "Прицеливаюсь..."
+),
+(
+    @REF_GARAN, 6, 0,
+    "... qu'un combat jusqu'à la mort !",
+    "... als einen Kampf auf Leben und Tod!",
+    "... ¡pelear hasta la muerte!",
+    "...чем смертельная битва!"
+),
+(
+    @REF_GARAN, 7, 0,
+    "Personne ne tiendra tête à la Horde de Fer.",
+    "Niemand widersetzt sich der Eisernen Horde.",
+    "Nadie podrá contra la Horda de Hierro.",
+    "Все падут пред Железной Ордой."
+),
+(
+    @REF_GARAN, 7, 1,
+    "Ennemi à terre.",
+    "Feind gefallen.",
+    "Enemigo derribado.",
+    "Один готов."
+),
+(
+    @REF_GARAN, 8, 0,
+    "Mes sœurs... j'ai... échoué...",
+    "Schwestern... Ich... habe versagt...",
+    "Hermanas... he... fallado...",
+    "Сестры... я... подвела... вас..."
+),
+(
+    @REF_SORKA, 0, 0,
+    "Je sens que ça va me plaire.",
+    "Das werde ich genießen.",
+    "Voy a disfrutar esto...",
+    "Это мне по нраву."
+),
+(
+    @REF_SORKA, 1, 0,
+    "Trop lent.",
+    "Zu langsam.",
+    "¡Muy lento!",
+    "Не успели."
+),
+(
+    @REF_SORKA, 2, 0,
+    "Attrapez !",
+    "Fang!",
+    "¡Atrápalo!",
+    "Лови!"
+),
+(
+    @REF_SORKA, 3, 0,
+    "Vous...",
+    "Du...",
+    "Tú...",
+    "Ты..."
+),
+(
+    @REF_SORKA, 4, 0,
+    "... allez mourir !",
+    "...wirst jetzt sterben!",
+    "... ¡muere ahora!",
+    "...умрешь!"
+),
+(
+    @REF_SORKA, 5, 0,
+    "La massacreuse Sorka s'apprête à employer le canon principal du Cuirassier !",
+    "Vollstreckerin Sorka bereitet sich darauf vor, die Hauptkanone des Schlachtschiffs zu bemannen!",
+    "¡La déspota Sorka se prepara para manejar el cañón principal del Acorazado!",
+    "Сорка Отчаянная готовится занять позицию у главного орудия дредноута!"
+),
+(
+    @REF_SORKA, 6, 0,
+    "Vous brûlerez tous !",
+    "Alles wird brennen!",
+    "¡Todo arderá!",
+    "Сгорите все!"
+),
+(
+    @REF_SORKA, 7, 0,
+    "Il n'existe rien de plus beau...",
+    "Es gibt kein größeres Vergnügen...",
+    "No hay mayor placer...",
+    "Нет радости больше..."
+),
+(
+    @REF_SORKA, 8, 0,
+    "Allons bon... je l'ai cassé !",
+    "Oh, nein... Ich hab's kaputt gemacht!",
+    "Oh, mira... ¡lo rompí!",
+    "Ой... сломалось!"
+),
+(
+    @REF_SORKA, 8, 1,
+    "J'ai du talent pour ça.",
+    "Ich bin einfach... zu gut.",
+    "Es que soy... muy buena.",
+    "Я великолепна."
+),
+(
+    @REF_SORKA, 9, 0,
+    "Je me... sens...",
+    "Es fühlt sich... so...",
+    "Se siente... tan...",
+    "Это... так..."
+),
+(
+    @REF_MARAK, 0, 0,
+    "C'est l'heure de mourir.",
+    "Zeit zu sterben.",
+    "Hora de morir.",
+    "Пора умирать."
+),
+(
+    @REF_MARAK, 1, 0,
+    "La mort...",
+    "Tod...",
+    "Muerte...",
+    "Смерть..."
+),
+(
+    @REF_MARAK, 2, 0,
+    "Marak Premier-sang commence à canaliser |cFFFF0000|Hspell:158079|h[Rituel de sang]|h|r sur vous !",
+    "Marak die Blutige beginnt, ein |cFFFF0000|Hspell:158079|h[Blutritual]|h|r auf Euch zu wirken!",
+    "¡Marak la Ensangrentada comienza a canalizar un |cFFFF0000|Hspell:158079|h[Ritual de sangre]|h|r sobre ti!",
+    "Марак Кровавая выбирает вас целью и начинает |cFFFF0000|Hspell:158079|h[ритуал крови]|h|r!"
+),
+(
+    @REF_MARAK, 3, 0,
+    "Ancêtres, guidez ma hache !",
+    "Ihr Ahnen, leitet meine Axt!",
+    "¡Ancestros, guíen mi hacha!",
+    "Да направят предки мой топор!"
+),
+(
+    @REF_MARAK, 3, 1,
+    "Dansez avec ma lame.",
+    "Tanzt mit meiner Klinge.",
+    "Baila con mi hacha.",
+    "Лови топор!"
+),
+(
+    @REF_MARAK, 4, 0,
+    "Vous allez connaître la douleur...",
+    "Ihr werdet erfahren, was Schmerz ist...",
+    "Conocerán el dolor...",
+    "Познайте боль..."
+),
+(
+    @REF_MARAK, 5, 0,
+    "Marak Premier-sang s'apprête à employer le canon principal du Cuirassier !",
+    "Marak die Blutige bereitet sich darauf vor, die Hauptkanone des Schlachtschiffs zu bemannen!",
+    "¡Marak la Ensangrentada se prepara para manejar el cañón principal del Acorazado!",
+    "Марак Кровавая готовится занять позицию у главного орудия дредноута!"
+),
+(
+    @REF_MARAK, 6, 0,
+    "Lok'tar ogar !",
+    "Lok'tar ogar!",
+    "¡Lok'tar ogar!",
+    "Лок'тар огар!"
+),
+(
+    @REF_MARAK, 7, 0,
+    "Profite du festin, Koloch'na...",
+    "Labe dich, Koloch'na...",
+    "Come, Koloch'na...",
+    "Пируй, Колох..."
+),
+(
+    @REF_MARAK, 7, 1,
+    "J'ai gagné.",
+    "Ich gewinne.",
+    "Gané.",
+    "Тебе конец."
+),
+(
+    @REF_MARAK, 8, 0,
+    "Mon... sang...",
+    "Mein... Blut...",
+    "Mi... sangre...",
+    "Моя... кровь..."
+);
+
+DELETE FROM creature_text WHERE entry = @REF_COSMETIC_BLACKHAND AND groupid = 13;
+INSERT INTO creature_text VALUE
+(@REF_COSMETIC_BLACKHAND, 13, 0, "The Iron Maidens have fallen? They were my favorite! Find these invaders and bring me their heads!", 14, 0, 100, 0, 0, 45461, "Maidens Killed");
+
+DELETE FROM locales_creature_text WHERE entry = @REF_COSMETIC_BLACKHAND AND textGroup = 13;
+--                                                       French     German     Spanish    Russian
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    @REF_COSMETIC_BLACKHAND, 13, 0,
+    "Les vierges de Fer sont mortes ? C'étaient mes favorites ! Trouvez ces envahisseurs et rapportez-moi leurs têtes !",
+    "Die Eisernen Jungfern sind gefallen? Sie waren mir die Liebsten! Findet diese Maden und bringt mir ihre Köpfe!",
+    "¿Las Doncellas de Hierro murieron? ¡Eran mis favoritas! ¡Encuentra a esos invasores y tráiganme sus cabezas!",
+    "Железные леди пали? Мои любимицы! Найдите чужаков и принесите мне их головы!"
+);
 
 DELETE FROM creature_groupsizestats WHERE entry = @REF_GARAN;
 INSERT INTO creature_groupsizestats (entry, difficulty, groupSize, health) VALUES

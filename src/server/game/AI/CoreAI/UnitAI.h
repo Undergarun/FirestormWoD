@@ -289,6 +289,23 @@ class UnitAI
         Player* SelectRangedTarget(bool p_AllowHeal = true, int32 p_CheckAura = 0) const;
         /// In mostly cases, tanks will not be targeted
         Player* SelectMeleeTarget(bool p_AllowTank = false) const;
+
+        enum eTargetTypeMask
+        {
+            TypeMaskNone        = 0x00,
+            TypeMaskTank        = 0x01,
+            TypeMaskMelee       = 0x02,
+            TypeMaskRanged      = 0x04,
+            TypeMaskHealer      = 0x08,
+
+            TypeMaskAllMelee    = eTargetTypeMask::TypeMaskMelee | eTargetTypeMask::TypeMaskTank,
+            TypeMaskAllRanged   = eTargetTypeMask::TypeMaskRanged | eTargetTypeMask::TypeMaskHealer,
+            TypeMaskNonTank     = eTargetTypeMask::TypeMaskAllRanged | eTargetTypeMask::TypeMaskMelee
+        };
+
+        /// Select a player target, allowing melee, ranged, and/or tanks
+        Player* SelectPlayerTarget(eTargetTypeMask p_TypeMask, std::vector<int32> p_ExcludeAuras = { }, float p_Dist = 0.0f);
+
         Player* SelectMainTank() const;
         Player* SelectOffTank() const;
 
