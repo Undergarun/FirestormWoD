@@ -54,6 +54,15 @@ namespace MS { namespace Utilities
                 return (l_Itr != m_ObjectMap.end()) ? l_Itr->second : 0;
             }
 
+            /// Find a element
+            /// @p_Key : Element key
+            ElementType Find(KeyType& p_Key) const
+            {
+                TRINITY_READ_GUARD(LockType, m_Lock);
+                typename MapType::const_iterator l_Itr = m_ObjectMap.find(p_Key);
+                return (l_Itr != m_ObjectMap.end()) ? l_Itr->second : 0;
+            }
+
             /// Get container
             MapType& GetContainer()
             {
@@ -66,8 +75,8 @@ namespace MS { namespace Utilities
             }
 
         private:
-            LockType m_Lock;        ///< Map lock
-            MapType  m_ObjectMap;   ///< Map
+            mutable LockType m_Lock; ///< Map lock
+            MapType  m_ObjectMap;    ///< Map
 
     };
 

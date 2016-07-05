@@ -2433,7 +2433,7 @@ bool ScriptMgr::HasPlayerConditionScript(uint32 p_ID)
 /// @p_ConditionID : Condition ID
 /// @p_Condition   : Condition
 /// @p_Player      : Player instance
-bool ScriptMgr::EvalPlayerConditionScript(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player* p_Player)
+bool ScriptMgr::EvalPlayerConditionScript(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player const* p_Player)
 {
     auto l_Script = m_PlayerConditionScripts.Find(p_ConditionID);
 

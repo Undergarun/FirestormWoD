@@ -1893,6 +1893,11 @@ class spell_warl_demonic_leap: public SpellScriptLoader
                 DemonicLeapBackwardRight = 111739
             };
 
+            std::map<uint32, uint32> mapbab = 
+            {
+                { eSpells::DemonicLeapBackwardLeft, MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT },
+            };
+
             void HandleAfterCast()
             {
                 if (Unit* caster = GetCaster())

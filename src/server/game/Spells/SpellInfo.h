@@ -437,7 +437,6 @@ public:
     SpellChainNode const* ChainEntry;
     std::list<SpellPowerEntry const*> SpellPowers;
     uint32 ResearchProject;
-    uint32 FirstSpellXSpellVisualID;
     uint8 EffectCount;
 
     // SpecializationSpellEntry
@@ -449,6 +448,8 @@ public:
 
     // Difficulty
     uint32 DifficultyID;
+
+    SpellVisualMap m_SpellVisuals;
 
     // struct access functions
     SpellTargetRestrictionsEntry const* GetSpellTargetRestrictions() const;
@@ -666,6 +667,8 @@ public:
     bool IsAffectedByWodAuraSystem() const;
     bool IsAuraNeedDynamicCalculation() const;
     bool IsAuraNeedPandemicEffect() const;
+
+    uint32 GetSpellXSpellVisualId(Unit const* p_Caster /*= nullptr*/) const;
 };
 
 #endif // _SPELLINFO_H

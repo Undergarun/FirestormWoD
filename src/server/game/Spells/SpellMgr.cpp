@@ -3137,36 +3137,6 @@ void SpellMgr::LoadSpellInfoStore()
         }
     }
 
-
-    ///Hackfix for astral Form - 114303 114302 
-    //@TODO : Generic
-    std::array<uint32, 2> l_IDs =
-    {50762, 89698};
-    for (uint32 l_ID : l_IDs)
-    {
-        SpellXSpellVisualEntry const* l_Entry = sSpellXSpellVisualStore.LookupEntry(l_ID);
-
-        if (!l_Entry)
-            continue;
-        
-        if (!l_Entry->SpellId || l_Entry->SpellId >= sSpellStore.GetNumRows())
-            continue;
-
-        /// Register first visual entry found for all difficulties
-        for (uint8 l_I = 0; l_I < Difficulty::MaxDifficulties; ++l_I)
-        {
-            SpellInfo* l_SpellInfo = mSpellInfoMap[l_I][l_Entry->SpellId];
-            if (!l_SpellInfo)
-                continue;
-
-            for (uint8 l_J = 0; l_J < MAX_SPELL_VISUAL; ++l_J)
-                l_SpellInfo->SpellVisual[l_J] = l_Entry->VisualID[l_J];
-
-            l_SpellInfo->FirstSpellXSpellVisualID = l_Entry->Id;
-        }
-    }
-
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded spell info store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 

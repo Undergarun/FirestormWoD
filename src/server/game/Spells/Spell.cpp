@@ -603,9 +603,9 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     for (uint8 i = 0; i < m_spellInfo->EffectCount; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
 
-    std::list<AuraEffect*>const& l_VisualModifiers = m_caster->GetAuraEffectsByType(SPELL_AURA_CHANGE_VISUAL_EFFECT);
-    m_SpellVisualID = m_spellInfo->FirstSpellXSpellVisualID;
+    m_SpellVisualID = m_spellInfo->GetSpellXSpellVisualId(m_caster);
 
+    std::list<AuraEffect*>const& l_VisualModifiers = m_caster->GetAuraEffectsByType(SPELL_AURA_CHANGE_VISUAL_EFFECT);
     for (AuraEffect* l_Effect : l_VisualModifiers)
     {
         if (l_Effect->GetMiscValue() == m_spellInfo->Id
