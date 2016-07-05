@@ -474,7 +474,7 @@ class spell_pri_glyph_of_holy_nova: public SpellScriptLoader
         }
 };
 
-// Spectral Guise Charges - 119030
+/// Spectral Guise Charges - 119032
 class spell_pri_spectral_guise_charges: public SpellScriptLoader
 {
     public:
