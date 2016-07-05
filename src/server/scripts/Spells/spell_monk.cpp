@@ -596,12 +596,17 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Chi Brew - 115399
 class spell_monk_chi_brew: public SpellScriptLoader
 {
     public:
         spell_monk_chi_brew() : SpellScriptLoader("spell_monk_chi_brew") { }
+
+        enum eSpells
+        {
+            SoothingMist = 115175
+        };
 
         class spell_monk_chi_brew_SpellScript : public SpellScript
         {
@@ -612,6 +617,18 @@ class spell_monk_chi_brew: public SpellScriptLoader
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BREW))
                     return false;
                 return true;
+            }
+
+            void HandleOnPrepare()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == eSpells::SoothingMist)
+                    {
+                        TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+                        GetSpell()->setTriggerCastFlags(l_Flags);
+                    }
+                }
             }
 
             void HandleOnHit()
@@ -657,13 +674,14 @@ class spell_monk_chi_brew: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
+                OnPrepare += SpellOnPrepareFn(spell_monk_chi_brew_SpellScript::HandleOnPrepare);
                 OnHit += SpellHitFn(spell_monk_chi_brew_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_chi_brew_SpellScript();
         }
