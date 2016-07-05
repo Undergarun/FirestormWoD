@@ -24,7 +24,7 @@ class PlayerConditionScript : public ScriptObjectImpl<false>
         /// @p_ConditionID : Player condition ID
         /// @p_Condition   : Player condition instance
         /// @p_SourceInfo  : Player
-        virtual bool OnConditionCheck(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player* p_Player)
+        virtual bool OnConditionCheck(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player const* p_Player)
         {
             UNUSED(p_ConditionID);
             UNUSED(p_Condition);

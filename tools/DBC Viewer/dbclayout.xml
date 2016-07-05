@@ -6781,6 +6781,7 @@
     <field type="int" name="MinPVPRank" />
     <field type="int" name="MaxPVPRank" />
     <field type="int" name="PvpMedal" />
+	<field type="int" name="unk" />
     <field type="int" name="PrevQuestLogic" />
     <field type="int" name="PrevQuestID1" />
     <field type="int" name="PrevQuestID2" />
@@ -6820,7 +6821,6 @@
     <field type="int" name="AuraSpellID2" />
     <field type="int" name="AuraSpellID3" />
     <field type="int" name="AuraSpellID4" />
-    <field type="int" name="AuraSpellID5" />
     <field type="int" name="WorldStateExpressionID" />
     <field type="int" name="WeatherID" />
     <field type="int" name="PartyStatus" />

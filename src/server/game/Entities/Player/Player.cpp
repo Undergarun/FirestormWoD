@@ -3294,7 +3294,7 @@ enum
     LOGIC_FLAG_COL_3_XOR_RESULT_TRUE    = 0x00080000,
 };
 
-std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, bool /*p_FailIfConditionNotFound*/)
+std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, bool /*p_FailIfConditionNotFound*/) const
 {
     PlayerConditionEntry const* l_Entry = sPlayerConditionStore.LookupEntry(p_ConditionsID);
 
@@ -3456,10 +3456,10 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     {
         bool l_Matches[4] { true, true, true, true };
 
-        if (l_Entry->SpellID[0] != 0) l_Matches[0] = HasSpell(l_Entry->SpellID[0]);
-        if (l_Entry->SpellID[1] != 0) l_Matches[1] = HasSpell(l_Entry->SpellID[1]);
-        if (l_Entry->SpellID[2] != 0) l_Matches[2] = HasSpell(l_Entry->SpellID[2]);
-        if (l_Entry->SpellID[3] != 0) l_Matches[3] = HasSpell(l_Entry->SpellID[3]);
+        if (l_Entry->SpellID[0] != 0) l_Matches[0] = HasSpell(l_Entry->SpellID[0]) || HasGlyph(l_Entry->SpellID[0]);
+        if (l_Entry->SpellID[1] != 0) l_Matches[1] = HasSpell(l_Entry->SpellID[1]) || HasGlyph(l_Entry->SpellID[1]);
+        if (l_Entry->SpellID[2] != 0) l_Matches[2] = HasSpell(l_Entry->SpellID[2]) || HasGlyph(l_Entry->SpellID[2]);
+        if (l_Entry->SpellID[3] != 0) l_Matches[3] = HasSpell(l_Entry->SpellID[3]) || HasGlyph(l_Entry->SpellID[3]);
 
         if (!EvalMatch(l_Matches, l_Entry->SpellLogic))
             return std::pair<bool, std::string>(false, "Failed on SpellID");
@@ -3512,15 +3512,14 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     /// @TODO : Time
 
     #pragma region AuraSpellLogic, AuraSpellID
-    if (l_Entry->AuraSpellID[0] || l_Entry->AuraSpellID[1] || l_Entry->AuraSpellID[2] || l_Entry->AuraSpellID[3]|| l_Entry->AuraSpellID[4])
+    if (l_Entry->AuraSpellID[0] || l_Entry->AuraSpellID[1] || l_Entry->AuraSpellID[2] || l_Entry->AuraSpellID[3])
     {
-        bool l_Matches[] { true, true, true, true, true };
+        bool l_Matches[] { true, true, true, true };
 
         if (l_Entry->AuraSpellID[0] != 0) l_Matches[0] = HasAura(l_Entry->AuraSpellID[0]);
         if (l_Entry->AuraSpellID[1] != 0) l_Matches[1] = HasAura(l_Entry->AuraSpellID[1]);
         if (l_Entry->AuraSpellID[2] != 0) l_Matches[2] = HasAura(l_Entry->AuraSpellID[2]);
         if (l_Entry->AuraSpellID[3] != 0) l_Matches[3] = HasAura(l_Entry->AuraSpellID[3]);
-        if (l_Entry->AuraSpellID[4] != 0) l_Matches[4] = HasAura(l_Entry->AuraSpellID[4]);
 
         if (!EvalMatch(l_Matches, l_Entry->AuraSpellLogic))
             return std::pair<bool, std::string>(false, "Failed on AuraSpellID");
@@ -21815,7 +21814,7 @@ void Player::_LoadGlyphAuras()
     }
 }
 
-bool Player::HasGlyph(uint32 spell_id)
+bool Player::HasGlyph(uint32 spell_id) const
 {
     for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
         if (uint32 glyph = GetGlyph(GetActiveSpec(), i))
@@ -33499,7 +33498,7 @@ uint32 Player::GetFreeReagentBankSlot() const
     return REAGENT_BANK_SLOT_BAG_END;
 }
 
-MS::Garrison::Manager * Player::GetGarrison()
+MS::Garrison::Manager * Player::GetGarrison() const
 {
     return m_Garrison;
 }

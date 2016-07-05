@@ -243,7 +243,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
         return;
 
     p_Data << uint32(p_OverrideSpellID ? p_OverrideSpellID : l_Base->GetId());                                  ///< SpellID
-    p_Data << uint32(l_Base->GetSpellInfo()->FirstSpellXSpellVisualID);                                         ///< SpellVisuals
+    p_Data << uint32(l_Base->GetSpellInfo()->GetSpellXSpellVisualId(GetTarget()));                              ///< SpellVisuals
     p_Data << uint8(l_Flags);                                                                                   ///< Flags
     p_Data << uint32(l_Mask);                                                                                   ///< Active Flags
     p_Data << uint16(l_Base->GetCasterLevel());                                                                 ///< Cast Level
