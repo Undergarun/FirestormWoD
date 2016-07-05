@@ -3722,6 +3722,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 156324: ///< Acid Torrent (AoE)
             case 155225: ///< Melt (Heart of the Mountain)
+            case 164279: ///< Penetrating Shot - Cylinder damage (Admiral Gar'an - Iron Maidens)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 break;
             case 177756: ///< Deafening Roar (Bellows Operator)
