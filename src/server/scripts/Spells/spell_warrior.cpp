@@ -3364,16 +3364,6 @@ class spell_warr_taunt : public SpellScriptLoader
                 DefensiveStance = 71
             };
 
-            SpellCastResult CheckStance()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE && l_Caster->GetShapeshiftForm() != FORM_GLADIATORSTANCE)
-                    return SPELL_FAILED_NOT_SHAPESHIFT;
-
-                return SPELL_CAST_OK;
-            }
-
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -3384,7 +3374,6 @@ class spell_warr_taunt : public SpellScriptLoader
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_warr_taunt_SpellScript::CheckStance);
                 OnCast += SpellCastFn(spell_warr_taunt_SpellScript::HandleOnCast);
             }
         };
