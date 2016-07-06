@@ -1656,7 +1656,12 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     l_Data << uint32(instance->GetPlayers().getSize());
     instance->SendToPlayers(&l_Data);
 
+    /// Don't record the kill if encounter is disabled
     if (sObjectMgr->IsDisabledEncounter(p_EncounterID, instance->GetDifficultyID()))
+        return;
+
+    /// Don't record the kill if it's a test realm
+    if (!sWorld->CanBeSaveInLoginDatabase())
         return;
 
     /// Reset datas before each attempt
@@ -1707,7 +1712,12 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     l_Data.FlushBits();
     instance->SendToPlayers(&l_Data);
 
+    /// Don't record the kill if encounter is disabled
     if (sObjectMgr->IsDisabledEncounter(p_EncounterID, instance->GetDifficultyID()))
+        return;
+
+    /// Don't record the kill if it's a test realm
+    if (!sWorld->CanBeSaveInLoginDatabase())
         return;
 
     m_EncounterDatas.CombatDuration = uint32(time(nullptr)) - m_EncounterDatas.StartTime;
