@@ -1132,8 +1132,6 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty, SpellV
     RangeEntry = _misc ? (_misc->rangeIndex ? sSpellRangeStore.LookupEntry(_misc->rangeIndex) : NULL) : NULL;
     Speed = _misc ? _misc->speed : 1.00f;
 
-    memset(SpellVisual, 0, sizeof(SpellVisual));
-
     SpellIconID = _misc ? _misc->SpellIconID : 0;
     ActiveIconID = _misc ? _misc->activeIconID : 0;
     SchoolMask = _misc ? _misc->SchoolMask : 0;
@@ -4830,17 +4828,40 @@ uint32 SpellInfo::GetSpellXSpellVisualId(Unit const* p_Caster /*= nullptr*/) con
 
             l_DifficultyEntry = sDifficultyStore.LookupEntry(l_DifficultyEntry->FallbackDifficultyID);
         }
-    }
 
-    auto itr = m_SpellVisuals.find(Difficulty::DifficultyNone);
-    if (itr != m_SpellVisuals.end())
-    {
-        for (SpellXSpellVisualEntry const* l_Visual : itr->second)
+        auto itr = m_SpellVisuals.find(Difficulty::DifficultyNone);
+        if (itr != m_SpellVisuals.end())
         {
-            if (!l_Visual->ConditionID || (p_Caster->IsPlayer() && p_Caster->ToPlayer()->EvalPlayerCondition(l_Visual->ConditionID).first))
-                return l_Visual->Id;
+            for (SpellXSpellVisualEntry const* l_Visual : itr->second)
+            {
+                if (!l_Visual->ConditionID || (p_Caster->IsPlayer() && p_Caster->ToPlayer()->EvalPlayerCondition(l_Visual->ConditionID).first))
+                    return l_Visual->Id;
+            }
+        }
+    }
+    else
+    {
+        auto itr = m_SpellVisuals.find(Difficulty::DifficultyNone);
+        if (itr != m_SpellVisuals.end())
+        {
+            for (SpellXSpellVisualEntry const* l_Visual : itr->second)
+            {
+                if (!l_Visual->ConditionID)
+                    return l_Visual->Id;
+            }
         }
     }
 
     return 0;
+}
+
+uint32 SpellInfo::GetSpellVisualID(Unit const* p_Caster) const
+{
+    int64 l_SpellVisualId = 0;
+    l_SpellVisualId = sSpellMgr->GetSpellVisualOverride(Id);
+
+    if (l_SpellVisualId < 0)
+        l_SpellVisualId = GetSpellXSpellVisualId(p_Caster);
+
+    return (uint32)l_SpellVisualId;
 }

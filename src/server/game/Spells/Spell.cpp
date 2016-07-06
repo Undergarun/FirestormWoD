@@ -603,7 +603,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     for (uint8 i = 0; i < m_spellInfo->EffectCount; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
 
-    m_SpellVisualID = m_spellInfo->GetSpellXSpellVisualId(m_caster);
+    m_SpellVisualID = m_spellInfo->GetSpellVisualID(m_caster);
 
     std::list<AuraEffect*>const& l_VisualModifiers = m_caster->GetAuraEffectsByType(SPELL_AURA_CHANGE_VISUAL_EFFECT);
     for (AuraEffect* l_Effect : l_VisualModifiers)
@@ -3406,7 +3406,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
                 // Now Reduce spell duration using data received at spell hit
                 int32 duration = m_spellAura->GetMaxDuration();
-                int32 limitduration = GetDiminishingReturnsLimitDuration(aurSpellInfo);
+                int32 limitduration = GetDiminishingReturnsLimitDuration(aurSpellInfo, m_originalCaster);
                 float diminishMod = unit->ApplyDiminishingToDuration(m_diminishGroup, duration, m_originalCaster, m_diminishLevel, limitduration);
 
                 // unit is immune to aura if it was diminished to 0 duration
@@ -8545,7 +8545,13 @@ bool Spell::IsAutoActionResetSpell() const
 
 bool Spell::IsNeedSendToClient() const
 {
-    return m_spellInfo->SpellVisual[0] || m_spellInfo->SpellVisual[1] || m_spellInfo->IsChanneled() || m_spellInfo->HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS) ||
+    SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(m_spellInfo->GetSpellXSpellVisualId());
+    uint32 const l_Dummy[2] = { 0, 0 };
+    uint32 const* l_VisualID = l_Dummy;
+    if (l_VisualEntry)
+        l_VisualID = l_VisualEntry->VisualID;
+
+    return l_VisualID[0] || l_VisualID[1] || m_spellInfo->IsChanneled() || m_spellInfo->HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS) ||
         (m_spellInfo->AttributesEx8 & SPELL_ATTR8_AURA_SEND_AMOUNT) || m_spellInfo->Speed > 0.0f || (!m_triggeredByAuraSpell && !IsTriggered());
 }
 
