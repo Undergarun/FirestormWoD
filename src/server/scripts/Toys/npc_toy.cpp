@@ -183,7 +183,7 @@ class npc_train_wrecker : public CreatureScript
                         }
                         case eWreckerDatas::EventThogarAchiev:
                         {
-                            if (GameObject* l_Train = me->FindNearestGameObject(eWreckerDatas::ThogarTrain, 10.0f))
+                            if (Creature* l_Train = me->FindNearestCreature(eWreckerDatas::ThogarTrain, 10.0f))
                             {
                                 if (InstanceScript* l_InstanceScript = l_Train->GetInstanceScript())
                                 {
