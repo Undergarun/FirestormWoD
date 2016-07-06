@@ -2731,21 +2731,6 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     SetHitDamage(int32(GetHitDamage() * 1.5f));
             }
 
-            void HandleAfterCast()
-            {
-                Player* l_Player = GetCaster()->ToPlayer();
-                if (!l_Player)
-                    return;
-                
-                if (l_Player->HasAura(eSpells::EchoOfTheElements))
-                    m_EchoOfTheElements = true;
-
-                SpellInfo const* l_LavaSurge = sSpellMgr->GetSpellInfo(eSpells::LavaSurge);
-
-                if (l_LavaSurge != nullptr && m_EchoOfTheElements)
-                    l_Player->RestoreCharge(l_LavaSurge->ChargeCategoryEntry);
-            }
-
             void HandleAfterHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -2764,7 +2749,6 @@ class spell_sha_lava_burst: public SpellScriptLoader
             void Register() override
             {
                 AfterHit += SpellHitFn(spell_sha_lava_burst_SpellScript::HandleAfterHit);
-                AfterCast += SpellCastFn(spell_sha_lava_burst_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
