@@ -1540,7 +1540,7 @@ class spell_warl_soul_leech: public SpellScriptLoader
 
             void Register() override
             {
-                if (m_scriptSpellId != eSpells::DrainSoul)
+                if (m_scriptSpellId == eSpells::DrainSoul)
                     AfterEffectPeriodic += AuraEffectPeriodicFn(spell_warl_soul_leech_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
