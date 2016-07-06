@@ -101,12 +101,14 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo 
         uint32 const* l_VisualID = nullptr;
         if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(spellInfo->GetSpellXSpellVisualId(caster)))
             l_VisualID = l_VisualEntry->VisualID;
-        uint32 visual = l_VisualID[0] ? l_VisualID[0] : l_VisualID[1];
+
+        uint32 visual = l_VisualID != nullptr ? (l_VisualID[0] ? l_VisualID[0] : l_VisualID[1]) : 0;
         if (spellInfo->Id == 104232 || spellInfo->Id == 5740) // Rain of Fire
         {
             if (caster->HasAura(101508)) // green fire spells
                 visual = 25761;
         }
+
         SetUInt32Value(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, 0x10000000 | visual);
     }
 

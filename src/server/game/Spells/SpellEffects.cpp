@@ -3686,13 +3686,13 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
     else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN)
         duration = 3600;                                    // 1 hour
     // other cases with this SpellVisual already selected
-    else if (l_VisualID[0] == 215)
+    else if (l_VisualID && l_VisualID[0] == 215)
         duration = 1800;                                    // 30 mins
     // some fishing pole bonuses except Glow Worm which lasts full hour
-    else if (l_VisualID[0] == 563 && m_spellInfo->Id != 64401)
+    else if (l_VisualID && l_VisualID[0] == 563 && m_spellInfo->Id != 64401)
         duration = 600;                                     // 10 mins
     // shaman rockbiter enchantments
-    else if (l_VisualID[0] == 0)
+    else if (l_VisualID && l_VisualID[0] == 0)
         duration = 1800;                                    // 30 mins
     else if (m_spellInfo->Id == 29702)
         duration = 1800;                                    ///< 30 mins

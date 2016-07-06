@@ -7665,7 +7665,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 70664: // Item - Druid T10 Restoration 4P Bonus (Rejuvenation)
                 {
                     // Proc only from normal Rejuvenation
-                    if (l_VisualID[0] != 32)
+                    if (l_VisualID && l_VisualID[0] != 32)
                         return false;
 
                     Player* caster = ToPlayer();
@@ -12338,7 +12338,7 @@ uint8 Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32
                 if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(p_ProcSpell->GetSpellXSpellVisualId(this)))
                     l_VisualID = l_VisualEntry->VisualID;
 
-                if (l_VisualID[0])
+                if (l_VisualID && l_VisualID[0])
                     SendPlaySpellVisual(l_VisualID[0], p_Target, (p_ProcSpell->Speed * 2.0f), 0.0f, Position());
 
                 if (p_OwnerAuraEffect)
@@ -15443,7 +15443,7 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
     }
     else if (spellProto->Attributes & SPELL_ATTR0_REQ_AMMO && !(spellProto->AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG))
         castTime = int32(float(castTime) * m_modAttackSpeedPct[WeaponAttackType::RangedAttack]);
-    else if (l_VisualID[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
+    else if (l_VisualID && l_VisualID[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
         castTime = 500;
 
 }
