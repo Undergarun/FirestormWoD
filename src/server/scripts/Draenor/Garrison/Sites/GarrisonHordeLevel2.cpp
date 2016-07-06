@@ -109,6 +109,24 @@ namespace MS { namespace Garrison { namespace Sites
 
             p_Owner->CompleteQuest(Quests::Horde_BuildYourBarracks);
         }
+
+        if (p_Owner->GetQuestStatus(Quests::QUEST_WHAT_WE_GOT) != QUEST_STATUS_REWARDED)
+        {
+            Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::QUEST_WHAT_WE_GOT);
+            Manager* l_GarrisonMgr = p_Owner->GetGarrison();
+
+            if (l_GarrisonMgr == nullptr || l_Quest == nullptr)
+                return;
+
+            if (p_Owner->GetQuestStatus(Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_NONE)
+                p_Owner->AddQuest(l_Quest, p_Owner);
+
+            p_Owner->QuestObjectiveSatisfy(41325, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID());
+            p_Owner->QuestObjectiveSatisfy(80225, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Owner->GetGUID());
+            p_Owner->QuestObjectiveSatisfy(86775, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Owner->GetGUID());
+
+            p_Owner->CompleteQuest(Quests::QUEST_WHAT_WE_GOT);
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////

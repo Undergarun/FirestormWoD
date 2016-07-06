@@ -4515,6 +4515,20 @@ bool SpellEffectInfo::CanScale() const
             break;
         }
         case SPELL_EFFECT_SCHOOL_DAMAGE:
+        {
+            switch (_spellInfo->Id)
+            {
+                case 132566:    ///< Seed of Corruption (Drain Soul triggered)
+                case 131737:    ///< Agony (Drain Soul triggered)
+                case 131736:    ///< Unstable Affliction (Drain Soul triggered)
+                case 131740:    ///< Corruption (Drain Soul triggered)
+                    return false;
+                default:
+                    break;
+            }
+
+            return true;
+        }
         case SPELL_EFFECT_POWER_DRAIN:
         case SPELL_EFFECT_HEALTH_LEECH:
         case SPELL_EFFECT_HEAL:

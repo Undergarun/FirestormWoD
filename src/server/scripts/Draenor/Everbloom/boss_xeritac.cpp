@@ -341,7 +341,7 @@ class boss_xeritac : public CreatureScript
                 case eXeritacEvents::EventDescend:
                 {
                     me->StopMoving();
-                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MovePoint(eXeritacMovementInformed::MovementInformedXeritacReachedGround, me->GetPositionX(), me->GetPositionY(), 64.0f);
                     if (Creature* l_Creature = me->SummonCreature(eXeritacCreatures::CreatureDescend, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 64.631f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS))
                         me->CastSpell(l_Creature, eXeritacSpells::SpellDecsendDummy);

@@ -2093,12 +2093,20 @@ class spell_warl_drain_soul: public SpellScriptLoader
 
         enum eSpells
         {
-            GrimoireOfSacrifice = 108503
+            GrimoireOfSacrifice         = 108503,
+            AgonyDoT                    = 980,
+            AgonyTriggered              = 131737,
+            SeedOfCorruptionDoT         = 27243,
+            SeedOfCorruptionTriggered   = 132566,
+            UnstableAfflictionDoT       = 30108,
+            UnstableAfflictionTriggered = 131736,
+            CorruptionDoT               = 146739,
+            CorruptionTriggered         = 131740
         };
 
         class spell_warl_drain_soul_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_drain_soul_AuraScript);
+            PrepareAuraScript(spell_warl_drain_soul_AuraScript)
 
             bool m_UnderImproved = false;
 
@@ -2113,61 +2121,75 @@ class spell_warl_drain_soul: public SpellScriptLoader
                 p_AurEff->GetTargetList(l_TargetList);
                 for (auto l_Target : l_TargetList)
                 {
-                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL) && l_Target->GetHealthPct() >= 20)
+                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(DrainSoulSpells::SPELL_WARL_IMPROVED_DRAIN_SOUL) && l_Target->GetHealthPct() >= 20)
                     {
-                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL);
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(DrainSoulSpells::SPELL_WARL_IMPROVED_DRAIN_SOUL);
                         if (l_SpellInfo != nullptr && m_UnderImproved)
                         {
                             m_UnderImproved = false;
-                            p_AurEff->SetAmount(p_AurEff->GetAmount() - CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                            p_AurEff->SetAmount(p_AurEff->GetAmount() - CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[SpellEffIndex::EFFECT_0].BasePoints));
                         }
                     }
 
-                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL) && l_Target->GetHealthPct() < 20)
+                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(DrainSoulSpells::SPELL_WARL_IMPROVED_DRAIN_SOUL) && l_Target->GetHealthPct() < 20)
                     {
-                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL);
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(DrainSoulSpells::SPELL_WARL_IMPROVED_DRAIN_SOUL);
                         if (l_SpellInfo != nullptr && !m_UnderImproved)
                         {
                             m_UnderImproved = true;
-                            p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                            p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[SpellEffIndex::EFFECT_0].BasePoints));
                         }
                     }
 
                     /// Associate DoT spells to their damage spells
-                    std::list<std::pair<uint32, uint32>> l_DotAurasList;
-                    l_DotAurasList.push_back(std::make_pair(980,    131737)); ///< Agony
-                    l_DotAurasList.push_back(std::make_pair(27243,  132566)); ///< Seed of Corruption
-                    l_DotAurasList.push_back(std::make_pair(30108,  131736)); ///< Unstable Affliction
-                    l_DotAurasList.push_back(std::make_pair(146739, 131740)); ///< Corruption
+                    std::map<uint32, uint32> l_DotAurasMap =
+                    {
+                        { eSpells::AgonyDoT,                eSpells::AgonyTriggered                 },
+                        { eSpells::SeedOfCorruptionDoT,     eSpells::SeedOfCorruptionTriggered      },
+                        { eSpells::UnstableAfflictionDoT,   eSpells::UnstableAfflictionTriggered    },
+                        { eSpells::CorruptionDoT,           eSpells::CorruptionTriggered            }
+                    };
 
-                    for (std::list<std::pair<uint32, uint32>>::const_iterator l_DotAura = l_DotAurasList.begin(); l_DotAura != l_DotAurasList.end(); ++l_DotAura)
+                    for (auto l_DotAura = l_DotAurasMap.begin(); l_DotAura != l_DotAurasMap.end(); ++l_DotAura)
                     {
                         if (Aura* l_Aura = l_Target->GetAura((*l_DotAura).first, l_Caster->GetGUID()))
                         {
-                            if (AuraEffect* l_AuraEffect = l_Aura->GetEffect(l_Aura->GetEffectIndexByType(SPELL_AURA_PERIODIC_DAMAGE)))
+                            if (AuraEffect* l_AuraEffect = l_Aura->GetEffect(l_Aura->GetEffectIndexByType(AuraType::SPELL_AURA_PERIODIC_DAMAGE)))
                             {
-                                int32 l_Bp0 = CalculatePct(l_AuraEffect->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
-                                l_Bp0 = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp0, 0, DOT);
-                                l_Bp0 = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Bp0, DOT);
+                                int32 l_Bp0 = CalculatePct(l_AuraEffect->GetAmount(), GetSpellInfo()->Effects[SpellEffIndex::EFFECT_2].BasePoints);
+
+                                SpellInfo const* l_BaseSpell = sSpellMgr->GetSpellInfo((*l_DotAura).first);
+                                if (l_BaseSpell == nullptr)
+                                    continue;
+
+                                /// Apply bonuses from the base DoT
+                                l_Bp0 = l_Caster->SpellDamageBonusDone(l_Target, l_BaseSpell, l_Bp0, 0, DamageEffectType::DOT);
+                                l_Bp0 = l_Target->SpellDamageBonusTaken(l_Caster, l_BaseSpell, l_Bp0, DamageEffectType::DOT);
 
                                 if (Aura* l_AuraGoS = l_Caster->GetAura(eSpells::GrimoireOfSacrifice))
                                 {
-                                    if (l_AuraGoS->GetEffect(EFFECT_4))
-                                        AddPct(l_Bp0, l_AuraGoS->GetEffect(EFFECT_4)->GetAmount());
+                                    if (l_AuraGoS->GetEffect(SpellEffIndex::EFFECT_4))
+                                        AddPct(l_Bp0, l_AuraGoS->GetEffect(SpellEffIndex::EFFECT_4)->GetAmount());
                                 }
 
-                                l_Caster->CastCustomSpell(l_Target, (*l_DotAura).second, &l_Bp0, NULL, NULL, true);
+                                l_Caster->CastCustomSpell(l_Target, (*l_DotAura).second, &l_Bp0, nullptr, nullptr, true);
 
                                 /// Agony stack refresh
-                                if ((*l_DotAura).second == 131737)
+                                if ((*l_DotAura).second == eSpells::AgonyTriggered)
+                                {
                                     if (Aura* l_Agony = l_Target->GetAura((*l_DotAura).first, GetCaster()->GetGUID()))
+                                    {
                                         if (AuraEffect const* l_AgonyDmgEffect = l_Target->GetAuraEffect((*l_DotAura).first, 0))
                                             l_Agony->ModStackAmount(l_AgonyDmgEffect->GetBaseAmount());
+                                    }
+                                }
 
                                 /// Glyph of Siphon Life - 56218
-                                if ((*l_DotAura).second == 131740)
-                                    if (l_Caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
-                                        l_Caster->CastSpell(l_Caster, WARLOCK_SPELL_SYPHON_LIFE, true);
+                                if ((*l_DotAura).second == eSpells::CorruptionTriggered)
+                                {
+                                    if (l_Caster->HasAura(WarlockSpells::WARLOCK_GLYPH_OF_SIPHON_LIFE))
+                                        l_Caster->CastSpell(l_Caster, WarlockSpells::WARLOCK_SPELL_SYPHON_LIFE, true);
+                                }
                             }
                         }
                     }

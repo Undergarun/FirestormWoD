@@ -3704,6 +3704,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 156324: ///< Acid Torrent (AoE)
             case 155225: ///< Melt (Heart of the Mountain)
+            case 164279: ///< Penetrating Shot - Cylinder damage (Admiral Gar'an - Iron Maidens)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 break;
             case 177756: ///< Deafening Roar (Bellows Operator)
@@ -3841,6 +3842,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158008: ///< Bloodsoaked Heartseeker - Cast (Marak the Blooded - Iron Maidens)
             case 159585: ///< Deploy Turret - Jump (Admiral Gar'an - Iron Maidens)
                 spellInfo->SpellPowers.clear();
+                break;
+            case 156626: ///< Rapid Fire (Admiral Gar'an)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
