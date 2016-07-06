@@ -474,7 +474,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             uint8 index = 0;
             PreparedStatement* stmt = l_Database->GetPreparedStatement(uState == ITEM_NEW ? CHAR_REP_ITEM_INSTANCE : CHAR_UPD_ITEM_INSTANCE);
             stmt->setUInt32(  index, GetEntry());
-            stmt->setUInt32(++index, GetOwner()->GetRealGUIDLow());
+            stmt->setUInt32(++index, GetOwner() ? GetOwner()->GetRealGUIDLow() : GetOwnerGUID());
             stmt->setUInt32(++index, GUID_LOPART(GetGuidValue(ITEM_FIELD_CREATOR)));
             stmt->setUInt32(++index, GUID_LOPART(GetGuidValue(ITEM_FIELD_GIFT_CREATOR)));
             stmt->setUInt32(++index, GetCount());
