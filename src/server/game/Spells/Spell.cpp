@@ -8545,10 +8545,9 @@ bool Spell::IsAutoActionResetSpell() const
 
 bool Spell::IsNeedSendToClient() const
 {
-    SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(m_spellInfo->GetSpellXSpellVisualId());
     uint32 const l_Dummy[2] = { 0, 0 };
     uint32 const* l_VisualID = l_Dummy;
-    if (l_VisualEntry)
+    if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(m_spellInfo->GetSpellXSpellVisualId()))
         l_VisualID = l_VisualEntry->VisualID;
 
     return l_VisualID[0] || l_VisualID[1] || m_spellInfo->IsChanneled() || m_spellInfo->HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS) ||

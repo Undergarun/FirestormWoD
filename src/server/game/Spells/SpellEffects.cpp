@@ -3672,7 +3672,9 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
     // select enchantment duration
     uint32 duration;
 
-    uint32 const* l_VisualID = sSpellXSpellVisualStore.LookupEntry(m_spellInfo->GetSpellXSpellVisualId(m_originalCaster))->VisualID;
+    uint32 const* l_VisualID = nullptr;
+    if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(m_spellInfo->GetSpellXSpellVisualId(m_originalCaster)))
+        l_VisualID = l_VisualEntry->VisualID;
 
     // rogue family enchantments exception by duration
     if (m_spellInfo->Id == 38615)

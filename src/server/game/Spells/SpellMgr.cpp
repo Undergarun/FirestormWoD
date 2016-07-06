@@ -57,7 +57,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             return DIMINISHING_TAUNT;
     }
 
-    uint32 const* l_VisualID = sSpellXSpellVisualStore.LookupEntry(spellproto->GetSpellXSpellVisualId(p_Caster))->VisualID;
+    uint32 const* l_VisualID = nullptr;
+    if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(spellproto->GetSpellXSpellVisualId(p_Caster)))
+        l_VisualID = l_VisualEntry->VisualID;
 
     // Explicit Diminishing Groups
     switch (spellproto->SpellFamilyName)
@@ -478,7 +480,9 @@ DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group)
 
 int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto, Unit* p_OriginalCaster)
 {
-    uint32 const* l_VisualID = sSpellXSpellVisualStore.LookupEntry(spellproto->GetSpellXSpellVisualId(p_OriginalCaster))->VisualID;
+    uint32 const* l_VisualID = nullptr;
+    if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(spellproto->GetSpellXSpellVisualId(p_OriginalCaster)))
+        l_VisualID = l_VisualEntry->VisualID;
 
     // Explicit diminishing duration
     switch (spellproto->SpellFamilyName)
@@ -3323,10 +3327,8 @@ void SpellMgr::LoadSpellCustomAttr()
         if (!spellInfo->_IsPositiveEffect(EFFECT_2, false))
             spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF2;
 
-
-        SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(spellInfo->GetSpellXSpellVisualId());
         uint32 const* l_VisualID = nullptr;
-        if (l_VisualEntry)
+        if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(spellInfo->GetSpellXSpellVisualId()))
             l_VisualID = l_VisualEntry->VisualID;
 
         if ((l_VisualID && l_VisualID[0] == 3879) || spellInfo->Id == 74117)
