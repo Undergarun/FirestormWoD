@@ -585,7 +585,14 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
         if (owner->m_currentPetSlot >= PET_SLOT_HUNTER_FIRST && owner->m_currentPetSlot <= PET_SLOT_HUNTER_LAST)
             owner->setPetSlotUsed(owner->m_currentPetSlot, false);
         RemoveAllAuras();
-        DeleteFromDB(m_charmInfo->GetRealmPetNumber(), owner->GetSession()->GetInterRealmNumber());
+
+#ifdef CROSS
+        uint32 l_RealmID = owner->GetSession()->GetInterRealmNumber();
+#else
+        uint32 l_RealmID = g_RealmID;
+#endif
+
+        DeleteFromDB(m_charmInfo->GetRealmPetNumber(), l_RealmID);
     }
 }
 

@@ -41,32 +41,6 @@
 # include "InterRealmMgr.h"
 #endif
 
-#ifndef CROSS
-class LoginQueryHolder : public SQLQueryHolder
-{
-    private:
-        uint32 m_accountId;
-        uint64 m_guid;
-    public:
-        LoginQueryHolder(uint32 accountId, uint64 guid)
-            : m_accountId(accountId), m_guid(guid) { }
-        uint64 GetGuid() const { return m_guid; }
-        uint32 GetAccountId() const { return m_accountId; }
-        bool Initialize();
-};
-
-class LoginDBQueryHolder : public SQLQueryHolder
-{
-    private:
-        uint32 m_AccountId;
-    public:
-        LoginDBQueryHolder(uint32 p_AccountId)
-            : m_AccountId(p_AccountId) { }
-        uint32 GetAccountId() const { return m_AccountId; }
-        bool Initialize();
-};
-#endif
-
 bool LoginDBQueryHolder::Initialize()
 {
     SetSize(MAX_PLAYER_LOGINDB_QUERY);
@@ -957,7 +931,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::LoginPlayer(uint64 p_Guid)
 {
-    LoginQueryHolder* l_LoginQueryHolder = new LoginQueryHolder(GetAccountId(), p_Guid);
+    LoginQueryHolder* l_LoginQueryHolder = new LoginQueryHolder(GetAccountId(), p_Guid, g_RealmID, CharacterPortData());
     LoginDBQueryHolder* l_LoginDBQueryHolder = new LoginDBQueryHolder(GetAccountId());
 
     if (!l_LoginQueryHolder->Initialize() || !l_LoginDBQueryHolder->Initialize())
@@ -1499,12 +1473,6 @@ void WorldSession::HandleShowingHelmOpcode(WorldPacket& recvData)
 }
 
 #ifndef CROSS
-void WorldSession::HandleShowingCloakOpcode(WorldPacket& recvData)
-{
-    recvData.read_skip<uint8>(); // unknown, bool?
-    m_Player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
-}
-
 void WorldSession::HandleShowingCloakOpcode(WorldPacket& recvData)
 {
     recvData.read_skip<uint8>(); // unknown, bool?

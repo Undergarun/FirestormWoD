@@ -1677,11 +1677,7 @@ class Player : public Unit, public GridObject<Player>
         void TextEmote(const std::string& text);
         void Whisper(const std::string& text, const uint32 language, uint64 receiver);
         void WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver);
-#ifndef CROSS
-        void BuildPlayerChat(WorldPacket* p_Data, Player* p_Target, uint8 p_MsgType, std::string const& p_Text, uint32 p_LangID, char const* p_AddonPrefix = nullptr, std::string const& p_Channel = "") const;
-#else /* CROSS */
         void BuildPlayerChat(WorldPacket* p_Data, uint64 p_Target, uint8 p_MsgType, std::string const& p_Text, uint32 p_LangID, char const* p_AddonPrefix = nullptr, std::string const& p_Channel = "") const;
-#endif /* CROSS */
 
         MS::Skill::Archaeology::Manager& GetArchaeologyMgr() { return m_archaeologyMgr; }
 
@@ -2092,11 +2088,7 @@ class Player : public Unit, public GridObject<Player>
         /***                   SAVE SYSTEM                     ***/
         /*********************************************************/
 
-#ifndef CROSS
-        void SaveToDB(bool create = false, std::shared_ptr<MS::Utilities::Callback> p_CallBack = nullptr);
-#else /* CROSS */
         void SaveToDB(bool create = false, MS::Utilities::CallBackPtr p_Callback = nullptr);
-#endif /* CROSS */
         void SaveInventoryAndGoldToDB(SQLTransaction& trans);                    // fast save function for item/money cheating preventing
         void SaveGoldToDB(SQLTransaction& trans);
 
@@ -2471,14 +2463,15 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetGuildLevel() { return GetUInt32Value(PLAYER_FIELD_GUILD_LEVEL); }
         void SetGuildIdInvited(uint32 GuildId) { m_GuildIdInvited = GuildId; }
         uint32 GetGuildId() const { return GetUInt32Value(OBJECT_FIELD_DATA); /* return only lower part */ }
+
 #ifndef CROSS
         Guild* GetGuild();
-        static uint32 GetGuildIdFromDB(uint64 guid);
-#else /* CROSS */
+#else
         uint64 GetGuildGUID() const { return GetGuidValue(OBJECT_FIELD_DATA); }
         InterRealmGuild* GetGuild();
+#endif
+
         static uint32 GetGuildIdFromDB(uint64 guid, uint32 realmId);
-#endif /* CROSS */
         static uint8 GetRankFromDB(uint64 guid);
         int GetGuildIdInvited() { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(uint64 guid, uint32 type);
@@ -3053,11 +3046,7 @@ class Player : public Unit, public GridObject<Player>
         bool CanCaptureTowerPoint();
 
         bool GetRandomWinner() { return m_IsBGRandomWinner; }
-#ifndef CROSS
-        void SetRandomWinner(bool isWinner);
-#else /* CROSS */
         void SetRandomWinner(bool p_IsWinner, bool p_DatabaseUpdate = true);
-#endif /* CROSS */
 
         /*********************************************************/
         /***               OUTDOOR PVP SYSTEM                  ***/

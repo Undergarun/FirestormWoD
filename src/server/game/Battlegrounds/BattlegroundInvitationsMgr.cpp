@@ -363,8 +363,6 @@ namespace MS
         /// we must remove player in the 5. case even if battleground object doesn't exist!
         bool BGQueueRemoveEvent::Execute(uint64 /*p_Time*/, uint32 /*p_Time*/)
         {
-                m_PlayerGuid, m_BgInstanceGUID, m_BgTypeId, m_BgType);
-
             Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(m_PlayerGuid);
 
             if (!l_Player) /// Player logged off (we should do nothing, he is correctly removed from queue in another procedure)

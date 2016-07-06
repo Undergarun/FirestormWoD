@@ -149,7 +149,7 @@ class guild_commandscript: public CommandScript
             if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid))
                 return false;
 
-            uint32 guildId = target ? target->GetGuildId() : Player::GetGuildIdFromDB(targetGuid);
+            uint32 guildId = target ? target->GetGuildId() : Player::GetGuildIdFromDB(targetGuid, g_RealmID);
             if (!guildId)
                 return false;
 
@@ -175,7 +175,7 @@ class guild_commandscript: public CommandScript
             if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &target_name))
                 return false;
 
-            uint32 guildId = target ? target->GetGuildId() : Player::GetGuildIdFromDB(targetGuid);
+            uint32 guildId = target ? target->GetGuildId() : Player::GetGuildIdFromDB(targetGuid, g_RealmID);
             if (!guildId)
                 return false;
 

@@ -2726,7 +2726,7 @@ bool Guild::AddMember(uint64 p_Guid, uint8 p_RankID)
         if (l_Player->GetGuildId() != 0)
             return false;
     }
-    else if (Player::GetGuildIdFromDB(p_Guid) != 0)
+    else if (Player::GetGuildIdFromDB(p_Guid, g_RealmID) != 0)
         return false;
 
     /// Remove all player signs from another petitions

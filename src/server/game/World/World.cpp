@@ -2852,9 +2852,6 @@ void World::SendGMText(int32 string_id, ...)
     va_list ap;
     va_start(ap, string_id);
 
-    JadeCore::WorldWorldTextBuilder wt_builder(string_id, &ap);
-    JadeCore::LocalizedPacketListDo<JadeCore::WorldWorldTextBuilder> wt_do(wt_builder);
-
 #ifdef CROSS
     JadeCore::WorldWorldTextBuilder wt_builder(string_id, &ap);
     JadeCore::LocalizedPacketListDo<JadeCore::WorldWorldTextBuilder> wt_do(wt_builder);

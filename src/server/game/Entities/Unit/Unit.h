@@ -1302,9 +1302,14 @@ class CharmInfo
         ~CharmInfo();
         void RestoreState();
         uint32 GetPetNumber() const { return m_petnumber; }
+        uint32 GetRealmPetNumber() const 
+        { 
 #ifdef CROSS
-        uint32 GetRealmPetNumber() const { return m_RealmPetNumber; }
-#endif /* CROSS */
+            return m_RealmPetNumber;
+#else
+            return m_petnumber;
+#endif
+        }
         void SetPetNumber(uint32 petnumber, bool statwindow);
 
         void SetCommandState(CommandStates st) { m_CommandState = st; }

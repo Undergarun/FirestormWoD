@@ -65,7 +65,6 @@
 #include "DBCStores.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
-#include "BattlefieldMgr.h"S */
 #include "UpdateFieldFlags.h"
 #include "SceneObject.h"
 #include "PetBattle.h"
@@ -6570,7 +6569,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     // bones will be deleted by corpse/bones deleting thread shortly
     sObjectAccessor->ConvertCorpseForPlayer(playerguid);
 
-    if (uint32 guildId = GetGuildIdFromDB(playerguid))
+    if (uint32 guildId = GetGuildIdFromDB(playerguid, g_RealmID))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
             guild->DeleteMember(guid, false, false, true);
 
@@ -6693,7 +6692,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                 do
                 {
                     uint32 petguidlow = (*resultPets)[0].GetUInt32();
-                    Pet::DeleteFromDB(petguidlow);
+                    Pet::DeleteFromDB(petguidlow, g_RealmID);
                 }
                 while
                     (resultPets->NextRow());
@@ -9925,7 +9924,7 @@ void Player::SetInGuild(uint32 guildId)
 uint32 Player::GetGuildIdFromDB(uint64 guid, uint32 realmId)
 {
 #ifndef CROSS
-    auto l_Database = *CharacterDatabase;
+    auto l_Database = &CharacterDatabase;
 #else /* CROSS */
     InterRealmDatabasePool* l_Database = sInterRealmMgr->GetClientByRealmNumber(realmId)->GetDatabase();
 #endif
@@ -22004,7 +22003,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 #ifdef CROSS
     InterRealmDatabasePool* l_Database = GetRealmDatabase();
 #else
-    auto l_Database = CharacterDatabase;
+    auto l_Database = &CharacterDatabase;
 #endif
 
     if (result)
@@ -22196,8 +22195,10 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
 
 #ifdef CROSS
     InterRealmDatabasePool* l_Database = GetRealmDatabase();
+    uint32 l_RealmID = GetSession()->GetInterRealmNumber();
 #else
-    auto l_Database = CharacterDatabase;
+    auto l_Database  = &CharacterDatabase;
+    uint32 l_RealmID = g_RealmID;
 #endif
 
     uint32 itemGuid  = fields[18].GetUInt32();
@@ -22331,7 +22332,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
         // Remove item from inventory if necessary
         if (remove)
         {
-            Item::DeleteFromInventoryDB(trans, itemGuid, GetSession()->GetInterRealmNumber());
+            Item::DeleteFromInventoryDB(trans, itemGuid, l_RealmID);
             item->FSetState(ITEM_REMOVED);
             item->SaveToDB(trans);                           // it also deletes item object!
             item = NULL;
@@ -22463,22 +22464,21 @@ void Player::LoadPet(PreparedQueryResult result)
     if (IsInWorld() && result)
     {
         Field* fields = result->Fetch();
-#ifndef CROSS
-        PetQueryHolder* queryHolder = new PetQueryHolder(fields[0].GetUInt32(), result);
-#else /* CROSS */
-        PetQueryHolder* queryHolder = new PetQueryHolder(fields[0].GetUInt32(), GetSession()->GetInterRealmNumber(), result);
-#endif /* CROSS */
+
+#ifdef CROSS
+        uint32 l_RealmID = GetSession()->GetInterRealmNumber();
+#else
+        uint32 l_RealmID = g_RealmID;
+#endif
+
+        PetQueryHolder* queryHolder = new PetQueryHolder(fields[0].GetUInt32(), l_RealmID, result);
         if (!queryHolder->Initialize())
         {
             delete queryHolder;
             return;
         }
 
-#ifndef CROSS
-        _petLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)queryHolder);
-#else /* CROSS */
-        _petLoginCallback = GetRealmDatabase()->DelayQueryHolder((SQLQueryHolder*)queryHolder);
-#endif /* CROSS */
+        _petLoginCallback = RealmDatabase.DelayQueryHolder((SQLQueryHolder*)queryHolder);
     }
 }
 
@@ -23380,17 +23380,13 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
 /*********************************************************/
 /***                   SAVE SYSTEM                     ***/
 /*********************************************************/
-#ifndef CROSS
-void Player::SaveToDB(bool create /*=false*/, std::shared_ptr<MS::Utilities::Callback> p_CallBack)
-#else /* CROSS */
 void Player::SaveToDB(bool create /*=false*/, MS::Utilities::CallBackPtr p_Callback)
-#endif /* CROSS */
 {
 #ifdef CROSS
     if (!PlayOnCross())
         return;
+#endif
 
-#endif /* CROSS */
     // delay auto save at any saves (manual, in code, or autosave)
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
 
@@ -23568,9 +23564,9 @@ void Player::SaveToDB(bool create /*=false*/, MS::Utilities::CallBackPtr p_Callb
 
 #ifndef CROSS
         uint16 l_MapID = IsInGarrison() ? MS::Garrison::Globals::BaseMap : (IsBeingTeleported() ? GetTeleportDest().GetMapId() : GetMapId());
-#else /* CROSS */
+#else
         uint16 l_MapID = (IsBeingTeleported() ? GetTeleportDest().GetMapId() : GetMapId());
-#endif /* CROSS */
+#endif
 
         if (!IsBeingTeleported())
         {
@@ -23749,10 +23745,11 @@ void Player::SaveToDB(bool create /*=false*/, MS::Utilities::CallBackPtr p_Callb
     _SaveCurrency(trans);
     m_archaeologyMgr.SaveArchaeology(trans);
     _SaveCharacterWorldStates(trans);
+
 #ifndef CROSS
     _SaveCharacterGarrisonDailyTavernDatas(trans);
     _SaveCharacterGarrisonWeeklyTavernDatas(trans);
-#endif /* not CROSS */
+#endif
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -30918,17 +30915,15 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
     Pet*   l_NewPet     = new Pet(this);
     uint64 l_PlayerGUID = GetGUID();
     uint32 l_PetNumber  = m_temporaryUnsummonedPetNumber;
+
 #ifdef CROSS
     uint32 l_RealmID    = GetSession()->GetInterRealmNumber();
-#endif /* CROSS */
+#else
+    uint32 l_RealmID    = g_RealmID;
+#endif
 
-#ifndef CROSS
-    PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(0, m_temporaryUnsummonedPetNumber, GetGUIDLow(), true, PET_SLOT_UNK_SLOT);
-    CharacterDatabase.AsyncQuery(l_PetStatement, [l_NewPet, l_PlayerGUID, l_PetNumber](PreparedQueryResult p_Result) -> void
-#else /* CROSS */
     PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(0, m_temporaryUnsummonedPetNumber, GetRealGUIDLow(), true, PET_SLOT_UNK_SLOT, l_RealmID);
     RealmDatabase.AsyncQuery(l_PetStatement, [l_NewPet, l_PlayerGUID, l_PetNumber, l_RealmID](PreparedQueryResult p_Result) -> void
-#endif /* CROSS */
     {
         if (!p_Result)
         {
@@ -30936,9 +30931,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
             return;
         }
 
-  #ifndef CROSS
-        PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), p_Result);
-#else /* CROSS */
+#ifdef CROSS
         InterRealmClient* l_Client = sInterRealmMgr->GetClientByRealmNumber(l_RealmID);
         if (!l_Client || !l_Client->GetDatabase())
         {
@@ -30946,15 +30939,15 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
             return;
         }
 
+        auto l_Database = l_Client->GetDatabase();
+#else
+        auto l_Database = &CharacterDatabase;
+#endif
+
         PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), l_RealmID, p_Result);
-#endif /* CROSS */
         l_PetHolder->Initialize();
 
-#ifndef CROSS
-        auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);
-#else /* CROSS */
-        auto l_QueryHolderResultFuture = l_Client->GetDatabase()->DelayQueryHolder(l_PetHolder);
-#endif /* CROSS */
+        auto l_QueryHolderResultFuture = l_Database->DelayQueryHolder(l_PetHolder);
 
         sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
         {

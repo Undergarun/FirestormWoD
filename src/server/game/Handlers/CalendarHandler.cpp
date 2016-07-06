@@ -339,7 +339,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& p_RecvData)
             Field* l_Fields = l_Result->Fetch();
             l_InviteeGUID = MAKE_NEW_GUID(l_Fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
             l_InviteeTeam = Player::TeamForRace(l_Fields[1].GetUInt8());
-            l_InviteeGuildID = Player::GetGuildIdFromDB(l_InviteeGUID);
+            l_InviteeGuildID = Player::GetGuildIdFromDB(l_InviteeGUID, g_RealmID);
         }
     }
 

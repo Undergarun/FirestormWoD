@@ -3214,6 +3214,7 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     }
 
     if (!l_Pet->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PET), map, GetPhaseMask(), entry))
+    {
         delete l_Pet;
         p_Callback(nullptr, false);
         return;

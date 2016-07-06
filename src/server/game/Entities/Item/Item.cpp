@@ -1655,8 +1655,6 @@ void Item::SaveRefundDataToDB()
 
     SQLTransaction trans = l_Database->BeginTransaction();
 
-    SQLTransaction trans = l_Database->BeginTransaction();
-
     PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
     stmt->setUInt32(0, GetRealGUIDLow());
     trans->Append(stmt);

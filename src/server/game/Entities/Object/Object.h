@@ -173,8 +173,8 @@ class Object
         const ByteBuffer& GetRealPackGUID() const { return m_realPackGUID; }
 #else
         uint64 GetRealGUID() { return GetGUID(); }
-        uint32 GetRealGUIDLow() const { GetGUIDLow(); }
-        uint32 GetRealGUIDMid() const { GetGUIDMid(); }
+        uint32 GetRealGUIDLow() const { return GetGUIDLow(); }
+        uint32 GetRealGUIDMid() const { return GetGUIDMid(); }
         uint32 GetRealGUIDHigh() const { return GetRealGUIDHigh(); }
 #endif
 

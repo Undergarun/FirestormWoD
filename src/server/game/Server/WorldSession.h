@@ -27,8 +27,6 @@ class Creature;
 class GameObject;
 class InstanceSave;
 class Item;
-class LoginQueryHolder;
-class LoginDBQueryHolder;
 class Object;
 class Player;
 class Quest;
@@ -79,67 +77,65 @@ struct AccountData
     std::string Data;
 };
 
-#ifndef CROSS
-    struct BattlegroundPortData
-    {
-        uint64 PlayerGuid;
-        uint32 Time;
-        uint32 QueueSlot;
-        uint8 Action;
-    };
+struct BattlegroundPortData
+{
+    uint64 PlayerGuid;
+    uint32 Time;
+    uint32 QueueSlot;
+    uint8 Action;
+};
 
-    struct CrossPartyInfo
+struct CrossPartyInfo
+{
+    CrossPartyInfo()
     {
-        CrossPartyInfo()
-        {
-            memset(this, 0, sizeof(CrossPartyInfo));
-        }
-
-        uint64 PlayerGuid;
-        uint64 GroupGUID;
-        uint64 LeaderGUID;
-        uint8  PartyFlags;
-        uint8  PartyIndex;
-        uint8  PartyType;
-    };
-
-    class LoginDBQueryHolder : public SQLQueryHolder
-    {
-        private:
-            uint32 m_AccountId;
-        public:
-            LoginDBQueryHolder(uint32 p_AccountId)
-                : m_AccountId(p_AccountId) { }
-            uint32 GetAccountId() const { return m_AccountId; }
-            bool Initialize();
-   };
-
-#else
-    struct CharacterPortData
-    {
-        uint64 playerGuid;
-        uint32 IsInvitedToBGInstanceGUID;
-        uint16 bgTypeId;
-        uint32 bgZoneId;
+        memset(this, 0, sizeof(CrossPartyInfo));
     }
 
-    class LoginQueryHolder : public SQLQueryHolder
-    {
-        private:
-            uint32 m_accountId;
-            uint64 m_guid;
-            uint32 m_realmId;
-            CharacterPortData m_CharacterPortData;
-        public:
-            LoginQueryHolder(uint32 accountId, uint64 guid, uint32 realmId, CharacterPortData const& characterPortData)
-                : m_accountId(accountId), m_guid(guid), m_realmId(realmId), m_CharacterPortData(characterPortData) { }
-            uint64 GetGuid() const { return m_guid; }
-            uint32 GetAccountId() const { return m_accountId; }
-            uint32 GetRealmId() const { return m_realmId; }
-            CharacterPortData const& GetCharacterPortData() const { return m_CharacterPortData; }
-            bool Initialize();
-    };
-#endif
+    uint64 PlayerGuid;
+    uint64 GroupGUID;
+    uint64 LeaderGUID;
+    uint8  PartyFlags;
+    uint8  PartyIndex;
+    uint8  PartyType;
+};
+
+struct CharacterPortData
+{
+    uint64 playerGuid;
+    uint32 IsInvitedToBGInstanceGUID;
+    uint16 bgTypeId;
+    uint32 bgZoneId;
+};
+
+class LoginQueryHolder : public SQLQueryHolder
+{
+    private:
+        uint32 m_accountId;
+        uint64 m_guid;
+        uint32 m_realmId;
+        CharacterPortData m_CharacterPortData;
+    public:
+        LoginQueryHolder(uint32 accountId, uint64 guid, uint32 realmId, CharacterPortData const& characterPortData)
+            : m_accountId(accountId), m_guid(guid), m_realmId(realmId), m_CharacterPortData(characterPortData) { }
+        uint64 GetGuid() const { return m_guid; }
+        uint32 GetAccountId() const { return m_accountId; }
+        uint32 GetRealmId() const { return m_realmId; }
+        CharacterPortData const& GetCharacterPortData() const { return m_CharacterPortData; }
+        bool Initialize();
+};
+
+class LoginDBQueryHolder : public SQLQueryHolder
+{
+    private:
+        uint32 m_AccountId;
+    public:
+        LoginDBQueryHolder(uint32 p_AccountId)
+            : m_AccountId(p_AccountId) { }
+        uint32 GetAccountId() const { return m_AccountId; }
+        bool Initialize();
+};
+
 
 enum PartyCommand
 {

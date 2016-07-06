@@ -216,11 +216,7 @@ class spell_pri_confession: public SpellScriptLoader
                             {
                                 WorldPacket l_Data;
                                 /// No specific target needed
-#ifndef CROSS
-                                l_Caster->BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_EMOTE, l_Text, LANG_UNIVERSAL);
-#else /* CROSS */
                                 l_Caster->BuildPlayerChat(&l_Data, 0, CHAT_MSG_EMOTE, l_Text, LANG_UNIVERSAL);
-#endif /* CROSS */
                                 l_Session->SendPacket(&l_Data);
                             }
                         }

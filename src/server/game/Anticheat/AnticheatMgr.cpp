@@ -433,7 +433,4 @@ void AnticheatMgr::ResetDailyReportStates()
 {
     for (AnticheatPlayersDataMap::iterator it = m_Players.begin(); it != m_Players.end(); ++it)
         m_Players[(*it).first].SetDailyReportState(false);
-
-    Player* player = nullptr;
-    player->GetAuraCount(player, 1);
 }
