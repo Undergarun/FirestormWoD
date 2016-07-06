@@ -1884,7 +1884,7 @@ class spell_warl_demonic_leap: public SpellScriptLoader
 
             enum eSpells
             {
-                DemonicLeapBack          = 109150,
+                DemonicLeapBackward          = 109150,
                 DemonicLeapForward       = 109167,
                 DemonicLeapUpward        = 109152,
                 DemonicLeapLeft          = 109164,
@@ -1893,38 +1893,30 @@ class spell_warl_demonic_leap: public SpellScriptLoader
                 DemonicLeapBackwardRight = 111739
             };
 
-            std::map<uint32, uint32> mapbab = 
+            std::vector<std::pair<uint32, uint32>> m_LeapDirection =
             {
-                { eSpells::DemonicLeapBackwardLeft, MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT },
+                { eSpells::DemonicLeapBackwardLeft,  MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT  },
+                { eSpells::DemonicLeapBackwardRight, MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_RIGHT },
+                { eSpells::DemonicLeapRigt,          MOVEMENTFLAG_STRAFE_RIGHT                         },
+                { eSpells::DemonicLeapLeft,          MOVEMENTFLAG_STRAFE_LEFT                          },
+                { eSpells::DemonicLeapForward,       MOVEMENTFLAG_FORWARD                              },
+                { eSpells::DemonicLeapBackward,      MOVEMENTFLAG_BACKWARD                             },
+                { eSpells::DemonicLeapUpward,        MOVEMENTFLAG_NONE                                 },
+
             };
 
             void HandleAfterCast()
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (!caster->HasAura(WARLOCK_DARK_APOTHEOSIS))
-                        caster->CastSpell(caster, WARLOCK_METAMORPHOSIS, true);
-
-                    uint32 l_movementflags = caster->GetUnitMovementFlags();
-                    if (l_movementflags & MOVEMENTFLAG_FORWARD)
-                        caster->CastSpell(caster, eSpells::DemonicLeapForward, true);
-                    else if (l_movementflags & MOVEMENTFLAG_BACKWARD)
+                    uint32 l_MovementfFlags = caster->GetUnitMovementFlags();
+                    for (auto l_Itr : m_LeapDirection)
                     {
-                        if (l_movementflags & MOVEMENTFLAG_STRAFE_LEFT)
-                            caster->CastSpell(caster, eSpells::DemonicLeapBackwardLeft, true);
-                        else if (l_movementflags & MOVEMENTFLAG_STRAFE_RIGHT)
-                            caster->CastSpell(caster, eSpells::DemonicLeapBackwardRight, true);
-                        else
-                            caster->CastSpell(caster, eSpells::DemonicLeapBack, true);
-                    }
-                    else
-                    {
-                        if (l_movementflags & MOVEMENTFLAG_STRAFE_LEFT)
-                            caster->CastSpell(caster, eSpells::DemonicLeapLeft, true);
-                        else if (l_movementflags & MOVEMENTFLAG_STRAFE_RIGHT)
-                            caster->CastSpell(caster, eSpells::DemonicLeapRigt, true);
-                        else 
-                            caster->CastSpell(caster, eSpells::DemonicLeapUpward, true);
+                        if ((l_MovementfFlags & l_Itr.second) == l_Itr.second)
+                        {
+                            caster->CastSpell(caster, l_Itr.first, true);
+                            return;
+                        }
                     }
                 }
             }
