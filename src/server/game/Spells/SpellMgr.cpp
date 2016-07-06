@@ -4222,6 +4222,18 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_FRONT;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8); ///< 5 yards
                 break;
+            case 109166: ///< Demonic Leap (Forward Left)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_KNOCK_BACK_DEST;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK_RIGHT;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8); ///< 5 yards
+                break;
+            case 109167: ///< Demonic Leap (Forwar Right)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_KNOCK_BACK_DEST;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK_LEFT;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8); ///< 5 yards
+                break;
             case 133123: ///< Arcane Barrage
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(10); ///< from 15.0f (RangeEntry.ID 11) to 40.0f
                 break;
@@ -6406,9 +6418,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 169686:///< Unyielding Strikes
                 spellInfo->ProcCharges = 0;
-                break;
-            case 109167:///< Demonic Leap (jump)
-                spellInfo->Effects[0].MiscValue = 300;
                 break;
             case 781:   ///< Disengage
                 spellInfo->Effects[0].TriggerSpell = 0; ///< Handled in Player::HandleFall()

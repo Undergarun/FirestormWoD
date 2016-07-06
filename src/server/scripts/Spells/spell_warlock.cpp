@@ -1884,11 +1884,13 @@ class spell_warl_demonic_leap: public SpellScriptLoader
 
             enum eSpells
             {
-                DemonicLeapBackward          = 109150,
-                DemonicLeapForward       = 109167,
+                DemonicLeapBackward      = 109150,
+                DemonicLeapForward       = 109163,
                 DemonicLeapUpward        = 109152,
                 DemonicLeapLeft          = 109164,
                 DemonicLeapRigt          = 109165,
+                DemonicLeapForwardLeft   = 109166,
+                DemonicLeapForwardRight  = 109167,
                 DemonicLeapBackwardLeft  = 111738,
                 DemonicLeapBackwardRight = 111739
             };
@@ -1897,18 +1899,22 @@ class spell_warl_demonic_leap: public SpellScriptLoader
             {
                 { eSpells::DemonicLeapBackwardLeft,  MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT  },
                 { eSpells::DemonicLeapBackwardRight, MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_RIGHT },
+                { eSpells::DemonicLeapForwardLeft,   MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_STRAFE_LEFT   },
+                { eSpells::DemonicLeapForwardRight,  MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_STRAFE_RIGHT  },
                 { eSpells::DemonicLeapRigt,          MOVEMENTFLAG_STRAFE_RIGHT                         },
                 { eSpells::DemonicLeapLeft,          MOVEMENTFLAG_STRAFE_LEFT                          },
                 { eSpells::DemonicLeapForward,       MOVEMENTFLAG_FORWARD                              },
                 { eSpells::DemonicLeapBackward,      MOVEMENTFLAG_BACKWARD                             },
                 { eSpells::DemonicLeapUpward,        MOVEMENTFLAG_NONE                                 },
-
             };
 
             void HandleAfterCast()
             {
                 if (Unit* caster = GetCaster())
                 {
+                    if (!caster->HasAura(WARLOCK_DARK_APOTHEOSIS))
+                        caster->CastSpell(caster, WARLOCK_METAMORPHOSIS, true);
+
                     uint32 l_MovementfFlags = caster->GetUnitMovementFlags();
                     for (auto l_Itr : m_LeapDirection)
                     {
