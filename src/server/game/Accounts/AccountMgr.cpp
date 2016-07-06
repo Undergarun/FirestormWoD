@@ -16,7 +16,6 @@
 namespace AccountMgr
 {
 #ifndef CROSS
-
     AccountOpResult CreateAccount(std::string username, std::string password)
     {
         if (utf8length(username) > MAX_ACCOUNT_STR)
@@ -167,8 +166,8 @@ namespace AccountMgr
 
         return AOR_OK;
     }
+#endif
 
-#endif /* not CROSS */
     uint32 GetId(std::string username)
     {
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ID_BY_USERNAME);
@@ -228,9 +227,9 @@ namespace AccountMgr
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
         return (result) ? true : false;
-#ifndef CROSS
     }
 
+#ifndef CROSS
     uint32 GetCharactersCount(uint32 accountId)
     {
         // Check character count
@@ -239,8 +238,8 @@ namespace AccountMgr
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
         return (result) ? (*result)[0].GetUInt64() : 0;
-#endif /* not CROSS */
     }
+#endif
 
     bool normalizeString(std::string& utf8String)
     {

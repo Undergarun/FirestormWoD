@@ -189,7 +189,7 @@ WorldSession::WorldSession(uint32 id, InterRealmClient* irc, AccountTypes sec, b
         ResetTimeOutTime();
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
-#else /* CROSS */
+#else
     m_isinIRBG = false;
     m_ir_socket = irc;
     m_ir_closing = false;
@@ -202,7 +202,7 @@ WorldSession::WorldSession(uint32 id, InterRealmClient* irc, AccountTypes sec, b
     m_GUIDLow = 0;
     m_GUID = 0;
     m_RealGUID = 0;
-#endif /* CROSS */
+#endif
 
     InitializeQueryCallbackParameters();
 
@@ -244,7 +244,6 @@ WorldSession::~WorldSession()
         LoginDatabase.PExecute("UPDATE account_vote SET remainingTime = remainingTime - %u WHERE account = %u", m_VoteTimePassed, GetAccountId());
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
-
 #endif
 
     if (_warden)
@@ -297,11 +296,7 @@ uint32 WorldSession::GetGuidLow() const
 }
 
 /// Send a packet to the client
-#ifndef CROSS
 void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/, bool ir_packet /*=false*/)
-#else /* CROSS */
-void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/)
-#endif /* CROSS */
 {
 #ifndef CROSS
     if (!m_Socket)

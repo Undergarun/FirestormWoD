@@ -288,11 +288,8 @@ class Item : public Object
         uint64 GetOwnerGUID()    const { return GetGuidValue(ITEM_FIELD_OWNER); }
         void SetOwnerGUID(uint64 guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
         Player* GetOwner()const;
-
-#ifdef CROSS
         uint64 GetRealOwnerGUID() const;
 
-#endif /* CROSS */
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, val); }
         bool IsSoulBound() const { return HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_SOULBOUND); }
         bool IsBoundAccountWide() const { return (GetTemplate()->Flags & ITEM_FLAG_BIND_TO_ACCOUNT) != 0; }
@@ -300,17 +297,9 @@ class Item : public Object
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
         virtual bool LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry);
-#ifndef CROSS
-        static void DeleteFromDB(SQLTransaction& trans, uint32 itemGuid);
-#else /* CROSS */
         static void DeleteFromDB(SQLTransaction& trans, uint32 itemGuid, uint32 realmId);
-#endif /* CROSS */
         virtual void DeleteFromDB(SQLTransaction& trans);
-#ifndef CROSS
-        static void DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid);
-#else /* CROSS */
         static void DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid, uint32 realmId);
-#endif /* CROSS */
         void DeleteFromInventoryDB(SQLTransaction& trans);
         void SaveRefundDataToDB();
         void DeleteRefundDataFromDB(SQLTransaction* trans);

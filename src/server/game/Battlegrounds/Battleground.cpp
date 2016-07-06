@@ -23,16 +23,17 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "Util.h"
-#ifndef CROSS
-#include "Guild.h"
-#endif /* not CROSS */
+#include "BattlegroundPacketFactory.hpp"
 #include "GuildMgr.h"
 #include "GroupMgr.h"
-#ifdef CROSS
-#include "InterRealmMgr.h"
-#endif /* CROSS */
 
-#include "BattlegroundPacketFactory.hpp"
+#ifdef CROSS
+# include "InterRealmMgr.h"
+#endif
+
+#ifndef CROSS
+# include "Guild.h"
+#endif
 
 namespace JadeCore
 {
@@ -366,25 +367,21 @@ inline void Battleground::_ProcessOfflineQueue()
         {
             if (itr->second.OfflineRemoveTime <= sWorld->GetGameTime())
             {
-#ifndef CROSS
-                RemovePlayerAtLeave(itr->first, true, true);// remove player from BG
-#else /* CROSS */
                 // itr will be cleared
                 // dont use it to access variables
 
                 uint64 guid = itr->first;
-                RemovePlayerAtLeave(guid);// remove player from BG
-                RemoveFromInterRealm(guid);
+                RemovePlayerAtLeave(guid, true, true);// remove player from BG
 
-#endif /* CROSS */
+#ifdef CROSS
+                RemoveFromInterRealm(guid);
+#endif
+
                 m_OfflineQueue.pop_front();                 // remove from offline queue
                 //do not use itr for anything, because it is erased in RemovePlayerAtLeave()
             }
         }
     }
-#ifndef CROSS
-
-#endif /* not CROSS */
 }
 
 #ifdef CROSS
@@ -411,8 +408,8 @@ void Battleground::RemoveFromInterRealm(uint64 p_PlayerGuid)
         l_Player->SaveToDB(false, l_CallBack);
     }
  }
+#endif
 
-#endif /* CROSS */
 inline void Battleground::_ProcessRessurect(uint32 diff)
 {
     // *********************************************************
@@ -625,9 +622,6 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 {
                     // BG Status packet
                     WorldPacket status;
-#ifndef CROSS
-                    MS::Battlegrounds::BattlegroundType::Type l_BgType = MS::Battlegrounds::GetTypeFromId(m_TypeID, GetArenaType(), IsSkirmish()); ///< l_BgType is never read 01/18/16
-#endif /* not CROSS */
                     uint32 queueSlot = l_Player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(m_TypeID));
                     MS::Battlegrounds::PacketFactory::Status(&status, this, l_Player, queueSlot, STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
                     l_Player->GetSession()->SendPacket(&status);
@@ -995,13 +989,8 @@ void Battleground::EndBattleground(uint32 p_Winner)
             loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(p_Winner), slot);
             winner_matchmaker_rating = GetArenaMatchmakerRating(p_Winner, slot);
 
-#ifndef CROSS
-            winner_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change, slot);
-            loser_team->LostAgainst(loser_matchmaker_rating, winner_matchmaker_rating, loser_change, slot);
-#else /* CROSS */
             winner_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change, winner_matchmaker_change, slot);
             loser_team->LostAgainst(loser_matchmaker_rating, winner_matchmaker_rating, loser_change, loser_matchmaker_change, slot);
-#endif /* CROSS */
 
             SetArenaMatchmakerRating(p_Winner, winner_matchmaker_rating + winner_matchmaker_change);
             SetArenaMatchmakerRating(GetOtherTeam(p_Winner), loser_matchmaker_rating + loser_matchmaker_change);
@@ -1010,7 +999,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
 
 #ifdef CROSS
             sBattlegroundMgr->LogArenaMatch(this, p_Winner, winner_change, winner_matchmaker_change, loser_change, loser_matchmaker_change);
-#endif /* CROSS */
+#endif
         }
         // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
         else if (GetWinner() == 3)
@@ -1137,11 +1126,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
         // Reward winner team
         if (l_Team == p_Winner)
         {
-#ifndef CROSS
-            if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())))
-#else /* CROSS */
             if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())) && !isArena())
-#endif /* CROSS */
             {
                 UpdatePlayerScore(l_Player, nullptr, SCORE_BONUS_HONOR, winner_bonus, !IsWargame(), MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundWin);
                 if (!l_Player->GetRandomWinner() && !IsWargame())
@@ -1183,11 +1168,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
         }
         else
         {
-#ifndef CROSS
-            if (IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID()))
-#else /* CROSS */
             if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())) && !isArena())
-#endif /* CROSS */
             {
                 UpdatePlayerScore(l_Player, nullptr, SCORE_BONUS_HONOR, loser_bonus, !IsWargame());
 
@@ -1207,19 +1188,16 @@ void Battleground::EndBattleground(uint32 p_Winner)
         MS::Battlegrounds::PacketFactory::PvpLogData(&data, this);
         l_Player->GetSession()->SendPacket(&data);
 
-#ifndef CROSS
-        MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(GetTypeID(), GetArenaType(), IsSkirmish()); ///< bgQueueTypeId is never read 01/18/16
-#endif /* not CROSS */
         MS::Battlegrounds::PacketFactory::Status(&data, this, l_Player, l_Player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(GetTypeID())), STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
         l_Player->GetSession()->SendPacket(&data);
 
         if (!IsWargame())
             l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
-#ifdef CROSS
 
+#ifdef CROSS
         if (IsRatedBG() || (isArena() && !IsSkirmish()))
             l_Player->SaveCrossServerArenaData();
-#endif /* CROSS */
+#endif
     }
 
     if (winmsg_id)
@@ -1238,11 +1216,7 @@ void Battleground::BlockMovement(Player* player)
     player->SetClientControl(player, 0);                          // movement disabled NOTE: the effect will be automatically removed by client when the player is teleported from the battleground, so no need to send with uint8(1) in RemovePlayerAtLeave()
 }
 
-#ifndef CROSS
 void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket)
-#else /* CROSS */
-void Battleground::RemovePlayerAtLeave(uint64 guid)
-#endif /* CROSS */
 {
     uint32 team = GetPlayerTeam(guid);
     bool participant = false;
@@ -1359,20 +1333,11 @@ void Battleground::RemovePlayerAtLeave(uint64 guid)
                 }
             }
 
-#ifndef CROSS
-            if (SendPacket)
-            {
-                WorldPacket data;
-                MS::Battlegrounds::PacketFactory::Status(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_NONE, player->GetBattlegroundQueueJoinTime(bgQueueTypeId), 0, 0, IsSkirmish());
-                player->GetSession()->SendPacket(&data);
-            }
-#else /* CROSS */
             player->SaveArenaData();
 
             WorldPacket data;
             MS::Battlegrounds::PacketFactory::Status(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_NONE, player->GetBattlegroundQueueJoinTime(bgQueueTypeId), 0, 0, IsSkirmish());
             player->GetSession()->SendPacket(&data);
-#endif /* CROSS */
 
             // this call is important, because player, when joins to battleground, this method is not called, so it must be called when leaving bg
             player->RemoveBattlegroundQueueId(bgQueueTypeId);
@@ -1422,13 +1387,13 @@ void Battleground::RemovePlayerAtLeave(uint64 guid)
 
         player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 3, 0);
         player->RemoveBattlegroundQueueJoinTime(bgQueueTypeId);
-#ifndef CROSS
 
+#ifndef CROSS
         if (Transport)
             player->TeleportToBGEntryPoint();
 
         sLog->outInfo(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Removed player %s from Battleground.", player->GetName());
-#endif /* not CROSS */
+#endif
     }
 
     if (player && IsRatedBG())
@@ -2244,11 +2209,7 @@ uint32 Battleground::GetAlivePlayersCountByTeam(uint32 Team) const
         if (itr->second.Team == Team)
         {
             Player* player = ObjectAccessor::FindPlayer(itr->first);
-#ifndef CROSS
-            if (player && player->isAlive() && !player->HasByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 3, FORM_SPIRITOFREDEMPTION))
-#else /* CROSS */
             if (player && player->isAlive() && player->GetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 3) != FORM_SPIRITOFREDEMPTION)
-#endif /* CROSS */
                 ++count;
         }
     }

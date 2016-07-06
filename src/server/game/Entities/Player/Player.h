@@ -1106,25 +1106,15 @@ class PetQueryHolder : public SQLQueryHolder
 {
     private:
         uint32 m_guid;
-#ifdef CROSS
         uint32 m_RealmId;
-#endif /* CROSS */
         PreparedQueryResult m_petResult;
     public:
-#ifndef CROSS
-        PetQueryHolder(uint32 guid, PreparedQueryResult p_QueryResult) : m_guid(guid), m_petResult(p_QueryResult) { }
-#else /* CROSS */
         PetQueryHolder(uint32 guid, uint32 realmId, PreparedQueryResult p_QueryResult) : m_guid(guid), m_RealmId(realmId), m_petResult(p_QueryResult) { }
-#endif /* CROSS */
         uint32 GetGuid() const { return m_guid; }
         bool Initialize();
 
         PreparedQueryResult GetPetResult() { return m_petResult; }
-#ifndef CROSS
-        static PreparedStatement* GenerateFirstLoadStatement(uint32 p_PetEntry, uint32 p_PetNumber, uint32 p_OwnerID, bool p_CurrentPet, PetSlot p_SlotID);
-#else /* CROSS */
         static PreparedStatement* GenerateFirstLoadStatement(uint32 p_PetEntry, uint32 p_PetNumber, uint32 p_OwnerID, bool p_CurrentPet, PetSlot p_SlotID, uint32 p_RealmID);
-#endif /* CROSS */
 };
 
 enum PetLoginQueryIndex

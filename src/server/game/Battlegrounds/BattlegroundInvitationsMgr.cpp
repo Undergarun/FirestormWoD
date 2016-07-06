@@ -48,11 +48,7 @@ namespace MS
                 for (auto l_Itr = std::begin(p_GroupInfo->m_Players); l_Itr != std::end(p_GroupInfo->m_Players); ++l_Itr)
                 {
                     /// Get the player.
-#ifndef CROSS
-                    Player* l_Player = ObjectAccessor::FindPlayer(l_Itr->first);
-#else /* CROSS */
                     Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(l_Itr->first);
-#endif /* CROSS */
 
                     /// If offline, skip him, this should not happen - player is removed from queue when he logs out.
                     if (!l_Player)
@@ -71,32 +67,15 @@ namespace MS
                     l_Player->SetInviteForBattlegroundQueueType(p_GroupInfo->m_BgTypeId, p_GroupInfo->m_IsInvitedToBGInstanceGUID);
 
                     /// Create remind invite news.
-#ifndef CROSS
-                    //BGQueueInviteEvent* l_InviteEvent = new BGQueueInviteEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, p_GroupInfo->m_ArenaType, p_GroupInfo->m_RemoveInviteTime);
-                    //m_Events.AddEvent(l_InviteEvent, m_Events.CalculateTime(INVITATION_REMIND_TIME));
-#else /* CROSS */
                     BGQueueInviteEvent* l_InviteEvent = new BGQueueInviteEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, p_GroupInfo->m_ArenaType, p_GroupInfo->m_RemoveInviteTime);
                     m_Events.AddEvent(l_InviteEvent, m_Events.CalculateTime(INVITATION_REMIND_TIME));
-#endif /* CROSS */
 
                     /// Create automatic remove events.
                     BGQueueRemoveEvent* l_RemoveEvent = new BGQueueRemoveEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, l_BgQueueTypeId, p_GroupInfo->m_RemoveInviteTime);
-#ifndef CROSS
-                    l_Player->m_Events.AddEvent(l_RemoveEvent, l_Player->m_Events.CalculateTime(INVITE_ACCEPT_WAIT_TIME));
-#else /* CROSS */
                     m_Events.AddEvent(l_RemoveEvent, m_Events.CalculateTime(INVITE_ACCEPT_WAIT_TIME));
-#endif /* CROSS */
 
                     uint32 l_QueueSlot = l_Player->GetBattlegroundQueueIndex(p_GroupInfo->m_BgTypeId == BattlegroundType::RandomBattleground ? BattlegroundType::RandomBattleground : p_GroupInfo->m_BgTypeId);
 
-                    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: invited player %s (%u) to BG instance %u queueindex %u bgtype %u, I can't help it if they don't press the enter battle button.",
-                        l_Player->GetName(), l_Player->GetGUIDLow(), p_Bg->GetInstanceID(), l_QueueSlot, p_Bg->GetTypeID());
-
-#ifdef CROSS
-                    sLog->outAshran("BattlegroundInvitationsMgr::InviteGroupToBG: invited player %s (%u) to BG instance %u queueindex %u bgtype %u, I can't help it if they don't press the enter battle button.",
-                        l_Player->GetName(), l_Player->GetGUIDLow(), p_Bg->GetInstanceID(), l_QueueSlot, p_Bg->GetTypeID());
-
-#endif /* CROSS */
                     /// Send status packet.
                     WorldPacket data;
                     PacketFactory::Status(&data, p_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, p_Bg->GetExpirationDate(), l_Player->GetBattlegroundQueueJoinTime(p_GroupInfo->m_BgTypeId), p_GroupInfo->m_ArenaType, p_GroupInfo->m_IsSkirmish);
@@ -215,7 +194,6 @@ namespace MS
             m_Events.Update(diff);
         }
 
-#ifdef CROSS
         void BattlegroundInvitationsMgr::ClearPlayerInvitation(uint64 p_Guid)
         {
             auto l_Itr = m_InvitedPlayers.find(p_Guid);
@@ -232,13 +210,8 @@ namespace MS
             m_InvitedPlayers.erase(l_Itr);
         }
 
-#endif /* CROSS */
         void BattlegroundInvitationsMgr::RemovePlayer(uint64 p_Guid, bool p_DecreaseInvitedCount, BattlegroundType::Type p_Type)
         {
-#ifdef CROSS
-            sLog->outAshran("BattlegroundInvitationsMgr::RemovePlayer: bg type: %u, player guid %u 1", p_Type, p_Guid);
-
-#endif /* CROSS */
             /// Remove player from map, if he's there.
             auto l_Itr = m_InvitedPlayers.find(p_Guid);
             if (l_Itr == m_InvitedPlayers.end())
@@ -269,9 +242,6 @@ namespace MS
                 return;
             }
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundQueue: Removing player GUID %u, from bracket_id %u", GUID_LOPART(p_Guid), (uint32)l_BracketId);
-#ifdef CROSS
-            sLog->outAshran("BattlegroundInvitationsMgr::RemovePlayer: bg type: %u, player guid %u 2", p_Type, p_Guid);
-#endif /* CROSS */
 
             /// ALL variables are correctly set
             /// We can ignore leveling up in queue - it should not cause crash
@@ -296,11 +266,7 @@ namespace MS
             /// If player leaves queue and he is invited to rated arena match, then he have to lose.
             if (l_Group->m_IsInvitedToBGInstanceGUID && l_Group->m_IsRatedBG && IsArena(l_Group->m_BgTypeId) && p_DecreaseInvitedCount)
             {
-#ifndef CROSS
-                if (Player* player = ObjectAccessor::FindPlayer(p_Guid))
-#else /* CROSS */
                 if (Player* player = ObjectAccessor::FindPlayerInOrOutOfWorld(p_Guid))
-#endif /* CROSS */
                 {
                     /// Update personal rating.
                     uint8 slot = Arena::GetSlotByType(l_Group->m_ArenaType);
@@ -329,11 +295,7 @@ namespace MS
                 BattlegroundType::Type bgQueueTypeId = GetTypeFromId(GetIdFromType(l_Group->m_BgTypeId), l_Group->m_ArenaType);
                 /// Remove next player, this is recursive.
                 /// First send removal information.
-#ifndef CROSS
-                if (Player* plr2 = ObjectAccessor::FindPlayer(l_Group->m_Players.begin()->first))
-#else /* CROSS */
                 if (Player* plr2 = ObjectAccessor::FindPlayerInOrOutOfWorld(l_Group->m_Players.begin()->first))
-#endif /* CROSS */
                 {
                     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(l_Group->m_BgTypeId);
                     uint32 queueSlot = plr2->GetBattlegroundQueueIndex(bgQueueTypeId);
@@ -345,7 +307,7 @@ namespace MS
                     plr2->GetSession()->SendPacket(&data);
 #ifdef CROSS
                     plr2->SetNeedRemove(true);
-#endif /* CROSS */
+#endif
                 }
 
                 /// Then actually delete, this may delete the group as well!
@@ -359,12 +321,7 @@ namespace MS
 
         bool BGQueueInviteEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
         {
-#ifndef CROSS
-            Player* l_Player = ObjectAccessor::FindPlayer(m_PlayerGuid);
-#else /* CROSS */
-            sLog->outAshran("BGQueueInviteEvent::Execute player guid : %u bg instance : %u 1", m_PlayerGuid, m_BgInstanceGUID);
             Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(m_PlayerGuid);
-#endif /* CROSS */
             /// Player logged off (we should do nothing, he is correctly removed from queue in another procedure).
             if (!l_Player)
                 return true;
@@ -378,28 +335,14 @@ namespace MS
             uint32 l_QueueSlot = l_Player->GetBattlegroundQueueIndex(GetSchedulerType(l_Bg->GetTypeID()));
             if (l_QueueSlot < PLAYER_MAX_BATTLEGROUND_QUEUES)         // player is in queue or in battleground
             {
-#ifdef CROSS
-                sLog->outAshran("BGQueueInviteEvent::Execute player guid : %u bg instance : %u 2", m_PlayerGuid, m_BgInstanceGUID);
-
-#endif /* CROSS */
                 /// Check if the player is invited to this battleground.
                 BattlegroundInvitationsMgr& l_InvitationsMgr = sBattlegroundMgr->GetInvitationsMgr();
                 if (l_InvitationsMgr.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
                 {
-#ifdef CROSS
-                    sLog->outAshran("BGQueueInviteEvent::Execute player guid : %u bg instance : %u 3", m_PlayerGuid, m_BgInstanceGUID);
-
-#endif /* CROSS */
                     WorldPacket l_Data;
 
                     /// We must send remaining time in queue.
-#ifndef CROSS
-                    if (BattlegroundType::IsArena(bgQueueTypeId))
-                        PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, l_Bg->GetExpirationDate(), l_Player->GetBattlegroundQueueJoinTime(bgQueueTypeId), m_ArenaType, l_Bg->IsSkirmish());
-                    
-#else /* CROSS */
                     PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, l_Bg->GetExpirationDate(), l_Player->GetBattlegroundQueueJoinTime(bgQueueTypeId), m_ArenaType, l_Bg->IsSkirmish());
-#endif /* CROSS */
                     l_Player->GetSession()->SendPacket(&l_Data);
                 }
             }
@@ -420,76 +363,33 @@ namespace MS
         /// we must remove player in the 5. case even if battleground object doesn't exist!
         bool BGQueueRemoveEvent::Execute(uint64 /*p_Time*/, uint32 /*p_Time*/)
         {
-#ifndef CROSS
-            sLog->outAshran("BGQueueRemoveEvent::Execute m_PlayerGuid: %u, m_BgInstanceGUID : %u, m_BgTypeId : %u, m_BgType : %u",
-#else /* CROSS */
-            sLog->outAshran("BGQueueRemoveEvent::Execute m_PlayerGuid: %u, m_BgInstanceGUID : %u, m_BgTypeId : %u, m_BgType : %u 1",
-#endif /* CROSS */
                 m_PlayerGuid, m_BgInstanceGUID, m_BgTypeId, m_BgType);
 
-#ifndef CROSS
-            Player* l_Player = ObjectAccessor::FindPlayer(m_PlayerGuid);
-#else /* CROSS */
             Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(m_PlayerGuid);
-#endif /* CROSS */
 
             if (!l_Player) /// Player logged off (we should do nothing, he is correctly removed from queue in another procedure)
                 return true;
 
-#ifdef CROSS
-            sLog->outAshran("BGQueueRemoveEvent::Execute m_PlayerGuid: %u, m_BgInstanceGUID : %u, m_BgTypeId : %u, m_BgType : %u 2",
-                m_PlayerGuid, m_BgInstanceGUID, m_BgTypeId, m_BgType);
-
-#endif /* CROSS */
             Battleground* l_Bg = sBattlegroundMgr->GetBattleground(m_BgInstanceGUID, GetSchedulerType(m_BgTypeId));
             /// Battleground can be deleted already when we are removing queue info
             /// Bg pointer can be NULL! so use it carefully!
 
-#ifndef CROSS
-            //sLog->outAshran("BGQueueRemoveEvent::Execute 1");
-
-#endif /* not CROSS */
             uint32 l_QueueSlot = l_Player->GetBattlegroundQueueIndex(m_BgType);
             if (l_QueueSlot < PLAYER_MAX_BATTLEGROUND_QUEUES) /// Player is in queue, or in Battleground.
             {
-#ifndef CROSS
-                //sLog->outAshran("BGQueueRemoveEvent::Execute 2");
-#else /* CROSS */
-                sLog->outAshran("BGQueueRemoveEvent::Execute m_PlayerGuid: %u, m_BgInstanceGUID : %u, m_BgTypeId : %u, m_BgType : %u 3",
-                    m_PlayerGuid, m_BgInstanceGUID, m_BgTypeId, m_BgType);
-#endif /* CROSS */
-
                 /// Check if player is in queue for this BG and if we are removing his invite event.
                 BattlegroundInvitationsMgr& l_InvitationsMgr = sBattlegroundMgr->GetInvitationsMgr();
                 if (l_InvitationsMgr.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
                 {
-#ifndef CROSS
-                    //sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: removing player %u from bg queue for instance %u because of not pressing enter battle in time.", l_Player->GetGUIDLow(), m_BgInstanceGUID);
-                    //sLog->outAshran("BGQueueRemoveEvent::Execute 3");
-#else /* CROSS */
-                    sLog->outAshran("BGQueueRemoveEvent::Execute m_PlayerGuid: %u, m_BgInstanceGUID : %u, m_BgTypeId : %u, m_BgType : %u 4",
-                        m_PlayerGuid, m_BgInstanceGUID, m_BgTypeId, m_BgType);
-#endif /* CROSS */
-
-#ifdef CROSS
-                    //sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: removing player %u from bg queue for instance %u because of not pressing enter battle in time.", l_Player->GetGUIDLow(), m_BgInstanceGUID);
-#endif /* CROSS */
                     l_Player->RemoveBattlegroundQueueId(m_BgType);
                     l_InvitationsMgr.RemovePlayer(m_PlayerGuid, true, Battlegrounds::GetSchedulerType(m_BgTypeId));
-#ifndef CROSS
-                    //sLog->outAshran("BGQueueRemoveEvent::Execute 4");
-
-#endif /* not CROSS */
 
                     WorldPacket l_Data;
                     PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_NONE, l_Player->GetBattlegroundQueueJoinTime(GetSchedulerType(m_BgTypeId)), 0, 0, false);
                     l_Player->GetSession()->SendPacket(&l_Data);
 #ifdef CROSS
-
                     l_Player->SetNeedRemove(true);
-#endif /* CROSS */
-
-                    //sLog->outAshran("BGQueueRemoveEvent::Execute 5");
+#endif
                 }
             }
 

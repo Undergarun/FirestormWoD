@@ -486,7 +486,11 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
     if (owner->GetSession()->GetInterRealmClient() == nullptr)
         return;
 
-#endif /* CROSS */
+    InterRealmDatabasePool* l_Database = GetOwner()->GetRealmDatabase();
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
+
     if (mode == PET_SLOT_ACTUAL_PET_SLOT)
         mode = owner->m_currentPetSlot;
 
@@ -494,11 +498,7 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
 
     // not save pet as current if another pet temporary unsummoned
     if (mode == owner->m_currentPetSlot && owner->GetTemporaryUnsummonedPetNumber() &&
-#ifndef CROSS
-        owner->GetTemporaryUnsummonedPetNumber() != m_charmInfo->GetPetNumber())
-#else /* CROSS */
         owner->GetTemporaryUnsummonedPetNumber() != m_charmInfo->GetRealmPetNumber())
-#endif /* CROSS */
     {
         // pet will lost anyway at restore temporary unsummoned
         if (getPetType() == HUNTER_PET)
@@ -511,13 +511,8 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
     uint32 curhealth = GetHealth();
     uint32 curmana = GetPower(POWER_MANA);
 
-#ifndef CROSS
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
-    InterRealmDatabasePool* l_Database = owner->GetRealmDatabase();
-
     SQLTransaction trans = l_Database->BeginTransaction();
-#endif /* CROSS */
+
     // save auras before possibly removing them
     _SaveAuras(trans);
 
@@ -527,44 +522,24 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
 
     _SaveSpells(trans);
     _SaveSpellCooldowns(trans);
-#ifndef CROSS
-    CharacterDatabase.CommitTransaction(trans);
-#else /* CROSS */
     l_Database->CommitTransaction(trans);
-#endif /* CROSS */
 
     // current/stable/not_in_slot
     if (mode >= PET_SLOT_HUNTER_FIRST)
     {
-#ifndef CROSS
-        uint32 ownerLowGUID = GUID_LOPART(GetOwnerGUID());
-#else /* CROSS */
         uint32 ownerLowGUID = GetOwner()->GetRealGUIDLow();
-#endif /* CROSS */
         std::string name = m_name;
-#ifndef CROSS
-        CharacterDatabase.EscapeString(name);
-        trans = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
         l_Database->EscapeString(name);
         trans = l_Database->BeginTransaction();
-#endif /* CROSS */
+
         // remove current data
-#ifndef CROSS
-        trans->PAppend("DELETE FROM character_pet WHERE owner = '%u' AND id = '%u'", ownerLowGUID, m_charmInfo->GetPetNumber());
-#else /* CROSS */
         trans->PAppend("DELETE FROM character_pet WHERE owner = '%u' AND id = '%u'", ownerLowGUID, m_charmInfo->GetRealmPetNumber());
-#endif /* CROSS */
 
         // save pet
         std::ostringstream ss;
         ss  << "INSERT INTO character_pet (id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization) "
             << "VALUES ("
-#ifndef CROSS
-            << m_charmInfo->GetPetNumber() << ','
-#else /* CROSS */
             << m_charmInfo->GetRealmPetNumber() << ','
-#endif /* CROSS */
             << GetEntry() << ','
             << ownerLowGUID << ','
             << GetNativeDisplayId() << ','
@@ -592,35 +567,17 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
 
         trans->Append(ss.str().c_str());
 
-#ifndef CROSS
-        uint32 l_AccountID = owner->GetSession()->GetAccountId();
-        MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void ///< p_Success is unused
-#else /* CROSS */
         uint64 l_PlayerGUID = owner->GetGUID();
         MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_PlayerGUID](bool p_Success) -> void
-#endif /* CROSS */
         {
-#ifndef CROSS
-            WorldSession* l_Session = sWorld->FindSession(l_AccountID);
-            if (l_Session == nullptr)
-#else /* CROSS */
             Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
             if (!l_Player)
-#endif /* CROSS */
                 return;
 
-#ifndef CROSS
-            l_Session->SendStablePet(0);
-#else /* CROSS */
             l_Player->GetSession()->SendStablePet(0);
-#endif /* CROSS */
         });
 
-#ifndef CROSS
-        CharacterDatabase.CommitTransaction(trans, l_CallBack);
-#else /* CROSS */
         l_Database->CommitTransaction(trans, l_CallBack);
-#endif /* CROSS */
     }
     // delete
     else
@@ -628,27 +585,19 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
         if (owner->m_currentPetSlot >= PET_SLOT_HUNTER_FIRST && owner->m_currentPetSlot <= PET_SLOT_HUNTER_LAST)
             owner->setPetSlotUsed(owner->m_currentPetSlot, false);
         RemoveAllAuras();
-#ifndef CROSS
-        DeleteFromDB(m_charmInfo->GetPetNumber());
-#else /* CROSS */
         DeleteFromDB(m_charmInfo->GetRealmPetNumber(), owner->GetSession()->GetInterRealmNumber());
-#endif /* CROSS */
     }
 }
 
-#ifndef CROSS
-void Pet::DeleteFromDB(uint32 guidlow)
-#else /* CROSS */
 void Pet::DeleteFromDB(uint32 guidlow, uint32 realmId)
-#endif /* CROSS */
 {
-#ifndef CROSS
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-#else /* CROSS */
+#ifdef CROSS
     InterRealmDatabasePool* l_Database = sInterRealmMgr->GetClientByRealmNumber(realmId)->GetDatabase();
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
 
     SQLTransaction trans = l_Database->BeginTransaction();
-#endif /* CROSS */
 
     trans->PAppend("DELETE FROM character_pet WHERE id = '%u'", guidlow);
     trans->PAppend("DELETE FROM character_pet_declinedname WHERE id = '%u'", guidlow);
@@ -656,11 +605,7 @@ void Pet::DeleteFromDB(uint32 guidlow, uint32 realmId)
     trans->PAppend("DELETE FROM pet_spell WHERE guid = '%u'", guidlow);
     trans->PAppend("DELETE FROM pet_spell_cooldown WHERE guid = '%u'", guidlow);
 
-#ifndef CROSS
-    CharacterDatabase.CommitTransaction(trans);
-#else /* CROSS */
     l_Database->CommitTransaction(trans);
-#endif /* CROSS */
 }
 
 void Pet::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState
@@ -956,13 +901,8 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 
 bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask)
 {
-#ifndef CROSS
     sLog->outDebug(LOG_FILTER_PETS, "Pet::CreateBaseForTamed");
     uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
-#else /* CROSS */
-    uint32 guid       = sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
-
-#endif /* CROSS */
     if (!Create(guid, map, phaseMask, cinfo->Entry))
         return false;
 
@@ -1205,18 +1145,17 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown)
 
 void Pet::_SaveSpellCooldowns(SQLTransaction& trans)
 {
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_SPELL_COOLDOWNS);
-    stmt->setUInt32(0, m_charmInfo->GetPetNumber());
-#else /* CROSS */
+#ifdef CROSS
     if (!GetOwner())
         return;
 
     InterRealmDatabasePool* l_Database = GetOwner()->GetRealmDatabase();
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
 
     PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_PET_SPELL_COOLDOWNS);
     stmt->setUInt32(0, m_charmInfo->GetRealmPetNumber());
-#endif /* CROSS */
     trans->Append(stmt);
 
     time_t curTime = time(NULL);
@@ -1228,13 +1167,8 @@ void Pet::_SaveSpellCooldowns(SQLTransaction& trans)
             m_CreatureSpellCooldowns.erase(itr++);
         else
         {
-#ifndef CROSS
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_SPELL_COOLDOWN);
-            stmt->setUInt32(0, m_charmInfo->GetPetNumber());
-#else /* CROSS */
             stmt = l_Database->GetPreparedStatement(CHAR_INS_PET_SPELL_COOLDOWN);
             stmt->setUInt32(0, m_charmInfo->GetRealmPetNumber());
-#endif /* CROSS */
             stmt->setUInt32(1, itr->first);
             stmt->setUInt32(2, uint32(itr->second));
             trans->Append(stmt);
@@ -1267,8 +1201,10 @@ void Pet::_SaveSpells(SQLTransaction& trans)
         return;
 
     InterRealmDatabasePool* l_Database = GetOwner()->GetRealmDatabase();
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
 
-#endif /* CROSS */
     for (PetSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end(); itr = next)
     {
         ++next;
@@ -1282,59 +1218,34 @@ void Pet::_SaveSpells(SQLTransaction& trans)
         switch (itr->second.state)
         {
             case PETSPELL_REMOVED:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_SPELL_BY_SPELL);
-                stmt->setUInt32(0, m_charmInfo->GetPetNumber());
-#else /* CROSS */
                 stmt = l_Database->GetPreparedStatement(CHAR_DEL_PET_SPELL_BY_SPELL);
                 stmt->setUInt32(0, m_charmInfo->GetRealmPetNumber());
-#endif /* CROSS */
                 stmt->setUInt32(1, itr->first);
                 trans->Append(stmt);
 
                 itr = m_spells.erase(itr);
                 continue;
             case PETSPELL_CHANGED:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_SPELL_BY_SPELL);
-                stmt->setUInt32(0, m_charmInfo->GetPetNumber());
-#else /* CROSS */
                 stmt = l_Database->GetPreparedStatement(CHAR_DEL_PET_SPELL_BY_SPELL);
                 stmt->setUInt32(0, m_charmInfo->GetRealmPetNumber());
-#endif /* CROSS */
                 stmt->setUInt32(1, itr->first);
                 trans->Append(stmt);
 
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_SPELL);
-                stmt->setUInt32(0, m_charmInfo->GetPetNumber());
-#else /* CROSS */
                 stmt = l_Database->GetPreparedStatement(CHAR_INS_PET_SPELL);
                 stmt->setUInt32(0, m_charmInfo->GetRealmPetNumber());
-#endif /* CROSS */
                 stmt->setUInt32(1, itr->first);
                 stmt->setUInt8(2, itr->second.active);
                 trans->Append(stmt);
 
                 break;
             case PETSPELL_NEW:
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_SPELL_BY_SPELL);
-                stmt->setUInt32(0, m_charmInfo->GetPetNumber());
-#else /* CROSS */
                 stmt = l_Database->GetPreparedStatement(CHAR_DEL_PET_SPELL_BY_SPELL);
                 stmt->setUInt32(0, m_charmInfo->GetRealmPetNumber());
-#endif /* CROSS */
                 stmt->setUInt32(1, itr->first);
                 trans->Append(stmt);
 
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_SPELL);
-                stmt->setUInt32(0, m_charmInfo->GetPetNumber());
-#else /* CROSS */
                 stmt = l_Database->GetPreparedStatement(CHAR_INS_PET_SPELL);
                 stmt->setUInt32(0, m_charmInfo->GetRealmPetNumber());
-#endif /* CROSS */
                 stmt->setUInt32(1, itr->first);
                 stmt->setUInt8(2, itr->second.active);
                 trans->Append(stmt);
@@ -1446,27 +1357,22 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult auraEff
 
 void Pet::_SaveAuras(SQLTransaction& trans)
 {
-#ifndef CROSS
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_AURAS);
-    stmt->setUInt32(0, m_charmInfo->GetPetNumber());
-#else /* CROSS */
+#ifdef CROSS
     if (!GetOwner())
         return;
 
     InterRealmDatabasePool* l_Database = GetOwner()->GetRealmDatabase();
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
+
 
     PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_PET_AURAS);
     stmt->setUInt32(0, m_charmInfo->GetRealmPetNumber());
-#endif /* CROSS */
     trans->Append(stmt);
 
-#ifndef CROSS
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_AURAS_EFFECTS);
-    stmt->setUInt32(0, m_charmInfo->GetPetNumber());
-#else /* CROSS */
     stmt = l_Database->GetPreparedStatement(CHAR_DEL_PET_AURAS_EFFECTS);
     stmt->setUInt32(0, m_charmInfo->GetRealmPetNumber());
-#endif /* CROSS */
     trans->Append(stmt);
 
     for (AuraMap::const_iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end(); ++itr)
@@ -1491,13 +1397,8 @@ void Pet::_SaveAuras(SQLTransaction& trans)
             if (aura->GetEffect(i))
             {
                 index = 0;
-#ifndef CROSS
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA_EFFECT);
-                stmt->setUInt32(index++, m_charmInfo->GetPetNumber());
-#else /* CROSS */
                 stmt = l_Database->GetPreparedStatement(CHAR_INS_PET_AURA_EFFECT);
                 stmt->setUInt32(index++, m_charmInfo->GetRealmPetNumber());
-#endif /* CROSS */
                 stmt->setUInt8(index++, foundAura->GetSlot());
                 stmt->setUInt8(index++, i);
                 stmt->setInt32(index++, aura->GetEffect(i)->GetBaseAmount());
@@ -1522,13 +1423,8 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         uint64 casterGUID = (itr->second->GetCasterGUID() == GetGUID()) ? 0 : itr->second->GetCasterGUID();
 
         index = 0;
-#ifndef CROSS
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA);
-        stmt->setUInt32(index++, m_charmInfo->GetPetNumber());
-#else /* CROSS */
         PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_INS_PET_AURA);
         stmt->setUInt32(index++, m_charmInfo->GetRealmPetNumber());
-#endif /* CROSS */
         stmt->setUInt8(index++, foundAura->GetSlot());
         stmt->setUInt64(index++, casterGUID);
         stmt->setUInt32(index++, itr->second->GetId());

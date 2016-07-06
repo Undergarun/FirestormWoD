@@ -32,9 +32,7 @@ const char DungeonEncounterfmt[]              = "niiiisiii";
 const char DurabilityCostsfmt[]               = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 const char EmotesEntryfmt[]                   = "nsiiiiii";
 const char EmotesTextEntryfmt[]               = "nxixxxxxxxxxxxxxxxx";
-#ifndef CROSS
 char const EmotesTextSoundEntryfmt[]          = "niiii";
-#endif /* not CROSS */
 const char FactionEntryfmt[]                  = "niiiiiiiiiiiiiiiiiiffiissiii";
 const char FactionTemplateEntryfmt[]          = "niiiiiiiiiiiii";
 const char FileDatafmt[]                      = "nss";

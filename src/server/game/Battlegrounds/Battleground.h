@@ -610,11 +610,7 @@ enum BattlegroundTimeIntervals
     RESURRECTION_INTERVAL           = 30000,                // ms
     //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
-#ifndef CROSS
-    INVITE_ACCEPT_WAIT_TIME         = 30000,                // ms
-#else /* CROSS */
     INVITE_ACCEPT_WAIT_TIME         = 90000,                // ms
-#endif /* CROSS */
     TIME_AUTOCLOSE_BATTLEGROUND     = 120000,               // ms
     MAX_OFFLINE_TIME                = 300,                  // secs
     RESPAWN_ONE_DAY                 = 86400,                // secs
@@ -1124,13 +1120,7 @@ class Battleground
 
         void AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team);
 
-#ifndef CROSS
         virtual void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket);
-#else /* CROSS */
-        virtual uint32 GetZoneId() const { return 0; }
-
-        virtual void RemovePlayerAtLeave(uint64 guid);
-#endif /* CROSS */
                                                             // can be extended in in BG subclass
 
         void HandleTriggerBuff(uint64 go_guid);

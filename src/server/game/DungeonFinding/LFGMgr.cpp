@@ -1278,9 +1278,9 @@ bool LFGMgr::CheckCompatibility(LfgGuidList p_Check, LfgProposal*& p_Proposal, L
                 // Do not form a group with ignoring candidates
 #ifndef CROSS
                 if (player->GetSocial()->HasIgnore((*itPlayer)->GetGUIDLow()) || (*itPlayer)->GetSocial()->HasIgnore(player->GetGUIDLow()))
-#else /* CROSS */
+#else
                 if ((player->GetSocial() && player->GetSocial()->HasIgnore((*itPlayer)->GetGUIDLow())) || ((*itPlayer)->GetSocial() && (*itPlayer)->GetSocial()->HasIgnore(player->GetGUIDLow())))
-#endif /* CROSS */
+#endif
                 {
                     player = NULL;
                 }

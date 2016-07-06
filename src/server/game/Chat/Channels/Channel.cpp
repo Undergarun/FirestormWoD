@@ -710,13 +710,8 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
         uint32 messageLength = strlen(what) + 1; ///< messageLenght is never read 01/18/16
 
         WorldPacket data;
-#ifndef CROSS
-        player->BuildPlayerChat(&data, nullptr, CHAT_MSG_CHANNEL, what, lang, NULL, m_name);
-        SendToAll(&data, !m_Players[p].IsModerator() ? p : false, p);
-#else /* CROSS */
         player->BuildPlayerChat(&data, 0, CHAT_MSG_CHANNEL, what, lang, NULL, m_name);
         SendToAll(&data, !m_Players[p].IsModerator() ? p : false);
-#endif /* CROSS */
 
         if (IsWorld())
         {

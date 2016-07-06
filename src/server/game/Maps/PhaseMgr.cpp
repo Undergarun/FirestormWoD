@@ -103,8 +103,8 @@ void PhaseMgr::Recalculate()
             }
         }
     }
-#ifndef CROSS
 
+#ifndef CROSS
     if (player->GetGarrison() && (player->GetMapId() == MS::Garrison::Globals::BaseMap || player->IsInGarrison()))
         _UpdateFlags |= PHASE_UPDATE_FLAG_CLIENTSIDE_CHANGED;
 #endif /* not CROSS */
@@ -277,9 +277,9 @@ void PhaseData::SendPhaseshiftToPlayer()
 
         if ((*l_IT)->terrainswapmap)
             l_TerrainSwaps.insert((*l_IT)->terrainswapmap);
-#ifndef CROSS
     }
 
+#ifndef CROSS
     if (player->GetGarrison() && player->GetGarrison()->GetGarrisonSiteLevelEntry())
     {
         if (player->GetMapId() == MS::Garrison::Globals::BaseMap || player->IsInGarrison())
@@ -295,8 +295,8 @@ void PhaseData::SendPhaseshiftToPlayer()
             l_InactiveTerrainSwap.insert(MS::Garrison::ShipyardMapId::Horde);
             player->GetGarrison()->GetShipyardTerainSwaps(l_TerrainSwaps);
         }
-#endif /* not CROSS */
     }
+#endif
 
     player->GetSession()->SendSetPhaseShift(l_PhaseIDs, l_TerrainSwaps, l_InactiveTerrainSwap);
 }

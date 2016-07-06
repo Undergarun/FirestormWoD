@@ -284,9 +284,9 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_SPAWNMASK:
         {
             condMeets = ((1 << object->GetMap()->GetSpawnMode()) & ConditionValue1);
-#ifndef CROSS
             break;
         }
+#ifndef CROSS
         case CONDITION_HAS_BUILDING_TYPE:
         {
             if (Player* l_Player = object->ToPlayer())
@@ -321,9 +321,9 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
                     condMeets = l_GarrisonMgr->GetGarrisonLevel() >= ConditionValue1;
             }
-#endif /* not CROSS */
             break;
         }
+#endif
         default:
             condMeets = false;
             break;

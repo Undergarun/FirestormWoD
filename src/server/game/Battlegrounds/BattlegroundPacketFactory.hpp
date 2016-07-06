@@ -219,12 +219,7 @@ namespace MS
                         continue;
                     }
 
-#ifndef CROSS
-                    Player* l_Player = ObjectAccessor::FindPlayer(l_ScoreBeginIT->first);
-#else /* CROSS */
                     Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(l_ScoreBeginIT->first);
-#endif /* CROSS */
-
                     if (!l_Player)
                         continue;
 
@@ -293,12 +288,7 @@ namespace MS
                         continue;
                     }
 
-#ifndef CROSS
-                    Player* l_Player = ObjectAccessor::FindPlayer(l_ScoreBeginIT->first);
-#else /* CROSS */
                     Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(l_ScoreBeginIT->first);
-#endif /* CROSS */
-
                     if (!l_Player)
                         continue;
 

@@ -244,9 +244,8 @@ void AnticheatMgr::HandlePlayerLogout(Player* player)
     // We must also delete it at logout to prevent have data of offline players in the db when we query the database (IE: The GM Command)
 #ifndef CROSS
     CharacterDatabase.PExecute("DELETE FROM players_reports_status WHERE guid=%u",player->GetGUIDLow());
-#else /* CROSS */
-    //player->GetRealmDatabase()->PExecute("DELETE FROM players_reports_status WHERE guid=%u", player->GetRealGUIDLow());
-#endif /* CROSS */
+#endif
+
     // Delete not needed data from the memory.
     m_Players.erase(player->GetGUIDLow());
 }
@@ -255,9 +254,9 @@ void AnticheatMgr::SavePlayerData(Player* player)
 {
 #ifndef CROSS
     CharacterDatabase.PExecute("REPLACE INTO players_reports_status (guid,average,total_reports,speed_reports,fly_reports,jump_reports,waterwalk_reports,teleportplane_reports,climb_reports,creation_time) VALUES (%u,%f,%u,%u,%u,%u,%u,%u,%u,%u);",player->GetGUIDLow(),m_Players[player->GetGUIDLow()].GetAverage(),m_Players[player->GetGUIDLow()].GetTotalReports(), m_Players[player->GetGUIDLow()].GetTypeReports(SPEED_HACK_REPORT),m_Players[player->GetGUIDLow()].GetTypeReports(FLY_HACK_REPORT),m_Players[player->GetGUIDLow()].GetTypeReports(JUMP_HACK_REPORT),m_Players[player->GetGUIDLow()].GetTypeReports(WALK_WATER_HACK_REPORT),m_Players[player->GetGUIDLow()].GetTypeReports(TELEPORT_PLANE_HACK_REPORT),m_Players[player->GetGUIDLow()].GetTypeReports(CLIMB_HACK_REPORT),m_Players[player->GetGUIDLow()].GetCreationTime());
-#else /* CROSS */
+#else
     player->GetRealmDatabase()->PExecute("REPLACE INTO players_reports_status (guid,average,total_reports,speed_reports,fly_reports,jump_reports,waterwalk_reports,teleportplane_reports,climb_reports,creation_time) VALUES (%u,%f,%u,%u,%u,%u,%u,%u,%u,%u);", player->GetRealGUIDLow(), m_Players[player->GetGUIDLow()].GetAverage(), m_Players[player->GetGUIDLow()].GetTotalReports(), m_Players[player->GetGUIDLow()].GetTypeReports(SPEED_HACK_REPORT), m_Players[player->GetGUIDLow()].GetTypeReports(FLY_HACK_REPORT), m_Players[player->GetGUIDLow()].GetTypeReports(JUMP_HACK_REPORT), m_Players[player->GetGUIDLow()].GetTypeReports(WALK_WATER_HACK_REPORT), m_Players[player->GetGUIDLow()].GetTypeReports(TELEPORT_PLANE_HACK_REPORT), m_Players[player->GetGUIDLow()].GetTypeReports(CLIMB_HACK_REPORT), m_Players[player->GetGUIDLow()].GetCreationTime());
-#endif /* CROSS */
+#endif
 }
 
 uint32 AnticheatMgr::GetTotalReports(uint32 lowGUID)
@@ -351,10 +350,10 @@ void AnticheatMgr::BuildReport(Player* p_Player, uint8 p_ReportType)
         std::string l_Msg = "Player " + std::string(p_Player->GetName()) + " was kicked by the anti cheat";
         ChatHandler(p_Player).SendGlobalGMSysMessage(l_Msg.c_str());
     }
-#else /* CROSS */
+#else
     if (InterRealmClient* client = p_Player->GetSession()->GetInterRealmClient())
         client->SendAnticheatReport(p_Player->GetGUIDLow(), p_ReportType);
-#endif /* CROSS */
+#endif
 }
 
 void AnticheatMgr::AnticheatGlobalCommand(ChatHandler* p_Handler)
@@ -411,7 +410,7 @@ void AnticheatMgr::AnticheatDeleteCommand(uint32 guid)
         }
 #ifndef CROSS
         CharacterDatabase.PExecute("DELETE FROM players_reports_status;");
-#endif /* not CROSS */
+#endif
     }
     else
     {
@@ -426,7 +425,7 @@ void AnticheatMgr::AnticheatDeleteCommand(uint32 guid)
         }
 #ifndef CROSS
         CharacterDatabase.PExecute("DELETE FROM players_reports_status WHERE guid=%u;",guid);
-#endif /* not CROSS */
+#endif
     }
 }
 
@@ -434,4 +433,7 @@ void AnticheatMgr::ResetDailyReportStates()
 {
     for (AnticheatPlayersDataMap::iterator it = m_Players.begin(); it != m_Players.end(); ++it)
         m_Players[(*it).first].SetDailyReportState(false);
+
+    Player* player = nullptr;
+    player->GetAuraCount(player, 1);
 }

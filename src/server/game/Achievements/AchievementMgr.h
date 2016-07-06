@@ -597,7 +597,8 @@ class AchievementMgr
 #ifndef CROSS
         void Reset();
         static void DeleteFromDB(uint32 lowguid, uint32 accountId = 0);
-#endif /* not CROSS */
+#endif
+
         void LoadFromDB(Player* p_Player, Guild* p_Guild, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult = NULL, PreparedQueryResult criteriaAccountResult = NULL);
         void SaveToDB(SQLTransaction& trans);
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
@@ -772,9 +773,11 @@ class AchievementGlobalMgr
         void LoadAchievementCriteriaList();
         void LoadAchievementCriteriaData();
         void LoadAchievementReferenceList();
+
 #ifndef CROSS
         void LoadCompletedAchievements();
-#endif /* not CROSS */
+#endif
+
         void LoadRewards();
         void LoadRewardLocales();
         AchievementEntry const* GetAchievement(uint32 achievementId) const;

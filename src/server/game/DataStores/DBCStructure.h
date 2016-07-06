@@ -413,7 +413,6 @@ struct EmotesTextEntry
     //uint32    m_EmoteText[16];                            // 3-18     m_EmoteText
 };
 
-#ifndef CROSS
 struct EmotesTextSoundEntry
 {
     uint32 ID;                                              // 0
@@ -423,7 +422,6 @@ struct EmotesTextSoundEntry
     uint32 SoundID;                                         // 4
 };
 
-#endif /* not CROSS */
 struct FactionEntry
 {
     uint32  ID;                                             // 0        m_ID

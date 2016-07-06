@@ -16,9 +16,6 @@
 #include "CellImpl.h"
 #include "GameEventMgr.h"
 #include "GridNotifiersImpl.h"
-#ifndef CROSS
-#include "Guild.h"
-#endif /* not CROSS */
 #include "Language.h"
 #include "Player.h"
 #include "SpellMgr.h"
@@ -32,6 +29,10 @@
 #include "Group.h"
 #include "Chat.h"
 #include "WowTime.hpp"
+
+#ifndef CROSS
+# include "Guild.h"
+#endif
 
 namespace JadeCore
 {
@@ -410,7 +411,8 @@ void AchievementMgr<Guild>::SendPacket(WorldPacket* data) const
 }
 
 template<>
-#endif /* not CROSS */
+#endif
+
 void AchievementMgr<Player>::SendPacket(WorldPacket* data) const
 {
     GetOwner()->GetSession()->SendPacket(data);
@@ -451,7 +453,7 @@ void AchievementMgr<Guild>::RemoveCriteriaProgress(CriteriaEntry const* p_Entry)
     GetCriteriaProgressMap()->erase(l_CriteriaProgress);
     m_NeedDBSync = true;
 }
-#endif /* not CROSS */
+#endif
 
 template<class T>
 void AchievementMgr<T>::ResetAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 /*p_MiscValue1*/, uint64 /*p_MiscValue2*/, bool /*p_EvenIfCriteriaComplete*/)
@@ -510,8 +512,8 @@ void AchievementMgr<Guild>::DeleteFromDB(uint32 p_LowGUID, uint32 /*p_AccountID*
 
     CharacterDatabase.CommitTransaction(l_Trans);
 }
+#endif
 
-#endif /* not CROSS */
 template<class T>
 void AchievementMgr<T>::SaveToDB(SQLTransaction& /*trans*/)
 {
@@ -540,11 +542,7 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 
         if (points)
         {
-#ifndef CROSS
-            sscount << "REPLACE INTO character_achievement_count (guid, count) VALUES (" << GetOwner()->GetGUIDLow() << "," << points << ");";
-#else /* CROSS */
             sscount << "REPLACE INTO character_achievement_count (guid, count) VALUES (" << GetOwner()->GetRealGUIDLow() << "," << points << ");";
-#endif /* CROSS */
             trans->Append(sscount.str().c_str());
         }
 
@@ -563,11 +561,7 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 
                 if (mustSaveForCharacter)
                 {
-#ifndef CROSS
-                    ssCharDel << "DELETE FROM character_achievement WHERE guid = " << GetOwner()->GetGUIDLow() << " AND achievement IN (";
-#else /* CROSS */
                     ssCharDel << "DELETE FROM character_achievement WHERE guid = " << GetOwner()->GetRealGUIDLow() << " AND achievement IN (";
-#endif /* CROSS */
                     ssCharIns << "INSERT INTO character_achievement (guid, achievement) VALUES ";
                 }
                 need_execute = true;
@@ -592,11 +586,7 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
             if (mustSaveForCharacter)
             {
                 ssCharDel << iter->first;
-#ifndef CROSS
-                ssCharIns << '(' << GetOwner()->GetGUIDLow() << ',' << iter->first << ')';
-#else /* CROSS */
                 ssCharIns << '(' << GetOwner()->GetRealGUIDLow() << ',' << iter->first << ')';
-#endif /* CROSS */
             }
 
             /// Mark as saved in db
@@ -640,11 +630,8 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
         std::ostringstream ssChardel;
         std::ostringstream ssCharins;
 
-#ifndef CROSS
-        uint64 guid      = GetOwner()->GetGUIDLow();
-#else /* CROSS */
         uint64 guid = GetOwner()->GetRealGUIDLow();
-#endif /* CROSS */
+
         uint32 accountId = GetOwner()->GetSession()->GetAccountId();
 
         for (CriteriaProgressMap::iterator iter = progressMap->begin(); iter != progressMap->end(); ++iter)
@@ -845,8 +832,8 @@ void AchievementMgr<Guild>::SaveToDB(SQLTransaction& trans)
         trans->Append(stmt);
     }
 }
+#endif
 
-#endif /* not CROSS */
 template<class T>
 void AchievementMgr<T>::LoadFromDB(Player* /*p_Player*/, Guild* /*p_Guild*/, PreparedQueryResult /*achievementResult*/, PreparedQueryResult /*criteriaResult*/, PreparedQueryResult /*achievementAccountResult*/, PreparedQueryResult /*criteriaAccountResult*/)
 {
@@ -1176,8 +1163,8 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
         JadeCore::LocalizedPacketDo<JadeCore::AchievementChatBuilder> say_do(say_builder);
         guild->BroadcastWorker(say_do);
     }
+#endif
 
-#endif /* not CROSS */
     if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_KILL | ACHIEVEMENT_FLAG_REALM_FIRST_REACH))
     {
         // Broadcast realm first reached
@@ -1241,8 +1228,8 @@ void AchievementMgr<Guild>::SendAchievementEarned(AchievementEntry const* p_Achi
 
     SendPacket(&l_Data);
 }
+#endif
 
-#endif /* not CROSS */
 template<class T>
 void AchievementMgr<T>::SendCriteriaUpdate(CriteriaEntry const* /*entry*/, CriteriaProgress const* /*progress*/, uint32 /*timeElapsed*/, bool /*timedCompleted*/, bool/*updateAccount*/) const
 {
@@ -1306,8 +1293,8 @@ void AchievementMgr<Guild>::SendCriteriaUpdate(CriteriaEntry const* p_Entry, Cri
 
     SendPacket(&l_Data);
 }
+#endif
 
-#endif /* not CROSS */
 template<class T>
 CriteriaProgressMap* AchievementMgr<T>::GetCriteriaProgressMap()
 {
@@ -2260,10 +2247,10 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
 #ifndef CROSS
         if (Guild* l_Guild = sGuildMgr->GetGuildById(p_ReferencePlayer->GetGuildId()))
             l_Guild->GetNewsLog().AddNewEvent(GUILD_NEWS_PLAYER_ACHIEVEMENT, time(NULL), p_ReferencePlayer->GetGUID(), p_Achievement->Flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_HEADER, p_Achievement->ID);
-#else /* CROSS */
+#else
         //if (Guild* l_Guild = sGuildMgr->GetGuildById(p_ReferencePlayer->GetGuildId()))
             //l_Guild->GetNewsLog().AddNewEvent(GUILD_NEWS_PLAYER_ACHIEVEMENT, time(NULL), p_ReferencePlayer->GetGUID(), p_Achievement->Flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_HEADER, p_Achievement->ID);
-#endif /* CROSS */
+#endif
     }
 
     switch (p_Achievement->ID)
@@ -2357,8 +2344,8 @@ void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achieve
 
     m_NeedDBSync = true;
 }
+#endif
 
-#endif /* not CROSS */
 template<class T>
 void AchievementMgr<T>::RewardAchievement(AchievementEntry const* p_Achievement)
 {
@@ -2412,10 +2399,10 @@ void AchievementMgr<T>::RewardAchievement(AchievementEntry const* p_Achievement)
 
         l_Draft.SendMailTo(l_Transaction, GetOwner(), MailSender(MAIL_CREATURE, l_Reward->sender));
         CharacterDatabase.CommitTransaction(l_Transaction);
-#else /* CROSS */
+#else
         if (InterRealmClient* client = GetOwner()->GetSession()->GetInterRealmClient())
             client->SendAchievementReward(GetOwner()->GetRealGUID(), p_Achievement->ID);
-#endif /* CROSS */
+#endif
     }
 
     /// Spell
@@ -2428,8 +2415,8 @@ template<>
 void AchievementMgr<Guild>::RewardAchievement(AchievementEntry const* p_Achievement)
 {
 }
+#endif
 
-#endif /* not CROSS */
 struct VisibleAchievementPred
 {
     bool operator()(CompletedAchievementMap::value_type const& val)
@@ -2505,7 +2492,8 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
     receiver->GetSession()->SendPacket(&l_Data);
 }
 
-#endif /* not CROSS */
+#endif
+
 template<class T>
 void AchievementMgr<T>::SendAchievementInfo(Player* /*p_Receiver*/, uint32 /*p_AchievementID*/ /*= 0*/)
 {
@@ -2603,8 +2591,8 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* p_Receiver, uint32 p_Ach
         }
     }
 }
+#endif
 
-#endif /* not CROSS */
 template<class T>
 bool AchievementMgr<T>::HasAchieved(uint32 achievementId) const
 {
@@ -3302,17 +3290,17 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
 #ifndef CROSS
                 Guild* l_Guild = p_ReferencePlayer->GetGuild();
                 if (!l_Group || !l_Guild)
-#else /* CROSS */
+#else
                 auto l_GuildId = p_ReferencePlayer->GetGuildId();
                 if (!l_Group || !l_GuildId)
-#endif /* CROSS */
+#endif
                     return false;
 
 #ifndef CROSS
                 if (!l_Group->IsGuildGroup(l_Guild->GetId(), true, true))
-#else /* CROSS */
+#else
                 if (!l_Group->IsGuildGroup(l_GuildId, true, true))
-#endif /* CROSS */
+#endif
                     return false;
 
                 break;
@@ -3381,11 +3369,11 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                 Group* l_Group = p_ReferencePlayer->GetGroup();
                 Guild* l_Guild = p_ReferencePlayer->GetGuild();
                 if (!l_Guild || !l_Group)
-#else /* CROSS */
+#else
                 Group* l_Group   = p_ReferencePlayer->GetGroup();
                 uint32 l_GuildId = p_ReferencePlayer->GetGuildId();
                 if (!l_GuildId || !l_Group)
-#endif /* CROSS */
+#endif
                     return false;
 
                 uint32 l_Counter = 0;
@@ -3395,9 +3383,9 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                     {
 #ifndef CROSS
                         if (l_Player->GetGuildId() == l_Guild->GetId())
-#else /* CROSS */
+#else
                         if (l_Player->GetGuildId() == l_GuildId)
-#endif /* CROSS */
+#endif
                             ++l_Counter;
                     }
                 }
@@ -3717,7 +3705,7 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(uint32 p_Type)
 
 #ifndef CROSS
 template class AchievementMgr<Guild>;
-#endif /* not CROSS */
+#endif
 template class AchievementMgr<Player>;
 
 //==========================================================
@@ -3937,11 +3925,11 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
     while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u additional achievement criteria data in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
-#ifndef CROSS
 }
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
 {
+#ifndef CROSS
     uint32 l_OldMSTime = getMSTime();
 
     QueryResult l_Result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
@@ -3974,7 +3962,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
     while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu completed achievements in %u ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(l_OldMSTime));
-#endif /* not CROSS */
+#endif
 }
 
 void AchievementGlobalMgr::LoadRewards()

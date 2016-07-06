@@ -42,9 +42,10 @@
 #include "MoveSpline.h"
 #include "WildBattlePet.h"
 #include "Transport.h"
+
 #ifndef CROSS
-#include "GarrisonNPCAI.hpp"
-#endif /* not CROSS */
+# include "GarrisonNPCAI.hpp"
+#endif
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -1116,8 +1117,8 @@ GarrisonNPCAI* Creature::ToGarrisonNPCAI() const
 {
     return static_cast<GarrisonNPCAI*>(i_AI);
 }
+#endif
 
-#endif /* not CROSS */
 Player* Creature::GetLootRecipient() const
 {
     if (!m_lootRecipient)

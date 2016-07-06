@@ -608,9 +608,10 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
         inline CreatureAI* AI() const { return (CreatureAI*)i_AI; }
+
 #ifndef CROSS
         GarrisonNPCAI* ToGarrisonNPCAI() const;
-#endif /* not CROSS */
+#endif
 
         SpellSchoolMask GetMeleeDamageSchoolMask() const override { return m_meleeDamageSchoolMask; }
         void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }

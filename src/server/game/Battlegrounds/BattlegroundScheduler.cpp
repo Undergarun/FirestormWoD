@@ -37,11 +37,7 @@ namespace MS
                 /// We check if all the players have the good level for entering the battleground.
                 for (auto l_Plrs : p_Group->m_Players)
                 {
-#ifndef CROSS
-                    Player* l_Player = ObjectAccessor::FindPlayer(l_Plrs.first);
-#else /* CROSS */
                     Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(l_Plrs.first);
-#endif /* CROSS */
                     if (!l_Player)
                         continue;
 
@@ -122,11 +118,7 @@ namespace MS
             for (auto const& l_Itr : p_Group->m_Players)
             {
                 /// Get the player.
-#ifndef CROSS
-                Player* l_Player = ObjectAccessor::FindPlayer(l_Itr.first);
-#else /* CROSS */
                 Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(l_Itr.first);
-#endif /* CROSS */
 
                 /// If offline, skip him, this should not happen - player is removed from queue when he logs out.
                 if (!l_Player)
@@ -262,9 +254,6 @@ namespace MS
             }
 
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundQueue: Removing player GUID %u, from bracket_id %u", GUID_LOPART(p_Guid), (uint32)l_BracketId);
-#ifdef CROSS
-            sLog->outAshran("BattlegroundScheduler::RemovePlayer: bg type: %u, player guid %u 2", p_Type, p_Guid);
-#endif /* CROSS */
 
             // ALL variables are correctly set
             // We can ignore leveling up in queue - it should not cause crash
@@ -301,11 +290,7 @@ namespace MS
                 BattlegroundType::Type bgQueueTypeId = GetTypeFromId(GetIdFromType(l_Group->m_BgTypeId), l_Group->m_ArenaType);
                 // remove next player, this is recursive
                 // first send removal information
-#ifndef CROSS
-                if (Player* plr2 = ObjectAccessor::FindPlayer(l_Group->m_Players.begin()->first))
-#else /* CROSS */
                 if (Player* plr2 = ObjectAccessor::FindPlayerInOrOutOfWorld(l_Group->m_Players.begin()->first))
-#endif /* CROSS */
                 {
                     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(l_Group->m_BgTypeId);
                     uint32 queueSlot = plr2->GetBattlegroundQueueIndex(bgQueueTypeId);
@@ -316,7 +301,7 @@ namespace MS
                     plr2->GetSession()->SendPacket(&data);
 #ifdef CROSS
                     plr2->SetNeedRemove(true);
-#endif /* CROSS */
+#endif
                 }
                 // then actually delete, this may delete the group as well!
                 RemovePlayer(l_Group->m_Players.begin()->first, bgQueueTypeId);
@@ -803,16 +788,9 @@ namespace MS
                     {
                         switch (l_BGType)
                         {
-#ifndef CROSS
-                        case BattlegroundType::RatedBg10v10:
-                            if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < 10 || l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < 10)
-                                continue;
-                            break;
-#else /* CROSS */
                             case BattlegroundType::RatedBg10v10:
                                 if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < 10 || l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < 10)
                                     continue;
-#endif /* CROSS */
                             default:
                                 break;
                         }

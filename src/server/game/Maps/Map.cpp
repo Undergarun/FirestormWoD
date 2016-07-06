@@ -3130,9 +3130,8 @@ void InstanceMap::PermBindAllPlayers(Player* p_Source)
             l_Data.WriteBit(false);
             l_Player->GetSession()->SendPacket(&l_Data);
 #ifndef CROSS
-
             l_Player->GetSession()->SendCalendarRaidLockout(l_Save, true);
-#endif /* not CROSS */
+#endif
         }
 
         // if the leader is not in the instance the group will not get a perm bind

@@ -596,13 +596,8 @@ void ReputationMgr::SaveToDB(SQLTransaction& trans)
     {
         if (itr->second.needSave)
         {
-#ifndef CROSS
-            trans->PAppend("DELETE FROM character_reputation WHERE guid = '%u' AND faction='%u'", _player->GetGUIDLow(), uint16(itr->second.ID));
-            trans->PAppend("INSERT INTO character_reputation (guid, faction, standing, flags) VALUES ('%u', '%u', '%d', '%u')", _player->GetGUIDLow(), uint16(itr->second.ID), itr->second.Standing, uint16(itr->second.Flags));
-#else /* CROSS */
             trans->PAppend("DELETE FROM character_reputation WHERE guid = '%u' AND faction='%u'", _player->GetRealGUIDLow(), uint16(itr->second.ID));
             trans->PAppend("INSERT INTO character_reputation (guid, faction, standing, flags) VALUES ('%u', '%u', '%d', '%u')", _player->GetRealGUIDLow(), uint16(itr->second.ID), itr->second.Standing, uint16(itr->second.Flags));
-#endif /* CROSS */
             itr->second.needSave = false;
         }
     }
