@@ -123,7 +123,7 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
 
     if (GetDuration() != -1)
         SetTimeToTarget(GetDuration());
-        
+
     SetObjectScale(1);
 
     SetGuidValue(AREATRIGGER_FIELD_CASTER, p_Caster->GetGUID());
