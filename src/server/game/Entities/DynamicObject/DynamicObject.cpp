@@ -98,7 +98,10 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell->Id);
     if (spellInfo)
     {
-        uint32 visual = spellInfo->SpellVisual[0] ? spellInfo->SpellVisual[0] : spellInfo->SpellVisual[1];
+        uint32 const* l_VisualID = nullptr;
+        if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(spellInfo->GetSpellXSpellVisualId(caster)))
+            l_VisualID = l_VisualEntry->VisualID;
+        uint32 visual = l_VisualID[0] ? l_VisualID[0] : l_VisualID[1];
         if (spellInfo->Id == 104232 || spellInfo->Id == 5740) // Rain of Fire
         {
             if (caster->HasAura(101508)) // green fire spells

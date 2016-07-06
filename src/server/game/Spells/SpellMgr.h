@@ -588,7 +588,7 @@ bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, Unit* p_Caster);
 DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
 DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
-int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto);
+int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto, Unit* p_OriginalCaster);
 
 typedef std::vector<std::set<uint32> > SpellClassList;
 typedef std::map<uint32, std::set<MinorTalentEntry const*> > SpecializatioPerkMap;
@@ -707,6 +707,7 @@ class SpellMgr
 
         // SpellInfo object management
         SpellInfo const* GetSpellInfo(uint32 spellId, Difficulty difficulty = DifficultyNone) const;
+        int64 GetSpellVisualOverride(uint32 p_SpellID) const;
         uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap[DifficultyNone].size(); }
         std::set<uint32> GetSpellClassList(uint8 ClassID) const { return mSpellClassInfo[ClassID]; }
         std::list<uint32> GetSpellPowerList(uint32 spellId) const { return mSpellPowerInfo[spellId]; }

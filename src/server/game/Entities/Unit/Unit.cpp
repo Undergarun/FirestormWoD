@@ -6383,6 +6383,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
     int32 basepoints0 = 0;
     uint64 originalCaster = 0;
 
+    uint32 const* l_VisualID = nullptr;
+    if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(procSpell->GetSpellXSpellVisualId(this)))
+        l_VisualID = l_VisualEntry->VisualID;
+
     switch (dummySpell->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -7661,7 +7665,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 70664: // Item - Druid T10 Restoration 4P Bonus (Rejuvenation)
                 {
                     // Proc only from normal Rejuvenation
-                    if (procSpell->SpellVisual[0] != 32)
+                    if (l_VisualID[0] != 32)
                         return false;
 
                     Player* caster = ToPlayer();
@@ -12330,8 +12334,12 @@ uint8 Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32
                 DealSpellDamage(&damageInfo, true);
 
                 /// In case when we have SpellVisual for this spell loaded from DBC - multistrike should have spell animation too with increased speed
-                if (p_ProcSpell->SpellVisual[0])
-                    SendPlaySpellVisual(p_ProcSpell->SpellVisual[0], p_Target, (p_ProcSpell->Speed * 2.0f), 0.0f, Position());
+                uint32 const* l_VisualID = nullptr;
+                if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(p_ProcSpell->GetSpellXSpellVisualId(this)))
+                    l_VisualID = l_VisualEntry->VisualID;
+
+                if (l_VisualID[0])
+                    SendPlaySpellVisual(l_VisualID[0], p_Target, (p_ProcSpell->Speed * 2.0f), 0.0f, Position());
 
                 if (p_OwnerAuraEffect)
                 {
@@ -15423,6 +15431,10 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
     if (modOwner != nullptr)
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CASTING_TIME, castTime, spell);
 
+    uint32 const* l_VisualID = nullptr;
+    if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(spellProto->GetSpellXSpellVisualId(this)))
+        l_VisualID = l_VisualEntry->VisualID;
+
     if (!((spellProto->Attributes & (SPELL_ATTR0_ABILITY|SPELL_ATTR0_TRADESPELL)) || (spellProto->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))) &&
         ((IsPlayer() && spellProto->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
     {
@@ -15431,7 +15443,7 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
     }
     else if (spellProto->Attributes & SPELL_ATTR0_REQ_AMMO && !(spellProto->AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG))
         castTime = int32(float(castTime) * m_modAttackSpeedPct[WeaponAttackType::RangedAttack]);
-    else if (spellProto->SpellVisual[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
+    else if (l_VisualID[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
         castTime = 500;
 
 }
@@ -22935,7 +22947,7 @@ void Unit::SetChannelSpellID(SpellInfo const* p_SpellInfo)
     if (p_SpellInfo)
     {
         SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, p_SpellInfo->Id);
-        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, p_SpellInfo->FirstSpellXSpellVisualID);
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, p_SpellInfo->GetSpellXSpellVisualId(this));
     }
     else
     {

@@ -3672,6 +3672,10 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
     // select enchantment duration
     uint32 duration;
 
+    uint32 const* l_VisualID = nullptr;
+    if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(m_spellInfo->GetSpellXSpellVisualId(m_originalCaster)))
+        l_VisualID = l_VisualEntry->VisualID;
+
     // rogue family enchantments exception by duration
     if (m_spellInfo->Id == 38615)
         duration = 1800;                                    // 30 mins
@@ -3682,13 +3686,13 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
     else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN)
         duration = 3600;                                    // 1 hour
     // other cases with this SpellVisual already selected
-    else if (m_spellInfo->SpellVisual[0] == 215)
+    else if (l_VisualID[0] == 215)
         duration = 1800;                                    // 30 mins
     // some fishing pole bonuses except Glow Worm which lasts full hour
-    else if (m_spellInfo->SpellVisual[0] == 563 && m_spellInfo->Id != 64401)
+    else if (l_VisualID[0] == 563 && m_spellInfo->Id != 64401)
         duration = 600;                                     // 10 mins
     // shaman rockbiter enchantments
-    else if (m_spellInfo->SpellVisual[0] == 0)
+    else if (l_VisualID[0] == 0)
         duration = 1800;                                    // 30 mins
     else if (m_spellInfo->Id == 29702)
         duration = 1800;                                    ///< 30 mins

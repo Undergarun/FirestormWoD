@@ -1882,13 +1882,42 @@ class spell_warl_demonic_leap: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_demonic_leap_SpellScript);
 
+            enum eSpells
+            {
+                DemonicLeapBackward          = 109150,
+                DemonicLeapForward       = 109167,
+                DemonicLeapUpward        = 109152,
+                DemonicLeapLeft          = 109164,
+                DemonicLeapRigt          = 109165,
+                DemonicLeapBackwardLeft  = 111738,
+                DemonicLeapBackwardRight = 111739
+            };
+
+            std::vector<std::pair<uint32, uint32>> m_LeapDirection =
+            {
+                { eSpells::DemonicLeapBackwardLeft,  MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT  },
+                { eSpells::DemonicLeapBackwardRight, MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_RIGHT },
+                { eSpells::DemonicLeapRigt,          MOVEMENTFLAG_STRAFE_RIGHT                         },
+                { eSpells::DemonicLeapLeft,          MOVEMENTFLAG_STRAFE_LEFT                          },
+                { eSpells::DemonicLeapForward,       MOVEMENTFLAG_FORWARD                              },
+                { eSpells::DemonicLeapBackward,      MOVEMENTFLAG_BACKWARD                             },
+                { eSpells::DemonicLeapUpward,        MOVEMENTFLAG_NONE                                 },
+
+            };
+
             void HandleAfterCast()
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (!caster->HasAura(WARLOCK_DARK_APOTHEOSIS))
-                        caster->CastSpell(caster, WARLOCK_METAMORPHOSIS, true);
-                    caster->CastSpell(caster, WARLOCK_DEMONIC_LEAP_JUMP, true);
+                    uint32 l_MovementfFlags = caster->GetUnitMovementFlags();
+                    for (auto l_Itr : m_LeapDirection)
+                    {
+                        if ((l_MovementfFlags & l_Itr.second) == l_Itr.second)
+                        {
+                            caster->CastSpell(caster, l_Itr.first, true);
+                            return;
+                        }
+                    }
                 }
             }
 

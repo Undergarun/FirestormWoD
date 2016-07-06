@@ -28,7 +28,7 @@ namespace MS { namespace Garrison
             /// @p_ConditionID : Player condition ID
             /// @p_Condition   : Player condition instance
             /// @p_SourceInfo  : Player
-            virtual bool OnConditionCheck(uint32 /*p_ConditionID*/, PlayerConditionEntry const* /*p_Condition*/, Player* p_Player) override
+            virtual bool OnConditionCheck(uint32 /*p_ConditionID*/, PlayerConditionEntry const* /*p_Condition*/, Player const* p_Player) override
             {
                 if (!p_Player || !p_Player->GetGarrison() || !p_Player->GetGarrison()->HasActiveBuilding(t_BuildingID))
                     return false;
@@ -53,7 +53,7 @@ namespace MS { namespace Garrison
         /// @p_ConditionID : Player condition ID
         /// @p_Condition   : Player condition instance
         /// @p_SourceInfo  : Player
-        virtual bool OnConditionCheck(uint32 /*p_ConditionID*/, PlayerConditionEntry const* /*p_Condition*/, Player* p_Player) override
+        virtual bool OnConditionCheck(uint32 /*p_ConditionID*/, PlayerConditionEntry const* /*p_Condition*/, Player const* p_Player) override
         {
             if (!p_Player || !p_Player->GetGarrison() || !p_Player->GetGarrison()->HasBuildingType((Building::Type)t_BuildingTypeID))
                 return false;
@@ -77,7 +77,7 @@ namespace MS { namespace Garrison
             /// @p_ConditionID : Player condition ID
             /// @p_Condition   : Player condition instance
             /// @p_SourceInfo  : Player
-            virtual bool OnConditionCheck(uint32 /*p_ConditionID*/, PlayerConditionEntry const* /*p_Condition*/, Player* p_Player) override
+            virtual bool OnConditionCheck(uint32 /*p_ConditionID*/, PlayerConditionEntry const* /*p_Condition*/, Player const* p_Player) override
             {
                 if (!p_Player || !p_Player->GetGarrison() || !p_Player->GetGarrison()->HasBuildingType((Building::Type)t_BuildingID))
                     return false;

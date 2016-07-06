@@ -1871,7 +1871,7 @@ struct WorldStateExpressionEntry
     char*  Expression;                                      // 1
 
     /// Eval a worldstate expression
-    bool Eval(Player* p_Player, std::vector<std::string> * p_OutStrResult = nullptr) const;
+    bool Eval(Player const* p_Player, std::vector<std::string> * p_OutStrResult = nullptr) const;
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform

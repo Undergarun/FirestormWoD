@@ -1492,7 +1492,7 @@ class Player : public Unit, public GridObject<Player>
         Creature* GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask);
         GameObject* GetGameObjectIfCanInteractWith(uint64 guid, GameobjectTypes type) const;
 
-        std::pair<bool, std::string> EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound = true);
+        std::pair<bool, std::string> EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound = true) const;
 
         bool ToggleAFK();
         bool ToggleDND();
@@ -1502,7 +1502,7 @@ class Player : public Unit, public GridObject<Player>
         std::string afkMsg;
         std::string dndMsg;
 
-        MS::Garrison::Manager* GetGarrison();
+        MS::Garrison::Manager* GetGarrison() const;
         void CreateGarrison();
         bool IsInGarrison() const;
         bool IsInShipyard() const;
@@ -2207,7 +2207,7 @@ class Player : public Unit, public GridObject<Player>
             m_glyphsChanged = true;
         }
         uint32 GetGlyph(uint8 spec, uint8 slot) const { return _talentMgr->SpecInfo[spec].Glyphs[slot]; }
-        bool HasGlyph(uint32 spell_id);
+        bool HasGlyph(uint32 spell_id) const;
         std::vector<uint32> GetGlyphMap(uint8 p_Spec) { return _talentMgr->SpecInfo[p_Spec].Glyphs; }
 
         PlayerTalentMap const* GetTalentMap(uint8 spec) const { return _talentMgr->SpecInfo[spec].Talents; }
@@ -2758,7 +2758,7 @@ class Player : public Unit, public GridObject<Player>
             m_WorldStates.Remove(p_ID);
             m_WorldStates.Insert(p_ID, p_Value);
         }
-        uint32 GetWorldState(uint32 p_ID)
+        uint32 GetWorldState(uint32 p_ID) const
         {
             return m_WorldStates.Find(p_ID);
         }

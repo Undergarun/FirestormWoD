@@ -1004,6 +1004,8 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty, SpellV
     DifficultyID = p_Difficulty;
     AttributesCu = 0;
 
+    m_SpellVisuals = p_Visuals;
+
     SpellName = p_SpellEntry->SpellName;
     Rank = p_SpellEntry->Rank;
     RuneCostID = p_SpellEntry->runeCostID;
@@ -1130,8 +1132,6 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty, SpellV
     RangeEntry = _misc ? (_misc->rangeIndex ? sSpellRangeStore.LookupEntry(_misc->rangeIndex) : NULL) : NULL;
     Speed = _misc ? _misc->speed : 1.00f;
 
-    memset(SpellVisual, 0, sizeof(SpellVisual));
-
     SpellIconID = _misc ? _misc->SpellIconID : 0;
     ActiveIconID = _misc ? _misc->activeIconID : 0;
     SchoolMask = _misc ? _misc->SchoolMask : 0;
@@ -1187,53 +1187,6 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty, SpellV
     ChainEntry = NULL;
 
     ResearchProject =  p_SpellEntry->ResearchProject;
-
-    FirstSpellXSpellVisualID = 0;
-
-    DifficultyEntry const* l_DiffEntry = sDifficultyStore.LookupEntry(DifficultyID);
-    while (l_DiffEntry)
-    {
-        auto l_Iter = p_Visuals.find(DifficultyID);
-        if (l_Iter != p_Visuals.end())
-        {
-            for (SpellXSpellVisualEntry const* l_Visual : l_Iter->second)
-            {
-                if (!l_Visual->ConditionID)
-                {
-                    FirstSpellXSpellVisualID = l_Visual->Id;
-
-                    SpellVisual[0] = l_Visual->VisualID[0];
-                    SpellVisual[1] = l_Visual->VisualID[1];
-                    break;
-                }
-            }
-        }
-
-        /// Stop looping if visual found
-        if (FirstSpellXSpellVisualID)
-            break;
-
-        l_DiffEntry = sDifficultyStore.LookupEntry(l_DiffEntry->FallbackDifficultyID);
-    }
-
-    if (!FirstSpellXSpellVisualID)
-    {
-        auto l_Iter = p_Visuals.find(Difficulty::DifficultyNone);
-        if (l_Iter != p_Visuals.end())
-        {
-            for (SpellXSpellVisualEntry const* l_Visual : l_Iter->second)
-            {
-                if (!l_Visual->ConditionID)
-                {
-                    FirstSpellXSpellVisualID = l_Visual->Id;
-
-                    SpellVisual[0] = l_Visual->VisualID[0];
-                    SpellVisual[1] = l_Visual->VisualID[1];
-                    break;
-                }
-            }
-        }
-    }
 }
 
 SpellInfo::~SpellInfo()
@@ -4853,4 +4806,62 @@ bool SpellInfo::IsAuraNeedPandemicEffect() const
     }
 
     return false;
+}
+
+uint32 SpellInfo::GetSpellXSpellVisualId(Unit const* p_Caster /*= nullptr*/) const
+{
+    if (p_Caster)
+    {
+        Difficulty l_Difficulty = p_Caster->GetMap()->GetDifficultyID();
+        DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(l_Difficulty);
+        while (l_DifficultyEntry)
+        {
+            auto itr = m_SpellVisuals.find(l_Difficulty);
+            if (itr != m_SpellVisuals.end())
+            {
+                for (SpellXSpellVisualEntry const* l_Visual : itr->second)
+                {
+                    if (!l_Visual->ConditionID || (p_Caster->IsPlayer() && p_Caster->ToPlayer()->EvalPlayerCondition(l_Visual->ConditionID).first))
+                        return l_Visual->Id;
+                }
+            }
+
+            l_DifficultyEntry = sDifficultyStore.LookupEntry(l_DifficultyEntry->FallbackDifficultyID);
+        }
+
+        auto itr = m_SpellVisuals.find(Difficulty::DifficultyNone);
+        if (itr != m_SpellVisuals.end())
+        {
+            for (SpellXSpellVisualEntry const* l_Visual : itr->second)
+            {
+                if (!l_Visual->ConditionID || (p_Caster->IsPlayer() && p_Caster->ToPlayer()->EvalPlayerCondition(l_Visual->ConditionID).first))
+                    return l_Visual->Id;
+            }
+        }
+    }
+    else
+    {
+        auto itr = m_SpellVisuals.find(Difficulty::DifficultyNone);
+        if (itr != m_SpellVisuals.end())
+        {
+            for (SpellXSpellVisualEntry const* l_Visual : itr->second)
+            {
+                if (!l_Visual->ConditionID)
+                    return l_Visual->Id;
+            }
+        }
+    }
+
+    return 0;
+}
+
+uint32 SpellInfo::GetSpellVisualID(Unit const* p_Caster) const
+{
+    int64 l_SpellVisualId = 0;
+    l_SpellVisualId = sSpellMgr->GetSpellVisualOverride(Id);
+
+    if (l_SpellVisualId < 0)
+        l_SpellVisualId = GetSpellXSpellVisualId(p_Caster);
+
+    return (uint32)l_SpellVisualId;
 }
