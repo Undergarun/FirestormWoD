@@ -7891,7 +7891,7 @@ SpellCastResult Spell::CheckItems()
                         }
                     }
                 }
-                if (!p_caster->HasItemCount(itemid, itemcount))
+                if (!p_caster->HasItemCount(itemid, itemcount, false, true))
                     return SPELL_FAILED_REAGENTS;
             }
         }
