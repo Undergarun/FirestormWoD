@@ -4419,134 +4419,197 @@ class spell_pri_shadowform : public SpellScriptLoader
 /// Called by Levitate (effect) - 111758
 class spell_pri_path_of_devout : public SpellScriptLoader
 {
-public:
-    spell_pri_path_of_devout() : SpellScriptLoader("spell_pri_path_of_devout") { }
+    public:
+        spell_pri_path_of_devout() : SpellScriptLoader("spell_pri_path_of_devout") { }
 
-    class spell_pri_path_of_devout_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_path_of_devout_AuraScript);
-
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        class spell_pri_path_of_devout_AuraScript : public AuraScript
         {
-            Unit* l_Caster = GetCaster();
-            Unit* l_Target = GetUnitOwner();
+            PrepareAuraScript(spell_pri_path_of_devout_AuraScript);
 
-            if (l_Caster == nullptr || l_Target == nullptr)
-                return;
-
-            if (l_Target->HasAura(PRIEST_SPELL_LEVITATE_EFFECT))
-                if (l_Caster->HasAura(PRIEST_SPELL_GLYPH_OF_LEVITATE))
-                    l_Caster->CastSpell(l_Target, PRIEST_SPELL_PATH_OF_DEVOUT, true);
-        }
-
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-        {
-            if (Unit* l_Target = GetUnitOwner())
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
-                if (Aura* l_PathOfDevout = l_Target->GetAura(PRIEST_SPELL_PATH_OF_DEVOUT))
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetUnitOwner();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(PRIEST_SPELL_LEVITATE_EFFECT))
+                    if (l_Caster->HasAura(PRIEST_SPELL_GLYPH_OF_LEVITATE))
+                        l_Caster->CastSpell(l_Target, PRIEST_SPELL_PATH_OF_DEVOUT, true);
+            }
+
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Unit* l_Target = GetUnitOwner())
                 {
-                    l_PathOfDevout->SetMaxDuration(10 * IN_MILLISECONDS);
-                    l_PathOfDevout->SetDuration(l_PathOfDevout->GetMaxDuration());
+                    if (Aura* l_PathOfDevout = l_Target->GetAura(PRIEST_SPELL_PATH_OF_DEVOUT))
+                    {
+                        l_PathOfDevout->SetMaxDuration(10 * IN_MILLISECONDS);
+                        l_PathOfDevout->SetDuration(l_PathOfDevout->GetMaxDuration());
+                    }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pri_path_of_devout_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_path_of_devout_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectApply += AuraEffectApplyFn(spell_pri_path_of_devout_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_pri_path_of_devout_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+            return new spell_pri_path_of_devout_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_path_of_devout_AuraScript();
-    }
 };
 
 /// Called by Glyph of Levitate - 108939
 class spell_pri_glyph_of_levitate : public SpellScriptLoader
 {
-public:
-    spell_pri_glyph_of_levitate() : SpellScriptLoader("spell_pri_glyph_of_levitate") { }
+    public:
+        spell_pri_glyph_of_levitate() : SpellScriptLoader("spell_pri_glyph_of_levitate") { }
 
-    class spell_pri_glyph_of_levitate_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_glyph_of_levitate_AuraScript);
-
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        class spell_pri_glyph_of_levitate_AuraScript : public AuraScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareAuraScript(spell_pri_glyph_of_levitate_AuraScript);
+
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
-                if (l_Caster->HasAura(PRIEST_SPELL_LEVITATE_EFFECT))
-                    l_Caster->RemoveAura(PRIEST_SPELL_LEVITATE_EFFECT);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(PRIEST_SPELL_LEVITATE_EFFECT))
+                        l_Caster->RemoveAura(PRIEST_SPELL_LEVITATE_EFFECT);
+                }
             }
-        }
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-        {
-            if (Unit* l_Caster = GetCaster())
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
-                if (l_Caster->HasAura(PRIEST_SPELL_LEVITATE_EFFECT))
-                    l_Caster->RemoveAura(PRIEST_SPELL_LEVITATE_EFFECT);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(PRIEST_SPELL_LEVITATE_EFFECT))
+                        l_Caster->RemoveAura(PRIEST_SPELL_LEVITATE_EFFECT);
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_levitate_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_levitate_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_levitate_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_levitate_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            return new spell_pri_glyph_of_levitate_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_glyph_of_levitate_AuraScript();
-    }
 };
 
 /// Glyph of Mind Spike - 33371 (Proc - 81292)
 /// Called by Mind Spike - 73510
 class spell_pri_glyph_of_mind_spike : public SpellScriptLoader
 {
-public:
-    spell_pri_glyph_of_mind_spike() : SpellScriptLoader("spell_pri_glyph_of_mind_spike") { }
+    public:
+        spell_pri_glyph_of_mind_spike() : SpellScriptLoader("spell_pri_glyph_of_mind_spike") { }
 
-    class spell_pri_glyph_of_mind_spike_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_glyph_of_mind_spike_SpellScript);
-
-        enum eSpells
+        class spell_pri_glyph_of_mind_spike_SpellScript : public SpellScript
         {
-            GlyphOfMindSpikeAura = 33371,
-            GlyphOfMindSpike = 81292
+            PrepareSpellScript(spell_pri_glyph_of_mind_spike_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfMindSpikeAura = 33371,
+                GlyphOfMindSpike = 81292
+            };
+
+            void HandleCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::GlyphOfMindSpikeAura))
+                {
+                    uint32 l_CastTime = l_Caster->GetCurrentSpellCastTime(m_scriptSpellId);
+                    if (l_CastTime != 0)
+                        l_Caster->CastSpell(l_Caster, eSpells::GlyphOfMindSpike, true);
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_pri_glyph_of_mind_spike_SpellScript::HandleCast);
+            }
         };
 
-        void HandleCast()
+        SpellScript* GetSpellScript() const
         {
-            Unit* l_Caster = GetCaster();
+            return new spell_pri_glyph_of_mind_spike_SpellScript();
+        }
+};
 
-            if (l_Caster == nullptr)
-                return;
+/// Glyph of shadowy friends - 126745
+/// Called by Shadowform Visuals - 107903 && 107904
+class spell_pri_glyph_of_shadowy_friend : public SpellScriptLoader
+{
+    public:
+        spell_pri_glyph_of_shadowy_friend() : SpellScriptLoader("spell_pri_glyph_of_shadowy_friend") { }
 
-            if (l_Caster->HasAura(eSpells::GlyphOfMindSpikeAura))
+        class spell_pri_glyph_of_shadowy_friend_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_glyph_of_shadowy_friend_AuraScript);
+
+            enum eSpell
             {
-                uint32 l_CastTime = l_Caster->GetCurrentSpellCastTime(m_scriptSpellId);
-                if (l_CastTime != 0)
-                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfMindSpike, true);
+                GlyphOfShadowyFriend = 126745
+            };
+
+            void OnApply(AuraEffect const* p_AuraEffect, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = p_AuraEffect->GetBase()->GetCaster();
+                if (l_Caster && l_Caster->IsPlayer())
+                {
+                    Player* l_Player = l_Caster->ToPlayer();
+                    if (!l_Player || !l_Player->HasAura(eSpell::GlyphOfShadowyFriend))
+                        return;
+
+                    Unit* l_BattlePet = l_Player->GetSummonedBattlePet();
+                    if (!l_BattlePet)
+                        return;
+
+                    l_BattlePet->CastSpell(l_BattlePet, GetSpellInfo()->Id, true);
+                }
             }
-        }
 
-        void Register()
+            void OnRemove(AuraEffect const* p_AuraEffect, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = p_AuraEffect->GetBase()->GetCaster();
+                if (l_Caster && l_Caster->IsPlayer())
+                {
+                    Player* l_Player = l_Caster->ToPlayer();
+                    if (!l_Player)
+                        return;
+
+                    Unit* l_BattlePet = l_Player->GetSummonedBattlePet();
+                    if (!l_BattlePet)
+                        return;
+
+                    l_BattlePet->RemoveAura(GetSpellInfo()->Id);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_shadowy_friend_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_shadowy_friend_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnCast += SpellCastFn(spell_pri_glyph_of_mind_spike_SpellScript::HandleCast);
+            return new spell_pri_glyph_of_shadowy_friend_AuraScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pri_glyph_of_mind_spike_SpellScript();
-    }
 };
 
 
@@ -4554,61 +4617,62 @@ public:
 /// Called by Levitate: 111758
 class spell_pri_glyph_of_the_heavens : public SpellScriptLoader
 {
-public:
-    spell_pri_glyph_of_the_heavens() : SpellScriptLoader("spell_pri_glyph_of_the_heavens") { }
+    public:
+        spell_pri_glyph_of_the_heavens() : SpellScriptLoader("spell_pri_glyph_of_the_heavens") { }
 
-    class spell_pri_glyph_of_the_heavens_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_glyph_of_the_heavens_AuraScript);
-
-        enum eSpells
+        class spell_pri_glyph_of_the_heavens_AuraScript : public AuraScript
         {
-            LevitateEffect = 111758,
-            Heaven = 124433,
-            GlyphOfTheHeavens = 120581
+            PrepareAuraScript(spell_pri_glyph_of_the_heavens_AuraScript);
+
+            enum eSpells
+            {
+                LevitateEffect = 111758,
+                Heaven = 124433,
+                GlyphOfTheHeavens = 120581
+            };
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Unit* l_Target = GetUnitOwner();
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(eSpells::LevitateEffect))
+                    if (l_Caster->HasAura(eSpells::GlyphOfTheHeavens))
+                        l_Target->CastSpell(l_Target, eSpells::Heaven, true);
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetUnitOwner();
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(eSpells::Heaven))
+                    l_Target->RemoveAura(eSpells::Heaven);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_the_heavens_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_the_heavens_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+            }
         };
 
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        AuraScript* GetAuraScript() const
         {
-            Unit* l_Caster = GetCaster();
-            if (l_Caster == nullptr)
-                return;
-
-            Unit* l_Target = GetUnitOwner();
-            if (l_Target == nullptr)
-                return;
-
-            if (l_Target->HasAura(eSpells::LevitateEffect))
-                if (l_Caster->HasAura(eSpells::GlyphOfTheHeavens))
-                    l_Target->CastSpell(l_Target, eSpells::Heaven, true);
+            return new spell_pri_glyph_of_the_heavens_AuraScript();
         }
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* l_Target = GetUnitOwner();
-            if (l_Target == nullptr)
-                return;
-
-            if (l_Target->HasAura(eSpells::Heaven))
-                l_Target->RemoveAura(eSpells::Heaven);
-        }
-
-        void Register()
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_the_heavens_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_the_heavens_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_glyph_of_the_heavens_AuraScript();
-    }
 };
 
 #ifndef __clang_analyzer__
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_glyph_of_shadowy_friend();
     new spell_pri_shadowform();
     new spell_pri_penance_aura();
     new spell_pri_focused_will();
