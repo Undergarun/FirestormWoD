@@ -3402,6 +3402,9 @@ void SpellMgr::LoadSpellCustomAttr()
             ///////////////////////////////////////////////////////////////////////////////////
             /// Rush Orders
             ///////////////////////////////////////////////////////////////////////////////////
+            case 180704: ///< Rush order visual
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                break;
             case 181507: ///< Alchemy Lab
                 spellInfo->Reagent[0]              = 122576;
                 spellInfo->ReagentCount[0]         = 1;
