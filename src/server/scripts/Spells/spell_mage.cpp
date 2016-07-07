@@ -2141,28 +2141,35 @@ class spell_mage_kindling : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_kindling_SpellScript);
 
+            enum eSpells
+            {
+                Ignition = 165979,
+                Fireball = 133
+            };
+
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Player->HasAura(SPELL_MAGE_KINDLING) && GetSpell()->IsCritForTarget(l_Target))
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Player->HasAura(SPELL_MAGE_KINDLING) && GetSpell()->IsCritForTarget(l_Target))
-                        {
-                            if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
-                                l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDLING)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
-                        }
-                    }
+                    if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
+                        l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDLING)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
                 }
+                if (GetSpellInfo()->Id == eSpells::Fireball && l_Player->HasAura(eSpells::Ignition))
+                    l_Player->RemoveAura(eSpells::Ignition);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_mage_kindling_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_mage_kindling_SpellScript();
         }
