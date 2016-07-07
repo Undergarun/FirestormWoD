@@ -6384,8 +6384,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
     uint64 originalCaster = 0;
 
     uint32 const* l_VisualID = nullptr;
-    if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(procSpell->GetSpellXSpellVisualId(this)))
-        l_VisualID = l_VisualEntry->VisualID;
+    if (procSpell)
+    {
+        if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(procSpell->GetSpellXSpellVisualId(this)))
+            l_VisualID = l_VisualEntry->VisualID;
+    }
 
     switch (dummySpell->SpellFamilyName)
     {
@@ -18428,7 +18431,23 @@ bool Unit::RollProcResult(Unit* victim, Aura* aura, WeaponAttackType attType, bo
     if (spellProcEvent && spellProcEvent->ppmRate != 0.0f)
         procsPerMinute = spellProcEvent->ppmRate;
 
-    if (procsPerMinute != 0.0f)
+    if (aura->GetSpellInfo()->Id == 51530)
+    {
+        if (spellProcEvent && spellProcEvent->ppmRate != 0.f)
+        {
+            if (!isVictim)
+            {
+                uint32 weaponSpeed = GetAttackTime(attType);
+                chance = GetPPMProcChance(weaponSpeed, spellProcEvent->ppmRate, spellInfo);
+            }
+            else if (victim)
+            {
+                uint32 weaponSpeed = victim->GetAttackTime(attType);
+                chance = victim->GetPPMProcChance(weaponSpeed, spellProcEvent->ppmRate, spellInfo);
+            }
+        }
+    }
+    else if (procsPerMinute != 0.0f)
         chance = aura->CalcPPMProcChance(procsPerMinute, isVictim ? victim : this);
 
     // Apply chance modifer aura
