@@ -1377,9 +1377,6 @@ void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
             m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, m_caster->GetOrientation(), m_spellInfo->Id);
             break;
     }
-
-    if (GetSpellInfo()->Effects[p_EffIndex].TriggerSpell)
-        m_caster->CastSpell(destTarget, GetSpellInfo()->Effects[p_EffIndex].TriggerSpell, false);
 }
 
 void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & speedZ)
