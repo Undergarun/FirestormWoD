@@ -1915,7 +1915,8 @@ class boss_marak_the_blooded : public CreatureScript
                     {
                         Talk(eTalks::TalkBloodRitual);
 
-                        if (Player* l_Target = SelectPlayerTarget(eTargetTypeMask::TypeMaskNonTank, { }, 45.0f))
+                        std::vector<int32> l_ExcludeAuras = { -int32(eSpells::SpellBloodsoakedHeartseekerMarker), -int32(eIronMaidensSpells::OnABoatPeriodic) };
+                        if (Player* l_Target = SelectPlayerTarget(eTargetTypeMask::TypeMaskNonTank, l_ExcludeAuras, 45.0f))
                         {
                             Talk(eTalks::TalkBloodRitualWarn, l_Target->GetGUID());
 
