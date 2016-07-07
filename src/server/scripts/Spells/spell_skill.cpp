@@ -1477,6 +1477,48 @@ namespace MS { namespace Skill
             }
     };
 
+    /// Last Update 6.2.3
+    class PlayerScript_skill_learn_spec : public PlayerScript
+    {
+    public:
+        PlayerScript_skill_learn_spec() : PlayerScript("PlayerScript_skill_learn_spec") { }
+
+        enum eSpells
+        {
+            Engineering_Gnomish_Engineer = 20219,
+            Engineering_Goblin_Engineer = 20222,
+            Alchimist_Potion_Master = 28675,
+            Alchimist_Elixir_Master = 28677,
+            Alchimist_Transmutation_Master = 28672
+        };
+
+        void OnSpellLearned(Player* p_Player, uint32 p_SpellId)
+        {
+            switch (p_SpellId)
+            {
+            case eSpells::Engineering_Gnomish_Engineer:
+                p_Player->removeSpell(eSpells::Engineering_Goblin_Engineer);
+                break;
+            case eSpells::Engineering_Goblin_Engineer:
+                p_Player->removeSpell(eSpells::Engineering_Gnomish_Engineer);
+                break;
+            case eSpells::Alchimist_Potion_Master:
+                p_Player->removeSpell(eSpells::Alchimist_Elixir_Master);
+                p_Player->removeSpell(eSpells::Alchimist_Transmutation_Master);
+                break;
+            case eSpells::Alchimist_Elixir_Master:
+                p_Player->removeSpell(eSpells::Alchimist_Potion_Master);
+                p_Player->removeSpell(eSpells::Alchimist_Transmutation_Master);
+                break;
+            case eSpells::Alchimist_Transmutation_Master:
+                p_Player->removeSpell(eSpells::Alchimist_Elixir_Master);
+                p_Player->removeSpell(eSpells::Alchimist_Potion_Master);
+                break;
+            }
+        }
+
+    };
+
 }   ///< namespace Skill
 }   ///< namespace MS
 
@@ -1507,5 +1549,7 @@ void AddSC_spell_skill()
     new MS::Skill::spell_skill_linkgrease_locksprocket_upgrade();
     new MS::Skill::spell_skill_weapon_crystal_upgrade();
     new MS::Skill::spell_skill_hexweave_essence_upgrade();
+
+    new MS::Skill::PlayerScript_skill_learn_spec();
 }
 #endif
