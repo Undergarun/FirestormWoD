@@ -1159,7 +1159,8 @@ class boss_enforcer_sorka : public CreatureScript
                     {
                         if (!m_IsInBladeDash)
                         {
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true))
+                            std::vector<int32> l_ExcludeAuras = { -int32(eIronMaidensSpells::OnABoatPeriodic), -int32(eIronMaidensSpells::RideLoadingChain) };
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true, l_ExcludeAuras))
                             {
                                 AttackStart(l_Target);
 

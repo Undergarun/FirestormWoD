@@ -57,7 +57,8 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             return DIMINISHING_TAUNT;
     }
 
-    uint32 const* l_VisualID = nullptr;
+    uint32 const l_Dummy[2] = { 0, 0 };
+    uint32 const* l_VisualID = l_Dummy;
     if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(spellproto->GetSpellXSpellVisualId(p_Caster)))
         l_VisualID = l_VisualEntry->VisualID;
 
@@ -513,7 +514,7 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto, Unit* p_Or
             if (spellproto->Id == 1130)
                 return 30 * IN_MILLISECONDS;
             // Binding Shot - 3 seconds in PvP (6.0)
-            if (spellproto->SpellIconID == 4612 && l_VisualID[0] == 6859)
+            if (spellproto->SpellIconID == 4612 && l_VisualID && l_VisualID[0] == 6859)
                 return 3 * IN_MILLISECONDS;
             // Wyvern Sting - 6 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[1] & 0x1000)

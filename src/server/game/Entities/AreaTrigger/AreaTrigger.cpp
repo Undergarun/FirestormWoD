@@ -132,7 +132,8 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     uint32 const* l_VisualID = nullptr;
     if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(p_SpellInfo->GetSpellXSpellVisualId(p_Caster)))
         l_VisualID = l_VisualEntry->VisualID;
-    SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, l_VisualID[0]);
+
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, l_VisualID != nullptr ? l_VisualID[0] : 0);
 
     Position l_SourcePosition;
     l_SourcePosition.Relocate(pos);
