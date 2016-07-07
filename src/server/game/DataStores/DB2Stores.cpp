@@ -26,6 +26,7 @@ std::unordered_map<uint32 /*ItemID*/, HeirloomEntry const*> HeirloomEntryByItemI
 std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
 std::map<uint32, uint32> g_ItemDisplayIDs;
 std::map<uint32, uint32> g_ItemTemplateDisplayIDs;
+std::map<uint32, uint32> g_FollowerAbilitiesClass;
 
 DB2Storage <AchievementEntry>               sAchievementStore(Achievementfmt);
 DB2Storage <CriteriaEntry>                  sCriteriaStore(Criteriafmt);
@@ -402,7 +403,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGarrPlotBuildingStore,          db2Path, "GarrPlotBuilding.db2"                                                 );
     LoadDB2(bad_db2_files, sGarrFollowerStore,              db2Path, "GarrFollower.db2"                                                     );
     LoadDB2(bad_db2_files, sGarrFollowerTypeStore,          db2Path, "GarrFollowerType.db2"                                                 );
-    LoadDB2(bad_db2_files, sGarrAbilityStore,               db2Path, "GarrAbility.db2"                                                      );
+    LoadDB2(bad_db2_files, sGarrAbilityStore,               db2Path, "GarrAbility.db2",                  "garr_ability",                "ID");
     LoadDB2(bad_db2_files, sGarrAbilityEffectStore,         db2Path, "GarrAbilityEffect.db2"                                                );
     LoadDB2(bad_db2_files, sGarrFollowerXAbilityStore,      db2Path, "GarrFollowerXAbility.db2"                                             );
     LoadDB2(bad_db2_files, sGarrBuildingPlotInstStore,      db2Path, "GarrBuildingPlotInst.db2"                                             );
@@ -738,6 +739,46 @@ void LoadDB2Stores(const std::string& dataPath)
         sResearchSiteSet.insert(rs);
     }
     //sResearchSiteStore.Clear();
+
+    /// Fill map to dissociate abilities class-specific
+    for (uint32 l_Itr = 0; l_Itr < sGarrAbilityStore.GetNumRows(); ++l_Itr)
+    {
+        GarrAbilityEntry const* l_GarrAbility = sGarrAbilityStore.LookupEntry(l_Itr);
+
+        if (!l_GarrAbility)
+            continue;
+
+        char const* l_Description = l_GarrAbility->Description->Get(LocaleConstant::LOCALE_enUS);
+
+        Classes l_Class = Classes::CLASS_PALADIN;
+
+        if (std::strstr(l_Description, "paladin"))
+            l_Class = Classes::CLASS_PALADIN;
+        else if (std::strstr(l_Description, "mage"))
+            l_Class = Classes::CLASS_MAGE;
+        else if (std::strstr(l_Description, "warrior"))
+            l_Class = Classes::CLASS_WARRIOR;
+        else if (std::strstr(l_Description, "monk"))
+            l_Class = Classes::CLASS_MONK;
+        else if (std::strstr(l_Description, "mage"))
+            l_Class = Classes::CLASS_MAGE;
+        else if (std::strstr(l_Description, "priest"))
+            l_Class = Classes::CLASS_PRIEST;
+        else if (std::strstr(l_Description, "warlock"))
+            l_Class = Classes::CLASS_WARLOCK;
+        else if (std::strstr(l_Description, "rogue"))
+            l_Class = Classes::CLASS_ROGUE;
+        else if (std::strstr(l_Description, "hunter"))
+            l_Class = Classes::CLASS_HUNTER;
+        else if (std::strstr(l_Description, "druid"))
+            l_Class = Classes::CLASS_DRUID;
+        else if (std::strstr(l_Description, "shaman"))
+            l_Class = Classes::CLASS_SHAMAN;
+        else if (std::strstr(l_Description, "death knight"))
+            l_Class = Classes::CLASS_DEATH_KNIGHT;
+
+        g_FollowerAbilitiesClass.insert(std::make_pair(l_GarrAbility->ID, l_Class));
+    }
 
     /// error checks
     if (bad_db2_files.size() >= DB2FilesCount)

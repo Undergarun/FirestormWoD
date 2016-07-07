@@ -415,6 +415,85 @@ namespace MS { namespace Garrison
         };
     }
 
+    namespace Follower
+    {
+        enum ClassSpecs
+        {
+            ClassBloodDeathKnight   = 2,
+            ClassFrostDeathKnight   = 3,
+            ClassUnholyDeathKnight  = 4,
+            ClassBalanceDruid       = 5,
+            ClassFeralDruid         = 7,
+            ClassGuardianDruid      = 8,
+            ClassRestorationDruid   = 9,
+            ClassBeastMasterHunter  = 10,
+            ClassMasksmanShipHunter = 12,
+            ClassSurvivalHunter     = 13,
+            ClassArcaneMage         = 14,
+            ClassFireMage           = 15,
+            ClassFrostMage          = 16,
+            ClassBrewmasterMonk     = 17,
+            ClassMistweaverMonk     = 18,
+            ClassWindwalkerMonk     = 19,
+            ClassHolyPaladin        = 20,
+            ClassProtectionPaladin  = 21,
+            ClassRetributionPaladin = 22,
+            ClassDisciplinePriest   = 23,
+            ClassHolyPriest         = 24,
+            ClassShadowPriest       = 25,
+            ClassAssassinationRogue = 26,
+            ClassCombatRogue        = 27,
+            ClassSubtletyRogue      = 28,
+            ClassElementalShaman    = 29,
+            ClassEnhancementShaman  = 30,
+            ClassRestorationShaman  = 31,
+            ClassAfflictionWarlock  = 32,
+            ClassDemonologyWarlock  = 33,
+            ClassDestructionWarlock = 34,
+            ClassArmsWarrior        = 35,
+            ClassFuryWarrior        = 37,
+            ClassProtectionWarrior  = 38
+        };
+
+        static const std::map<uint32, uint32> g_ClassSpecIndex
+        {
+            { ClassSpecs::ClassBloodDeathKnight,         Classes::CLASS_DEATH_KNIGHT },
+            { ClassSpecs::ClassFrostDeathKnight,         Classes::CLASS_DEATH_KNIGHT },
+            { ClassSpecs::ClassUnholyDeathKnight,        Classes::CLASS_DEATH_KNIGHT },
+            { ClassSpecs::ClassBalanceDruid,             Classes::CLASS_DRUID        },
+            { ClassSpecs::ClassFeralDruid,               Classes::CLASS_DRUID        },
+            { ClassSpecs::ClassGuardianDruid,            Classes::CLASS_DRUID        },
+            { ClassSpecs::ClassRestorationDruid,         Classes::CLASS_DRUID        },
+            { ClassSpecs::ClassBeastMasterHunter,        Classes::CLASS_HUNTER       },
+            { ClassSpecs::ClassMasksmanShipHunter,       Classes::CLASS_HUNTER       },
+            { ClassSpecs::ClassSurvivalHunter,           Classes::CLASS_HUNTER       },
+            { ClassSpecs::ClassArcaneMage,               Classes::CLASS_MAGE         },
+            { ClassSpecs::ClassFireMage,                 Classes::CLASS_MAGE         },
+            { ClassSpecs::ClassFrostMage,                Classes::CLASS_MAGE         },
+            { ClassSpecs::ClassBrewmasterMonk,           Classes::CLASS_MONK         },
+            { ClassSpecs::ClassMistweaverMonk,           Classes::CLASS_MONK         },
+            { ClassSpecs::ClassWindwalkerMonk,           Classes::CLASS_MONK         },
+            { ClassSpecs::ClassHolyPaladin,              Classes::CLASS_PALADIN      },
+            { ClassSpecs::ClassProtectionPaladin,        Classes::CLASS_PALADIN      },
+            { ClassSpecs::ClassRetributionPaladin,       Classes::CLASS_PALADIN      },
+            { ClassSpecs::ClassDisciplinePriest,         Classes::CLASS_PRIEST       },
+            { ClassSpecs::ClassHolyPriest,               Classes::CLASS_PRIEST       },
+            { ClassSpecs::ClassShadowPriest,             Classes::CLASS_PRIEST       },
+            { ClassSpecs::ClassAssassinationRogue,       Classes::CLASS_ROGUE        },
+            { ClassSpecs::ClassCombatRogue,              Classes::CLASS_ROGUE        },
+            { ClassSpecs::ClassSubtletyRogue,            Classes::CLASS_ROGUE        },
+            { ClassSpecs::ClassElementalShaman,          Classes::CLASS_SHAMAN       },
+            { ClassSpecs::ClassEnhancementShaman,        Classes::CLASS_SHAMAN       },
+            { ClassSpecs::ClassRestorationShaman,        Classes::CLASS_SHAMAN       },
+            { ClassSpecs::ClassAfflictionWarlock,        Classes::CLASS_WARLOCK      },
+            { ClassSpecs::ClassDemonologyWarlock,        Classes::CLASS_WARLOCK      },
+            { ClassSpecs::ClassDestructionWarlock,       Classes::CLASS_WARLOCK      },
+            { ClassSpecs::ClassArmsWarrior,              Classes::CLASS_WARRIOR      },
+            { ClassSpecs::ClassFuryWarrior,              Classes::CLASS_WARRIOR      },
+            { ClassSpecs::ClassProtectionWarrior,        Classes::CLASS_WARRIOR      }
+        };
+    }
+
     enum GarrisonFollowerFlags
     {
         GARRISON_FOLLOWER_FLAG_EXHAUSTED    = 0x2,

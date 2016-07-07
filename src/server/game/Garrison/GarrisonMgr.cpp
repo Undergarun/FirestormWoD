@@ -5001,7 +5001,7 @@ namespace MS { namespace Garrison
     }
 
     /// TODO: Only class specific - not fully random
-    uint32 Manager::GenerateRandomAbility()
+    uint32 Manager::GenerateRandomAbility(uint32 p_FollowerID)
     {
         std::vector<uint32> l_PossibleEntiers;
 
@@ -5021,6 +5021,26 @@ namespace MS { namespace Garrison
             /// Not ability but trait
             if (std::find(GarrisonAbilities::g_FollowerAbilities.begin(), GarrisonAbilities::g_FollowerAbilities.end(), l_Entry->ID) == GarrisonAbilities::g_FollowerAbilities.end())
                 continue;
+
+            /// Ability class Verification
+            {
+                std::map<uint32, uint32>::iterator l_Iterator = g_FollowerAbilitiesClass.find(l_Entry->ID);
+
+                if (l_Iterator != g_FollowerAbilitiesClass.end())
+                {
+                    GarrFollowerEntry const* l_FollowerEntry = sGarrFollowerStore.LookupEntry(p_FollowerID);
+
+                    if (l_FollowerEntry == nullptr)
+                        continue;
+
+                    using namespace Follower;
+
+                    std::map<uint32, uint32>::const_iterator l_SecondIterator = g_ClassSpecIndex.find(l_FollowerEntry->AllianceGarrClassSecID);
+
+                    if (l_SecondIterator == g_ClassSpecIndex.end() || l_SecondIterator->second != l_Iterator->second)
+                        continue;
+                }
+            }
 
             l_PossibleEntiers.push_back(l_Entry->ID);
         }
@@ -5173,7 +5193,7 @@ namespace MS { namespace Garrison
 
             while (l_AbilitiesCount < l_MaxAbilities)
             {
-                if (uint32 l_NewAbility = GenerateRandomAbility())
+                if (uint32 l_NewAbility = GenerateRandomAbility(p_Follower.FollowerID))
                 {
                     p_Follower.Abilities.push_back(l_NewAbility);
                     ++l_AbilitiesCount;

@@ -601,8 +601,8 @@ struct GarrAbilityEntry
 {
     uint32 ID;                                                      ///< 0
     uint32 AbilityType;                                             ///< 1
-    char * Name;                                                    ///< 2
-    char * Description;                                             ///< 3
+    LocalizedString const* Name;                                    ///< 2
+    LocalizedString const* Description;                             ///< 3
     uint32 IconID;                                                  ///< 4
     uint32 OtherfactionGarrAbilityID;                               ///< 5
     uint32 Category;                                                ///< 6
