@@ -3847,6 +3847,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156626: ///< Rapid Fire (Admiral Gar'an)
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
                 break;
+            case 158681: ///< Corrupted Blood - Missile (Uk'urogg - Iron Maidens)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
             /// Skills
