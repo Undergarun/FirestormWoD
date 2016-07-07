@@ -4952,6 +4952,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 15286: ///< Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
+            case 126408: ///< Forward Thrust
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_KNOCK_BACK_DEST;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK;
+                spellInfo->Effects[0].BasePoints = 75;
+                spellInfo->Effects[0].MiscValue = 250;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8);
+                break;
             case 119403: ///< Glyph of Explosive Trap
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
