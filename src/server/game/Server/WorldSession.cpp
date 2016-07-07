@@ -568,7 +568,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             //case CMSG_ADDON_REGISTERED_PREFIXES:
                             case CMSG_QUERY_TIME:
                             //case CMSG_QUEST_NPC_QUERY:
-                            case CMSG_REQUEST_BATTLEFIELD_STATUS:
                             //case CMSG_QUERY_BATTLEFIELD_STATE:
                             //case CMSG_LFG_GET_STATUS:
                             //case CMSG_DUNGEON_FINDER_GET_SYSTEM_INFO:
@@ -620,6 +619,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             //case CMSG_GUILD_SET_RANK_PERMISSIONS:
                             //case CMSG_GUILD_SWITCH_RANK:
                             case CMSG_SEND_CONTACT_LIST:
+                            case CMSG_REQUEST_BATTLEFIELD_STATUS:
                                 (this->*opHandle->handler)(*packet);
                                 break;
                         }
