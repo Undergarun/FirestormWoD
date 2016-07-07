@@ -5156,6 +5156,78 @@ class spell_item_Swapblaster : public SpellScriptLoader
         }
 };
 
+/// Plans_Balanced_Trillium_Ingot_and_Its_Use - 100865
+class spell_item_Plans_Balanced_Trillium_Ingot_and_Its_Uses : public SpellScriptLoader
+{
+    public:
+        spell_item_Plans_Balanced_Trillium_Ingot_and_Its_Uses() : SpellScriptLoader("spell_item_Plans_Balanced_Trillium_Ingot_and_Its_Uses") { }
+
+        class spell_item_Plans_Balanced_Trillium_Ingot_and_Its_Uses_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_Plans_Balanced_Trillium_Ingot_and_Its_Uses_SpellScript);
+
+            enum eSpells
+            {
+                BalancedTrilliumIngot = 143255,
+                AcceleratedBalancedTrilliumIngot = 146921,
+                AvengersTrilliumLegplates = 142959,
+                AvengersTrilliumWaistplate = 142968,
+                BlessedTrilliumBelt = 142963,
+                BlessedTrilliumGreaves = 142954,
+                ProtectorsTrilliumLegguards = 142958,
+                ProtectorsTrilliumWaistguard = 142967,
+                MaxTrilliumPlans = 6,
+            };
+
+            std::vector<uint32> m_TrilliumPlans =
+            {
+                eSpells::AvengersTrilliumLegplates,
+                eSpells::AvengersTrilliumWaistplate,
+                eSpells::BlessedTrilliumBelt,
+                eSpells::BlessedTrilliumGreaves,
+                eSpells::ProtectorsTrilliumLegguards,
+                eSpells::ProtectorsTrilliumWaistguard
+            };
+
+            void HandleAfterCast()
+            {
+                Player* p_Player = GetCaster()->ToPlayer();
+                if (!p_Player)
+                    return;
+
+                if (!p_Player->HasSpell(eSpells::BalancedTrilliumIngot))
+                    p_Player->learnSpell(eSpells::BalancedTrilliumIngot, false);
+
+                if (!p_Player->HasSpell(eSpells::AcceleratedBalancedTrilliumIngot))
+                    p_Player->learnSpell(eSpells::AcceleratedBalancedTrilliumIngot, false);
+
+                uint32 l_Itr = 0;
+                for (auto l_Itr = m_TrilliumPlans.begin(); l_Itr != m_TrilliumPlans.end();)
+                {
+                    if (p_Player->HasSpell(*l_Itr))
+                        l_Itr = m_TrilliumPlans.erase(l_Itr);
+                    else
+                        ++l_Itr;
+                }
+
+                if (m_TrilliumPlans.size() != 0)
+                {
+                    l_Itr = rand() % m_TrilliumPlans.size();
+                    p_Player->learnSpell(m_TrilliumPlans[l_Itr], false);
+                }
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_item_Plans_Balanced_Trillium_Ingot_and_Its_Uses_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_Plans_Balanced_Trillium_Ingot_and_Its_Uses_SpellScript();
+        }
+};
 
 #ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
@@ -5264,5 +5336,6 @@ void AddSC_item_spell_scripts()
     new spell_item_swapblaster();
     new spell_item_hypnotize_critter();
     new spell_item_enduring_elixir_of_wisdom();
+    new spell_item_Plans_Balanced_Trillium_Ingot_and_Its_Uses();
 }
 #endif
