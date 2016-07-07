@@ -33171,6 +33171,19 @@ void Player::SummonBattlePet(uint64 p_JournalID)
     l_CurrentPet->SetSpeed(MOVE_RUN, GetSpeedRate(MOVE_RUN), true);
 
     m_BattlePetSummon = l_CurrentPet->GetGUID();
+
+    /// Glyph of shadowy friend
+    if (l_CurrentPet->GetOwner())
+    {
+        Player* l_Owner = l_CurrentPet->GetOwner()->ToPlayer();
+        if (l_Owner && l_Owner->getClass() == CLASS_PRIEST && l_Owner->GetSpecializationId() == SPEC_PRIEST_SHADOW && l_Owner->HasAura(126745))
+        {
+            if (l_Owner->HasAura(107903))
+                l_CurrentPet->CastSpell(l_CurrentPet, 107903, true);
+            if (l_Owner->HasAura(107904))
+                l_CurrentPet->CastSpell(l_CurrentPet, 107904, true);
+        }
+    }
 }
 
 /// Get current summoned battle pet
