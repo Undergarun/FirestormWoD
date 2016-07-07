@@ -1568,10 +1568,8 @@ class BattlegroundAV : public Battleground
         bool IsBothMinesControlledByTeam(uint32 team) const;
         bool IsAllTowersControlledAndCaptainAlive(uint32 team) const;
 
-#ifdef CROSS
         uint32 GetZoneId() const { return BATTLEGROUND_AV_ZONEID; }
 
-#endif /* CROSS */
         uint32 GetTeamQuestStatus(uint8 p_Team, uint8 p_Index) const { return m_Team_QuestStatus[p_Team][p_Index]; }
 
         uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }

@@ -2471,9 +2471,9 @@ void WorldSession::SendTwitterStatus(bool p_Enabled)
         l_Data.FlushBits();
         SendPacket(&l_Data);
     }
-#ifdef CROSS
 }
 
+#ifdef CROSS
 void WorldSession::HandleQueryGuildInfoOpcode(WorldPacket& p_Packet)
 {
     uint64 l_GuildGuid  = 0;
@@ -2487,5 +2487,5 @@ void WorldSession::HandleQueryGuildInfoOpcode(WorldPacket& p_Packet)
         return;
  
     sGuildMgr->HandleInterRealmGuildQuery(GetPlayer(), targetPlayer->GetSession()->GetInterRealmNumber(), l_GuildGuid);
-#endif /* CROSS */
 }
+#endif /* CROSS */

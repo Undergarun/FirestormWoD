@@ -604,9 +604,11 @@ public:
         handler->SendSysMessage(LANG_CHARACTER_DELETED_DELETE);
         HandleCharacterDeletedListHelper(foundList, handler);
 
+#ifndef CROSS
         // Call the appropriate function to delete them (current account for deleted characters is 0)
         for (DeletedInfoList::const_iterator itr = foundList.begin(); itr != foundList.end(); ++itr)
             Player::DeleteFromDB(itr->lowGuid, 0, false, true);
+#endif
 
         return true;
     }

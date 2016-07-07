@@ -242,10 +242,8 @@ class BattlegroundSM : public Battleground
         /* Battleground Events */
         void EventReopenDepot(uint32 p_Diff);
 
-#ifdef CROSS
         uint32 GetZoneId() const { return BATTLEGROUND_SSM_ZONEID; }
 
-#endif /* CROSS */
     private:
         void EventTeamCapturedMineCart(uint32 p_Team, uint8 p_MineCart);
         void SummonMineCart(uint32 p_Diff);

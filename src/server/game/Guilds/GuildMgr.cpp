@@ -6,9 +6,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CROSS 
 #include "Common.h"
 #include "GuildMgr.h"
+
+#ifndef CROSS 
 
 GuildMgr::GuildMgr()
 {

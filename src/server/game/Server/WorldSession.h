@@ -399,11 +399,7 @@ class WorldSession
         void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
         static void WriteMovementInfo(WorldPacket& data, MovementInfo* mi);
 
-#ifndef CROSS
         void SendPacket(WorldPacket const* packet, bool forced = false, bool ir_packet = false);
-#else /* CROSS */
-        void SendPacket(WorldPacket const* packet, bool forced = false);
-#endif /* CROSS */
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
@@ -883,6 +879,9 @@ class WorldSession
         void HandleRequestJoinUpdates(WorldPacket& recvData);
         void HandleClearRaidMarkerOpcode(WorldPacket& recvData);
 
+        void HandleQueryGuildInfoOpcode(WorldPacket& recvPacket);
+
+#ifndef CROSS
         void HandlePetitionBuyOpcode(WorldPacket& recvData);
         void HandlePetitionShowSignOpcode(WorldPacket& recvData);
         void HandlePetitionQueryOpcode(WorldPacket& recvData);
@@ -891,8 +890,9 @@ class WorldSession
         void HandlePetitionDeclineOpcode(WorldPacket& recvData);
         void HandleOfferPetitionOpcode(WorldPacket& recvData);
         void HandleTurnInPetitionOpcode(WorldPacket& recvData);
+        void HandlePetitionShowListOpcode(WorldPacket& recvPacket);
 
-        void HandleQueryGuildInfoOpcode(WorldPacket& recvPacket);
+
         void HandleGuildInviteByNameOpcode(WorldPacket& recvPacket);
         void HandleGuildOfficierRemoveMemberOpcode(WorldPacket& recvPacket);
         void HandleGuildMasterReplaceOpcode(WorldPacket& recvPacket);
@@ -929,6 +929,7 @@ class WorldSession
         void HandleGuildFinderPostRequest(WorldPacket& recvPacket);
         void HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket);
         void HandleGuildFinderSetGuildPost(WorldPacket& recvPacket);
+#endif
 
         void HandleEnableTaxiNodeOpcode(WorldPacket& recvPacket);
         void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
@@ -949,7 +950,6 @@ class WorldSession
 
         void HandleTrainerListOpcode(WorldPacket& recvPacket);
         void HandleTrainerBuySpellOpcode(WorldPacket& recvPacket);
-        void HandlePetitionShowListOpcode(WorldPacket& recvPacket);
         void HandleGossipHelloOpcode(WorldPacket& recvPacket);
         void HandleGossipSelectOptionOpcode(WorldPacket& recvPacket);
         void HandleSpiritHealerActivateOpcode(WorldPacket& recvPacket);
@@ -974,8 +974,10 @@ class WorldSession
         void HandleUnacceptTradeOpcode(WorldPacket& recvPacket);
 
         void HandleItemTextQuery(WorldPacket& recvData);
+#ifndef CROSS
         void HandleMailCreateTextItem(WorldPacket& recvData);
         void HandleQueryNextMailTime(WorldPacket& recvData);
+#endif
         void HandleCancelChanneling(WorldPacket& recvData);
 
         void SendItemPageInfo(ItemTemplate* itemProto);
@@ -1093,7 +1095,11 @@ class WorldSession
 
         void HandleSetActionBarToggles(WorldPacket& recvData);
 
+#ifndef CROSS
         void HandleCharRenameOpcode(WorldPacket& recvData);
+        void HandleCharCustomize(WorldPacket& recvData);
+#endif
+
         void HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult result, std::string newName);
         void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
         void SendPlayerDeclinedNamesResult(uint64 guid, uint32 result);
@@ -1227,6 +1233,7 @@ class WorldSession
         void HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData);
 
         // Guild Bank
+#ifndef CROSS
         void HandleGuildPermissionsQueryOpcode(WorldPacket& recvData);
         void HandleGuildBankRemainingWithdrawMoneyQueryOpcode(WorldPacket& recvData);
         void HandleGuildBankActivate(WorldPacket& recvData);
@@ -1240,6 +1247,7 @@ class WorldSession
         void HandleGuildBankBuyTab(WorldPacket& recvData);
         void HandleQueryGuildBankTextQuery(WorldPacket& recvData);
         void HandleSetGuildBankTabText(WorldPacket& recvData);
+#endif
 
         // Refer-a-Friend
         void HandleGrantLevel(WorldPacket& recvData);
@@ -1268,7 +1276,6 @@ class WorldSession
         void HandleMirrorImageDataRequest(WorldPacket& recvData);
         void HandleAlterAppearance(WorldPacket& recvData);
         void HandleRemoveGlyph(WorldPacket& recvData);
-        void HandleCharCustomize(WorldPacket& recvData);
         void HandleQueryInspectAchievements(WorldPacket& recvData);
         void HandleGuildAchievementProgressQuery(WorldPacket& recvData);
         void HandleEquipmentSetSave(WorldPacket& recvData);
@@ -1297,6 +1304,7 @@ class WorldSession
         //////////////////////////////////////////////////////////////////////////
         /// Garrison
         //////////////////////////////////////////////////////////////////////////
+#ifndef CROSS
         void HandleGetGarrisonInfoOpcode(WorldPacket& p_RecvData);
         void HandleRequestGarrisonUpgradeableOpcode(WorldPacket& p_RecvData);
         void HandleUpgradeGarrisonOpcode(WorldPacket& p_RecvData);
@@ -1323,6 +1331,7 @@ class WorldSession
         void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);
         void SendGarrisonSetMissionNpc(uint64 p_CreatureGUID);
+#endif
 
         /// Battle pet
         void SendBattlePetUpdates(bool p_AddedPet);

@@ -123,7 +123,7 @@ void IROpcodeTable::Initialize()
     DEFINE_IR_OPCODE_HANDLER(IR_CMSG_BATTLEFIELD_LEAVE,         &InterRealmClient::Handle_BattlefielLeave);
 
     DEFINE_IR_OPCODE_HANDLER(IR_SMSG_RESERVE_LOCAL_GUID,        &InterRealmClient::Handle_ServerSide);
-    DEFINE_IR_OPCODE_HANDLER(IR_CMSG_RESERVE_LOCAl_GUID,        &InterRealmClient::Handle_ReserveLocalGuid);
+    DEFINE_IR_OPCODE_HANDLER(IR_CMSG_RESERVE_LOCAL_GUID,        &InterRealmClient::Handle_ReserveLocalGuid);
 
     DEFINE_IR_OPCODE_HANDLER(IR_SMSG_CROSS_PARTY_INFO,          &InterRealmClient::Handle_ServerSide);
 

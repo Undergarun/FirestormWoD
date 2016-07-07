@@ -2335,7 +2335,7 @@ bool Player::ToggleAFK()
     {
         if (Battleground* bg = GetBattleground())
         {
-            bg->RemovePlayerAtLeave(GetGUID());
+            bg->RemovePlayerAtLeave(GetGUID(), true, false);
             bg->RemoveFromInterRealm(GetGUID());
         }
     }
@@ -2367,7 +2367,7 @@ uint8 Player::GetChatTag() const
     return tag;
 }
 
-bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O, uint32 p_Options, bool forced_far)
+bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O, uint32 p_Options)
 {
     if (!MapManager::IsValidMapCoord(p_MapID, p_X, p_Y, p_Z, p_O))
     {
@@ -2796,7 +2796,7 @@ bool Player::TeleportToBGEntryPoint(bool inter_realm /*= false*/)
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
-    return TeleportTo(m_bgData.joinPos, 0, inter_realm);
+    return TeleportTo(m_bgData.joinPos, 0);
 }
 
 void Player::ProcessDelayedOperations()
@@ -6548,9 +6548,9 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
  * @param updateRealmChars when this flag is set, the amount of characters on that realm will be updated in the realmlist
  * @param deleteFinally    if this flag is set, the config option will be ignored and the character will be permanently removed from the database
  */
+#ifndef CROSS
 void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars, bool deleteFinally)
 {
-#ifndef CROSS
     // for not existed account avoid update realm
     if (accountId == 0)
         updateRealmChars = false;
@@ -6864,8 +6864,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
         default:
             sLog->outError(LOG_FILTER_PLAYER, "Player::DeleteFromDB: Unsupported delete method: %u.", charDelete_method);
     }
-#endif
 }
+#endif
 
 /**
  * Characters which were kept back in the database after being deleted and are now too old (see config option "CharDelete.KeepDays"), will be completely deleted.
@@ -27400,7 +27400,7 @@ void Player::ReportedAfkBy(Player* reporter)
 #else /* CROSS */
 
             // afk player not allowed in battleground
-            bg->RemovePlayerAtLeave(GetGUID());
+            bg->RemovePlayerAtLeave(GetGUID(), true, false);
             bg->RemoveFromInterRealm(GetGUID());
 #endif /* CROSS */
         }
@@ -35259,7 +35259,7 @@ void Player::RemovePlayer()
     if (InBattleground())
     {
         if (Battleground* bg = GetBattleground())
-            bg->RemovePlayerAtLeave(GetGUID());
+            bg->RemovePlayerAtLeave(GetGUID(), true, false);
     }
     else if (InBattlegroundQueue())
     {
@@ -35358,7 +35358,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
 {
     if (Battleground* bg = GetBattleground())
     {
-        bg->RemovePlayerAtLeave(GetGUID());
+        bg->RemovePlayerAtLeave(GetGUID(), true, false);
 
         // call after remove to be sure that player resurrected for correct cast
         if (bg->isBattleground() && !isGameMaster() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_CAST_DESERTER))

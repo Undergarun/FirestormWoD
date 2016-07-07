@@ -2215,15 +2215,12 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next weekly quest reset time...");
     InitWeeklyQuestResetTime();
 
-#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next monthly quest reset time...");
     InitMonthlyQuestResetTime();
-#endif
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate random battleground reset time...");
     InitRandomBGResetTime();
 
-#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next currency reset time...");
     InitCurrencyResetTime();
 
@@ -2235,7 +2232,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next weekly boss looted reset time...");
     InitBossLootedResetTime();
-#endif
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Initializing Opcodes...");
     InitOpcodes();
@@ -3530,7 +3526,6 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 #endif
 }
 
-#ifndef CROSS
 void World::InitWeeklyQuestResetTime()
 {
     time_t wstime = uint64(sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME));
@@ -3675,6 +3670,7 @@ void World::InitBossLootedResetTime()
     m_NextBossLootedReset = l_NextResetDay * 86400 + 5 * 3600;
 }
 
+#ifndef CROSS
 void World::ResetDailyQuests()
 {
     sLog->outInfo(LOG_FILTER_GENERAL, "Daily quests reset for all characters.");

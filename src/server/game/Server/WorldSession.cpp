@@ -960,13 +960,19 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
         ///- If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
         m_Player->UninviteFromGroup();
 
+#ifdef CROSS
+# define CheckSocket true
+#else
+# define CheckSocket m_Socket
+#endif
+
 #ifndef CROSS 
         if (!p_AfterInterRealm)
 #endif
         {
             // remove player from the group if he is:
             // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
-            if (m_Player->GetGroup() && !m_Player->GetGroup()->isRaidGroup() && m_Socket)
+            if (m_Player->GetGroup() && !m_Player->GetGroup()->isRaidGroup() && CheckSocket)
                 m_Player->RemoveFromGroup();
 
             //! Send update to group and reset stored max enchanting level

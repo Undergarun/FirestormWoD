@@ -1513,19 +1513,10 @@ class Player : public Unit, public GridObject<Player>
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-#ifndef CROSS
-        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, bool forced_far = false);
-        bool TeleportTo(WorldLocation const &loc, uint32 options = 0, bool forced_far = false)
-#else /* CROSS */
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0)
-#endif /* CROSS */
         {
-#ifndef CROSS
-            return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options, forced_far);
-#else /* CROSS */
             return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
-#endif /* CROSS */
         }
         bool TeleportTo(uint32 p_MapID, Position const p_Pos, uint32 p_Options = 0)
         {
@@ -1539,11 +1530,8 @@ class Player : public Unit, public GridObject<Player>
 
             return TeleportTo(l_Loc->map_id, l_Loc->x, l_Loc->y, l_Loc->z, l_Loc->o, p_Options);
         }
-#ifndef CROSS
+
         bool TeleportToBGEntryPoint(bool inter_realm = false);
-#else /* CROSS */
-        bool TeleportToBGEntryPoint();
-#endif /* CROSS */
         void SwitchToPhasedMap(uint32 p_MapID);
 
         void SetSummonPoint(uint32 mapid, float x, float y, float z)
@@ -2099,9 +2087,7 @@ class Player : public Unit, public GridObject<Player>
 
 #ifndef CROSS
         static void DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
-#else /* CROSS */
-        static void DeleteFromDB(uint64 playerguid, uint32 accountId, uint32 realmId, bool updateRealmChars = true, bool deleteFinally = false);
-#endif /* CROSS */
+#endif
         static void DeleteOldCharacters();
         static void DeleteOldCharacters(uint32 keepDays);
 

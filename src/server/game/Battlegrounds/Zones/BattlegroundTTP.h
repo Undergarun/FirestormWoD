@@ -52,9 +52,7 @@ class BattlegroundTTP : public Battleground
         virtual void FillInitialWorldStates(ByteBuffer &d);
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* player);
-#ifdef CROSS
 
         uint32 GetZoneId() const { return BATTLEGROUND_TTP_ZONEID; }
-#endif /* CROSS */
 };
 #endif

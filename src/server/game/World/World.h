@@ -1031,7 +1031,6 @@ class World
         void AutoRestartServer();
         void InitServerAutoRestartTime();
 
-#ifndef CROSS
         void InitDailyQuestResetTime();
         void InitWeeklyQuestResetTime();
         void InitMonthlyQuestResetTime();
@@ -1046,6 +1045,8 @@ class World
         void ResetWeeklyGarrisonDatas();
         void ResetMonthlyQuests();
         void ResetRandomBG();
+
+#ifndef CROSS
         void _updateTransfers();
 #endif
 
@@ -1073,12 +1074,6 @@ class World
         uint32 m_serverDelaySum;
         uint32 m_serverUpdateCount;
 
-#ifndef CROSS
-        InterRealmSession* m_InterRealmSession;
-        SessionMap m_sessions;
-        typedef std::unordered_map<uint32, time_t> DisconnectMap;
-        DisconnectMap m_disconnects;
-
         time_t m_NextDailyQuestReset;
         time_t m_NextWeeklyQuestReset;
         time_t m_NextMonthlyQuestReset;
@@ -1087,6 +1082,12 @@ class World
         time_t m_NextDailyLootReset;
         time_t m_NextGuildChallengesReset;
         time_t m_NextBossLootedReset;
+
+#ifndef CROSS
+        InterRealmSession* m_InterRealmSession;
+        SessionMap m_sessions;
+        typedef std::unordered_map<uint32, time_t> DisconnectMap;
+        DisconnectMap m_disconnects;
 
         typedef std::unordered_map<uint32, CharacterInfo> CharacterInfoContainer;
         CharacterInfoContainer _characterInfoStore;

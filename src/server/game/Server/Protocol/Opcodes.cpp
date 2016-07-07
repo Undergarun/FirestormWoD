@@ -1035,6 +1035,7 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Garrison
     //////////////////////////////////////////////////////////////////////////
+#ifndef CROSS
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_CREATE_CHEAT,                               STATUS_UNHANDLED,   PROCESS_THREADSAFE,        &WorldSession::Handle_NULL                                      , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_DELETE_CHEAT,                               STATUS_UNHANDLED,   PROCESS_THREADSAFE,        &WorldSession::Handle_NULL                                      , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_SET_LEVEL_CHEAT,                            STATUS_UNHANDLED,   PROCESS_THREADSAFE,        &WorldSession::Handle_NULL                                      , PROCESS_LOCAL);
@@ -1078,6 +1079,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_SET_MISSION_NPC,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonRequestSetMissionNPC               , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_FOLLOWER_RENAME,                            STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonFollowerRename                     , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_DECOMISSION_SHIP,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,        &WorldSession::HandleGarrisonDecommisionShip                    , PROCESS_LOCAL);
+#endif
 
     //////////////////////////////////////////////////////////////////////////
     /// User Router
@@ -1098,6 +1100,7 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Character
     //////////////////////////////////////////////////////////////////////////
+#ifndef CROSS
     DEFINE_OPCODE_HANDLER(CMSG_ENUM_CHARACTERS,                                 STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharEnumOpcode             , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_CREATE_CHARACTER,                                STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharCreateOpcode           , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GENERATE_RANDOM_CHARACTER_NAME,                  STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleRandomizeCharNameOpcode    , PROCESS_LOCAL);
@@ -1105,12 +1108,14 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_REORDER_CHARACTERS,                              STATUS_AUTHED,      PROCESS_INPLACE,        &WorldSession::HandleReorderCharacters          , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_PLAYER_LOGIN,                                    STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandlePlayerLoginOpcode          , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_VIOLENCE_LEVEL,                                  STATUS_AUTHED,      PROCESS_INPLACE,        &WorldSession::HandleViolenceLevel              , PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_CHAR_RACE_OR_FACTION_CHANGE,                     STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharRaceOrFactionChange    , PROCESS_LOCAL);
+#endif
+
     DEFINE_OPCODE_HANDLER(CMSG_LOAD_SCREEN,                                     STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleLoadScreenOpcode           , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_ACCOUNT_DATA,                            STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleRequestAccountData         , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_UPDATE_ACCOUNT_DATA,                             STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleUpdateAccountData          , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_SET_DUNGEON_DIFFICULTY,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSetDungeonDifficultyOpcode , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_SET_RAID_DIFFICULTY,                             STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSetRaidDifficultyOpcode    , PROCESS_DISTANT_IF_NEED);
-    DEFINE_OPCODE_HANDLER(CMSG_AUTO_DECLINE_GUILD_INVITES,                      STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleAutoDeclineGuildInvites    , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_SHOWING_CLOAK,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleShowingCloakOpcode         , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_SHOWING_HELM,                                    STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleShowingHelmOpcode          , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_SET_ACTIVE_MOVER,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSetActiveMoverOpcode       , PROCESS_DISTANT_IF_NEED);
@@ -1139,12 +1144,16 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_SET_PLAYER_DECLINED_NAMES,                       STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleSetPlayerDeclinedNames     , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_SORT_BAGS,                                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSortBags                   , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_MOUNT_SET_FAVORITE,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMountSetFavoriteOpcode     , PROCESS_DISTANT_IF_NEED);
-    DEFINE_OPCODE_HANDLER(CMSG_CHAR_RENAME,                                     STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharRenameOpcode           , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_CHAR_CUSTOMIZE,                                  STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharCustomize              , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_CHAR_RACE_OR_FACTION_CHANGE,                     STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharRaceOrFactionChange    , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GET_MIRRORIMAGE_DATA,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMirrorImageDataRequest     , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_SHOW_TRADE_SKILL,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleShowTradeSkillOpcode       , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_RESEARCH_HISTORY,                        STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleArcheologyRequestHistory   , PROCESS_DISTANT_IF_NEED);
+
+#ifndef CROSS
+    DEFINE_OPCODE_HANDLER(CMSG_CHAR_RENAME,                                     STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharRenameOpcode           , PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_CHAR_CUSTOMIZE,                                  STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharCustomize              , PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_AUTO_DECLINE_GUILD_INVITES,                      STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleAutoDeclineGuildInvites    , PROCESS_DISTANT_IF_NEED);
+
+#endif
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1161,6 +1170,7 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Auction House
     //////////////////////////////////////////////////////////////////////////
+#ifndef CROSS
     DEFINE_OPCODE_HANDLER(CMSG_AUCTION_LIST_BIDDER_ITEMS,                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAuctionListBidderItems     , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_AUCTION_LIST_ITEMS,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAuctionListItems           , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_AUCTION_LIST_OWNER_ITEMS,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAuctionListOwnerItems      , PROCESS_LOCAL);
@@ -1168,6 +1178,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_AUCTION_PLACE_BID,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAuctionPlaceBid            , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_AUCTION_REMOVE_ITEM,                             STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAuctionRemoveItem          , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_AUCTION_SELL_ITEM,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAuctionSellItem            , PROCESS_LOCAL);
+#endif
 
     //////////////////////////////////////////////////////////////////////////
     /// Loot
@@ -1219,10 +1230,14 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_QUEST_POI_QUERY,                                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleQuestPOIQuery              , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_REALM_NAME_QUERY,                                STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleRealmQueryNameOpcode       , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_GAMEOBJECT_QUERY,                                STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleGameObjectQueryOpcode      , PROCESS_DISTANT_IF_NEED);
-    DEFINE_OPCODE_HANDLER(CMSG_PETITION_QUERY,                                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetitionQueryOpcode        , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_GUILD_INFO,                                STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleQueryGuildInfoOpcode       , PROCESS_DISTANT_IF_NEED);
+
+#ifndef CROSS
     DEFINE_OPCODE_HANDLER(CMSG_PAGE_TEXT_QUERY,                                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePageTextQueryOpcode        , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_ITEM_TEXT_QUERY,                                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleItemTextQuery              , PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PETITION_QUERY,                                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetitionQueryOpcode        , PROCESS_LOCAL);
+#endif
+
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -1539,6 +1554,7 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Guild
     //////////////////////////////////////////////////////////////////////////
+#ifndef CROSS
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_INVITE_BY_NAME,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildInviteByNameOpcode                   , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_ACCEPT_GUILD_INVITE,                             STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAcceptGuildInviteOpcode                   , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_DECLINE_INVITATION,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildDeclineInvitationsOpcode             , PROCESS_LOCAL);
@@ -1605,6 +1621,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_PETITION_SHOW_SIGNATURES,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetitionShowSignOpcode     , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_PETITION_SIGN,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetitionSignOpcode         , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_TURN_IN_PETITION,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleTurnInPetitionOpcode       , PROCESS_LOCAL);
+#endif
 
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet opcodes
@@ -1647,10 +1664,12 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Battle pay
     //////////////////////////////////////////////////////////////////////////
+#ifndef CROSS
     DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PAY_GET_PURCHASE_LIST,                    STATUS_LOGGEDIN,   PROCESS_INPLACE,         &WorldSession::HandleBattlepayGetPurchaseList    , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PAY_GET_PRODUCT_LIST_QUERY,               STATUS_LOGGEDIN,   PROCESS_THREADUNSAFE,    &WorldSession::HandleBattlepayGetProductListQuery, PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PAY_START_PURCHASE,                       STATUS_LOGGEDIN,   PROCESS_INPLACE,         &WorldSession::HandleBattlePayStartPurchase      , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PAY_CONFIRM_PURCHASE_RESPONSE,            STATUS_LOGGEDIN,   PROCESS_INPLACE,         &WorldSession::HandleBattlePayConfirmPurchase    , PROCESS_DISTANT_IF_NEED);
+#endif
 
     //////////////////////////////////////////////////////////////////////////
     /// LFG
@@ -1686,7 +1705,9 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Auction House
     //////////////////////////////////////////////////////////////////////////
+#ifndef CROSS
     DEFINE_OPCODE_HANDLER(CMSG_AUCTION_HELLO,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAuctionHelloOpcode         , PROCESS_LOCAL);
+#endif
 
     //////////////////////////////////////////////////////////////////////////
     /// Trainers
@@ -1710,15 +1731,17 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Mail
     //////////////////////////////////////////////////////////////////////////
-    DEFINE_OPCODE_HANDLER(CMSG_GET_MAIL_LIST,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGetMailList                , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_MAIL_CREATE_TEXT_ITEM,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMailCreateTextItem         , PROCESS_LOCAL);
+#ifndef CROSS
     DEFINE_OPCODE_HANDLER(CMSG_MAIL_DELETE,                                     STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMailDelete                 , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_MAIL_MARK_AS_READ,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMailMarkAsRead             , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_MAIL_RETURN_TO_SENDER,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMailReturnToSender         , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_MAIL_TAKE_ITEM,                                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMailTakeItem               , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_MAIL_TAKE_MONEY,                                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMailTakeMoney              , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_SEND_MAIL,                                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSendMail                   , PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_MAIL_TAKE_MONEY,                                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSendMail                   , PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_GET_MAIL_LIST,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMailTakeMoney              , PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_SEND_MAIL,                                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGetMailList                , PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_MAIL_CREATE_TEXT_ITEM,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMailCreateTextItem         , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_NEXT_MAIL_TIME,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleQueryNextMailTime          , PROCESS_LOCAL);
+#endif
 
     //////////////////////////////////////////////////////////////////////////
     /// Time
@@ -1728,10 +1751,12 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// GameMasters
     //////////////////////////////////////////////////////////////////////////
+#ifndef CROSS
     DEFINE_OPCODE_HANDLER(CMSG_GMSURVEY_SUBMIT,                                 STATUS_UNHANDLED,   PROCESS_THREADUNSAFE,   &WorldSession::HandleGMSurveySubmit             , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_GET_CASE_STATUS,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGMTicketGetWebTicketOpcode , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_SYSTEMSTATUS,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGMTicketSystemStatusOpcode , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GM_REPORT_LAG,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleReportLag                  , PROCESS_LOCAL);
+#endif
     DEFINE_OPCODE_HANDLER(CMSG_REPORT_BUG,                                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleReportBugOpcode            , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_REPORT_SUGGESTION,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleReportSuggestionOpcode     , PROCESS_LOCAL);
 
@@ -1745,6 +1770,7 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Calendar
     //////////////////////////////////////////////////////////////////////////
+#ifndef CROSS
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_ADD_EVENT,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarAddEvent            , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_COMPLAIN,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarComplain            , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_COPY_EVENT,                             STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarCopyEvent           , PROCESS_LOCAL);
@@ -1760,6 +1786,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_GUILD_FILTER,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarGuildFilter         , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_REMOVE_EVENT,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarRemoveEvent         , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_CALENDAR_UPDATE_EVENT,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarUpdateEvent         , PROCESS_LOCAL);
+#endif
 
     //////////////////////////////////////////////////////////////////////////
     /// Challenges
@@ -1772,9 +1799,11 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Blackmarket
     //////////////////////////////////////////////////////////////////////////
+#ifndef CROSS
     DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_OPEN,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketHello            , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_REQUEST_ITEMS,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketRequestItems     , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_PLACE_BID,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketBid              , PROCESS_LOCAL);
+#endif
 
     //////////////////////////////////////////////////////////////////////////
     /// Twitter

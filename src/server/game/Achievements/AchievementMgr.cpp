@@ -3927,9 +3927,9 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u additional achievement criteria data in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
+#ifndef CROSS
 void AchievementGlobalMgr::LoadCompletedAchievements()
 {
-#ifndef CROSS
     uint32 l_OldMSTime = getMSTime();
 
     QueryResult l_Result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
@@ -3962,8 +3962,8 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
     while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu completed achievements in %u ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(l_OldMSTime));
-#endif
 }
+#endif
 
 void AchievementGlobalMgr::LoadRewards()
 {

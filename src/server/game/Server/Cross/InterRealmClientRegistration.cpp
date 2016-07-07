@@ -1154,7 +1154,7 @@ void InterRealmClient::Handle_BattlefieldPort(WorldPacket& packet)
             /// This is still needed here if battleground "jumping" shouldn't add deserter debuff
             /// Also this is required to prevent stuck at old battleground after SetBattlegroundId set to new
             if (Battleground* currentBg = l_Player->GetBattleground())
-                currentBg->RemovePlayerAtLeave(l_Player->GetGUID());
+                currentBg->RemovePlayerAtLeave(l_Player->GetGUID(), true, false);
 
             /// Set the destination instance id
             l_Player->SetBattlegroundId(l_BG->GetInstanceID(), l_BGTypeID);

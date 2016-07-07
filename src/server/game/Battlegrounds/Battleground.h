@@ -28,7 +28,6 @@ class Unit;
 
 struct WorldSafeLocsEntry;
 
-#ifdef CROSS
 enum BattlegroundAreaIds
 {
     BATTLEGROUND_AB_ZONEID  = 3358,
@@ -51,7 +50,6 @@ enum BattlegroundAreaIds
     BATTLEGROUND_DG_ZONEID  = 6665,
 };
 
-#endif /* CROSS */
 #define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10
 
 namespace MS
@@ -1122,6 +1120,8 @@ class Battleground
 
         virtual void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket);
                                                             // can be extended in in BG subclass
+
+        virtual uint32 GetZoneId() { return 0; }
 
         void HandleTriggerBuff(uint64 go_guid);
         void SetHoliday(bool is_holiday);

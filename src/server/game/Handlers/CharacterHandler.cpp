@@ -81,9 +81,11 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADFROM, l_Statement);
 
-    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER);
+#ifndef CROSS
+    l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADGROUP, l_Statement);
+#endif
 
     l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_SEL_BOSS_LOOTED);
     l_Statement->setUInt32(0, l_LowGuid);
@@ -338,9 +340,9 @@ bool LoginQueryHolder::Initialize()
     return l_Result;
 }
 
+#ifndef CROSS
 void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
 {
-#ifndef CROSS
     uint32 l_CharacterCount             = 0;
     uint32 l_FactionChangeRestrictions  = 0;
 
@@ -395,12 +397,10 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
     trans->Append(stmt);
 
     LoginDatabase.CommitTransaction(trans);
-#endif
 }
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
 {
-#ifndef CROSS
     // remove expired bans
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
     CharacterDatabase.Execute(stmt);
@@ -416,12 +416,10 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
     stmt->setUInt32(1, GetAccountId());
 
     m_CharEnumCallback = CharacterDatabase.AsyncQuery(stmt);
-#endif
 }
 
 void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 {
-#ifndef CROSS
     uint32 l_CharacterNameLenght    = 0;
     uint32 l_TemplateSetID          = 0;
 
@@ -611,12 +609,10 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
     l_Stmt->setString(1, l_CharacterName);
 
     _charCreateCallback.SetFutureResult(CharacterDatabase.AsyncQuery(l_Stmt));
-#endif
 }
 
 void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, CharacterCreateInfo* createInfo)
 {
-#ifndef CROSS
     /** This is a series of callbacks executed consecutively as a result from the database becomes available.
         This is much more efficient than synchronous requests on packet handler, and much less DoS prone.
         It also prevents data syncrhonisation errors.
@@ -826,7 +822,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
         }
         break;
     }
-#endif
 }
 
 void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
@@ -928,6 +923,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
 
     LoginPlayer(l_PlayerGuid);
 }
+#endif
 
 void WorldSession::LoginPlayer(uint64 p_Guid)
 {
@@ -956,6 +952,7 @@ void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
     recvPacket.ReadBit();
 }
 
+#ifndef CROSS
 void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginDBQueryHolder* l_LoginHolder)
 {
     uint64 playerGuid = l_CharacterHolder->GetGuid();
@@ -1373,6 +1370,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     delete l_CharacterHolder;
     delete l_LoginHolder;
 }
+#endif
 
 void WorldSession::HandleSetFactionAtWar(WorldPacket& p_Packet)
 {
@@ -1472,13 +1470,13 @@ void WorldSession::HandleShowingHelmOpcode(WorldPacket& recvData)
     m_Player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
 }
 
-#ifndef CROSS
 void WorldSession::HandleShowingCloakOpcode(WorldPacket& recvData)
 {
     recvData.read_skip<uint8>(); // unknown, bool?
     m_Player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
 }
 
+#ifndef CROSS
 void WorldSession::HandleCharRenameOpcode(WorldPacket& p_RecvData)
 {
     uint64 l_Guid     = 0;
@@ -2734,14 +2732,3 @@ void WorldSession::HandleSuspendToken(WorldPacket& p_RecvData)
     m_Player->m_tokenCounter = l_Token;
     GetPlayer()->SendResumeToken(l_Token);
 }
-
-#ifdef CROSS
-void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
-{
-    sLog->outInfo(LOG_FILTER_GENERAL, "WORLD: Recvd CMSG_LOAD_SCREEN");
-    uint32 mapID;
-
-    recvPacket >> mapID;
-    recvPacket.ReadBit();
-}
-#endif

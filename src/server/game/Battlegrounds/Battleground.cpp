@@ -745,7 +745,7 @@ inline void Battleground::_ProcessLeave(uint32 diff)
 
             uint64 guid = itr->first;
 
-            RemovePlayerAtLeave(guid);// remove player from BG
+            RemovePlayerAtLeave(guid, true, false);// remove player from BG
              // do not change any battleground's private variables
 
             RemoveFromInterRealm(guid);
@@ -1336,7 +1336,6 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
 #ifdef CROSS
             player->SaveArenaData();
 #endif
-
             WorldPacket data;
             MS::Battlegrounds::PacketFactory::Status(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_NONE, player->GetBattlegroundQueueJoinTime(bgQueueTypeId), 0, 0, IsSkirmish());
             player->GetSession()->SendPacket(&data);

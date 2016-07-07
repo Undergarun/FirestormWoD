@@ -829,7 +829,7 @@ void InterRealmClient::Handle_SummonPlayer(WorldPacket& recvPacket)
 
     if (Battleground* bg = pPlayer->GetBattleground())
     {
-        bg->RemovePlayerAtLeave(playerGuid);
+        bg->RemovePlayerAtLeave(playerGuid, true, true);
         bg->RemoveFromInterRealm(playerGuid);
     }
 }
