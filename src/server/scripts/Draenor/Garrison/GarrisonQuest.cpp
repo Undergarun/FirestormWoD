@@ -286,7 +286,7 @@ namespace MS { namespace Garrison
         if (l_GarrisonMgr == nullptr)
             return;
 
-        if (l_GarrisonMgr->HasBuildingType(BuildingType::MageTower))
+        if (l_GarrisonMgr->HasBuildingType(Building::Type::MageTower))
         {
             if (p_Player->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestFrostfireRidge))
                 l_PhaseMask |= GarrisonPhases::PhaseMagePortalFrostfireRidge;
@@ -320,7 +320,7 @@ namespace MS { namespace Garrison
             return;
 
 
-        if (l_GarrisonMgr->HasBuildingType(BuildingType::MageTower))
+        if (l_GarrisonMgr->HasBuildingType(Building::Type::MageTower))
         {
             /// World Map Phases
             switch (p_Player->GetZoneId(true))
@@ -459,7 +459,7 @@ namespace MS { namespace Garrison
 
         if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
         {
-            if (l_GarrisonMgr->GetBuildingWithType(BuildingType::TradingPost).BuildingID)
+            if (l_GarrisonMgr->GetBuildingWithType(Building::Type::TradingPost).BuildingID)
             {
                 if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonTradingPostDailyRandomShipment))
                 {

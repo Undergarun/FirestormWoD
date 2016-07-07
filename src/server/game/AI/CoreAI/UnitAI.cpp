@@ -33,21 +33,24 @@ void UnitAI::DoMeleeAttackIfReady()
     if (me->HasUnitState(UNIT_STATE_CASTING))
         return;
 
-    Unit* victim = me->getVictim();
+    Unit* l_Victim = me->getVictim();
 
-    if (!me->IsWithinMeleeRange(victim))
+    if (l_Victim != nullptr && !l_Victim->isAlive())
+        return;
+
+    if (!me->IsWithinMeleeRange(l_Victim))
         return;
 
     /// Make sure our attack is ready and we aren't currently casting before checking distance
     if (me->isAttackReady())
     {
-        me->AttackerStateUpdate(victim);
+        me->AttackerStateUpdate(l_Victim);
         me->resetAttackTimer();
     }
 
     if (me->haveOffhandWeapon() && me->isAttackReady(WeaponAttackType::OffAttack))
     {
-        me->AttackerStateUpdate(victim, WeaponAttackType::OffAttack);
+        me->AttackerStateUpdate(l_Victim, WeaponAttackType::OffAttack);
         me->resetAttackTimer(WeaponAttackType::OffAttack);
     }
 }
@@ -80,9 +83,19 @@ Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float 
     return SelectTarget(targetType, position, DefaultTargetSelector(me, dist, playerOnly, aura));
 }
 
+Unit* UnitAI::SelectTarget(SelectAggroTarget p_TargetType, uint32 p_Position, float p_Dist, bool p_Player, std::vector<int32> p_ExcludeAuras)
+{
+    return SelectTarget(p_TargetType, p_Position, DefaultTargetSelector(me, p_Dist, p_Player, p_ExcludeAuras));
+}
+
 void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
 {
     SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura), num, targetType);
+}
+
+void UnitAI::SelectTargetList(std::list<Unit*>& p_TargetList, uint32 p_Num, SelectAggroTarget p_TargetType, float p_Dist, bool p_Player, std::vector<int32> p_ExcludeAuras)
+{
+    SelectTargetList(p_TargetList, DefaultTargetSelector(me, p_Dist, p_Player, p_ExcludeAuras), p_Num, p_TargetType);
 }
 
 Player* UnitAI::SelectRangedTarget(bool p_AllowHeal /*= true*/, int32 p_CheckAura /*= 0*/) const
@@ -161,6 +174,135 @@ Player* UnitAI::SelectMeleeTarget(bool p_AllowTank /*= false*/) const
     JadeCore::Containers::RandomResizeList(l_TargetList, 1);
 
     return l_TargetList.front();
+}
+
+Player* UnitAI::SelectPlayerTarget(eTargetTypeMask p_TypeMask, std::vector<int32> p_ExcludeAuras /*= { }*/, float p_Dist /*= 0.0f*/)
+{
+    std::list<HostileReference*> const& l_ThreatList = me->getThreatManager().getThreatList();
+    if (l_ThreatList.empty())
+        return nullptr;
+
+    std::list<Player*> l_TargetList;
+    for (HostileReference* l_Iter : l_ThreatList)
+    {
+        if (l_Iter->getTarget()->IsPlayer())
+            l_TargetList.push_back(l_Iter->getTarget()->ToPlayer());
+    }
+
+    if (l_TargetList.empty())
+        return nullptr;
+
+    l_TargetList.remove_if([&](Player* p_Player) -> bool
+    {
+        /// Doesn't allow tanks
+        if (!(p_TypeMask & eTargetTypeMask::TypeMaskTank))
+        {
+            if (p_Player->GetRoleForGroup() == Roles::ROLE_TANK)
+                return true;
+        }
+
+        /// Doesn't allow melee
+        if (!(p_TypeMask & eTargetTypeMask::TypeMaskMelee))
+        {
+            if (p_Player->IsMeleeDamageDealer())
+                return true;
+        }
+
+        /// Doesn't allow healer
+        if (!(p_TypeMask & eTargetTypeMask::TypeMaskHealer))
+        {
+            if (p_Player->GetRoleForGroup() == Roles::ROLE_HEALER)
+                return true;
+        }
+
+        /// Doesn't allow range
+        if (!(p_TypeMask & eTargetTypeMask::TypeMaskRanged))
+        {
+            if (p_Player->IsRangedDamageDealer(false))
+                return true;
+        }
+
+        for (int32 l_Aura : p_ExcludeAuras)
+        {
+            if (l_Aura > 0)
+            {
+                if (!p_Player->HasAura(l_Aura))
+                    return true;
+            }
+            else
+            {
+                if (p_Player->HasAura(-l_Aura))
+                    return true;
+            }
+        }
+
+        if (p_Dist > 0.0f && !me->IsWithinCombatRange(p_Player, p_Dist))
+            return true;
+
+        if (p_Dist < 0.0f && me->IsWithinCombatRange(p_Player, -p_Dist))
+            return true;
+
+        return false;
+    });
+
+    if (l_TargetList.empty())
+        return nullptr;
+
+    JadeCore::Containers::RandomResizeList(l_TargetList, 1);
+
+    return l_TargetList.front();
+}
+
+Player* UnitAI::SelectMainTank() const
+{
+    std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+    if (l_ThreatList.empty())
+        return nullptr;
+
+    l_ThreatList.remove_if([this](HostileReference* p_HostileRef) -> bool
+    {
+        Player* l_Player = p_HostileRef->getTarget()->ToPlayer();
+        if (l_Player == nullptr)
+            return true;
+
+        if (l_Player->GetRoleForGroup() != Roles::ROLE_TANK)
+            return true;
+
+        return false;
+    });
+
+    if (l_ThreatList.empty())
+        return nullptr;
+
+    l_ThreatList.sort(JadeCore::ThreatOrderPred());
+
+    return l_ThreatList.front()->getTarget()->ToPlayer();
+}
+
+Player* UnitAI::SelectOffTank() const
+{
+    std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+    if (l_ThreatList.empty())
+        return nullptr;
+
+    l_ThreatList.remove_if([this](HostileReference* p_HostileRef) -> bool
+    {
+        Player* l_Player = p_HostileRef->getTarget()->ToPlayer();
+        if (l_Player == nullptr)
+            return true;
+
+        if (l_Player->GetRoleForGroup() != Roles::ROLE_TANK)
+            return true;
+
+        return false;
+    });
+
+    if (l_ThreatList.empty())
+        return nullptr;
+
+    l_ThreatList.sort(JadeCore::ThreatOrderPred());
+
+    return l_ThreatList.back()->getTarget()->ToPlayer();
 }
 
 float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)

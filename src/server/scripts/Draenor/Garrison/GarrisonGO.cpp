@@ -457,7 +457,7 @@ namespace MS { namespace Garrison
         l_PackedValue |= ((uint64)*(uint32*)(&l_BaseX)) << 0;
         l_PackedValue |= ((uint64)*(uint32*)(&l_BaseY)) << 32;
 
-        std::vector<uint64> l_Creatures = l_Owner->GetGarrison()->GetBuildingCreaturesByBuildingType(BuildingType::Farm);
+        std::vector<uint64> l_Creatures = l_Owner->GetGarrison()->GetBuildingCreaturesByBuildingType(Building::Type::Farm);
 
         for (uint64 l_CreatureGUID : l_Creatures)
         {
@@ -504,7 +504,7 @@ namespace MS { namespace Garrison
         l_PackedValue |= ((uint64)*(uint32*)(&l_BaseX)) << 0;
         l_PackedValue |= ((uint64)*(uint32*)(&l_BaseY)) << 32;
 
-        std::vector<uint64> l_Creatures = l_Owner->GetGarrison()->GetBuildingCreaturesByBuildingType(BuildingType::Mine);
+        std::vector<uint64> l_Creatures = l_Owner->GetGarrison()->GetBuildingCreaturesByBuildingType(Building::Type::Mine);
 
         for (uint64 l_CreatureGUID : l_Creatures)
         {
@@ -859,13 +859,13 @@ namespace MS { namespace Garrison
             {
                 switch (l_Building.BuildingID)
                 {
-                    case Buildings::MageTower_SpiritLodge_Level1:
+                    case Building::ID::MageTower_SpiritLodge_Level1:
                         l_BuildingLevel = 1;
                         break;
-                    case Buildings::MageTower_SpiritLodge_Level2:
+                    case Building::ID::MageTower_SpiritLodge_Level2:
                         l_BuildingLevel = 2;
                         break;
-                    case Buildings::MageTower_SpiritLodge_Level3:
+                    case Building::ID::MageTower_SpiritLodge_Level3:
                         l_BuildingLevel = 3;
                         break;
                     default:

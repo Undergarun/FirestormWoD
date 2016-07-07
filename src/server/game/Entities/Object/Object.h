@@ -46,6 +46,7 @@ enum TypeMask
     TYPEMASK_CORPSE         = 0x0080,
     TYPEMASK_AREATRIGGER    = 0x0100,
     TYPEMASK_SCENEOBJECT    = 0x0200,
+    TYPEMASK_CONVERSATION   = 0x0400,
     TYPEMASK_SEER           = TYPEMASK_UNIT|TYPEMASK_DYNAMICOBJECT|TYPEMASK_DYNAMICOBJECT
 };
 
@@ -60,10 +61,11 @@ enum TypeID
     TYPEID_DYNAMICOBJECT = 6,
     TYPEID_CORPSE        = 7,
     TYPEID_AREATRIGGER   = 8,
-    TYPEID_SCENEOBJECT   = 9
+    TYPEID_SCENEOBJECT   = 9,
+    TYPEID_CONVERSATION  = 10
 };
 
-#define NUM_CLIENT_OBJECT_TYPES             10
+#define NUM_CLIENT_OBJECT_TYPES             11
 
 uint32 GuidHigh2TypeId(uint32 guid_hi);
 
@@ -272,7 +274,6 @@ class Object
 
         void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModInt32Value(uint16 index, int32 val, bool apply);
-        void ApplyModUInt64Value(uint16 index, int32 val, bool apply);
         void ApplyModPositiveFloatValue(uint16 index, float val, bool apply);
         void ApplyModSignedFloatValue(uint16 index, float val, bool apply);
 
@@ -366,6 +367,7 @@ class Object
         std::vector<uint32> const& GetDynamicValues(uint16 index) const;
         uint32 GetDynamicValue(uint16 index, uint16 secondIndex) const;
         void AddDynamicValue(uint16 index, uint32 value);
+        void AddDynamicGuidValue(uint16 p_Index, uint64 p_Guid);
         void RemoveDynamicValue(uint16 index, uint32 value);
         void ClearDynamicValue(uint16 index);
         void SetDynamicValue(uint16 index, uint8 offset, uint32 value);
@@ -403,6 +405,9 @@ class Object
         AreaTrigger* ToAreaTrigger() { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger*>(this); else return NULL; }
         AreaTrigger const* ToAreaTrigger() const { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger const*>(this); else return NULL; }
 
+        Conversation* ToConversation() { if (GetTypeId() == TypeID::TYPEID_CONVERSATION) return reinterpret_cast<Conversation*>(this); else return nullptr; }
+        Conversation const* ToConversation() const { if (GetTypeId() == TypeID::TYPEID_CONVERSATION) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
+
     protected:
         Object();
 
@@ -413,8 +418,6 @@ class Object
 
         uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
         uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
-
-        bool IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const;
 
         void BuildMovementUpdate(ByteBuffer * data, uint32 flags) const;
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;

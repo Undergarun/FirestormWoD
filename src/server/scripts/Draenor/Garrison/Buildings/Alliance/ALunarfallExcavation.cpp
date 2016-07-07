@@ -244,7 +244,7 @@ namespace MS { namespace Garrison
                             l_Creature->GetMotionMaster()->MoveRandom(7.0f);
                     }
 
-                    GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_GarrisonMgr->GetBuildingWithType(BuildingType::Mine).BuildingID);
+                    GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_GarrisonMgr->GetBuildingWithType(Building::Type::Mine).BuildingID);
                     Position l_Pos = *l_Owner;
 
                     if (l_BuildingEntry)

@@ -2173,6 +2173,16 @@ void ScriptMgr::OnPlayerBlock(Player* p_Player, Unit* p_Attacker)
     FOREACH_SCRIPT(PlayerScript)->OnBlock(p_Player, p_Attacker);
 }
 
+/// Called when player earn achievement
+/// @p_Player : Player instance
+/// @p_Attacker  : Achievement
+/// @p_SendAchievement : Set to false to cancel achievement earned
+/// @p_After : True when the hook is after achievement earned, else : false
+void ScriptMgr::OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement, bool p_After)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnAchievementEarned(p_Player, p_Achievement, p_SendAchievement, p_After);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
@@ -2433,7 +2443,7 @@ bool ScriptMgr::HasPlayerConditionScript(uint32 p_ID)
 /// @p_ConditionID : Condition ID
 /// @p_Condition   : Condition
 /// @p_Player      : Player instance
-bool ScriptMgr::EvalPlayerConditionScript(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player* p_Player)
+bool ScriptMgr::EvalPlayerConditionScript(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player const* p_Player)
 {
     auto l_Script = m_PlayerConditionScripts.Find(p_ConditionID);
 
@@ -2475,7 +2485,17 @@ bool ScriptMgr::BattlePayCanBuy(WorldSession* p_Session, Battlepay::Product cons
     return l_Script->CanBuy(p_Session, p_Product, p_Reason);
 }
 
-#endif /* not CROSS */
+std::string ScriptMgr::BattlePayGetCustomData(Battlepay::Product const& p_Product)
+{
+    auto l_Itr = m_BattlePayProductScripts.find(p_Product.ScriptName);
+    if (l_Itr == m_BattlePayProductScripts.end())
+        return "";
+
+    BattlePayProductScript* l_Script = l_Itr->second;
+    return l_Script->GetCustomData(p_Product);
+}
+#endif
+
 //////////////////////////////////////////////////////////////////////////
 /// EncounterScripts
 void ScriptMgr::OnEncounterEnd(EncounterDatas const* p_EncounterDatas)

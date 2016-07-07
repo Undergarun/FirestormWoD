@@ -184,7 +184,7 @@ namespace MS { namespace Garrison
             /// Returns error message of upgrade attempt
             SpellCastResult CanUpgradeItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo) const;
             /// Upgrades follower with spell
-            void UpgradeFollowerItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo);
+            void UpgradeFollowerItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo, SpellEffIndex p_EffIndex);
             /// Check if any followers has ability in parameter
             bool HasFollowerAbility(uint32 p_AbilityID) const;
 
@@ -226,9 +226,9 @@ namespace MS { namespace Garrison
             /// Has active building
             bool HasActiveBuilding(uint32 p_BuildingID) const;
             /// Has building type
-            bool HasBuildingType(BuildingType::Type p_BuildingType, bool p_DontNeedActive = false) const;
+            bool HasBuildingType(Building::Type p_BuildingType, bool p_DontNeedActive = false) const;
             /// Get building with type
-            GarrisonBuilding GetBuildingWithType(BuildingType::Type p_BuildingType, bool p_DontNeedActive = false) const;
+            GarrisonBuilding GetBuildingWithType(Building::Type p_BuildingType, bool p_DontNeedActive = false) const;
             /// Get Level of the building
             uint32 GetBuildingLevel(GarrisonBuilding p_Building) const;
             /// Get building max work order
@@ -266,7 +266,7 @@ namespace MS { namespace Garrison
             void SetBuildingGatheringData(uint32 p_PlotInstanceID, std::string p_Data);
             /// Get list of creature in a specific building type
             /// @p_Type : Building type
-            std::vector<uint64> GetBuildingCreaturesByBuildingType(BuildingType::Type p_Type);
+            std::vector<uint64> GetBuildingCreaturesByBuildingType(Building::Type p_Type);
             /// Get Garrison ID
             uint32 GetGarrisonID() { return m_ID; };
             /// Get Garrison Level
@@ -301,6 +301,8 @@ namespace MS { namespace Garrison
             /// Update mission distribution
             void UpdateMissionDistribution(bool p_Force = false, uint32 p_ForcedCount = 0);
 
+            bool EvaluateMissionConditions(GarrMissionEntry const* p_Entry);
+
             /// Renames the specified follower
             bool RenameFollower(uint32 p_DatabaseID, std::string p_FollowerName);
 
@@ -309,6 +311,10 @@ namespace MS { namespace Garrison
 
             /// Gets the follower count of specified type
             uint32 GetTotalFollowerCount(uint32 p_Type);
+
+            uint32 GetActiveFollowersCount(uint32 p_Type);
+
+            uint32 GetFollowersCountBarracksBonus();
 
             /// Sends a packet to owner
             void SendPacketToOwner(WorldPacket* p_Data);
@@ -320,7 +326,7 @@ namespace MS { namespace Garrison
             uint32 GenerateCrewAbilityIdForShip(GarrisonFollower const& p_Follower);
 
             /// Generate random NPC Ability
-            uint32 GenerateRandomAbility();
+            uint32 GenerateRandomAbility(uint32 p_FollowerID);
 
             /// Generate random trait
             uint32 GenerateRandomTrait(uint32 p_Type, std::vector<uint32> const& p_KnownAbilities);
@@ -440,7 +446,7 @@ namespace MS { namespace Garrison
             std::map<uint32, uint64>                m_PlotsWorkOrderGob;
             std::map<uint32, std::vector<uint64>>   m_PlotsGameObjects;
             std::map<uint32, std::vector<uint64>>   m_PlotsCreatures;
-            std::map<uint32, uint32>                m_LastPlotBuildingType; ///< <PlotID, BuildingType>
+            std::map<uint32, Building::Type>          m_LastPlotBuildingType; ///< <PlotID, BuildingType>
 
             Interfaces::GarrisonSite* m_GarrisonScript;
 

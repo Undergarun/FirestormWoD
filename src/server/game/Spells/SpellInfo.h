@@ -72,6 +72,7 @@ enum SpellTargetSelectionCategories
     TARGET_SELECT_CATEGORY_NEARBY,
     TARGET_SELECT_CATEGORY_CONE,
     TARGET_SELECT_CATEGORY_AREA,
+    TARGET_SELECT_CATEGORY_CYLINDER
 };
 
 enum SpellTargetReferenceTypes
@@ -394,7 +395,6 @@ public:
     int32  EquippedItemSubClassMask;
     int32  EquippedItemInventoryTypeMask;
     uint32 TotemCategory[2];
-    uint32 SpellVisual[MAX_SPELL_VISUAL];
     uint32 SpellIconID;
     uint32 ActiveIconID;
     char* SpellName;
@@ -436,7 +436,6 @@ public:
     SpellChainNode const* ChainEntry;
     std::list<SpellPowerEntry const*> SpellPowers;
     uint32 ResearchProject;
-    uint32 FirstSpellXSpellVisualID;
     uint8 EffectCount;
 
     // SpecializationSpellEntry
@@ -448,6 +447,8 @@ public:
 
     // Difficulty
     uint32 DifficultyID;
+
+    SpellVisualMap m_SpellVisuals;
 
     // struct access functions
     SpellTargetRestrictionsEntry const* GetSpellTargetRestrictions() const;
@@ -484,15 +485,14 @@ public:
     bool IsExplicitDiscovery() const;
     bool IsLootCrafting() const;
     bool IsQuestTame() const;
-    bool IsProfessionOrRiding() const;
     bool IsProfession() const;
     bool IsPrimaryProfession() const;
     bool IsPrimaryProfessionFirstRank() const;
-    bool IsAbilityLearnedWithProfession() const;
     bool IsAbilityOfSkillType(uint32 skillType) const;
 
     bool IsAffectingArea() const;
     bool IsTargetingArea() const;
+    bool IsTargetingFollower() const;
     bool NeedsExplicitUnitTarget() const;
     bool NeedsToBeTriggeredByCaster() const;
 
@@ -666,6 +666,9 @@ public:
     bool IsAffectedByWodAuraSystem() const;
     bool IsAuraNeedDynamicCalculation() const;
     bool IsAuraNeedPandemicEffect() const;
+
+    uint32 GetSpellXSpellVisualId(Unit const* p_Caster = nullptr) const;
+    uint32 GetSpellVisualID(Unit const* p_caster) const;
 };
 
 #endif // _SPELLINFO_H

@@ -59,7 +59,7 @@ public:
         };
         static ChatCommand reloadCommandTable[] =
         {
-            { "auctions",                     SEC_ADMINISTRATOR, true,  &HandleReloadAuctionsCommand,                   "", NULL },
+            { "auctions", SEC_ADMINISTRATOR, true, &HandleReloadAuctionsCommand, "", NULL },
             { "access_requirement",           SEC_ADMINISTRATOR, true,  &HandleReloadAccessRequirementCommand,          "", NULL },
             { "lfr_access_requirement",       SEC_ADMINISTRATOR, true,  &HandleReloadLFRAccessRequirementCommand,       "", NULL },
             { "lfg_entrances",                SEC_ADMINISTRATOR, true,  &HandleReloadLFGEntrancesCommand,               "", NULL },
@@ -158,6 +158,7 @@ public:
             { "areatrigger_template",         SEC_ADMINISTRATOR, true,  &HandleReloadAreatriggerTemplateCommand,        "", NULL },
             { "areatrigger_move",             SEC_ADMINISTRATOR, true,  &HandleReloadAreatriggerMoveCommand,            "", NULL },
             { "disabled_ranking",             SEC_ADMINISTRATOR, true,  &HandleReloadDisabledRankingCommand,            "", NULL },
+            { "conversation",                 SEC_ADMINISTRATOR, true,  &HandleReloadConversationsCommand,              "", NULL },
             { NULL,                           0,                 false, NULL,                                           "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -166,6 +167,13 @@ public:
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;
+    }
+
+    static bool HandleReloadConversationsCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
+    {
+        sObjectMgr->LoadConversationTemplates();
+        p_Handler->SendGlobalGMSysMessage("DB tables `conversation_template` and `conversation_lines`s reloaded.");
+        return true;
     }
 
     static bool HandleReloadDisabledRankingCommand(ChatHandler* p_Handler, char const* /*p_Args*/)

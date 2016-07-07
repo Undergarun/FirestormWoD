@@ -823,6 +823,23 @@ namespace ItemBonus
     using Group = std::map<uint32, GroupContainer>;
 }
 
+struct ConversationLine
+{
+    uint32 LineID;
+    uint32 BroadcastTextID;
+    uint32 UnkValue;
+    uint32 Timer;
+    uint32 Type;
+};
+
+struct ConversationTemplate
+{
+    uint32 Entry;
+    uint32 Duration;
+    std::vector<uint32> Actors;
+    std::vector<ConversationLine> Lines;
+};
+
 typedef std::vector<HotfixInfo> HotfixData;
 typedef std::map<uint32, uint32> QuestObjectiveLookupMap;
 typedef std::vector<GuildChallengeReward> GuildChallengeRewardData;
@@ -1778,6 +1795,16 @@ class ObjectMgr
             return true;
         }
 
+        void LoadConversationTemplates();
+        ConversationTemplate const* GetConversationTemplate(uint32 p_Entry) const
+        {
+            auto l_Iter = m_ConversationTemplates.find(p_Entry);
+            if (l_Iter == m_ConversationTemplates.end())
+                return nullptr;
+
+            return &(*l_Iter).second;
+        }
+
     private:
 
 #ifndef CROSS
@@ -1812,6 +1839,7 @@ class ObjectMgr
         std::atomic<unsigned int> m_GarrisonWorkOrderID;
         std::atomic<unsigned int> m_HiVignetteGuid;
         std::atomic<unsigned int> m_StandaloneSceneInstanceID;
+        std::atomic<unsigned int> m_HighConversationGuid;
 
 #ifdef CROSS
         std::atomic<unsigned int> m_HighItemGuid;
@@ -1891,6 +1919,9 @@ class ObjectMgr
         NpcRecipesContainer _NpcRecipesConditions;
 
         ItemBonus::Group m_ItemBonusGroupStore;
+
+        typedef std::unordered_map<uint32, ConversationTemplate> ConversationTemplateContainer;
+        ConversationTemplateContainer m_ConversationTemplates;
 
     private:
         CharacterTemplates m_CharacterTemplatesStore;

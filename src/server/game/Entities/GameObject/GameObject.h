@@ -44,6 +44,8 @@ struct GameObjectTemplate
     float   size;
     uint32  questItems[MAX_GAMEOBJECT_QUEST_ITEMS];
     int32   unkInt32;
+    uint32  WorldEffectID;
+
     union                                                   // different GO types have different data field
     {
         //0 GAMEOBJECT_TYPE_DOOR
@@ -1157,6 +1159,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         uint32 GetCustomFlags() const { return m_CustomFlags; }
 
+        void SetRotationQuat(float p_QX, float p_QY, float p_QZ, float p_QW);
+
         void SendGameObjectActivateAnimKit(uint32 p_AnimKitID, bool p_Maintain = true, Player* p_Target = nullptr);
 
         /// Event handler
@@ -1197,7 +1201,6 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
     private:
         void RemoveFromOwner();
         void SwitchDoorOrButton(bool activate, bool alternative = false);
-        void SetRotationQuat(float p_QX, float p_QY, float p_QZ, float p_QW);
 
         //! Object distance/size - overridden from Object::_IsWithinDist. Needs to take in account proper GO size.
         bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool /*is3D*/) const

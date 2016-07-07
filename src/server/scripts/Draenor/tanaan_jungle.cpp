@@ -1159,7 +1159,7 @@ class playerScript_add_tanaan_for_max_level : public PlayerScript
 
         void OnLogin(Player* p_Player) override
         {
-            if (p_Player->GetMapId() != TanaanZones::MapTanaan && p_Player->getLevel() == 100 && p_Player->GetQuestStatus(TanaanQuests::QuestStartDraenor) == QUEST_STATUS_NONE)
+            if (p_Player->getLevel() >= 90 && p_Player->GetQuestStatus(TanaanQuests::QuestStartDraenor) == QUEST_STATUS_NONE)
             {
                 if (const Quest* l_StartDraenor = sObjectMgr->GetQuestTemplate(TanaanQuests::QuestStartDraenor))
                     p_Player->AddQuest(l_StartDraenor, nullptr);
@@ -3731,16 +3731,12 @@ class npc_tanaan_khadgar_final : public CreatureScript
                     Position l_Pos;
                     p_Player->GetPosition(&l_Pos);
 
-#ifndef CROSS
-                    if (Quest const* l_QuestTemplate = sObjectMgr->GetQuestTemplate(33868)) ///< Home of the Frostwolves
+                    if (Quest const* l_QuestTemplate = sObjectMgr->GetQuestTemplate(34575)) ///< Step Three: Prophet!
                         p_Player->AddQuest(l_QuestTemplate, p_Player);
 
-#endif /* not CROSS */
                     if (g_SceneAllianceBoatPlayerScript)
                         g_SceneAllianceBoatPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneAllianceBoat, 63, l_Pos);
-#ifndef CROSS
 
-#endif /* not CROSS */
                     break;
                 }
                 case TanaanQuests::QuestTheHomeStretchHorde:
@@ -3748,16 +3744,12 @@ class npc_tanaan_khadgar_final : public CreatureScript
                     Position l_Pos;
                     p_Player->GetPosition(&l_Pos);
 
-#ifndef CROSS
-                    if (Quest const* l_QuestTemplate = sObjectMgr->GetQuestTemplate(34575)) ///< Step Three: Prophet!
+                    if (Quest const* l_QuestTemplate = sObjectMgr->GetQuestTemplate(33868)) ///< Home of the Frostwolves
                         p_Player->AddQuest(l_QuestTemplate, p_Player);
 
-#endif /* not CROSS */
                     if (g_SceneHordeBoatPlayerScript)
                         g_SceneHordeBoatPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneHordeBoat, 63, l_Pos);
-#ifndef CROSS
 
-#endif /* not CROSS */
                     break;
                 }
                 default:

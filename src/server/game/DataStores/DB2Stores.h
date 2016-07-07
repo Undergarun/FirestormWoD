@@ -18,6 +18,7 @@ extern std::map<uint32, DB2StorageBase*> sDB2PerHash;
 extern std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
 extern std::map<uint32, uint32> g_ItemDisplayIDs;
 extern std::map<uint32, uint32> g_ItemTemplateDisplayIDs;
+extern std::map<uint32, uint32> g_FollowerAbilitiesClass;
 
 extern DB2Storage <AchievementEntry>                sAchievementStore;
 extern DB2Storage <CriteriaEntry>                   sCriteriaStore;

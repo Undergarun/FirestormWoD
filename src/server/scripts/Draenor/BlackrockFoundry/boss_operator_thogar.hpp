@@ -1108,6 +1108,10 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
             if (l_Wheels == nullptr)
                 return;
 
+            InstanceScript* l_InstanceScript = l_Wheels->GetInstanceScript();
+            if (l_InstanceScript == nullptr)
+                return;
+
             int8 l_SeatID = 0;
             if (Creature* l_Engine = l_Summoner->SummonCreature(l_TrainDatas.EngineEntry, l_Pos))
             {
@@ -1137,7 +1141,7 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
                     ApplyPassengerFlags(l_Waggon);
 
                     uint64 l_WagonGuid = l_Waggon->GetGUID();
-                    l_InstanceScript->AddTimedDelayedOperation(10, [l_InstanceScript, l_SeatID, l_WaggonData, l_TrainDatas, l_Pos, l_SummonerGuid, l_WheelsGuid, l_WagonGuid]() -> void
+                    l_InstanceScript->AddTimedDelayedOperation(10, [l_SeatID, l_WaggonData, l_TrainDatas, l_Pos, l_SummonerGuid, l_WheelsGuid, l_WagonGuid]() -> void
                     {
                         Creature* l_Summoner = sObjectAccessor->FindCreature(l_SummonerGuid);
                         if (l_Summoner == nullptr)
@@ -1145,6 +1149,10 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
 
                         Creature* l_Wheels = sObjectAccessor->FindCreature(l_WheelsGuid);
                         if (l_Wheels == nullptr)
+                            return;
+
+                        InstanceScript* l_InstanceScript = l_Wheels->GetInstanceScript();
+                        if (l_InstanceScript == nullptr)
                             return;
 
                         Creature* l_Waggon = sObjectAccessor->FindCreature(l_WagonGuid);
@@ -1178,7 +1186,7 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
                                         return;
 
                                     Creature* l_Passenger = sObjectAccessor->FindCreature(l_PassengerGuid);
-                                    if (l_Waggon == nullptr)
+                                    if (l_Passenger == nullptr)
                                         return;
 
                                     l_Passenger->EnterVehicle(l_Waggon, l_OtherSeatID);

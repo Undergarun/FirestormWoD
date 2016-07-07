@@ -259,7 +259,8 @@ ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
     _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), _hiCharGuid(1),
 #endif /* CROSS */
     _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1),
-    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), m_HiVignetteGuid(1), _skipUpdateCount(1)
+    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), m_HiVignetteGuid(1), _skipUpdateCount(1),
+    m_HighConversationGuid(1)
 {
 #ifndef CROSS
     m_HighItemGuid     = 1;
@@ -2456,26 +2457,26 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
 
     static float const qualityMultipliers[MAX_ITEM_QUALITY] =
     {
-        1.0f, 1.0f, 1.0f, 1.17f, 1.37f, 1.68f, 0.0f, 0.0f
+        0.92f, 0.92f, 0.92f, 1.11f, 1.32f, 1.61f, 0.0f, 0.0f
     };
 
     static float const armorMultipliers[MAX_INVTYPE] =
     {
         0.00f, // INVTYPE_NON_EQUIP
-        0.59f, // INVTYPE_HEAD
+        0.60f, // INVTYPE_HEAD
         0.00f, // INVTYPE_NECK
-        0.59f, // INVTYPE_SHOULDERS
+        0.60f, // INVTYPE_SHOULDERS
         0.00f, // INVTYPE_BODY
         1.00f, // INVTYPE_CHEST
-        0.35f, // INVTYPE_WAIST
-        0.75f, // INVTYPE_LEGS
-        0.49f, // INVTYPE_FEET
-        0.35f, // INVTYPE_WRISTS
-        0.35f, // INVTYPE_HANDS
+        0.33f, // INVTYPE_WAIST
+        0.72f, // INVTYPE_LEGS
+        0.48f, // INVTYPE_FEET
+        0.33f, // INVTYPE_WRISTS
+        0.33f, // INVTYPE_HANDS
         0.00f, // INVTYPE_FINGER
         0.00f, // INVTYPE_TRINKET
         0.00f, // INVTYPE_WEAPON
-        1.00f, // INVTYPE_SHIELD
+        0.72f, // INVTYPE_SHIELD
         0.00f, // INVTYPE_RANGED
         0.00f, // INVTYPE_CLOAK
         0.00f, // INVTYPE_2HWEAPON
@@ -2494,27 +2495,27 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
 
     static float const weaponMultipliers[MAX_ITEM_SUBCLASS_WEAPON] =
     {
-        0.89f, // ITEM_SUBCLASS_WEAPON_AXE
-        1.03f, // ITEM_SUBCLASS_WEAPON_AXE2
-        0.77f, // ITEM_SUBCLASS_WEAPON_BOW
-        0.77f, // ITEM_SUBCLASS_WEAPON_GUN
-        0.89f, // ITEM_SUBCLASS_WEAPON_MACE
-        1.03f, // ITEM_SUBCLASS_WEAPON_MACE2
-        1.03f, // ITEM_SUBCLASS_WEAPON_POLEARM
-        0.89f, // ITEM_SUBCLASS_WEAPON_SWORD
-        1.03f, // ITEM_SUBCLASS_WEAPON_SWORD2
+        0.91f, // ITEM_SUBCLASS_WEAPON_AXE
+        1.00f, // ITEM_SUBCLASS_WEAPON_AXE2
+        1.00f, // ITEM_SUBCLASS_WEAPON_BOW
+        1.00f, // ITEM_SUBCLASS_WEAPON_GUN
+        0.91f, // ITEM_SUBCLASS_WEAPON_MACE
+        1.00f, // ITEM_SUBCLASS_WEAPON_MACE2
+        1.00f, // ITEM_SUBCLASS_WEAPON_POLEARM
+        0.91f, // ITEM_SUBCLASS_WEAPON_SWORD
+        1.00f, // ITEM_SUBCLASS_WEAPON_SWORD2
         0.00f, // ITEM_SUBCLASS_WEAPON_Obsolete
-        1.03f, // ITEM_SUBCLASS_WEAPON_STAFF
+        1.00f, // ITEM_SUBCLASS_WEAPON_STAFF
         0.00f, // ITEM_SUBCLASS_WEAPON_EXOTIC
         0.00f, // ITEM_SUBCLASS_WEAPON_EXOTIC2
-        0.64f, // ITEM_SUBCLASS_WEAPON_FIST_WEAPON
+        0.66f, // ITEM_SUBCLASS_WEAPON_FIST_WEAPON
         0.00f, // ITEM_SUBCLASS_WEAPON_MISCELLANEOUS
-        0.64f, // ITEM_SUBCLASS_WEAPON_DAGGER
-        0.64f, // ITEM_SUBCLASS_WEAPON_THROWN
+        0.66f, // ITEM_SUBCLASS_WEAPON_DAGGER
+        0.00f, // ITEM_SUBCLASS_WEAPON_THROWN
         0.00f, // ITEM_SUBCLASS_WEAPON_SPEAR
-        0.77f, // ITEM_SUBCLASS_WEAPON_CROSSBOW
-        0.64f, // ITEM_SUBCLASS_WEAPON_WAND
-        0.64f, // ITEM_SUBCLASS_WEAPON_FISHING_POLE
+        1.00f, // ITEM_SUBCLASS_WEAPON_CROSSBOW
+        0.66f, // ITEM_SUBCLASS_WEAPON_WAND
+        0.66f, // ITEM_SUBCLASS_WEAPON_FISHING_POLE
     };
 
     float levelPenalty = 1.0f;
@@ -2526,10 +2527,10 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
         if (inventoryType > INVTYPE_ROBE)
             return 0;
 
-        return 5 * uint32(23.0f * qualityMultipliers[quality] * armorMultipliers[inventoryType] * levelPenalty + 0.5f);
+        return 5 * uint32(round(25.0f * qualityMultipliers[quality] * armorMultipliers[inventoryType] * levelPenalty));
     }
 
-    return 5 * uint32(17.0f * qualityMultipliers[quality] * weaponMultipliers[itemSubClass] * levelPenalty + 0.5f);
+    return 5 * uint32(round(18.0f * qualityMultipliers[quality] * weaponMultipliers[itemSubClass] * levelPenalty));
 };
 
 void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill, ItemTemplate const& itemTemplate)
@@ -4710,17 +4711,17 @@ void ObjectMgr::LoadBonusQuests()
 {
     for (uint32 l_I = 0; l_I < sCriteriaStore.GetNumRows(); ++l_I)
     {
-        const CriteriaEntry * l_Criteria = sCriteriaStore.LookupEntry(l_I);
+        CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(l_I);
 
         if (!l_Criteria || l_Criteria->Type != ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST)
             continue;
 
-        const QuestV2CliTaskEntry * l_QuestV2CliTask = sQuestV2CliTaskStore.LookupEntry(l_Criteria->complete_quest.questID);
+        const QuestV2CliTaskEntry* l_QuestV2CliTask = sQuestV2CliTaskStore.LookupEntry(l_Criteria->complete_quest.questID);
 
         if (!l_QuestV2CliTask)
             continue;
 
-        const Quest * l_Quest = GetQuestTemplate(l_Criteria->complete_quest.questID);
+        Quest const* l_Quest = GetQuestTemplate(l_Criteria->complete_quest.questID);
         
         if (!l_Quest || l_Quest->Method != QUEST_METHOD_AUTO_SUBMITED || !(l_Quest->GetZoneOrSort() > 0))
             continue;
@@ -4731,7 +4732,7 @@ void ObjectMgr::LoadBonusQuests()
         {
             for (QuestPOIVector::const_iterator l_It = l_POIs->begin(); l_It != l_POIs->end(); ++l_It)
             {
-                const QuestObjective * l_Objective = l_Quest->GetQuestObjectiveXIndex(l_It->ObjectiveIndex);
+                QuestObjective const* l_Objective = l_Quest->GetQuestObjectiveXIndex(l_It->ObjectiveIndex);
 
                 int32 l_MinX = 0, l_MinY = 0, l_MaxX = 0, l_MaxY = 0;
                 bool l_FirstIter = true;
@@ -5695,6 +5696,8 @@ void ObjectMgr::LoadGossipText()
         }
 
         GossipText& gText = _gossipTextStore[Text_ID];
+
+        gText.SoundID = fields[cic++].GetUInt32();
 
         for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; i++)
         {
@@ -7005,6 +7008,11 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             ASSERT(_hiMoTransGuid < 0xFFFFFFFE && "MO Transport guid overflow!");
             return _hiMoTransGuid++;
         }
+        case HIGHGUID_CONVERSATION:
+        {
+            ASSERT(m_HighConversationGuid < 0xFFFFFFFE && "Conversation guid overflow!");
+            return m_HighConversationGuid++;
+        }
         default:
             ASSERT(false && "ObjectMgr::GenerateLowGuid - Unknown HIGHGUID type");
             return 0;
@@ -7113,8 +7121,8 @@ void ObjectMgr::LoadGameObjectTemplate()
                                              "questItem4, questItem5, questItem6, data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, "
     //                                          29      30      31      32      33      34      35      36      37      38      39      40      41      42      43      44
                                              "data13, data14, data15, data16, data17, data18, data19, data20, data21, data22, data23, data24, data25, data26, data27, data28, "
-    //                                          45      46      47       48       49        50      51
-                                             "data29, data30, data31,  data32, unkInt32, AIName, ScriptName "
+    //                                          45      46      47       48       49        50            51        52
+                                             "data29, data30, data31,  data32, unkInt32, WorldEffectID, AIName, ScriptName "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -7151,8 +7159,9 @@ void ObjectMgr::LoadGameObjectTemplate()
             got.raw.data[i] = fields[16 + i].GetUInt32();
 
         got.unkInt32 = fields[49].GetInt32();
-        got.AIName = fields[50].GetString();
-        got.ScriptId = GetScriptId(fields[51].GetCString());
+        got.WorldEffectID = fields[50].GetUInt32();
+        got.AIName = fields[51].GetString();
+        got.ScriptId = GetScriptId(fields[52].GetCString());
 
         // Checks
 
@@ -11284,4 +11293,73 @@ void ObjectMgr::LoadDisabledEncounters()
     while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u disabled ranking in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadConversationTemplates()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    /// For reload case
+    m_ConversationTemplates.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT Entry, Duration, ActorsCount, Actors FROM conversation_template");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 conversation template. DB table `conversation_template` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        ConversationTemplate l_Conversation;
+
+        Field* l_Fields             = l_Result->Fetch();
+        uint8 l_Index               = 0;
+
+        l_Conversation.Entry        = l_Fields[l_Index++].GetUInt32();
+        l_Conversation.Duration     = l_Fields[l_Index++].GetUInt32();
+
+        uint32 l_ActorsCount        = l_Fields[l_Index++].GetUInt32();
+
+        Tokenizer l_Tokens(l_Fields[l_Index++].GetString(), ' ', l_ActorsCount);
+
+        if (l_Tokens.size() == l_ActorsCount)
+        {
+            for (uint8 l_I = 0; l_I < l_Tokens.size(); ++l_I)
+                l_Conversation.Actors.push_back(uint32(atoi(l_Tokens[l_I])));
+        }
+
+        QueryResult l_LinesResult = WorldDatabase.PQuery("SELECT LineID, BroadcastTextID, UnkValue, Timer, Type FROM conversation_lines WHERE Entry = %u", l_Conversation.Entry);
+
+        /// Conversation with no lines must not be loaded
+        if (!l_LinesResult)
+        {
+            sLog->outError(LogFilterType::LOG_FILTER_SERVER_LOADING, "Conversation %u doesn't have any record in conversation_lines!", l_Conversation.Entry);
+            continue;
+        }
+
+        do
+        {
+            ConversationLine l_ConversationLine;
+
+            l_Fields                            = l_LinesResult->Fetch();
+            l_Index                             = 0;
+            l_ConversationLine.LineID           = l_Fields[l_Index++].GetUInt32();
+            l_ConversationLine.BroadcastTextID  = l_Fields[l_Index++].GetUInt32();
+            l_ConversationLine.UnkValue         = l_Fields[l_Index++].GetUInt32();
+            l_ConversationLine.Timer            = l_Fields[l_Index++].GetUInt32();
+            l_ConversationLine.Type             = l_Fields[l_Index++].GetUInt32();
+
+            l_Conversation.Lines.push_back(l_ConversationLine);
+        }
+        while (l_LinesResult->NextRow());
+
+        m_ConversationTemplates.insert(std::make_pair(l_Conversation.Entry, l_Conversation));
+
+        l_Count++;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u conversation templates in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }

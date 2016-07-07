@@ -66,7 +66,7 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
     public:
         BattlePay_Profession(std::string p_ScriptName) : BattlePayProductScript(p_ScriptName) {}
 
-        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& /*p_Product*/)
+        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product) override
         {
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
@@ -97,7 +97,7 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
             l_Player->SaveToDB();
         }
 
-        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& /*p_Product*/, std::string& p_Reason)
+        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& /*p_Product*/, std::string& p_Reason) override
         {
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
@@ -130,7 +130,13 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
 
             return true;
         }
+
+        std::string GetCustomData(Battlepay::Product const& /*p_Product*/) override
+        {
+            return "{\\\"skill_id\\\": " + std::to_string(t_SkillID) + "}";
+        }
 };
+
 #ifndef __clang_analyzer__
 void AddSC_BattlePay_Professions()
 {

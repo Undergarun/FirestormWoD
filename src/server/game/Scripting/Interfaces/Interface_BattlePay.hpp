@@ -46,6 +46,12 @@ class BattlePayProductScript : public ScriptObjectImpl<false>
 
             return true;
         }
+
+        virtual std::string GetCustomData(Battlepay::Product const& p_Product)
+        {
+            UNUSED(p_Product);
+            return "";
+        }
 };
 
 #endif  ///< SCRIPTING_INTERFACES_BATTLEPAY_HPP_INCLUDED

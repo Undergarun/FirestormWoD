@@ -1,0 +1,2 @@
+DELETE FROM spell_script_names WHERE spell_id = 119032 AND ScriptName = "spell_pal_seal_of_insight_proc";
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '20165','spell_pal_seal_of_insight_proc');

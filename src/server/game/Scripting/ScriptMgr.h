@@ -890,6 +890,13 @@ class ScriptMgr
         /// @p_Attacker  : Damage Infos
         void OnPlayerBlock(Player* p_Player, Unit* p_Attacker);
 
+        /// Called when player earn achievement
+        /// @p_Player : Player instance
+        /// @p_Attacker  : Achievement
+        /// @p_SendAchievement : Set to false to cancel achievement earned
+        /// @p_After : True when the hook is after achievement earned, else : false
+        void OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement, bool p_After);
+
     /// BattlegroundScript
     public:
         /// Should return a fully valid Battleground object for the type ID.
@@ -987,7 +994,7 @@ class ScriptMgr
         /// @p_ConditionID : Condition ID
         /// @p_Condition   : Condition
         /// @p_Player      : Player instance
-        bool EvalPlayerConditionScript(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player* p_Player);
+        bool EvalPlayerConditionScript(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player const* p_Player);
 
 #ifndef CROSS
     /// Battle Pay product scripts
@@ -995,6 +1002,7 @@ class ScriptMgr
         void RegisterBattlePayProductScript(std::string p_ScriptName, BattlePayProductScript* p_Script);
         void OnBattlePayProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product);
         bool BattlePayCanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason);
+        std::string BattlePayGetCustomData(Battlepay::Product const& p_Product);
 
 #endif /* not CROSS */
     /// Encounter scripts

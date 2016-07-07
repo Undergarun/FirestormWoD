@@ -334,6 +334,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
                 SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ));
                 return;
             }
+            if (l_Sender->InArena())
+                return;
 
             if (l_Type == CHAT_MSG_SAY)
                 l_Sender->Say(l_Text, l_Language);

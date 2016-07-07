@@ -130,10 +130,10 @@ namespace MS { namespace Garrison
 
         switch (l_GarrisonMgr->GetBuilding(p_PlotInstanceID).BuildingID)
         {
-            case Buildings::TradingPost_TradingPost_Level1:
+            case Building::ID::TradingPost_TradingPost_Level1:
                 l_NpcVendorPos = { 7.7799f, -4.4549f, 0.5719f, 0.1100f };
                 break;
-            case Buildings::TradingPost_TradingPost_Level2:
+            case Building::ID::TradingPost_TradingPost_Level2:
                 if (l_Owner->GetQuestStatus(Quests::Horde_AuctionningForParts) != QUEST_STATUS_REWARDED)
                     SummonRelativeCreature(NPCs::NpcHordeAncientTradingMechanismQuestGiver, -3.7428f, -2.1507f, 0.3379f, 1.4059f, TEMPSUMMON_MANUAL_DESPAWN);
                 else
@@ -141,7 +141,7 @@ namespace MS { namespace Garrison
 
                 l_NpcVendorPos = { 1.8293f, -1.6102f, 0.2526f, 0.5341f };
                 break;
-            case Buildings::TradingPost_TradingPost_Level3:
+            case Building::ID::TradingPost_TradingPost_Level3:
                 if (l_Owner->GetQuestStatus(Quests::Horde_AuctionningForParts) != QUEST_STATUS_REWARDED)
                     SummonRelativeCreature(NPCs::NpcHordeAncientTradingMechanismQuestGiver, -3.1509f, -4.1658f, 0.6419f, 1.2944f, TEMPSUMMON_MANUAL_DESPAWN);
                 else

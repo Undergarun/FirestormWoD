@@ -663,6 +663,8 @@ class boss_beastlord_darmac : public CreatureScript
                         /// This prevent players to cancel moves by taunting
                         me->SetReactState(ReactStates::REACT_PASSIVE);
 
+                        me->AttackStop();
+
                         me->StopMoving();
 
                         me->GetMotionMaster()->Clear();

@@ -156,7 +156,7 @@ namespace MS { namespace Garrison
 
                     switch (GetBuildingID())
                     {
-                        case Buildings::TheTannery_TheTannery_Level2:
+                        case Building::ID::TheTannery_TheTannery_Level2:
                             if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[1], 0.0216f, 1.0433f, 1.0822f, 6.1718f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
@@ -166,7 +166,7 @@ namespace MS { namespace Garrison
                                 AddSummonGUID(l_Creature->GetGUID());
                             }
                             break;
-                        case Buildings::TheTannery_TheTannery_Level3:
+                        case Building::ID::TheTannery_TheTannery_Level3:
                             if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[1], -3.4031f, -2.0342f, 0.7733f, 6.1092f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());

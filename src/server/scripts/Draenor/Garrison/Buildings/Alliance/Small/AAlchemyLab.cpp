@@ -168,7 +168,7 @@ namespace MS { namespace Garrison
 
                     switch (GetBuildingID())
                     {
-                        case Buildings::AlchemyLab_AlchemyLab_Level2:
+                        case Building::ID::AlchemyLab_AlchemyLab_Level2:
                             if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[1], -1.6759f, -1.1615f, 0.7728f, 6.2240f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
@@ -183,7 +183,7 @@ namespace MS { namespace Garrison
                                     l_Creature->AI()->SetGUID(m_OwnerGuid, 1);
                             }
                             break;
-                        case Buildings::AlchemyLab_AlchemyLab_Level3:
+                        case Building::ID::AlchemyLab_AlchemyLab_Level3:
                             if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[1], -0.8157f, -0.4505f, 0.7730f, 0.2894f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());

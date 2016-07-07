@@ -2066,57 +2066,9 @@ class mob_collidus_the_warp_watcher : public CreatureScript
         };
 };
 
-class playerScript_quests_greenfire_questline : public PlayerScript
-{
-public:
-    playerScript_quests_greenfire_questline() : PlayerScript("playerScript_quests_greenfire_questline") { }
-
-    enum eQuests {
-        AnUnusualTome = 32295,
-        ReaderForTheDeadTongue = 32307,
-        ATaleOfSixMasterA = 32310,
-        ATaleOfSixMasterH = 32309,
-        SeekingTheSoulstones = 32317,
-        SeekTheSignal = 32324,
-        InfiltratingTheBlackTemple = 32325
-    };
-
-    void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
-    {
-        if (p_Player && p_Quest)
-        {
-            switch (p_Quest->GetQuestId())
-            {
-                case eQuests::AnUnusualTome:
-                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(eQuests::ReaderForTheDeadTongue))
-                        p_Player->AddQuest(l_Quest, p_Player);
-                    break;
-                case eQuests::ATaleOfSixMasterA:
-                case eQuests::ATaleOfSixMasterH:
-                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(eQuests::SeekingTheSoulstones))
-                        p_Player->AddQuest(l_Quest, p_Player);
-                    break;
-                case eQuests::SeekingTheSoulstones:
-                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(eQuests::SeekTheSignal))
-                        p_Player->AddQuest(l_Quest, p_Player);
-                    break;
-                case eQuests::SeekTheSignal:
-                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(eQuests::InfiltratingTheBlackTemple))
-                        p_Player->AddQuest(l_Quest, p_Player);
-                    break;
-                case eQuests::InfiltratingTheBlackTemple:
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-};
-
 #ifndef __clang_analyzer__
 void AddSC_shadowmoon_valley()
 {
-    new playerScript_quests_greenfire_questline();
     new mob_mature_netherwing_drake();
     new mob_enslaved_netherwing_drake();
     new mob_dragonmaw_peon();

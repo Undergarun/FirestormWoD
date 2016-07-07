@@ -195,8 +195,8 @@ namespace MS { namespace Garrison
 
                     switch (GetBuildingID())
                     {
-                        case Buildings::TailoringEmporium_TailoringEmporium_Level2:
-                        case Buildings::TailoringEmporium_TailoringEmporium_Level3:
+                        case Building::ID::TailoringEmporium_TailoringEmporium_Level2:
+                        case Building::ID::TailoringEmporium_TailoringEmporium_Level3:
                             if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[0], 0.4044f, 5.2839f, 0.5047f, 4.7204f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());

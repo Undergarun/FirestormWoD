@@ -1,0 +1,1 @@
+UPDATE gameobject SET rotation0 = 0, rotation1 = 0, rotation2 = 0, rotation3 = 1 WHERE id IN (233642, 233506, 233157);

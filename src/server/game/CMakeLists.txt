@@ -28,7 +28,7 @@ file(GLOB_RECURSE sources_Combat Combat/*.cpp Combat/*.h)
 file(GLOB_RECURSE sources_Conditions Conditions/*.cpp Conditions/*.h)
 file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores/*.h)
 file(GLOB_RECURSE sources_DungeonFinding DungeonFinding/*.cpp DungeonFinding/*.h)
-file(GLOB_RECURSE sources_Entities Entities/*.cpp Entities/*.h)
+file(GLOB_RECURSE sources_Entities Entities/*.cpp Entities/*.h Entities/*.hpp)
 file(GLOB_RECURSE sources_Events Events/*.cpp Events/*.h)
 file(GLOB_RECURSE sources_Globals Globals/*.cpp Globals/*.h)
 file(GLOB_RECURSE sources_Grids Grids/*.cpp Grids/*.h)
@@ -232,6 +232,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/AreaTrigger
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Creature
+  ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Conversation
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Corpse
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/DynamicObject
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/GameObject

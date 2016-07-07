@@ -1028,7 +1028,8 @@ namespace MS { namespace Garrison
 
     namespace GarrisonAbilities
     {
-        std::vector<uint32> const g_FollowerAbilities =
+        /// All this data lists have been parsed from wowhead
+        std::vector<uint32> const g_FollowerTraits =
         {
             253,
             54,
@@ -1101,8 +1102,7 @@ namespace MS { namespace Garrison
             73
         };
 
-
-        std::vector<uint32> const g_FollowerTraits =
+        std::vector<uint32> const g_FollowerAbilities =
         {
             139,
             158,
@@ -1190,9 +1190,9 @@ namespace MS { namespace Garrison
             121
         };
 
-
         std::vector<uint32> const g_ShipAbilities =
-        { 260,
+        {
+            260,
             261,
             262,
             263,

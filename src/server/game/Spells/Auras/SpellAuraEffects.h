@@ -168,6 +168,7 @@ class AuraEffect
         void HandleAuraModPacify(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPacifyAndSilence(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraAllowOnlyAbility(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModNoActions(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         //  tracking
         void HandleAuraTrackResources(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraTrackCreatures(AuraApplication const* aurApp, uint8 mode, bool apply) const;

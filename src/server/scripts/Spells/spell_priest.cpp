@@ -963,7 +963,7 @@ class spell_pri_prayer_of_mending_divine_insight: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                /*if (Player* _player = GetCaster()->ToPlayer())
                 {
                     if (Unit* target = GetHitUnit())
                     {
@@ -1017,7 +1017,7 @@ class spell_pri_prayer_of_mending_divine_insight: public SpellScriptLoader
                             }
                         }
                     }
-                }
+                }*/
             }
 
             void Register()
@@ -2210,15 +2210,13 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                     return;
 
                 std::list<Unit*> l_UnFriendlyUnitListTemp;
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Target, l_FirstCaster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_UnFriendlyUnitListTemp, l_Check);
-                l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_FirstCaster, l_FirstCaster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_FirstCaster, l_UnFriendlyUnitListTemp, l_Check);
+                l_FirstCaster->VisitNearbyObject(l_Radius, l_Searcher);
 
-                l_UnFriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker, l_FirstCaster->GetGUID()));
-
-                l_UnFriendlyUnitListTemp.remove_if([this, l_FirstCaster](WorldObject* p_Object) -> bool
+                l_UnFriendlyUnitListTemp.remove_if([this, l_FirstCaster, l_Target](WorldObject* p_Object) -> bool
                 {
-                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr || p_Object->GetGUID() == l_Target->GetGUID() || p_Object->GetGUID() == l_FirstCaster->GetGUID())
                         return true;
 
                     if (!l_FirstCaster->IsValidAttackTarget(p_Object->ToUnit()))
@@ -3137,7 +3135,7 @@ enum PrayerOfMendingSpells
     DivineFuryAura          = 122098
 };
 
-// Prayer of Mending - 33076
+/// Prayer of Mending - 33076, Prayer of Mending - 123259
 class spell_pri_prayer_of_mending: public SpellScriptLoader
 {
     public:
@@ -3150,7 +3148,11 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
             enum eSpells
             {
                 GlypheOfPrayerOfMending = 55685,
-                T17Holy2P               = 165621
+                T17Holy2P               = 165621,
+                PrayerOfMending         = 33076,
+                PrayerOfMendingDivineSpell = 123259,
+                PrayerOfMendingDivineI  = 123262,
+                DivineInsight           = 123267
             };
 
             void HandleOnHit()
@@ -3160,12 +3162,28 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         uint8 l_Stacks = 0;
-                        if (l_Target->HasAura(PrayerOfMendingSpells::PrayerOfMendingAura))
-                            l_Stacks = l_Target->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura)->GetStackAmount();
+                        if (GetSpellInfo()->Id == eSpells::PrayerOfMending)
+                        {
+                            if (l_Target->HasAura(PrayerOfMendingSpells::PrayerOfMendingAura))
+                                l_Stacks = l_Target->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura)->GetStackAmount();
+                            else
+                                l_Caster->CastSpell(l_Target, PrayerOfMendingSpells::PrayerOfMendingAura, true);
+                        }
                         else
-                            l_Caster->CastSpell(l_Target, PrayerOfMendingSpells::PrayerOfMendingAura, true);
+                        {
+                            if (l_Target->HasAura(eSpells::PrayerOfMendingDivineI))
+                                l_Stacks = l_Target->GetAura(eSpells::PrayerOfMendingDivineI)->GetStackAmount();
+                            else
+                                l_Caster->CastSpell(l_Target, eSpells::PrayerOfMendingDivineI, true);
+                        }
 
-                        if (Aura* l_PrayerOfMendingAura = l_Target->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
+                        Aura* l_PrayerOfMendingAura = nullptr;
+                        if (GetSpellInfo()->Id == eSpells::PrayerOfMending)
+                            l_PrayerOfMendingAura = l_Target->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID());
+                        else
+                            l_PrayerOfMendingAura = l_Target->GetAura(eSpells::PrayerOfMendingDivineI, l_Caster->GetGUID());
+
+                        if (l_PrayerOfMendingAura != nullptr)
                         {
                             l_Stacks += 5;
                             if (l_Caster->HasAura(eSpells::GlypheOfPrayerOfMending))
@@ -3179,23 +3197,25 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
 
                             l_PrayerOfMendingAura->SetStackAmount(l_Stacks);
                         }
+                        if (GetSpellInfo()->Id == eSpells::PrayerOfMendingDivineSpell && l_Caster->HasAura(eSpells::DivineInsight))
+                            l_Caster->RemoveAura(eSpells::DivineInsight);
                     }
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_pri_prayer_of_mending_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_pri_prayer_of_mending_SpellScript();
         }
 };
 
-/// Prayer of mending aura - 41635
+/// Prayer of mending aura - 41635, Prayer of mending aura - 123262 
 class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
 {
     public:
@@ -3207,7 +3227,9 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
 
             enum eSpells
             {
-                GlypheOfPrayerOfMending = 55685
+                GlypheOfPrayerOfMending = 55685,
+                PrayerOfMending         = 41635,
+                PrayerOfMenfinInsight   = 123262
             };
 
             void CalculateAmount(AuraEffect const* p_AuraEffect, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
@@ -3255,14 +3277,31 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    Unit* l_Target = GetTarget();
+                    l_Caster->CastSpell(l_Target, PrayerOfMendingSpells::PrayerOfMendingHeal, true);
+                }
+            }
+
+            void Register() override
+            {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::PrayerOfMenfinInsight:
+                    AfterEffectApply += AuraEffectApplyFn(spell_pri_prayer_of_mending_aura_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::PrayerOfMending:
+                    OnEffectProc += AuraEffectProcFn(spell_pri_prayer_of_mending_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                    break;
+                }
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_prayer_of_mending_aura_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_DUMMY);
-                OnEffectProc += AuraEffectProcFn(spell_pri_prayer_of_mending_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_pri_prayer_of_mending_aura_AuraScript();
         }
@@ -3296,7 +3335,12 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                         if (l_Caster->HasAura(eSpells::T17Holy4P) && roll_chance_i(20))
                             l_Caster->CastSpell(l_Caster, eSpells::SerendipityStack, true);
 
-                        if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(PrayerOfMendingSpells::PrayerOfMendingAura, EFFECT_0, l_Caster->GetGUID()))
+                        AuraEffect* l_AurEff = l_Target->GetAuraEffect(PrayerOfMendingSpells::PrayerOfMendingAura, EFFECT_0, l_Caster->GetGUID());
+
+                        if (l_AurEff == nullptr)
+                            l_AurEff = l_Target->GetAuraEffect(123262, EFFECT_0, l_Caster->GetGUID());
+
+                        if (l_AurEff != nullptr)
                         {
                             int32 l_Heal = l_AurEff->GetAmount();
                             uint8 l_CurrentStackAmount = l_AurEff->GetBase()->GetStackAmount();
@@ -3329,8 +3373,8 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                                         JadeCore::Containers::RandomResizeList(l_FriendlyUnitList, 1);
                                         for (auto l_Itr : l_FriendlyUnitList)
                                         {
-                                            l_Caster->CastSpell(l_Itr, PrayerOfMendingSpells::PrayerOfMendingAura, true);
-                                            if (Aura* l_PrayerOfMendingAura = l_Itr->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
+                                            l_Caster->CastSpell(l_Itr, l_AurEff->GetSpellInfo()->Id, true);
+                                            if (Aura* l_PrayerOfMendingAura = l_Itr->GetAura(l_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
                                                 l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
                                         }
                                     }
@@ -3341,19 +3385,19 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                                 l_Caster->CastSpell(l_Caster, eSpells::Pvp2PBonusProc, true);
                                 l_Caster->CastSpell(l_Target, eSpells::Pvp2PBonusProc, true);
                             }
-                            l_Target->RemoveAura(PrayerOfMendingSpells::PrayerOfMendingAura);
+                            l_Target->RemoveAura(l_AurEff->GetSpellInfo()->Id);
                         }
                     }
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_pri_prayer_of_mending_heal_SpellScript();
         }
@@ -3464,6 +3508,11 @@ class spell_pri_mind_blast: public SpellScriptLoader
     public:
         spell_pri_mind_blast() : SpellScriptLoader("spell_pri_mind_blast") { }
 
+        enum eSpells
+        {
+            GlyphOfMindSpike = 81292
+        };
+
         class spell_pri_mind_blast_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pri_mind_blast_SpellScript);
@@ -3508,6 +3557,10 @@ class spell_pri_mind_blast: public SpellScriptLoader
                     if (l_Caster->HasSpellCooldown(PRIEST_SPELL_MIND_BLAST))
                         l_Caster->RemoveSpellCooldown(PRIEST_SPELL_MIND_BLAST, true);
                 }
+
+                /// Glyph of Mind Spike
+                if (l_Caster->HasAura(eSpells::GlyphOfMindSpike))
+                    l_Caster->RemoveAura(eSpells::GlyphOfMindSpike);
             }
 
             void HandleAfterHit()
@@ -4196,6 +4249,13 @@ class spell_pri_focused_will : public SpellScriptLoader
                 if (!l_Caster)
                     return;
 
+                if (!p_EventInfo.GetDamageInfo())
+                    return;
+
+                /// Should proc only from damage
+                if (p_EventInfo.GetDamageInfo()->GetDamage() == 0)
+                    return;
+
                 if (p_EventInfo.GetActor()->GetGUID() == l_Caster->GetGUID())
                     PreventDefaultAction();
             }
@@ -4299,7 +4359,9 @@ class PlayerScript_word_of_mending : public PlayerScript
             if (skipCheck && !(p_Spell->GetSpellInfo()->Id == eSpells::FlashHeal && p_Player->HasAura(eSpells::SurgeOfLight)))
                 return;
 
-            if (p_Player->HasAura(eSpells::WordOfMendingAura) && p_Spell->GetSpellInfo() && (p_Spell->GetSpellInfo()->IsHealingSpell() || p_Spell->GetSpellInfo()->IsShieldingSpell()) && p_Spell->GetSpellInfo()->Id != 146347)
+            if (p_Player->HasAura(eSpells::WordOfMendingAura) && p_Spell->GetSpellInfo() && (p_Spell->GetSpellInfo()->IsHealingSpell() ||
+                p_Spell->GetSpellInfo()->Id == 121135 || ///< Cascade
+                p_Spell->GetSpellInfo()->IsShieldingSpell()) && p_Spell->GetSpellInfo()->Id != 146347)
             {
                 if (!p_Player->HasAura(eSpells::WordOfMendingProc))
                     p_Player->CastSpell(p_Player, eSpells::WordOfMendingStack, true);
@@ -4443,6 +4505,107 @@ public:
     }
 };
 
+/// Glyph of Mind Spike - 33371 (Proc - 81292)
+/// Called by Mind Spike - 73510
+class spell_pri_glyph_of_mind_spike : public SpellScriptLoader
+{
+public:
+    spell_pri_glyph_of_mind_spike() : SpellScriptLoader("spell_pri_glyph_of_mind_spike") { }
+
+    class spell_pri_glyph_of_mind_spike_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_glyph_of_mind_spike_SpellScript);
+
+        enum eSpells
+        {
+            GlyphOfMindSpikeAura = 33371,
+            GlyphOfMindSpike = 81292
+        };
+
+        void HandleCast()
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            if (l_Caster->HasAura(eSpells::GlyphOfMindSpikeAura))
+            {
+                uint32 l_CastTime = l_Caster->GetCurrentSpellCastTime(m_scriptSpellId);
+                if (l_CastTime != 0)
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfMindSpike, true);
+            }
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_pri_glyph_of_mind_spike_SpellScript::HandleCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_glyph_of_mind_spike_SpellScript();
+    }
+};
+
+
+/// Glyph of the Heavens - 120581, ItemId - 79538
+/// Called by Levitate: 111758
+class spell_pri_glyph_of_the_heavens : public SpellScriptLoader
+{
+public:
+    spell_pri_glyph_of_the_heavens() : SpellScriptLoader("spell_pri_glyph_of_the_heavens") { }
+
+    class spell_pri_glyph_of_the_heavens_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_glyph_of_the_heavens_AuraScript);
+
+        enum eSpells
+        {
+            LevitateEffect = 111758,
+            Heaven = 124433,
+            GlyphOfTheHeavens = 120581
+        };
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Unit* l_Target = GetUnitOwner();
+            if (l_Target == nullptr)
+                return;
+
+            if (l_Target->HasAura(eSpells::LevitateEffect))
+                if (l_Caster->HasAura(eSpells::GlyphOfTheHeavens))
+                    l_Target->CastSpell(l_Target, eSpells::Heaven, true);
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Target = GetUnitOwner();
+            if (l_Target == nullptr)
+                return;
+
+            if (l_Target->HasAura(eSpells::Heaven))
+                l_Target->RemoveAura(eSpells::Heaven);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_the_heavens_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_the_heavens_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_glyph_of_the_heavens_AuraScript();
+    }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_priest_spell_scripts()
 {
@@ -4525,6 +4688,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_cascade_trigger_holy();
     new spell_pri_cascade_trigger_shadow();
     new spell_pri_cascade_heal();
+    new spell_pri_glyph_of_mind_spike();
+    new spell_pri_glyph_of_the_heavens(); 
 
     /// PlayerScripts
     new PlayerScript_Shadow_Orb();

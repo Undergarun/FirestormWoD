@@ -16,6 +16,7 @@ file(GLOB_RECURSE sources_Skyreach Draenor/Skyreach/*.hpp Draenor/Skyreach/*.cpp
 file(GLOB_RECURSE sources_BloodmaulSlagMines Draenor/BloodmaulSlagMines/*.hpp Draenor/BloodmaulSlagMines/*.cpp Draenor/BloodmaulSlagMines/*.hxx)
 file(GLOB_RECURSE sources_BlackrockFoundry Draenor/BlackrockFoundry/*.hpp Draenor/BlackrockFoundry/*.cpp Draenor/BlackrockFoundry/*.hxx)
 file(GLOB_RECURSE sources_ScenarioFateOfKarabor Draenor/FateOfKaraborScenario/*.hpp Draenor/FateOfKaraborScenario/*.cpp Draenor/FateOfKaraborScenario/*.hxx)
+file(GLOB_RECURSE sources_ScenarioBlackTemple Draenor/BlackTempleScenario/*.hpp Draenor/BlackTempleScenario/*.cpp Draenor/BlackTempleScenario/*.hxx)
 file(GLOB_RECURSE sources_GrimrailDepot Draenor/GrimrailDepot/*.hpp Draenor/GrimrailDepot/*.cpp Draenor/GrimrailDepot/*.hxx)
 
 set(scripts_STAT_SRCS
@@ -32,6 +33,7 @@ set(scripts_STAT_SRCS
   ${sources_BlackrockFoundry}
   ${sources_ShadowmoonBurialGrounds}
   ${sources_ScenarioFateOfKarabor}
+  ${sources_ScenarioBlackTemple}
   ${sources_GrimrailDepot}
 
   Draenor/draenor_shadowmoon_valley.cpp

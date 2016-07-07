@@ -131,7 +131,7 @@ namespace MS { namespace Garrison
     /// @p_Value : Value
     void npc_FrostWallGrunt::npc_FrostWallGruntAI::SetData(uint32 p_ID, uint32 p_Value)
     {
-        if (p_ID == CreatureAIDataIDs::BuildingID && p_Value == Buildings::DwarvenBunker_WarMill_Level1)
+        if (p_ID == CreatureAIDataIDs::BuildingID && p_Value == Building::ID::DwarvenBunker_WarMill_Level1)
             me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
     }
 
@@ -184,7 +184,7 @@ namespace MS { namespace Garrison
     /// @p_Value : Value
     void npc_FrostWallSmith::npc_FrostWallSmithAI::SetData(uint32 p_ID, uint32 p_Value)
     {
-        if (p_ID == CreatureAIDataIDs::BuildingID && p_Value == Buildings::DwarvenBunker_WarMill_Level1)
+        if (p_ID == CreatureAIDataIDs::BuildingID && p_Value == Building::ID::DwarvenBunker_WarMill_Level1)
         {
             me->LoadEquipment(1, true);
             me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_GARR);

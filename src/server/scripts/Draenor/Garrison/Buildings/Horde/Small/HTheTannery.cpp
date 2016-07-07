@@ -125,7 +125,7 @@ namespace MS { namespace Garrison
 
                     switch (GetBuildingID())
                     {
-                        case Buildings::TheTannery_TheTannery_Level2:
+                        case Building::ID::TheTannery_TheTannery_Level2:
                             if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[0], -2.0095f, -1.7753f, 0.7732f, 6.1995f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
@@ -134,7 +134,7 @@ namespace MS { namespace Garrison
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 AddSummonGUID(l_Creature->GetGUID());
                             }
-                        case Buildings::TheTannery_TheTannery_Level3:
+                        case Building::ID::TheTannery_TheTannery_Level3:
                             if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[0], -1.8697f, -0.5403f, 0.8097f, 0.2084f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());

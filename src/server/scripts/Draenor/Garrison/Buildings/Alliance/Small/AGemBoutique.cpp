@@ -149,8 +149,8 @@ namespace MS { namespace Garrison
 
                     switch (GetBuildingID())
                     {
-                        case Buildings::GemBoutique_GemBoutique_Level2:
-                        case Buildings::GemBoutique_GemBoutique_Level3:
+                        case Building::ID::GemBoutique_GemBoutique_Level2:
+                        case Building::ID::GemBoutique_GemBoutique_Level3:
                             if (Creature* l_Creature = SummonRelativeCreature(88545, 1.2960f, 4.8436f, 0.7732f, 6.1639f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 if (CreatureTemplate const* l_FollowerTemplate = sObjectMgr->GetCreatureTemplate(l_GarrFollEntry->CreatureID[1]))

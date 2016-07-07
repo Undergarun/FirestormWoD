@@ -128,10 +128,10 @@ namespace MS { namespace Garrison
 
         switch (l_GarrisonMgr->GetBuilding(p_PlotInstanceID).BuildingID)
         {
-            case Buildings::TradingPost_TradingPost_Level1:
+            case Building::ID::TradingPost_TradingPost_Level1:
                 l_NpcVendorPos = { 2.3595f, -5.2689f, 0.5832f, 1.2362f };
                 break;
-            case Buildings::TradingPost_TradingPost_Level2:
+            case Building::ID::TradingPost_TradingPost_Level2:
                 if (l_Owner->GetQuestStatus(Quests::Alliance_AuctionningForParts) != QUEST_STATUS_REWARDED)
                     SummonRelativeCreature(NPCs::NpcAllianceAncientTradingMechanismQuestGiver, 4.7426f, -8.5494f, 1.6656f, 1.4341f, TEMPSUMMON_MANUAL_DESPAWN);
                 else
@@ -139,7 +139,7 @@ namespace MS { namespace Garrison
 
                 l_NpcVendorPos = { 3.5440f, 2.2147f, 1.6656f, 5.9672f };
                 break;
-            case Buildings::TradingPost_TradingPost_Level3:
+            case Building::ID::TradingPost_TradingPost_Level3:
                 if (l_Owner->GetQuestStatus(Quests::Alliance_AuctionningForParts) != QUEST_STATUS_REWARDED)
                     SummonRelativeCreature(NPCs::NpcAllianceAncientTradingMechanismQuestGiver, -2.8987f, -1.3951f, 0.8036f, 0.0550f, TEMPSUMMON_MANUAL_DESPAWN);
                 else
@@ -204,7 +204,7 @@ namespace MS { namespace Garrison
     {
         if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
         {
-            switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(MS::Garrison::BuildingType::TradingPost)))
+            switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(MS::Garrison::Building::Type::TradingPost)))
             {
                 case 0:
                 case 1:

@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-# include "blackrock_foundry.hpp"
+# include "boss_iron_maidens.hpp"
 
 DoorData const g_DoorData[] =
 {
@@ -25,6 +25,9 @@ DoorData const g_DoorData[] =
     { eFoundryGameObjects::KromogDoor,                  eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::TheBeastGate,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::TerminusDoor,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::FreightElevatorDoor,         eFoundryDatas::DataOperatorThogar,      DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::IronMaidensRampDoor,         eFoundryDatas::DataIronMaidens,         DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::IronMaidensExitDoor,         eFoundryDatas::DataIronMaidens,         DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -86,6 +89,15 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_ThogarIntroStarted        = false;
                 m_IronGateDoorGuid          = 0;
                 m_OperatorThogarGuid        = 0;
+
+                m_AdmiralGaranGuid          = 0;
+                m_EnforcerSorkaGuid         = 0;
+                m_MarakTheBloodedGuid       = 0;
+                m_ZiplineStalkerGuid        = 0;
+                m_IronCannonGuid            = 0;
+                m_AmmoLoaderGuid            = 0;
+                m_IronMaidensKillTime       = 0;
+                m_BeQuickOrBeDeadAchiev     = false;
 
                 m_SpikeGateGuid             = 0;
                 m_CrucibleEntrance          = 0;
@@ -156,6 +168,16 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_OperatorThogarGuid;
             std::map<uint32, uint64> m_TrackDoorsGuids;
 
+            /// Dread Grotto
+            uint64 m_AdmiralGaranGuid;
+            uint64 m_EnforcerSorkaGuid;
+            uint64 m_MarakTheBloodedGuid;
+            uint64 m_ZiplineStalkerGuid;
+            uint64 m_IronCannonGuid;
+            uint64 m_AmmoLoaderGuid;
+            uint32 m_IronMaidensKillTime;
+            bool m_BeQuickOrBeDeadAchiev;
+
             /// Blackhand's Crucible
             uint64 m_SpikeGateGuid;
             uint64 m_CrucibleEntrance;
@@ -166,7 +188,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                 LoadDoorData(g_DoorData);
 
-                instance->SetObjectVisibility(150.0f);
+                instance->SetObjectVisibility(200.0f);
             }
 
             void OnCreatureCreate(Creature* p_Creature) override
@@ -367,6 +389,31 @@ class instance_blackrock_foundry : public InstanceMapScript
                         m_OperatorThogarGuid = p_Creature->GetGUID();
                         break;
                     }
+                    case eFoundryCreatures::BossAdmiralGaran:
+                    {
+                        m_AdmiralGaranGuid = p_Creature->GetGUID();
+                        break;
+                    }
+                    case eFoundryCreatures::BossEnforcerSorka:
+                    {
+                        m_EnforcerSorkaGuid = p_Creature->GetGUID();
+                        break;
+                    }
+                    case eFoundryCreatures::BossMarakTheBlooded:
+                    {
+                        m_MarakTheBloodedGuid = p_Creature->GetGUID();
+                        break;
+                    }
+                    case eFoundryCreatures::ZiplineStalker:
+                    {
+                        m_ZiplineStalkerGuid = p_Creature->GetGUID();
+                        break;
+                    }
+                    case eFoundryCreatures::IronCannon:
+                    {
+                        m_IronCannonGuid = p_Creature->GetGUID();
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -391,6 +438,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BlackForgeGate:
                     case eFoundryGameObjects::TheBeastGate:
                     case eFoundryGameObjects::TerminusDoor:
+                    case eFoundryGameObjects::FreightElevatorDoor:
+                    case eFoundryGameObjects::IronMaidensRampDoor:
+                    case eFoundryGameObjects::IronMaidensExitDoor:
                         AddDoor(p_GameObject, true);
                         break;
                     case eFoundryGameObjects::VolatileBlackrockOre:
@@ -450,6 +500,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::IronGate:
                         m_IronGateDoorGuid = p_GameObject->GetGUID();
                         break;
+                    case eFoundryGameObjects::AmmoLoader:
+                        m_AmmoLoaderGuid = p_GameObject->GetGUID();
+                        p_GameObject->SetAIAnimKitId(eFoundryVisuals::AmmoLoaderAnim);
+                        break;
                     default:
                         break;
                 }
@@ -474,8 +528,34 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BlackForgeGate:
                     case eFoundryGameObjects::TheBeastGate:
                     case eFoundryGameObjects::TerminusDoor:
+                    case eFoundryGameObjects::FreightElevatorDoor:
+                    case eFoundryGameObjects::IronMaidensRampDoor:
+                    case eFoundryGameObjects::IronMaidensExitDoor:
                         AddDoor(p_GameObject, false);
                         break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnCreatureKilled(Creature* p_Creature, Player* p_Killer) override
+            {
+                switch (p_Creature->GetEntry())
+                {
+                    case eIronMaidensCreatures::AquaticTechnician:
+                    case eIronMaidensCreatures::IronDockworker:
+                    case eIronMaidensCreatures::IronEarthbinder:
+                    case eIronMaidensCreatures::IronMauler:
+                    case eIronMaidensCreatures::IronCleaver:
+                    {
+                        if (Creature* l_Garan = instance->GetCreature(m_AdmiralGaranGuid))
+                        {
+                            if (l_Garan->IsAIEnabled)
+                                l_Garan->AI()->SetGUID(p_Creature->GetGUID());
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -795,7 +875,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                         {
                             case EncounterState::DONE:
                             {
-                                instance->SetObjectVisibility(150.0f);
+                                instance->SetObjectVisibility(200.0f);
 
                                 if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
                                     l_IronGate->SetGoState(GOState::GO_STATE_ACTIVE);
@@ -822,6 +902,43 @@ class instance_blackrock_foundry : public InstanceMapScript
                                     l_IronGate->SetGoState(GOState::GO_STATE_READY);
 #endif /* CROSS */
 
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
+                    case eFoundryDatas::DataIronMaidens:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::DONE:
+                            {
+                                if (m_BeQuickOrBeDeadAchiev && !instance->IsLFR())
+                                    DoCompleteAchievement(eFoundryAchievements::BeQuickOrBeDead);
+
+                                AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                                {
+                                    if (Creature* l_Blackhand = instance->GetCreature(m_CosmeticBlackhand))
+                                    {
+                                        if (l_Blackhand->IsAIEnabled)
+                                            l_Blackhand->AI()->Talk(13, 0, TextRange::TEXT_RANGE_MAP);   ///< KromogKilled
+                                    }
+                                });
+
+                                /// No break needed here
+                            }
+                            case EncounterState::FAIL:
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_BeQuickOrBeDeadAchiev = false;
+
+                                if (GameObject* l_AmmoLoader = instance->GetGameObject(m_AmmoLoaderGuid))
+                                    l_AmmoLoader->SetFlag(EGameObjectFields::GAMEOBJECT_FIELD_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
+
+                                DoRemoveAurasDueToSpellOnPlayers(eIronMaidensSpells::OnABoatPeriodic);
                                 break;
                             }
                             default:
@@ -937,6 +1054,24 @@ class instance_blackrock_foundry : public InstanceMapScript
                         m_ThogarIntroStarted = true;
                         break;
                     }
+                    case eFoundryDatas::IronMaidensKillTimer:
+                    {
+                        if (instance->IsLFR())
+                            break;
+
+                        if (!m_IronMaidensKillTime)
+                            m_IronMaidensKillTime = p_Data;
+                        else
+                        {
+                            /// Defeat the Iron Maidens within 10 seconds of each other
+                            if (p_Data > (m_IronMaidensKillTime + 10))
+                                m_BeQuickOrBeDeadAchiev = false;
+                            else
+                                m_BeQuickOrBeDeadAchiev = true;
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1014,6 +1149,18 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_OperatorThogarGuid;
                     case eFoundryGameObjects::IronGate:
                         return m_IronGateDoorGuid;
+                    case eFoundryCreatures::BossAdmiralGaran:
+                        return m_AdmiralGaranGuid;
+                    case eFoundryCreatures::BossEnforcerSorka:
+                        return m_EnforcerSorkaGuid;
+                    case eFoundryCreatures::BossMarakTheBlooded:
+                        return m_MarakTheBloodedGuid;
+                    case eFoundryCreatures::ZiplineStalker:
+                        return m_ZiplineStalkerGuid;
+                    case eFoundryCreatures::IronCannon:
+                        return m_IronCannonGuid;
+                    case eFoundryGameObjects::AmmoLoader:
+                        return m_AmmoLoaderGuid;
                     default:
                         break;
                 }
@@ -1167,16 +1314,6 @@ class instance_blackrock_foundry : public InstanceMapScript
                 {
                     if (Player* l_Player = l_Iter->getSource())
                         l_Player->SendUpdateWorldState(p_Field, p_Value);
-                }
-            }
-
-            void PlaySceneForPlayers(Position const p_Pos, uint32 p_ScenePackageID)
-            {
-                Map::PlayerList const& l_Players = instance->GetPlayers();
-                for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
-                {
-                    if (Player* l_Player = l_Iter->getSource())
-                        l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
                 }
             }
 

@@ -96,6 +96,8 @@ enum eFoundryCreatures
     BossAdmiralGaran        = 77557,
     BossEnforcerSorka       = 77231,
     BossMarakTheBlooded     = 77477,
+    ZiplineStalker          = 82538,
+    IronCannon              = 78152,
     /// Blackhand's Crucible - Part 4
     /// Blackhand
     BossBlackhand           = 77325
@@ -168,6 +170,10 @@ enum eFoundryGameObjects
     MassiveDoorTrack3Left       = 231847,
     MassiveDoorTrack2Left       = 231849,
     MassiveDoorTrack1Left       = 231850,
+    FreightElevatorDoor         = 236848,
+    IronMaidensRampDoor         = 232392,
+    IronMaidensExitDoor         = 232393,
+    AmmoLoader                  = 234028,
     /// Blackhand's Crucible - Part 4
     SpikeGate                   = 232556,
     CrucibleDoor                = 233006
@@ -205,6 +211,7 @@ enum eFoundryDatas
     DarmacBeastMountedFirst,
     DataAfterFightAddCount,
     DataThogarIntroStarted,
+    IronMaidensKillTimer,
 
     /// Counters
     /// Gruul
@@ -228,7 +235,10 @@ enum eFoundryDatas
     DataGromkarManAtArms    = 1,
     DataIronRaider          = 2,
     DataIronCrackShot       = 2,
-    DataGromkarFiremender   = 2
+    DataGromkarFiremender   = 2,
+    /// Iron Maidens
+    IronMaidensCount        = 3,
+    ShipExplosionSceneID    = 777
 };
 
 enum eFoundrySpells
@@ -245,7 +255,8 @@ enum eFoundryAchievements
     StampStampRevolution    = 8980,
     TheSteelHasBeenBrought  = 8929,
     WouldYouGiveMeAHand     = 8983,
-    FainWouldLieDown        = 8981
+    FainWouldLieDown        = 8981,
+    BeQuickOrBeDead         = 8984
 };
 
 enum eFoundryCriterias
@@ -266,7 +277,8 @@ enum eFoundryVisuals
     ConveyorsStart  = 7621,
     ConveyorsStop   = 7336,
     ConveyorsStart2 = 6975,
-    ConveyorsStart3 = 6974
+    ConveyorsStart3 = 6974,
+    AmmoLoaderAnim  = 4397
 };
 
 enum eFoundryDungeons
@@ -275,6 +287,13 @@ enum eFoundryDungeons
     BlackForge          = 846,
     IronAssembly        = 848,
     BlackhandsCrucible  = 823
+};
+
+static std::array<uint32, eFoundryDatas::IronMaidensCount> g_IronMaidensEntries =
+{
+    eFoundryCreatures::BossAdmiralGaran,
+    eFoundryCreatures::BossEnforcerSorka,
+    eFoundryCreatures::BossMarakTheBlooded
 };
 
 Position const g_GromkarManAtArmsMovePos = { 379.8316f, 3322.484f, 303.9331f, 0.0f };

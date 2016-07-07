@@ -61,6 +61,7 @@ uint32 GuidHigh2TypeId(uint32 guid_hi)
         case HIGHGUID_AREATRIGGER:  return TYPEID_AREATRIGGER;
         case HIGHGUID_MO_TRANSPORT: return TYPEID_GAMEOBJECT;
         case HIGHGUID_VEHICLE:      return TYPEID_UNIT;
+        case HIGHGUID_CONVERSATION: return TYPEID_CONVERSATION;
     }
     return NUM_CLIENT_OBJECT_TYPES;                         // unknown
 }
@@ -805,7 +806,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_HAS_GAMEOBJECT)
     {
-        *p_Data << uint32(0);                                                           ///< World Effect ID
+        *p_Data << uint32(l_GameObject->GetGOInfo()->WorldEffectID);
 
         if (p_Data->WriteBit(0))
         {
@@ -1028,6 +1029,10 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             break;
         case TYPEID_OBJECT:
             break;
+        case TYPEID_CONVERSATION:
+            flags = ConversationUpdateFieldFlags;
+            visibleFlag |= UpdatefieldFlags::UF_FLAG_PUBLIC;
+            break;
     }
 
     return visibleFlag;
@@ -1067,6 +1072,10 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
         case TYPEID_GAMEOBJECT:
             flags = GameObjectDynamicUpdateFieldFlags;
             visibleFlag |= UF_FLAG_PUBLIC;
+            break;
+        case TYPEID_CONVERSATION:
+            flags = ConversationDynamicUpdateFieldFlags;
+            visibleFlag |= UpdatefieldFlags::UF_FLAG_PUBLIC;
             break;
         default:
             flags = nullptr;
@@ -1523,6 +1532,41 @@ void Object::AddDynamicValue(uint16 index, uint32 value)
         mask.AddBlock();
 
     mask.SetBit(values.size() - 1);
+
+    if (m_inWorld && !m_objectUpdated)
+    {
+        sObjectAccessor->AddUpdateObject(this);
+        m_objectUpdated = true;
+    }
+}
+
+void Object::AddDynamicGuidValue(uint16 p_Index, uint64 p_Guid)
+{
+    ASSERT(p_Index < _dynamicValuesCount || PrintIndexError(p_Index, false));
+
+    std::vector<uint32>& l_Values   = _dynamicValues[p_Index];
+    UpdateMask& l_Mask              = _dynamicChangesArrayMask[p_Index];
+    Guid128 l_Guid                  = Guid64To128(p_Guid);
+
+    _dynamicChangesMask.SetBit(p_Index);
+
+    auto l_AddGuidPart = [&l_Values, &l_Mask](uint32 p_GuidPart) -> void
+    {
+        if (l_Values.size() >= l_Values.capacity())
+            l_Values.reserve(l_Values.capacity() + 32);
+
+        l_Values.push_back(p_GuidPart);
+
+        if (l_Mask.GetCount() < l_Values.size())
+            l_Mask.AddBlock();
+
+        l_Mask.SetBit(l_Values.size() - 1);
+    };
+
+    l_AddGuidPart(PAIR64_LOPART(l_Guid.GetLow()));
+    l_AddGuidPart(PAIR64_HIPART(l_Guid.GetLow()));
+    l_AddGuidPart(PAIR64_LOPART(l_Guid.GetHi()));
+    l_AddGuidPart(PAIR64_HIPART(l_Guid.GetHi()));
 
     if (m_inWorld && !m_objectUpdated)
     {
@@ -2401,7 +2445,7 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
     if (obj->IsAlwaysDetectableFor(seer))
         return true;
 
-    if (!ignoreStealth && !seer->CanDetectInvisibilityOf(obj))
+    if (!seer->CanDetectInvisibilityOf(obj))
         return false;
 
     if (!ignoreStealth && !seer->CanDetectStealthOf(obj))
@@ -3048,6 +3092,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempS
 void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration, PetSlot slotID, bool stampeded, std::function<void(Pet*, bool)> p_Callback, bool p_ByPass)
 {
     Pet* l_Pet = new Pet(this, petType);
+    l_Pet->m_Stampeded = stampeded;
 
     bool currentPet = (slotID != PET_SLOT_UNK_SLOT);
     if (l_Pet->GetOwner() && l_Pet->GetOwner()->getClass() != CLASS_HUNTER)
@@ -3228,7 +3273,6 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     l_Pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, 0);
     l_Pet->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
 
-    l_Pet->m_Stampeded = stampeded;
     l_Pet->InitStatsForLevel(getLevel());
 
     // Only slot 100, as it's not hunter pet.

@@ -113,60 +113,60 @@ namespace MS { namespace Garrison { namespace Sites
 
                 if (p_Player->GetTeamId() == TEAM_ALLIANCE)
                 {
-                    if (p_Player->IsQuestRewarded(Quests::Alliance_ClearingTheGarden) && !p_Player->GetGarrison()->HasBuildingType(BuildingType::Farm)
-                        && p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Farm, true).DatabaseID != 0)
+                    if (p_Player->IsQuestRewarded(Quests::Alliance_ClearingTheGarden) && !p_Player->GetGarrison()->HasBuildingType(Building::Type::Farm)
+                        && p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Farm, true).DatabaseID != 0)
                     {
-                        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Farm, true).BuildingID);
+                        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Farm, true).BuildingID);
 
                         if (l_Building && l_Building->Level <= 1)
-                            p_Player->GetGarrison()->ActivateBuilding(p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Farm, true).PlotInstanceID);
+                            p_Player->GetGarrison()->ActivateBuilding(p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Farm, true).PlotInstanceID);
                     }
 
-                    if (p_Player->IsQuestRewarded(Quests::Alliance_ThingsAreNotGorenOurWay) && !p_Player->GetGarrison()->HasBuildingType(BuildingType::Mine)
-                        && p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Mine, true).DatabaseID != 0)
+                    if (p_Player->IsQuestRewarded(Quests::Alliance_ThingsAreNotGorenOurWay) && !p_Player->GetGarrison()->HasBuildingType(Building::Type::Mine)
+                        && p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Mine, true).DatabaseID != 0)
                     {
-                        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Mine, true).BuildingID);
+                        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Mine, true).BuildingID);
 
                         if (l_Building && l_Building->Level <= 1)
-                            p_Player->GetGarrison()->ActivateBuilding(p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Mine, true).PlotInstanceID);
+                            p_Player->GetGarrison()->ActivateBuilding(p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Mine, true).PlotInstanceID);
                     }
 
-                    if (p_Player->IsQuestRewarded(Quests::Alliance_AnglinInOurGarrison) && !p_Player->GetGarrison()->HasBuildingType(BuildingType::Fishing)
-                        && p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Fishing, true).DatabaseID != 0)
+                    if (p_Player->IsQuestRewarded(Quests::Alliance_AnglinInOurGarrison) && !p_Player->GetGarrison()->HasBuildingType(Building::Type::Fishing)
+                        && p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Fishing, true).DatabaseID != 0)
                     {
-                        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Fishing, true).BuildingID);
+                        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Fishing, true).BuildingID);
 
                         if (l_Building && l_Building->Level <= 1)
-                            p_Player->GetGarrison()->ActivateBuilding(p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Fishing, true).PlotInstanceID);
+                            p_Player->GetGarrison()->ActivateBuilding(p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Fishing, true).PlotInstanceID);
                     }
                 }
                 else
                 {
-                    if (p_Player->IsQuestRewarded(Quests::Horde_ClearingTheGarden) && !p_Player->GetGarrison()->HasBuildingType(BuildingType::Farm)
-                        && p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Farm, true).DatabaseID != 0)
+                    if (p_Player->IsQuestRewarded(Quests::Horde_ClearingTheGarden) && !p_Player->GetGarrison()->HasBuildingType(Building::Type::Farm)
+                        && p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Farm, true).DatabaseID != 0)
                     {
-                        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Farm, true).BuildingID);
+                        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Farm, true).BuildingID);
 
                         if (l_Building && l_Building->Level <= 1)
-                            p_Player->GetGarrison()->ActivateBuilding(p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Farm, true).PlotInstanceID);
+                            p_Player->GetGarrison()->ActivateBuilding(p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Farm, true).PlotInstanceID);
                     }
 
-                    if (p_Player->IsQuestRewarded(Quests::Horde_ThingsAreNotGorenOurWay) && !p_Player->GetGarrison()->HasBuildingType(BuildingType::Mine)
-                        && p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Mine, true).DatabaseID != 0)
+                    if (p_Player->IsQuestRewarded(Quests::Horde_ThingsAreNotGorenOurWay) && !p_Player->GetGarrison()->HasBuildingType(Building::Type::Mine)
+                        && p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Mine, true).DatabaseID != 0)
                     {
-                        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Mine, true).BuildingID);
+                        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Mine, true).BuildingID);
 
                         if (l_Building && l_Building->Level <= 1)
-                            p_Player->GetGarrison()->ActivateBuilding(p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Mine, true).PlotInstanceID);
+                            p_Player->GetGarrison()->ActivateBuilding(p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Mine, true).PlotInstanceID);
                     }
 
-                    if (p_Player->IsQuestRewarded(Quests::Horde_AnglinInOurGarrison) && !p_Player->GetGarrison()->HasBuildingType(BuildingType::Fishing)
-                        && p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Fishing, true).DatabaseID != 0)
+                    if (p_Player->IsQuestRewarded(Quests::Horde_AnglinInOurGarrison) && !p_Player->GetGarrison()->HasBuildingType(Building::Type::Fishing)
+                        && p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Fishing, true).DatabaseID != 0)
                     {
-                        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Fishing, true).BuildingID);
+                        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Fishing, true).BuildingID);
 
                         if (l_Building && l_Building->Level <= 1)
-                            p_Player->GetGarrison()->ActivateBuilding(p_Player->GetGarrison()->GetBuildingWithType(BuildingType::Fishing, true).PlotInstanceID);
+                            p_Player->GetGarrison()->ActivateBuilding(p_Player->GetGarrison()->GetBuildingWithType(Building::Type::Fishing, true).PlotInstanceID);
                     }
                 }
             }

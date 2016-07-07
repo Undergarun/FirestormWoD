@@ -14,6 +14,8 @@ set(scripts_STAT_SRCS
 	Custom/warning_update_client.cpp
 	Custom/npc_custom.cpp
         Custom/stress_test.cpp
+	Custom/custom_playerscripts.cpp
+	Custom/midsummer_fire_festival.cpp
 )
 
 message("  -> Prepared: Custom")

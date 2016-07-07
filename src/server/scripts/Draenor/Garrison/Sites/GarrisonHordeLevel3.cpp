@@ -115,7 +115,7 @@ namespace MS { namespace Garrison { namespace Sites
 
         Manager* l_GarrisonMgr = p_Owner->GetGarrison();
 
-        if (l_GarrisonMgr->HasBuildingType(BuildingType::MageTower))
+        if (l_GarrisonMgr->HasBuildingType(Building::Type::MageTower))
         {
             if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestFrostfireRidge))
                 l_PhaseMask |= GarrisonPhases::PhaseMagePortalFrostfireRidge;
@@ -189,7 +189,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_BuildingID : Purchased building ID
     void InstanceScript_GarrisonHordeLevel3::OnPurchaseBuilding(Player* p_Owner, uint32 p_BuildingID)
     {
-        if (p_BuildingID == Buildings::TradingPost_TradingPost_Level2)
+        if (p_BuildingID == Building::ID::TradingPost_TradingPost_Level2)
         {
             uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
             FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
@@ -213,22 +213,22 @@ namespace MS { namespace Garrison { namespace Sites
 
                 switch (p_BuildingID)
                 {
-                    case Buildings::LumberMill_LumberMill_Level1:
-                    case Buildings::LumberMill_LumberMill_Level2:
-                    case Buildings::LumberMill_LumberMill_Level3:
+                    case Building::ID::LumberMill_LumberMill_Level1:
+                    case Building::ID::LumberMill_LumberMill_Level2:
+                    case Building::ID::LumberMill_LumberMill_Level3:
                         p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
                         break;
-                    case Buildings::Barn_Barn_Level2:
+                    case Building::ID::Barn_Barn_Level2:
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         break;
-                    case Buildings::Barn_Barn_Level3:
+                    case Building::ID::Barn_Barn_Level3:
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         break;
-                    case Buildings::GemBoutique_GemBoutique_Level3:
+                    case Building::ID::GemBoutique_GemBoutique_Level3:
                     {
                         for (uint32 l_I = 0; l_I < sGarrMissionStore.GetNumRows(); ++l_I)
                         {
@@ -237,7 +237,7 @@ namespace MS { namespace Garrison { namespace Sites
                             if (!l_Entry)
                                 continue;
 
-                            if (l_Entry->MissionType == MissionType::JewelCrafting)
+                            if (l_Entry->MissionType == Mission::Type::JewelCrafting)
                                 l_GarrisonMgr->AddMission(l_Entry->MissionRecID);
                         }
                         break;
@@ -263,16 +263,16 @@ namespace MS { namespace Garrison { namespace Sites
 
                 switch (p_BuildingID)
                 {
-                    case Buildings::LumberMill_LumberMill_Level1:
-                    case Buildings::LumberMill_LumberMill_Level2:
-                    case Buildings::LumberMill_LumberMill_Level3:
+                    case Building::ID::LumberMill_LumberMill_Level1:
+                    case Building::ID::LumberMill_LumberMill_Level2:
+                    case Building::ID::LumberMill_LumberMill_Level3:
                         p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
                         break;
-                    case Buildings::Barn_Barn_Level2:
+                    case Building::ID::Barn_Barn_Level2:
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         break;
-                    case Buildings::Barn_Barn_Level3:
+                    case Building::ID::Barn_Barn_Level3:
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
@@ -292,10 +292,10 @@ namespace MS { namespace Garrison { namespace Sites
 
         switch (p_BuildingType)
         {
-            case BuildingType::Type::LumberMill:
+            case Building::Type::LumberMill:
                 p_Owner->SetSkill(SkillType::SKILL_LOGGING, 0, 0, 0);
                 break;
-            case BuildingType::Type::Barn:
+            case Building::Type::Barn:
                 if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                     p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                 if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))

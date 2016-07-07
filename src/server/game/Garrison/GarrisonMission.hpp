@@ -21,7 +21,7 @@ namespace MS { namespace Garrison
         uint32 OfferTime;           ///< Offer time
         uint32 OfferMaxDuration;    ///< Offer max duration
         uint32 StartTime;           ///< Start time
-        MissionStates::Type State; ///< Mission state
+        Mission::State State;  ///< Mission state
     };
 
 }   ///< namespace Garrison

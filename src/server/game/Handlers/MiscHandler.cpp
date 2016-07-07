@@ -1063,7 +1063,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& p_RecvData)
     }
 
     if (l_Player->isDebugAreaTriggers)
-        ChatHandler(l_Player).PSendSysMessage(LANG_DEBUG_AREATRIGGER_REACHED, l_ID);
+        ChatHandler(l_Player).PSendSysMessage(LANG_DEBUG_AREATRIGGER_REACHED, l_ID, l_Enter);
 
     if (sScriptMgr->OnAreaTrigger(l_Player, l_ATEntry))
         return;
