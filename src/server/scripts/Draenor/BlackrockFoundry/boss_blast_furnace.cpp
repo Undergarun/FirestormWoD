@@ -306,10 +306,6 @@ class boss_heart_of_the_mountain : public CreatureScript
                                     l_Gate->SetFlag(EGameObjectFields::GAMEOBJECT_FIELD_FLAGS, GameObjectFlags::GO_FLAG_IN_USE);
                                 }
                             }
-
-                            m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventBellowsOperator);
-                            m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventSecurityGuard);
-                            m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventFurnaceEngineer);
                         });
 
                         AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -367,6 +363,11 @@ class boss_heart_of_the_mountain : public CreatureScript
 
                         m_Events.ScheduleEvent(eEvents::EventFirecaller, 76 * TimeConstants::IN_MILLISECONDS);
                         m_Events.ScheduleEvent(eEvents::EventSpawnSecurityGuard, 71 * TimeConstants::IN_MILLISECONDS + 500);
+
+                        /// Cancel first phase adds spawning events
+                        m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventBellowsOperator);
+                        m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventSecurityGuard);
+                        m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventFurnaceEngineer);
 
                         std::list<Creature*> l_OperatorList;
                         me->GetCreatureListWithEntryInGrid(l_OperatorList, eCreatures::BellowsOperator, 150.0f);
@@ -721,14 +722,19 @@ class boss_heart_of_the_mountain : public CreatureScript
                 uint32 l_Time = 0;
                 int32 l_Power = me->GetPower(Powers::POWER_ALTERNATE_POWER);
 
-                if (l_Power >= 75)
-                    l_Time = 5 * TimeConstants::IN_MILLISECONDS;
-                else if (l_Power >= 50)
+                if (l_Power >= 100)
                     l_Time = 10 * TimeConstants::IN_MILLISECONDS;
+                else if (l_Power >= 75)
+                    l_Time = 12 * TimeConstants::IN_MILLISECONDS;
+                else if (l_Power >= 50)
+                    l_Time = 15* TimeConstants::IN_MILLISECONDS;
                 else if (l_Power >= 25)
-                    l_Time = 15 * TimeConstants::IN_MILLISECONDS;
+                    l_Time = 20 * TimeConstants::IN_MILLISECONDS;
                 else
-                    l_Time = 25 * TimeConstants::IN_MILLISECONDS;
+                    l_Time = 30 * TimeConstants::IN_MILLISECONDS;
+
+                if (AuraEffect* l_BlastAura = me->GetAuraEffect(eSpells::HeartOfTheFurnace, SpellEffIndex::EFFECT_0))
+                    l_BlastAura->ChangeAmount(int32(l_Time / TimeConstants::IN_MILLISECONDS));
 
                 return l_Time;
             }
@@ -1470,11 +1476,6 @@ class npc_foundry_bellows_operator : public CreatureScript
             ActionPhase2
         };
 
-        enum eCosmeticEvent
-        {
-            EventActivateBellows = 1
-        };
-
         enum eCreatures
         {
             OperatorForFight    = 76811,
@@ -1486,14 +1487,12 @@ class npc_foundry_bellows_operator : public CreatureScript
             npc_foundry_bellows_operatorAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_SwitchStatePct(50) { }
 
             EventMap m_Events;
-            EventMap m_CosmeticEvent;
 
             int32 m_SwitchStatePct;
 
             void Reset() override
             {
                 m_Events.Reset();
-                m_CosmeticEvent.Reset();
 
                 me->RemoveAura(eSpells::Loading);
 
@@ -1526,9 +1525,6 @@ class npc_foundry_bellows_operator : public CreatureScript
                     /// @WORKAROUND - Clear ON VEHICLE state to allow healing (Invalid target errors)
                     /// Current rule for applying this state is questionable (seatFlags & VEHICLE_SEAT_FLAG_ALLOW_TURNING ???)
                     me->ClearUnitState(UnitState::UNIT_STATE_ONVEHICLE);
-
-                    if (me->GetEntry() == eCreatures::OperatorForFight)
-                        m_CosmeticEvent.ScheduleEvent(eCosmeticEvent::EventActivateBellows, 1 * TimeConstants::IN_MILLISECONDS);
                 });
             }
 
@@ -1538,7 +1534,7 @@ class npc_foundry_bellows_operator : public CreatureScript
                 {
                     case eActions::ActionActivateBellows:
                     {
-                        m_CosmeticEvent.ScheduleEvent(eCosmeticEvent::EventActivateBellows, 1 * TimeConstants::IN_MILLISECONDS);
+                        OnVehicleEntered(nullptr);
                         break;
                     }
                     case eActions::ActionPhase2:
@@ -1588,27 +1584,18 @@ class npc_foundry_bellows_operator : public CreatureScript
                 CreatureAI::EnterEvadeMode();
             }
 
+            void OnVehicleEntered(Unit* /*p_Vehicle*/) override
+            {
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->CastSpell(me, eSpells::Loading, false);
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                });
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
-
-                m_CosmeticEvent.Update(p_Diff);
-
-                switch (m_CosmeticEvent.ExecuteEvent())
-                {
-                    case eCosmeticEvent::EventActivateBellows:
-                    {
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            me->CastSpell(me, eSpells::Loading, false);
-                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-                        });
-
-                        break;
-                    }
-                    default:
-                        break;
-                }
 
                 if (!UpdateVictim())
                     return;

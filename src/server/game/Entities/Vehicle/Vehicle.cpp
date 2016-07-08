@@ -449,6 +449,12 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnAddPassenger(this, unit, seatId);
 
+    if (Creature* l_Passenger = unit->ToCreature())
+    {
+        if (l_Passenger->IsAIEnabled)
+            l_Passenger->AI()->OnVehicleEntered(_me);
+    }
+
     return true;
 }
 
