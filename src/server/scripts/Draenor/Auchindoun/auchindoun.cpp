@@ -897,6 +897,9 @@ class auchindoun_mob_sargerei_defender : public CreatureScript
 
             events.Update(p_Diff);
 
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+
             switch (events.ExecuteEvent())
             {
                 case eSargereiDefenderEvents::EventAvengersShield:
@@ -1020,6 +1023,9 @@ class auchindoun_mob_sargerei_magus : public CreatureScript
 
             events.Update(p_Diff);
 
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+
             switch (events.ExecuteEvent())
             {
                 case eSargereiMagusEvents::EventArcaneBomb:
@@ -1096,6 +1102,9 @@ class auchindoun_mob_soul_priest : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
 
             switch (events.ExecuteEvent())
             {
@@ -1175,6 +1184,9 @@ class auchindoun_mob_sargeri_warden : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
 
             switch (events.ExecuteEvent())
             {
@@ -1278,6 +1290,9 @@ class auchindoun_mob_felborne_abyssal : public CreatureScript
 
             events.Update(p_Diff);
 
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+
             switch (events.ExecuteEvent())
             {
                 case eAuchindounEvents::EventFixate:
@@ -1339,7 +1354,7 @@ class auchindoun_mob_cackling_pyromaniac : public CreatureScript
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eCacklingPyromaniacEvents::EventFelBlast, 10 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eCacklingPyromaniacEvents::EventFelBlast, 6 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*p_Killer*/) override
@@ -1363,12 +1378,15 @@ class auchindoun_mob_cackling_pyromaniac : public CreatureScript
 
             events.Update(p_Diff);
 
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+
             switch (events.ExecuteEvent())
             {
                 case eCacklingPyromaniacEvents::EventFelBlast:
                     if (Unit* l_Target = me->getVictim())
                         me->CastSpell(l_Target, eCacklingPyromaniacSpells::SpellFelBlast);
-                    events.ScheduleEvent(eCacklingPyromaniacEvents::EventFelBlast, 10 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eCacklingPyromaniacEvents::EventFelBlast, 6 * TimeConstants::IN_MILLISECONDS);
                     break;
                 default:
                     break;
@@ -1434,6 +1452,9 @@ class auchindoun_mob_blazing_trickster : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
 
             switch (events.ExecuteEvent())
             {
@@ -1512,6 +1533,9 @@ class auchindoun_mob_felguard : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
 
             switch (events.ExecuteEvent())
             {
