@@ -17,7 +17,6 @@ enum eTerongorSpells
     SpellChaosWaveDummy                     = 157001,
     SpellChaosWaveDmg                       = 157002,
     SpellConflagrate                        = 154083,
-    SpellCorruptionDummy                    = 170608,
     SpellCorruptionDmg                      = 156842,
     SpellCurseOfExhaustionDebuff            = 164841,
     SpellDemonicLeapDummy                   = 157039,
@@ -26,7 +25,7 @@ enum eTerongorSpells
     SpellDrainLife                          = 156854,
     SpellImmolate                           = 156964,
     SpellIncinrate                          = 156963,
-    SpellRainOfFire                         = 165757,
+    SpellRainOfFire                         = 156974,
     SpellSeedOfMalevolenceApplyAura         = 156921,
     SpellSeedOfMalevolenceBuff              = 166451,
     SpellSeedOfMalevolenceDmg               = 156924,
@@ -490,6 +489,10 @@ class boss_teronogor : public CreatureScript
             DespawnCreaturesInArea(eAuchindounCreatures::CreatureFelborneAbyssal, me);
             if (m_Instance != nullptr)
                 m_Instance->SetBossState(eAuchindounDatas::DataBossTeronogor, EncounterState::DONE);
+            me->Respawn();
+            me->SetReactState(ReactStates::REACT_PASSIVE);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+
             me->SummonGameObject(eAuchindounObjects::GameobjectChestAucheni, 1891.84f, 2973.80f, 16.844f, 5.664811f, 0, 0, 0, 0, 0);
             me->SummonCreature(eAuchindounCreatures::CreatureSoulBinderTuulani01, 1911.65f, 2757.72f, 30.799f, 1.566535f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
             me->m_Events.AddEvent(new EventTeronogorPostDeath(me, 1), me->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
@@ -511,27 +514,31 @@ class boss_teronogor : public CreatureScript
                 {
                     if (Unit* l_Target = me->getVictim())
                         me->CastSpell(l_Target, eTerongorSpells::SpellShadowBolt);
-                    events.ScheduleEvent(eTerongorEvents::EventShadowBolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+
+                    events.ScheduleEvent(eTerongorEvents::EventShadowBolt, 6 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eTerongorEvents::EventCorruption:
                 {
-                    if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(l_Random, eTerongorSpells::SpellCorruptionDummy);
-                    events.ScheduleEvent(eTerongorEvents::EventCorruption, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                    if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true, -eTerongorSpells::SpellCorruptionDmg))
+                        me->CastSpell(l_Random, eTerongorSpells::SpellCorruptionDmg);
+
+                    events.ScheduleEvent(eTerongorEvents::EventCorruption, 9 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eTerongorEvents::EventDrainLife:
                 {
                     if (Unit* l_Target = me->getVictim())
                         me->CastSpell(l_Target, eTerongorSpells::SpellDrainLife);
+
                     events.ScheduleEvent(eTerongorEvents::EventDrainLife, 16 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eTerongorEvents::EventCurseOfExhaustion:
                 {
-                    if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                    if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true, -eTerongorSpells::SpellCurseOfExhaustionDebuff))
                        me->CastSpell(l_Random, eTerongorSpells::SpellCurseOfExhaustionDebuff);
+
                     events.ScheduleEvent(eTerongorEvents::EventCurseOfExhaustion, 13 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
@@ -539,13 +546,15 @@ class boss_teronogor : public CreatureScript
                 {
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         me->CastSpell(l_Random, eTerongorSpells::SpellAgony);
+
                     events.ScheduleEvent(eTerongorEvents::EventAgony, 16 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eTerongorEvents::EventUnstableAffliction:
                 {
-                    if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                    if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true, -eTerongorSpells::SpellUnstableAffliction))
                         me->CastSpell(l_Random, eTerongorSpells::SpellUnstableAffliction);
+
                     events.ScheduleEvent(eTerongorEvents::EventUnstableAffliction, 20 * TimeConstants::IN_MILLISECONDS);    
                     break;
                 }
@@ -553,6 +562,7 @@ class boss_teronogor : public CreatureScript
                 {
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         me->CastSpell(l_Random, eTerongorSpells::SpellSeedOfMalevolenceApplyAura);
+
                     events.ScheduleEvent(eTerongorEvents::EventSeedOfMalevolence, urand(22 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
                     break;
                 }
@@ -560,6 +570,7 @@ class boss_teronogor : public CreatureScript
                 {
                     if (Unit* l_Target = me->getVictim())
                         me->CastSpell(me->getVictim(), eTerongorSpells::SpellChaosBolt);
+
                     events.ScheduleEvent(eTerongorEvents::EventChaosBolt, 20 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
@@ -567,13 +578,15 @@ class boss_teronogor : public CreatureScript
                 {
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         me->CastSpell(l_Random, eTerongorSpells::SpellImmolate);
-                    events.ScheduleEvent(eTerongorEvents::EventImmolate, 20 * TimeConstants::IN_MILLISECONDS);
+
+                    events.ScheduleEvent(eTerongorEvents::EventImmolate, 12 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eTerongorEvents::EventConflagrate:
                 {
                     if (Unit* l_Target = me->getVictim())
                         me->CastSpell(l_Target, eTerongorSpells::SpellConflagrate);
+
                     events.ScheduleEvent(eTerongorEvents::EventConflagrate, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
                     break;
                 }
@@ -581,18 +594,21 @@ class boss_teronogor : public CreatureScript
                 {
                     if (Unit* l_Target = me->getVictim())
                         me->CastSpell(l_Target, eTerongorSpells::SpellIncinrate);
-                    events.ScheduleEvent(eTerongorEvents::EventIncinrate, 16 * TimeConstants::IN_MILLISECONDS);
+
+                    events.ScheduleEvent(eTerongorEvents::EventIncinrate, 6 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eTerongorEvents::EventRainOfFire:
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))             
                         me->CastSpell(l_Random, eTerongorSpells::SpellRainOfFire, true);
-                   events.ScheduleEvent(eTerongorEvents::EventRainOfFire, 25 * TimeConstants::IN_MILLISECONDS);
+
+                   events.ScheduleEvent(eTerongorEvents::EventRainOfFire, 10 * TimeConstants::IN_MILLISECONDS);
                    break;
                 case eTerongorEvents::EventDoom:
                 {
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         me->CastSpell(l_Random, eTerongorSpells::SpellDoomBuff);
+
                      events.ScheduleEvent(eTerongorEvents::EventDoom, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
                      break;
                 }
@@ -600,6 +616,7 @@ class boss_teronogor : public CreatureScript
                 {
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         me->CastSpell(l_Random, eTerongorSpells::SpellDemonicLeapDummy);
+
                     events.ScheduleEvent(eTerongorEvents::EventDemonicLeap, urand(18 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
                     break;
                 }
@@ -607,6 +624,7 @@ class boss_teronogor : public CreatureScript
                 {
                     if (Unit* l_Target = me->getVictim())
                         me->CastSpell(l_Target, eTerongorSpells::SpellChaosWaveDummy);
+
                     events.ScheduleEvent(eTerongorEvents::EventChaosWave, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                     break;
                 }
@@ -614,6 +632,7 @@ class boss_teronogor : public CreatureScript
                 {
                     if (Unit* l_Target = me->getVictim())
                         me->CastSpell(l_Target, eTerongorSpells::SpellTouchOfChaosDummy);
+
                     events.ScheduleEvent(eTerongorEvents::EventTouchOfChaos, 16 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
@@ -650,7 +669,7 @@ class auchindoun_teronogor_mob_durag : public CreatureScript
         {
             GrimoireofServitude  = 159021,
             SpellShadowBolt      = 156829,
-            SpellCorruptionDummy = 170608,
+            SpellCorruptionDmg = 170608,
             SpellChaosWaveDummy  = 157001
         };
 
@@ -680,7 +699,7 @@ class auchindoun_teronogor_mob_durag : public CreatureScript
 				}
 			}
 
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+            me->SetReactState(ReactStates::REACT_DEFENSIVE);
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -688,9 +707,9 @@ class auchindoun_teronogor_mob_durag : public CreatureScript
             me->CastStop();
             me->RemoveAllAuras();
             me->CastSpell(me, eTeronogorDuragSpells::GrimoireofServitude);
-            events.ScheduleEvent(eTeronogorDuragEvents::EventShadowBolt, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eTeronogorDuragEvents::EventCorruption, urand(10 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eTeronogorDuragEvents::EventChaosWave, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eTeronogorDuragEvents::EventShadowBolt, 6 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eTeronogorDuragEvents::EventCorruption, 9 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eTeronogorDuragEvents::EventChaosWave, 12 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 p_Diff) override
@@ -700,22 +719,25 @@ class auchindoun_teronogor_mob_durag : public CreatureScript
 
             events.Update(p_Diff);    
 
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+
             switch (events.ExecuteEvent())
             {
                 case eTeronogorDuragEvents::EventShadowBolt:
                         if (Unit* l_Target = me->getVictim())
                             me->CastSpell(l_Target, eTeronogorDuragSpells::SpellShadowBolt);
-                        events.ScheduleEvent(eTeronogorDuragEvents::EventShadowBolt, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+                        events.ScheduleEvent(eTeronogorDuragEvents::EventShadowBolt, 6 * TimeConstants::IN_MILLISECONDS);
                         break;
                 case eTeronogorDuragEvents::EventCorruption:
-                        if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->CastSpell(l_Random, eTeronogorDuragSpells::SpellCorruptionDummy);
-                        events.ScheduleEvent(eTeronogorDuragEvents::EventCorruption, urand(10 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+                        if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true, -eTerongorSpells::SpellCorruptionDmg))
+                            me->CastSpell(l_Random, eTeronogorDuragSpells::SpellCorruptionDmg);
+                        events.ScheduleEvent(eTeronogorDuragEvents::EventCorruption, 9 * TimeConstants::IN_MILLISECONDS);
                         break;
                 case eTeronogorDuragEvents::EventChaosWave:
                         if (Unit* l_Target = me->getVictim())
                             me->CastSpell(l_Target, eTeronogorDuragSpells::SpellChaosWaveDummy);
-                        events.ScheduleEvent(eTeronogorDuragEvents::EventChaosWave, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+                        events.ScheduleEvent(eTeronogorDuragEvents::EventChaosWave, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -770,12 +792,6 @@ class auchindoun_teronogor_mob_gulkosh : public CreatureScript
             if (me->GetMap())
                 me->GetMap()->SetObjectVisibility(1000.0f);
 
-            if (m_First)
-            {
-                m_First = false;
-              
-            }
-
             if (m_Instance != nullptr)
             {
                 if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
@@ -784,16 +800,17 @@ class auchindoun_teronogor_mob_gulkosh : public CreatureScript
                     me->CastSpell(l_Teronogor, eAuchindounSpells::SpellDrainSoulVisual);
                 }
             }
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+
+            me->SetReactState(ReactStates::REACT_DEFENSIVE);
         }
 
         void EnterCombat(Unit* p_Attacker) override
         {
             me->CastStop();
             me->RemoveAllAuras();
-            events.ScheduleEvent(eTeronogorGulkoshEvents::EventShadowBolt, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eTeronogorGulkoshEvents::EventUnstableAffliction, urand(10 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eTeronogorGulkoshEvents::EventDrainLife, 16 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eTeronogorGulkoshEvents::EventShadowBolt, 6 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eTeronogorGulkoshEvents::EventUnstableAffliction, 8 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eTeronogorGulkoshEvents::EventDrainLife, 10 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 p_Diff) override
@@ -803,22 +820,25 @@ class auchindoun_teronogor_mob_gulkosh : public CreatureScript
 
             events.Update(p_Diff);
 
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+
             switch (events.ExecuteEvent())
             {
             case eTeronogorGulkoshEvents::EventShadowBolt:
                     if (Unit* l_Target = me->getVictim())
                         me->CastSpell(l_Target, eTeronogorGulkoshSpells::SpellShadowBolt);
-                    events.ScheduleEvent(eTeronogorGulkoshEvents::EventShadowBolt, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+                    events.ScheduleEvent(eTeronogorGulkoshEvents::EventShadowBolt, 6 * TimeConstants::IN_MILLISECONDS);
                     break;
             case eTeronogorGulkoshEvents::EventUnstableAffliction:
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         me->CastSpell(l_Random, eTeronogorGulkoshSpells::SpellUnstableAffliction);
-                    events.ScheduleEvent(eTeronogorGulkoshEvents::EventUnstableAffliction, urand(10 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+                    events.ScheduleEvent(eTeronogorGulkoshEvents::EventUnstableAffliction, 8 * TimeConstants::IN_MILLISECONDS);
                     break;
             case eTeronogorGulkoshEvents::EventDrainLife:
-                    if (Unit* l_Target = me->getVictim())
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         me->CastSpell(l_Target, eTeronogorGulkoshSpells::SpellDrainLife);
-                    events.ScheduleEvent(eTeronogorGulkoshEvents::EventDrainLife, 16 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eTeronogorGulkoshEvents::EventDrainLife, 10 * TimeConstants::IN_MILLISECONDS);
                     break;
                 default:
                     break;
@@ -863,14 +883,7 @@ class auchindoun_teronogor_mob_shaadum : public CreatureScript
         void Reset() override
         {
             events.Reset();
-
-            if (m_First)
-            {
-                m_First = false;
-              
-            }
-
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+            me->SetReactState(ReactStates::REACT_HELPER);
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -885,6 +898,9 @@ class auchindoun_teronogor_mob_shaadum : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
 
             switch (events.ExecuteEvent())
             {
@@ -952,18 +968,11 @@ class auchindoun_teronogor_mob_gromkash : public CreatureScript
             if (me->GetMap())
                 me->GetMap()->SetObjectVisibility(1000.0f);  
 
-            if (m_First)
-            {
-                m_First = false;
-              
-            }
-
             if (m_Instance != nullptr)
             {
                 if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
                     me->CastSpell(l_Teronogor, eAuchindounSpells::SpellDrainSoulVisual);
             }
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -992,23 +1001,26 @@ class auchindoun_teronogor_mob_gromkash : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
     
             switch (events.ExecuteEvent())
             {
                 case eGromkashEvents::EventImmolate:
                     if (Unit* l_Target = me->getVictim())
                         me->CastSpell(l_Target, eGromkashSpells::SpellImmolate);
-                    events.ScheduleEvent(eGromkashEvents::EventImmolate, 8 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eGromkashEvents::EventImmolate, 10 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eGromkashEvents::EventIncinrate:
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         me->CastSpell(l_Random, eGromkashSpells::SpellIncinrate);
-                    events.ScheduleEvent(eGromkashEvents::EventIncinrate, urand(10 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                    events.ScheduleEvent(eGromkashEvents::EventIncinrate, 6 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eGromkashEvents::EventRainOfFire:
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         me->CastSpell(l_Random, eGromkashSpells::SpellRainOfFire);
-                    events.ScheduleEvent(eGromkashEvents::EventRainOfFire, 18 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eGromkashEvents::EventRainOfFire, 15 * TimeConstants::IN_MILLISECONDS);
                     break;
                 default:
                     break;
@@ -1060,8 +1072,7 @@ class auchindoun_teronogor_mob_abyssal : public CreatureScript
  
             if (m_First)
             {
-                m_First = false;
-              
+                m_First = false;        
                 me->CastSpell(me, eTerongorSpells::SpellSummonAbyssalMeteor);
             }
         }
@@ -1184,42 +1195,6 @@ class auchindoun_teronogor_spell_chaos_wave : public SpellScriptLoader
     }
 };
 
-/// Demonic Leap - 148969 
-class auchindoun_teronogor_spell_demonic_leap : public SpellScriptLoader
-{
-    public:
-
-    auchindoun_teronogor_spell_demonic_leap() : SpellScriptLoader("auchindoun_teronogor_spell_demonic_leap") { }
-
-    class auchindoun_teronogor_spell_demonic_leap_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(auchindoun_teronogor_spell_demonic_leap_SpellScript);
-
-        enum eDemonicLeapSpells
-        {
-            SpellDemonicLeapJump = 157039
-        };
-
-        void HandleDummy(SpellEffIndex p_EffIndex)
-        {
-            if (!GetCaster() && !GetExplTargetUnit())
-                return;
-
-            GetCaster()->CastSpell(GetExplTargetUnit(), eDemonicLeapSpells::SpellDemonicLeapJump);
-        }
-
-        void Register()
-        {
-            OnEffectLaunch += SpellEffectFn(auchindoun_teronogor_spell_demonic_leap_SpellScript::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new auchindoun_teronogor_spell_demonic_leap_SpellScript();
-    }
-};
-
 /// Seed of Malevolence - 156921 
 class auchindoun_teronogor_spell_seed_of_malevolence : public SpellScriptLoader
 {
@@ -1253,6 +1228,74 @@ class auchindoun_teronogor_spell_seed_of_malevolence : public SpellScriptLoader
     AuraScript* GetAuraScript() const override
     {
         return new auchindoun_teronogor_spell_seed_of_malevolence_AuraScript();
+    }
+};
+
+/// Spell Demon Jump - 157039
+class auchindoun_teronogor_spell_demonic_leap_jump : public SpellScriptLoader
+{
+    public:
+
+    auchindoun_teronogor_spell_demonic_leap_jump() : SpellScriptLoader("auchindoun_teronogor_spell_demonic_leap_jump") { }
+
+    class auchindoun_teronogor_spell_demonic_leap_jump_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(auchindoun_teronogor_spell_demonic_leap_jump_SpellScript);
+
+        void Land(SpellEffIndex /*p_EffIndex*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Victim = GetHitUnit())
+                    l_Caster->CastSpell(l_Victim, eTerongorSpells::SpellDemonicLeapAreatriger);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHit += SpellEffectFn(auchindoun_teronogor_spell_demonic_leap_jump_SpellScript::Land, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new auchindoun_teronogor_spell_demonic_leap_jump_SpellScript();
+    }
+};
+
+/// Demonic Leap - 148969 
+class auchindoun_teronogor_spell_demonic_leap : public SpellScriptLoader
+{
+public:
+
+    auchindoun_teronogor_spell_demonic_leap() : SpellScriptLoader("auchindoun_teronogor_spell_demonic_leap") { }
+
+    class auchindoun_teronogor_spell_demonic_leap_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(auchindoun_teronogor_spell_demonic_leap_SpellScript);
+
+        enum eDemonicLeapSpells
+        {
+            SpellDemonicLeapJump = 157039
+        };
+
+        void HandleDummy(SpellEffIndex p_EffIndex)
+        {
+            if (!GetCaster() && !GetExplTargetUnit())
+                return;
+
+            GetCaster()->CastSpell(GetExplTargetUnit(), eDemonicLeapSpells::SpellDemonicLeapJump);
+        }
+
+        void Register()
+        {
+            OnEffectLaunch += SpellEffectFn(auchindoun_teronogor_spell_demonic_leap_SpellScript::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new auchindoun_teronogor_spell_demonic_leap_SpellScript();
     }
 };
 
@@ -1525,12 +1568,13 @@ class auchindoun_teronogor_gameobject_soul_transporter_04 : public GameObjectScr
 							p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 							p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
 							p_Player->m_Events.AddEvent(new auchindoun_soul_transportation_event(p_Player, 10), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
+
 							return true;
 						}
 					}
 				}		
-		}
-	}
+		    }
+	    }
 
         return false;
     }
@@ -1560,6 +1604,48 @@ class auchindoun_teronogor_gameobject_soul_transporter_04 : public GameObjectScr
 	*/
 };
 
+/// Chaos Wave - 157001 
+class auchindoun_teronogor_areatrigger_chaos_wave : public AreaTriggerEntityScript
+{
+    public:
+
+    auchindoun_teronogor_areatrigger_chaos_wave() : AreaTriggerEntityScript("auchindoun_teronogor_areatrigger_chaos_wave") { }
+
+    uint32 l_DiffDot = 1 * TimeConstants::IN_MILLISECONDS;
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+    {
+        if (p_AreaTrigger)
+        {
+            if (p_Time <= l_DiffDot)
+            {
+                std::list<Player*> l_ListPlayers;
+                p_AreaTrigger->GetPlayerListInGrid(l_ListPlayers, 2.0f);
+                if (!l_ListPlayers.empty())
+                {
+                    for (Player* l_Itr : l_ListPlayers)
+                    {
+                        if (!l_Itr)
+                            continue;
+
+                        p_AreaTrigger->CastSpell(l_Itr, eTerongorSpells::SpellChaosWaveDmg);
+                    }
+                }
+
+                l_DiffDot = 1 * TimeConstants::IN_MILLISECONDS;
+            }
+            else
+                l_DiffDot -= p_Time;
+        }
+    }
+
+    AreaTriggerEntityScript* GetAI() const override
+    {
+        return new auchindoun_teronogor_areatrigger_chaos_wave();
+    }
+};
+
+
 void AddSC_boss_teronogor()
 {
     new boss_teronogor();                                           ///< 77734
@@ -1572,6 +1658,8 @@ void AddSC_boss_teronogor()
     new auchindoun_teronogor_spell_chaos_wave();                    ///< 157001
     new auchindoun_teronogor_spell_demonic_leap();                  ///< 148969
     new auchindoun_teronogor_spell_seed_of_malevolence();           ///< 156921
+    new auchindoun_teronogor_spell_demonic_leap_jump();             ///< 157039
+    new auchindoun_teronogor_areatrigger_chaos_wave();              ///< 157001
     new auchindoun_teronogor_gameobject_soul_transporter_01();      ///< 231736
     new auchindoun_teronogor_gameobject_soul_transporter_02();      ///< 345366
     new auchindoun_teronogor_gameobject_soul_transporter_03();      ///< 345367

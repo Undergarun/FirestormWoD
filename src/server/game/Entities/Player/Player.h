@@ -1631,7 +1631,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos);
         uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS); }
         void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS, count); }
-        bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
+        bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false, bool inReagentBank = false) const;
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = NULL) const;
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
         bool HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot = NULL_SLOT) const;

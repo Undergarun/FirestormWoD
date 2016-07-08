@@ -175,7 +175,7 @@ class EventNyamiEscape : public BasicEvent
                                         /// Cosmetic crystal projectiles flies toward the middle
                                         if (Creature* l_Teronoger = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
                                        {
-                                            if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 60.0f, true))
+                                            if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 1000.0f, true))
                                             {
                                                 for (uint8 l_I = 0; l_I < 20; l_I++)
                                                 {
@@ -568,6 +568,10 @@ class boss_kaathar : public CreatureScript
 				ActivateDoors();
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);                                                
             }	
+
+
+            if (m_Instance != nullptr)
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(eKaatharSpells::SpellSanctifiedGroundAura);
         }
 
         void ActivateDoors()
@@ -729,6 +733,9 @@ class boss_kaathar : public CreatureScript
             /// Remove the auchenai shield npc
             if (Creature* l_Nearest = me->FindNearestCreature(eAuchindounCreatures::CreatureAuchenaiShield, 300.0f))
                 l_Nearest->DespawnOrUnsummon();
+
+            if (m_Instance != nullptr)
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(eKaatharSpells::SpellSanctifiedGroundAura);
 
             Talk(eKaatharTalks::VigilantKaatherDeath);  
             me->m_Events.AddEvent(new EventPostKaathar(me, 0), me->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));

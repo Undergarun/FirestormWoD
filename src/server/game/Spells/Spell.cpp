@@ -7891,7 +7891,7 @@ SpellCastResult Spell::CheckItems()
                         }
                     }
                 }
-                if (!p_caster->HasItemCount(itemid, itemcount))
+                if (!p_caster->HasItemCount(itemid, itemcount, false, true))
                     return SPELL_FAILED_REAGENTS;
             }
         }
@@ -8547,7 +8547,7 @@ bool Spell::IsNeedSendToClient() const
 {
     uint32 const l_Dummy[2] = { 0, 0 };
     uint32 const* l_VisualID = l_Dummy;
-    if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(m_spellInfo->GetSpellXSpellVisualId()))
+    if (SpellXSpellVisualEntry const* l_VisualEntry = sSpellXSpellVisualStore.LookupEntry(m_spellInfo->GetSpellXSpellVisualId(m_originalCaster)))
         l_VisualID = l_VisualEntry->VisualID;
 
     return l_VisualID[0] || l_VisualID[1] || m_spellInfo->IsChanneled() || m_spellInfo->HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS) ||

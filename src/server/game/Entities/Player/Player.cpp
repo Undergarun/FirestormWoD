@@ -13725,7 +13725,7 @@ bool Player::IsValidPos(uint8 bag, uint8 slot, bool explicit_pos)
     return false;
 }
 
-bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
+bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso, bool inReagentBank) const
 {
     uint32 tempcount = 0;
     for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; i++)
@@ -13768,16 +13768,6 @@ bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
                     return true;
             }
         }
-        for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; i++)
-        {
-            Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-            if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
-            {
-                tempcount += pItem->GetCount();
-                if (tempcount >= count)
-                    return true;
-            }
-        }
         for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
         {
             if (Bag* pBag = GetBagByPos(i))
@@ -13792,6 +13782,20 @@ bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
                             return true;
                     }
                 }
+            }
+        }
+    }
+
+    if (inBankAlso || inReagentBank)
+    {
+        for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; i++)
+        {
+            Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+            if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
+            {
+                tempcount += pItem->GetCount();
+                if (tempcount >= count)
+                    return true;
             }
         }
     }
@@ -33173,6 +33177,19 @@ void Player::SummonBattlePet(uint64 p_JournalID)
     l_CurrentPet->SetSpeed(MOVE_RUN, GetSpeedRate(MOVE_RUN), true);
 
     m_BattlePetSummon = l_CurrentPet->GetGUID();
+
+    /// Glyph of shadowy friend
+    if (l_CurrentPet->GetOwner())
+    {
+        Player* l_Owner = l_CurrentPet->GetOwner()->ToPlayer();
+        if (l_Owner && l_Owner->getClass() == CLASS_PRIEST && l_Owner->GetSpecializationId() == SPEC_PRIEST_SHADOW && l_Owner->HasAura(126745))
+        {
+            if (l_Owner->HasAura(107903))
+                l_CurrentPet->CastSpell(l_CurrentPet, 107903, true);
+            if (l_Owner->HasAura(107904))
+                l_CurrentPet->CastSpell(l_CurrentPet, 107904, true);
+        }
+    }
 }
 
 /// Get current summoned battle pet
