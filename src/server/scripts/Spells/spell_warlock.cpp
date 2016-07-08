@@ -1489,6 +1489,11 @@ class spell_warl_soul_leech: public SpellScriptLoader
                 else
                     l_Bp += CalculatePct(GetHitDamage(), 15);
 
+                /// Limit at 15%
+                int32 l_Limit = (l_Player->GetMaxHealth() / 100) * 15;
+                if (l_Bp > l_Limit)
+                    l_Bp = l_Limit;
+
                 if (l_AuraEffect == nullptr)
                 {
                     if (Pet* l_Pet = l_Player->GetPet())
@@ -1547,6 +1552,11 @@ class spell_warl_soul_leech: public SpellScriptLoader
                 /// Demonology and Destruction - 15%
                 else
                     l_Bp += CalculatePct(p_AurEff->GetAmount(), 15);
+
+                /// Limit at 15%
+                int32 l_Limit = (l_Player->GetMaxHealth() / 100) * 15;
+                if (l_Bp > l_Limit)
+                    l_Bp = l_Limit;
 
                 if (l_AuraEffect == nullptr)
                 {

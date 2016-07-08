@@ -332,6 +332,11 @@ class CreatureAI : public UnitAI
             UNUSED(p_Vehicle);
         }
 
+        virtual void OnVehicleEntered(Unit* p_Vehicle)
+        {
+            UNUSED(p_Vehicle);
+        }
+
         /// Called before _ExitVehicle with ExitPos parameter
         virtual void OnExitVehicle(Unit* p_Vehicle, Position& p_ExitPos)
         {
