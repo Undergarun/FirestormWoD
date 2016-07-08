@@ -1905,7 +1905,7 @@ class spell_warl_demonic_leap: public SpellScriptLoader
                 { eSpells::DemonicLeapLeft,          MOVEMENTFLAG_STRAFE_LEFT                          },
                 { eSpells::DemonicLeapForward,       MOVEMENTFLAG_FORWARD                              },
                 { eSpells::DemonicLeapBackward,      MOVEMENTFLAG_BACKWARD                             },
-                { eSpells::DemonicLeapUpward,        MOVEMENTFLAG_NONE                                 },
+                { eSpells::DemonicLeapUpward,        MOVEMENTFLAG_NONE                                 }
             };
 
             void HandleAfterCast()

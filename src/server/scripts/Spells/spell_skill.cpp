@@ -256,132 +256,140 @@ namespace MS { namespace Skill
                         }
                     }
 
-                    std::vector<uint32> l_RewardSpells;
-
-                    switch (l_SpellID)
+                    
+                    std::vector<std::pair<uint32, std::vector<uint32>>> l_AllSpells =
                     {
-                        case SpellIDs::ResearchWarbinderInkItem:
-                            /// http://www.wowhead.com/spell=167950/research-warbinders-ink#teaches-spell
-                            l_RewardSpells = {
+                        { SpellIDs::ResearchWarbinderInkItem,
+                        /// http://www.wowhead.com/spell=167950/research-warbinders-ink#teaches-spell
+                            {
                                 162805, 162840, 162813, 162818, 162877, 162841,
                                 162869, 162847, 162858, 162842, 162829, 162878,
                                 162856, 162808, 162815, 162855, 162857, 162859,
                                 162831, 162884, 162832, 162833, 162846, 162837,
                                 162860, 162861, 162848, 162844, 162879, 162806,
-                                162807, 162814, 162851, 162834, 162862, 162843,
+                                162814, 162851, 162834, 162862, 162843,  57190,
                                 162871, 162820, 162872, 162850, 162880, 162822,
                                 162819, 162817, 162824, 162826, 162881, 162810,
                                 162882, 162863, 162830, 162835, 162849, 162811,
                                 162812, 162821, 162854, 162873, 162864, 162883,
                                 162865, 162852, 162827, 162838, 162874, 162853,
                                 162867, 162866, 162876, 175186, 178448, 162823,
-                                162839, 57160,  57152,  57190
-                            };
-                            break;
-                        case SpellIDs::ResearchMoonglowInk:
-                            /// http://www.wowhead.com/spell=165564/research-moonglow-ink#teaches-spell
-                            l_RewardSpells = {
-                                64253, 124460, 64276,  57224,  57251, 112437,
-                                57261,  57277, 57120,  64270,  56983, 112454,
-                                57221,  57185, 57222, 148283, 148260,  58314,
-                                57003,  64302, 71102, 126687, 112265,  58298,
-                                64285,  56989, 56965, 148278,  64255,  58332
-                            };
-                            break;
-                        case SpellIDs::ResearchMidnightInk:
-                            /// http://www.wowhead.com/spell=165304/research-midnight-ink#teaches-spell
-                            l_RewardSpells = {
-                                 58297, 148272,  71101,  64266,  57215, 148259,
-                                 57122,  57242, 112450, 148282, 124459,  58326,
-                                 94405,  57271,  56980,  57009, 112264, 148266,
-                                112444,  57240,  58312,  57250,  57258,  57202,
-                                 56958,  57014,  56975,  57247,  57191,  95825
-                            };
-                            break;
-                        case SpellIDs::ResearchLionInk:
-                            /// http://www.wowhead.com/spell=165456/research-lions-ink#teaches-spell
-                            l_RewardSpells = {
-                                58323,  58322,  57161,  57001, 148271,  57238,
-                                57037, 135561,  58289,  57027, 148280, 112442,
-                                57007, 148269, 112440,  57183, 148257,  58299,
-                                57132, 148281,  57225, 123781,  57209, 124457,
-                                57223,  57181,  56999,  57237,  59561,  56954,
-                                57127
-                            };
-                            break;
-                        case SpellIDs::ResearchJadefireInk:
-                            /// http://www.wowhead.com/spell=165460/research-jadefire-ink#teaches-spell
-                            l_RewardSpells = {
-                                 57036, 112429, 57000,  57200,  57022,  57119,
-                                 58302, 124449, 58345, 148279, 127625,  58347,
-                                148261, 182157, 58341, 112468, 148255, 148268,
-                                148270, 124451
-                            };
-                            break;
-                        case SpellIDs::ResearchCelestialInk:
-                            /// http://www.wowhead.com/spell=165461/research-celestial-ink#teaches-spell
-                            l_RewardSpells = {
+                                162839, 57160,  57152
+                            }
+                        },
+                        { SpellIDs::ResearchInkOfDreams,
+                        /// http://www.wowhead.com/spell=165467/research-ink-of-dreams#teaches-spell
+                            {
+                                56959,  56979,  56981,  57123,  57133,  57194,
+                                57226,  57227,  57269,  58288,  58301,  58306,
+                                59326,  64258,  64261,  64312, 112266, 112458,
+                                112460, 124461, 126696, 148274, 148285, 182155,
+                                182158,  57189,  56998,  58375
+                            }
+                        },
+                        { SpellIDs::ResearchBlackfallowInk,
+                        /// http://www.wowhead.com/spell=165466/research-blackfallow-ink#teaches-spell
+                            {
+                                57031,  57154,  57196,  57217,  57228,  57249,
+                                57257,  58287,  58296,  58324,  58337,  58339,
+                                64260,  64262,  68166, 112430, 112461, 112462,
+                                122030, 124466, 126800, 148286,  56986,  55691
+                            }
+                        },
+                        { SpellIDs::ResearchInkOfTheSea,
+                        /// http://www.wowhead.com/spell=165465/research-ink-of-the-sea#teaches-spell
+                            {
+                                56948,  56952,  56972,  56995,  57229, 57230,
+                                57270,  58311,  58317,  58328,  58329, 58342,
+                                94404, 112457, 112464, 112469, 124442, 126153,
+                                148275, 148287, 148289, 182156,  57159, 57233,
+                                57019,  56988,  57130,  57260,  57193
+                            }
+                        },
+                        { SpellIDs::ResearchEtherealInk,
+                        /// http://www.wowhead.com/spell=165464/research-ethereal-ink#teaches-spell
+                            {
+                                56978,  56990,  56991,  57005,  57033,  57125,
+                                57265,  57274,  58286,  58315,  58318,  58327,
+                                58330,  58343,  59340,  95215, 112465, 124452,
+                                124455, 148276, 148288, 148290, 148487, 182154,
+                                57207,  57115,  57263,  57164,  57234,  57195
+                            }
+                        },
+                        { SpellIDs::ResearchShimmeringInk,
+                        /// http://www.wowhead.com/spell=165463/research-shimmering-ink#teaches-spell
+                            {
+                                57002,  57023,  57032,  57129,  57168,  57198,
+                                57210,  57236,  58320,  58325,  58333,  58336,
+                                58346,  95710, 112466, 119481, 126801, 131152,
+                                148284, 148291, 148489,  57211,  57124,  56946,
+                                57267,  57232, 132167
+                            }
+                        },
+                        { SpellIDs::ResearchCelestialInk,
+                        /// http://www.wowhead.com/spell=165461/research-celestial-ink#teaches-spell
+                            {
                                 56950,  56994,  57012,  57034,  57114,  57126,
                                 57157,  57172,  57219,  57220,  57235,  57246,
                                 57252,  57253,  57276,  58308,  58316,  58340,
                                 59339,  64259,  64273,  64283,  64307,  92579,
                                 94000, 107907, 112463, 124456, 148273, 148292,
                                 57153
-                            };
-                            break;
-                        case SpellIDs::ResearchShimmeringInk:
-                            /// http://www.wowhead.com/spell=165463/research-shimmering-ink#teaches-spell
-                            l_RewardSpells = {
-                                 57002,  57023,  57032,  57129,  57168,  57198,
-                                 57210,  57236,  58320,  58325,  58333,  58336,
-                                 58346,  95710, 112466, 119481, 126801, 131152,
-                                148284, 148291, 148489,  57211,  57124,  56946,
-                                 57267,  57232, 132167
-                            };
-                            break;
-                        case SpellIDs::ResearchEtherealInk:
-                            /// http://www.wowhead.com/spell=165464/research-ethereal-ink#teaches-spell
-                            l_RewardSpells = {
-                                 56978,  56990,  56991,  57005,  57033,  57125,
-                                 57265,  57274,  58286,  58315,  58318,  58327,
-                                 58330,  58343,  59340,  95215, 112465, 124452,
-                                124455, 148276, 148288, 148290, 148487, 182154,
-                                 57207,  57115,  57263,  57164,  57234,  57195
-                            };
-                            break;
-                        case SpellIDs::ResearchInkOfTheSea:
-                            /// http://www.wowhead.com/spell=165465/research-ink-of-the-sea#teaches-spell
-                            l_RewardSpells = {
-                                 56948,  56952,  56972,  56995,  57229, 57230,
-                                 57270,  58311,  58317,  58328,  58329, 58342,
-                                 94404, 112457, 112464, 112469, 124442, 126153,
-                                148275, 148287, 148289, 182156,  57159, 57233,
-                                 57019,  56988,  57130,  57260,  57193
-                            };
-                            break;
-                        case SpellIDs::ResearchBlackfallowInk:
-                            /// http://www.wowhead.com/spell=165466/research-blackfallow-ink#teaches-spell
-                            l_RewardSpells = {
-                                 57031,  57154,  57196,  57217,  57228,  57249,
-                                 57257,  58287,  58296,  58324,  58337,  58339,
-                                 64260,  64262,  68166, 112430, 112461, 112462,
-                                122030, 124466, 126800, 148286,  56986,  55691
-                            };
-                            break;
-                        case SpellIDs::ResearchInkOfDreams:
-                            /// http://www.wowhead.com/spell=165467/research-ink-of-dreams#teaches-spell
-                            l_RewardSpells = {
-                                 56959,  56979,  56981,  57123,  57133,  57194,
-                                 57226,  57227,  57269,  58288,  58301,  58306,
-                                 59326,  64258,  64261,  64312, 112266, 112458,
-                                112460, 124461, 126696, 148274, 148285, 182155,
-                                182158,  57189,  56998,  58375
-                            };
-                            break;
-                    }
+                            }
+                        },
+                        { SpellIDs::ResearchJadefireInk,
+                        /// http://www.wowhead.com/spell=165460/research-jadefire-ink#teaches-spell
+                            {
+                                57036, 112429, 57000,  57200,  57022,  57119,
+                                58302, 124449, 58345, 148279, 127625,  58347,
+                                148261, 182157, 58341, 112468, 148255, 148268,
+                                148270, 124451
+                            }
+                        },
+                        { SpellIDs::ResearchLionInk,
+                        /// http://www.wowhead.com/spell=165456/research-lions-ink#teaches-spell
+                            {
+                                58323,  58322,  57161,  57001, 148271,  57238,
+                                57037, 135561,  58289,  57027, 148280, 112442,
+                                57007, 148269, 112440,  57183, 148257,  58299,
+                                57132, 148281,  57225, 123781,  57209, 124457,
+                                57223,  57181,  56999,  57237,  59561,  56954,
+                                57127
+                            }
+                        },
+                        { SpellIDs::ResearchMidnightInk,
+                        /// http://www.wowhead.com/spell=165304/research-midnight-ink#teaches-spell
+                            {
+                                58297, 148272,  71101,  64266,  57215, 148259,
+                                57122,  57242, 112450, 148282, 124459,  58326,
+                                94405,  57271,  56980,  57009, 112264, 148266,
+                                112444,  57240,  58312,  57250,  57258,  57202,
+                                56958,  57014,  56975,  57247,  57191,  95825
+                            }
+                        },
+                        {SpellIDs::ResearchMoonglowInk,
+                        /// http://www.wowhead.com/spell=165564/research-moonglow-ink#teaches-spell
+                            {
+                                64253, 124460, 64276,  57224,  57251, 112437,
+                                57261,  57277, 57120,  64270,  56983, 112454,
+                                57221,  57185, 57222, 148283, 148260,  58314,
+                                57003,  64302, 71102, 126687, 112265,  58298,
+                                64285,  56989, 56965, 148278,  64255,  58332
+                            }
+                        }
+                    };
 
-                    /// Can have a reward (Guessed value)
-                    if (l_SpellID != SpellIDs::ResearchWarbinderInkItem && !roll_chance_i(80))
+                    std::vector<uint32> l_RewardSpells;
+
+                    for (auto l_Pair : l_AllSpells)
+                    {
+                        if (l_Pair.first == l_SpellID)
+                        {
+                            l_RewardSpells = l_Pair.second;
+                            break;
+                        }
+                    }
+                    if (l_RewardSpells.empty())
                         return;
 
                     std::vector<uint32> l_Candidates;
@@ -393,22 +401,24 @@ namespace MS { namespace Skill
 
                     if (!l_Candidates.size())
                     {
-                        auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
-                        std::shuffle(l_RewardSpells.begin(), l_RewardSpells.end(), std::default_random_engine(l_Seed));
+                        std::vector<std::vector<uint32>> l_AllRewardSpell;
+                        bool l_FillVector = false;
+                        for (auto l_Itr = l_AllSpells.begin(); l_Itr != l_AllSpells.end(); l_Itr++)
+                        {
+                            if (l_FillVector)
+                                l_AllRewardSpell.push_back(l_Itr->second);
+                            if (l_Itr->first == l_SpellID)
+                                l_FillVector = true;
+                        }
 
-                        uint32 l_SpellID = l_RewardSpells.at(0);
-                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
-
-                        if (!l_SpellInfo || l_SpellInfo->Effects[EFFECT_0].Effect != SPELL_EFFECT_CREATE_ITEM)
-                            return;
-
-                        uint32 l_ItemID = l_SpellInfo->Effects[EFFECT_0].ItemType;
-
-                        if (!sObjectMgr->GetItemTemplate(l_ItemID))
-                            return;
-
-                        l_Player->AddItem(l_ItemID, 1);
-                        return;
+                        for (std::vector<uint32> l_SpellVector : l_AllRewardSpell)
+                        {
+                            for (uint32 l_SpellID : l_SpellVector)
+                            {
+                                if (!l_Player->HasSpell(l_SpellID))
+                                    l_Candidates.push_back(l_SpellID);
+                            }
+                        }
                     }
 
                     auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
