@@ -1284,6 +1284,21 @@ bool SpellInfo::IsQuestTame() const
     return Effects[0].Effect == SPELL_EFFECT_THREAT && Effects[1].Effect == SPELL_EFFECT_APPLY_AURA && Effects[1].ApplyAuraName == SPELL_AURA_DUMMY;
 }
 
+bool SpellInfo::IsProfessionOrRiding() const
+{
+    for (uint8 i = 0; i < EffectCount; ++i)
+    {
+        if (Effects[i].Effect == SPELL_EFFECT_SKILL)
+        {
+            uint32 skill = Effects[i].MiscValue;
+
+            if (IsProfessionOrRidingSkill(skill))
+                return true;
+        }
+    }
+    return false;
+}
+
 bool SpellInfo::IsProfession() const
 {
     for (uint8 i = 0; i < EffectCount; ++i)
@@ -1317,6 +1332,23 @@ bool SpellInfo::IsPrimaryProfession() const
 bool SpellInfo::IsPrimaryProfessionFirstRank() const
 {
     return IsPrimaryProfession() && GetRank() == 1;
+}
+
+bool SpellInfo::IsAbilityLearnedWithProfession() const
+{
+    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
+
+    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
+    {
+        SkillLineAbilityEntry const* pAbility = _spell_idx->second;
+        if (!pAbility || pAbility->learnOnGetSkill != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
+            continue;
+
+        if (pAbility->req_skill_value > 0)
+            return true;
+    }
+
+    return false;
 }
 
 bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
@@ -1394,6 +1426,11 @@ bool SpellInfo::IsStackableWithRanks() const
     if (IsPassive())
         return false;
     if (PowerType != POWER_MANA && PowerType != POWER_HEALTH)
+        return false;
+    if (IsProfessionOrRiding())
+        return false;
+
+    if (IsAbilityLearnedWithProfession())
         return false;
 
     // All stance spells. if any better way, change it.
