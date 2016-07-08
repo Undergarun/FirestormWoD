@@ -1915,7 +1915,8 @@ class boss_marak_the_blooded : public CreatureScript
                     {
                         Talk(eTalks::TalkBloodRitual);
 
-                        if (Player* l_Target = SelectPlayerTarget(eTargetTypeMask::TypeMaskNonTank, { }, 45.0f))
+                        std::vector<int32> l_ExcludeAuras = { -int32(eSpells::SpellBloodsoakedHeartseekerMarker), -int32(eIronMaidensSpells::OnABoatPeriodic) };
+                        if (Player* l_Target = SelectPlayerTarget(eTargetTypeMask::TypeMaskNonTank, l_ExcludeAuras, 45.0f))
                         {
                             Talk(eTalks::TalkBloodRitualWarn, l_Target->GetGUID());
 
@@ -2283,6 +2284,8 @@ class npc_foundry_ukurogg : public CreatureScript
 
             void Reset() override
             {
+                me->RemoveAllAreasTrigger();
+
                 m_Events.Reset();
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
@@ -2300,6 +2303,8 @@ class npc_foundry_ukurogg : public CreatureScript
 
                 if (!m_Engaged)
                     return;
+
+                m_Events.Reset();
 
                 m_Events.ScheduleEvent(eEvent::EventCorruptedBlood, 2 * TimeConstants::IN_MILLISECONDS);
             }
@@ -2361,23 +2366,6 @@ class npc_foundry_ukurogg : public CreatureScript
                 EnterCombat(p_Attacker);
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
-            {
-                if (p_Target == nullptr)
-                    return;
-
-                switch (p_SpellInfo->Id)
-                {
-                    case eSpells::CorruptedBloodAoE:
-                    {
-                        me->CastSpell(p_Target, eSpells::CorruptedBloodMissile, true);
-                        break;
-                    }
-                    default:
-                        break;
-                }
-            }
-
             void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAllAreasTrigger();
@@ -2405,7 +2393,8 @@ class npc_foundry_ukurogg : public CreatureScript
                 {
                     case eEvent::EventCorruptedBlood:
                     {
-                        me->CastSpell(me, eSpells::CorruptedBloodAoE, true);
+                        if (Player* l_Tank = SelectMainTank())
+                            me->CastSpell(l_Tank, eSpells::CorruptedBloodAoE, true);
                         m_Events.ScheduleEvent(eEvent::EventCorruptedBlood, 2 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
@@ -3873,6 +3862,43 @@ class spell_foundry_rapid_fire_periodic : public SpellScriptLoader
         }
 };
 
+/// Corrupted Blood - 158669
+class spell_foundry_corrupted_blood : public SpellScriptLoader
+{
+    public:
+        spell_foundry_corrupted_blood() : SpellScriptLoader("spell_foundry_corrupted_blood") { }
+
+        class spell_foundry_corrupted_blood_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_corrupted_blood_SpellScript)
+
+            void HandleForceCast(SpellEffIndex p_EffIndex)
+            {
+                /// Prevent generic cast spell because we want to cast on a destination
+                PreventHitDefaultEffect(p_EffIndex);
+
+                Unit* l_Target = GetHitUnit();
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(eIronMaidensSpells::RideLoadingChain) || !l_Target->HasAura(eIronMaidensSpells::OnABoatPeriodic))
+                    return;
+
+                GetCaster()->CastSpell(*l_Target, GetSpellInfo()->Effects[p_EffIndex].TriggerSpell, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_foundry_corrupted_blood_SpellScript::HandleForceCast, EFFECT_1, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_corrupted_blood_SpellScript();
+        }
+};
+
 /// Dominator Blast - 158602
 class areatrigger_foundry_dominator_blast : public AreaTriggerEntityScript
 {
@@ -3968,7 +3994,7 @@ class areatrigger_foundry_corrupted_blood : public AreaTriggerEntityScript
 
         enum eSpell
         {
-            CorruptedBloodDoT = 158684
+            CorruptedBloodDoT = 158683
         };
 
         std::set<uint64> m_AffectedPlayers;
@@ -3978,11 +4004,11 @@ class areatrigger_foundry_corrupted_blood : public AreaTriggerEntityScript
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 1.5f;
+                float l_Radius = 1.0f;
 
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
-                l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
                 std::set<uint64> l_Targets;
 
@@ -3990,10 +4016,10 @@ class areatrigger_foundry_corrupted_blood : public AreaTriggerEntityScript
                 {
                     l_Targets.insert(l_Iter->GetGUID());
 
-                    if (!l_Iter->HasAura(eSpell::CorruptedBloodDoT, l_Caster->GetGUID()))
+                    if (!l_Iter->HasAura(eSpell::CorruptedBloodDoT))
                     {
                         m_AffectedPlayers.insert(l_Iter->GetGUID());
-                        l_Caster->CastSpell(l_Iter, eSpell::CorruptedBloodDoT, true);
+                        l_Iter->CastSpell(l_Iter, eSpell::CorruptedBloodDoT, true);
                     }
                 }
 
@@ -4008,7 +4034,7 @@ class areatrigger_foundry_corrupted_blood : public AreaTriggerEntityScript
                     if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
                     {
                         l_Iter = m_AffectedPlayers.erase(l_Iter);
-                        l_Unit->RemoveAura(eSpell::CorruptedBloodDoT, l_Caster->GetGUID());
+                        l_Unit->RemoveAura(eSpell::CorruptedBloodDoT);
 
                         continue;
                     }
@@ -4025,7 +4051,7 @@ class areatrigger_foundry_corrupted_blood : public AreaTriggerEntityScript
                 for (uint64 l_Guid : m_AffectedPlayers)
                 {
                     if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
-                        l_Unit->RemoveAura(eSpell::CorruptedBloodDoT, l_Caster->GetGUID());
+                        l_Unit->RemoveAura(eSpell::CorruptedBloodDoT);
                 }
             }
         }
@@ -4088,6 +4114,7 @@ void AddSC_boss_iron_maidens()
     new spell_foundry_bombardment_pattern_alpha();
     new spell_foundry_detonation_sequence();
     new spell_foundry_rapid_fire_periodic();
+    new spell_foundry_corrupted_blood();
 
     /// AreaTriggers (spells)
     new areatrigger_foundry_dominator_blast();

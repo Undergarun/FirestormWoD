@@ -3402,6 +3402,9 @@ void SpellMgr::LoadSpellCustomAttr()
             ///////////////////////////////////////////////////////////////////////////////////
             /// Rush Orders
             ///////////////////////////////////////////////////////////////////////////////////
+            case 180704: ///< Rush order visual
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                break;
             case 181507: ///< Alchemy Lab
                 spellInfo->Reagent[0]              = 122576;
                 spellInfo->ReagentCount[0]         = 1;
@@ -3846,6 +3849,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 156626: ///< Rapid Fire (Admiral Gar'an)
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                break;
+            case 158681: ///< Corrupted Blood - Missile (Uk'urogg - Iron Maidens)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////

@@ -669,7 +669,8 @@ class spell_mage_glyph_of_ice_block: public SpellScriptLoader
         }
 };
 
-// Arcane Missiles - 5143
+/// Last Update 6.2.3
+/// Arcane Missiles - 5143
 class spell_mage_arcane_missile: public SpellScriptLoader
 {
     public:
@@ -695,20 +696,27 @@ class spell_mage_arcane_missile: public SpellScriptLoader
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (Aura* arcaneMissiles = _player->GetAura(SPELL_MAGE_ARCANE_MISSILES))
                         arcaneMissiles->DropCharge();
-                
+            }
+
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
                 if (l_Caster->HasAura(eSpell::ArcaneInstability))
                     l_Caster->RemoveAura(eSpell::ArcaneInstability);
             }
 
-
-            void Register()
+            void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_mage_arcane_missile_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_mage_arcane_missile_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_missile_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
 
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_mage_arcane_missile_AuraScript();
         }
@@ -716,8 +724,6 @@ class spell_mage_arcane_missile: public SpellScriptLoader
         class spell_mage_arcane_missile_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_arcane_missile_SpellScript);
-
-
 
             void HandleOnCast()
             {
@@ -731,13 +737,13 @@ class spell_mage_arcane_missile: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnCast += SpellCastFn(spell_mage_arcane_missile_SpellScript::HandleOnCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_mage_arcane_missile_SpellScript();
         }
