@@ -427,13 +427,27 @@ class spell_rog_death_from_above : public SpellScriptLoader
                 DeathFromAboveJump  = 178236
             };
 
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+
+
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+
+                if (!l_Caster->IsWithinLOSInMap(l_Target))
+                    return SPELL_FAILED_LINE_OF_SIGHT;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleAfterCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveJump, true);
-                    l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveBonus, true);
-                }
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveJump, true);
+                l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveBonus, true);
             }
 
             void HandleRegisterCombo(SpellEffIndex p_EffIndex)
@@ -453,6 +467,7 @@ class spell_rog_death_from_above : public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_rog_death_from_above_SpellScript::CheckCast);
                 AfterCast += SpellCastFn(spell_rog_death_from_above_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_rog_death_from_above_SpellScript::HandleRegisterCombo, EFFECT_5, SPELL_EFFECT_APPLY_AURA);
             }
