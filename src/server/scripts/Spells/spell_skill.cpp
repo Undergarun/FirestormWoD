@@ -23,7 +23,6 @@ namespace MS { namespace Skill
             GrilledSaberfish = 161002,
 
             /// Inscription
-            ResearchWarbinderInk     = 167950,
             ResearchWarbinderInkItem = 167948,
             ResearchMoonglowInk      = 165564,
             ResearchMidnightInk      = 165304,
@@ -261,7 +260,6 @@ namespace MS { namespace Skill
 
                     switch (l_SpellID)
                     {
-                        case SpellIDs::ResearchWarbinderInk:
                         case SpellIDs::ResearchWarbinderInkItem:
                             /// http://www.wowhead.com/spell=167950/research-warbinders-ink#teaches-spell
                             l_RewardSpells = {
@@ -383,7 +381,7 @@ namespace MS { namespace Skill
                     }
 
                     /// Can have a reward (Guessed value)
-                    if (!roll_chance_i(80))
+                    if (l_SpellID != SpellIDs::ResearchWarbinderInkItem && !roll_chance_i(80))
                         return;
 
                     std::vector<uint32> l_Candidates;
