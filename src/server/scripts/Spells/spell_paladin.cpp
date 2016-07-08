@@ -2577,7 +2577,8 @@ class spell_pal_seal_of_insight_proc : public SpellScriptLoader
 
             enum eSpells
             {
-                SealofInsightProc = 20167
+                SealofInsightProc = 20167,
+                DivineStorm = 53385
             };
 
             void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -2595,6 +2596,9 @@ class spell_pal_seal_of_insight_proc : public SpellScriptLoader
                         return;
 
                     if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == PALADIN_SPELL_JUDGMENT) ///< It does not apply on Judgements.
+                        return;
+
+                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::DivineStorm) ///< It does not apply on Divine Storm.
                         return;
                 }
 
