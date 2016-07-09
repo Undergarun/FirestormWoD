@@ -47,7 +47,8 @@ enum eTerongorSpells
     SpellDemonicCircleVisual                = 149133,
     SpellTeronogorShield                    = 157017,
     SpellBrokenSouls                        = 72398,
-    SpellSoulBarrage                        = 72305
+    SpellSoulBarrage                        = 72305,
+    SpellGuldenSoulVisual                   = 166453 
 };
 
 enum eTerongorEvents
@@ -121,6 +122,17 @@ enum eTeronogorTransformations
     TransformationOccured     = 5
 };
 
+enum eTeronogorMovements
+{
+    MovementBossDeathSceneStart = 1,
+    MovementBossDeathSceneStage01,
+    MovementBossDeathSceneEnd
+};
+
+Position const g_EndBossCinematicTeleport = {1904.59f, 2982.96f, 16.844f};
+Position const g_EndBossCinematicTeleportPreDespawn = { 1930.304f, 3056.913f, 33.249f };
+Position const g_EndBossCinematicTeleportDespawn = { 1925.326f, 3043.384f, -53.435f };
+
 class EventTeronogorTransform : public BasicEvent
 {
     public:
@@ -133,7 +145,7 @@ class EventTeronogorTransform : public BasicEvent
     {
         enum eTeronogorTransforkmSpells
         {
-            SpellDrainSoulVisual      = 156582,
+            SpellDrainSoulVisual      = 156862,
             SpellAfflictionTransform  = 156863,
             SpellDestructionTransform = 156866,
             SpellDemonologyTransform  = 156919 
@@ -195,6 +207,12 @@ class EventTeronogorTransform : public BasicEvent
                                                     break;
                                             }
                                       
+                                            if (l_Teronogor->IsAIEnabled)
+                                            {
+                                                if (Unit* l_Victim = l_Teronogor->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))     
+                                                    l_Teronogor->Attack(l_Victim, true);                                       
+                                            }                    
+
                                             l_Teronogor->UpdatePosition(*l_Teronogor);
                                             l_Teronogor->SetReactState(ReactStates::REACT_DEFENSIVE);
                                             l_Teronogor->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);                                  
@@ -221,94 +239,6 @@ private:
     int32 m_Event;
 };
 
-class EventTeronogorPostDeath : public BasicEvent
-{
-    public:
-
-    explicit EventTeronogorPostDeath(Unit* p_Unit, int32 p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
-    {
-    }
-
-    bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_p_Diff*/)
-    {
-        if (m_Obj)
-        {
-            if (InstanceScript* l_Instance = m_Obj->GetInstanceScript())
-            {
-                if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
-                {
-                    if (Creature* l_Tuulani = l_Instance->instance->GetCreature(l_Instance->GetData64(eAuchindounDatas::DataTuulani02)))
-                    { 
-                        if (l_Tuulani->IsAIEnabled && l_Teronogor->IsAIEnabled)
-                        { 
-                            switch (m_Modifier)
-                            {
-                                case 0:
-                                {
-                                    l_Teronogor->SetCanFly(true);
-                                    l_Teronogor->SetDisableGravity(true);
-                                    l_Teronogor->NearTeleportTo(l_Teronogor->GetPositionX(), l_Teronogor->GetPositionY(), 28.884939f, l_Teronogor->GetOrientation());
-                                    l_Teronogor->AddAura(eTerongorSpells::SpellSoulBarrage, l_Teronogor);
-                                    l_Teronogor->AddAura(eTerongorSpells::SpellBrokenSouls, l_Teronogor);
-                                    l_Teronogor->m_Events.AddEvent(new EventTeronogorPostDeath(l_Teronogor, 1), l_Teronogor->m_Events.CalculateTime(5 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 1:
-                                {
-                                    l_Teronogor->GetMotionMaster()->MoveKnockbackFrom(l_Teronogor->GetPositionX(), l_Teronogor->GetPositionY(), 14.0f, 12.0f);
-                                    l_Teronogor->m_Events.AddEvent(new EventTeronogorPostDeath(l_Teronogor, 2), l_Teronogor->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 2:
-                                {
-                                    if (Player* l_Player = l_Teronogor->FindNearestPlayer(1000.0f, true))
-                                        l_Teronogor->AI()->JustDied(l_Player);
-
-                                    l_Teronogor->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
-                                    l_Tuulani->m_Events.AddEvent(new EventTeronogorPostDeath(l_Tuulani, 3), l_Tuulani->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 3:
-                                {
-                                    l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK14);
-                                    l_Tuulani->m_Events.AddEvent(new EventTeronogorPostDeath(l_Tuulani, 4), l_Tuulani->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 4:
-                                {
-                                    l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK15);
-                                    l_Teronogor->m_Events.AddEvent(new EventTeronogorPostDeath(l_Teronogor, 5), l_Teronogor->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 5:
-                                {
-                                    l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK16);
-                                    l_Teronogor->m_Events.AddEvent(new EventTeronogorPostDeath(l_Teronogor, 6), l_Teronogor->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 6:
-                                {
-                                    l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK14);
-                                    break;
-                                }
-                                default:
-                                    break;
-                            }
-                        }       
-                    }
-                }         
-            }
-        }
-
-        return true;
-    }
-
-private:
-    Unit* m_Obj;
-    int32 m_Modifier;
-    int32 m_Event;
-};
-
 /// Teron'gor <Shadow Council> - 77734
 class boss_teronogor : public CreatureScript
 {
@@ -323,6 +253,7 @@ class boss_teronogor : public CreatureScript
             m_Instance = me->GetInstanceScript();
             m_Intro = false;
             m_First = false;
+            m_Death = false;
         }
 
         InstanceScript* m_Instance;   
@@ -334,31 +265,41 @@ class boss_teronogor : public CreatureScript
         bool m_SoulTransport03;
         bool m_SoulTransport04;
         bool m_SoulTransport05;
+        bool m_Death;
 
         void Reset() override
         {
             _Reset();
+
             events.Reset();
             m_SecondPhase = false;
-            me->SetReactState(ReactStates::REACT_DEFENSIVE);   
-            me->AddAura(eTerongorSpells::SpellTeronogorShield, me);
-            me->CastSpell(me, eTerongorSpells::SpellDemonicCircleVisual); 
+            me->SetReactState(ReactStates::REACT_DEFENSIVE);
 
-            if (m_Instance != nullptr)
-            if (Creature* l_Jorra = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataIruun)))
-                me->CastSpell(l_Jorra, eAuchindounSpells::SpellDrainSoulVisual);
-            if (m_First)
+            if (!m_Death)
             {
-                m_First = false;
-                m_SoulTransport01 = false;
-                m_SoulTransport02 = false;
-                m_SoulTransport03 = false;
-                m_SoulTransport04 = false;
-                m_SoulTransport05 = false;
-              
-                me->GetMap()->SetObjectVisibility(1000.0f);        
+                if (m_Instance != nullptr)
+                {
+                    if (Creature* l_Jorra = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataIruun)))
+                        me->CastSpell(l_Jorra, eAuchindounSpells::SpellDrainSoulVisual);
+                }
+
+                if (m_First)
+                {
+                    m_First = false;
+
+                    m_SoulTransport01 = false;
+                    m_SoulTransport02 = false;
+                    m_SoulTransport03 = false;
+                    m_SoulTransport04 = false;
+                    m_SoulTransport05 = false;
+
+                    me->AddAura(eTerongorSpells::SpellTeronogorShield, me);
+                    me->CastSpell(me, eTerongorSpells::SpellDemonicCircleVisual);
+
+                    me->GetMap()->SetObjectVisibility(1000.0f);
+                }
             }
-        }
+       }
 
         void MoveInLineOfSight(Unit* p_Who) override
         {
@@ -383,6 +324,7 @@ class boss_teronogor : public CreatureScript
             if (me->GetHealthPct() <= 75 && !m_SecondPhase)
             {
                 events.Reset();
+                me->AttackStop();
                 m_SecondPhase = true;        
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 DoAction(eTeronogorActions::ActionChoosePower);
@@ -408,7 +350,8 @@ class boss_teronogor : public CreatureScript
                     break;
                 case eTeronogorActions::ActionChoosePower:
                 {
-                    events.Reset();                  
+                    events.Reset();            
+
                     switch (urand(eTeronogorTransformations::TransformationAffliction, eTeronogorTransformations::TransformationDemonology))
                     {
                         case eTeronogorTransformations::TransformationAffliction: // Mender Elum - Affliction
@@ -463,11 +406,12 @@ class boss_teronogor : public CreatureScript
             events.ScheduleEvent(eTerongorEvents::EventCorruption, urand(10 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eTerongorEvents::EventRainOfFire, 21 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eTerongorEvents::EventDrainLife, 16 * TimeConstants::IN_MILLISECONDS);
+
             if (m_Instance != nullptr)
             {
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
 
-                if (me->GetMap() && me->GetMap()->IsHeroic())
+                if (m_Instance->instance->IsHeroic())
                 {
                     Position l_Position;
                     me->GetRandomNearPosition(l_Position, 10.0f);
@@ -482,20 +426,56 @@ class boss_teronogor : public CreatureScript
                  Talk(eTerongorTalks::TERONGOR_KILL_01);
         }
 
+        void MovementInform(uint32 p_Type, uint32 p_Id) override
+        {
+            switch (p_Id)
+            {
+                case eTeronogorMovements::MovementBossDeathSceneStart:
+                    if (Player* l_Nearest = me->FindNearestPlayer(100.0f, true))
+                        me->SetFacingToObject(l_Nearest);
+
+                    /*
+                    l_Teronogor->AddAura(eTerongorSpells::SpellSoulBarrage, l_Teronogor);
+                    l_Teronogor->AddAura(eTerongorSpells::SpellBrokenSouls, l_Teronogor);
+                    */
+
+                    Talk(eTerongorTalks::TERONGOR_DEATH);
+
+                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.7f, true);
+                    me->CastSpell(me, eTerongorSpells::SpellGuldenSoulVisual);
+                    me->GetMotionMaster()->MoveTakeoff(eTeronogorMovements::MovementBossDeathSceneStage01, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 4.0f);
+                    break;
+                case eTeronogorMovements::MovementBossDeathSceneStage01:
+                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT_BACK, 15.0f, true);
+                    me->RemoveAura(eTerongorSpells::SpellGuldenSoulVisual);
+                    me->GetMotionMaster()->MoveBackward(eTeronogorMovements::MovementBossDeathSceneEnd, g_EndBossCinematicTeleportPreDespawn.GetPositionX(), g_EndBossCinematicTeleportPreDespawn.GetPositionY(), g_EndBossCinematicTeleportPreDespawn.GetPositionZ(), 15.0F);
+                    break;
+                case eTeronogorMovements::MovementBossDeathSceneEnd:         
+                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 15.0f, true);
+                    me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
+                    me->GetMotionMaster()->MoveBackward(1000, g_EndBossCinematicTeleportDespawn.GetPositionX(), g_EndBossCinematicTeleportDespawn.GetPositionY(), g_EndBossCinematicTeleportDespawn.GetPositionZ(), 15.0F);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         void JustDied(Unit* /*p_Killer*/) override
         {
             _JustDied();
-            Talk(eTerongorTalks::TERONGOR_DEATH);
+
+            m_Death = true;
+
             DespawnCreaturesInArea(eAuchindounCreatures::CreatureFelborneAbyssal, me);
             if (m_Instance != nullptr)
                 m_Instance->SetBossState(eAuchindounDatas::DataBossTeronogor, EncounterState::DONE);
+
             me->Respawn();
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+            me->GetMotionMaster()->MoveCharge(g_EndBossCinematicTeleport.GetPositionX(), g_EndBossCinematicTeleport.GetPositionY(), g_EndBossCinematicTeleport.GetPositionZ(), 42.0F, eTeronogorMovements::MovementBossDeathSceneStart);
 
             me->SummonGameObject(eAuchindounObjects::GameobjectChestAucheni, 1891.84f, 2973.80f, 16.844f, 5.664811f, 0, 0, 0, 0, 0);
-            me->SummonCreature(eAuchindounCreatures::CreatureSoulBinderTuulani01, 1911.65f, 2757.72f, 30.799f, 1.566535f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-            me->m_Events.AddEvent(new EventTeronogorPostDeath(me, 1), me->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
+            me->SummonCreature(eAuchindounCreatures::CreatureSoulBinderTuulani01, 1911.65f, 2757.72f, 30.799f, 1.566535f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);       
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -669,7 +649,7 @@ class auchindoun_teronogor_mob_durag : public CreatureScript
         {
             GrimoireofServitude  = 159021,
             SpellShadowBolt      = 156829,
-            SpellCorruptionDmg = 170608,
+            SpellCorruptionDmg   = 156842,
             SpellChaosWaveDummy  = 157001
         };
 
@@ -883,7 +863,7 @@ class auchindoun_teronogor_mob_shaadum : public CreatureScript
         void Reset() override
         {
             events.Reset();
-            me->SetReactState(ReactStates::REACT_HELPER);
+            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -1036,7 +1016,7 @@ class auchindoun_teronogor_mob_gromkash : public CreatureScript
     }
 };
 
-/// Abyssal - 
+/// Abyssal - 77905
 class auchindoun_teronogor_mob_abyssal : public CreatureScript
 {
     public:
@@ -1069,11 +1049,23 @@ class auchindoun_teronogor_mob_abyssal : public CreatureScript
         {      
             m_Target = 0;
             events.Reset();
- 
+            ClearDelayedOperations();
+
             if (m_First)
             {
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->SetInCombatWithZone();
+                    me->SetDisplayId(InvisibleDisplay);
+                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                });
+
                 m_First = false;        
+                me->SetDisplayId(InvisibleDisplay);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->CastSpell(me, eTerongorSpells::SpellSummonAbyssalMeteor);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC| eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);          
             }
         }
 
@@ -1106,6 +1098,8 @@ class auchindoun_teronogor_mob_abyssal : public CreatureScript
 
             if (!UpdateVictim())
                 return;
+
+            UpdateOperations(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
                 return;
@@ -1245,15 +1239,12 @@ class auchindoun_teronogor_spell_demonic_leap_jump : public SpellScriptLoader
         void Land(SpellEffIndex /*p_EffIndex*/)
         {
             if (Unit* l_Caster = GetCaster())
-            {
-                if (Unit* l_Victim = GetHitUnit())
-                    l_Caster->CastSpell(l_Victim, eTerongorSpells::SpellDemonicLeapAreatriger);
-            }
+                l_Caster->CastSpell(l_Caster, eTerongorSpells::SpellDemonicLeapAreatriger);
         }
 
         void Register()
         {
-            OnEffectHit += SpellEffectFn(auchindoun_teronogor_spell_demonic_leap_jump_SpellScript::Land, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
+            OnEffectLaunch += SpellEffectFn(auchindoun_teronogor_spell_demonic_leap_jump_SpellScript::Land, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
         }
     };
 

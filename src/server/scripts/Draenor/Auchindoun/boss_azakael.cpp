@@ -63,7 +63,7 @@ enum eAzzakelTalks
 enum eAzzakelCreatures
 {
     TriggerFelPool             = 326526,
-    TriggerFelSpark            = 76197,
+    TriggerFelSpark            = 326527,
     TriggerDemonSummoning      = 432636,
     CreatureFelguard           = 76259,
     CreatureCacklingPyromaniac = 76260,
@@ -236,74 +236,6 @@ class auchindoun_azzakel_mob_controller : public CreatureScript
     }
 };
 
-
-/// Fel Pool - 326526
-class auchindoun_azzakel_mob_fel_pool : public CreatureScript
-{
-public:
-
-    auchindoun_azzakel_mob_fel_pool() : CreatureScript("auchindoun_azzakel_mob_fel_pool") {}
-
-    struct auchindoun_azzakel_mob_fel_poolAI : public Scripted_NoMovementAI
-    {
-        auchindoun_azzakel_mob_fel_poolAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
-        {
-            m_First = true;
-        }
-
-        enum eFelPoolSpells
-        {
-            SpellFelPoolDebuffDmg = 153616
-        };
-
-        bool m_First;
-
-        void Reset() override
-        {
-            if (m_First)
-            {
-                m_First = false;
-                me->setFaction(HostileFaction);
-                me->SetDisplayId(InvisibleDisplay);
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-            }
-        }
-
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            std::list<Player*> l_ListPlayers;
-            JadeCore::AnyPlayerInObjectRangeCheck check(me, 15.0f);
-            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(me, l_ListPlayers, check);
-            me->VisitNearbyObject(15.0f, searcher);
-            if (!l_ListPlayers.empty())
-            {
-                for (std::list<Player*>::const_iterator l_Itr = l_ListPlayers.begin(); l_Itr != l_ListPlayers.end(); ++l_Itr)
-                {
-                    if (!(*l_Itr))
-                        continue;
-
-                    if ((*l_Itr)->IsWithinDistInMap(me, 5.0f))
-                    {
-                        if (!(*l_Itr)->HasAura(eFelPoolSpells::SpellFelPoolDebuffDmg))
-                            me->AddAura(eFelPoolSpells::SpellFelPoolDebuffDmg, (*l_Itr));
-                    }
-                    else
-                    {
-                        if ((*l_Itr)->HasAura(eFelPoolSpells::SpellFelPoolDebuffDmg, me->GetGUID()))
-                            (*l_Itr)->RemoveAura(eFelPoolSpells::SpellFelPoolDebuffDmg);
-                    }
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
-        return new auchindoun_azzakel_mob_fel_poolAI(p_Creature);
-    }
-};
-
 /// Fel Spark Trigger - 326527
 class auchindoun_azzakel_mob_fel_spark_trigger : public CreatureScript
 {
@@ -311,9 +243,9 @@ public:
 
     auchindoun_azzakel_mob_fel_spark_trigger() : CreatureScript("auchindoun_azzakel_mob_fel_spark_trigger") {}
 
-    struct auchindoun_azzakel_mob_fel_spark_triggerAI : public Scripted_NoMovementAI
+    struct auchindoun_azzakel_mob_fel_spark_triggerAI : public ScriptedAI
     {
-        auchindoun_azzakel_mob_fel_spark_triggerAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        auchindoun_azzakel_mob_fel_spark_triggerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_First = true;
         }
@@ -337,7 +269,7 @@ public:
             me->setFaction(HostileFaction);
             me->SetDisplayId(InvisibleDisplay);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
 
             for (uint8 l_I = 0; l_I < 20; ++l_I)
             {
@@ -350,7 +282,7 @@ public:
                     l_FelSparkNullAITrigger->setFaction(HostileFaction);
                     l_FelSparkNullAITrigger->SetDisplayId(InvisibleDisplay);
                     l_FelSparkNullAITrigger->SetReactState(ReactStates::REACT_PASSIVE);
-                    l_FelSparkNullAITrigger->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                    l_FelSparkNullAITrigger->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
 
                     l_FelSparkNullAITrigger->CastSpell(l_FelSparkNullAITrigger, eFelSparkSpells::SpellFelSparkAreaTrigger, true);
                 }
@@ -511,25 +443,6 @@ class boss_azzakel : public CreatureScript
                 Talk(eAzzakelTalks::AzzakelSpell02);
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                if (m_Instance != nullptr)
-                {
-                    if (m_Instance->instance->IsHeroic())
-                    {
-                        float l_Range = 5.0f;
-                        float l_Angle = 0.0f;
-                        float l_Step = (2 * M_PI) / 4;
-
-                        for (uint8 l_I = 0; l_I < 4; ++l_I)
-                        {
-                            float l_X = me->GetPositionX() + (l_Range * cos(l_Angle));
-                            float l_Y = me->GetPositionY() + (l_Range * sin(l_Angle));
-                            me->SummonCreature(eAzzakelCreatures::TriggerFelSpark, l_X, l_Y, me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-
-                            l_Angle += l_Step;
-                        }
-                    }
-                }
-
                 if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                 {
                     me->GetMotionMaster()->MoveChase(l_Target, 0.0f, 0.0f);
@@ -668,6 +581,87 @@ class boss_azzakel : public CreatureScript
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new boss_azzakelAI(p_Creature);
+    }
+};
+
+
+/// Fel Pool - 326526
+class auchindoun_azzakel_mob_fel_pool : public CreatureScript
+{
+public:
+
+    auchindoun_azzakel_mob_fel_pool() : CreatureScript("auchindoun_azzakel_mob_fel_pool") {}
+
+    struct auchindoun_azzakel_mob_fel_poolAI : public Scripted_NoMovementAI
+    {
+        auchindoun_azzakel_mob_fel_poolAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        {
+            m_First = true;
+            m_Instance = me->GetInstanceScript();
+        }
+
+        enum eFelPoolSpells
+        {
+            SpellFelPoolDebuffDmg = 153616
+        };
+
+        bool m_First;
+        InstanceScript* m_Instance;
+
+        void Reset() override
+        {
+            if (m_First)
+            {
+                m_First = false;
+                me->setFaction(HostileFaction);
+                me->SetDisplayId(InvisibleDisplay);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+            }
+
+            if (m_Instance != nullptr)
+            {
+                if (m_Instance->instance->IsHeroic())
+                {
+                    me->SummonCreature(eAzzakelCreatures::TriggerFelSpark, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 4.756f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                    me->SummonCreature(eAzzakelCreatures::TriggerFelSpark, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.028f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                    me->SummonCreature(eAzzakelCreatures::TriggerFelSpark, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 1.583f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                    me->SummonCreature(eAzzakelCreatures::TriggerFelSpark, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 3.111f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 p_Diff) override
+        {
+            std::list<Player*> l_ListPlayers;
+            JadeCore::AnyPlayerInObjectRangeCheck check(me, 15.0f);
+            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(me, l_ListPlayers, check);
+            me->VisitNearbyObject(15.0f, searcher);
+            if (!l_ListPlayers.empty())
+            {
+                for (std::list<Player*>::const_iterator l_Itr = l_ListPlayers.begin(); l_Itr != l_ListPlayers.end(); ++l_Itr)
+                {
+                    if (!(*l_Itr))
+                        continue;
+
+                    if ((*l_Itr)->IsWithinDistInMap(me, 5.0f))
+                    {
+                        if (!(*l_Itr)->HasAura(eFelPoolSpells::SpellFelPoolDebuffDmg))
+                            me->AddAura(eFelPoolSpells::SpellFelPoolDebuffDmg, (*l_Itr));
+                    }
+                    else
+                    {
+                        if ((*l_Itr)->HasAura(eFelPoolSpells::SpellFelPoolDebuffDmg, me->GetGUID()))
+                            (*l_Itr)->RemoveAura(eFelPoolSpells::SpellFelPoolDebuffDmg);
+                    }
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const override
+    {
+        return new auchindoun_azzakel_mob_fel_poolAI(p_Creature);
     }
 };
 

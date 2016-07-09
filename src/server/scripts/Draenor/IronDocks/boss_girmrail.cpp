@@ -962,18 +962,11 @@ class iron_docks_grimrail_spell_sanguine_sphere : public SpellScriptLoader
         {
             PrepareAuraScript(iron_docks_grimrail_spell_sanguine_sphere_AuraScript);
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
-            {
-                m_Absorb = 120000;
-            }
-
             void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
                 if (Unit* l_Target = GetTarget())
                 {                
-                    m_Absorb -= p_AbsorbAmount;
-
-                    if (p_AurEff->GetBaseAmount() <= 2)
+                    if (p_AurEff->GetAmount() <= p_AbsorbAmount)
                     {                    
                         l_Target->RemoveAura(eSanguineSphereSpells::SpellSanguineSphere);
 
@@ -999,7 +992,7 @@ class iron_docks_grimrail_spell_sanguine_sphere : public SpellScriptLoader
                                             if (l_ListCreatures.empty())
                                                 return;
 
-                                            for (auto l_Itr : l_ListCreatures)
+                                            for (Creature* l_Itr : l_ListCreatures)
                                             {
                                                 l_Itr->CastSpell(l_Itr, eSanguineSphereSpells::SpellAbruptRestoration);
                                             }
@@ -1017,7 +1010,7 @@ class iron_docks_grimrail_spell_sanguine_sphere : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(iron_docks_grimrail_spell_sanguine_sphere_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+              //  OnEffectApply += AuraEffectApplyFn(iron_docks_grimrail_spell_sanguine_sphere_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
                 OnEffectAbsorb += AuraEffectAbsorbFn(iron_docks_grimrail_spell_sanguine_sphere_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };

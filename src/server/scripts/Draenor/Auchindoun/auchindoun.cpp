@@ -117,6 +117,7 @@ class EventTuulaniIntroduction : public BasicEvent
                                 }
                                 case 11:
                                 {
+                                    /*
 									std::list<Creature*> l_ListCreatures;
 									uint32 l_Entries[7] = { eAuchindounCreatures::CreatureSoulBinderTuulani ,eAuchindounCreatures::CreatureSoulBinderNyami, eAuchindounBosses::BossKaathar,eAuchindounCreatures::CreatureSargeriZealot, eAuchindounCreatures::CreatureSargeriSoulBinder, eAuchindounCreatures::CreatureSargeriRitualist, eAuchindounCreatures::CreatureSargeiHoplite };
 
@@ -135,6 +136,7 @@ class EventTuulaniIntroduction : public BasicEvent
 											l_Itr->SetPhaseMask(4, true);
 										}
 									}
+                                    */
 
 									std::list<Player*> l_ListPlayers;
 									l_Tuulina->GetPlayerListInGrid(l_ListPlayers, 600.0f, true);
@@ -175,6 +177,7 @@ class EventTuulaniIntroduction : public BasicEvent
                                 }
                                 case 15:
                                 {
+                                    /*
 									std::list<Creature*> l_ListCreatures;
 									uint32 l_Entries[7] = { eAuchindounCreatures::CreatureSoulBinderTuulani, eAuchindounCreatures::CreatureSoulBinderNyami, eAuchindounBosses::BossKaathar, eAuchindounCreatures::CreatureSargeriZealot, eAuchindounCreatures::CreatureSargeriSoulBinder, eAuchindounCreatures::CreatureSargeriRitualist, eAuchindounCreatures::CreatureSargeiHoplite };
 
@@ -193,6 +196,7 @@ class EventTuulaniIntroduction : public BasicEvent
 											l_Itr->SetPhaseMask(1, true);
 										}
 									}
+                                    */
 
                                     break;
                                 }
@@ -1335,7 +1339,7 @@ class auchindoun_mob_cackling_pyromaniac : public CreatureScript
 
         enum eCacklingPyromaniacSpells
         {
-            SpellFelBlast      = 167092,
+            SpellFelBlast      = 174422,
             SpellAbyssalVisual = 159610
         };
 
