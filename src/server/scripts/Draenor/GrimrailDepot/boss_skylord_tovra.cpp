@@ -124,6 +124,7 @@ class boss_skylord_torva : public CreatureScript
             {
                 m_Count = 0;
                 m_First = true;
+                ClearDelayedOperations();
                 me->SetDisplayId(InvisibleDisplay);
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
@@ -292,6 +293,7 @@ class boss_skylord_torva : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+            UpdateOperations(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;

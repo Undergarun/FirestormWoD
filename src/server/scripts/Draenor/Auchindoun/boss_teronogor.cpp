@@ -446,6 +446,8 @@ class boss_teronogor : public CreatureScript
                     me->GetMotionMaster()->MoveTakeoff(eTeronogorMovements::MovementBossDeathSceneStage01, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 4.0f);
                     break;
                 case eTeronogorMovements::MovementBossDeathSceneStage01:
+                    me->CastSpell(me, eTerongorSpells::SpellGuldenSoulVisual);
+
                     me->SetSpeed(UnitMoveType::MOVE_FLIGHT_BACK, 15.0f, true);
                     me->RemoveAura(eTerongorSpells::SpellGuldenSoulVisual);
                     me->GetMotionMaster()->MoveBackward(eTeronogorMovements::MovementBossDeathSceneEnd, g_EndBossCinematicTeleportPreDespawn.GetPositionX(), g_EndBossCinematicTeleportPreDespawn.GetPositionY(), g_EndBossCinematicTeleportPreDespawn.GetPositionZ(), 15.0F);
@@ -469,10 +471,18 @@ class boss_teronogor : public CreatureScript
             DespawnCreaturesInArea(eAuchindounCreatures::CreatureFelborneAbyssal, me);
             if (m_Instance != nullptr)
                 m_Instance->SetBossState(eAuchindounDatas::DataBossTeronogor, EncounterState::DONE);
-
-            me->Respawn();
+     
+            me->setFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->GetMotionMaster()->MoveCharge(g_EndBossCinematicTeleport.GetPositionX(), g_EndBossCinematicTeleport.GetPositionY(), g_EndBossCinematicTeleport.GetPositionZ(), 42.0F, eTeronogorMovements::MovementBossDeathSceneStart);
+            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+
+            if (Player* l_Nearest = me->FindNearestPlayer(100.0f, true))
+                me->SetFacingToObject(l_Nearest);
+
+            Talk(eTerongorTalks::TERONGOR_DEATH);
+
+            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.7f, true);
+            me->GetMotionMaster()->MoveTakeoff(eTeronogorMovements::MovementBossDeathSceneStage01, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 4.0f);
 
             me->SummonGameObject(eAuchindounObjects::GameobjectChestAucheni, 1891.84f, 2973.80f, 16.844f, 5.664811f, 0, 0, 0, 0, 0);
             me->SummonCreature(eAuchindounCreatures::CreatureSoulBinderTuulani01, 1911.65f, 2757.72f, 30.799f, 1.566535f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);       

@@ -296,19 +296,19 @@ class iron_docks_grimrail_mob_train : public CreatureScript
                             if (!l_Itr)
                                 continue;
 
-                            float l_X = l_Itr->m_positionX + 600 * cos(3.135287f);
-                            float l_Y = l_Itr->m_positionY + 600 * sin(3.135287f);
+                            float l_X = l_Itr->m_positionX + 600 * cos(3.165287f);
+                            float l_Y = l_Itr->m_positionY + 600 * sin(3.165287f);
 
-                            l_Itr->SetSpeed(UnitMoveType::MOVE_WALK, 5.0f, true);
-                            l_Itr->SetSpeed(UnitMoveType::MOVE_RUN, 5.0f, true);
+                            l_Itr->SetSpeed(UnitMoveType::MOVE_WALK, 8.0f, true);
+                            l_Itr->SetSpeed(UnitMoveType::MOVE_RUN, 8.0f, true);
                             l_Itr->GetMotionMaster()->MovePoint(l_X, l_Y, l_Itr->GetPositionZ(), l_Itr->GetOrientation());
                         }
 
-                        float l_X = me->m_positionX + 600 * cos(3.135287f);
-                        float l_Y = me->m_positionY + 600 * sin(3.135287f);
+                        float l_X = me->m_positionX + 600 * cos(3.165287f);
+                        float l_Y = me->m_positionY + 600 * sin(3.165287f);
 
-                        me->SetSpeed(UnitMoveType::MOVE_WALK, 5.0f, true);
-                        me->SetSpeed(UnitMoveType::MOVE_RUN, 5.0f, true);
+                        me->SetSpeed(UnitMoveType::MOVE_WALK, 8.0f, true);
+                        me->SetSpeed(UnitMoveType::MOVE_RUN, 8.0f, true);
                         me->GetMotionMaster()->MovePoint(l_X, l_Y, me->GetPositionZ(), me->GetOrientation());
                     }
                     break;
@@ -966,7 +966,7 @@ class iron_docks_grimrail_spell_sanguine_sphere : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetTarget())
                 {                
-                    if (p_AurEff->GetAmount() <= p_AbsorbAmount)
+                    if (p_AurEff->GetBaseAmount() <= p_AbsorbAmount)
                     {                    
                         l_Target->RemoveAura(eSanguineSphereSpells::SpellSanguineSphere);
 
@@ -1074,15 +1074,15 @@ class iron_docks_grimrail_spell_flaming_slash : public SpellScriptLoader
             if (!GetCaster())
                 return;
 
-            if (!GetExplTargetUnit())
+            if (!GetHitUnit())
                 return;
 
-            GetCaster()->GetMotionMaster()->MoveCharge(GetExplTargetUnit(), 42.0f, eMovementInformeds::MovementInformFlamingSlash);
+            GetCaster()->GetMotionMaster()->MoveCharge(GetHitUnit(), 42.0f, eMovementInformeds::MovementInformFlamingSlash);
         }
 
         void Register()
         {
-            AfterCast += SpellCastFn(iron_docks_grimrail_spell_flaming_slash_SpellScript::HandleAfterCast);
+            BeforeHit += SpellHitFn(iron_docks_grimrail_spell_flaming_slash_SpellScript::HandleAfterCast);
         }
     };
 

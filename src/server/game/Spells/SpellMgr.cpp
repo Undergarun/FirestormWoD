@@ -4103,11 +4103,15 @@ void SpellMgr::LoadSpellCustomAttr()
             case 164834: ///< Barrage of Leaves
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
+            case 169326: ///< Xeritac Beam
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 166491: ///< FireBloom - experimental, trying to produce triggers
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
             case 169223: ///< Toxic Gas
+            case 166492: ///< Firebloom
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
                 break;
@@ -4135,6 +4139,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
                 /// Iron Docks
+            case 163665:  ///< Flaming Slash
+                spellInfo->Effects[0].Effect = 0;
+                break;
             case 163705:  ///< Abrupt Restoration
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = 0;

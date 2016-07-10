@@ -536,8 +536,9 @@ class boss_kaathar : public CreatureScript
         {
             _Reset();
             events.Reset(); 
-            me->SetCurrentEquipmentId(1); // Equipment Id    
             ClearDelayedOperations();
+            me->SetCurrentEquipmentId(1); // Equipment Id  
+            me->RemoveAllAreasTrigger();
 
             std::list<AreaTrigger*> l_listAreaTriggers;
             me->GetAreatriggerListInRange(l_listAreaTriggers, 300.0f);
@@ -565,10 +566,8 @@ class boss_kaathar : public CreatureScript
                 m_IntroDone = false;
                 me->setFaction(FriendlyFaction);
                 me->CastSpell(me, eAuchindounSpells::SpellGuard);
-				ActivateDoors();
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);                                                
             }	
-
 
             if (m_Instance != nullptr)
                 m_Instance->DoRemoveAurasDueToSpellOnPlayers(eKaatharSpells::SpellSanctifiedGroundAura);

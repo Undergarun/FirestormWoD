@@ -149,6 +149,7 @@ public:
         {
             _Reset();
             events.Reset();
+            ClearDelayedOperations();
             me->setFaction(AttackableYetNotHostileFaction);
             m_Achievement = true;
             m_BaihuGuid = 0;
@@ -156,53 +157,27 @@ public:
             { eEverbloomCreature::CreatureKirinTorBattleMage, eEverbloomCreature::CreatureLadyBayeu, eYalnuCreatures::CreatureSwiftSproutling,
             eYalnuCreatures::CreatureViciousMandragora, eYalnuCreatures::CreatureGnarledAncient, eYalnuCreatures::CreatureFeralLasher };
             for (uint8 l_I = 0; l_I < 7; l_I++)
-                DespawnCreaturesInArea(l_Entries[l_I], me);        
-            if (!m_First)
-            {
-                m_First = true;
-                me->CastSpell(me, eYalnuSpells::SpellChannelArcaneYalnu);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-            }
-            else
-            {
-                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            }     
-        }
-    
+                DespawnCreaturesInArea(l_Entries[l_I], me);
 
-        void MoveInLineOfSight(Unit* p_Who) override
-        {
-            if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 14.0f) && !m_EncounterBegin)
+            if (m_Instance != nullptr)
             {
-                if (m_Instance->GetBossState(eEverbloomData::DataArchmageSol) == EncounterState::DONE)
+                if (Creature* l_Sol = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataArchmageSol)))
                 {
-                    m_EncounterBegin = true;
-                    me->RemoveAllAuras();
-                    me->GetMotionMaster()->MovePoint(eYalnuMovementInformed::MovementYalnuPoint1, g_PositionYalnuMoveToPortal.GetPositionX(), g_PositionYalnuMoveToPortal.GetPositionY(), g_PositionYalnuMoveToPortal.GetPositionZ());
-                }
-                else
-                    me->MonsterSay("debug: instance is not done sol kapaaaaraa", LANG_UNIVERSAL, me->GetGUID());
+                    if (!l_Sol->isDead())
+                    {
+                        me->CastSpell(me, eYalnuSpells::SpellChannelArcaneYalnu);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+                    }
+                    else
+                    {
+                        me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                    }
+                }             
             }
         }
 
-        void MovementInform(uint32 p_Type, uint32 p_Id) override
-        {
-            switch (p_Id)
-            {
-                case eYalnuMovementInformed::MovementYalnuPoint1:            
-                    me->NearTeleportTo(g_PositionYalnuMoveToMiddle);
-                    me->SetHomePosition(g_PositionYalnuMoveToMiddle);
-                    me->Respawn();
-                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-                   break;
-                default:
-                    break;
-            }
-        }
- 
         void SummonMages()
         {
             for (uint8 l_I = 0; l_I <= 5; l_I++)
@@ -272,6 +247,8 @@ public:
 
         void UpdateAI(uint32 const p_Diff) override
         {
+            UpdateOperations(p_Diff);
+
             if (!m_EncounterBegin)
             {
                 if (me->FindNearestPlayer(12.0f, true))
@@ -282,9 +259,20 @@ public:
                         {
                             if (l_Sol->isDead())
                             {
-                                m_EncounterBegin = true;
-                                me->RemoveAllAuras();
-                                me->GetMotionMaster()->MovePoint(eYalnuMovementInformed::MovementYalnuPoint1, g_PositionYalnuMoveToPortal.GetPositionX(), g_PositionYalnuMoveToPortal.GetPositionY(), g_PositionYalnuMoveToPortal.GetPositionZ());
+                                if (me->HasAura(eYalnuSpells::SpellChannelArcaneYalnu))
+                                {
+                                    AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                                    {
+                                        me->NearTeleportTo(g_PositionYalnuMoveToMiddle);
+                                        me->SetHomePosition(g_PositionYalnuMoveToMiddle);
+                                        me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                                    });
+
+                                    m_EncounterBegin = true;
+                                    me->RemoveAllAuras();
+                                    me->GetMotionMaster()->MovePoint(1000, g_PositionYalnuMoveToPortal.GetPositionX(), g_PositionYalnuMoveToPortal.GetPositionY(), g_PositionYalnuMoveToPortal.GetPositionZ());
+                                }
                             }
                         }
                     }
@@ -856,6 +844,7 @@ public:
             me->SetDisplayId(InvisibleDisplay);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->CastSpell(me, eEntanglingSpells::SpellEntanglementVisual);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
 
         void SetGUID(uint64 p_Guid, int32 /*p_Param*/) override
@@ -997,24 +986,16 @@ public:
 
         void Reset() override
 		{
+            me->SetReactState(ReactStates::REACT_PASSIVE);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
         }
 
-		void UpdateAI(const uint32 p_Diff) override
-		{
-			if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
-			{
-				if (Creature* l_Sol = l_InstanceScript->instance->GetCreature(l_InstanceScript->GetData64(eEverbloomData::DataArchmageSol)))
-				{
-					if (l_Sol->isDead())
-					{
-						if (Player * l_Player = me->FindNearestPlayer(2.0f, true))
-							l_Player->NearTeleportTo(g_PositionPortalToOverLook.GetPositionX(), g_PositionPortalToOverLook.GetPositionY(), g_PositionPortalToOverLook.GetPositionZ(), g_PositionPortalToOverLook.GetOrientation());
-					}
-				}
-			}
-		}
+        void UpdateAI(const uint32 p_Diff) override
+        {
+            if (Player * l_Player = me->FindNearestPlayer(2.0f, true))
+                l_Player->NearTeleportTo(g_PositionPortalToOverLook.GetPositionX(), g_PositionPortalToOverLook.GetPositionY(), g_PositionPortalToOverLook.GetPositionZ(), g_PositionPortalToOverLook.GetOrientation());
+        }
     };
 
     CreatureAI* GetAI(Creature* p_Creature) const override
