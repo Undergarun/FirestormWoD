@@ -72,7 +72,8 @@ enum eNyamiTalks
 enum eNyamiActions
 {
     ActionSummonSpirits = 1,
-    ActionBreakLoose
+    ActionBreakLoose,
+	ActionReleaseAnimationPreSoulVessel
 };
 
 enum eNyamiCreatures
@@ -200,14 +201,13 @@ class boss_nyami : public CreatureScript
             m_DiffVisual = 8 * TimeConstants::IN_MILLISECONDS;
             m_DiffChannel = 2 * TimeConstants::IN_MILLISECONDS;
 
-            if (!m_First)
+            if (m_First)
             {
-                m_First = true;
-
-				if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
-					l_Teronogor->SummonCreature(eAuchindounCreatures::CreatureWardenAzzakael, g_PositionWardenSpawnPoint);
-            }      
-        }
+                m_First = false;
+                if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+                    l_Teronogor->SummonCreature(eAuchindounCreatures::CreatureWardenAzzakael, g_PositionWardenSpawnPoint);
+            }			
+		}
 
         void JustReachedHome() override
         {
@@ -278,7 +278,7 @@ class boss_nyami : public CreatureScript
                             me->GetMotionMaster()->MoveJump((*l_Itr)->GetPositionX(), (*l_Itr)->GetPositionY(), (*l_Itr)->GetPositionZ(), 15.0f, 5.0f);         
 
                             G3D::Vector3 l_Source(me->m_positionX, me->m_positionY, me->m_positionZ);
-                            G3D::Vector3 l_Dest(me->m_positionX, me->m_positionY, 30.799f);
+                            G3D::Vector3 l_Dest(me->m_positionX, me->m_positionY, me->m_positionZ + 5.0f);
                             G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
 
                             me->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitNyamiSpiralUponTornSpirit, 1.0f);
@@ -327,12 +327,16 @@ class boss_nyami : public CreatureScript
                     events.ScheduleEvent(eNyamiEvents::EventShadowWordPain, urand(12 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
                     break;
                 case eNyamiEvents::EventSoulVessel:
-                    if (m_Instance != nullptr)
-                    {
-                        me->CastSpell(me, eNyamiSpells::SpellSoulVesselDummy);
-                        m_Instance->DoRemoveAurasDueToSpellOnPlayers(eNyamiSpells::SpellSoulBubbleBuff);
-                        me->MonsterTextEmote("Soulbinder Nyami begins to cast|cffff0000[Soul Vessel]|cfffaeb00!", me->GetGUID(), true);
-                        me->SummonCreature(eNyamiCreatures::CreatureSoulVesselHackBubbleEffect, g_PositionBubble, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+					if (m_Instance != nullptr)
+					{
+						me->CastSpell(me, eNyamiSpells::SpellSoulVesselDummy);
+						m_Instance->DoRemoveAurasDueToSpellOnPlayers(eNyamiSpells::SpellSoulBubbleBuff);
+						me->MonsterTextEmote("Soulbinder Nyami begins to cast|cffff0000[Soul Vessel]|cfffaeb00!", me->GetGUID(), true);
+						if (Creature* l_Bubble = me->SummonCreature(eNyamiCreatures::CreatureSoulVesselHackBubbleEffect, g_PositionBubble, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+						{
+							if (l_Bubble->IsAIEnabled)
+								l_Bubble->AI()->DoAction(eNyamiActions::ActionReleaseAnimationPreSoulVessel);
+						}
                     }
                     events.ScheduleEvent(eNyamiEvents::EventSoulVessel, 25 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -403,16 +407,8 @@ class auchindoun_nyami_mob_warden_cosmetic : public CreatureScript
             me->SetDisableGravity(true);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->CastSpell(me, eNyamiSpells::SpellStrangulateState);
+			me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FLYING);
             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-        }
-
-        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
-        {
-            switch (p_Id)
-            {
-                default:
-                    break;
-            }
         }
     };
 
@@ -441,10 +437,12 @@ class auchindoun_nyami_mob_bubble : public CreatureScript
 
 
         uint32 m_SpellDiff;
+		bool m_Visual;
 
         void Reset() override
         {
             events.Reset();
+			m_Visual = false;
             me->SetDisplayId(InvisibleDisplay);
             m_SpellDiff = 1 * TimeConstants::IN_MILLISECONDS;
             me->CastSpell(me, eBubbleSpells::SpellSoulBubbleVisual);
@@ -453,35 +451,67 @@ class auchindoun_nyami_mob_bubble : public CreatureScript
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            if (m_SpellDiff <= p_Diff)
-            {
-                std::list<Player*> l_PlayerList;
-                JadeCore::AnyPlayerInObjectRangeCheck check(me, 20.0f);
-                JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(me, l_PlayerList, check);
-                me->VisitNearbyObject(12.0f, searcher);
-                if (!l_PlayerList.empty())
-                {
-                    for (std::list<Player*>::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
-                    {
-                        if (!(*l_Itr))
-                            continue;
+			if (m_Visual)
+			{
+				if (m_SpellDiff <= p_Diff)
+				{
+					std::list<Player*> l_PlayerList;
+					JadeCore::AnyPlayerInObjectRangeCheck check(me, 20.0f);
+					JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(me, l_PlayerList, check);
+					me->VisitNearbyObject(12.0f, searcher);
+					if (!l_PlayerList.empty())
+					{
+						for (std::list<Player*>::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+						{
+							if (!(*l_Itr))
+								continue;
 
-                        if ((*l_Itr)->IsWithinDistInMap(me, 4.0f))
-                        {
-                            if (!(*l_Itr)->HasAura(eBubbleSpells::SpellSoulBubbleBuff))
-                                me->AddAura(eBubbleSpells::SpellSoulBubbleBuff, (*l_Itr));
-                        }
-                        else
-                        {
-                            if ((*l_Itr)->HasAura(eBubbleSpells::SpellSoulBubbleBuff))
-                                (*l_Itr)->RemoveAura(eBubbleSpells::SpellSoulBubbleBuff);
-                        }
-                    }
-                }
-            }
-            else
-                m_SpellDiff -= p_Diff;
+							if ((*l_Itr)->IsWithinDistInMap(me, 4.0f))
+							{
+								if (!(*l_Itr)->HasAura(eBubbleSpells::SpellSoulBubbleBuff))
+									me->AddAura(eBubbleSpells::SpellSoulBubbleBuff, (*l_Itr));
+							}
+							else
+							{
+								if ((*l_Itr)->HasAura(eBubbleSpells::SpellSoulBubbleBuff))
+									(*l_Itr)->RemoveAura(eBubbleSpells::SpellSoulBubbleBuff);
+							}
+						}
+					}
+
+					G3D::Vector3 l_Source(me->m_positionX, me->m_positionY, me->m_positionZ);
+					G3D::Vector3 l_Dest(1652.273f, 3008.761f, 36.79123f);
+					G3D::Vector3 l_Orientation(0.0f, 0.0f, 0.0f);
+
+					me->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitNyamiSoulVesselCircle, 1.0f);
+
+					m_SpellDiff = 1 * TimeConstants::IN_MILLISECONDS;
+				}
+				else
+					m_SpellDiff -= p_Diff;
+			}
         }
+	
+		void DoAction(int32 const p_Action) override
+		{
+			switch (p_Action)
+			{
+				case eNyamiActions::ActionReleaseAnimationPreSoulVessel:
+				{
+					me->CancelOrphanSpellVisual(eAuchindounSpellVisualKit::SpellVisualKitNyamiSoulVesselCircle);
+					me->CancelOrphanSpellVisual(eAuchindounSpellVisualKit::SpellVisualKitNyamiSoulVesselSpiralCircle);
+
+					if (m_Visual)
+						m_Visual = false;
+					else
+						m_Visual = true;
+					break;
+				}
+				default:
+					break;
+			}
+		}
+		
     };
 
     CreatureAI* GetAI(Creature* p_Creature) const override
@@ -780,7 +810,7 @@ class auchindoun_nyami_spell_torn_spirits : public SpellScriptLoader
 /// Soul Vessel - 154187
 class auchindoun_nyami_spell_soul_vessel : public SpellScriptLoader
 {
-public:
+	public:
 
     auchindoun_nyami_spell_soul_vessel() : SpellScriptLoader("auchindoun_nyami_spell_soul_vessel") { }
 
@@ -809,8 +839,7 @@ public:
 /// Soul Vessel - 155327
 class auchindoun_nyami_spell_soul_vessel_dummy : public SpellScriptLoader
 {
-
-public:
+	public:
 
     auchindoun_nyami_spell_soul_vessel_dummy() : SpellScriptLoader("auchindoun_nyami_spell_soul_vessel_dummy") { }
 
@@ -824,27 +853,44 @@ public:
             {
                 std::list<Player*> l_ListPlayers;
                 l_Caster->GetPlayerListInGrid(l_ListPlayers, 200.0f);
-                if (!l_ListPlayers.empty())
-                {
-                    for (Player* l_Itr : l_ListPlayers)
-                    {
-                        if (l_Itr && l_Itr->IsInWorld())
-                            l_Itr->CastSpell(l_Itr, eNyamiSpells::SpellSoulVesselDmg);
-                    }
-                }
+				if (!l_ListPlayers.empty())
+				{
+					for (Player* l_Itr : l_ListPlayers)
+					{
+						if (l_Itr && l_Itr->IsInWorld())
+							l_Itr->CastSpell(l_Itr, eNyamiSpells::SpellSoulVesselDmg);
+					}
+				}
 
-                /// Cosmetic
-                if (Creature* l_Bubble = l_Caster->FindNearestCreature(eNyamiCreatures::CreatureSoulVesselHackBubbleEffect, 150.0f))
-                {
-                    l_Bubble->CancelOrphanSpellVisual(eAuchindounSpellVisualKit::SpellVisualKitNyamiSoulVesselCircle);
-                    l_Bubble->CancelOrphanSpellVisual(eAuchindounSpellVisualKit::SpellVisualKitNyamiSoulVesselSpiralCircle);
-                }
+				/// Cosmetic
+				if (Creature* l_Bubble = l_Caster->FindNearestCreature(eNyamiCreatures::CreatureSoulVesselHackBubbleEffect, 150.0f))
+				{
+					G3D::Vector3 l_Source(l_Bubble->m_positionX, l_Bubble->m_positionY, l_Bubble->m_positionZ);
+			     	G3D::Vector3 l_Dest(1759.477f, 2947.181f, 36.79123f);
+					G3D::Vector3 l_Orientation(0.0f, 0.0f, 3.717551f);
+
+					l_Caster->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Dest, eAuchindounSpellVisualKit::SpellVisualKitNyamiSoulVesselSpiralCircle, 1.0f);
+				}
             }
         }
+
+		void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+		{
+			if (Unit* l_Caster = GetCaster())
+			{
+				/// Cosmetic
+				if (Creature* l_Bubble = l_Caster->FindNearestCreature(eNyamiCreatures::CreatureSoulVesselHackBubbleEffect, 150.0f))
+				{
+					if (l_Bubble->IsAIEnabled)
+						l_Bubble->AI()->DoAction(eNyamiActions::ActionReleaseAnimationPreSoulVessel);
+				}
+			}
+		}
 
         void Register()
         {
             OnEffectPeriodic += AuraEffectPeriodicFn(auchindoun_nyami_spell_soul_vessel_dummy_AuraScript::HandlePeriodic, SpellEffIndex::EFFECT_1, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+			AfterEffectRemove += AuraEffectRemoveFn(auchindoun_nyami_spell_soul_vessel_dummy_AuraScript::OnRemove, SpellEffIndex::EFFECT_1, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -857,7 +903,7 @@ public:
 /// Radiant Star AreaTrigger - 157787
 class auchindoun_nyami_at_radiant_star : public AreaTriggerEntityScript
 {
-public:
+	public:
 
     auchindoun_nyami_at_radiant_star() : AreaTriggerEntityScript("auchindoun_nyami_at_radiant_star") {}
 

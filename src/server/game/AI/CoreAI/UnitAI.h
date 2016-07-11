@@ -42,16 +42,24 @@ enum SelectAggroTarget
 // default predicate function to select target based on distance, player and/or aura criteria
 struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
 {
-    const Unit* me;
+    Unit const* me;
     float m_dist;
     bool m_playerOnly;
-    int32 m_aura;
+    std::vector<int32> m_aura;
 
     // unit: the reference unit
     // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit
     // playerOnly: self explaining
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
-    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) : me(unit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
+    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) : me(unit), m_dist(dist), m_playerOnly(playerOnly)
+    {
+        m_aura.push_back(aura);
+    }
+
+    DefaultTargetSelector(Unit const* p_Unit, float p_Dist, bool p_Player, std::vector<int32> p_Auras) : me(p_Unit), m_dist(p_Dist), m_playerOnly(p_Player)
+    {
+        m_aura = p_Auras;
+    }
 
     bool operator()(Unit const* target) const
     {
@@ -70,17 +78,20 @@ struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
         if (m_dist < 0.0f && me->IsWithinCombatRange(target, -m_dist))
             return false;
 
-        if (m_aura)
+        if (!m_aura.empty())
         {
-            if (m_aura > 0)
+            for (int32 l_Aura : m_aura)
             {
-                if (!target->HasAura(m_aura))
-                    return false;
-            }
-            else
-            {
-                if (target->HasAura(-m_aura))
-                    return false;
+                if (l_Aura > 0)
+                {
+                    if (!target->HasAura(l_Aura))
+                        return false;
+                }
+                else
+                {
+                    if (target->HasAura(-l_Aura))
+                        return false;
+                }
             }
         }
 
@@ -194,6 +205,8 @@ class UnitAI
         }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+        Unit* SelectTarget(SelectAggroTarget p_TargetType, uint32 p_Position, float p_Dist, bool p_Player, std::vector<int32> p_ExcludeAuras);
+
         // Select the targets satisfying the predicate.
         // predicate shall extend std::unary_function<Unit*, bool>
         template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
@@ -243,6 +256,7 @@ class UnitAI
         }
 
         void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+        void SelectTargetList(std::list<Unit*>& p_TargetList, uint32 p_Num, SelectAggroTarget p_TargetType, float p_Dist, bool p_Player, std::vector<int32> p_ExcludeAuras);
 
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit*, bool>
@@ -275,6 +289,23 @@ class UnitAI
         Player* SelectRangedTarget(bool p_AllowHeal = true, int32 p_CheckAura = 0) const;
         /// In mostly cases, tanks will not be targeted
         Player* SelectMeleeTarget(bool p_AllowTank = false) const;
+
+        enum eTargetTypeMask
+        {
+            TypeMaskNone        = 0x00,
+            TypeMaskTank        = 0x01,
+            TypeMaskMelee       = 0x02,
+            TypeMaskRanged      = 0x04,
+            TypeMaskHealer      = 0x08,
+
+            TypeMaskAllMelee    = eTargetTypeMask::TypeMaskMelee | eTargetTypeMask::TypeMaskTank,
+            TypeMaskAllRanged   = eTargetTypeMask::TypeMaskRanged | eTargetTypeMask::TypeMaskHealer,
+            TypeMaskNonTank     = eTargetTypeMask::TypeMaskAllRanged | eTargetTypeMask::TypeMaskMelee
+        };
+
+        /// Select a player target, allowing melee, ranged, and/or tanks
+        Player* SelectPlayerTarget(eTargetTypeMask p_TypeMask, std::vector<int32> p_ExcludeAuras = { }, float p_Dist = 0.0f);
+
         Player* SelectMainTank() const;
         Player* SelectOffTank() const;
 

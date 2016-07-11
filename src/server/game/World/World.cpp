@@ -1875,6 +1875,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading disabled rankings...");
     sObjectMgr->LoadDisabledEncounters();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading conversation templates...");
+    sObjectMgr->LoadConversationTemplates();
+
     /// It must be done before anything related to players
     LoadCharacterInfoStore();
 
@@ -3512,9 +3515,6 @@ void World::ResetWeeklyGarrisonDatas()
 
         if (l_Player != nullptr)
         {
-            if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
-                l_GarrisonMgr->CleanGarrisonWeeklyTavernData();
-
             l_Player->ResetWeeklyGarrisonDatas();
             l_Player->SaveToDB();
         }

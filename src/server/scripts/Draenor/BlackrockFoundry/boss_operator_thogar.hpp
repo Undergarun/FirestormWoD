@@ -1073,38 +1073,39 @@ static void ApplyPassengerFlags(Creature* p_Passenger, bool p_IsTrain = true)
         p_Passenger->CastSpell(p_Passenger, eThogarSpells::StoppedFrontAura, true);
 }
 
-static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_Action = eThogarActions::ActionNone, bool p_Talk = true)
+static uint64 SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_Action = eThogarActions::ActionNone, bool p_Talk = true)
 {
     if (p_Summoner == nullptr || p_TrainID >= eThogarTrains::MaxTrains)
-        return;
+        return 0;
 
     InstanceScript* l_InstanceScript = p_Summoner->GetInstanceScript();
     if (l_InstanceScript == nullptr)
-        return;
+        return 0;
 
     Creature* l_Thogar = Creature::GetCreature(*p_Summoner, l_InstanceScript->GetData64(eFoundryCreatures::BossOperatorThogar));
     if (l_Thogar == nullptr)
-        return;
+        return 0;
 
     TrainDatas l_TrainDatas = g_TrainDatas[p_TrainID];
     if (l_TrainDatas.TrackID >= eThogarMiscDatas::MaxTrainTracks)
-        return;
+        return 0;
 
     Position const l_Pos = l_TrainDatas.RightToLeft ? g_TrainTrackSpawnPos[l_TrainDatas.TrackID] : g_TrainTrackEndPos[l_TrainDatas.TrackID];
 
+    uint64 l_TrainGuid = 0;
     if (Creature* l_Wheels = p_Summoner->SummonCreature(eThogarCreatures::TrainWheels, l_Pos))
     {
         ApplyPassengerFlags(l_Wheels, false);
 
-        uint64 l_WheelsGuid     = l_Wheels->GetGUID();
+        l_TrainGuid             = l_Wheels->GetGUID();
         uint64 l_SummonerGuid   = p_Summoner->GetGUID();
-        l_InstanceScript->AddTimedDelayedOperation(10, [l_InstanceScript, l_TrainDatas, l_Pos, l_SummonerGuid, l_WheelsGuid]() -> void
+        l_InstanceScript->AddTimedDelayedOperation(10, [l_InstanceScript, l_TrainDatas, l_Pos, l_SummonerGuid, l_TrainGuid]() -> void
         {
             Creature* l_Summoner = sObjectAccessor->FindCreature(l_SummonerGuid);
             if (l_Summoner == nullptr)
                 return;
 
-            Creature* l_Wheels = sObjectAccessor->FindCreature(l_WheelsGuid);
+            Creature* l_Wheels = sObjectAccessor->FindCreature(l_TrainGuid);
             if (l_Wheels == nullptr)
                 return;
 
@@ -1118,9 +1119,9 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
                 ApplyPassengerFlags(l_Engine);
 
                 uint64 l_EngineGuid = l_Engine->GetGUID();
-                l_InstanceScript->AddTimedDelayedOperation(10, [l_SeatID, l_WheelsGuid, l_EngineGuid]() -> void
+                l_InstanceScript->AddTimedDelayedOperation(10, [l_SeatID, l_TrainGuid, l_EngineGuid]() -> void
                 {
-                    Creature* l_Wheels = sObjectAccessor->FindCreature(l_WheelsGuid);
+                    Creature* l_Wheels = sObjectAccessor->FindCreature(l_TrainGuid);
                     if (l_Wheels == nullptr)
                         return;
 
@@ -1141,13 +1142,13 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
                     ApplyPassengerFlags(l_Waggon);
 
                     uint64 l_WagonGuid = l_Waggon->GetGUID();
-                    l_InstanceScript->AddTimedDelayedOperation(10, [l_SeatID, l_WaggonData, l_TrainDatas, l_Pos, l_SummonerGuid, l_WheelsGuid, l_WagonGuid]() -> void
+                    l_InstanceScript->AddTimedDelayedOperation(10, [l_SeatID, l_WaggonData, l_TrainDatas, l_Pos, l_SummonerGuid, l_TrainGuid, l_WagonGuid]() -> void
                     {
                         Creature* l_Summoner = sObjectAccessor->FindCreature(l_SummonerGuid);
                         if (l_Summoner == nullptr)
                             return;
 
-                        Creature* l_Wheels = sObjectAccessor->FindCreature(l_WheelsGuid);
+                        Creature* l_Wheels = sObjectAccessor->FindCreature(l_TrainGuid);
                         if (l_Wheels == nullptr)
                             return;
 
@@ -1202,9 +1203,9 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
             }
         });
 
-        l_InstanceScript->AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [p_TrainID, p_Action, l_WheelsGuid, l_SummonerGuid]() -> void
+        l_InstanceScript->AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [p_TrainID, p_Action, l_TrainGuid, l_SummonerGuid]() -> void
         {
-            Creature* l_Wheels = sObjectAccessor->FindCreature(l_WheelsGuid);
+            Creature* l_Wheels = sObjectAccessor->FindCreature(l_TrainGuid);
             if (l_Wheels == nullptr)
                 return;
 
@@ -1214,7 +1215,7 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
 
             if (l_Wheels->IsAIEnabled)
             {
-                l_Wheels->AI()->SetGUID(l_Summoner->GetGUID());
+                l_Wheels->AI()->SetGUID(l_Summoner->GetGUID(), 0);
                 l_Wheels->AI()->SetData(0, p_TrainID);
                 l_Wheels->AI()->DoAction(p_Action);
             }
@@ -1252,4 +1253,6 @@ static void SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActions p_
 
         l_Thogar->AI()->Talk(l_Talk);
     }
+
+    return l_TrainGuid;
 }

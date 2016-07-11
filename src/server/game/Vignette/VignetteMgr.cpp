@@ -219,6 +219,7 @@ namespace Vignette
     template void Manager::OnWorldObjectDisappear(GameObject const*);
     template void Manager::OnWorldObjectDisappear(DynamicObject const*);
     template void Manager::OnWorldObjectDisappear(AreaTrigger const*);
+    template void Manager::OnWorldObjectDisappear(Conversation const*);
     template void Manager::OnWorldObjectDisappear(WorldObject const*);
     template void Manager::OnWorldObjectDisappear(Player const*);
 
@@ -227,6 +228,7 @@ namespace Vignette
     template void Manager::OnWorldObjectAppear(GameObject const*);
     template void Manager::OnWorldObjectAppear(DynamicObject const*);
     template void Manager::OnWorldObjectAppear(AreaTrigger const*);
+    template void Manager::OnWorldObjectAppear(Conversation const*);
     template void Manager::OnWorldObjectAppear(WorldObject const*);
     template void Manager::OnWorldObjectAppear(Player const*);
 }

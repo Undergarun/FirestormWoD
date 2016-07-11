@@ -89,7 +89,7 @@ namespace MS { namespace Garrison { namespace Sites
             {
                 for (uint64 l_DynamicPeon : m_CreaturesPerEntry[NPCs::NPC_FROSTWALL_PEON_DYNAMIC])
                 {
-                    Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_FROSTWALL_PEON_DYNAMIC].begin()));
+                    Creature* l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_FROSTWALL_PEON_DYNAMIC].begin()));
 
                     if (l_Creature && l_Creature->AI())
                         l_Creature->AI()->SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING);
@@ -118,7 +118,7 @@ namespace MS { namespace Garrison { namespace Sites
             if (l_GarrisonMgr == nullptr)
                 return;
 
-            if (p_Owner->GetGarrison()->GetBuildingWithType(BuildingType::Barracks).BuildingID)
+            if (p_Owner->GetGarrison()->GetBuildingWithType(Building::Type::Barracks).BuildingID)
             {
                 p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Start Construction
                 p_Owner->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Find Blueprint
@@ -195,7 +195,7 @@ namespace MS { namespace Garrison { namespace Sites
         if (p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
             l_PhaseMask |= GarrisonPhases::PhaseBuildYourBarracks;
 
-        if (l_GarrisonMgr->HasBuildingType(BuildingType::MageTower))
+        if (l_GarrisonMgr->HasBuildingType(Building::Type::MageTower))
         {
             if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestFrostfireRidge))
                 l_PhaseMask |= GarrisonPhases::PhaseMagePortalFrostfireRidge;
@@ -275,9 +275,13 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID
     /// @p_Followers : Followers on the mission
-    void InstanceScript_GarrisonHordeLevel1::OnMissionStart(Player* /*p_Owner*/, uint32 /*p_MissionID*/, std::vector<uint32> /*p_Followers*/)
+    void InstanceScript_GarrisonHordeLevel1::OnMissionStart(Player* p_Owner, uint32 /*p_MissionID*/, std::vector<uint32> p_Followers)
     {
-
+        if (p_Owner->HasQuest(Quests::Horde_MissionProbable))
+        {
+            if (std::find(p_Followers.begin(), p_Followers.end(), 34) != p_Followers.end())
+                p_Owner->QuestObjectiveSatisfy(35706, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
+        }
     }
     /// When a construction start, compute build time
     /// @p_Owner      : Garrison owner
@@ -286,7 +290,7 @@ namespace MS { namespace Garrison { namespace Sites
     uint32 InstanceScript_GarrisonHordeLevel1::OnPrePurchaseBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
+        if (p_BuildingID == Building::ID::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
             return 2;   ///< 2 second, unk retail value
 
         return p_BaseTime;
@@ -297,7 +301,7 @@ namespace MS { namespace Garrison { namespace Sites
     void InstanceScript_GarrisonHordeLevel1::OnPurchaseBuilding(Player* p_Owner, uint32 p_BuildingID)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
+        if (p_BuildingID == Building::ID::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
         {
             p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID());
 
@@ -316,7 +320,7 @@ namespace MS { namespace Garrison { namespace Sites
                 }
             }
         }
-        else if (p_BuildingID == Buildings::TradingPost_TradingPost_Level2)
+        else if (p_BuildingID == Building::ID::TradingPost_TradingPost_Level2)
         {
             uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
             FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
@@ -331,7 +335,7 @@ namespace MS { namespace Garrison { namespace Sites
     void InstanceScript_GarrisonHordeLevel1::OnBuildingActivated(Player* p_Owner, uint32 p_BuildingID)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
+        if (p_BuildingID == Building::ID::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
         {
             p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID());
         }
@@ -342,16 +346,16 @@ namespace MS { namespace Garrison { namespace Sites
 
             switch (p_BuildingID)
             {
-                case Buildings::LumberMill_LumberMill_Level1:
-                case Buildings::LumberMill_LumberMill_Level2:
-                case Buildings::LumberMill_LumberMill_Level3:
+                case Building::ID::LumberMill_LumberMill_Level1:
+                case Building::ID::LumberMill_LumberMill_Level2:
+                case Building::ID::LumberMill_LumberMill_Level3:
                     p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
                     break;
-                case Buildings::Barn_Barn_Level2:
+                case Building::ID::Barn_Barn_Level2:
                     if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                         p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                     break;
-                case Buildings::Barn_Barn_Level3:
+                case Building::ID::Barn_Barn_Level3:
                     if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                         p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                     if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
@@ -376,10 +380,10 @@ namespace MS { namespace Garrison { namespace Sites
 
         switch (p_BuildingType)
         {
-            case BuildingType::Type::LumberMill:
+            case Building::Type::LumberMill:
                 p_Owner->SetSkill(SkillType::SKILL_LOGGING, 0, 0, 0);
                 break;
-            case BuildingType::Type::Barn:
+            case Building::Type::Barn:
                 if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                     p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                 if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))

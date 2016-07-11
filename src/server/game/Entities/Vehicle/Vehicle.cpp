@@ -449,6 +449,12 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnAddPassenger(this, unit, seatId);
 
+    if (Creature* l_Passenger = unit->ToCreature())
+    {
+        if (l_Passenger->IsAIEnabled)
+            l_Passenger->AI()->OnVehicleEntered(_me);
+    }
+
     return true;
 }
 
@@ -485,6 +491,7 @@ void Vehicle::RemovePassenger(Unit* unit)
         unit->m_movementInfo.t_pos.Relocate(0, 0, 0, 0);
         unit->m_movementInfo.t_time = 0;
         unit->m_movementInfo.t_seat = 0;
+        unit->m_movementInfo.t_guid = 0;
     }
 
     // only for flyable vehicles

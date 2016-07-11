@@ -701,7 +701,7 @@ namespace MS { namespace Garrison
         if (p_Player->GetGarrison() == nullptr)
             return true;
 
-        std::vector<uint64> l_CreatureGuids = p_Player->GetGarrison()->GetBuildingCreaturesByBuildingType(BuildingType::TradingPost);
+        std::vector<uint64> l_CreatureGuids = p_Player->GetGarrison()->GetBuildingCreaturesByBuildingType(Building::Type::TradingPost);
 
         for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
         {
@@ -749,8 +749,8 @@ namespace MS { namespace Garrison
             switch (l_Building.BuildingID)
             {
                 /// Gem Boutique has custom handling
-                case Buildings::TailoringEmporium_TailoringEmporium_Level2:
-                case Buildings::TailoringEmporium_TailoringEmporium_Level3:
+                case Building::ID::TailoringEmporium_TailoringEmporium_Level2:
+                case Building::ID::TailoringEmporium_TailoringEmporium_Level3:
                 {
                     std::vector<RecipesConditions> l_Recipes;
 
@@ -788,8 +788,8 @@ namespace MS { namespace Garrison
 
                     break;
                 }
-                case Buildings::TheTannery_TheTannery_Level2:
-                case Buildings::TheTannery_TheTannery_Level3:
+                case Building::ID::TheTannery_TheTannery_Level2:
+                case Building::ID::TheTannery_TheTannery_Level3:
                 {
                     std::vector<RecipesConditions> l_Recipes;
 
@@ -847,13 +847,13 @@ namespace MS { namespace Garrison
 
                     break;
                 }
-                case Buildings::TheForge_TheForge_Level2:
-                case Buildings::TheForge_TheForge_Level3:
+                case Building::ID::TheForge_TheForge_Level2:
+                case Building::ID::TheForge_TheForge_Level3:
                     p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "Grant me the blessings of the anvil and the forge.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                     p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
                     break;
-                case Buildings::AlchemyLab_AlchemyLab_Level2:
-                case Buildings::AlchemyLab_AlchemyLab_Level3:
+                case Building::ID::AlchemyLab_AlchemyLab_Level2:
+                case Building::ID::AlchemyLab_AlchemyLab_Level3:
                     if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(37270))
                     {
                         if (p_Player->CanTakeQuest(l_Quest, false) || p_Player->CanRewardQuest(l_Quest, false))
@@ -862,8 +862,8 @@ namespace MS { namespace Garrison
                         p_Player->PlayerTalkClass->SendGossipMenu(1, p_Creature->GetGUID());
                     }
                     break;
-                case Buildings::EnchanterStudy_EnchanterStudy_Level2:
-                case Buildings::EnchanterStudy_EnchanterStudy_Level3:
+                case Building::ID::EnchanterStudy_EnchanterStudy_Level2:
+                case Building::ID::EnchanterStudy_EnchanterStudy_Level3:
                 {
                     std::vector<RecipesConditions> l_Recipes =
                     {
@@ -906,8 +906,8 @@ namespace MS { namespace Garrison
                     l_GarrisonAI->SendTradeSkillUI(p_Player);
                     break;
                 }
-                case Buildings::ScribesQuarters_ScribesQuarters_Level2:
-                case Buildings::ScribesQuarters_ScribesQuarters_Level3:
+                case Building::ID::ScribesQuarters_ScribesQuarters_Level2:
+                case Building::ID::ScribesQuarters_ScribesQuarters_Level3:
                 {
                     std::vector<RecipesConditions> l_Recipes =
                     {
@@ -949,8 +949,8 @@ namespace MS { namespace Garrison
 
             switch (l_Building.BuildingID)
             {
-                case Buildings::TheForge_TheForge_Level2:
-                case Buildings::TheForge_TheForge_Level3:
+                case Building::ID::TheForge_TheForge_Level2:
+                case Building::ID::TheForge_TheForge_Level3:
                 {
                     if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
                     {
@@ -1275,7 +1275,7 @@ namespace MS { namespace Garrison
             {
                 if (p_Apply)
                 {
-                    switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(BuildingType::Stable)))
+                    switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(Building::Type::Stable)))
                     {
                         case 2:
                         {

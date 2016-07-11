@@ -356,6 +356,9 @@ class InstanceScript : public ZoneScript
         /// Respawn specified creature, or all creatures
         void RespawnCreature(uint64 p_Guid = 0);
 
+        /// Play scene to all players in instance
+        void PlaySceneForPlayers(Position const p_Pos, uint32 p_ScenePackageID);
+
         // Return wether server allow two side groups or not
         bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
 

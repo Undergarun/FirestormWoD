@@ -146,6 +146,7 @@ public:
             {
                 SolarVisual();
                 m_First = false;
+                m_Counting = 0;
                 me->AddAura(eWitherbarkSpells::SpellBrittleBarkAura, me);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
             }
@@ -196,6 +197,7 @@ public:
                 case eEverbloomActions::ActionCountPre1StBossKill:
                 {
                     m_Counting++;
+
                     if (m_Counting >= 6 && !m_Intro)
                     {
                         m_Intro = true;
@@ -472,7 +474,7 @@ class the_everbloom_witherbark_mob_naturalist : public CreatureScript
             if (m_Instance != nullptr)
             {
                 if (Creature* l_Witherbark = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataWitherbark)))
-                    if (l_Witherbark->IsWithinDistInMap(me, 30.0f) && l_Witherbark->IsAIEnabled)
+                    if (l_Witherbark->IsWithinDistInMap(me, 55.0f) && l_Witherbark->IsAIEnabled)
                         l_Witherbark->AI()->DoAction(eEverbloomActions::ActionCountPre1StBossKill);
             }
         }

@@ -36,12 +36,13 @@ class garrison_commandscript: public CommandScript
 
             static ChatCommand followerCommandTable[] =
             {
-                { "add",        SEC_ADMINISTRATOR, true,  &HandleFollowerAddCommand,    "", NULL },
-                { "remove",     SEC_ADMINISTRATOR, true,  &HandleFollowerRemoveCommand, "", NULL },
-                { "reroll",     SEC_ADMINISTRATOR, true,  &HandleFollowerRerollCommand, "", NULL },
-                { "list",       SEC_ADMINISTRATOR, true,  &HandleFollowerListCommand,   "", NULL },
-                { "promote",    SEC_ADMINISTRATOR, true,  &HandleFollowerPromoteCommand,"", NULL },
-                { NULL,        0,                  false, NULL,                         "", NULL }
+                { "add",        SEC_ADMINISTRATOR, true,  &HandleFollowerAddCommand,     "", NULL },
+                { "addlist",    SEC_ADMINISTRATOR, true,  &HandleFolloweraddlistCommand, "", NULL },
+                { "remove",     SEC_ADMINISTRATOR, true,  &HandleFollowerRemoveCommand,  "", NULL },
+                { "reroll",     SEC_ADMINISTRATOR, true,  &HandleFollowerRerollCommand,  "", NULL },
+                { "list",       SEC_ADMINISTRATOR, true,  &HandleFollowerListCommand,    "", NULL },
+                { "promote",    SEC_ADMINISTRATOR, true,  &HandleFollowerPromoteCommand, "", NULL },
+                { NULL,        0,                  false, NULL,                          "", NULL }
             };
 
             static ChatCommand missionCommandTable[] =
@@ -66,19 +67,20 @@ class garrison_commandscript: public CommandScript
 
             static ChatCommand garrisonCommandTable[] =
             {
-                { "blueprint", SEC_ADMINISTRATOR,  true,   NULL, "",       blueprintCommandTable },
-                { "plot",      SEC_ADMINISTRATOR,  true,   NULL, "",       plotCommandTable      },
-                { "follower",  SEC_ADMINISTRATOR,  true,   NULL, "",       followerCommandTable  },
-                { "mission" ,  SEC_ADMINISTRATOR,  true,   NULL, "",       missionCommandTable   },
-                { "building",  SEC_ADMINISTRATOR,  true,   NULL, "",       buildingCommandTable  },
-                { "shipment",  SEC_ADMINISTRATOR,  true,   NULL, "",       shipmentCommandTable  },
-                { "info",      SEC_ADMINISTRATOR,  true,   &HandleGarrisonInfo,         "", NULL },
-                { "setlevel",  SEC_ADMINISTRATOR,  true,   &HandleGarrisonSetLevel,     "", NULL },
-                { "create",    SEC_ADMINISTRATOR,  true,   &HandleGarrisonCreate,       "", NULL },
-                { "prepare",   SEC_ADMINISTRATOR,  true,   &HandleGarrisonPrepare,       "", NULL },
-                { "delete",    SEC_ADMINISTRATOR,  true,   &HandleGarrisonDelete,       "", NULL },
-                { "resetdata", SEC_ADMINISTRATOR,  true,   &HandleGarrisonResetDatas,   "", NULL },
-                { NULL,        0,                  false,  NULL,                        "", NULL }
+                { "blueprint",       SEC_ADMINISTRATOR,  true,   NULL,                             "", blueprintCommandTable },
+                { "plot",            SEC_ADMINISTRATOR,  true,   NULL,                             "", plotCommandTable      },
+                { "follower",        SEC_ADMINISTRATOR,  true,   NULL,                             "", followerCommandTable  },
+                { "mission" ,        SEC_ADMINISTRATOR,  true,   NULL,                             "", missionCommandTable   },
+                { "building",        SEC_ADMINISTRATOR,  true,   NULL,                             "", buildingCommandTable  },
+                { "shipment",        SEC_ADMINISTRATOR,  true,   NULL,                             "", shipmentCommandTable  },
+                { "info",            SEC_ADMINISTRATOR,  true,   &HandleGarrisonInfo,              "", NULL                  },
+                { "setlevel",        SEC_ADMINISTRATOR,  true,   &HandleGarrisonSetLevel,          "", NULL                  },
+                { "create",          SEC_ADMINISTRATOR,  true,   &HandleGarrisonCreate,            "", NULL                  },
+                { "prepare",         SEC_ADMINISTRATOR,  true,   &HandleGarrisonPrepare,           "", NULL                  },
+                { "delete",          SEC_CONSOLE,        true,   &HandleGarrisonDelete,            "", NULL                  },
+                { "resetdailydata",  SEC_ADMINISTRATOR,  true,   &HandleGarrisonResetDailyDatas,   "", NULL                  },
+                { "resetweeklydata", SEC_ADMINISTRATOR,  true,   &HandleGarrisonResetWeeklyDatas,  "", NULL                  },
+                { NULL,              0,                  false,  NULL,                             "", NULL                  }
             };
 
             static ChatCommand shipyardCommandTable[] =
@@ -270,7 +272,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGarrisonResetDatas(ChatHandler* p_Handler, char const* /*p_Args*/)
+        static bool HandleGarrisonResetDailyDatas(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -289,6 +291,29 @@ class garrison_commandscript: public CommandScript
             }
 
             l_TargetPlayer->ResetDailyGarrisonDatas();
+
+            return true;
+        }
+
+        static bool HandleGarrisonResetWeeklyDatas(ChatHandler* p_Handler, char const* /*p_Args*/)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer)
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->PSendSysMessage("Player doesnt have a garrison");
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            l_TargetPlayer->ResetWeeklyGarrisonDatas();
 
             return true;
         }
@@ -767,6 +792,69 @@ class garrison_commandscript: public CommandScript
 
                     return l_TargetPlayer->GetGarrison()->AddFollower(l_FollowerID);
                 }
+            }
+
+            return true;
+        }
+
+        static bool HandleFolloweraddlistCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            std::vector<uint32> l_FollowerIDs = 
+            {
+                34,
+                87,
+                89,
+                90,
+                92,
+                97,
+                98,
+                101,
+                103,
+                104,
+                106,
+                107,
+                108,
+                110,
+                112,
+                116,
+                119,
+                120,
+                153,
+                159,
+                179,
+                180,
+                181,
+                182,
+                183,
+                184,
+                185,
+                186,
+                204,
+                207,
+                208,
+                216,
+                463,
+                467,
+                580,
+                581,
+                582
+            };
+
+            for (uint32 l_ID : l_FollowerIDs)
+            {
+                const GarrFollowerEntry* l_Entry = sGarrFollowerStore.LookupEntry(l_ID);
+
+                if (l_Entry)
+                    l_TargetPlayer->GetGarrison()->AddFollower(l_Entry->ID);
             }
 
             return true;

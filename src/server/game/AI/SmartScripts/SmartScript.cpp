@@ -2317,12 +2317,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_PLAY_SCENE_OBJECT:
         {
-            WorldObject* l_Object = GetBaseObject();
-
-            if (l_Object == nullptr)
-                break;
-
-            Player* l_Player = l_Object->ToPlayer();
+            Player* l_Player = unit->ToPlayer();
 
             if (l_Player == nullptr)
                 return;
@@ -2344,6 +2339,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             l_DungeonSet.insert(e.action.enterLfgQueue.DungeonID);
 
             sLFGMgr->Join(l_Player, l_Roles, l_DungeonSet, "");
+            break;
+        }
+        case SMART_ACTION_PLAY_CINEMATIC:
+        {
+            Player* l_Player = unit->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->SendCinematicStart(e.action.playCinematic.CinematicID);
             break;
         }
         default:

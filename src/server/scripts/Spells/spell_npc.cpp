@@ -1628,6 +1628,64 @@ class spell_npc_treant_balance : public CreatureScript
         }
 };
 
+/// Last Update 6.2.3
+/// Explosive Sheep- 2675
+class spell_npc_inge_exeplosive_sheep : public CreatureScript
+{
+    public:
+        spell_npc_inge_exeplosive_sheep() : CreatureScript("npc_inge_exeplosive_sheep") { }
+
+        enum eSpells
+        {
+            Explosion = 4050
+        };
+
+        struct spell_npc_inge_exeplosive_sheep_AI : public ScriptedAI
+        {
+            spell_npc_inge_exeplosive_sheep_AI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->SetSpeed(MOVE_WALK, 0.4f);
+                me->SetSpeed(MOVE_RUN, 0.4f);
+            }
+
+            void UpdateAI(uint32 const /*p_Diff*/)
+            {
+                const float l_MaxRadius = 15.0f; ///< Spell radius
+
+                Unit* l_Target = me->getVictim();
+                if (l_Target == nullptr)
+                {
+                    std::list<Unit*> l_Targets;
+
+                    JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(me, me, l_MaxRadius);
+                    JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(me, l_Targets, l_Check);
+                    me->VisitNearbyObject(l_MaxRadius, l_Searcher);
+
+                    for (Unit* l_Target : l_Targets)
+                    {
+                        if (l_Target->isAlive() && me->GetExactDistSq(l_Target) < l_MaxRadius * l_MaxRadius && me->IsWithinLOSInMap(l_Target) && me->IsValidAttackTarget(l_Target))
+                        {
+                            AttackStart(l_Target);
+                            return;
+                        }
+                    }
+                }
+                else if (l_Target->GetDistance(me) < 3.0f)
+                {
+                    me->CastSpell(me, eSpells::Explosion, true);
+                    me->DespawnOrUnsummon();
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_inge_exeplosive_sheep_AI(p_Creature);
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_npc_spell_scripts()
 {
@@ -1667,5 +1725,6 @@ void AddSC_npc_spell_scripts()
 
     /// Generic NPC
     new spell_npc_totem_of_harmony();
+    new spell_npc_inge_exeplosive_sheep();
 }
 #endif

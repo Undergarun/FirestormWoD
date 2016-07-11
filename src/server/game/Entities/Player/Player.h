@@ -270,6 +270,17 @@ enum ActionButtonType
     ACTION_BUTTON_ITEM = 0x80
 };
 
+enum ReputationSource
+{
+    REPUTATION_SOURCE_KILL,
+    REPUTATION_SOURCE_QUEST,
+    REPUTATION_SOURCE_DAILY_QUEST,
+    REPUTATION_SOURCE_WEEKLY_QUEST,
+    REPUTATION_SOURCE_MONTHLY_QUEST,
+    REPUTATION_SOURCE_REPEATABLE_QUEST,
+    REPUTATION_SOURCE_SPELL
+};
+
 #define ACTION_BUTTON_ACTION(X) (uint64(X) & 0x00000000FFFFFFFF)
 #define ACTION_BUTTON_TYPE(X)   ((uint64(X) & 0xFF00000000000000) >> 56)
 #define MAX_ACTION_BUTTON_ACTION_VALUE (0x0000000000FFFFFF)
@@ -1493,7 +1504,7 @@ class Player : public Unit, public GridObject<Player>
         Creature* GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask);
         GameObject* GetGameObjectIfCanInteractWith(uint64 guid, GameobjectTypes type) const;
 
-        std::pair<bool, std::string> EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound = true);
+        std::pair<bool, std::string> EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound = true) const;
 
         bool ToggleAFK();
         bool ToggleDND();
@@ -1503,7 +1514,7 @@ class Player : public Unit, public GridObject<Player>
         std::string afkMsg;
         std::string dndMsg;
 
-        MS::Garrison::Manager* GetGarrison();
+        MS::Garrison::Manager* GetGarrison() const;
         void CreateGarrison();
         bool IsInGarrison() const;
         bool IsInShipyard() const;
@@ -1632,7 +1643,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos);
         uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS); }
         void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS, count); }
-        bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
+        bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false, bool inReagentBank = false) const;
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = NULL) const;
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
         bool HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot = NULL_SLOT) const;
@@ -1851,6 +1862,7 @@ class Player : public Unit, public GridObject<Player>
         bool CanCompleteRepeatableQuest(Quest const* quest);
         bool CanRewardQuest(Quest const* quest, bool msg);
         bool CanRewardQuest(Quest const* quest, uint32 reward, bool msg);
+        void HandleAutoCompleteQuest(Quest const* quest);
         void AddQuest(Quest const* quest, Object* questGiver);
         void CompleteQuest(uint32 quest_id);
         void IncompleteQuest(uint32 quest_id);
@@ -2206,7 +2218,7 @@ class Player : public Unit, public GridObject<Player>
             m_glyphsChanged = true;
         }
         uint32 GetGlyph(uint8 spec, uint8 slot) const { return _talentMgr->SpecInfo[spec].Glyphs[slot]; }
-        bool HasGlyph(uint32 spell_id);
+        bool HasGlyph(uint32 spell_id) const;
         std::vector<uint32> GetGlyphMap(uint8 p_Spec) { return _talentMgr->SpecInfo[p_Spec].Glyphs; }
 
         PlayerTalentMap const* GetTalentMap(uint8 spec) const { return _talentMgr->SpecInfo[spec].Talents; }
@@ -2260,8 +2272,10 @@ class Player : public Unit, public GridObject<Player>
         void _LoadChargesCooldowns(PreparedQueryResult p_Result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
         void _SaveChargesCooldowns(SQLTransaction& p_Transaction);
-        uint32 GetLastPotionId() { return m_lastPotionId; }
-        void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
+        uint32 GetLastPotionItemId() { return  m_LastPotion.m_LastPotionItemID; }
+        void SetLastPotionItemID(uint32 m_ItemId) { m_LastPotion.m_LastPotionItemID = m_ItemId; }
+        uint32 GetLastPotionSpellId() { return  m_LastPotion.m_LastPotionSpellID; }
+        void SetLastPotionSpellID(uint32 m_SpellId) { m_LastPotion.m_LastPotionSpellID = m_SpellId; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
         void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura, SpellInfo const* p_ResSpell = nullptr)
@@ -2755,7 +2769,7 @@ class Player : public Unit, public GridObject<Player>
             m_WorldStates.Remove(p_ID);
             m_WorldStates.Insert(p_ID, p_Value);
         }
-        uint32 GetWorldState(uint32 p_ID)
+        uint32 GetWorldState(uint32 p_ID) const
         {
             return m_WorldStates.Find(p_ID);
         }
@@ -3402,8 +3416,10 @@ class Player : public Unit, public GridObject<Player>
         ChargeStorageType m_CategoryCharges;
 
         void SendSpellCharges();
+        void SendSpellCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
         void SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry);
         void UpdateCharges();
+        void UpdateCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
         bool ConsumeCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
         void ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntry, uint64 p_Reductiontime);
         void RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
@@ -3785,7 +3801,12 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
-        uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
+        struct lastPotion_struct
+        {
+            uint32 m_LastPotionItemID;
+            uint32 m_LastPotionSpellID;
+        };
+        lastPotion_struct m_LastPotion;                              // last used health/mana potion in combat, that block next potion use
 
         GlobalCooldownMgr m_GlobalCooldownMgr;
         struct prohibited_struct
@@ -3927,7 +3948,7 @@ class Player : public Unit, public GridObject<Player>
         // know currencies are not removed at any point (0 displayed)
         void AddKnownCurrency(uint32 itemId);
 
-        int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest, bool noQuestBonus = false);
+        int32 CalculateReputationGain(ReputationSource source, uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool noQuestBonus = false);
         void AdjustQuestReqItemCount(Quest const* quest);
 
         bool IsCanDelayTeleport() const { return m_bCanDelayTeleport; }

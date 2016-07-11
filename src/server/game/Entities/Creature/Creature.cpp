@@ -953,6 +953,7 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
     loot.Context = map->GetLootItemContext();
 
     SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 500);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_LOOK_AT_CONTROLLER_ID, -1);
 
     if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING)
         AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
@@ -1662,8 +1663,8 @@ void Creature::LoadEquipment(int8 p_ID, bool p_Force /*= true*/)
     {
         if (p_Force)
         {
-            for (uint8 l_Iter = 0; l_Iter < MAX_EQUIPMENT_ITEMS; ++l_Iter)
-                SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + (l_Iter * 2), 0);
+            for (uint8 l_Iter = 0; l_Iter < MAX_EQUIPMENT_ITEMS * 2; ++l_Iter)
+                SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + l_Iter, 0);
 
             m_equipmentId = 0;
         }
@@ -1676,8 +1677,9 @@ void Creature::LoadEquipment(int8 p_ID, bool p_Force /*= true*/)
 
     m_equipmentId = p_ID;
 
-    for (uint8 l_Iter = 0; l_Iter < MAX_EQUIPMENT_ITEMS; ++l_Iter)
-        SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + (l_Iter * 2), l_EquipInfos->ItemEntry[l_Iter]);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 0, l_EquipInfos->ItemEntry[0]);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 2, l_EquipInfos->ItemEntry[1]);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 4, l_EquipInfos->ItemEntry[2]);
 
     /// Check if creature has two weapons, and set dual wield
     if (l_EquipInfos->ItemEntry[0] && l_EquipInfos->ItemEntry[1])

@@ -707,10 +707,7 @@ class spell_mastery_ignite: public SpellScriptLoader
                                         if (AuraEffect* l_Effect = l_PreviousIgnite->GetEffect(EFFECT_0))
                                         {
                                             if (uint32 l_Amplitude = l_Effect->GetAmplitude())
-                                            {
-                                                if (uint32 l_Stacks = l_PreviousIgnite->GetDuration() / l_Amplitude)
-                                                    l_Bp += l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE);
-                                            }
+                                                l_Bp += (l_Effect->GetAmount() * (l_PreviousIgnite->GetDuration() / l_Amplitude)) / (l_PreviousIgnite->GetMaxDuration() / l_Amplitude);
                                         }
                                     }
 

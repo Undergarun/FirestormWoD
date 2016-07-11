@@ -228,6 +228,9 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         m_updateFlag |= UPDATEFLAG_HAS_SERVER_TIME;
 
+    if (goinfo->WorldEffectID)
+        m_updateFlag |= UPDATEFLAG_HAS_GAMEOBJECT;
+
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         Object::_Create(guidlow, 0, HIGHGUID_MO_TRANSPORT);
     else

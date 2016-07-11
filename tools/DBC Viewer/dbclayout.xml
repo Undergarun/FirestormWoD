@@ -6778,9 +6778,11 @@
     <field type="int" name="MinReputation3" />
     <field type="int" name="MaxReputation" />
     <field type="int" name="ReputationLogic" />
+    <field type="int" name="unk" />
     <field type="int" name="MinPVPRank" />
     <field type="int" name="MaxPVPRank" />
     <field type="int" name="PvpMedal" />
+	<field type="int" name="unk" />
     <field type="int" name="PrevQuestLogic" />
     <field type="int" name="PrevQuestID1" />
     <field type="int" name="PrevQuestID2" />
@@ -6820,7 +6822,6 @@
     <field type="int" name="AuraSpellID2" />
     <field type="int" name="AuraSpellID3" />
     <field type="int" name="AuraSpellID4" />
-    <field type="int" name="AuraSpellID5" />
     <field type="int" name="WorldStateExpressionID" />
     <field type="int" name="WeatherID" />
     <field type="int" name="PartyStatus" />
@@ -7099,4 +7100,75 @@
     <field type="int" name="field0" />
     <field type="int" name="field1" />
   </ModelFileData>
+  <QuestLineXQuest build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+  </QuestLineXQuest>
+  <QuestFactionReward build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+  </QuestFactionReward>
+  <SpellVisual build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
+    <field type="int" name="field21" />
+    <field type="int" name="field22" />
+    <field type="int" name="field23" />
+    <field type="int" name="field24" />
+    <field type="int" name="field25" />
+    <field type="int" name="field26" />
+    <field type="int" name="field27" />
+    <field type="int" name="field28" />
+    <field type="int" name="field29" />
+  </SpellVisual>
+  <TextureFileData build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+  </TextureFileData>
+  <ModelManifest build="0" />
 </DBFilesClient>

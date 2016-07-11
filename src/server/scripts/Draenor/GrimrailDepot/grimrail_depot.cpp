@@ -537,12 +537,18 @@ class grimrail_depot_mob_grimrail_technician : public CreatureScript
             MovementInformedMoveToActivate = 1
         };
 
+        enum eGrimrailTechnicianActions
+        {
+            ActionActivate = 1
+        };
+
         uint64 l_TargetGuid;
 
         void Reset() override
         {
             events.Reset();
             l_TargetGuid = 0;
+            ClearDelayedOperations();
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -551,11 +557,38 @@ class grimrail_depot_mob_grimrail_technician : public CreatureScript
             events.ScheduleEvent(eGrimrailTechnicianEvents::EventActivating, 20 * TimeConstants::IN_MILLISECONDS);
         }
 
+        void DoAction(int32 const p_Action) override
+        {
+            switch (p_Action)
+            {
+            case eGrimrailTechnicianActions::ActionActivate:
+                {
+                    enum eActivatingSpells
+                    {
+                        SpellActivating = 163966
+                    };
+
+                    if (l_TargetGuid)
+                    {
+                        if (me->IsAIEnabled)
+                        {
+                            if (Creature* l_Target = Creature::GetCreature(*me, l_TargetGuid))
+                                me->CastSpell(l_Target, eActivatingSpells::SpellActivating);
+                        }
+                    }
+                    break;
+                }
+            default:
+                break;
+            }
+        }
+
         void UpdateAI(uint32 const p_Diff) override
         {
             if (!UpdateVictim())
                 return;
 
+            UpdateOperations(p_Diff);
             events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
@@ -583,19 +616,8 @@ class grimrail_depot_mob_grimrail_technician : public CreatureScript
 
                     AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        enum eActivatingSpells
-                        {
-                            SpellActivating = 163966
-                        };
-
-                        if (l_TargetGuid)
-                        {
-                            if (me->IsAIEnabled)
-                            {
-                                if (Creature* l_Target = Creature::GetCreature(*me, l_TargetGuid))
-                                    me->CastSpell(l_Target, eActivatingSpells::SpellActivating);
-                            }
-                        }
+                        if (me->IsAIEnabled)
+                            me->GetAI()->DoAction(eGrimrailTechnicianActions::ActionActivate);
                     });
 
                     AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -680,15 +702,13 @@ class grimrail_depot_iron_star : public CreatureScript
 
             switch (events.ExecuteEvent())
             {
-            case eIronStarMkIIIEvents::IronStarMkIIIChargeEvent:
-                me->CastSpell(me, eIronStarMkIIISpells::IronStarMkIII);
-                me->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+                case eIronStarMkIIIEvents::IronStarMkIIIChargeEvent:
+                    me->CastSpell(me, eIronStarMkIIISpells::IronStarMkIII);
+                    me->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                default:
+                    break;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -742,11 +762,11 @@ class grimrail_depot_mob_gromkar_capitan : public CreatureScript
 
             switch (events.ExecuteEvent())
             {
-            case eGromkarCapitanEvents::EventRecklessSlash:
-                events.ScheduleEvent(eGromkarCapitanEvents::EventRecklessSlash, 0 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+                case eGromkarCapitanEvents::EventRecklessSlash:
+                    events.ScheduleEvent(eGromkarCapitanEvents::EventRecklessSlash, 0 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                default:
+                    break;
             }
 
             DoMeleeAttackIfReady();

@@ -4,7 +4,7 @@ World of Warcraft Warlords of Draenor (6.X) emulator based on TrinityCore projec
 ### BEWARE ! 
 Never commit into interrealm only crash fix, wod branch is the prod branch !
 
-[![Build Status](https://drone.firestorm-servers.com/api/badges/MilleniumStudio/wod/status.svg)](https://drone.firestorm-servers.com/MilleniumStudio/wod)
+[![Build Status](https://drone-1.fat.sh/api/badges/MilleniumStudio/wod/status.svg)](https://drone-1.fat.sh/MilleniumStudio/wod)
 
 ## Requirements
 

@@ -1030,6 +1030,7 @@ void AddSC_item_strongboxes();
 
 /// Draenor Scenario
 void AddSC_instance_scenario_fate_of_karabor();
+void AddSC_instance_scenario_black_temple();
 
 /// Skyreach Dungeon
 void AddSC_instance_Skyreach();
@@ -1082,6 +1083,13 @@ void AddSC_boss_nokgar();
 void AddSC_boss_skulloc();
 void AddSC_boss_grimrail();
 void AddSC_boss_oshir();
+
+/* Grimrail Depot Dungeon */
+void AddSC_RocketsparkandBorka();
+void AddSC_grimrail_depot();
+void AddSC_boss_skylord_tovra();
+void AddSC_instance_grimrail_depot();
+void AddSC_boss_nitrogg_thundertower();
 
 /* Shadowmoon Burial Grounds Dungeon */
 void AddSC_boss_nhalish();
@@ -2081,6 +2089,13 @@ void AddDraenorScripts()
     AddSC_boss_grimrail();
     AddSC_boss_oshir();
 
+    /* Grimrail Depot Dungeon */
+    AddSC_RocketsparkandBorka();
+    AddSC_grimrail_depot();
+    AddSC_boss_skylord_tovra();
+    AddSC_instance_grimrail_depot();
+    AddSC_boss_nitrogg_thundertower();
+
     /// Instance Shadowmoon Burial Grounds
     AddSC_boss_nhalish();
     AddSC_boss_sadana();
@@ -2094,6 +2109,7 @@ void AddDraenorScripts()
 
     /// Draenor Scenario
     AddSC_instance_scenario_fate_of_karabor();
+    AddSC_instance_scenario_black_temple();
 #endif
 }
 
