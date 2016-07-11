@@ -3305,14 +3305,26 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
                         /// Must be done for train spawning
                         me->GetMap()->SetObjectVisibility(500.0f);
 
-                        SummonTrain(me, eThogarTrains::IntroTroopsTrain, eThogarActions::IntroBegin, false);
-                    }
-                    else if (Creature* l_Wheels = me->FindNearestCreature(eThogarCreatures::TrainWheels, 100.0f))
-                    {
-                        if (l_Wheels->IsAIEnabled)
+                        uint64 l_Guid = SummonTrain(me, eThogarTrains::IntroTroopsTrain, eThogarActions::IntroBegin, false);
+
+                        if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
                         {
-                            l_Wheels->AI()->SetGUID(me->GetGUID());
-                            l_Wheels->AI()->DoAction(eThogarActions::IntroEnd);
+                            if (l_Thogar->IsAIEnabled)
+                                l_Thogar->AI()->SetGUID(l_Guid, 2);
+                        }
+                    }
+                    else if (Creature* l_Thogar = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossOperatorThogar)))
+                    {
+                        if (l_Thogar->IsAIEnabled)
+                        {
+                            if (Creature* l_Wheels = Creature::GetCreature(*me, l_Thogar->AI()->GetGUID(2)))
+                            {
+                                if (l_Wheels->IsAIEnabled)
+                                {
+                                    l_Wheels->AI()->SetGUID(me->GetGUID(), 1);
+                                    l_Wheels->AI()->DoAction(eThogarActions::IntroEnd);
+                                }
+                            }
                         }
                     }
                 }

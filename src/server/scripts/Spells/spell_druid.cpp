@@ -717,7 +717,8 @@ class spell_dru_natures_vigil: public SpellScriptLoader
             enum eSpells
             {
                 NatureVigilHeal = 124988,
-                NatureVigilDamage = 124991
+                NatureVigilDamage = 124991,
+				Starfall = 50288
             };
 
             void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -736,6 +737,9 @@ class spell_dru_natures_vigil: public SpellScriptLoader
                         l_SpellProcInfo->Effects[i].TargetB.GetTarget() == 0)
                         l_SingleTarget = true;
                 }
+				///< Starfall is not a mono target spell
+				if (l_SpellProcInfo->Id == eSpells::Starfall)
+					l_SingleTarget = false;
 
                 if (!l_SingleTarget)
                     return;

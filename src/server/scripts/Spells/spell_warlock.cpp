@@ -1481,19 +1481,36 @@ class spell_warl_soul_leech: public SpellScriptLoader
 
                 int32 l_Bp = 0;
                 
-                for (int i = 0; i < 12; ++i)
-                    l_Bp += l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, l_SpellID[i]);
+               /* for (int i = 0; i < 12; ++i)
+                    l_Bp += l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, l_SpellID[i]);*/
+                AuraEffect* l_AuraEffect = l_Player->GetAuraEffect(WARLOCK_SOUL_LEECH_HEAL, EFFECT_0);
+
+                if (l_AuraEffect != nullptr)
+                    l_Bp += l_AuraEffect->GetAmount();
                 /// Affliction - 30%
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_WARLOCK_AFFLICTION)
-                    l_Bp = CalculatePct(l_Bp, 30);
+                    l_Bp += CalculatePct(GetHitDamage(), 30);
                 /// Demonology and Destruction - 15%
                 else
-                    l_Bp = CalculatePct(l_Bp, 15);
+                    l_Bp += CalculatePct(GetHitDamage(), 15);
 
-                if (Pet* l_Pet = l_Player->GetPet())
-                    l_Player->CastCustomSpell(l_Pet, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+                /// Limit at 15%
+                int32 l_Limit = (l_Player->GetMaxHealth() / 100) * 15;
+                if (l_Bp > l_Limit)
+                    l_Bp = l_Limit;
 
-                l_Player->CastCustomSpell(l_Player, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+                if (l_AuraEffect == nullptr)
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Player->CastCustomSpell(l_Pet, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+
+                    l_Player->CastCustomSpell(l_Player, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+                }
+                else
+                {
+                    l_AuraEffect->ChangeAmount(l_Bp);
+                    l_AuraEffect->GetBase()->RefreshDuration();
+                }
             }
 
             void Register() override
@@ -1513,7 +1530,7 @@ class spell_warl_soul_leech: public SpellScriptLoader
             };
 
             int32 l_SpellID[12] = { 48181 , 103103, 686, 6353, 104027, 103964, 6353, 104027, 29722, 17877, 116858, 108370 };
-            void OnTick(AuraEffect const* /*aurEff*/)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -1528,19 +1545,36 @@ class spell_warl_soul_leech: public SpellScriptLoader
                     return;
 
                 int l_Bp = 0;
-                for (int i = 0; i < 12; ++i)
-                    l_Bp += l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, l_SpellID[i]);
+                /*for (int i = 0; i < 12; ++i)
+                    l_Bp += l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, l_SpellID[i]);*/
+                AuraEffect* l_AuraEffect = l_Player->GetAuraEffect(WARLOCK_SOUL_LEECH_HEAL, EFFECT_0);
+
+                if (l_AuraEffect != nullptr)
+                    l_Bp += l_AuraEffect->GetAmount();
                 /// Affliction - 30%
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_WARLOCK_AFFLICTION)
-                    l_Bp = CalculatePct(l_Bp, 30);
+                    l_Bp += CalculatePct(p_AurEff->GetAmount(), 30);
                 /// Demonology and Destruction - 15%
                 else
-                    l_Bp = CalculatePct(l_Bp, 15);
+                    l_Bp += CalculatePct(p_AurEff->GetAmount(), 15);
 
-                if (Pet* l_Pet = l_Player->GetPet())
-                    l_Player->CastCustomSpell(l_Pet, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+                /// Limit at 15%
+                int32 l_Limit = (l_Player->GetMaxHealth() / 100) * 15;
+                if (l_Bp > l_Limit)
+                    l_Bp = l_Limit;
 
-                l_Player->CastCustomSpell(l_Player, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+                if (l_AuraEffect == nullptr)
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Player->CastCustomSpell(l_Pet, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+
+                    l_Player->CastCustomSpell(l_Player, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+                }
+                else
+                {
+                    l_AuraEffect->ChangeAmount(l_Bp);
+                    l_AuraEffect->GetBase()->RefreshDuration();
+                }
             }
 
             void Register() override
@@ -1887,13 +1921,48 @@ class spell_warl_demonic_leap: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_demonic_leap_SpellScript);
 
+            enum eSpells
+            {
+                DemonicLeapBackward      = 109150,
+                DemonicLeapForward       = 109163,
+                DemonicLeapUpward        = 109152,
+                DemonicLeapLeft          = 109164,
+                DemonicLeapRigt          = 109165,
+                DemonicLeapForwardLeft   = 109166,
+                DemonicLeapForwardRight  = 109167,
+                DemonicLeapBackwardLeft  = 111738,
+                DemonicLeapBackwardRight = 111739
+            };
+
+            std::vector<std::pair<uint32, uint32>> m_LeapDirection =
+            {
+                { eSpells::DemonicLeapBackwardLeft,  MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT  },
+                { eSpells::DemonicLeapBackwardRight, MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_RIGHT },
+                { eSpells::DemonicLeapForwardLeft,   MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_STRAFE_LEFT   },
+                { eSpells::DemonicLeapForwardRight,  MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_STRAFE_RIGHT  },
+                { eSpells::DemonicLeapRigt,          MOVEMENTFLAG_STRAFE_RIGHT                         },
+                { eSpells::DemonicLeapLeft,          MOVEMENTFLAG_STRAFE_LEFT                          },
+                { eSpells::DemonicLeapForward,       MOVEMENTFLAG_FORWARD                              },
+                { eSpells::DemonicLeapBackward,      MOVEMENTFLAG_BACKWARD                             },
+                { eSpells::DemonicLeapUpward,        MOVEMENTFLAG_NONE                                 }
+            };
+
             void HandleAfterCast()
             {
                 if (Unit* caster = GetCaster())
                 {
                     if (!caster->HasAura(WARLOCK_DARK_APOTHEOSIS))
                         caster->CastSpell(caster, WARLOCK_METAMORPHOSIS, true);
-                    caster->CastSpell(caster, WARLOCK_DEMONIC_LEAP_JUMP, true);
+
+                    uint32 l_MovementfFlags = caster->GetUnitMovementFlags();
+                    for (auto l_Itr : m_LeapDirection)
+                    {
+                        if ((l_MovementfFlags & l_Itr.second) == l_Itr.second)
+                        {
+                            caster->CastSpell(caster, l_Itr.first, true);
+                            return;
+                        }
+                    }
                 }
             }
 

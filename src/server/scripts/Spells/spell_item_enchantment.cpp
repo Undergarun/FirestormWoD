@@ -163,7 +163,7 @@ class spell_enchantment_mark : public SpellScriptLoader
 
                 if (l_HasEnchant && l_Player && l_ProcAuraId && l_Item)
                 {
-                    bool l_AlreadyApply = false;
+                    /*&bool l_AlreadyApply = false;
                     if (Aura* l_Aura = l_Player->GetAura(l_ProcAuraId, l_Player->GetGUID()))
                     {
                         if (l_Aura->GetCastItemGUID() == l_Item->GetGUID())
@@ -171,10 +171,10 @@ class spell_enchantment_mark : public SpellScriptLoader
                     }
                     
                     if (!l_AlreadyApply)
-                    {
+                    {*/
                         l_Player->CastSpell(l_Player, l_ProcAuraId, true, l_Item);
                         l_Player->AddSpellCooldown(l_ProcAuraId, 0, 1 * TimeConstants::IN_MILLISECONDS, true);
-                    }
+                    /*}*/
                 }
             }
 

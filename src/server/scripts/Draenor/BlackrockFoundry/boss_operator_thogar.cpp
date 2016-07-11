@@ -47,7 +47,8 @@ class boss_operator_thogar : public CreatureScript
         enum eGuidTypes
         {
             IntroAdd,
-            IntroRemove
+            IntroRemove,
+            FirstIntroTrain
         };
 
         enum eIntroStates : uint8
@@ -66,9 +67,10 @@ class boss_operator_thogar : public CreatureScript
         {
             boss_operator_thogarAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataOperatorThogar)
             {
-                m_Instance      = p_Creature->GetInstanceScript();
-                m_IntroDone     = false;
-                m_IntroState    = eIntroStates::IronRaiders;
+                m_Instance          = p_Creature->GetInstanceScript();
+                m_IntroDone         = false;
+                m_IntroState        = eIntroStates::IronRaiders;
+                m_IntroTrainGuid    = 0;
             }
 
             InstanceScript* m_Instance;
@@ -82,6 +84,8 @@ class boss_operator_thogar : public CreatureScript
             uint8 m_TrainID;
 
             std::array<bool, eThogarMiscDatas::MaxTrainTracks> m_AvailableLines;
+
+            uint64 m_IntroTrainGuid;
 
             void Reset() override
             {
@@ -207,9 +211,19 @@ class boss_operator_thogar : public CreatureScript
 
                         break;
                     }
+                    case eGuidTypes::FirstIntroTrain:
+                    {
+                        m_IntroTrainGuid = p_Guid;
+                        break;
+                    }
                     default:
                         break;
                 }
+            }
+
+            uint64 GetGUID(int32 p_ID /*= 0*/)
+            {
+                return m_IntroTrainGuid;
             }
 
             void SetData(uint32 p_ID, uint32 p_Value) override
@@ -466,7 +480,7 @@ class npc_foundry_train_controller : public CreatureScript
             InstanceScript* m_Instance;
             Vehicle* m_Vehicle;
 
-            uint64 m_SummonerGUID;
+            uint64 m_SummonerGUID[2];
 
             uint8 m_TrainID;
 
@@ -475,11 +489,16 @@ class npc_foundry_train_controller : public CreatureScript
 
             std::set<uint64> m_CollisionBoxes;
 
+            bool m_Arrived;
+
             void Reset() override
             {
-                m_SummonerGUID = 0;
+                m_SummonerGUID[0] = 0;
+                m_SummonerGUID[1] = 0;
 
                 m_CheckPassengersTime = 0;
+
+                m_Arrived = false;
 
                 me->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
             }
@@ -542,7 +561,17 @@ class npc_foundry_train_controller : public CreatureScript
                     /// Intro: Part1 - Exit remaining passengers
                     case eThogarActions::IntroEnd:
                     {
-                        if (Creature* l_Summoner = Creature::GetCreature(*me, m_SummonerGUID))
+                        if (!m_Arrived)
+                        {
+                            AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                DoAction(eThogarActions::IntroEnd);
+                            });
+
+                            break;
+                        }
+
+                        if (Creature* l_Summoner = Creature::GetCreature(*me, m_SummonerGUID[1]))
                             RemovePassengers(l_Summoner);
 
                         break;
@@ -669,9 +698,12 @@ class npc_foundry_train_controller : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 p_Guid, int32 /*p_ID*/) override
+            void SetGUID(uint64 p_Guid, int32 p_ID) override
             {
-                m_SummonerGUID = p_Guid;
+                if (p_ID >= 2)
+                    return;
+
+                m_SummonerGUID[p_ID] = p_Guid;
             }
 
             void SetData(uint32 p_ID, uint32 p_Value) override
@@ -688,9 +720,11 @@ class npc_foundry_train_controller : public CreatureScript
                 {
                     case eMoves::MovementIntro:
                     {
+                        m_Arrived = true;
+
                         StopTrain();
 
-                        if (Creature* l_Summoner = Creature::GetCreature(*me, m_SummonerGUID))
+                        if (Creature* l_Summoner = Creature::GetCreature(*me, m_SummonerGUID[0]))
                             RemovePassengers(l_Summoner);
 
                         break;
@@ -699,6 +733,8 @@ class npc_foundry_train_controller : public CreatureScript
                     case eMoves::SecondMovementOuttro:
                     case eMoves::ThirdMovementOuttro:
                     {
+                        m_Arrived = true;
+
                         if (p_ID != eMoves::MovementOuttro)
                             HandleDoors(false);
 
@@ -707,6 +743,8 @@ class npc_foundry_train_controller : public CreatureScript
                     }
                     case eMoves::SecondMovementIntro:
                     {
+                        m_Arrived = true;
+
                         StopTrain();
 
                         for (int8 l_I = 1; l_I < 3; ++l_I)
@@ -777,6 +815,8 @@ class npc_foundry_train_controller : public CreatureScript
                     }
                     case eMoves::ThirdMovementIntro:
                     {
+                        m_Arrived = true;
+
                         StopTrain();
 
                         AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -818,6 +858,8 @@ class npc_foundry_train_controller : public CreatureScript
                     }
                     case eMoves::MovementInFight:
                     {
+                        m_Arrived = true;
+
                         TrainDatas l_Datas = g_TrainDatas[m_TrainID];
 
                         StopTrain();
@@ -867,7 +909,7 @@ class npc_foundry_train_controller : public CreatureScript
                                                     {
                                                         if (Creature* l_Passenger = Creature::GetCreature(*me, l_Guid))
                                                         {
-                                                            if (Creature* l_Thogar = Creature::GetCreature(*me, m_SummonerGUID))
+                                                            if (Creature* l_Thogar = Creature::GetCreature(*me, m_SummonerGUID[0]))
                                                             {
                                                                 if (l_Thogar->IsAIEnabled)
                                                                 {

@@ -201,8 +201,12 @@ class boss_nyami : public CreatureScript
             m_DiffVisual = 8 * TimeConstants::IN_MILLISECONDS;
             m_DiffChannel = 2 * TimeConstants::IN_MILLISECONDS;
 
-			if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
-				l_Teronogor->SummonCreature(eAuchindounCreatures::CreatureWardenAzzakael, g_PositionWardenSpawnPoint);
+            if (m_First)
+            {
+                m_First = false;
+                if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossTeronogor)))
+                    l_Teronogor->SummonCreature(eAuchindounCreatures::CreatureWardenAzzakael, g_PositionWardenSpawnPoint);
+            }			
 		}
 
         void JustReachedHome() override

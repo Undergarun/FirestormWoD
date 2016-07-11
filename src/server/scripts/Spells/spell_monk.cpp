@@ -596,12 +596,17 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Chi Brew - 115399
 class spell_monk_chi_brew: public SpellScriptLoader
 {
     public:
         spell_monk_chi_brew() : SpellScriptLoader("spell_monk_chi_brew") { }
+
+        enum eSpells
+        {
+            SoothingMist = 115175
+        };
 
         class spell_monk_chi_brew_SpellScript : public SpellScript
         {
@@ -612,6 +617,18 @@ class spell_monk_chi_brew: public SpellScriptLoader
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BREW))
                     return false;
                 return true;
+            }
+
+            void HandleOnPrepare()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == eSpells::SoothingMist)
+                    {
+                        TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+                        GetSpell()->setTriggerCastFlags(l_Flags);
+                    }
+                }
             }
 
             void HandleOnHit()
@@ -657,13 +674,14 @@ class spell_monk_chi_brew: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
+                OnPrepare += SpellOnPrepareFn(spell_monk_chi_brew_SpellScript::HandleOnPrepare);
                 OnHit += SpellHitFn(spell_monk_chi_brew_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_chi_brew_SpellScript();
         }
@@ -1001,8 +1019,21 @@ class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
                 GlyphofZenFocusAura = 159545,
                 GlyphofZenFocus     = 159546,
                 T17Mistweaver4P     = 167717,
-                ChiEnergizer        = 169719
+                ChiEnergizer        = 169719,
+                SoothingMist        = 115175
             };
+
+            void HandleOnPrepare()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == eSpells::SoothingMist)
+                    {
+                        TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+                        GetSpell()->setTriggerCastFlags(l_Flags);
+                    }
+                }
+            }
 
             void HandleOnHit()
             {
@@ -1022,13 +1053,14 @@ class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_monk_item_s12_4p_mistweaver_SpellScript::HandleOnHit);
+                OnPrepare += SpellOnPrepareFn(spell_monk_item_s12_4p_mistweaver_SpellScript::HandleOnPrepare);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_item_s12_4p_mistweaver_SpellScript();
         }
@@ -5989,9 +6021,42 @@ class spell_monk_serenity : public SpellScriptLoader
         }
 };
 
+/// last update : 6.2.3
+/// Gift of the Serpent - 135920
+class spell_monk_gift_of_the_serpent : public SpellScriptLoader
+{
+    public:
+        spell_monk_gift_of_the_serpent() : SpellScriptLoader("spell_monk_gift_of_the_serpent") { }
+
+        class spell_monk_gift_of_the_serpent_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_gift_of_the_serpent_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.size() > 1)
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+                    p_Targets.resize(1);
+                }
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_gift_of_the_serpent_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_monk_gift_of_the_serpent_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_gift_of_the_serpent();
     new spell_monk_serenity();
     new spell_monk_breath_of_the_serpent_tick();
     new spell_monk_breath_of_the_serpent_heal();

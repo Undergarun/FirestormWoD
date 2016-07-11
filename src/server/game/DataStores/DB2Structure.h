@@ -1207,10 +1207,10 @@ struct PlayerConditionEntry
     int32  MinReputation[3];                                        ///< 28-30
     int32  MaxReputation;                                           ///< 31
     int32  ReputationLogic;                                         ///< 32
-    int32  MinPVPRank;                                              ///< 33
-    int32  MaxPVPRank;                                              ///< 34
-    int32  PvpMedal;                                                ///< 35
-    int32  Unk;                                                     ///< 36
+    int32  Unk;                                                     ///< 33
+    int32  MinPVPRank;                                              ///< 34
+    int32  MaxPVPRank;                                              ///< 35
+    int32  PvpMedal;                                                ///< 36
     int32  PrevQuestLogic;                                          ///< 37
     int32  PrevQuestID[4];                                          ///< 38-41
     int32  CurrQuestLogic;                                          ///< 42

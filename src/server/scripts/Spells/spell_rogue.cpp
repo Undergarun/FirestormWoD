@@ -427,13 +427,27 @@ class spell_rog_death_from_above : public SpellScriptLoader
                 DeathFromAboveJump  = 178236
             };
 
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+
+
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+
+                if (!l_Caster->IsWithinLOSInMap(l_Target))
+                    return SPELL_FAILED_LINE_OF_SIGHT;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleAfterCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveJump, true);
-                    l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveBonus, true);
-                }
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveJump, true);
+                l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveBonus, true);
             }
 
             void HandleRegisterCombo(SpellEffIndex p_EffIndex)
@@ -453,6 +467,7 @@ class spell_rog_death_from_above : public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_rog_death_from_above_SpellScript::CheckCast);
                 AfterCast += SpellCastFn(spell_rog_death_from_above_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_rog_death_from_above_SpellScript::HandleRegisterCombo, EFFECT_5, SPELL_EFFECT_APPLY_AURA);
             }
@@ -1166,7 +1181,7 @@ class spell_rog_blade_flurry: public SpellScriptLoader
                     if (l_ProcSpell && !l_ProcSpell->CanTriggerBladeFlurry())
                         return;
 
-                    if (Unit* l_Target = l_Caster->SelectNearbyTarget(p_EventInfo.GetActionTarget(), NOMINAL_MELEE_RANGE, 0U, true, true, false, true))
+                    if (Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim())
                         l_Caster->CastCustomSpell(l_Target, ROGUE_SPELL_BLADE_FLURRY_DAMAGE, &l_Damage, NULL, NULL, true);
                 }
             }
@@ -1180,6 +1195,53 @@ class spell_rog_blade_flurry: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_rog_blade_flurry_AuraScript();
+        }
+};
+
+/// Last Update 6.1.2
+/// Blade Flurry (damage) - 22482
+class spell_rog_blade_flurry_damage : public SpellScriptLoader
+{
+    public:
+        spell_rog_blade_flurry_damage() : SpellScriptLoader("spell_rog_blade_flurry_damage") { }
+
+        class spell_rog_blade_flurry_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_blade_flurry_damage_SpellScript);
+
+            uint64 m_MainTargetGUID = 0;
+
+            void HandleOnCast()
+            {
+                Unit* l_MainTarget = GetExplTargetUnit();
+
+                if (l_MainTarget == nullptr)
+                    return;
+
+                m_MainTargetGUID = l_MainTarget->GetGUID();
+            }
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->GetGUID() == m_MainTargetGUID)
+                    PreventHitDamage();
+            }
+
+            void Register() override
+            {
+                OnCast += SpellCastFn(spell_rog_blade_flurry_damage_SpellScript::HandleOnCast);
+                OnEffectHitTarget += SpellEffectFn(spell_rog_blade_flurry_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_rog_blade_flurry_damage_SpellScript();
         }
 };
 
@@ -2724,7 +2786,7 @@ class PlayerScript_ruthlessness : public PlayerScript
             if (!p_After)
                 return;
 
-            if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_ROGUE || !p_Player->HasAura(eSpells::Ruthlessness))
+            if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_ROGUE)
                 return;
 
             /// Get the power earn (if > 0 ) or consum (if < 0)
@@ -3318,6 +3380,7 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
             {
                 T17Subtlety2PBonus  = 165482,
                 QuickBlades         = 165509,
+                T17Subtlety4PBonus  = 165514,
                 ShadowStrikes       = 166881
             };
 
@@ -3334,7 +3397,12 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
 
             void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::T17Subtlety4PBonus))
                     l_Caster->CastSpell(l_Caster, eSpells::ShadowStrikes, true);
             }
 
@@ -3581,6 +3649,7 @@ public:
 #ifndef __clang_analyzer__
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_blade_flurry_damage();
     new spell_rog_anticipation_special_procs();
     new spell_rog_kick();
     new spell_rog_distract();

@@ -1,0 +1,2 @@
+DELETE FROM spell_script_names WHERE spell_id = 119032 AND ScriptName = "spell_pri_spectral_guise_charges";
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '119032','spell_pri_spectral_guise_charges'); 

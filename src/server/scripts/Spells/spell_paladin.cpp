@@ -1198,7 +1198,9 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
                 if (GetSpellInfo()->Id == eSpells::ExecutionSentence)
                     l_BaseValue *= 0.0374151195f;
 
-                uint32 l_TickNumber = p_AurEff->GetTickNumber();
+                uint32 l_TickNumber = 0;
+                uint32 l_MaxTickNumber = p_AurEff->GetAmplitude() ? p_AurEff->GetBase()->GetMaxDuration() / p_AurEff->GetAmplitude() : 0;
+                l_TickNumber = l_MaxTickNumber - (p_AurEff->GetAmplitude() ? p_AurEff->GetBase()->GetDuration() / p_AurEff->GetAmplitude() : 0);
 
                 if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
                 {
@@ -2577,7 +2579,8 @@ class spell_pal_seal_of_insight_proc : public SpellScriptLoader
 
             enum eSpells
             {
-                SealofInsightProc = 20167
+                SealofInsightProc = 20167,
+                DivineStorm = 53385
             };
 
             void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -2595,6 +2598,9 @@ class spell_pal_seal_of_insight_proc : public SpellScriptLoader
                         return;
 
                     if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == PALADIN_SPELL_JUDGMENT) ///< It does not apply on Judgements.
+                        return;
+
+                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::DivineStorm) ///< It does not apply on Divine Storm.
                         return;
                 }
 

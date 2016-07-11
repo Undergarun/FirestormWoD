@@ -1970,15 +1970,32 @@ class spell_mage_ice_lance: public SpellScriptLoader
 
             enum eSpells
             {
-                T17Frost4P  = 165469,
-                IceShard    = 166869,
-                FingerOfFrost = 44544
+                T17Frost4P      = 165469,
+                IceShard        = 166869,
+                FingerOfFrost   = 44544,
+                ThermalVoid     = 155149,
+                IciVeins        = 12472
             };
 
             enum eCreature
             {
                 FrozenOrb = 45322
             };
+
+            void HandleOnCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasSpell(eSpells::ThermalVoid))
+                {
+                    if (Aura* l_Aura = l_Caster->GetAura(eSpells::IciVeins, l_Caster->GetGUID()))
+                    {
+                        int32 l_IncreaseDuration = sSpellMgr->GetSpellInfo(eSpells::ThermalVoid)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS;
+                        int32 l_NewDuration = (l_Aura->GetDuration() + l_IncreaseDuration);
+                        l_Aura->SetDuration(l_NewDuration);
+                    }
+                }
+            }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
@@ -2013,16 +2030,6 @@ class spell_mage_ice_lance: public SpellScriptLoader
                         l_Caster->CastSpell(l_Caster, eSpells::IceShard, true);
                 }
 
-                if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
-                {
-                    if (Aura* l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
-                    {
-                        int32 l_IncreaseDuration = sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS;
-                        int32 l_NewDuration = (l_Aura->GetDuration() + l_IncreaseDuration) > 30000 ? 30000 : (l_Aura->GetDuration() + l_IncreaseDuration);
-                        l_Aura->SetDuration(l_NewDuration);
-                    }
-                }
-
                 if (Unit* l_Target = GetHitUnit())
                 {
                     if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA, l_Caster->GetGUID()) &&
@@ -2033,6 +2040,7 @@ class spell_mage_ice_lance: public SpellScriptLoader
 
             void Register()
             {
+                OnCast += SpellCastFn(spell_mage_ice_lance_SpellScript::HandleOnCast);
                 OnHit += SpellHitFn(spell_mage_ice_lance_SpellScript::HandleOnHit);
                 OnEffectHitTarget += SpellEffectFn(spell_mage_ice_lance_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
@@ -2147,28 +2155,35 @@ class spell_mage_kindling : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_kindling_SpellScript);
 
+            enum eSpells
+            {
+                Ignition = 165979,
+                Fireball = 133
+            };
+
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Player->HasAura(SPELL_MAGE_KINDLING) && GetSpell()->IsCritForTarget(l_Target))
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Player->HasAura(SPELL_MAGE_KINDLING) && GetSpell()->IsCritForTarget(l_Target))
-                        {
-                            if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
-                                l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDLING)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
-                        }
-                    }
+                    if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
+                        l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDLING)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
                 }
+                if (GetSpellInfo()->Id == eSpells::Fireball && l_Player->HasAura(eSpells::Ignition))
+                    l_Player->RemoveAura(eSpells::Ignition);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_mage_kindling_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_mage_kindling_SpellScript();
         }

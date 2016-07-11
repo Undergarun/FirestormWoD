@@ -303,7 +303,7 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 ExplosiveShot   = 53301
             };
 
-            void HandleApplyDoT(SpellEffIndex /*p_EffIndex*/)
+            void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
 
@@ -325,7 +325,7 @@ class spell_hun_black_arrow : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_black_arrow_SpellScript::HandleApplyDoT, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnCast += SpellCastFn(spell_hun_black_arrow_SpellScript::HandleOnCast);
             }
         };
 

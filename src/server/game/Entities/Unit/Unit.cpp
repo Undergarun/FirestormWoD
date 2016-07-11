@@ -16136,9 +16136,6 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
     m_powers[l_PowerIndex] = p_PowerValue;
 
-    if (IsPlayer())
-        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, l_OldPower, p_PowerValue, p_Regen, true);
-
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 
     if (!p_Regen || l_RegenDiff > 2000)
@@ -16159,6 +16156,9 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
         m_lastRegenTime[l_PowerIndex] = getMSTime();
     }
+
+    if (IsPlayer())
+        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, l_OldPower, p_PowerValue, p_Regen, true);
 
     /// Custom MoP Script
     /// Pursuit of Justice - 26023

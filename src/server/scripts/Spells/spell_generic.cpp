@@ -6047,6 +6047,38 @@ public:
     }
 };
 
+/// Last Update 6.2.3
+/// Goblin Glider - 126389
+class spell_gen_golbin_glider : public SpellScriptLoader
+{
+    public:
+        spell_gen_golbin_glider() : SpellScriptLoader("spell_gen_golbin_glider") { }
+
+        class  spell_gen_golbin_glider_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_golbin_glider_AuraScript);
+
+            void OnUpdate(const uint32 /*diff*/)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player || l_Player->IsFalling())
+                    return;
+
+                if (Aura* l_Aura = l_Player->GetAura(GetSpellInfo()->Id))
+                    l_Player->RemoveAura(l_Aura);
+            }
+
+            void Register()
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_gen_golbin_glider_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_golbin_glider_AuraScript();
+        }
+};
 
 #ifndef __clang_analyzer__
 void AddSC_generic_spell_scripts()
@@ -6170,5 +6202,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_power_handler();
 
     new spell_gen_mass_resurrection();
+    new spell_gen_golbin_glider();
 }
 #endif

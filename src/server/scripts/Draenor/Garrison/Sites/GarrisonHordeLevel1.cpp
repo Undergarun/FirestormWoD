@@ -276,9 +276,13 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID
     /// @p_Followers : Followers on the mission
-    void InstanceScript_GarrisonHordeLevel1::OnMissionStart(Player* /*p_Owner*/, uint32 /*p_MissionID*/, std::vector<uint32> /*p_Followers*/)
+    void InstanceScript_GarrisonHordeLevel1::OnMissionStart(Player* p_Owner, uint32 /*p_MissionID*/, std::vector<uint32> p_Followers)
     {
-
+        if (p_Owner->HasQuest(Quests::Horde_MissionProbable))
+        {
+            if (std::find(p_Followers.begin(), p_Followers.end(), 34) != p_Followers.end())
+                p_Owner->QuestObjectiveSatisfy(35706, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
+        }
     }
     /// When a construction start, compute build time
     /// @p_Owner      : Garrison owner

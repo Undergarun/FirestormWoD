@@ -6778,6 +6778,7 @@
     <field type="int" name="MinReputation3" />
     <field type="int" name="MaxReputation" />
     <field type="int" name="ReputationLogic" />
+    <field type="int" name="unk" />
     <field type="int" name="MinPVPRank" />
     <field type="int" name="MaxPVPRank" />
     <field type="int" name="PvpMedal" />

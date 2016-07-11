@@ -1414,88 +1414,123 @@ void SpellMgr::LoadSpellRanks()
 {
     uint32 oldMSTime = getMSTime();
 
-    std::map<uint32 /*spell*/, uint32 /*next*/> chains;
-    std::set<uint32> hasPrev;
-    for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+    // cleanup core data before reload - remove reference to ChainNode from SpellInfo
+    for (SpellChainMap::iterator itr = mSpellChains.begin(); itr != mSpellChains.end(); ++itr)
     {
-        SkillLineAbilityEntry const* SkillInfo = sSkillLineAbilityStore.LookupEntry(i);
-        if (!SkillInfo)
-            continue;
-
-        if (!SkillInfo->learnOnGetSkill)
-            continue;
-
-        if (!GetSpellInfo(SkillInfo->learnOnGetSkill) || !GetSpellInfo(SkillInfo->spellId))
-            continue;
-
-        chains[SkillInfo->learnOnGetSkill] = SkillInfo->spellId;
-        hasPrev.insert(SkillInfo->spellId);
-    }
-
-    // each key in chains that isn't present in hasPrev is a first rank
-    for (auto itr = chains.begin(); itr != chains.end(); ++itr)
-    {
-        if (hasPrev.count(itr->first))
-            continue;
-
-        SpellInfo const* first = GetSpellInfo(itr->first);
-        SpellInfo const* next = GetSpellInfo(itr->second);
-
-        mSpellChains[itr->first].first = first;
-        mSpellChains[itr->first].prev = nullptr;
-        mSpellChains[itr->first].next = next;
-        mSpellChains[itr->first].last = next;
-        mSpellChains[itr->first].rank = 1;
         for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         {
             if (mSpellInfoMap[difficulty][itr->first])
-                mSpellInfoMap[difficulty][itr->first]->ChainEntry = &mSpellChains[itr->first];
-        }
-        mSpellChains[itr->second].first = first;
-        mSpellChains[itr->second].prev = first;
-        mSpellChains[itr->second].next = nullptr;
-        mSpellChains[itr->second].last = next;
-        mSpellChains[itr->second].rank = 2;
-        for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
-        {
-            if (mSpellInfoMap[difficulty][itr->second])
-                mSpellInfoMap[difficulty][itr->second]->ChainEntry = &mSpellChains[itr->second];
-        }
-
-        uint8 rank = 3;
-        auto nextItr = chains.find(itr->second);
-        while (nextItr != chains.end())
-        {
-            SpellInfo const* prev = GetSpellInfo(nextItr->first); // already checked in previous iteration (or above, in case this is the first one)
-            SpellInfo const* last = GetSpellInfo(nextItr->second);
-            if (!last)
-                break;
-
-            mSpellChains[nextItr->first].next = last;
-
-            mSpellChains[nextItr->second].first = first;
-            mSpellChains[nextItr->second].prev = prev;
-            mSpellChains[nextItr->second].next = nullptr;
-            mSpellChains[nextItr->second].last = last;
-            mSpellChains[nextItr->second].rank = rank++;
-            for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
-            {
-                if (mSpellInfoMap[difficulty][nextItr->second])
-                    mSpellInfoMap[difficulty][nextItr->second]->ChainEntry = &mSpellChains[nextItr->second];
-            }
-
-            // fill 'last'
-            do
-            {
-                mSpellChains[prev->Id].last = last;
-                prev = mSpellChains[prev->Id].prev;
-            } while (prev);
-
-            nextItr = chains.find(nextItr->second);
+                mSpellInfoMap[difficulty][itr->first]->ChainEntry = NULL;
         }
     }
+    mSpellChains.clear();
+    //                                                     0             1      2
+    QueryResult result = WorldDatabase.Query("SELECT first_spell_id, spell_id, rank from spell_ranks ORDER BY first_spell_id, rank");
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell rank records in %u ms", uint32(mSpellChains.size()), GetMSTimeDiffToNow(oldMSTime));
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spell rank records. DB table `spell_ranks` is empty.");
+
+        return;
+    }
+
+    uint32 count = 0;
+    bool finished = false;
+
+    do
+    {
+        // spellid, rank
+        std::list < std::pair < int32, int32 > > rankChain;
+        int32 currentSpell = -1;
+        int32 lastSpell = -1;
+
+        // fill one chain
+        while (currentSpell == lastSpell && !finished)
+        {
+            Field* fields = result->Fetch();
+
+            currentSpell = fields[0].GetUInt32();
+            if (lastSpell == -1)
+                lastSpell = currentSpell;
+            uint32 spell_id = fields[1].GetUInt32();
+            uint32 rank = fields[2].GetUInt8();
+
+            // don't drop the row if we're moving to the next rank
+            if (currentSpell == lastSpell)
+            {
+                rankChain.push_back(std::make_pair(spell_id, rank));
+                if (!result->NextRow())
+                    finished = true;
+            }
+            else
+                break;
+        }
+        // check if chain is made with valid first spell
+        SpellInfo const* first = GetSpellInfo(lastSpell);
+        if (!first)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Spell rank identifier(first_spell_id) %u listed in `spell_ranks` does not exist!", lastSpell);
+            continue;
+        }
+        // check if chain is long enough
+        if (rankChain.size() < 2)
+        {
+            sLog->outError(LOG_FILTER_SQL, "There is only 1 spell rank for identifier(first_spell_id) %u in `spell_ranks`, entry is not needed!", lastSpell);
+            continue;
+        }
+        int32 curRank = 0;
+        bool valid = true;
+        // check spells in chain
+        for (std::list<std::pair<int32, int32> >::iterator itr = rankChain.begin(); itr!= rankChain.end(); ++itr)
+        {
+            SpellInfo const* spell = GetSpellInfo(itr->first);
+            if (!spell)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Spell %u (rank %u) listed in `spell_ranks` for chain %u does not exist!", itr->first, itr->second, lastSpell);
+                valid = false;
+                break;
+            }
+            ++curRank;
+            if (itr->second != curRank)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Spell %u (rank %u) listed in `spell_ranks` for chain %u does not have proper rank value(should be %u)!", itr->first, itr->second, lastSpell, curRank);
+                valid = false;
+                break;
+            }
+        }
+        if (!valid)
+            continue;
+        int32 prevRank = 0;
+        // insert the chain
+        std::list<std::pair<int32, int32> >::iterator itr = rankChain.begin();
+        do
+        {
+            ++count;
+            int32 addedSpell = itr->first;
+            mSpellChains[addedSpell].first = GetSpellInfo(lastSpell);
+            mSpellChains[addedSpell].last = GetSpellInfo(rankChain.back().first);
+            mSpellChains[addedSpell].rank = itr->second;
+            mSpellChains[addedSpell].prev = GetSpellInfo(prevRank);
+            for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
+                if (mSpellInfoMap[difficulty][addedSpell])
+                    mSpellInfoMap[difficulty][addedSpell]->ChainEntry = &mSpellChains[addedSpell];
+            prevRank = addedSpell;
+            ++itr;
+            if (itr == rankChain.end())
+            {
+                mSpellChains[addedSpell].next = NULL;
+                break;
+            }
+            else
+                mSpellChains[addedSpell].next = GetSpellInfo(itr->first);
+        }
+        while (true);
+    }
+    while
+        (!finished);
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell rank records in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
 }
 
 void SpellMgr::LoadSpellRequired()
@@ -4070,11 +4105,15 @@ void SpellMgr::LoadSpellCustomAttr()
             case 164834: ///< Barrage of Leaves
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
+            case 169326: ///< Xeritac Beam
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 166491: ///< FireBloom - experimental, trying to produce triggers
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
             case 169223: ///< Toxic Gas
+            case 166492: ///< Firebloom
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
                 break;
@@ -4102,6 +4141,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
                 /// Iron Docks
+            case 163665:  ///< Flaming Slash
+                spellInfo->Effects[0].Effect = 0;
+                break;
             case 163705:  ///< Abrupt Restoration
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = 0;
@@ -4171,6 +4213,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
+            case 153726: ///< Fel Spark
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); ///< 3s
             case 169682: ///< Azakkel visual pillar
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
@@ -4194,6 +4238,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 115294: ///< Mana Tea
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_OBS_MOD_POWER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); ///< 1s
+                break;
+            case 143314: /// Glyph of Nightmares
+                spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
                 break;
             case 167625: ///< Blood feather
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
@@ -4226,6 +4273,24 @@ void SpellMgr::LoadSpellCustomAttr()
             case 164042: ///< Taste of Iron Game Aura
                 spellInfo->Effects[2].Effect = 0;
                 spellInfo->Effects[3].Effect = 0;
+                break;
+            case 109150: ///< Demonic Leap (Backward)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_KNOCK_BACK_DEST;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_FRONT;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8); ///< 5 yards
+                break;
+            case 109166: ///< Demonic Leap (Forward Left)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_KNOCK_BACK_DEST;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK_RIGHT;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8); ///< 5 yards
+                break;
+            case 109167: ///< Demonic Leap (Forwar Right)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_KNOCK_BACK_DEST;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK_LEFT;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8); ///< 5 yards
                 break;
             case 133123: ///< Arcane Barrage
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(10); ///< from 15.0f (RangeEntry.ID 11) to 40.0f
@@ -4940,6 +5005,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 15286: ///< Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
+            case 126408: ///< Forward Thrust
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_KNOCK_BACK_DEST;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK;
+                spellInfo->Effects[0].BasePoints = 75;
+                spellInfo->Effects[0].MiscValue = 250;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8);
+                break;
             case 119403: ///< Glyph of Explosive Trap
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -5500,9 +5572,14 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].BasePoints = 20;
                 break;
             case 181608:///< Inner Demon (for Warlock T17 Demonology 2P Bonus)
-            case 166881:///< Shadow Strikes (for Rogue T17 Subtlety 4P Bonus)
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
+                break;
+            case 166878: ///< Deceit
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_ADD_COMBO_POINTS;
+                break;
+            case 166881: ///< Shadow Strikes (for Rogue T17 Subtlety 4P Bonus)
+                spellInfo->ProcFlags = 0;
                 break;
             case 165437:///< Item - Druid T17 Restoration 2P Bonus
                 spellInfo->Effects[EFFECT_0].BasePoints = 2;
@@ -6407,9 +6484,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 169686:///< Unyielding Strikes
                 spellInfo->ProcCharges = 0;
                 break;
-            case 109167:///< Demonic Leap (jump)
-                spellInfo->Effects[0].MiscValue = 300;
-                break;
             case 781:   ///< Disengage
                 spellInfo->Effects[0].TriggerSpell = 0; ///< Handled in Player::HandleFall()
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
@@ -7217,6 +7291,17 @@ void SpellMgr::LoadSpellCustomAttr()
             /// Captain Cookie
             case 89250: ///< Summon Cauldron
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 175216: ///< Savage Feast
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
+                break;
+            case 175217: ///< Savage Feast
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_1].TriggerSpell = 160598;
+                spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[EFFECT_2].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_2].TriggerSpell = 160599;
                 break;
             case 89268: ///< Throw Food Targeting
             case 89740:

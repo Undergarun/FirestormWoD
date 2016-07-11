@@ -196,3 +196,9 @@ enum eEverbloomScenes
 {
 
 };
+
+enum eEverbloomVisuals
+{
+    SpellArchmageSolFireBloomFireOrphanVisual = 41194,
+    SpellArchmageSolFireBloomFlowerShoot      = 41934
+};

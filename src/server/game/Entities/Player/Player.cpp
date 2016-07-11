@@ -4906,6 +4906,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
     bool dependent_set = false;
     bool disabled_case = false;
+    bool superceded_old = false;
 
     PlayerSpellMap::iterator itr = m_spells.find(spellId);
 
@@ -4916,7 +4917,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     {
         uint32 next_active_spell_id = 0;
         // fix activate state for non-stackable low rank (and find next spell for !active case)
-        if (spellInfo->IsRanked())
+        if (!spellInfo->IsStackableWithRanks() && spellInfo->IsRanked())
         {
             if (uint32 next = sSpellMgr->GetNextSpellInChain(spellId))
             {
@@ -5040,8 +5041,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         newspell->IsMountFavorite = p_IsMountFavorite;
         newspell->FromShopItem    = p_FromShopItem;
 
-        /// replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
-        if (newspell->active && !newspell->disabled && spellInfo->IsRanked())
+        // replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
+        if (newspell->active && !newspell->disabled && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked() != 0)
         {
             WorldPacket l_Data(SMSG_SUPERCEDED_SPELL);
 
@@ -5074,6 +5075,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                             l_Iter->second->active = false;
                             if (l_Iter->second->state != PLAYERSPELL_NEW)
                                 l_Iter->second->state = PLAYERSPELL_CHANGED;
+                            superceded_old = true;          // new spell replace old in action bars and spell book.
                         }
                         else
                         {
@@ -5289,7 +5291,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     }
 
     // return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
-    return active && !disabled;
+    return active && !disabled && !superceded_old;
 }
 
 void Player::AddTemporarySpell(uint32 spellId)
@@ -5547,7 +5549,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     if (uint32 prev_id = sSpellMgr->GetPrevSpellInChain(spell_id))
     {
-        if (cur_active && spellInfo->IsRanked())
+        if (cur_active && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked())
         {
             // need manually update dependence state (learn spell ignore like attempts)
             PlayerSpellMap::iterator prev_itr = m_spells.find(prev_id);
@@ -13883,7 +13885,7 @@ bool Player::IsValidPos(uint8 bag, uint8 slot, bool explicit_pos)
     return false;
 }
 
-bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
+bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso, bool inReagentBank) const
 {
     uint32 tempcount = 0;
     for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; i++)
@@ -13926,16 +13928,6 @@ bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
                     return true;
             }
         }
-        for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; i++)
-        {
-            Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-            if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
-            {
-                tempcount += pItem->GetCount();
-                if (tempcount >= count)
-                    return true;
-            }
-        }
         for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
         {
             if (Bag* pBag = GetBagByPos(i))
@@ -13950,6 +13942,20 @@ bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
                             return true;
                     }
                 }
+            }
+        }
+    }
+
+    if (inBankAlso || inReagentBank)
+    {
+        for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; i++)
+        {
+            Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+            if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
+            {
+                tempcount += pItem->GetCount();
+                if (tempcount >= count)
+                    return true;
             }
         }
     }
@@ -33665,6 +33671,19 @@ void Player::SummonBattlePet(uint64 p_JournalID)
     l_CurrentPet->SetSpeed(MOVE_RUN, GetSpeedRate(MOVE_RUN), true);
 
     m_BattlePetSummon = l_CurrentPet->GetGUID();
+
+    /// Glyph of shadowy friend
+    if (l_CurrentPet->GetOwner())
+    {
+        Player* l_Owner = l_CurrentPet->GetOwner()->ToPlayer();
+        if (l_Owner && l_Owner->getClass() == CLASS_PRIEST && l_Owner->GetSpecializationId() == SPEC_PRIEST_SHADOW && l_Owner->HasAura(126745))
+        {
+            if (l_Owner->HasAura(107903))
+                l_CurrentPet->CastSpell(l_CurrentPet, 107903, true);
+            if (l_Owner->HasAura(107904))
+                l_CurrentPet->CastSpell(l_CurrentPet, 107904, true);
+        }
+    }
 }
 
 /// Get current summoned battle pet
