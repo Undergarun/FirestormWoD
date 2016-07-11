@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET ScriptName = "npc_inge_exeplosive_sheep", speed_walk = 0.6, speed_run = 0.6 WHERE entry=2675;

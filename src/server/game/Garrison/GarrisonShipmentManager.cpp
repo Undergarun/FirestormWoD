@@ -114,7 +114,7 @@ namespace MS { namespace Garrison
 
         l_BuildingType = l_Entry->Type;
 
-        if (l_BuildingType == BuildingType::TradingPost)
+        if (l_BuildingType == Building::Type::TradingPost)
             return p_Target->GetCharacterWorldStateValue(GarrisonTradingPostDailyRandomShipment);
         else if (!p_ForStartWorkOrder)
             return m_ShipmentPerBuildingType[l_BuildingType];

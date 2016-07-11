@@ -15,6 +15,7 @@
 #include "DynamicObject.h"
 #include "Corpse.h"
 #include "AreaTrigger.h"
+#include "Conversation.hpp"
 #include "World.h"
 #include "CellImpl.h"
 #include "CreatureAI.h"
@@ -253,8 +254,10 @@ template void ObjectGridUnloader::Visit(GameObjectMapType &);
 template void ObjectGridUnloader::Visit(DynamicObjectMapType &);
 template void ObjectGridUnloader::Visit(CorpseMapType &);
 template void ObjectGridUnloader::Visit(AreaTriggerMapType &);
+template void ObjectGridUnloader::Visit(ConversationMapType &);
 template void ObjectGridCleaner::Visit(CreatureMapType &);
 template void ObjectGridCleaner::Visit<GameObject>(GameObjectMapType &);
 template void ObjectGridCleaner::Visit<DynamicObject>(DynamicObjectMapType &);
 template void ObjectGridCleaner::Visit<Corpse>(CorpseMapType &);
 template void ObjectGridCleaner::Visit<AreaTrigger>(AreaTriggerMapType &);
+template void ObjectGridCleaner::Visit<Conversation>(ConversationMapType &);

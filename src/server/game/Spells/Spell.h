@@ -502,8 +502,10 @@ public:
     void EffectGarrisonFinalize(SpellEffIndex p_EffIndex);
     void EffectIncreaseSkill(SpellEffIndex p_EffIndex);
     void EffectCreateGarrison(SpellEffIndex p_EffIndex);
+    void EffectStartConversation(SpellEffIndex p_EffIndex);
     void EffectObtainFollower(SpellEffIndex p_EffIndex);
     void EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex);
+    void EffectIncreaseFollowerExperience(SpellEffIndex p_EffIndex);
     void EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex);
     void EffectGiveExperience(SpellEffIndex p_EffIndex);
     void EffectResurectPetBattles(SpellEffIndex effIndex);
@@ -537,6 +539,7 @@ public:
     void SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
     void SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
     void SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
+    void SelectImplicitCylinderTargets(SpellEffIndex p_EffIndex, SpellImplicitTargetInfo const& p_TargetType, uint32 p_EffMask);
     void SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
     void SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
     void SelectImplicitDestDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
@@ -965,6 +968,16 @@ namespace JadeCore
         WorldObjectSpellConeTargetCheck(float coneAngle, float range, Unit* caster,
             SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);
+    };
+
+    struct WorldObjectSpellWidthTargetCheck : public WorldObjectSpellAreaTargetCheck
+    {
+        float m_Width;
+
+        WorldObjectSpellWidthTargetCheck(float p_Width, float p_Range, Unit* p_Caster,
+            SpellInfo const* p_SpellInfo, SpellTargetCheckTypes p_SelectionType, ConditionContainer* p_CondList);
+
+        bool operator()(WorldObject* p_Target);
     };
 
     struct WorldObjectSpellTrajTargetCheck : public WorldObjectSpellAreaTargetCheck

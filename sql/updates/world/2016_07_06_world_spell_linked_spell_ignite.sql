@@ -1,0 +1,1 @@
+DELETE FROM `spell_linked_spell` WHERE spell_trigger = -182287 && spell_effect = -12654;

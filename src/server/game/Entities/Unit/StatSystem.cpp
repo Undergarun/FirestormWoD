@@ -73,6 +73,8 @@ bool Player::UpdateStats(Stats stat)
             UpdateMaxPower(POWER_MANA);
             UpdateAllSpellCritChances();
             UpdateArmor();                                  //SPELL_AURA_MOD_RESISTANCE_OF_INTELLECT_PERCENT, only armor currently
+            if (HasAuraType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT))
+                UpdateAttackPowerAndDamage(true);
             break;
         case STAT_SPIRIT:
             break;
@@ -113,6 +115,12 @@ bool Player::UpdateStats(Stats stat)
 void Player::ApplySpellPowerBonus(int32 amount, bool apply)
 {
     apply = _ModifyUInt32(apply, m_baseSpellPower, amount);
+
+    if (HasAuraType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT))
+    {
+        UpdateAttackPowerAndDamage(false);
+        UpdateAttackPowerAndDamage(true);
+    }
 
     // For speed just update for client
     ApplyModUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, amount, apply);
@@ -951,8 +959,7 @@ void Player::UpdateMasteryPercentage()
                 if (AuraEffect* l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
-                    if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
-                        || (l_SpellInfo->Id == 76856)) ///< Mastery : Unshackled Fury
+                    if (l_SpellInfo->Id == 76856) ///< Mastery : Unshackled Fury
                         l_AurEff->ChangeAmount(0, true, true);
                     else
                     {
@@ -1060,10 +1067,7 @@ void Player::UpdateManaRegen()
                 if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(l_Eff->GetSpellInfo(), l_Eff->GetAmount(), l_SameEffectSpellGroup))
                 {
                     auto l_Base = l_Eff->GetBase();
-                    if (l_Base && l_Base->GetMaxDuration() == 3600000) ///< is one-hour aura
-                        l_RegenFromModPowerRegen += l_Eff->GetAmount();
-                    else
-                        l_RegenFromModPowerRegen += l_Eff->GetAmount() / 5.0f;
+                    l_RegenFromModPowerRegen += l_Eff->GetAmount();
                 }
             }
         }

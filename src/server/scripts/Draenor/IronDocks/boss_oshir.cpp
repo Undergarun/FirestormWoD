@@ -348,7 +348,6 @@ class boss_oshir : public CreatureScript
                             {
                                 if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 200.0f, true))
                                 {
-                                    me->AttackStop();
                                     me->Attack(l_Target, true);
                                     me->GetMotionMaster()->MoveChase(l_Target);
                                 }
@@ -399,13 +398,13 @@ class boss_oshir : public CreatureScript
                 _JustDied();
 
                 if (m_Instance != nullptr)
-                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
-                }
 
                 ActivateEncounterGate();
+
                 uint32 l_Entries[4] = { eCreatures::CreatureWolfDest, eCreatures::CreatureWolf, eCreatures::CreatureRylakDest, eCreatures::CreatureRylak};
-                for (uint32 l_I = 0; l_I <= 3; l_I++)
+
+                for (uint32 l_I = 0; l_I <= 4; l_I++)
                 {
                     DespawnCreaturesInArea(l_Entries[l_I], me);
                 }
@@ -474,7 +473,6 @@ class boss_oshir : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
-                events.Update(p_Diff);
                 m_CosmeticEvent.Update(p_Diff);
 
                 switch (m_CosmeticEvent.ExecuteEvent())
@@ -582,7 +580,6 @@ class boss_oshir : public CreatureScript
                         {
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 200.0f, true))
                             {
-                                me->AttackStop();
                                 me->Attack(l_Target, true);
                                 me->GetMotionMaster()->MoveChase(l_Target);
                             }
@@ -626,7 +623,6 @@ class boss_oshir : public CreatureScript
                             {
                                 if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 200.0f, true))
                                 {
-                                    me->AttackStop();
                                     me->Attack(l_Target, true);
                                     me->GetMotionMaster()->MoveChase(l_Target);
                                 }
@@ -641,11 +637,10 @@ class boss_oshir : public CreatureScript
                         me->RemoveAura(eOshirSpells::SpellFeedingAura);
                         me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 200.0f, true))
                             {
-                                me->AttackStop();
                                 me->Attack(l_Target, true);
                                 me->GetMotionMaster()->MoveChase(l_Target);
                             }
@@ -796,6 +791,8 @@ public:
             {
                 case eAction::ActionExplodeSelf:
                     m_MayExplode = true;
+                    break;
+                default:
                     break;
             }
         }

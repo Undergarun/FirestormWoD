@@ -201,7 +201,7 @@ void BattlePet::AddToPlayer(Player* p_Player)
 
     MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_PlayerGUID](bool p_Success) -> void
     {
-        if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
+        if (Player* l_Player = HashMapHolder<Player>::Find(l_PlayerGUID))
             l_Player->ReloadPetBattles();
     });
 

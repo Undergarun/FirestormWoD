@@ -175,6 +175,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
 
                 m_AuraToClear.clear();
                 m_AuraToClear.push_back(116541); ///< SPELL_TILES_AURA_EFFECT from stone guard
+                m_AuraToClear.push_back(115972); ///< SPELL_INVERSION from Feng
             }
 
             void OnCreatureCreate(Creature* creature)

@@ -369,7 +369,7 @@ enum AuraType
     SPELL_AURA_MASTERY                                      = 318,
     SPELL_AURA_MOD_MELEE_HASTE_3                            = 319,
     SPELL_AURA_MOD_RANGED_HASTE_2                           = 320,
-    SPELL_AURA_321                                          = 321,
+    SPELL_AURA_MOD_NO_ACTIONS                               = 321,
     SPELL_AURA_INTERFERE_TARGETTING                         = 322,  // NYI
     SPELL_AURA_323                                          = 323,  // Not used in 4.3.4
     SPELL_AURA_324                                          = 324,  // spell critical chance (probably by school mask)
@@ -444,7 +444,7 @@ enum AuraType
     SPELL_AURA_DEFLECT_FRONT_SPELLS                         = 393,  // SPELL_AURA_DEFLECT_FRONT_SPELLS
     SPELL_AURA_TRIGGER_BONUS_LOOT                           = 394,  // SPELL_AURA_TRIGGER_BONUS_LOOT
     SPELL_AURA_AREATRIGGER                                  = 395,  // SPELL_AURA_AREATRIGGER
-    SPELL_AURA_396                                          = 396,  // 5.0.5 unk aura
+    SPELL_AURA_PROC_ON_POWER_AMOUNT_2                       = 396,  // SPELL_AURA_PROC_ON_POWER_AMOUNT_2
     SPELL_AURA_397                                          = 397,  // 5.0.5 unk aura
     SPELL_AURA_398                                          = 398,  // 5.0.5 unk aura
     SPELL_AURA_399                                          = 399,  // 5.0.5 unk aura
@@ -510,7 +510,7 @@ enum AuraType
     SPELL_AURA_459                                          = 459,  // 6.0.X ignore movement force
     SPELL_AURA_RESET_COOLDOWNS_BEFORE_DUEL                  = 460,  // 6.0.X
     SPELL_AURA_461                                          = 461,  // 6.0.X
-    SPELL_AURA_462                                          = 462,  // 6.0.X
+    SPELL_AURA_MOD_HEALING_AND_ABSORB_FROM_CASTER           = 462,  // 6.0.X
     SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING      = 463,  // 6.0.X
     SPELL_AURA_MOD_AP_FROM_BONUS_ARMOR_PCT                  = 464,  // 6.0.X
     SPELL_AURA_MOD_BONUS_ARMOR                              = 465,  // 6.0.X

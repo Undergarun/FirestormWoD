@@ -31,7 +31,8 @@ enum eAzzakelSpells
     SpellFelSparkPerioidicCreation   = 153727,
     SpellSummonImp                   = 153775,
     SpellFelGuard                    = 164080,
-    SpellSummonPyromaniac            = 164127
+    SpellSummonPyromaniac            = 164127,
+    SpellFly                         = 161778
 };
 
 enum eAzzakelEvents
@@ -62,11 +63,12 @@ enum eAzzakelTalks
 enum eAzzakelCreatures
 {
     TriggerFelPool             = 326526,
-    TriggerFelSpark            = 76197,
+    TriggerFelSpark            = 326527,
     TriggerDemonSummoning      = 432636,
     CreatureFelguard           = 76259,
     CreatureCacklingPyromaniac = 76260,
-    CreatureBlazingTrickster   = 79511
+    CreatureBlazingTrickster   = 79511,
+    CreatureBlazingTrickster02 = 76220
 };
 
 enum eAzzakelActions
@@ -75,7 +77,13 @@ enum eAzzakelActions
     ActionSummonDemons,
     ActionRenewEvents,
     ActionBoolActivate,
-    ActionBoolDeactivate
+    ActionBoolDeactivate,
+    ActionMalevolentCrash
+};
+
+enum eAzzakelMovements
+{
+    MovementAzzakelMalevolentCrash = 2
 };
 
 Position const g_PositionAzzakel_Blackgate = { 1929.65f, 2699.27f, 30.799f, 4.428220f };
@@ -140,6 +148,24 @@ class auchindoun_azzakel_mob_controller : public CreatureScript
                 me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            }
+        }
+
+        void JustSummoned(Creature* p_Summon) override
+        {
+            if (p_Summon)
+            {
+                switch (p_Summon->GetEntry())
+                {
+                case eAzzakelCreatures::CreatureBlazingTrickster:
+                case eAzzakelCreatures::CreatureCacklingPyromaniac:
+                case eAzzakelCreatures::CreatureFelguard:
+                    p_Summon->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                    p_Summon->SetInCombatWithZone();
+                    break;
+                default:
+                    break;
+                }
             }
         }
 
@@ -210,6 +236,68 @@ class auchindoun_azzakel_mob_controller : public CreatureScript
     }
 };
 
+/// Fel Spark Trigger - 326527
+class auchindoun_azzakel_mob_fel_spark_trigger : public CreatureScript
+{
+public:
+
+    auchindoun_azzakel_mob_fel_spark_trigger() : CreatureScript("auchindoun_azzakel_mob_fel_spark_trigger") {}
+
+    struct auchindoun_azzakel_mob_fel_spark_triggerAI : public ScriptedAI
+    {
+        auchindoun_azzakel_mob_fel_spark_triggerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        {
+            m_First = true;
+        }
+
+        enum eFelSparkSpells
+        {
+            SpellFelSparkAreaTrigger = 153725
+        };
+
+        enum eFelSparkCreatures
+        {
+            CreatureFelSparkNullAI        = 326527,
+            CreatureFelSparkNullAITrigger = 326528
+        };
+
+        bool m_First;
+
+        void Reset() override
+        {
+            m_First = false;
+            me->setFaction(HostileFaction);
+            me->SetDisplayId(InvisibleDisplay);
+            me->SetReactState(ReactStates::REACT_PASSIVE);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+
+            for (uint8 l_I = 0; l_I < 20; ++l_I)
+            {
+                float l_X = me->m_positionX + (l_I + 1) * cos(me->m_orientation);
+                float l_Y = me->m_positionY + (l_I + 1) * sin(me->m_orientation);
+
+                /// 326528
+                if (Creature* l_FelSparkNullAITrigger = me->SummonCreature(eFelSparkCreatures::CreatureFelSparkNullAITrigger, l_X, l_Y, me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 7 * TimeConstants::IN_MILLISECONDS))
+                {
+                    l_FelSparkNullAITrigger->setFaction(HostileFaction);
+                    l_FelSparkNullAITrigger->SetDisplayId(InvisibleDisplay);
+                    l_FelSparkNullAITrigger->SetReactState(ReactStates::REACT_PASSIVE);
+                    l_FelSparkNullAITrigger->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+
+                    l_FelSparkNullAITrigger->CastSpell(l_FelSparkNullAITrigger, eFelSparkSpells::SpellFelSparkAreaTrigger, true);
+                }
+            }
+
+            me->DespawnOrUnsummon(7 * TimeConstants::IN_MILLISECONDS);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const override
+    {
+        return new auchindoun_azzakel_mob_fel_spark_triggerAI(p_Creature);
+    }
+};
+
 /// Azzakael - 75927
 class boss_azzakel : public CreatureScript
 {
@@ -245,7 +333,12 @@ class boss_azzakel : public CreatureScript
                 me->setFaction(FriendlyFaction);
             }
    
-            uint32 l_Entries[4] = { eAzzakelCreatures::TriggerDemonSummoning, eAzzakelCreatures::CreatureCacklingPyromaniac, eAzzakelCreatures::CreatureBlazingTrickster, eAzzakelCreatures::CreatureFelguard };
+            m_Instance->DoRemoveAurasDueToSpellOnPlayers(eAzzakelSpells::SpellFelPoolDebuffDmg);
+            m_Instance->DoRemoveAurasDueToSpellOnPlayers(eAzzakelSpells::SpellFelSparkPerioidicCreation);
+            me->SetHomePosition(g_PositionSpawningFlyCoords[1].GetPositionX(), g_PositionSpawningFlyCoords[1].GetPositionY(), g_PositionSpawningFlyCoords[1].GetPositionZ(), me->GetOrientation());
+            me->GetMotionMaster()->MoveTargetedHome();
+
+            uint32 l_Entries[5] = { eAzzakelCreatures::TriggerDemonSummoning, eAzzakelCreatures::CreatureCacklingPyromaniac, eAzzakelCreatures::CreatureBlazingTrickster, eAzzakelCreatures::CreatureFelguard, eAzzakelCreatures::CreatureBlazingTrickster02 };
             for (uint32 l_Entry : l_Entries)
                 DespawnCreaturesInArea(l_Entry, me);
         }
@@ -284,11 +377,14 @@ class boss_azzakel : public CreatureScript
                     events.ScheduleEvent(eAzzakelEvents::EventFelLash,           8  * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eAzzakelEvents::EventClawsOfArgus,      45 * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eAzzakelEvents::EventCurtainOfFlame,    14 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush02, 20 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush01, 20 * TimeConstants::IN_MILLISECONDS);
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                         AttackStart(l_Target);
                     break;
                 }
+                case eAzzakelActions::ActionMalevolentCrash:
+                    events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush01, 1 * TimeConstants::IN_MILLISECONDS);
+                    break;
                 default:
                     break;
             }
@@ -300,7 +396,7 @@ class boss_azzakel : public CreatureScript
             HandleDoors(me);
             summons.DespawnAll();
 
-            uint32 l_Entries[3] = { CreatureCacklingPyromaniac, CreatureBlazingTrickster, CreatureFelguard };
+            uint32 l_Entries[4] = { CreatureCacklingPyromaniac, CreatureBlazingTrickster, CreatureFelguard, CreatureBlazingTrickster02 };
             for (uint32 l_Entry : l_Entries)
                 DespawnCreaturesInArea(l_Entry, me);
         }
@@ -310,11 +406,12 @@ class boss_azzakel : public CreatureScript
             _EnterCombat();
             m_Achievement = true;
             Talk(eAzzakelTalks::AzzakelAggro);
+
             me->SummonGameObject(eAuchindounObjects::GameobjectFelBarrier, 1911.01f, 2722.89f, 30.799f, g_PositionAzzakel_Blackgate.GetOrientation(), 0, 0, 0, 0, 0);
             events.ScheduleEvent(eAzzakelEvents::EventFelLash, 8 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eAzzakelEvents::EventClawsOfArgus, 45 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eAzzakelEvents::EventCurtainOfFlame, 14 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush02, 20 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush01, 20 * TimeConstants::IN_MILLISECONDS);
 
             if (m_Instance != nullptr)
             {
@@ -334,16 +431,38 @@ class boss_azzakel : public CreatureScript
             }
         }
 
+        void MovementInform(uint32 p_Type, uint32 p_ID) override
+        {    
+            if (p_ID == eAzzakelMovements::MovementAzzakelMalevolentCrash)
+            {
+                me->SummonCreature(eAzzakelCreatures::TriggerFelPool, *me, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                me->CastSpell(me, eAzzakelSpells::SpellFelPoolAreatriger);
+
+                me->SetCanFly(false);
+                me->SetDisableGravity(false);
+                Talk(eAzzakelTalks::AzzakelSpell02);
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                {
+                    me->GetMotionMaster()->MoveChase(l_Target, 0.0f, 0.0f);
+                    me->Attack(l_Target, true);
+                }
+            }  
+        }
+
         void JustDied(Unit* /*p_Killer*/) override
         {
             _JustDied();
             Talk(eAzzakelTalks::AzzakelDeath);
-            uint32 l_Entries[3] = { eAzzakelCreatures::CreatureCacklingPyromaniac, eAzzakelCreatures::CreatureBlazingTrickster, eAzzakelCreatures::CreatureFelguard };
+            uint32 l_Entries[4] = { eAzzakelCreatures::CreatureCacklingPyromaniac, eAzzakelCreatures::CreatureBlazingTrickster, eAzzakelCreatures::CreatureFelguard, eAzzakelCreatures::CreatureBlazingTrickster02 };
             for (uint32 l_Entry : l_Entries)
                 DespawnCreaturesInArea(l_Entry, me);
 
             if (m_Instance != nullptr)
             {
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(eAzzakelSpells::SpellFelPoolDebuffDmg);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(eAzzakelSpells::SpellFelSparkPerioidicCreation);
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);;
 
                 if (GameObject* l_Transport = m_Instance->instance->GetGameObject(m_Instance->GetData64(eAuchindounDatas::DataSoulTransport1)))
@@ -408,7 +527,12 @@ class boss_azzakel : public CreatureScript
                 case eAzzakelEvents::EventClawsOfArgus:
                     {
                         events.Reset();
+                        me->SetCanFly(true);
+                        me->SetDisableGravity(true);
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+                        me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 2.5f, true);
                         Talk(eAzzakelTalks::AzzakelSpell01);
+						me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FLYING);
                         me->CastSpell(me, eAzzakelSpells::SpellClawsOfArgusVisual);               
                         me->MonsterTextEmote("Azzakel casts |cffff0000[Azzakael casts [Claws of Agrus]|cfffaeb00!", me->GetGUID(), true);
                         events.ScheduleEvent(eAzzakelEvents::EventClawsOfArgus, 45 * TimeConstants::IN_MILLISECONDS);
@@ -431,24 +555,18 @@ class boss_azzakel : public CreatureScript
                     }
                 case eAzzakelEvents::EventMalevolentCrush01:
                     {
+                        me->StopMoving();
+                        me->AttackStop();
+                        me->SetCanFly(true);
+                        me->SetDisableGravity(true);
                         Talk(eAzzakelTalks::AzzakelSpell02);
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+                        me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 2.5f, true);
+
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->GetMotionMaster()->MoveJump(l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), 15.0f, 20.0f);
-                        events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush02, 20 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
-                case eAzzakelEvents::EventMalevolentCrush02:
-                    {
-                        me->SummonCreature(eAzzakelCreatures::TriggerFelPool, *me, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                        me->CastSpell(me, eAzzakelSpells::SpellFelPoolAreatriger);
-                        break;
-                    }
-                case eAzzakelEvents::EventFelSpark:
-                    {
-                        Position l_Position;
-                        me->GetPosition(&l_Position);
-                        for (uint8 l_I = 0; l_I < 3; l_I++)
-                            me->SummonCreature(eAzzakelCreatures::TriggerFelSpark, l_Position, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                            me->GetMotionMaster()->MoveJump(l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), 15.0f, 20.0f, 10.0f, eAzzakelMovements::MovementAzzakelMalevolentCrash);
+
+                        events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush01, 20 * TimeConstants::IN_MILLISECONDS);                      
                         break;
                     }
                 default:
@@ -463,6 +581,87 @@ class boss_azzakel : public CreatureScript
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new boss_azzakelAI(p_Creature);
+    }
+};
+
+
+/// Fel Pool - 326526
+class auchindoun_azzakel_mob_fel_pool : public CreatureScript
+{
+public:
+
+    auchindoun_azzakel_mob_fel_pool() : CreatureScript("auchindoun_azzakel_mob_fel_pool") {}
+
+    struct auchindoun_azzakel_mob_fel_poolAI : public Scripted_NoMovementAI
+    {
+        auchindoun_azzakel_mob_fel_poolAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        {
+            m_First = true;
+            m_Instance = me->GetInstanceScript();
+        }
+
+        enum eFelPoolSpells
+        {
+            SpellFelPoolDebuffDmg = 153616
+        };
+
+        bool m_First;
+        InstanceScript* m_Instance;
+
+        void Reset() override
+        {
+            if (m_First)
+            {
+                m_First = false;
+                me->setFaction(HostileFaction);
+                me->SetDisplayId(InvisibleDisplay);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+            }
+
+            if (m_Instance != nullptr)
+            {
+                if (m_Instance->instance->IsHeroic())
+                {
+                    me->SummonCreature(eAzzakelCreatures::TriggerFelSpark, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 4.756f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                    me->SummonCreature(eAzzakelCreatures::TriggerFelSpark, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.028f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                    me->SummonCreature(eAzzakelCreatures::TriggerFelSpark, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 1.583f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                    me->SummonCreature(eAzzakelCreatures::TriggerFelSpark, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 3.111f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 p_Diff) override
+        {
+            std::list<Player*> l_ListPlayers;
+            JadeCore::AnyPlayerInObjectRangeCheck check(me, 15.0f);
+            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(me, l_ListPlayers, check);
+            me->VisitNearbyObject(15.0f, searcher);
+            if (!l_ListPlayers.empty())
+            {
+                for (std::list<Player*>::const_iterator l_Itr = l_ListPlayers.begin(); l_Itr != l_ListPlayers.end(); ++l_Itr)
+                {
+                    if (!(*l_Itr))
+                        continue;
+
+                    if ((*l_Itr)->IsWithinDistInMap(me, 5.0f))
+                    {
+                        if (!(*l_Itr)->HasAura(eFelPoolSpells::SpellFelPoolDebuffDmg))
+                            me->AddAura(eFelPoolSpells::SpellFelPoolDebuffDmg, (*l_Itr));
+                    }
+                    else
+                    {
+                        if ((*l_Itr)->HasAura(eFelPoolSpells::SpellFelPoolDebuffDmg, me->GetGUID()))
+                            (*l_Itr)->RemoveAura(eFelPoolSpells::SpellFelPoolDebuffDmg);
+                    }
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const override
+    {
+        return new auchindoun_azzakel_mob_fel_poolAI(p_Creature);
     }
 };
 
@@ -532,6 +731,11 @@ class auchindoun_azzakel_spell_claws_of_argus : public SpellScriptLoader
     {
         PrepareAuraScript(auchindoun_azzakel_spell_claws_of_argus_AuraScript);
 
+        enum eAzzakelEvents
+        {
+            EventMalevolentCrush01 = 78
+        };
+
         void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
         {
             if (!GetCaster())
@@ -547,7 +751,7 @@ class auchindoun_azzakel_spell_claws_of_argus : public SpellScriptLoader
                       l_Azzakel->SetDisableGravity(true);
                       l_Azzakel->GetAI()->DoAction(eAzzakelActions::ActionBoolActivate);
                       l_Azzakel->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);                
-                      l_Azzakel->GetMotionMaster()->MoveTakeoff(0, l_Azzakel->GetPositionX(), l_Azzakel->GetPositionY(), 42.118f);
+                      l_Azzakel->GetMotionMaster()->MoveTakeoff(1000, l_Azzakel->GetPositionX(), l_Azzakel->GetPositionY(), 45.0f);
                     }
                 }
             }
@@ -569,14 +773,15 @@ class auchindoun_azzakel_spell_claws_of_argus : public SpellScriptLoader
                         l_Azzakel->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                         l_Azzakel->GetAI()->DoAction(eAzzakelActions::ActionBoolDeactivate);
                         l_Azzakel->GetAI()->DoAction(eAzzakelActions::ActionRenewEvents);
+
+                        l_Azzakel->SetCanFly(false);
+                        l_Azzakel->SetDisableGravity(false);
+                        l_Azzakel->RemoveAura(eAzzakelSpells::SpellFly);
+                        l_Azzakel->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                        l_Azzakel->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.3f, true);
+
                         if (l_Azzakel->GetMap() && l_Azzakel->GetMap()->IsHeroic())
-                        {
-                            if (Player* l_Nearest = l_Azzakel->FindNearestPlayer(20.0f, true))
-                            {
-                                l_Azzakel->GetMotionMaster()->MoveCharge(l_Nearest->GetPositionX(), l_Nearest->GetPositionY(), l_Nearest->GetPositionZ(), 42.0f);
-                                l_Azzakel->GetAI()->DoAction(eAzzakelActions::ActionFelSpark);
-                            }
-                        }
+                            l_Azzakel->GetAI()->DoAction(eAzzakelActions::ActionMalevolentCrash);
                         else
                         {
                             if (Unit* l_Target = GetCaster()->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
@@ -603,72 +808,6 @@ class auchindoun_azzakel_spell_claws_of_argus : public SpellScriptLoader
     }
 };
 
-/// Fel Pool - 326526
-class auchindoun_azzakel_mob_fel_pool : public CreatureScript
-{
-    public:
-
-    auchindoun_azzakel_mob_fel_pool() : CreatureScript("auchindoun_azzakel_mob_fel_pool") {}
-
-    struct auchindoun_azzakel_mob_fel_poolAI : public Scripted_NoMovementAI
-    {
-        auchindoun_azzakel_mob_fel_poolAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
-        {
-            m_First = true;
-        }
-
-        enum eFelPoolSpells
-        {
-            SpellFelPoolDebuffDmg = 153616
-        };
-
-        bool m_First;
-
-        void Reset() override
-        {
-            if (m_First)
-            {
-                m_First = false;
-                me->setFaction(HostileFaction);
-                me->SetDisplayId(InvisibleDisplay);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-            }
-        }
-
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            std::list<Player*> l_ListPlayers;
-            JadeCore::AnyPlayerInObjectRangeCheck check(me, 15.0f);
-            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(me, l_ListPlayers, check);
-            me->VisitNearbyObject(15.0f, searcher);
-            if (!l_ListPlayers.empty())
-            {
-                for (std::list<Player*>::const_iterator l_Itr = l_ListPlayers.begin(); l_Itr != l_ListPlayers.end(); ++l_Itr)
-                {
-                    if (!(*l_Itr))
-                        continue;
-
-                    if ((*l_Itr)->IsWithinDistInMap(me, 5.0f))
-                    {
-                        if (!(*l_Itr)->HasAura(eFelPoolSpells::SpellFelPoolDebuffDmg))
-                            me->AddAura(eFelPoolSpells::SpellFelPoolDebuffDmg, (*l_Itr));
-                    }
-                    else
-                    {
-                        if ((*l_Itr)->HasAura(eFelPoolSpells::SpellFelPoolDebuffDmg, me->GetGUID()))
-                            (*l_Itr)->RemoveAura(eFelPoolSpells::SpellFelPoolDebuffDmg);
-                    }
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
-        return new auchindoun_azzakel_mob_fel_poolAI(p_Creature);
-    }
-};
-
 /// Fel Spark - 153725
 class auchindoun_azzakel_at_fel_spark : public AreaTriggerEntityScript
 {
@@ -678,7 +817,7 @@ class auchindoun_azzakel_at_fel_spark : public AreaTriggerEntityScript
 
     enum eFelSparkSpells
     {
-        SpellFelPoolDebuffDmg = 153616
+        SpellFelSparkDebuffDmg = 153726
     };
 
     uint32 m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
@@ -698,8 +837,8 @@ class auchindoun_azzakel_at_fel_spark : public AreaTriggerEntityScript
                     if (!(*l_Itr))
                         continue;
 
-                    if (!(*l_Itr)->HasAura(eFelSparkSpells::SpellFelPoolDebuffDmg))
-                        (*l_Itr)->AddAura(eFelSparkSpells::SpellFelPoolDebuffDmg, (*l_Itr));
+                    if (!(*l_Itr)->HasAura(eFelSparkSpells::SpellFelSparkDebuffDmg))
+                        (*l_Itr)->AddAura(eFelSparkSpells::SpellFelSparkDebuffDmg, (*l_Itr));
                 }
             }
 
@@ -717,10 +856,11 @@ class auchindoun_azzakel_at_fel_spark : public AreaTriggerEntityScript
 
 void AddSC_boss_azzakel()
 {
-    new boss_azzakel();                             ///< 75927
-    new auchindoun_azzakel_mob_controller();        ///< 76216
-    new auchindoun_azzakel_mob_fel_pool();          ///< 326526
-    new auchindoun_azzakel_spell_curtain_flames();  ///< 153392
-    new auchindoun_azzakel_spell_claws_of_argus();  ///< 153764
-    new auchindoun_azzakel_at_fel_spark();          ///< 153725
+   new boss_azzakel();                             ///< 75927
+   new auchindoun_azzakel_mob_controller();        ///< 76216
+   new auchindoun_azzakel_mob_fel_spark_trigger(); ///< 326527
+   new auchindoun_azzakel_mob_fel_pool();          ///< 326526
+   new auchindoun_azzakel_spell_curtain_flames();  ///< 153392
+   new auchindoun_azzakel_spell_claws_of_argus();  ///< 153764
+   new auchindoun_azzakel_at_fel_spark();          ///< 153725
 }

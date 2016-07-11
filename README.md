@@ -1,16 +1,10 @@
 ## Overview
 World of Warcraft Warlords of Draenor (6.X) emulator based on TrinityCore project, JadeCore (5.0.5), Garrosh (5.4.X)
 
-<<<<<<< HEAD
 ### BEWARE ! 
 Never commit into interrealm only crash fix, wod branch is the prod branch !
 
-PTR : [![Build Status](https://magnum.travis-ci.com/MilleniumStudio/Garrosh.svg?token=hZCHjLbvZpL1EZh3apwD&branch=wod_ptr)](https://magnum.travis-ci.com/MilleniumStudio/Garrosh)
-
-Inter Realm's : [![Build Status](https://travis-ci.com/MilleniumStudio/Garrosh.svg?token=hZCHjLbvZpL1EZh3apwD&branch=interrealm)](https://travis-ci.com/MilleniumStudio/Garrosh)
-=======
-[![Build Status](https://drone.firestorm-servers.com/api/badges/MilleniumStudio/wod/status.svg)](https://drone.firestorm-servers.com/MilleniumStudio/wod)
->>>>>>> wod_fun
+[![Build Status](https://drone-1.fat.sh/api/badges/MilleniumStudio/wod/status.svg)](https://drone-1.fat.sh/MilleniumStudio/wod)
 
 ## Requirements
 

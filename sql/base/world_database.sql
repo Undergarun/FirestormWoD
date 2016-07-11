@@ -5,9 +5,9 @@
 # http://www.sequelpro.com/
 # https://github.com/sequelpro/sequelpro
 #
-# Host: gameserver.ashran.com (MySQL 5.5.42-37.1)
+# Host: 127.0.0.1 (MySQL 5.5.42)
 # Database: world
-# Generation Time: 2016-05-27 08:08:22 +0000
+# Generation Time: 2016-06-20 12:30:17 +0000
 # ************************************************************
 
 
@@ -71,6 +71,7 @@ CREATE TABLE `achievement_reward` (
   `title_A` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `title_H` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `SpellID` int(10) unsigned NOT NULL DEFAULT '0',
   `sender` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `subject` varchar(255) DEFAULT NULL,
   `text` text,
@@ -811,7 +812,7 @@ CREATE TABLE `creature_template` (
   `minlevel` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `maxlevel` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `exp` smallint(6) NOT NULL DEFAULT '0',
-  `exp_unk` smallint(2) NOT NULL DEFAULT '0',
+  `exp_req` smallint(2) NOT NULL DEFAULT '0',
   `faction` smallint(5) unsigned NOT NULL DEFAULT '0',
   `npcflag` int(10) unsigned NOT NULL DEFAULT '0',
   `npcflag2` int(10) unsigned NOT NULL DEFAULT '0',
@@ -3744,7 +3745,7 @@ CREATE TABLE `smart_scripts` (
   `event_param2` int(10) unsigned NOT NULL DEFAULT '0',
   `event_param3` int(10) unsigned NOT NULL DEFAULT '0',
   `event_param4` int(10) unsigned NOT NULL DEFAULT '0',
-  `action_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `action_type` smallint(5) unsigned NOT NULL DEFAULT '0',
   `action_param1` int(10) unsigned NOT NULL DEFAULT '0',
   `action_param2` int(10) unsigned NOT NULL DEFAULT '0',
   `action_param3` int(10) unsigned NOT NULL DEFAULT '0',
@@ -4156,6 +4157,18 @@ CREATE TABLE `spell_scripts` (
   `z` float NOT NULL DEFAULT '0',
   `o` float NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table spell_stolen
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_stolen`;
+
+CREATE TABLE `spell_stolen` (
+  `spell_id` int(11) DEFAULT NULL,
+  `COMMENT` blob
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 

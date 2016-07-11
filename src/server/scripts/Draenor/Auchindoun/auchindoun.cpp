@@ -9,6 +9,12 @@
 #include "ScriptedCreature.h"
 #include "auchindoun.hpp"
 
+enum eEmotes
+{
+    EMOTE_HELLO_NYAMI = 3,
+ 
+};
+
 Position const g_PositionKaatharCrystalPosition = { 1909.75f, 3188.70f, 66.786f, 5.401960f };
 
 /// 1st Starting Event
@@ -111,39 +117,51 @@ class EventTuulaniIntroduction : public BasicEvent
                                 }
                                 case 11:
                                 {
-                                    std::list<Creature*> l_ListCreatures;
-                                    l_Tuulina->GetCreatureListInGrid(l_ListCreatures, 1000.0f);
-                                    if (!l_ListCreatures.empty())
-                                    {
-                                        for (Creature* l_Itr : l_ListCreatures)
-                                        {
-                                            if (!l_Itr)
-                                                continue;
+                                    /*
+									std::list<Creature*> l_ListCreatures;
+									uint32 l_Entries[7] = { eAuchindounCreatures::CreatureSoulBinderTuulani ,eAuchindounCreatures::CreatureSoulBinderNyami, eAuchindounBosses::BossKaathar,eAuchindounCreatures::CreatureSargeriZealot, eAuchindounCreatures::CreatureSargeriSoulBinder, eAuchindounCreatures::CreatureSargeriRitualist, eAuchindounCreatures::CreatureSargeiHoplite };
 
-                                            l_Itr->SetPhaseMask(4, true);
-                                        }
-                                    }
+									for (uint8 l_I = 0; l_I < 7; l_I++)
+									{
+										l_Tuulina->GetCreatureListWithEntryInGrid(l_ListCreatures, l_Entries[l_I], 200.0f);
+									}
 
-                                    std::list<Player*> l_ListPlayers;
-                                    l_Tuulina->GetPlayerListInGrid(l_ListPlayers, 600.0f, true);
-                                    if (!l_ListPlayers.empty())
-                                    {
-                                        for (Player* l_Itr : l_ListPlayers)
-                                        {
-                                            if (!l_Itr)
-                                                continue;
+									if (!l_ListCreatures.empty())
+									{
+										for (Creature* l_Itr : l_ListCreatures)
+										{
+											if (!l_Itr)
+												continue;
 
-                                            l_Itr->NearTeleportTo(*l_Tuulina);
-                                            l_Itr->PlayScene(eAuchindounScenes::SpellAuchindounSceneTulaaniReachNyami, l_Itr);
-                                        }
-                                    }
+											l_Itr->SetPhaseMask(4, true);
+										}
+									}
+                                    */
 
-                                    l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 15, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(30 * TimeConstants::IN_MILLISECONDS));
+									std::list<Player*> l_ListPlayers;
+									l_Tuulina->GetPlayerListInGrid(l_ListPlayers, 600.0f, true);
+									if (!l_ListPlayers.empty())
+									{
+										for (Player* l_Itr : l_ListPlayers)
+										{
+											if (!l_Itr)
+												continue;
+
+											l_Itr->NearTeleportTo(*l_Tuulina);
+											l_Itr->PlayScene(eAuchindounScenes::SpellAuchindounSceneTulaaniReachNyami, l_Itr);
+										}
+									}
+
+                                    l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 15, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(12 * TimeConstants::IN_MILLISECONDS));
                                     l_Tuulina->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani09, g_PositionTuulaniMovements[9]);
+
+									l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 12, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(5 * TimeConstants::IN_MILLISECONDS));
+
                                     break;
                                 }
                                 case 12:
-                                {
+								{							
+
                                     l_Tuulina->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani10, g_PositionTuulaniMovements[10]);
                                     break;
                                 }
@@ -159,18 +177,27 @@ class EventTuulaniIntroduction : public BasicEvent
                                 }
                                 case 15:
                                 {
-                                    std::list<Creature*> l_ListCreatures;
-                                    l_Tuulina->GetCreatureListInGrid(l_ListCreatures, 1000.0f);
-                                    if (!l_ListCreatures.empty())
-                                    {
-                                        for (Creature* l_Itr : l_ListCreatures)
-                                        {
-                                            if (!l_Itr)
-                                                continue;
+                                    /*
+									std::list<Creature*> l_ListCreatures;
+									uint32 l_Entries[7] = { eAuchindounCreatures::CreatureSoulBinderTuulani, eAuchindounCreatures::CreatureSoulBinderNyami, eAuchindounBosses::BossKaathar, eAuchindounCreatures::CreatureSargeriZealot, eAuchindounCreatures::CreatureSargeriSoulBinder, eAuchindounCreatures::CreatureSargeriRitualist, eAuchindounCreatures::CreatureSargeiHoplite };
 
-                                            l_Itr->SetPhaseMask(1, true);
-                                        }
-                                    } 
+									for (uint8 l_I = 0; l_I < 7; l_I++)
+									{
+										l_Tuulina->GetCreatureListWithEntryInGrid(l_ListCreatures, l_Entries[l_I], 200.0f);
+									}
+
+									if (!l_ListCreatures.empty())
+									{
+										for (Creature* l_Itr : l_ListCreatures)
+										{
+											if (!l_Itr)
+												continue;
+
+											l_Itr->SetPhaseMask(1, true);
+										}
+									}
+                                    */
+
                                     break;
                                 }
                                 /*
@@ -253,7 +280,16 @@ class auchindoun_mob_tuulani : public CreatureScript
             me->SetSpeed(UnitMoveType::MOVE_RUN, 1.2f, true);
             me->SetSpeed(UnitMoveType::MOVE_WALK, 1.2f, true);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-            me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani01, g_PositionTuulaniMovements[0]);
+
+            AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+            {
+                 me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani01, g_PositionTuulaniMovements[0]);
+            });      
+        }
+
+        void UpdateAI(const uint32 p_Diff) override
+        {
+            UpdateOperations(p_Diff);
         }
 
         void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
@@ -824,6 +860,7 @@ class auchindoun_mob_sargerei_defender : public CreatureScript
         auchindoun_mob_sargerei_defenderAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
+			m_False = true;
         }
 
         enum eSargereiDefenderSpells
@@ -839,10 +876,16 @@ class auchindoun_mob_sargerei_defender : public CreatureScript
         };
 
         InstanceScript* m_Instance;
+		bool m_False;
 
         void Reset() override
         {
             events.Reset();
+
+			if (m_False)
+			{
+				m_False = false;
+			}
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -857,6 +900,9 @@ class auchindoun_mob_sargerei_defender : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
 
             switch (events.ExecuteEvent())
             {
@@ -895,6 +941,7 @@ class auchindoun_mob_sargerei_magus : public CreatureScript
     {
         auchindoun_mob_sargerei_magusAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
+			m_False = true;
             m_Instance = me->GetInstanceScript();
         }
 
@@ -913,10 +960,16 @@ class auchindoun_mob_sargerei_magus : public CreatureScript
         };
 
         InstanceScript* m_Instance;
+		bool m_False;
         std::list<uint64> l_Prisoners;
 
         void Reset() override
         {
+			if (m_False)
+			{
+				m_False = false;
+			}
+
             events.Reset();
             me->CastSpell(me, eSargereiMagusSpells::SpellArcaneChanneling);
         }
@@ -974,6 +1027,9 @@ class auchindoun_mob_sargerei_magus : public CreatureScript
 
             events.Update(p_Diff);
 
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+
             switch (events.ExecuteEvent())
             {
                 case eSargereiMagusEvents::EventArcaneBomb:
@@ -1010,6 +1066,7 @@ class auchindoun_mob_soul_priest : public CreatureScript
         auchindoun_mob_soul_priestAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
+			m_False = true;
         }
 
         enum eSoulPriestSpells
@@ -1025,11 +1082,17 @@ class auchindoun_mob_soul_priest : public CreatureScript
         };
 
         InstanceScript* m_Instance;
+		bool m_False;
 
-        void Reset() override
-        {
-            events.Reset();
-        }
+		void Reset() override
+		{
+			events.Reset();
+
+			if (m_False)
+			{
+				m_False = false;
+			}
+		}
 
         void EnterCombat(Unit* p_Attacker) override
         {
@@ -1043,6 +1106,9 @@ class auchindoun_mob_soul_priest : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
 
             switch (events.ExecuteEvent())
             {
@@ -1082,6 +1148,7 @@ class auchindoun_mob_sargeri_warden : public CreatureScript
         auchindoun_mob_sargeri_wardenAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
+			m_False = true;
         }
 
         enum eWardenSpells
@@ -1097,11 +1164,17 @@ class auchindoun_mob_sargeri_warden : public CreatureScript
         };
 
         InstanceScript* m_Instance;
+		bool m_False;
 
         void Reset() override
         {
             events.Reset();
-        }
+
+			if (m_False)
+			{
+				m_False = false;
+			}
+		}
 
         void EnterCombat(Unit* p_Attacker) override
         {
@@ -1115,6 +1188,9 @@ class auchindoun_mob_sargeri_warden : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
 
             switch (events.ExecuteEvent())
             {
@@ -1218,6 +1294,9 @@ class auchindoun_mob_felborne_abyssal : public CreatureScript
 
             events.Update(p_Diff);
 
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+
             switch (events.ExecuteEvent())
             {
                 case eAuchindounEvents::EventFixate:
@@ -1260,7 +1339,7 @@ class auchindoun_mob_cackling_pyromaniac : public CreatureScript
 
         enum eCacklingPyromaniacSpells
         {
-            SpellFelBlast      = 167092,
+            SpellFelBlast      = 174422,
             SpellAbyssalVisual = 159610
         };
 
@@ -1279,7 +1358,7 @@ class auchindoun_mob_cackling_pyromaniac : public CreatureScript
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eCacklingPyromaniacEvents::EventFelBlast, 10 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eCacklingPyromaniacEvents::EventFelBlast, 6 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*p_Killer*/) override
@@ -1303,12 +1382,15 @@ class auchindoun_mob_cackling_pyromaniac : public CreatureScript
 
             events.Update(p_Diff);
 
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+
             switch (events.ExecuteEvent())
             {
                 case eCacklingPyromaniacEvents::EventFelBlast:
                     if (Unit* l_Target = me->getVictim())
                         me->CastSpell(l_Target, eCacklingPyromaniacSpells::SpellFelBlast);
-                    events.ScheduleEvent(eCacklingPyromaniacEvents::EventFelBlast, 10 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eCacklingPyromaniacEvents::EventFelBlast, 6 * TimeConstants::IN_MILLISECONDS);
                     break;
                 default:
                     break;
@@ -1374,6 +1456,9 @@ class auchindoun_mob_blazing_trickster : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
 
             switch (events.ExecuteEvent())
             {
@@ -1452,6 +1537,9 @@ class auchindoun_mob_felguard : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
 
             switch (events.ExecuteEvent())
             {

@@ -1463,6 +1463,12 @@ class iron_docks_mob_archery_target : public CreatureScript
     {
         iron_docks_mob_archery_targetAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) { }
 
+        void Reset()
+        {
+            me->SetReactState(ReactStates::REACT_PASSIVE);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+        }
+
         void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
         {
             p_Damage = 0;

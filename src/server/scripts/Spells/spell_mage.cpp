@@ -669,7 +669,8 @@ class spell_mage_glyph_of_ice_block: public SpellScriptLoader
         }
 };
 
-// Arcane Missiles - 5143
+/// Last Update 6.2.3
+/// Arcane Missiles - 5143
 class spell_mage_arcane_missile: public SpellScriptLoader
 {
     public:
@@ -695,20 +696,27 @@ class spell_mage_arcane_missile: public SpellScriptLoader
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (Aura* arcaneMissiles = _player->GetAura(SPELL_MAGE_ARCANE_MISSILES))
                         arcaneMissiles->DropCharge();
-                
+            }
+
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
                 if (l_Caster->HasAura(eSpell::ArcaneInstability))
                     l_Caster->RemoveAura(eSpell::ArcaneInstability);
             }
 
-
-            void Register()
+            void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_mage_arcane_missile_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_mage_arcane_missile_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_missile_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
 
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_mage_arcane_missile_AuraScript();
         }
@@ -716,8 +724,6 @@ class spell_mage_arcane_missile: public SpellScriptLoader
         class spell_mage_arcane_missile_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_arcane_missile_SpellScript);
-
-
 
             void HandleOnCast()
             {
@@ -731,13 +737,13 @@ class spell_mage_arcane_missile: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnCast += SpellCastFn(spell_mage_arcane_missile_SpellScript::HandleOnCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_mage_arcane_missile_SpellScript();
         }
@@ -1289,16 +1295,17 @@ class spell_mage_combustion: public SpellScriptLoader
 
             enum eSpells
             {
-                InfernoBlast = 108853
+                InfernoBlast = 108853,
+                Combustion = 11129
             };
 
             void HandleOnHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
-                SpellInfo const* l_SpellInfoCombustion = sSpellMgr->GetSpellInfo(SPELL_MAGE_COMBUSTION_DOT);
+                SpellInfo const* l_SpellInfoCombustionDoT = sSpellMgr->GetSpellInfo(SPELL_MAGE_COMBUSTION_DOT);
 
-                if (l_Player == nullptr || l_Target == nullptr || l_SpellInfoCombustion == nullptr)
+                if (l_Player == nullptr || l_Target == nullptr || l_SpellInfoCombustionDoT == nullptr)
                     return;
 
                 if (SpellInfo const* l_InfernoBlast = sSpellMgr->GetSpellInfo(eSpells::InfernoBlast))
@@ -1321,7 +1328,7 @@ class spell_mage_combustion: public SpellScriptLoader
                     int32 l_Amount = l_Player->SpellDamageBonusDone(l_Target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
                     l_Amount = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Amount, DOT);
 
-                    combustionBp = (l_Amount * ((*i)->GetBase()->GetMaxDuration() / (*i)->GetAmplitude()) / (l_SpellInfoCombustion->GetMaxDuration() / l_SpellInfoCombustion->Effects[EFFECT_0].Amplitude));
+                    combustionBp = (l_Amount * (sSpellMgr->GetSpellInfo(eSpells::Combustion))->Effects[EFFECT_0].BasePoints) / (l_SpellInfoCombustionDoT->GetMaxDuration() / l_SpellInfoCombustionDoT->Effects[EFFECT_0].Amplitude);
                 }
 
                 if (combustionBp)
@@ -1416,19 +1423,17 @@ class spell_mage_inferno_blast: public SpellScriptLoader
                         for (Unit* l_Unit : l_TargetList)
                         {
                             /// 1 : Ignite
-                            if (l_Target->HasAura(SPELL_MAGE_IGNITE, l_Caster->GetGUID()))
+                            if (Aura* l_Aura = l_Target->GetAura(SPELL_MAGE_IGNITE, l_Caster->GetGUID()))
                             {
                                 float l_Value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
 
-                                int32 l_Ignite = 0;
+                                int32 l_Ignite = l_Aura->GetEffect(EFFECT_0)->GetAmount();
                                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IGNITE);
 
                                 if (l_SpellInfo != nullptr)
                                 {
                                     if (l_Unit->HasAura(SPELL_MAGE_IGNITE, l_Caster->GetGUID()))
                                         l_Ignite += l_Unit->GetRemainingPeriodicAmount(l_Caster->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
-
-                                    l_Ignite += int32((CalculatePct(GetHitDamage(), l_Value)) / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude));
 
                                     l_Caster->CastCustomSpell(l_Unit, SPELL_MAGE_IGNITE, &l_Ignite, NULL, NULL, true);
                                 }
@@ -1965,14 +1970,32 @@ class spell_mage_ice_lance: public SpellScriptLoader
 
             enum eSpells
             {
-                T17Frost4P  = 165469,
-                IceShard    = 166869
+                T17Frost4P      = 165469,
+                IceShard        = 166869,
+                FingerOfFrost   = 44544,
+                ThermalVoid     = 155149,
+                IciVeins        = 12472
             };
 
             enum eCreature
             {
                 FrozenOrb = 45322
             };
+
+            void HandleOnCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasSpell(eSpells::ThermalVoid))
+                {
+                    if (Aura* l_Aura = l_Caster->GetAura(eSpells::IciVeins, l_Caster->GetGUID()))
+                    {
+                        int32 l_IncreaseDuration = sSpellMgr->GetSpellInfo(eSpells::ThermalVoid)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS;
+                        int32 l_NewDuration = (l_Aura->GetDuration() + l_IncreaseDuration);
+                        l_Aura->SetDuration(l_NewDuration);
+                    }
+                }
+            }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
@@ -2003,31 +2026,21 @@ class spell_mage_ice_lance: public SpellScriptLoader
                             l_FrostOrb = l_Iter->ToCreature();
                     }
 
-                    if (l_FrostOrb == nullptr)
-                        return;
-
-                    l_Caster->CastSpell(l_Caster, eSpells::IceShard, true);
-                }
-
-                if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
-                {
-                    if (Aura* l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
-                    {
-                        int32 l_IncreaseDuration = sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS;
-                        int32 l_NewDuration = (l_Aura->GetDuration() + l_IncreaseDuration) > 30000 ? 30000 : (l_Aura->GetDuration() + l_IncreaseDuration);
-                        l_Aura->SetDuration(l_NewDuration);
-                    }
+                    if (l_FrostOrb != nullptr)
+                        l_Caster->CastSpell(l_Caster, eSpells::IceShard, true);
                 }
 
                 if (Unit* l_Target = GetHitUnit())
                 {
-                    if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA, l_Caster->GetGUID()))
+                    if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA, l_Caster->GetGUID()) &&
+                        (l_Target->HasAuraState(AURA_STATE_FROZEN) || l_Caster->HasAura(eSpells::FingerOfFrost)))
                         l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
                 }
             }
 
             void Register()
             {
+                OnCast += SpellCastFn(spell_mage_ice_lance_SpellScript::HandleOnCast);
                 OnHit += SpellHitFn(spell_mage_ice_lance_SpellScript::HandleOnHit);
                 OnEffectHitTarget += SpellEffectFn(spell_mage_ice_lance_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
@@ -2142,28 +2155,35 @@ class spell_mage_kindling : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_kindling_SpellScript);
 
+            enum eSpells
+            {
+                Ignition = 165979,
+                Fireball = 133
+            };
+
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Player->HasAura(SPELL_MAGE_KINDLING) && GetSpell()->IsCritForTarget(l_Target))
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Player->HasAura(SPELL_MAGE_KINDLING) && GetSpell()->IsCritForTarget(l_Target))
-                        {
-                            if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
-                                l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDLING)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
-                        }
-                    }
+                    if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
+                        l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDLING)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
                 }
+                if (GetSpellInfo()->Id == eSpells::Fireball && l_Player->HasAura(eSpells::Ignition))
+                    l_Player->RemoveAura(eSpells::Ignition);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_mage_kindling_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_mage_kindling_SpellScript();
         }
@@ -3233,7 +3253,7 @@ class spell_mage_finger_of_frost : public SpellScriptLoader
                 FingerOfFrostVisualUi   = 126084
             };
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
                 if (m_AlreadyDrop)
                     return;
@@ -3249,7 +3269,7 @@ class spell_mage_finger_of_frost : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mage_finger_of_frost_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_mage_finger_of_frost_SpellScript::HandleAfterHit);
             }
         };
 

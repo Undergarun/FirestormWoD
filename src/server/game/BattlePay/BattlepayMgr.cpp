@@ -303,7 +303,11 @@ namespace Battlepay
         for (Battlepay::ProductItem const& l_ItemProduct : l_Product.Items)
         {
             if (Player* l_Player = p_Session->GetPlayer())
-                l_Player->AddItem(l_ItemProduct.ItemID, l_ItemProduct.Quantity);
+            {
+                auto l_Item = l_Player->AddItem(l_ItemProduct.ItemID, l_ItemProduct.Quantity);
+                if (l_Item)
+                    l_Item->ApplyCustomFlags(ItemCustomFlags::FromStore);
+            }
         }
 
         if (!l_Product.ScriptName.empty())

@@ -199,6 +199,13 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
             return;
         }
 
+        /// Prevent sell of store items
+        if (l_Item->HasCustomFlags(ItemCustomFlags::FromStore))
+        {
+            SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_ITEM_NOT_FOUND);
+            return;
+        }
+
         if (!l_TrueItemEntry)
             l_TrueItemEntry = l_Item->GetEntry();
         else if (l_Item->GetEntry() != l_TrueItemEntry)

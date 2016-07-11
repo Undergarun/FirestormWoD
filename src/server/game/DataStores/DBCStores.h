@@ -13,8 +13,7 @@
 #include "DBCStore.h"
 #include "DBCStructure.h"
 
-typedef std::list<uint32> SimpleFactionsList;
-SimpleFactionsList const* GetFactionTeamList(uint32 faction);
+std::vector<uint32> const* GetFactionTeamList(uint32 faction);
 
 EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 p_Emote, uint32 p_Race, uint32 p_Gender);
 

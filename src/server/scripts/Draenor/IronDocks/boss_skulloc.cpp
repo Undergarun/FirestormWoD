@@ -353,6 +353,8 @@ class boss_skulloc : public CreatureScript
             {
                 _Reset();
                 events.Reset();       
+                ClearDelayedOperations();
+
                 if (me->GetMap())
                    me->GetMap()->SetObjectVisibility(5000.0f);
 
@@ -468,6 +470,7 @@ class boss_skulloc : public CreatureScript
                     return;
 
                 events.Update(p_Diff);
+                UpdateOperations(p_Diff);
 
                 if (m_BombardmentReady)
                 {
@@ -476,7 +479,13 @@ class boss_skulloc : public CreatureScript
                         if (me->FindNearestPlayer(2.0f, true))
                         {
                             events.Reset();
-                            m_BombardmentReady = false;
+
+                            AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                m_BombardmentReady = false;
+                                printf("booooooooooooooooooooooooooooool %b", m_BombardmentReady);
+                            });
+
                             m_CanBeginStoppingaBombardment = false;
                             me->RemoveAura(eSkullocSpells::SpellCannonBarrageAura);
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
@@ -502,8 +511,6 @@ class boss_skulloc : public CreatureScript
                         }
                     }
                 }
-
-                
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;

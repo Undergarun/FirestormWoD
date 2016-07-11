@@ -150,8 +150,8 @@ namespace MS { namespace Garrison
 
                     switch (GetBuildingID())
                     {
-                        case Buildings::GemBoutique_GemBoutique_Level2:
-                        case Buildings::GemBoutique_GemBoutique_Level3:
+                        case Building::ID::GemBoutique_GemBoutique_Level2:
+                        case Building::ID::GemBoutique_GemBoutique_Level3:
                             if (Creature* l_Creature = SummonRelativeCreature(88546, -0.9046f, 5.7426f, 0.8908f, 4.7023f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());

@@ -132,6 +132,7 @@ class boss_xeritac : public CreatureScript
         void Reset() override
         {         
             events.Reset();    
+            ClearDelayedOperations();
             summons.DespawnAll();
             m_Consuming = false;
             m_Descend = false;
@@ -149,6 +150,8 @@ class boss_xeritac : public CreatureScript
                 m_First = true;
                 OpenEncounterDoor();
             }
+            else
+                OpenEncounterDoor();
         }
 
         void OpenEncounterDoor()
@@ -181,8 +184,7 @@ class boss_xeritac : public CreatureScript
 
         void JustReachedHome() override
         {
-            _JustReachedHome();
-            me->GetMotionMaster()->MovePoint(0, 935.628f, 1430.930f, 64.988f);    
+            _JustReachedHome();  
             std::list<AreaTrigger*> l_GasAreatriggerList;
             me->GetAreaTriggerList(l_GasAreatriggerList, eXeritacSpells::SpellToxicGasAreaTrigger);
             if (l_GasAreatriggerList.empty())
@@ -192,6 +194,7 @@ class boss_xeritac : public CreatureScript
             {
                 l_Itr->Remove(1 * TimeConstants::IN_MILLISECONDS);
             }
+
             if (m_First)
                 OpenEncounterDoor();
         }
@@ -217,19 +220,28 @@ class boss_xeritac : public CreatureScript
             events.ScheduleEvent(eXeritacEvents::EventVenomSprayers, 10 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eXeritacEvents::EventVenomCrazedPaleOne, 20 * TimeConstants::IN_MILLISECONDS);
             me->CastSpell(me->GetPositionX(), me->GetPositionY(), CielingAlttitude, eXeritacSpells::SpellDecsendBeam, false);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             me->GetMotionMaster()->MoveCharge(me->GetPositionX(), me->GetPositionY(), CielingAlttitude, 30.0f, eXeritacMovementInformed::MovementInformedXeritacReachedTopWaypoint);
         }
 
         void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
         {
+            if (!me->isInCombat())
+                return;
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+
             switch (p_Id)
             {          
                 case eXeritacMovementInformed::MovementInformedXeritacReachedTopWaypoint:
                     DoAction(eXeritacActions::ActionXeritacRandomTopMovements);
                     break;
                 case eXeritacMovementInformed::MovementInformedXeritacMovementHappenedTopWaypoint:
-                    DoAction(eXeritacActions::ActionXeritacRandomTopMovements);
+                    AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        DoAction(eXeritacActions::ActionXeritacRandomTopMovements);
+                    });
                     break;
                 default:
                     break;
@@ -269,11 +281,17 @@ class boss_xeritac : public CreatureScript
                         m_Descend = true;
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                         me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                        if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                        me->GetMotionMaster()->MovePoint(1000, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), false);
+
+                        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            me->GetMotionMaster()->MoveChase(l_Victim);
-                            me->Attack(l_Victim, true);
-                        }
+                            if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                            {
+                                me->GetMotionMaster()->MoveChase(l_Victim);
+                                me->Attack(l_Victim, true);
+                            }
+                        });
+
                         events.ScheduleEvent(eXeritacEvents::EventToxicBolt, urand(7 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                         events.ScheduleEvent(eXeritacEvents::EventVenomousString, 16 * TimeConstants::IN_MILLISECONDS);
                         events.ScheduleEvent(eXeritacEvents::EventGasVolley, 30 * TimeConstants::IN_MILLISECONDS);
@@ -295,17 +313,20 @@ class boss_xeritac : public CreatureScript
                     }
                     break;
                 case eXeritacActions::ActionXeritacRandomTopMovements:
-                {    
-                        std::list<Position> l_Position;
-                        for (uint8 l_I = 0; l_I < 5; l_I++)
-                            l_Position.push_back(g_PositionRandomMovements[l_I]);
+                {
+                    if (m_Descend)
+                        return;
 
-                        if (l_Position.empty())
-                            return;
+                    std::list<Position> l_Position;
+                    for (uint8 l_I = 0; l_I < 5; l_I++)
+                        l_Position.push_back(g_PositionRandomMovements[l_I]);
 
-                        std::list<Position>::const_iterator l_It = l_Position.begin();
-                        std::advance(l_It, urand(0, l_Position.size() - 1));
-                        me->GetMotionMaster()->MovePoint(eXeritacMovementInformed::MovementInformedXeritacMovementHappenedTopWaypoint, *l_It);
+                    if (l_Position.empty())
+                        return;
+
+                    std::list<Position>::const_iterator l_It = l_Position.begin();
+                    std::advance(l_It, urand(0, l_Position.size() - 1));
+                    me->GetMotionMaster()->MovePoint(eXeritacMovementInformed::MovementInformedXeritacMovementHappenedTopWaypoint, *l_It);
                     break;
                 }
                 default:
@@ -319,6 +340,7 @@ class boss_xeritac : public CreatureScript
                 return;
 
             events.Update(p_Diff);
+            UpdateOperations(p_Diff);
        
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -340,11 +362,20 @@ class boss_xeritac : public CreatureScript
             {
                 case eXeritacEvents::EventDescend:
                 {
+                    if (me->IsMoving())
                     me->StopMoving();
-                    me->GetMotionMaster()->Clear(false);
+
+                    m_Descend = true;
+
+                    AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        m_Descend = false;
+                    });
+
                     me->GetMotionMaster()->MovePoint(eXeritacMovementInformed::MovementInformedXeritacReachedGround, me->GetPositionX(), me->GetPositionY(), 64.0f);
                     if (Creature* l_Creature = me->SummonCreature(eXeritacCreatures::CreatureDescend, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 64.631f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS))
                         me->CastSpell(l_Creature, eXeritacSpells::SpellDecsendDummy);
+
                     events.ScheduleEvent(eXeritacEvents::EventDescend, 20 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
@@ -612,7 +643,7 @@ public:
             switch (events.ExecuteEvent())
             {
                 case eCrazedPaleOrcEvents::EventSwipe:
-                        me->CastSpell(me, eCrazedPaleOrcSpells::SpellSwipe); // swipe
+                        me->CastSpell(me, eCrazedPaleOrcSpells::SpellSwipe); 
                         events.ScheduleEvent(eCrazedPaleOrcEvents::EventSwipe, 3 * TimeConstants::IN_MILLISECONDS);
                         events.ScheduleEvent(eCrazedPaleOrcEvents::EventCancelSwipe, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -873,7 +904,7 @@ public:
                         if (!l_Player->HasAura(eGorgedBustersSpells::SpellFixate)) /// Fixated aura
                             me->AddAura(eGorgedBustersSpells::SpellFixate, l_Player);
 
-                        if (!me->IsMoving())
+						if (!me->IsMoving())
                             me->GetMotionMaster()->MoveFollow(l_Player, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
 
                         if (l_Player->IsWithinDistInMap(me, 1.0f))

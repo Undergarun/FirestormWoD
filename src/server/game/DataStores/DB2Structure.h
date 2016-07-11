@@ -601,8 +601,8 @@ struct GarrAbilityEntry
 {
     uint32 ID;                                                      ///< 0
     uint32 AbilityType;                                             ///< 1
-    char * Name;                                                    ///< 2
-    char * Description;                                             ///< 3
+    LocalizedString const* Name;                                    ///< 2
+    LocalizedString const* Description;                             ///< 3
     uint32 IconID;                                                  ///< 4
     uint32 OtherfactionGarrAbilityID;                               ///< 5
     uint32 Category;                                                ///< 6
@@ -1207,62 +1207,63 @@ struct PlayerConditionEntry
     int32  MinReputation[3];                                        ///< 28-30
     int32  MaxReputation;                                           ///< 31
     int32  ReputationLogic;                                         ///< 32
-    int32  MinPVPRank;                                              ///< 33
-    int32  MaxPVPRank;                                              ///< 34
-    int32  PvpMedal;                                                ///< 35
-    int32  PrevQuestLogic;                                          ///< 36
-    int32  PrevQuestID[4];                                          ///< 37-40
-    int32  CurrQuestLogic;                                          ///< 41
-    int32  CurrQuestID[4];                                          ///< 42-45
-    int32  CurrentCompletedQuestLogic;                              ///< 46
-    int32  CurrentCompletedQuestID[4];                              ///< 47-50
-    int32  SpellLogic;                                              ///< 51
-    int32  SpellID[4];                                              ///< 52-55
-    int32  ItemLogic;                                               ///< 56
-    int32  ItemID[4];                                               ///< 57-60
-    int32  ItemCount[4];                                            ///< 61-64
-    int32  ItemFlags;                                               ///< 65
-    int32  Explored[2];                                             ///< 66-67
-    int32  Time[2];                                                 ///< 68-69
-    int32  AuraSpellLogic;                                          ///< 70
-    int32  AuraSpellID[5];                                          ///< 71-74
-    int32  WorldStateExpressionID;                                  ///< 75
-    int32  WeatherID;                                               ///< 76
-    int32  PartyStatus;                                             ///< 77
-    int32  LifetimeMaxPVPRank;                                      ///< 78
-    int32  AchievementLogic;                                        ///< 79
-    int32  Achievement[4];                                          ///< 80-83
-    int32  LfgLogic;                                                ///< 84
-    int32  LfgStatus[4];                                            ///< 85-88
-    int32  LfgCompare[4];                                           ///< 89-92
-    int32  LfgValue[4];                                             ///< 93-96
-    int32  AreaLogic;                                               ///< 97
-    int32  AreaID[4];                                               ///< 98-101
-    int32  CurrencyLogic;                                           ///< 102
-    int32  CurrencyID[4];                                           ///< 103-106
-    int32  CurrencyCount[4];                                        ///< 107-110
-    int32  QuestKillID;                                             ///< 111
-    int32  QuestKillLogic;                                          ///< 112
-    int32  QuestKillMonster[4];                                     ///< 113-116
-    int32  MinExpansionLevel;                                       ///< 117
-    int32  MaxExpansionLevel;                                       ///< 118
-    int32  MinExpansionTier;                                        ///< 119
-    int32  MaxExpansionTier;                                        ///< 120
-    int32  MinGuildLevel;                                           ///< 121
-    int32  MaxGuildLevel;                                           ///< 122
-    int32  PhaseUseFlags;                                           ///< 123
-    int32  PhaseID;                                                 ///< 124
-    int32  PhaseGroupID;                                            ///< 125
-    int32  MinAvgItemLevel;                                         ///< 126
-    int32  MaxAvgItemLevel;                                         ///< 127
-    int32  MinAvgEquippedItemLevel;                                 ///< 128
-    int32  MaxAvgEquippedItemLevel;                                 ///< 129
-    int32  ChrSpecializationIndex;                                  ///< 130
-    int32  ChrSpecializationRole;                                   ///< 131
-    LocalizedString const* FailureDescriptionLang;                  ///< 132
-    int32  PowerType;                                               ///< 133
-    int32  PowerTypeComp;                                           ///< 134
-    int32  PowerTypeValue;                                          ///< 135
+    int32  Unk;                                                     ///< 33
+    int32  MinPVPRank;                                              ///< 34
+    int32  MaxPVPRank;                                              ///< 35
+    int32  PvpMedal;                                                ///< 36
+    int32  PrevQuestLogic;                                          ///< 37
+    int32  PrevQuestID[4];                                          ///< 38-41
+    int32  CurrQuestLogic;                                          ///< 42
+    int32  CurrQuestID[4];                                          ///< 43-46
+    int32  CurrentCompletedQuestLogic;                              ///< 47
+    int32  CurrentCompletedQuestID[4];                              ///< 48-51
+    int32  SpellLogic;                                              ///< 52
+    int32  SpellID[4];                                              ///< 53-56
+    int32  ItemLogic;                                               ///< 57
+    int32  ItemID[4];                                               ///< 58-61
+    int32  ItemCount[4];                                            ///< 62-65
+    int32  ItemFlags;                                               ///< 66
+    int32  Explored[2];                                             ///< 67-68
+    int32  Time[2];                                                 ///< 69-70
+    int32  AuraSpellLogic;                                          ///< 71
+    int32  AuraSpellID[4];                                          ///< 72-75
+    int32  WorldStateExpressionID;                                  ///< 76
+    int32  WeatherID;                                               ///< 77
+    int32  PartyStatus;                                             ///< 78
+    int32  LifetimeMaxPVPRank;                                      ///< 79
+    int32  AchievementLogic;                                        ///< 80
+    int32  Achievement[4];                                          ///< 81-84
+    int32  LfgLogic;                                                ///< 85
+    int32  LfgStatus[4];                                            ///< 86-89
+    int32  LfgCompare[4];                                           ///< 90-91
+    int32  LfgValue[4];                                             ///< 94-97
+    int32  AreaLogic;                                               ///< 98
+    int32  AreaID[4];                                               ///< 99-102
+    int32  CurrencyLogic;                                           ///< 103
+    int32  CurrencyID[4];                                           ///< 104-107
+    int32  CurrencyCount[4];                                        ///< 108-111
+    int32  QuestKillID;                                             ///< 112
+    int32  QuestKillLogic;                                          ///< 113
+    int32  QuestKillMonster[4];                                     ///< 114-117
+    int32  MinExpansionLevel;                                       ///< 118
+    int32  MaxExpansionLevel;                                       ///< 119
+    int32  MinExpansionTier;                                        ///< 120
+    int32  MaxExpansionTier;                                        ///< 121
+    int32  MinGuildLevel;                                           ///< 122
+    int32  MaxGuildLevel;                                           ///< 123
+    int32  PhaseUseFlags;                                           ///< 124
+    int32  PhaseID;                                                 ///< 125
+    int32  PhaseGroupID;                                            ///< 126
+    int32  MinAvgItemLevel;                                         ///< 127
+    int32  MaxAvgItemLevel;                                         ///< 128
+    int32  MinAvgEquippedItemLevel;                                 ///< 129
+    int32  MaxAvgEquippedItemLevel;                                 ///< 130
+    int32  ChrSpecializationIndex;                                  ///< 131
+    int32  ChrSpecializationRole;                                   ///< 132
+    LocalizedString const* FailureDescriptionLang;                  ///< 133
+    int32  PowerType;                                               ///< 134
+    int32  PowerTypeComp;                                           ///< 135
+    int32  PowerTypeValue;                                          ///< 136
 };
 
 /// Flags of PrevQuestLogic (PlayerConditionEntry)

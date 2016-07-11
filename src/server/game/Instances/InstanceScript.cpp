@@ -868,6 +868,16 @@ void InstanceScript::RespawnCreature(uint64 p_Guid /*= 0*/)
     }
 }
 
+void InstanceScript::PlaySceneForPlayers(Position const p_Pos, uint32 p_ScenePackageID)
+{
+    Map::PlayerList const& l_Players = instance->GetPlayers();
+    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
+    }
+}
+
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint64 /*miscvalue1*/ /*= 0*/)
 {
     sLog->outError(LOG_FILTER_GENERAL, "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
@@ -1646,7 +1656,12 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     l_Data << uint32(instance->GetPlayers().getSize());
     instance->SendToPlayers(&l_Data);
 
+    /// Don't record the kill if encounter is disabled
     if (sObjectMgr->IsDisabledEncounter(p_EncounterID, instance->GetDifficultyID()))
+        return;
+
+    /// Don't record the kill if it's a test realm
+    if (!sWorld->CanBeSaveInLoginDatabase())
         return;
 
     /// Reset datas before each attempt
@@ -1697,7 +1712,12 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     l_Data.FlushBits();
     instance->SendToPlayers(&l_Data);
 
+    /// Don't record the kill if encounter is disabled
     if (sObjectMgr->IsDisabledEncounter(p_EncounterID, instance->GetDifficultyID()))
+        return;
+
+    /// Don't record the kill if it's a test realm
+    if (!sWorld->CanBeSaveInLoginDatabase())
         return;
 
     m_EncounterDatas.CombatDuration = uint32(time(nullptr)) - m_EncounterDatas.StartTime;

@@ -77,11 +77,12 @@ DBCStorage <DurabilityCostsEntry>         sDurabilityCostsStore(DurabilityCostsf
 DBCStorage <EmotesEntry>                  sEmotesStore(EmotesEntryfmt);
 DBCStorage <EmotesTextEntry>              sEmotesTextStore(EmotesTextEntryfmt);
 
+
 typedef std::tuple<uint32, uint32, uint32> EmotesTextSoundKey;
 static std::map<EmotesTextSoundKey, EmotesTextSoundEntry const*> sEmotesTextSoundMap;
 DBCStorage <EmotesTextSoundEntry>         sEmotesTextSoundStore(EmotesTextSoundEntryfmt);
 
-typedef std::map<uint32, SimpleFactionsList> FactionTeamMap;
+typedef std::map<uint32, std::vector<uint32>> FactionTeamMap;
 static FactionTeamMap                     sFactionTeamMap;
 DBCStorage <FactionEntry>                 sFactionStore(FactionEntryfmt);
 DBCStorage <FactionTemplateEntry>         sFactionTemplateStore(FactionTemplateEntryfmt);
@@ -306,7 +307,7 @@ void LoadDBCStores(const std::string& dataPath)
         FactionEntry const* faction = sFactionStore.LookupEntry(i);
         if (faction && faction->ParentFactionID)
         {
-            SimpleFactionsList &flist = sFactionTeamMap[faction->ParentFactionID];
+            std::vector<uint32> &flist = sFactionTeamMap[faction->ParentFactionID];
             flist.push_back(i);
         }
     }
@@ -638,7 +639,7 @@ void LoadDBCStores(const std::string& dataPath)
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Initialized %d DBC data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
-SimpleFactionsList const* GetFactionTeamList(uint32 faction)
+std::vector<uint32> const* GetFactionTeamList(uint32 faction)
 {
     FactionTeamMap::const_iterator itr = sFactionTeamMap.find(faction);
     if (itr != sFactionTeamMap.end())
@@ -1112,20 +1113,20 @@ namespace WorldStateExpressionFunctions
     };
 }
 
-static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunction[] =
+static std::function<int32(Player const*, int32, int32)> g_WorldStateExpressionFunction[] =
 {
     /// WorldStateExpressionFunctions::None
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::Random
-    [](Player* /*p_Player*/, int32 p_Min, int32 p_Max) -> int32
+    [](Player const* /*p_Player*/, int32 p_Min, int32 p_Max) -> int32
     {
         return urand(p_Min, p_Max);
     },
     /// WorldStateExpressionFunctions::Month
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         MS::Utilities::WowTime l_Time;
         l_Time.SetUTCTimeFromPosixTime(sWorld->GetGameTime());
@@ -1133,7 +1134,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return l_Time.Month + 1;
     },
     /// WorldStateExpressionFunctions::Day
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         MS::Utilities::WowTime l_Time;
         l_Time.SetUTCTimeFromPosixTime(sWorld->GetGameTime());
@@ -1141,7 +1142,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return l_Time.MonthDay + 1;
     },
     /// WorldStateExpressionFunctions::TimeOfDay
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         MS::Utilities::WowTime l_Time;
         l_Time.SetUTCTimeFromPosixTime(sWorld->GetGameTime());
@@ -1149,12 +1150,12 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return l_Time.GetHourAndMinutes();
     },
     /// WorldStateExpressionFunctions::Region
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return sWorld->GetServerRegionID();
     },
     /// WorldStateExpressionFunctions::ClockHour
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         MS::Utilities::WowTime l_Time;
         l_Time.SetUTCTimeFromPosixTime(sWorld->GetGameTime());
@@ -1168,12 +1169,12 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return 12;
     },
     /// WorldStateExpressionFunctions::Region
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return sWorld->GetServerRegionID();
     },
     /// WorldStateExpressionFunctions::DifficultyID
-    [](Player* p_Player, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* p_Player, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         if (!p_Player)
             return 0;
@@ -1181,7 +1182,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return p_Player->GetMap()->GetDifficultyID();
     },
     /// WorldStateExpressionFunctions::HolidayStart
-    [](Player* /*p_Player*/, int32 p_HolidayID, int32 p_Arg2) -> int32
+    [](Player const* /*p_Player*/, int32 p_HolidayID, int32 p_Arg2) -> int32
     {
         HolidaysEntry const* l_Entry = sHolidaysStore.LookupEntry(p_HolidayID);
 
@@ -1283,7 +1284,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return l_ChoosedDuration * MS::Utilities::Globals::InMinutes::Hour;
     },
     /// WorldStateExpressionFunctions::HolidayLeft
-    [](Player* /*p_Player*/, int32 p_HolidayID, int32 p_Arg2) -> int32
+    [](Player const* /*p_Player*/, int32 p_HolidayID, int32 p_Arg2) -> int32
     {
         HolidaysEntry const* l_Entry = sHolidaysStore.LookupEntry(p_HolidayID);
 
@@ -1388,7 +1389,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return l_ChoosedDuration * MS::Utilities::Globals::InMinutes::Hour;
     },
     /// WorldStateExpressionFunctions::HolidayActive
-    [](Player* p_Player, int32 p_HolidayID, int32 /*p_Arg2*/) -> int32
+    [](Player const* p_Player, int32 p_HolidayID, int32 /*p_Arg2*/) -> int32
     {
         HolidaysEntry const* l_Entry = sHolidaysStore.LookupEntry(p_HolidayID);
 
@@ -1417,58 +1418,58 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return 0;
     },
     /// WorldStateExpressionFunctions::TimerCurrentTime
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return time(nullptr);
     },
     /// WorldStateExpressionFunctions::WeekNumber
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         time_t l_Time = sWorld->GetGameTime();
         return (l_Time - sWorld->GetServerRaidOrigin()) / WEEK;
     },
     /// WorldStateExpressionFunctions::None2
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None3
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None4
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None5
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None6
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None7
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None8
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None9
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None10
-    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
+    [](Player const* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     }
@@ -1518,7 +1519,7 @@ std::string UnpackWorldStateExpression(char const* p_Input)
     return l_Unpacked;
 }
 
-int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
+int32 WorldStateExpression_EvalPush(Player const* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
 {
 #define UNPACK_UINT8(x) { x = *((uint8*)((char const*)*p_UnpackedExpression)); *p_UnpackedExpression += sizeof(uint8);}
 #define UNPACK_INT32(x) { x = *((int32*)((char const*)*p_UnpackedExpression)); *p_UnpackedExpression += sizeof(int32);}
@@ -1574,7 +1575,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
 #undef UNPACK_UINT8
 }
 
-int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions, bool p_ForA)
+int32 WorldStateExpression_EvalArithmetic(Player const* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions, bool p_ForA)
 {
     UNUSED(p_ForA);
 
@@ -1643,7 +1644,7 @@ int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_Unpac
 #undef UNPACK_UINT8
 }
 
-bool WorldStateExpression_EvalCompare(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
+bool WorldStateExpression_EvalCompare(Player const* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
 {
 #define UNPACK_UINT8(x) { x = *(uint8*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8);}
     int l_LeftValue = WorldStateExpression_EvalArithmetic(p_Player, p_UnpackedExpression, p_Instructions, true);
@@ -1733,7 +1734,7 @@ bool WorldStateExpression_EvalResult(char p_LogicResult, uint8_t p_EvalResultRou
 }
 
 /// Eval a worldstate expression
-bool WorldStateExpressionEntry::Eval(Player* p_Player, std::vector<std::string> * p_OutStrResult) const
+bool WorldStateExpressionEntry::Eval(Player const* p_Player, std::vector<std::string> * p_OutStrResult) const
 {
 #define UNPACK_UINT8(x) { x = *l_UnpackedExpression; l_UnpackedExpression += sizeof(uint8);}
     std::vector<std::string> p_Instructions;

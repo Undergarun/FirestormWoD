@@ -95,7 +95,9 @@ UPDATE creature_template SET scriptname = "npc_DalanaClarke_Garr" WHERE entry = 
  	(23, 79815, 113817, 39, 10, 2, "Item buyable with War Mill lvl 2"),
  	(23, 79815, 113818, 39, 10, 2, "Item buyable with War Mill lvl 2"),
  	(23, 79815, 113819, 39, 10, 2, "Item buyable with War Mill lvl 2");
-  
+ 
+ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-9','0','79815','-1.52759','1.4172','2.69266','3.06667');
+ 
  DROP PROCEDURE `FillConditionTable`;
  
  -- Fix all work order NPCs

@@ -460,7 +460,7 @@ void WorldSession::SendBroadcastTextDb2Reply(uint32 p_Entry)
         }
     }
 
-    l_ReplyContent << uint32(0);
+    l_ReplyContent << uint32(l_Gossip->SoundID);
     l_ReplyContent << uint32(0);
     l_ReplyContent << uint32(0x01);   /// unk
 
