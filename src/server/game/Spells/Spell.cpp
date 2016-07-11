@@ -7073,9 +7073,9 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 if (!l_Player->CanUpgradeHeirloomWith(l_Heirloom, m_CastItem->GetTemplate()->ItemId))
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-#ifndef CROSS
                 break;
             }
+#ifndef CROSS
             case SPELL_EFFECT_TEACH_FOLLOWER_ABILITY:
             {
                 Player* l_Player = m_caster->ToPlayer();
@@ -7110,11 +7110,12 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (l_Result != SPELL_CAST_OK)
                     return l_Result;
 
-#endif /* not CROSS */
                 break;
             }
+#endif
             case SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE:
             {
+#ifndef CROSS
                 Player* l_Player = m_caster->ToPlayer();
 
                 if (l_Player == nullptr)
@@ -7129,6 +7130,9 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 if (l_Follower == nullptr || !l_Follower->CanXP())
                     return SPELL_FAILED_BAD_TARGETS;
+#else
+                return SPELL_FAILED_BAD_TARGETS;
+#endif
 
                 break;
             }
