@@ -3529,7 +3529,7 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugPacketProfiler(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
-            gPacketProfilerMutex.lock();
+            /*gPacketProfilerMutex.lock();
             p_Handler->PSendSysMessage("----------------");
 
             for (auto l_Pair : gPacketProfilerData)
@@ -3538,7 +3538,7 @@ class debug_commandscript: public CommandScript
             }
 
             p_Handler->PSendSysMessage("----------------");
-            gPacketProfilerMutex.unlock();
+            gPacketProfilerMutex.unlock();*/
 
             return true;
         }
