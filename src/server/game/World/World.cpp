@@ -2747,7 +2747,6 @@ void World::SendGlobalGMMessage(WorldPacket* packet, WorldSession* self, uint32 
     for (itr = m_players.begin(); itr != m_players.end(); ++itr)
     {
         if (itr->second &&
-            itr->second &&
             itr->second->IsInWorld() &&
             itr->second->GetSession() != self &&
             !AccountMgr::IsPlayerAccount(itr->second->GetSession()->GetSecurity()) &&
@@ -2764,6 +2763,7 @@ void World::SendGlobalGMMessage(WorldPacket* packet, WorldSession* self, uint32 
             itr->second->GetPlayer() &&
             itr->second->GetPlayer()->IsInWorld() &&
             itr->second != self &&
+            !AccountMgr::IsPlayerAccount(itr->second->GetSecurity()) &&
             (team == 0 || itr->second->GetPlayer()->GetTeam() == team))
         {
             itr->second->SendPacket(packet);
