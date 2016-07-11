@@ -5194,11 +5194,16 @@ namespace MS { namespace Garrison
 
             while (l_AbilitiesCount < l_MaxAbilities)
             {
-                if (uint32 l_NewAbility = GenerateRandomAbility(p_Follower.FollowerID))
+                uint32 l_NewAbility = GenerateRandomAbility(p_Follower.FollowerID);
+
+                if (!l_NewAbility)
                 {
-                    p_Follower.Abilities.push_back(l_NewAbility);
-                    ++l_AbilitiesCount;
+                    sLog->outAshran("Can't find random ability for follower ID %u", p_Follower.FollowerID);
+                    break;
                 }
+
+                p_Follower.Abilities.push_back(l_NewAbility);
+                ++l_AbilitiesCount;
             }
 
             uint32 l_TraitCount = std::count_if(g_FollowerTraits.begin(), g_FollowerTraits.end(), [p_Follower](uint32 p_TraitID) -> bool
