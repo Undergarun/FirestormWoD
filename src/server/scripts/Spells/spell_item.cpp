@@ -3687,7 +3687,7 @@ class spell_item_shoulders_of_iron : public SpellScriptLoader
                 BlackhandsShoulderguards    = 115581,
                 MantleOfTheSomberGaze       = 115559,
                 RylakstalkersSpaulders      = 115547,
-                WindspeakersMantle          = 115579
+                WindspeakersMantle          = 115576
             };
 
             enum eBonusIDs
