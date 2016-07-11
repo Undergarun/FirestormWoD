@@ -419,12 +419,13 @@ namespace MS { namespace Skill
                             }
                         }
                     }
+                    if (!l_Candidates.size())
+                        return;
 
                     auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
                     std::shuffle(l_Candidates.begin(), l_Candidates.end(), std::default_random_engine(l_Seed));
 
-                    if (l_Candidates.size())
-                        l_Player->learnSpell(l_Candidates[0], false);
+                    l_Player->learnSpell(l_Candidates[0], false);
                 }
 
                 void Register() override
