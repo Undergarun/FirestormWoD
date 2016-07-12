@@ -7865,3 +7865,28 @@ void SpellMgr::LoadSpellUpgradeItemStage()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell upgrade item stage.", l_Count);
 }
+
+bool SpellMgr::HaveSameItemSourceSkill(Item* p_Item1, Item* p_Item2) const
+{
+    if (p_Item1 == nullptr
+        || p_Item2 == nullptr)
+        return false;
+
+    auto l_SourceSkill1 = sSpellMgr->GetItemSourceSkills(p_Item1->GetEntry());
+    auto l_SourceSkill2 = sSpellMgr->GetItemSourceSkills(p_Item2->GetEntry());
+
+    if (l_SourceSkill1 == nullptr
+        || l_SourceSkill2 == nullptr)
+        return false;
+
+    for (auto l_Skill1 : *l_SourceSkill1)
+    {
+        for (auto l_Skill2 : *l_SourceSkill2)
+        {
+            if (l_Skill1 == l_Skill2)
+                return true;
+        }
+    }
+
+    return false;
+}
