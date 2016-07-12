@@ -813,6 +813,7 @@ class SpellMgr
         void InitializeItemUpgradeDatas();
         void LoadSpellPlaceHolder();
         void LoadSpellUpgradeItemStage();
+        bool HaveSameItemSourceSkill(Item* p_Item1, Item* p_Item2) const;
 
         std::vector<uint32>        mSpellCreateItemList;
 

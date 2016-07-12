@@ -6782,7 +6782,7 @@
     <field type="int" name="MinPVPRank" />
     <field type="int" name="MaxPVPRank" />
     <field type="int" name="PvpMedal" />
-	<field type="int" name="unk" />
+    <field type="int" name="unk" />
     <field type="int" name="PrevQuestLogic" />
     <field type="int" name="PrevQuestID1" />
     <field type="int" name="PrevQuestID2" />
@@ -7171,4 +7171,14 @@
     <field type="int" name="field4" />
   </TextureFileData>
   <ModelManifest build="0" />
+  <RulesetRaidLootUpgrade build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+  </RulesetRaidLootUpgrade>
 </DBFilesClient>

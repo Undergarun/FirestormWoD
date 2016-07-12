@@ -8178,6 +8178,9 @@ SpellCastResult Spell::CheckItems()
                     {
                         for (auto l_Itr : l_ItemStageUpgradeRules)
                         {
+                            if (!sSpellMgr->HaveSameItemSourceSkill(m_CastItem, l_ItemTarget))
+                                continue;
+
                             if (l_Itr.ItemClass != l_ItemTarget->GetTemplate()->Class)
                                 continue;
 
