@@ -8208,8 +8208,15 @@ SpellCastResult Spell::CheckItems()
                                     continue;
                             }
 
-                            if (int32(l_ItemTarget->GetTemplate()->ItemLevel + l_ItemTarget->GetItemLevelBonusFromItemBonuses()) >= l_Itr.MaxIlevel)
+                            if (int32(l_ItemTarget->GetTemplate()->ItemLevel + l_ItemTarget->GetItemLevelBonusFromItemBonuses()) > l_Itr.MaxIlevel)
                                 continue;
+
+                            if (int32(l_ItemTarget->GetTemplate()->ItemLevel + l_ItemTarget->GetItemLevelBonusFromItemBonuses()) == l_Itr.MaxIlevel)
+                            {
+                                std::vector<uint32> l_UpgradeSpellIDs = { 187546, 187537, 187541, 187539, 187538, 187551, 187550, 187552, 187535 };
+                                if (std::find(l_UpgradeSpellIDs.begin(), l_UpgradeSpellIDs.end(), GetSpellInfo()->Id) != l_UpgradeSpellIDs.end())
+                                    continue;
+                            }
 
                             l_Found = true;
                             l_MaxIlevel = l_Itr.MaxIlevel;
