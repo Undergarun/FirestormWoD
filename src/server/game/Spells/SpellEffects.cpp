@@ -8514,6 +8514,10 @@ void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
+    std::vector<uint32> l_UpgradeSpellIDs = {187546, 187537, 187541, 187539, 187538, 187551, 187550, 187552, 187535};
+    if (std::find(l_UpgradeSpellIDs.begin(), l_UpgradeSpellIDs.end(), GetSpellInfo()->Id) == l_UpgradeSpellIDs.end())
+        return;
+
     Item* l_ItemTarget = m_targets.GetItemTarget();
     if (l_ItemTarget == nullptr)
         return;
