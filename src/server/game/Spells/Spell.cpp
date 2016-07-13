@@ -9694,20 +9694,6 @@ bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target)
     if (!target->IsWithinDist3d(_position, _range))
         return false;
 
-    if (Unit* l_Target = target->ToUnit())
-    {
-        if (_caster->IsFriendlyTo(l_Target))
-        {
-            if (!_caster->IsValidAssistTarget(l_Target))
-                return false;
-        }
-        else
-        {
-            if (!_caster->IsValidAttackTarget(l_Target))
-                return false;
-        }
-    }
-
     return WorldObjectSpellTargetCheck::operator ()(target);
 }
 
