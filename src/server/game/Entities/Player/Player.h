@@ -3561,6 +3561,11 @@ class Player : public Unit, public GridObject<Player>
             return m_CharacterWorldStates.at(p_Index).Value;
         }
 
+        bool HasCharacterWorldState(uint32 p_Index) const
+        {
+            return m_CharacterWorldStates.find(p_Index) != m_CharacterWorldStates.end();
+        }
+
         /// Send custom message with system message (addon, custom interfaces ...etc)
         void SendCustomMessage(std::string const& p_Opcode);
         void SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Data);
