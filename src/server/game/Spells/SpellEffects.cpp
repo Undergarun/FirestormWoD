@@ -8312,8 +8312,8 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
                 /// Bestial Wrath stampe should have same duration of Bestial Wrath
                 if (l_SpellInfo->Id == 167135)
                 {
-                    Aura* l_Aura = l_Owner->GetAura(19574);
-                    p_Pet->SetDuration(l_Aura->GetDuration());
+                    if(Aura* l_Aura = l_Owner->GetAura(19574))
+                        p_Pet->SetDuration(l_Aura->GetDuration());
                 }
 
                 p_Pet->m_autospells.clear();
