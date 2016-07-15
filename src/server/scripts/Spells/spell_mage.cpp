@@ -1425,8 +1425,6 @@ class spell_mage_inferno_blast: public SpellScriptLoader
                             /// 1 : Ignite
                             if (Aura* l_Aura = l_Target->GetAura(SPELL_MAGE_IGNITE, l_Caster->GetGUID()))
                             {
-                                float l_Value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
-
                                 int32 l_Ignite = l_Aura->GetEffect(EFFECT_0)->GetAmount();
                                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IGNITE);
 
