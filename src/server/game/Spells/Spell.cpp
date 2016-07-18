@@ -8213,7 +8213,18 @@ SpellCastResult Spell::CheckItems()
 
                             if (int32(l_ItemTarget->GetTemplate()->ItemLevel + l_ItemTarget->GetItemLevelBonusFromItemBonuses()) == l_Itr.MaxIlevel)
                             {
-                                std::vector<uint32> l_UpgradeSpellIDs = { 187546, 187537, 187541, 187539, 187538, 187551, 187550, 187552, 187535 };
+                                std::vector<uint32> l_UpgradeSpellIDs = 
+                                {
+                                    187546, ///< Blacksmithing (Armor)
+                                    187550, ///< Blacksmithing (Weapon)
+                                    187537, ///< Inscription (Armor)
+                                    187535, ///< Inscription (Weapon)
+                                    187541, ///< LeatherWorking (Armor)
+                                    187539, ///< Tailoring (Armor)
+                                    187538, ///< Engineering (Armor)
+                                    187552, ///< Engineering (Weapon)
+                                    187551, ///< Jewelcrafting (Armor)
+                                };
                                 if (std::find(l_UpgradeSpellIDs.begin(), l_UpgradeSpellIDs.end(), GetSpellInfo()->Id) != l_UpgradeSpellIDs.end())
                                     continue;
                             }
