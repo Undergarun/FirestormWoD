@@ -1300,16 +1300,6 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     m_Session->SetAccountJoinDate(l_JoinDateTimestamp);
     m_Session->LoadPremades();
 
-    /// - First premade money
-    {
-        if (sWorld->getIntConfig(CONFIG_FIRST_PREMADE_MONEY))
-        {
-            QueryResult l_PremadeMoneyResult = CharacterDatabase.PQuery("SELECT account FROM first_premade_money WHERE account = %u", l_AccountID);
-            if (!l_PremadeMoneyResult)
-                m_Session->SetFirstPremadeMoney();
-        }
-    }
-
     /// Initialize Warden system only if it is enabled by config
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
         m_Session->InitWarden(&l_SessionKey, l_AccountOS);

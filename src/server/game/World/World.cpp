@@ -1451,7 +1451,6 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_MOP_TRANSFER_ENABLE] = ConfigMgr::GetBoolDefault("MopTransfer.enable", false);
 
     m_bool_configs[CONFIG_FUN_ENABLE] = ConfigMgr::GetBoolDefault("Fun.Enable", false);
-    m_int_configs[CONFIG_FIRST_PREMADE_MONEY] = ConfigMgr::GetIntDefault("Fun.FirstPremadeMoney", 0);
     m_bool_configs[CONFIG_LOG_PACKETS] = ConfigMgr::GetBoolDefault("LogPackets", true);
     m_bool_configs[CONFIG_WEB_DATABASE_ENABLE] = ConfigMgr::GetBoolDefault("WebDatabase.enable", false);
 

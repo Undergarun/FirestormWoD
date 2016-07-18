@@ -164,7 +164,6 @@ WorldSession::WorldSession(uint32 id, InterRealmClient* irc, AccountTypes sec, b
     m_playerLoading            = false;
     m_playerLogout             = false;
     m_inQueue                  = false;
-    m_FirstPremadeMoney        = false;
     m_IsPetBattleJournalLocked = false;
     ///////////////////////////////////////////////////////////////////////////////
 

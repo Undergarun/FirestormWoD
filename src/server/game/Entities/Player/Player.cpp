@@ -794,20 +794,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     if (l_Template)
     {
-        uint32 l_Money = l_Template->m_Money;
-        uint32 l_FirstPremadeMoney = sWorld->getIntConfig(CONFIG_FIRST_PREMADE_MONEY);
-
-        if (GetSession()->GetFirstPremadeMoney() && l_FirstPremadeMoney)
-        {
-            l_Money += l_FirstPremadeMoney;
-            GetSession()->DisableFirstPremadeMoney();
-
-            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_FIRST_PREMADE_MONEY);
-            l_Statement->setUInt32(0, GetSession()->GetAccountId());
-            CharacterDatabase.Execute(l_Statement);
-        }
-
-        SetUInt64Value(PLAYER_FIELD_COINAGE, l_Money);
+        SetUInt64Value(PLAYER_FIELD_COINAGE, l_Template->m_Money);
         SetUInt32Value(UNIT_FIELD_LEVEL, l_Template->m_Level);
     }
     else
@@ -7493,7 +7480,7 @@ void Player::RepopAtGraveyard(bool p_ForceGraveyard /*= false*/)
         }
     }
     /// PvP Duel Zone
-    else if (GetAreaId() == 2401)
+    else if (GetAreaId() == 2401 && sWorld->getBoolConfig(CONFIG_FUN_ENABLE))
     {
          ResurrectPlayer(1);
          RegenerateAll();
@@ -10507,9 +10494,13 @@ void Player::DuelComplete(DuelCompleteType p_DuelType)
     }
 
     sScriptMgr->OnPlayerDuelEnd(m_Duel->opponent, this, p_DuelType);
-    RemoveAllSpellCooldown();
-    if (m_Duel->opponent != nullptr)
-        m_Duel->opponent->RemoveAllSpellCooldown();
+
+    if (sWorld->getBoolConfig(CONFIG_FUN_ENABLE))
+    {
+        RemoveAllSpellCooldown();
+        if (m_Duel->opponent != nullptr)
+            m_Duel->opponent->RemoveAllSpellCooldown();
+    }
 
     switch (p_DuelType)
     {
@@ -25086,9 +25077,13 @@ void Player::UpdateDuelFlag(time_t currTime)
         return;
 
     sScriptMgr->OnPlayerDuelStart(this, m_Duel->opponent);
-    RemoveAllSpellCooldown();
-    if (m_Duel->opponent != nullptr)
-        m_Duel->opponent->RemoveAllSpellCooldown();
+
+    if (sWorld->getBoolConfig(CONFIG_FUN_ENABLE))
+    {
+        RemoveAllSpellCooldown();
+        if (m_Duel->opponent != nullptr)
+            m_Duel->opponent->RemoveAllSpellCooldown();
+    }
 
     SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 1);
     m_Duel->opponent->SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 2);

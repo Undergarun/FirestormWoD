@@ -691,8 +691,6 @@ enum CharacterDatabaseStatements
     CHAR_UPD_WORLD_STATE,
     CHAR_DEL_WORLD_STATE_DATA,
 
-    CHAR_INS_FIRST_PREMADE_MONEY,
-
     CHAR_UPD_XP_RATE,
 
     /// Armory stats
