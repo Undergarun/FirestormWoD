@@ -42,6 +42,23 @@ namespace Battlepay
 
                         if (l_ItemTemplate->RequiredReputationFaction && uint32(l_Player->GetReputationRank(l_ItemTemplate->RequiredReputationFaction)) < l_ItemTemplate->RequiredReputationRank)
                             return false;
+
+                        for (int l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; l_I++)
+                        {
+                            if (l_ItemTemplate->Spells[l_I].SpellId != 0 && l_ItemTemplate->Spells[l_I].SpellTrigger == 6)
+                            {
+                                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ItemTemplate->Spells[l_I].SpellId))
+                                {
+                                    if ((l_SpellInfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY) != 0 &&
+                                        (l_Player->getRaceMask() & RACEMASK_HORDE) == 0)
+                                        return false;
+
+                                    if ((l_SpellInfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY) != 0 &&
+                                        (l_Player->getRaceMask() & RACEMASK_ALLIANCE) == 0)
+                                        return false;
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -97,6 +114,32 @@ namespace Battlepay
                             l_Continue = true;
                             break;
                         }
+
+                        for (int l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; l_I++)
+                        {
+                            if (l_ItemTemplate->Spells[l_I].SpellId != 0 && l_ItemTemplate->Spells[l_I].SpellTrigger == 6)
+                            {
+                                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ItemTemplate->Spells[l_I].SpellId))
+                                {
+                                    if ((l_SpellInfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY) != 0 &&
+                                        (l_Player->getRaceMask() & RACEMASK_HORDE) == 0)
+                                    {
+                                        l_Continue = true;
+                                        break;
+                                    }
+
+                                    if ((l_SpellInfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY) != 0 &&
+                                        (l_Player->getRaceMask() & RACEMASK_ALLIANCE) == 0)
+                                    {
+                                        l_Continue = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (l_Continue)
+                            break;
                     }
                 }
 
