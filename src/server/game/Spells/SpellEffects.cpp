@@ -8552,7 +8552,18 @@ void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    std::vector<uint32> l_UpgradeSpellIDs = {187546, 187537, 187541, 187539, 187538, 187551, 187550, 187552, 187535};
+    std::vector<uint32> l_UpgradeSpellIDs =
+    {
+        187546, 187501, 187524,///< Blacksmithing (Armor)
+        187550, 187500, 187523, ///< Blacksmithing (Weapon)
+        187537, 187505, 187528,///< Inscription (Armor)
+        187535, 187504, 187527,///< Inscription (Weapon)
+        187541, 187499, 187522,///< LeatherWorking (Armor)
+        187539, 187502, 187525,///< Tailoring (Armor)
+        187538, 187507, 187530,///< Engineering (Armor)
+        187552, 187506, 187529,///< Engineering (Weapon)
+        187551, 187503, 187526///< Jewelcrafting (Armor)
+    };
     if (std::find(l_UpgradeSpellIDs.begin(), l_UpgradeSpellIDs.end(), GetSpellInfo()->Id) == l_UpgradeSpellIDs.end())
         return;
 
