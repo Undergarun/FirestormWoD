@@ -944,12 +944,17 @@ class spell_warl_flames_of_xoroth: public SpellScriptLoader
                 {
                     if (Pet* l_NewPet = new Pet(player, SUMMON_PET))
                     {
-                        PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(0, player->GetLastPetNumber(), player->GetGUIDLow(), true, PET_SLOT_UNK_SLOT);
 
                         uint64 l_PlayerGUID = player->GetGUID();
                         uint32 l_PetNumber  = player->GetLastPetNumber();
+#ifdef CROSS
+                        uint32 l_RealmID = player->GetSession()->GetInterRealmNumber();
+#else
+                        uint32 l_RealmID = g_RealmID;
+#endif
 
-                        CharacterDatabase.AsyncQuery(l_PetStatement, [l_NewPet, l_PlayerGUID, l_PetNumber](PreparedQueryResult p_Result) -> void
+                        PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(0, player->GetLastPetNumber(), player->GetRealGUIDLow(), true, PET_SLOT_UNK_SLOT, l_RealmID);
+                        CharacterDatabase.AsyncQuery(l_PetStatement, [l_NewPet, l_PlayerGUID, l_PetNumber, l_RealmID](PreparedQueryResult p_Result) -> void
                         {
                             if (!p_Result)
                             {
@@ -957,7 +962,7 @@ class spell_warl_flames_of_xoroth: public SpellScriptLoader
                                 return;
                             }
 
-                            PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), p_Result);
+                            PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), l_RealmID, p_Result);
                             l_PetHolder->Initialize();
 
                             auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);

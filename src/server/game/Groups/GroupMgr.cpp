@@ -98,6 +98,7 @@ void GroupMgr::AddGroup(Group* group)
 void GroupMgr::RemoveGroup(Group* group)
 {
     GroupStore.erase(group->GetLowGUID());
+#ifndef CROSS
 }
 
 void GroupMgr::LoadGroups()
@@ -222,3 +223,6 @@ void GroupMgr::LoadGroups()
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u group-instance saves in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 }
+#else /* CROSS */
+}
+#endif /* CROSS */

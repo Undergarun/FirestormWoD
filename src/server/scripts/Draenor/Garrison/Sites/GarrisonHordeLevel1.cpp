@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "GarrisonHordeLevel1.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -405,4 +406,5 @@ void AddSC_Garrison_H1()
 {
     new MS::Garrison::Sites::InstanceMapScript_GarrisonHordeLevel1();
 }
+#endif
 #endif

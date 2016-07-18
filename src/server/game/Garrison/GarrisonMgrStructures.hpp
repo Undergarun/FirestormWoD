@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "Define.h"
 #include "Common.h"
 
@@ -53,3 +54,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_STRUCTURES_HPP_GARRISON
+#endif

@@ -18,7 +18,9 @@
 #include "Path.h"
 #include "WaypointMovementGenerator.h"
 #include "TaxiPathGraph.h"
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 
 void WorldSession::HandleEnableTaxiNodeOpcode(WorldPacket& p_RecvData)
 {
@@ -260,6 +262,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
 
         uint32 l_PlayerMapID = GetPlayer()->GetMapId();
 
+#ifndef CROSS
         /// Special case for taxi in garrison phased map
         for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
         {
@@ -271,6 +274,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
                 break;
             }
         }
+#endif
 
         /// Far teleport case
         if (curDestNode && curDestNode->MapID != l_PlayerMapID)

@@ -16,7 +16,9 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 
 // Checks if object meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: SmartAI)
@@ -284,6 +286,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             condMeets = ((1 << object->GetMap()->GetSpawnMode()) & ConditionValue1);
             break;
         }
+#ifndef CROSS
         case CONDITION_HAS_BUILDING_TYPE:
         {
             if (Player* l_Player = object->ToPlayer())
@@ -320,6 +323,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             break;
         }
+#endif
         default:
             condMeets = false;
             break;

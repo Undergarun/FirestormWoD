@@ -1547,7 +1547,7 @@ void OutdoorPvPAshran::SendEventWarningToPlayers(uint32 p_LangID)
             {
                 std::string l_Text = l_Player->GetSession()->GetTrinityString(p_LangID);
                 WorldPacket l_Data;
-                l_Player->BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_TEXT_EMOTE, l_Text.c_str(), LANG_UNIVERSAL);
+                l_Player->BuildPlayerChat(&l_Data, 0, CHAT_MSG_TEXT_EMOTE, l_Text.c_str(), LANG_UNIVERSAL);
                 l_Player->GetSession()->SendPacket(&l_Data);
             }
         }
@@ -1559,7 +1559,7 @@ void OutdoorPvPAshran::SendEventWarningToPlayers(uint32 p_LangID)
             {
                 std::string l_Text = l_Player->GetSession()->GetTrinityString(p_LangID);
                 WorldPacket l_Data;
-                l_Player->BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_TEXT_EMOTE, l_Text.c_str(), LANG_UNIVERSAL);
+                l_Player->BuildPlayerChat(&l_Data, 0, CHAT_MSG_TEXT_EMOTE, l_Text.c_str(), LANG_UNIVERSAL);
                 l_Player->GetSession()->SendPacket(&l_Data);
             }
         }

@@ -42,6 +42,9 @@
 #include "BattlefieldMgr.h"
 #include "MoveSpline.h"
 #include "SceneObject.h"
+#ifdef CROSS
+#include "InterRealmMgr.h"
+#endif /* CROSS */
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
 {
@@ -2813,12 +2816,24 @@ void WorldObject::SendMessageToSet(WorldPacket* data, bool self, const GuidUnord
 
 void WorldObject::SendMessageToSetInRange(WorldPacket* data, float dist, bool /*self*/, const GuidUnorderedSet& p_IgnoredList)
 {
+#ifdef CROSS
+    if (GetTypeId() == TYPEID_PLAYER)
+        if (ToPlayer()->IsNeedRemove())
+            return;
+
+#endif /* CROSS */
     JadeCore::MessageDistDeliverer notifier(this, data, dist, false, nullptr, p_IgnoredList);
     VisitNearbyWorldObject(dist, notifier);
 }
 
 void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr, const GuidUnorderedSet& p_IgnoredList)
 {
+#ifdef CROSS
+    if (GetTypeId() == TYPEID_PLAYER)
+        if (ToPlayer()->IsNeedRemove())
+            return;
+    
+#endif /* CROSS */
     JadeCore::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr, p_IgnoredList);
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
@@ -3076,11 +3091,11 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempS
 
 void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration, PetSlot slotID, bool stampeded, std::function<void(Pet*, bool)> p_Callback, bool p_ByPass)
 {
-    Pet* pet = new Pet(this, petType);
-    pet->m_Stampeded = stampeded;
+    Pet* l_Pet = new Pet(this, petType);
+    l_Pet->m_Stampeded = stampeded;
 
     bool currentPet = (slotID != PET_SLOT_UNK_SLOT);
-    if (pet->GetOwner() && pet->GetOwner()->getClass() != CLASS_HUNTER)
+    if (l_Pet->GetOwner() && l_Pet->GetOwner()->getClass() != CLASS_HUNTER)
         currentPet = false;
 
     //summoned pets always non-curent!
@@ -3088,12 +3103,20 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     {
         uint64 l_PlayerGUID = GetGUID();
 
+#ifdef CROSS
+        uint32 l_RealmID    = GetSession()->GetInterRealmNumber();
+        auto l_Database     = GetRealmDatabase();
+#else
+        uint32 l_RealmID    = g_RealmID;
+        auto l_Database     = &CharacterDatabase;
+#endif
+
         PetSlot l_LoadPetSlotID = slotID;
         if (l_LoadPetSlotID == PET_SLOT_ACTUAL_PET_SLOT)
             l_LoadPetSlotID = m_currentPetSlot;
 
-        PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(entry, 0, GetGUIDLow(), currentPet, l_LoadPetSlotID);
-        CharacterDatabase.AsyncQuery(l_PetStatement, [entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, pet, currentPet, l_PlayerGUID](PreparedQueryResult p_Result) -> void
+        PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(entry, 0, GetGUIDLow(), currentPet, l_LoadPetSlotID, l_RealmID);
+        l_Database->AsyncQuery(l_PetStatement, [entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, l_Pet, currentPet, l_PlayerGUID, l_RealmID](PreparedQueryResult p_Result) -> void
         {
             if (!p_Result)
             {
@@ -3103,18 +3126,30 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
                 return;
             }
 
-            PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), p_Result);
+#ifndef CROSS
+            auto l_Database = &CharacterDatabase;
+#else
+            InterRealmClient* l_Client = sInterRealmMgr->GetClientByRealmNumber(l_RealmID);
+            if (l_Client == nullptr || !l_Client->GetDatabase())
+            {
+                delete l_Pet;
+                return;
+            }
+
+            auto l_Database = l_Client->GetDatabase();
+#endif
+            PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), l_RealmID, p_Result);
             l_PetHolder->Initialize();
 
-            auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);
+            auto l_QueryHolderResultFuture = l_Database->DelayQueryHolder(l_PetHolder);
 
-            sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, pet, currentPet, l_PlayerGUID](SQLQueryHolder* p_QueryHolder) -> void
+            sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, l_Pet, currentPet, l_PlayerGUID](SQLQueryHolder* p_QueryHolder) -> void
             {
                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
                 if (!l_Player || !p_QueryHolder)
                     return;
 
-                pet->LoadPetFromDB(l_Player, entry, 0, currentPet, l_LoadPetSlotID, stampeded, (PetQueryHolder*)p_QueryHolder, [entry, x, y, z, ang, petType, duration, slotID, l_LoadPetSlotID, stampeded, p_Callback, l_PlayerGUID](Pet* p_Pet, bool p_Result) -> void
+                l_Pet->LoadPetFromDB(l_Player, entry, 0, currentPet, l_LoadPetSlotID, stampeded, (PetQueryHolder*)p_QueryHolder, [entry, x, y, z, ang, petType, duration, slotID, l_LoadPetSlotID, stampeded, p_Callback, l_PlayerGUID](Pet* p_Pet, bool p_Result) -> void
                 {
                     if (!p_Result)
                     {
@@ -3194,85 +3229,97 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     // petentry == 0 for hunter "call pet" (current pet summoned if any)
     if (!entry)
     {
-        delete pet;
+        delete l_Pet;
         p_Callback(nullptr, false);
         return;
     }
 
-    pet->Relocate(x, y, z, ang);
-    if (!pet->IsPositionValid())
+    l_Pet->Relocate(x, y, z, ang);
+    if (!l_Pet->IsPositionValid())
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)", pet->GetGUIDLow(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
-        delete pet;
+        sLog->outError(LOG_FILTER_GENERAL, "Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)", l_Pet->GetGUIDLow(), l_Pet->GetEntry(), l_Pet->GetPositionX(), l_Pet->GetPositionY());
+        delete l_Pet;
         p_Callback(nullptr, false);
         return;
     }
 
     Map* map = GetMap();
-    uint32 pet_number = sObjectMgr->GeneratePetNumber();
-    if (!pet->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PET), map, GetPhaseMask(), entry))
+    uint32 l_PetNumber = 0;
+    
+#ifdef CROSS
+    l_PetNumber = InterRealmClient::GetIRClient(l_Pet->GetOwner())->GenerateLocalRealmLowGuid(HIGHGUID_PET_NUMBER);
+#else
+    l_PetNumber = sObjectMgr->GeneratePetNumber();;
+#endif
+    
+    if (l_PetNumber == 0)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "no such creature entry %u", entry);
-        delete pet;
+        delete l_Pet;
+        return;
+    }
+
+    if (!l_Pet->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PET), map, GetPhaseMask(), entry))
+    {
+        delete l_Pet;
         p_Callback(nullptr, false);
         return;
     }
 
-    pet->SetCreatorGUID(GetGUID());
-    pet->SetUInt32Value(UNIT_FIELD_FACTION_TEMPLATE, getFaction());
+    l_Pet->SetCreatorGUID(GetGUID());
+    l_Pet->SetUInt32Value(UNIT_FIELD_FACTION_TEMPLATE, getFaction());
 
-    pet->setPowerType(POWER_MANA);
-    pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
-    pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, 0);
-    pet->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+    l_Pet->setPowerType(POWER_MANA);
+    l_Pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
+    l_Pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, 0);
+    l_Pet->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
 
-    pet->InitStatsForLevel(getLevel());
+    l_Pet->InitStatsForLevel(getLevel());
 
     // Only slot 100, as it's not hunter pet.
-    SetMinion(pet, true, PET_SLOT_OTHER_PET, stampeded);
+    SetMinion(l_Pet, true, PET_SLOT_OTHER_PET, stampeded);
 
     switch (petType)
     {
         case SUMMON_PET:
             // this enables pet details window (Shift+P)
-            pet->GetCharmInfo()->SetPetNumber(pet_number, true);
-            pet->SetUInt32Value(UNIT_FIELD_SEX, 2048);
-            pet->SetUInt32Value(UNIT_FIELD_PET_NUMBER, 0);
-            pet->SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, 1000);
-            pet->SetFullHealth();
-            pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
-            pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped in this case
+            l_Pet->GetCharmInfo()->SetPetNumber(l_PetNumber, true);
+            l_Pet->SetUInt32Value(UNIT_FIELD_SEX, 2048);
+            l_Pet->SetUInt32Value(UNIT_FIELD_PET_NUMBER, 0);
+            l_Pet->SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, 1000);
+            l_Pet->SetFullHealth();
+            l_Pet->SetPower(POWER_MANA, l_Pet->GetMaxPower(POWER_MANA));
+            l_Pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped in this case
             break;
         default:
             break;
     }
 
-    map->AddToMap(pet->ToCreature());
+    map->AddToMap(l_Pet->ToCreature());
 
     switch (petType)
     {
         case SUMMON_PET:
-            pet->InitPetCreateSpells();
-            pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, pet->m_Stampeded);
+            l_Pet->InitPetCreateSpells();
+            l_Pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, l_Pet->m_Stampeded);
             PetSpellInitialize();
             break;
         default:
             break;
     }
 
-    if (pet->GetOwner() && pet->GetOwner()->getClass() == CLASS_WARLOCK)
+    if (l_Pet->GetOwner() && l_Pet->GetOwner()->getClass() == CLASS_WARLOCK)
     {
-        if (pet->GetOwner()->HasAura(108503))
-            pet->GetOwner()->RemoveAura(108503);
+        if (l_Pet->GetOwner()->HasAura(108503))
+            l_Pet->GetOwner()->RemoveAura(108503);
 
         // Supplant Command Demon
-        if (pet->GetOwner()->getLevel() >= 56)
+        if (l_Pet->GetOwner()->getLevel() >= 56)
         {
             int32 bp = 0;
 
-            pet->GetOwner()->RemoveAura(119904);
+            l_Pet->GetOwner()->RemoveAura(119904);
 
-            switch (pet->GetEntry())
+            switch (l_Pet->GetEntry())
             {
                 case ENTRY_IMP:
                 case ENTRY_FEL_IMP:
@@ -3305,14 +3352,14 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             }
 
             if (bp)
-                pet->GetOwner()->CastCustomSpell(pet->GetOwner(), 119904, &bp, NULL, NULL, true);
+                l_Pet->GetOwner()->CastCustomSpell(l_Pet->GetOwner(), 119904, &bp, NULL, NULL, true);
         }
     }
 
     if (duration > 0)
-        pet->SetDuration(duration);
+        l_Pet->SetDuration(duration);
 
-    p_Callback(pet, true);
+    p_Callback(l_Pet, true);
     return;
 }
 

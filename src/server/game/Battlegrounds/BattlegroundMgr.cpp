@@ -63,9 +63,18 @@ namespace MS
             m_ArenaTesting(false),
             m_Testing(false),
             m_Scheduler(),
+#ifdef CROSS
+            m_DumpTimer(0),
+#endif /* CROSS */
             m_InvitationsMgr()
         {
             std::fill(std::begin(m_BattlegroundTemplates), std::end(m_BattlegroundTemplates), nullptr);
+#ifdef CROSS
+
+            m_NextArenaMatchID = 0;
+            if (QueryResult l_Result = CharacterDatabase.PQuery("SELECT MAX(matchId) FROM arena_match"))
+                m_NextArenaMatchID = l_Result->Fetch()[0].GetUInt32() + 1;
+#endif /* CROSS */
         }
 
         BattlegroundMgr::~BattlegroundMgr()
@@ -73,6 +82,61 @@ namespace MS
             DeleteAllBattlegrounds();
         }
 
+#ifdef CROSS
+        void BattlegroundMgr::LogArenaMatch(Battleground* p_Arena, uint32 p_Winner, int32 p_WinnerRatingChange, int32 p_WinnerMmrChange, int32 p_LoserRatingChange, int32 p_LoserMmrChange)
+        {
+            uint32 l_MatchID  = m_NextArenaMatchID;
+            uint32 l_Map      = p_Arena->GetMapId();
+            uint8  l_Type     = p_Arena->GetArenaType();
+            uint32 l_Start    = time(nullptr) - (p_Arena->GetElapsedTime() / 1000);
+            uint32 l_Duration = p_Arena->GetElapsedTime() / 1000;
+
+            uint8 winnerTeam = p_Arena->GetWinner() == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE;
+            uint8 loserTeam  = p_Arena->GetWinner() == ALLIANCE ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
+
+            for (Battleground::BattlegroundScoreMap::const_iterator l_Itr = p_Arena->GetPlayerScoresBegin(); l_Itr != p_Arena->GetPlayerScoresEnd(); ++l_Itr)
+            {
+                if (Player* l_Player = ObjectAccessor::FindPlayer(l_Itr->first))
+                {
+                    uint32 l_Realm       = l_Player->GetSession()->GetInterRealmNumber();
+                    uint32 l_PlayerGuid  = l_Player->GetRealGUIDLow();
+                    bool   l_Winner      = l_Player->GetBGTeam() == p_Winner;
+                    uint32 l_Damage      = l_Itr->second->DamageDone;
+                    uint32 l_Heal        = l_Itr->second->HealingDone;
+                    uint32 l_Kill        = l_Itr->second->KillingBlows;
+                    uint32 l_Death       = l_Itr->second->Deaths;
+                    uint32 l_Rating      = l_Player->GetArenaPersonalRating(Arena::GetSlotByType(l_Type));
+                    uint32 l_MMR         = l_Player->GetArenaMatchMakerRating(Arena::GetSlotByType(l_Type));
+                    int32 l_RatingChange = l_Player->GetBGTeam() == p_Winner ? p_WinnerRatingChange : p_LoserRatingChange;
+                    int32 l_MmrChange    = l_Player->GetBGTeam() == p_Winner ? p_WinnerMmrChange : p_LoserMmrChange;
+
+                    CharacterDatabase.PExecute
+                    (
+                        "INSERT INTO arena_match (`matchId`, `map`, `type`, `start`, `duration`, `realm`, `player`, `winner`, `damage`, `heal`, `kill`, `death`, `rating`, `mmr`, `ratingChange`, `mmrChange`) VALUES (%u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %i, %i)",
+                        l_MatchID,
+                        l_Map,
+                        l_Type,
+                        l_Start,
+                        l_Duration,
+                        l_Realm,
+                        l_PlayerGuid,
+                        l_Winner,
+                        l_Damage,
+                        l_Heal,
+                        l_Kill,
+                        l_Death,
+                        l_Rating,
+                        l_MMR,
+                        l_RatingChange,
+                        l_MmrChange
+                    );
+                }
+            }
+
+            m_NextArenaMatchID++;
+        }
+
+#endif /* CROSS */
         void BattlegroundMgr::DeleteAllBattlegrounds()
         {
              for (std::size_t i = BattlegroundType::Begin; i < BattlegroundType::End; i++)
@@ -146,6 +210,16 @@ namespace MS
 
             /// Update Scheduler.
             m_Scheduler.FindMatches();
+#ifdef CROSS
+
+            m_DumpTimer += p_Diff;
+
+            if (m_DumpTimer >= 30000)
+            {
+                m_DumpTimer = 0;
+                m_Scheduler.DumpBattlegrounds();
+            }
+#endif /* CROSS */
         }
 
         Battleground* BattlegroundMgr::GetBattleground(uint32 p_InstanceId, BattlegroundType::Type p_BgType) const

@@ -6,6 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "GarrisonNPCAI.hpp"
 
 /// Constructor
@@ -475,3 +476,4 @@ void GarrisonNPCAI::SendTradeSkillUI(Player* p_Player)
             p_Player->PlayerTalkClass->SendCloseGossip();
     }
 }
+#endif

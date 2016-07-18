@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_WAR_MILL_LEVEL_1_DATA_HORDE_HPP_GARRISON
 #define GARRISON_WAR_MILL_LEVEL_1_DATA_HORDE_HPP_GARRISON
 
@@ -61,3 +62,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_WAR_MILL_LEVEL_1_DATA_HORDE_HPP_GARRISON
+#endif

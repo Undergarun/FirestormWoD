@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "AFishingHut.hpp"
 #include "AFishingHut_Level1Data.hpp"
 #include "../../Sites/GarrisonSiteBase.hpp"
@@ -349,3 +350,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

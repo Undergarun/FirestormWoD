@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "GarrisonSiteBase.hpp"
 #include "Group.h"
 
@@ -213,3 +214,4 @@ namespace MS { namespace Garrison { namespace Sites
 }   ///< namespace Sites
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

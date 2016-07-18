@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef _IRSOCKET_H
 #define _IRSOCKET_H
 
@@ -16,9 +24,19 @@
 
 #include "Common.h"
 
+#ifdef CROSS
+#include "AuthCrypt.h"
+#endif
+
 class ACE_Message_Block;
 class WorldPacket;
+
+#ifndef CROSS
 class InterRealmSession;
+#else
+class InterRealmClient;
+struct z_stream_s;
+#endif
 
 /// Handler that can communicate over stream sockets.
 typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> IRHandler;
@@ -29,6 +47,9 @@ class IRSocket : public IRHandler
         IRSocket (void);
         virtual ~IRSocket (void);
 
+#ifdef CROSS
+        friend class WorldSocketMgr;
+#endif
         /// Mutex type used for various synchronizations.
         typedef ACE_Thread_Mutex LockType;
         typedef ACE_Guard<LockType> GuardType;
@@ -95,20 +116,18 @@ class IRSocket : public IRHandler
         /// @param new_pct received packet, note that you need to delete it.
         int ProcessIncoming (WorldPacket* new_pct);
 
+#ifndef CROSS
         int Handle_TunneledPacket(WorldPacket* new_pct);
+#else
+        int Handle_Ping(WorldPacket* packet);
+#endif
 
     private:
         /// Time in which the last ping was received
         ACE_Time_Value m_LastPingTime;
 
-        /// Keep track of over-speed pings, to prevent ping flood.
-        uint32 m_OverSpeedPings;
-
         /// Address of the remote peer
         std::string m_Address;
-
-        /// Mutex lock to protect m_Session
-        LockType m_SessionLock;
 
         /// here are stored the fragments of the received data
         WorldPacket* m_RecvWPct;
@@ -130,9 +149,23 @@ class IRSocket : public IRHandler
         /// True if the socket is registered with the reactor for output
         bool m_OutActive;
 
+#ifdef CROSS
+        /// === Cross specific === //
+        InterRealmClient* m_InterRealmClient;
+
+#else
+        /// === Realm specific === //
+
+        /// Keep track of over-speed pings, to prevent ping flood.
+        uint32 m_OverSpeedPings;
+
+        /// Mutex lock to protect m_Session
+        LockType m_SessionLock;
+
         uint32 m_Seed;
 
         InterRealmSession* m_InterRealmSession;
+#endif
 };
 
 #endif  /* _IRSOCKET_H */

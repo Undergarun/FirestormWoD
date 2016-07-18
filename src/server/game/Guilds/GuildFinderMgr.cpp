@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "ObjectMgr.h"
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
@@ -324,3 +325,4 @@ void GuildFinderMgr::SendMembershipRequestListUpdate(Player & p_Player)
     WorldPacket l_Data(SMSG_LFGUILD_APPLICATIONS_LIST_CHANGED);
     p_Player.SendDirectMessage(&l_Data);
 }
+#endif

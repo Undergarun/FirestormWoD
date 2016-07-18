@@ -11,6 +11,8 @@
 *  \author Derex <derex101@gmail.com>
 */
 
+#ifndef CROSS
+
 #include "WorldSocketMgr.h"
 
 #include <ace/ACE.h>
@@ -347,3 +349,4 @@ WorldSocketMgr::OnSocketOpen (WorldSocket* sock)
 
     return m_NetThreads[min].AddSocket (sock);
 }
+#endif

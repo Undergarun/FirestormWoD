@@ -1,7 +1,9 @@
 #include "ScriptMgr.h"
 #include "GameEventMgr.h"
 #include "Chat.h"
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 #include "ObjectMgr.h"
 
 /// HotFix commands

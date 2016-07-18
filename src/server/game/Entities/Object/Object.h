@@ -160,6 +160,26 @@ class Object
         virtual void AddToWorld();
         virtual void RemoveFromWorld();
 
+#ifdef CROSS
+        void SetRealGUID(uint64 guid)
+        {
+            m_realGUID = guid;
+            m_realPackGUID.clear();
+            m_realPackGUID.appendPackGUID(guid);
+        }
+
+        uint64 GetRealGUID() { return m_realGUID; }
+        uint32 GetRealGUIDLow() const { return GUID_LOPART(m_realGUID); }
+        uint32 GetRealGUIDMid() const { return GUID_ENPART(m_realGUID); }
+        uint32 GetRealGUIDHigh() const { return GUID_HIPART(m_realGUID); }
+        const ByteBuffer& GetRealPackGUID() const { return m_realPackGUID; }
+#else
+        uint64 GetRealGUID() { return GetGUID(); }
+        uint32 GetRealGUIDLow() const { return GetGUIDLow(); }
+        uint32 GetRealGUIDMid() const { return GetGUIDMid(); }
+        uint32 GetRealGUIDHigh() const { return GetRealGUIDHigh(); }
+#endif
+
         uint64 GetGUID() const { return GetGuidValue(0); }
         uint32 GetGUIDLow() const { return GUID_LOPART(GetGuidValue(0)); }
         uint32 GetGUIDMid() const { return GUID_ENPART(GetGuidValue(0)); }
@@ -429,6 +449,12 @@ class Object
 
     private:
         bool m_inWorld;
+#ifdef CROSS
+
+        // InterRealm
+        uint64 m_realGUID;
+        ByteBuffer m_realPackGUID;
+#endif /* CROSS */
 
         ByteBuffer m_PackGUID;
 

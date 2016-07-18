@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_PROFESSION_BUILDING_HPP_GARRISON
+#ifndef CROSS
 #define GARRISON_PROFESSION_BUILDING_HPP_GARRISON
 
 #include "../GarrisonScriptData.hpp"
@@ -146,3 +147,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_PROFESSION_BUILDING_HPP_GARRISON
+#endif

@@ -17,6 +17,13 @@ message("")
 
 # Show infomation about the options selected during configuration
 
+if ( CROSS )
+    message("* Build crossrealm core")
+	add_definitions(-DCROSS)
+else()
+	message("* build realm core")
+endif()
+
 if( SERVERS )
   message("* Build world/auth       : Yes (default)")
 else()

@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_MGR_HPP_GARRISON
 #define GARRISON_MGR_HPP_GARRISON
 
@@ -457,3 +458,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_MGR_HPP_GARRISON
+#endif

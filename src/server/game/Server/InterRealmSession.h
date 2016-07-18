@@ -1,3 +1,4 @@
+#ifndef CROSS
 #ifndef INTERREALM_TUNNEL_H
 #define INTERREALM_TUNNEL_H
 
@@ -246,4 +247,5 @@ class InterRealmSession: public ACE_Based::Runnable
 
 #define sIRTunnel ACE_Singleton<InterRealmSession, ACE_Null_Mutex>::instance()
 
+#endif
 #endif

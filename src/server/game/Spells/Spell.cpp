@@ -47,7 +47,9 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "GuildMgr.h"
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -7035,12 +7037,16 @@ SpellCastResult Spell::CheckCast(bool strict)
                 break;
             case SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB:
             {
+#ifndef CROSS
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return SPELL_FAILED_BAD_TARGETS;
                 if (Guild* guild = m_caster->ToPlayer()->GetGuild())
                     if (guild->GetLeaderGUID() != m_caster->ToPlayer()->GetGUID())
                         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 break;
+#else /* CROSS */
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+#endif /* CROSS */
             }
             case SPELL_EFFECT_CREATE_HEIRLOOM:
             {
@@ -7069,6 +7075,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 break;
             }
+#ifndef CROSS
             case SPELL_EFFECT_TEACH_FOLLOWER_ABILITY:
             {
                 Player* l_Player = m_caster->ToPlayer();
@@ -7105,8 +7112,10 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 break;
             }
+#endif
             case SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE:
             {
+#ifndef CROSS
                 Player* l_Player = m_caster->ToPlayer();
 
                 if (l_Player == nullptr)
@@ -7121,6 +7130,9 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 if (l_Follower == nullptr || !l_Follower->CanXP())
                     return SPELL_FAILED_BAD_TARGETS;
+#else
+                return SPELL_FAILED_BAD_TARGETS;
+#endif
 
                 break;
             }

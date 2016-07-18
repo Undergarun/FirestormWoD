@@ -219,8 +219,7 @@ namespace MS
                         continue;
                     }
 
-                    Player* l_Player = ObjectAccessor::FindPlayer(l_ScoreBeginIT->first);
-
+                    Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(l_ScoreBeginIT->first);
                     if (!l_Player)
                         continue;
 
@@ -289,8 +288,7 @@ namespace MS
                         continue;
                     }
 
-                    Player* l_Player = ObjectAccessor::FindPlayer(l_ScoreBeginIT->first);
-
+                    Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(l_ScoreBeginIT->first);
                     if (!l_Player)
                         continue;
 

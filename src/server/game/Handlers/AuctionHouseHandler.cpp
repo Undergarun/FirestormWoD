@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
@@ -758,3 +759,4 @@ void WorldSession::HandleAuctionListPendingSales(WorldPacket& /*p_RecvData*/)
     l_Data << uint32(0);    ///< mail
     SendPacket(&l_Data);
 }
+#endif

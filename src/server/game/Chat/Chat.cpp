@@ -26,7 +26,9 @@
 #include "SpellMgr.h"
 #include "ScriptMgr.h"
 #include "ChatLink.h"
+#ifndef CROSS
 #include "Guild.h"
+#endif /* not CROSS */
 #include "Threading.h"
 #include "MSSignalHandler.h"
 
@@ -697,7 +699,11 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
 
     ObjectGuid speakerGuildGuid = 0;
     if (speakerPlayer && speakerPlayer->GetGuild())
+#ifndef CROSS
         speakerGuildGuid = speakerPlayer->GetGuild()->GetGUID();
+#else /* CROSS */
+        speakerGuildGuid = speakerPlayer->GetGuildId();
+#endif /* CROSS */
 
     ObjectGuid groupGuid = 0;
     if (speakerPlayer && speakerPlayer->GetGroup())
@@ -1146,8 +1152,13 @@ uint64 ChatHandler::extractGuidFromLink(char* text)
             if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
                 return player->GetGUID();
 
+#ifndef CROSS
             if (uint64 guid = sObjectMgr->GetPlayerGUIDByName(name))
                 return guid;
+#else /* CROSS */
+            //if (uint64 guid = sObjectMgr->GetPlayerGUIDByName(name))
+                //return guid;
+#endif /* CROSS */
 
             return 0;
         }
@@ -1208,7 +1219,11 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, uint64* playe
             *player = pl;
 
         // if need guid value from DB (in name case for check player existence)
+#ifndef CROSS
         uint64 guid = !pl && (player_guid || player_name) ? sObjectMgr->GetPlayerGUIDByName(name) : 0;
+#else /* CROSS */
+        uint64 guid = 0;// !pl && (player_guid || player_name) ? sObjectMgr->GetPlayerGUIDByName(name) : 0;
+#endif /* CROSS */
 
         // if allowed player guid (if no then only online players allowed)
         if (player_guid)
@@ -1337,8 +1352,13 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &player
             }
 
             player = sObjectAccessor->FindPlayerByName(name.c_str());
+#ifndef CROSS
             if (offline)
                 guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
+#else /* CROSS */
+            //if (offline)
+                //guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
+#endif /* CROSS */
         }
     }
 

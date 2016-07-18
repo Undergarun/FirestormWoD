@@ -93,6 +93,9 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
+#ifdef CROSS
+
+#endif /* CROSS */
             if (l_CheckTimer)
             {
                 if (l_CheckTimer <= diff)
@@ -124,9 +127,11 @@ public:
                 else
                     l_TalkRefill -= diff;
             }
+#ifndef CROSS
 
             if (!me->getVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
+#endif /* not CROSS */
 
             DoMeleeAttackIfReady();
         }

@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "WorldSession.h"
 #include "WorldPacket.h"
 #include "Object.h"
@@ -342,3 +343,4 @@ void WorldSession::HandleGuildFinderSetGuildPost(WorldPacket& p_Packet)
     LFGuildSettings settings(l_Active, m_Player->GetTeamId(), m_Player->GetGuildId(), l_ClassRoles, l_Availability, l_PlayStyle, l_LevelRange, l_Comment);
     sGuildFinderMgr->SetGuildSettings(m_Player->GetGuildId(), settings);
 }
+#endif

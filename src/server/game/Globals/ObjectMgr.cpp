@@ -38,7 +38,9 @@
 #include "DB2Stores.h"
 #include "Configuration/Config.h"
 #include "VMapFactory.h"
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -249,16 +251,25 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
     return true;
 }
 
+#ifndef CROSS
 ObjectMgr::ObjectMgr(): _auctionId(1),
     _itemTextId(1), _voidItemId(1), _hiCharGuid(1),
+#else /* CROSS */
+ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
+    _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), _hiCharGuid(1),
+#endif /* CROSS */
     _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1),
     _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), m_HiVignetteGuid(1), _skipUpdateCount(1),
     m_HighConversationGuid(1)
 {
+#ifndef CROSS
     m_HighItemGuid     = 1;
     m_MailId           = 1;
     m_PetNumber        = 1;
     m_EquipmentSetGuid = 1;
+#else /* CROSS */
+    m_HighItemGuid = 1;
+#endif /* CROSS */
 
     m_CreatureTemplateStoreSize = 0;
     m_CreatureTemplateStore     = nullptr;
@@ -2141,6 +2152,7 @@ Player* ObjectMgr::GetPlayerByLowGUID(uint32 lowguid) const
     return ObjectAccessor::FindPlayer(guid);
 }
 
+#ifndef CROSS
 // name must be checked to correctness (if received) before call this function
 uint64 ObjectMgr::GetPlayerGUIDByName(std::string name) const
 {
@@ -2158,6 +2170,7 @@ uint64 ObjectMgr::GetPlayerGUIDByName(std::string name) const
     return guid;
 }
 
+#endif /* not CROSS */
 bool ObjectMgr::GetPlayerNameByGUID(uint64 guid, std::string &name) const
 {
     // prevent DB access for online player
@@ -2167,15 +2180,18 @@ bool ObjectMgr::GetPlayerNameByGUID(uint64 guid, std::string &name) const
         return true;
     }
 
+#ifndef CROSS
     if (CharacterInfo const* l_CharacterInfo = sWorld->GetCharacterInfo(guid))
     {
         name = l_CharacterInfo->Name;
         return true;
     }
 
+#endif /* not CROSS */
     return false;
 }
 
+#ifndef CROSS
 uint32 ObjectMgr::GetPlayerTeamByGUID(uint64 guid) const
 {
     if (CharacterInfo const* l_CharacterInfo = sWorld->GetCharacterInfo(guid))
@@ -2184,8 +2200,10 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(uint64 guid) const
     return 0;
 }
 
+#endif /* not CROSS */
 uint32 ObjectMgr::GetPlayerAccountIdByGUID(uint64 guid) const
 {
+#ifndef CROSS
     if (CharacterInfo const* l_CharacterInfo = sWorld->GetCharacterInfo(guid))
         return l_CharacterInfo->AccountId;
 
@@ -2201,14 +2219,23 @@ uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(const std::string& name) const
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
+#else /* CROSS */
+    // prevent DB access for online player
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
+#endif /* CROSS */
     {
+#ifndef CROSS
         uint32 acc = (*result)[0].GetUInt32();
         return acc;
+#else /* CROSS */
+        return player->GetSession()->GetAccountId();
+#endif /* CROSS */
     }
 
     return 0;
 }
 
+#ifndef CROSS
 void ObjectMgr::LoadRealmCompletedChallenges()
 {
     uint32 l_OldMSTime = getMSTime();
@@ -2283,6 +2310,7 @@ void ObjectMgr::LoadRealmCompletedChallenges()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u realm completed challenges in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
+#endif /* not CROSS */
 void ObjectMgr::LoadChallengeRewards()
 {
     uint32 l_OldMSTime = getMSTime();
@@ -5736,6 +5764,7 @@ void ObjectMgr::LoadNpcTextLocales()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu NpcText locale strings in %u ms", (unsigned long)_npcTextLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+#ifndef CROSS
 //not very fast function but it is called only once a day, or on starting-up
 void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
@@ -5865,6 +5894,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Processed %u expired mails: %u deleted and %u returned in %u ms", deletedCount + returnedCount, deletedCount, returnedCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
+#endif /* not CROSS */
 void ObjectMgr::LoadQuestAreaTriggers()
 {
     uint32 oldMSTime = getMSTime();
@@ -6006,6 +6036,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
 
     std::map<uint32, uint32> l_MapOverrides;
 
+#ifndef CROSS
     /// Special case for taxi in garrison phased map
     for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
     {
@@ -6021,6 +6052,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     }
 
 
+#endif /* not CROSS */
     uint32 requireFlag = (team == ALLIANCE) ? TAXI_NODE_FLAG_ALLIANCE : TAXI_NODE_FLAG_HORDE;
     for (uint32 i = 0; i < sTaxiNodesStore.GetNumRows(); ++i)
     {
@@ -6738,16 +6770,21 @@ AreaTriggerStruct const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
 
 void ObjectMgr::SetHighestGuids()
 {
+#ifndef CROSS
     QueryResult result = CharacterDatabase.Query("SELECT MAX(guid) FROM characters");
     if (result)
         _hiCharGuid = (*result)[0].GetUInt32()+1;
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
+#else /* CROSS */
+    QueryResult result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
+#endif /* CROSS */
     if (result)
         _hiCreatureGuid = (*result)[0].GetUInt32()+1;
 
     _hiCreatureGuid += 10000;
 
+#ifndef CROSS
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM item_instance");
     if (result)
         m_HighItemGuid = (*result)[0].GetUInt32()+1;
@@ -6758,6 +6795,7 @@ void ObjectMgr::SetHighestGuids()
     CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", (uint32)m_HighItemGuid);         // One-time query
     CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", (uint32)m_HighItemGuid);     // One-time query
 
+#endif /* not CROSS */
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
         _hiGoGuid = (*result)[0].GetUInt32()+1;
@@ -6766,6 +6804,7 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         _hiMoTransGuid = (*result)[0].GetUInt32()+1;
 
+#ifndef CROSS
     result = CharacterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
     if (result)
         _auctionId = (*result)[0].GetUInt32()+1;
@@ -6814,7 +6853,25 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         m_GarrisonWorkOrderID = (*result)[0].GetUInt32() + 1;
 
+#else /* CROSS */
+    _hiCharGuid                 = 1;
+    m_HighItemGuid              = 1;
+    _auctionId                  = 1;
+    _mailId                     = 1;
+    _hiCorpseGuid               = 1;
+    _equipmentSetGuid           = 1;
+    _voidItemId                 = 1;
+    m_GarrisonID                = 1;
+    m_GarrisonBuildingID        = 1;
+    m_GarrisonFollowerID        = 1;
+    m_GarrisonMissionID         = 1;
+    m_GarrisonWorkOrderID       = 1;
+#endif /* CROSS */
     m_StandaloneSceneInstanceID = 1;
+#ifdef CROSS
+
+    sGroupMgr->SetGroupDbStoreSize(1);
+#endif /* CROSS */
 }
 
 uint32 ObjectMgr::GenerateAuctionID()
@@ -6827,23 +6884,44 @@ uint32 ObjectMgr::GenerateAuctionID()
     return _auctionId++;
 }
 
+#ifndef CROSS
 uint64 ObjectMgr::GenerateEquipmentSetGuid(uint32 p_Range)
+#else /* CROSS */
+uint64 ObjectMgr::GenerateEquipmentSetGuid()
+#endif /* CROSS */
 {
+#ifndef CROSS
     if (m_EquipmentSetGuid >= uint64(0xFFFFFFFFFFFFFFFELL))
+#else /* CROSS */
+    if (_equipmentSetGuid >= uint64(0xFFFFFFFFFFFFFFFELL))
+#endif /* CROSS */
     {
         sLog->outError(LOG_FILTER_GENERAL, "EquipmentSet guid overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
+#ifndef CROSS
     return m_EquipmentSetGuid.fetch_add(p_Range);
+#else /* CROSS */
+    return _equipmentSetGuid++;
+#endif /* CROSS */
 }
 
+#ifndef CROSS
 uint32 ObjectMgr::GenerateMailID(uint32 p_Range)
+#else /* CROSS */
+uint32 ObjectMgr::GenerateMailID()
+#endif /* CROSS */
 {
+#ifndef CROSS
     if (m_MailId >= 0xFFFFFFFE)
+#else /* CROSS */
+    if (_mailId >= 0xFFFFFFFE)
+#endif /* CROSS */
     {
         sLog->outError(LOG_FILTER_GENERAL, "Mail ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
+#ifndef CROSS
 
     return m_MailId.fetch_add(p_Range);
 }
@@ -6871,6 +6949,9 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid p_GuidHigh, uint32 p_Range)
 
     ASSERT(false);
     return 0;
+#else /* CROSS */
+    return _mailId++;
+#endif /* CROSS */
 }
 
 uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
@@ -7407,14 +7488,20 @@ void ObjectMgr::LoadPetNumber()
 {
     uint32 oldMSTime = getMSTime();
 
+#ifndef CROSS
     QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM character_pet");
     if (result)
     {
         Field* fields = result->Fetch();
         m_PetNumber = fields[0].GetUInt32()+1;
     }
+#else /* CROSS */
+    _hiPetNumber = 1;
+#endif /* CROSS */
 
+#ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded the max pet number: %d in %u ms", m_PetNumber-1, GetMSTimeDiffToNow(oldMSTime));
+#endif /* not CROSS */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded the max pet number: %d in %u ms", _hiPetNumber-1, GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -7436,8 +7523,13 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
     return *(list0.begin()+urand(0, list0.size()-1)) + *(list1.begin()+urand(0, list1.size()-1));
 }
 
+#ifndef CROSS
 uint32 ObjectMgr::GeneratePetNumber(uint32 p_Range)
+#else /* CROSS */
+uint32 ObjectMgr::GeneratePetNumber()
+#endif /* CROSS */
 {
+#ifndef CROSS
     if (m_PetNumber >= 0xFFFFFFFE)
     {
         sLog->outError(LOG_FILTER_GENERAL, "Mail ids overflow!! Can't continue, shutting down server. ");
@@ -7445,6 +7537,9 @@ uint32 ObjectMgr::GeneratePetNumber(uint32 p_Range)
     }
 
     return m_PetNumber.fetch_add(p_Range);
+#else /* CROSS */
+    return ++_hiPetNumber;
+#endif /* CROSS */
 }
 
 uint64 ObjectMgr::GenerateVoidStorageItemId()
@@ -7452,6 +7547,7 @@ uint64 ObjectMgr::GenerateVoidStorageItemId()
     return ++_voidItemId;
 }
 
+#ifndef CROSS
 void ObjectMgr::LoadCorpses()
 {
     //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15         16
@@ -7493,6 +7589,7 @@ void ObjectMgr::LoadCorpses()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u corpses in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+#endif /* not CROSS */
 void ObjectMgr::LoadReputationRewardRate()
 {
     uint32 oldMSTime = getMSTime();
@@ -8184,6 +8281,7 @@ void ObjectMgr::LoadCreatureQuestEnders()
     }
 }
 
+#ifndef CROSS
 void ObjectMgr::LoadReservedPlayersNames()
 {
     uint32 oldMSTime = getMSTime();
@@ -8223,6 +8321,7 @@ void ObjectMgr::LoadReservedPlayersNames()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u reserved player names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+#endif /* not CROSS */
 bool ObjectMgr::IsReservedName(const std::string& name) const
 {
     std::wstring wstr;
@@ -10484,6 +10583,7 @@ void ObjectMgr::RestructGameObjectGUID(uint32 nbLigneToRestruct)
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "%u lignes ont ete restructuree.", nbLigneToRestruct);
 }
+#ifndef CROSS
 
 void ObjectMgr::LoadGuildChallengeRewardInfo()
 {
@@ -10526,6 +10626,7 @@ void ObjectMgr::LoadGuildChallengeRewardInfo()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild challenge reward data in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+#endif /* not CROSS */
 
 void ObjectMgr::LoadCharacterTemplateData()
 {

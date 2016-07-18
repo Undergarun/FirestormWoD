@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "GarrisonSpell.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -696,4 +697,5 @@ void AddSC_Garrison()
     new MS::Garrison::spell_garrison_well_rested();
     new MS::Garrison::spell_garrison_tent_spawn();
 }
+#endif
 #endif

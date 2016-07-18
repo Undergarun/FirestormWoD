@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_MAGE_TOWER_ALLIANCE_HPP_GARRISON
 #define GARRISON_MAGE_TOWER_ALLIANCE_HPP_GARRISON
 
@@ -82,3 +83,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_MAGE_TOWER_ALLIANCE_HPP_GARRISON
+#endif

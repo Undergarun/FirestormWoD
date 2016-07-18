@@ -8,8 +8,13 @@
 
 #include "ScriptMgr.h"
 #include "Channel.h"
+#ifndef CROSS
 #include "Guild.h"
+#endif /* not CROSS */
 #include "Group.h"
+#ifdef CROSS
+#include "GuildMgr.h"
+#endif /* CROSS */
 
 class ChatLogScript: public PlayerScript
 {
@@ -125,7 +130,11 @@ public:
         }
     }
 
+#ifndef CROSS
     void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
+#else /* CROSS */
+    void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, InterRealmGuild* guild)
+#endif /* CROSS */
     {
         switch (type)
         {

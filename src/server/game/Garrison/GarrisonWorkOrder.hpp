@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_MGR_WORKORDER_HPP_GARRISON
+#ifndef CROSS
 #define GARRISON_MGR_WORKORDER_HPP_GARRISON
 
 namespace MS { namespace Garrison
@@ -24,3 +25,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_MGR_WORKORDER_HPP_GARRISON
+#endif

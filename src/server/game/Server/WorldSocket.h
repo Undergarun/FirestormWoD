@@ -11,6 +11,8 @@
  * \file WorldSocket.h
  * \author Derex <derex101@gmail.com>
  */
+ 
+#ifndef CROSS
 
 #ifndef _WORLDSOCKET_H
 #define _WORLDSOCKET_H
@@ -205,4 +207,5 @@ class WorldSocket : public WorldHandler
 #endif  /* _WORLDSOCKET_H */
 
 /// @}
+#endif
 

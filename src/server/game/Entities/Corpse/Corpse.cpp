@@ -98,6 +98,7 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
 
 void Corpse::SaveToDB()
 {
+#ifndef CROSS
     // prevent DB data inconsistence problems and duplicates
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     DeleteFromDB(trans);
@@ -124,6 +125,7 @@ void Corpse::SaveToDB()
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
+#endif
 }
 
 void Corpse::DeleteBonesFromWorld()
@@ -142,6 +144,7 @@ void Corpse::DeleteBonesFromWorld()
 
 void Corpse::DeleteFromDB(SQLTransaction& trans)
 {
+#ifndef CROSS
     PreparedStatement* stmt = NULL;
     if (GetType() == CORPSE_BONES)
     {
@@ -156,6 +159,7 @@ void Corpse::DeleteFromDB(SQLTransaction& trans)
         stmt->setUInt32(0, GUID_LOPART(GetOwnerGUID()));
     }
     trans->Append(stmt);
+#endif
 }
 
 bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)

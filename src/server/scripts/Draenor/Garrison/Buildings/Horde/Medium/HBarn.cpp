@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "HBarn.hpp"
 #include "GarrisonMgr.hpp"
 #include "GameObjectAI.h"
@@ -412,3 +413,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

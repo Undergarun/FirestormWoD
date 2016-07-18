@@ -126,7 +126,11 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
         return;
     }
 
+#ifndef CROSS
     if (l_Player->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
+#else /* CROSS */
+    if (l_Player->GetSocial() && l_Player->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
+#endif /* CROSS */
     {
         SendPartyResult(PARTY_CMD_INVITE, l_TargetName, ERR_IGNORING_YOU_S);
         return;
@@ -155,16 +159,26 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
             bool l_AllowMultipleRoles        = false;
             bool l_IsLocal                   = true;
             size_t l_NameLenght              = strlen(GetPlayer()->GetName());
+#ifndef CROSS
             size_t l_RealmNameActualSize     = sWorld->GetRealmName().length();
             size_t l_NormalizedRealmNameSize = sWorld->GetNormalizedRealmName().length();
+#else /* CROSS */
+            size_t l_RealmNameActualSize     = GetPlayer()->GetSession()->GetServerName().length();
+            size_t l_NormalizedRealmNameSize = GetPlayer()->GetSession()->GetServerName().length();
+#endif /* CROSS */
             uint64 l_InviterGuid             = GetPlayer()->GetGUID();
             uint64 l_InviterBNetAccountID    = GetBNetAccountGUID();
             uint32 l_LfgCompletedMask        = 0;
             uint32 l_InviterCfgRealmID       = g_RealmID;
             uint16 l_Unk                     = 970;    ///< Always 970 in retail sniff
             std::string l_InviterName        = GetPlayer()->GetName();
+#ifndef CROSS
             std::string l_InviterRealmName   = sWorld->GetRealmName();
             std::string l_NormalizeRealmName = sWorld->GetNormalizedRealmName();
+#else /* CROSS */
+            std::string l_InviterRealmName   = GetPlayer()->GetSession()->GetServerName();
+            std::string l_NormalizeRealmName = GetPlayer()->GetSession()->GetServerName();
+#endif /* CROSS */
             std::list<uint32> l_LfgSlots;
 
             // tell the player that they were invited but it failed as they were already in a group
@@ -257,16 +271,26 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
     bool l_AllowMultipleRoles        = false;
     bool l_IsLocal                   = true;
     size_t l_NameLenght              = strlen(GetPlayer()->GetName());
+#ifndef CROSS
     size_t l_RealmNameActualSize     = sWorld->GetRealmName().length();
     size_t l_NormalizedRealmNameSize = sWorld->GetNormalizedRealmName().length();
+#else /* CROSS */
+    size_t l_RealmNameActualSize     = GetPlayer()->GetSession()->GetServerName().length();
+    size_t l_NormalizedRealmNameSize = GetPlayer()->GetSession()->GetServerName().length();
+#endif /* CROSS */
     uint64 l_InviterGuid             = GetPlayer()->GetGUID();
     uint64 l_InviterBNetAccountID    = GetBNetAccountGUID();
     uint32 l_LfgCompletedMask        = 0;
     uint32 l_InviterCfgRealmID       = g_RealmID;
     uint16 l_Unk                     = 970;    ///< Always 970 in retail sniff
     std::string l_InviterName        = GetPlayer()->GetName();
+#ifndef CROSS
     std::string l_InviterRealmName   = sWorld->GetRealmName();
     std::string l_NormalizeRealmName = sWorld->GetNormalizedRealmName();
+#else /* CROSS */
+    std::string l_InviterRealmName   = GetPlayer()->GetSession()->GetServerName();
+    std::string l_NormalizeRealmName = GetPlayer()->GetSession()->GetServerName();
+#endif /* CROSS */
     std::list<uint32> l_LfgSlots;
 
     // tell the player that they were invited but it failed as they were already in a group

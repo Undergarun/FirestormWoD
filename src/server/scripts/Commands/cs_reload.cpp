@@ -16,11 +16,15 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
+#ifndef CROSS
 #include "TicketMgr.h"
+#endif /* not CROSS */
 #include "MapManager.h"
 #include "DisableMgr.h"
 #include "LFGMgr.h"
+#ifndef CROSS
 #include "AuctionHouseMgr.h"
+#endif /* not CROSS */
 #include "CreatureTextMgr.h"
 #include "SmartAI.h"
 #include "SkillDiscovery.h"
@@ -195,7 +199,9 @@ public:
     //reload commands
     static bool HandleReloadGMTicketsCommand(ChatHandler* /*handler*/, const char* /*args*/)
     {
+#ifndef CROSS
         sTicketMgr->LoadTickets();
+#endif /* not CROSS */
         return true;
     }
 
@@ -607,9 +613,11 @@ public:
 
     static bool HandleReloadGuildRewardsCommand(ChatHandler* handler, const char* /*args*/)
     {
+#ifndef CROSS
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading `guild_rewards` Table!");
         sGuildMgr->LoadGuildRewards();
         handler->SendGlobalGMSysMessage("DB table `guild_rewards` reloaded.");
+#endif /* not CROSS */
         return true;
     }
 
@@ -838,9 +846,11 @@ public:
 
     static bool HandleReloadReservedNameCommand(ChatHandler* handler, const char* /*args*/)
     {
+#ifndef CROSS
         sLog->outInfo(LOG_FILTER_GENERAL, "Loading ReservedNames... (`reserved_name`)");
         sObjectMgr->LoadReservedPlayersNames();
         handler->SendGlobalGMSysMessage("DB table `reserved_name` (player reserved names) reloaded.");
+#endif /* not CROSS */
         return true;
     }
 
@@ -1259,11 +1269,13 @@ public:
 
     static bool HandleReloadAuctionsCommand(ChatHandler* handler, const char* /*args*/)
     {
+#ifndef CROSS
         ///- Reload dynamic data tables from the database
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Auctions...");
         sAuctionMgr->LoadAuctionItems();
         sAuctionMgr->LoadAuctions();
         handler->SendGlobalGMSysMessage("Auctions reloaded.");
+#endif /* not CROSS */
         return true;
     }
 

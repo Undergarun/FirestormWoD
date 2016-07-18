@@ -23,11 +23,17 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "Util.h"
-#include "Guild.h"
+#include "BattlegroundPacketFactory.hpp"
 #include "GuildMgr.h"
 #include "GroupMgr.h"
 
-#include "BattlegroundPacketFactory.hpp"
+#ifdef CROSS
+# include "InterRealmMgr.h"
+#endif
+
+#ifndef CROSS
+# include "Guild.h"
+#endif
 
 namespace JadeCore
 {
@@ -361,14 +367,48 @@ inline void Battleground::_ProcessOfflineQueue()
         {
             if (itr->second.OfflineRemoveTime <= sWorld->GetGameTime())
             {
-                RemovePlayerAtLeave(itr->first, true, true);// remove player from BG
+                // itr will be cleared
+                // dont use it to access variables
+
+                uint64 guid = itr->first;
+                RemovePlayerAtLeave(guid, true, true);// remove player from BG
+
+#ifdef CROSS
+                RemoveFromInterRealm(guid);
+#endif
+
                 m_OfflineQueue.pop_front();                 // remove from offline queue
                 //do not use itr for anything, because it is erased in RemovePlayerAtLeave()
             }
         }
     }
-
 }
+
+#ifdef CROSS
+void Battleground::RemoveFromInterRealm(uint64 p_PlayerGuid)
+{
+    if (Player* l_Player = sObjectAccessor->FindPlayerInOrOutOfWorld(p_PlayerGuid))
+    {
+        if (isBattleground() && !l_Player->isGameMaster() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_CAST_DESERTER) &&
+            (GetStatus() == STATUS_IN_PROGRESS || GetStatus() == STATUS_WAIT_JOIN))
+            l_Player->CastSpell(l_Player, 26013, true);               ///< Deserter
+
+        MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([p_PlayerGuid](bool p_Success) -> void
+        {
+            Player* l_Player = sObjectAccessor->FindPlayer(p_PlayerGuid);
+            if (!l_Player)
+                return;
+
+            if (InterRealmClient* l_Client = l_Player->GetSession()->GetInterRealmClient())
+                l_Client->SendBattlefieldLeave(l_Player->GetRealGUID());
+
+            l_Player->SetNeedRemove(true);
+        });
+
+        l_Player->SaveToDB(false, l_CallBack);
+    }
+ }
+#endif
 
 inline void Battleground::_ProcessRessurect(uint32 diff)
 {
@@ -582,7 +622,6 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 {
                     // BG Status packet
                     WorldPacket status;
-                    MS::Battlegrounds::BattlegroundType::Type l_BgType = MS::Battlegrounds::GetTypeFromId(m_TypeID, GetArenaType(), IsSkirmish()); ///< l_BgType is never read 01/18/16
                     uint32 queueSlot = l_Player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(m_TypeID));
                     MS::Battlegrounds::PacketFactory::Status(&status, this, l_Player, queueSlot, STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
                     l_Player->GetSession()->SendPacket(&status);
@@ -663,6 +702,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     }
                 }
             }
+#ifndef CROSS
 
             // Announce BG starting
             if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
@@ -672,6 +712,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 else
                     sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName(), GetMinLevel(), GetMaxLevel());
             }
+#endif /* not CROSS */
         }
     }
 
@@ -695,8 +736,20 @@ inline void Battleground::_ProcessLeave(uint32 diff)
             next = itr;
             ++next;
             //itr is erased here!
+#ifndef CROSS
             RemovePlayerAtLeave(itr->first, true, true);// remove player from BG
             // do not change any battleground's private variables
+#else /* CROSS */
+            // itr will be cleared
+            // dont use it to access variables
+
+            uint64 guid = itr->first;
+
+            RemovePlayerAtLeave(guid, true, false);// remove player from BG
+             // do not change any battleground's private variables
+
+            RemoveFromInterRealm(guid);
+#endif /* CROSS */
         }
     }
 }
@@ -911,6 +964,8 @@ void Battleground::EndBattleground(uint32 p_Winner)
                 if (!l_Player)
                     continue;
 
+                /// @TODO: Cross sync
+#ifndef CROSS
                 if (l_Player->GetGroup() && l_Player->GetGroup()->IsGuildGroup(0, true, true))
                 {
                     if (Guild* l_Guild = l_Player->GetGuild())
@@ -919,6 +974,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
                         break;
                     }
                 }
+#endif
             }
         }
     }
@@ -933,14 +989,17 @@ void Battleground::EndBattleground(uint32 p_Winner)
             loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(p_Winner), slot);
             winner_matchmaker_rating = GetArenaMatchmakerRating(p_Winner, slot);
 
-            winner_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change, slot);
-            loser_team->LostAgainst(loser_matchmaker_rating, winner_matchmaker_rating, loser_change, slot);
+            winner_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change, winner_matchmaker_change, slot);
+            loser_team->LostAgainst(loser_matchmaker_rating, winner_matchmaker_rating, loser_change, loser_matchmaker_change, slot);
 
             SetArenaMatchmakerRating(p_Winner, winner_matchmaker_rating + winner_matchmaker_change);
             SetArenaMatchmakerRating(GetOtherTeam(p_Winner), loser_matchmaker_rating + loser_matchmaker_change);
             SetArenaTeamRatingChangeForTeam(p_Winner, winner_change);
             SetArenaTeamRatingChangeForTeam(GetOtherTeam(p_Winner), loser_change);
 
+#ifdef CROSS
+            sBattlegroundMgr->LogArenaMatch(this, p_Winner, winner_change, winner_matchmaker_change, loser_change, loser_matchmaker_change);
+#endif
         }
         // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
         else if (GetWinner() == 3)
@@ -1067,7 +1126,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
         // Reward winner team
         if (l_Team == p_Winner)
         {
-            if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())))
+            if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())) && !isArena())
             {
                 UpdatePlayerScore(l_Player, nullptr, SCORE_BONUS_HONOR, winner_bonus, !IsWargame(), MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundWin);
                 if (!l_Player->GetRandomWinner() && !IsWargame())
@@ -1092,6 +1151,8 @@ void Battleground::EndBattleground(uint32 p_Winner)
             }
 
             l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
+            /// @TODO: Cross sync
+#ifndef CROSS
             if (!guildAwarded)
             {
                 guildAwarded = true;
@@ -1103,10 +1164,11 @@ void Battleground::EndBattleground(uint32 p_Winner)
                             guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winner_team->GetRating(Arena::GetSlotByType(GetArenaType())), 1), 0, 0, nullptr, l_Player);
                     }
             }
+#endif
         }
         else
         {
-            if (IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID()))
+            if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())) && !isArena())
             {
                 UpdatePlayerScore(l_Player, nullptr, SCORE_BONUS_HONOR, loser_bonus, !IsWargame());
 
@@ -1126,12 +1188,16 @@ void Battleground::EndBattleground(uint32 p_Winner)
         MS::Battlegrounds::PacketFactory::PvpLogData(&data, this);
         l_Player->GetSession()->SendPacket(&data);
 
-        MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(GetTypeID(), GetArenaType(), IsSkirmish()); ///< bgQueueTypeId is never read 01/18/16
         MS::Battlegrounds::PacketFactory::Status(&data, this, l_Player, l_Player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(GetTypeID())), STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
         l_Player->GetSession()->SendPacket(&data);
 
         if (!IsWargame())
             l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
+
+#ifdef CROSS
+        if (IsRatedBG() || (isArena() && !IsSkirmish()))
+            l_Player->SaveCrossServerArenaData();
+#endif
     }
 
     if (winmsg_id)
@@ -1267,12 +1333,12 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                 }
             }
 
-            if (SendPacket)
-            {
-                WorldPacket data;
-                MS::Battlegrounds::PacketFactory::Status(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_NONE, player->GetBattlegroundQueueJoinTime(bgQueueTypeId), 0, 0, IsSkirmish());
-                player->GetSession()->SendPacket(&data);
-            }
+#ifdef CROSS
+            player->SaveArenaData();
+#endif
+            WorldPacket data;
+            MS::Battlegrounds::PacketFactory::Status(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_NONE, player->GetBattlegroundQueueJoinTime(bgQueueTypeId), 0, 0, IsSkirmish());
+            player->GetSession()->SendPacket(&data);
 
             // this call is important, because player, when joins to battleground, this method is not called, so it must be called when leaving bg
             player->RemoveBattlegroundQueueId(bgQueueTypeId);
@@ -1323,10 +1389,12 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 3, 0);
         player->RemoveBattlegroundQueueJoinTime(bgQueueTypeId);
 
+#ifndef CROSS
         if (Transport)
             player->TeleportToBGEntryPoint();
 
         sLog->outInfo(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Removed player %s from Battleground.", player->GetName());
+#endif
     }
 
     if (player && IsRatedBG())
@@ -1394,6 +1462,10 @@ void Battleground::BuildArenaOpponentSpecializations(WorldPacket* p_Packet, uint
 
 void Battleground::AddPlayer(Player* player)
 {
+#ifdef CROSS
+    sLog->outAshran("Battleground::AddPlayer: instance id %u, bg status: %u, player guid %u", GetInstanceID(), GetStatus(), player->GetRealGUIDLow());
+
+#endif /* CROSS */
     // remove afk from player
     if (player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AFK))
         player->ToggleAFK();
@@ -1529,6 +1601,27 @@ void Battleground::AddPlayer(Player* player)
             player->AddAura(player->GetBGTeam() == ALLIANCE ? 81748 : 81744, player);
     }
 
+#ifdef CROSS
+    if (InterRealmClient *irClient = player->GetSession()->GetInterRealmClient())
+    {
+        irClient->SendPlayerBattlegroundZoneID(player);
+    }
+
+    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    {
+        if (Player* bgPlayer = ObjectAccessor::FindPlayer(itr->first))
+        {
+            bgPlayer->GetSession()->SendNameQueryOpcode(player->GetGUID());
+            player->GetSession()->SendNameQueryOpcode(bgPlayer->GetGUID());
+        }
+    }
+
+    // Hack to normalize speed
+    player->UpdateSpeed(MOVE_RUN, true);
+    player->UpdateSpeed(MOVE_WALK, true);
+    player->UpdateSpeed(MOVE_FLIGHT, true);
+
+#endif /* CROSS */
     // Log
     sLog->outInfo(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Player %s joined the battle.", player->GetName());
 }
@@ -2117,7 +2210,7 @@ uint32 Battleground::GetAlivePlayersCountByTeam(uint32 Team) const
         if (itr->second.Team == Team)
         {
             Player* player = ObjectAccessor::FindPlayer(itr->first);
-            if (player && player->isAlive() && !player->HasByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 3, FORM_SPIRITOFREDEMPTION))
+            if (player && player->isAlive() && player->GetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 3) != FORM_SPIRITOFREDEMPTION)
                 ++count;
         }
     }

@@ -258,6 +258,9 @@ class BattlegroundAB : public Battleground
         /* achievement req. */
         bool IsAllNodesControlledByTeam(uint32 team) const;  // overwrited
         bool IsTeamScores500Disadvantage(uint32 team) const { return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
+        
+        uint32 GetZoneId() const { return BATTLEGROUND_AB_ZONEID; }
+
     private:
         virtual void PostUpdateImpl(uint32 diff);
         /* Gameobject spawning/despawning */

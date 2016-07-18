@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "GarrisonHordeShipyard.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -201,4 +202,5 @@ void AddSC_Garrison_HS()
 {
     new MS::Garrison::Sites::InstanceMapScript_GarrisonHordeShipyard();
 }
+#endif
 #endif

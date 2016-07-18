@@ -324,9 +324,15 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket* data, 
         }
         case TEXT_RANGE_WORLD:
         {
+#ifndef CROSS
             SessionMap const& smap = sWorld->GetAllSessions();
             for (SessionMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
                 if (Player* player = iter->second->GetPlayer())
+#else /* CROSS */
+            PlayerMap const& players = sWorld->GetAllPlayers();
+            for (PlayerMap::const_iterator iter = players.begin(); iter != players.end(); ++iter)
+                if (Player* player = iter->second)
+#endif /* CROSS */
                     if (player->GetSession()  && (!team || Team(player->GetTeam()) == team) && (!gmOnly || player->isGameMaster()))
                         player->GetSession()->SendPacket(data);
             return;

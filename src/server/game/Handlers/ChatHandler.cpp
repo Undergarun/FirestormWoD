@@ -20,7 +20,9 @@
 #include "ChannelMgr.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#ifndef CROSS
 #include "Guild.h"
+#endif /* not CROSS */
 #include "Language.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -44,8 +46,10 @@ bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) sent a chatmessage with an invalid link: %s", GetPlayer()->GetName(),
                     GetPlayer()->GetGUIDLow(), msg.c_str());
+#ifndef CROSS
             if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
                 KickPlayer();
+#endif /* not CROSS */
             return false;
         }
     }
@@ -356,7 +360,20 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
                 break;
             }
 
+#ifndef CROSS
             Player* l_Receiver = sObjectAccessor->FindPlayerByNameInOrOutOfWorld(l_ReceiverName.c_str());
+#else /* CROSS */
+            Player* l_Receiver = sObjectAccessor->FindPlayerByName(l_ReceiverName.c_str());
+            if (!l_Receiver)
+            {
+                // try to find receiver at original server
+                if (InterRealmClient *irClient = l_Sender->GetSession()->GetInterRealmClient())
+                {
+                    irClient->SendWhisper(l_Sender->GetGUID(), l_Language, l_ReceiverName, l_Text);
+                    break;
+                }
+            }
+#endif /* CROSS */
 
             bool l_SenderIsPlayer   = AccountMgr::IsPlayerAccount(GetSecurity());
             bool l_ReceiverIsPlayer = AccountMgr::IsPlayerAccount(l_Receiver ? l_Receiver->GetSession()->GetSecurity() : SEC_PLAYER);
@@ -417,12 +434,20 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
         {
             if (GetPlayer()->GetGuildId())
             {
+#ifndef CROSS
                 if (Guild * l_Guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildId()))
                 {
                     sScriptMgr->OnPlayerChat(GetPlayer(), l_Type, l_Language, l_Text, l_Guild);
 
                     l_Guild->BroadcastToGuild(this, false, l_Text, l_Language == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
                 }
+#else /* CROSS */
+                if (InterRealmClient *irClient = l_Sender->GetSession()->GetInterRealmClient())
+                 {
+                    irClient->SendGuildChat(l_Sender->GetGUID(), l_Language, l_Text);
+                    break;                
+                 }
+#endif /* CROSS */
             }
 
             break;
@@ -431,12 +456,18 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
         {
             if (GetPlayer()->GetGuildId())
             {
+#ifndef CROSS
                 if (Guild * l_Guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildId()))
                 {
+#else /* CROSS */
+                if (InterRealmGuild* l_Guild = sGuildMgr->GetInterRealmGuild(GetInterRealmNumber(), m_Player->GetGuildId()))
+#endif /* CROSS */
                     sScriptMgr->OnPlayerChat(GetPlayer(), l_Type, l_Language, l_Text, l_Guild);
+#ifndef CROSS
 
                     l_Guild->BroadcastToGuild(this, true, l_Text, l_Language == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
                 }
+#endif /* not CROSS */
             }
 
             break;
@@ -679,10 +710,12 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
         case CHAT_MSG_GUILD:
         case CHAT_MSG_OFFICER:
         {
+#ifndef CROSS
             if (l_Sender->GetGuildId())
                 if (Guild* l_Guild = sGuildMgr->GetGuildById(l_Sender->GetGuildId()))
                     l_Guild->BroadcastAddonToGuild(this, l_Type == CHAT_MSG_OFFICER, l_AddonMessage, l_AddonPrefix);
 
+#endif /* not CROSS */
             break;
         }
         case CHAT_MSG_WHISPER:

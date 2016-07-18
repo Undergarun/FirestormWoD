@@ -108,6 +108,9 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         // join to bg case
         else if (Battleground* bg = m_Player->GetBattleground())
         {
+#ifdef CROSS
+            sLog->outAshran("WorldSession::HandleMoveWorldportAckOpcode: bg instance id %u, bg status: %u, player guid %u", m_Player->GetBattlegroundId(), bg->GetStatus(), m_Player->GetRealGUIDLow());
+#endif /* CROSS */
             if (m_Player->IsInvitedForBattlegroundInstance(m_Player->GetBattlegroundId()))
             {
                 bg->AddPlayer(m_Player);

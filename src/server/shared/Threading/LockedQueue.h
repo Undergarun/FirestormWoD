@@ -141,6 +141,14 @@ namespace ACE_Based
                 ACE_GUARD_RETURN (LockType, g, this->_lock, false);
                 return _queue.empty();
             }
+#ifdef CROSS
+
+            uint32 size()
+            {
+                ACE_Guard<LockType> g(this->_lock);
+                return _queue.size();
+            }
+#endif /* CROSS */
     };
 }
 #endif

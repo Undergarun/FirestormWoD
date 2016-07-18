@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_HORDE_SHIPYARD_HPP
+#ifndef CROSS
 #define GARRISON_HORDE_SHIPYARD_HPP
 
 #include "../GarrisonScriptData.hpp"
@@ -113,3 +114,4 @@ namespace MS { namespace Garrison { namespace Sites
 }   ///< namespace MS
 
 #endif  ///< GARRISON_HORDE_SHIPYARD_HPP
+#endif

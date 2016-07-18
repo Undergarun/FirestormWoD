@@ -46,10 +46,16 @@
 #include "BattlegroundMgr.hpp"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#ifndef CROSS
 #include "TicketMgr.h"
+#endif /* not CROSS */
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
+#ifndef CROSS
 #include "../Garrison/GarrisonMgr.hpp"
+#else /* CROSS */
+#include "InterRealmMgr.h"
+#endif /* CROSS */
 
 #include "BattlegroundPacketFactory.hpp"
 
@@ -303,17 +309,27 @@ void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
                 continue;
         }
 
+#ifdef CROSS
+        /// Do not process players which are not in world
+        if (!(l_It->second->IsInWorld()))
+            continue;
+
+#endif /* CROSS */
         /// check if target is globally visible for player
         if (!(l_It->second->IsVisibleGloballyFor(m_Player)))
             continue;
 
         uint32  l_PlayerClass   = l_It->second->getClass();
         uint32  l_PlayerRace    = l_It->second->getRace();
+#ifndef CROSS
         uint32  l_AreaID        = l_It->second->GetSession()->GetInterRealmBG();
 
         if (!l_AreaID)
             l_AreaID = l_It->second->GetZoneId();
 
+#else /* CROSS */
+        uint32  l_AreaID        = l_It->second->GetZoneId();
+#endif /* CROSS */
         uint8   l_PlayerLevel   = l_It->second->getLevel();
         uint8   l_PlayerSex     = l_It->second->getGender();
 
@@ -355,7 +371,13 @@ void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
         if (!(l_WQueryerPlayerName.empty() || l_WPlayerName.find(l_WQueryerPlayerName) != std::wstring::npos))
             continue;
 
+#ifndef CROSS
         std::string  l_GuildName = sGuildMgr->GetGuildNameById(l_It->second->GetGuildId());
+#else /* CROSS */
+        InterRealmGuild* l_Guild = l_It->second->GetGuild();
+
+        std::string  l_GuildName = l_Guild ? l_Guild->GetName() : "";
+#endif /* CROSS */
         std::wstring l_WGuildName;
 
         if (!Utf8toWStr(l_GuildName, l_WGuildName))
@@ -481,7 +503,11 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
 
     // Instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
     if (GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() ||
+#ifndef CROSS
         GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT)) || GetPlayer()->IsInGarrison())
+#else /* CROSS */
+        GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT)))
+#endif /* CROSS */
     {
         WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
         data << uint32(reason);
@@ -623,7 +649,11 @@ void WorldSession::HandleContactListOpcode(WorldPacket& p_RecvData)
 
     p_RecvData >> l_Flags;
 
+#ifndef CROSS
     if (l_Flags & 1)
+#else /* CROSS */
+    if (l_Flags & 1 && m_Player->GetSocial())
+#endif /* CROSS */
         m_Player->GetSocial()->SendSocialList(m_Player);
 }
 
@@ -641,12 +671,12 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& p_RecvData)
     if (!normalizePlayerName(l_FriendName))
         return;
 
-    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
+    PreparedStatement* l_Stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
 
     l_Stmt->setString(0, l_FriendName);
 
     _addFriendCallback.SetParam(l_FriendNote);
-    _addFriendCallback.SetFutureResult(CharacterDatabase.AsyncQuery(l_Stmt));
+    _addFriendCallback.SetFutureResult(SessionRealmDatabase.AsyncQuery(l_Stmt));
 }
 
 void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std::string friendNote)
@@ -678,7 +708,11 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
                     friendResult = FRIEND_SELF;
                 else if (GetPlayer()->GetTeam() != team && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && AccountMgr::IsPlayerAccount(GetSecurity()))
                     friendResult = FRIEND_ENEMY;
+#ifndef CROSS
                 else if (GetPlayer()->GetSocial()->HasFriend(GUID_LOPART(friendGuid)))
+#else /* CROSS */
+                else if (GetPlayer()->GetSocial() && GetPlayer()->GetSocial()->HasFriend(GUID_LOPART(friendGuid)))
+#endif /* CROSS */
                     friendResult = FRIEND_ALREADY;
                 else
                 {
@@ -687,12 +721,22 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
                         friendResult = FRIEND_ADDED_ONLINE;
                     else
                         friendResult = FRIEND_ADDED_OFFLINE;
+#ifndef CROSS
                     if (!GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(friendGuid), false))
+#else /* CROSS */
+                    if (GetPlayer()->GetSocial() && !GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(friendGuid), false))
+#endif /* CROSS */
                     {
                         friendResult = FRIEND_LIST_FULL;
                     }
                 }
+#ifndef CROSS
                 GetPlayer()->GetSocial()->SetFriendNote(GUID_LOPART(friendGuid), friendNote);
+#else /* CROSS */
+
+                if (GetPlayer()->GetSocial())
+                    GetPlayer()->GetSocial()->SetFriendNote(GUID_LOPART(friendGuid), friendNote);
+#endif /* CROSS */
             }
         }
     }
@@ -709,6 +753,11 @@ void WorldSession::HandleDelFriendOpcode(WorldPacket& recvData)
     recvData >> l_VirtualRealmAddress;
     recvData.readPackGUID(l_Guid);
 
+#ifdef CROSS
+    if (!m_Player->GetSocial())
+        return;
+
+#endif /* CROSS */
     m_Player->GetSocial()->RemoveFromSocialList(GUID_LOPART(l_Guid), false);
 
     sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_REMOVED, GUID_LOPART(l_Guid), false);
@@ -725,11 +774,11 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& p_RecvData)
     if (!normalizePlayerName(l_IgnoreName))
         return;
 
-    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
+    PreparedStatement* l_Stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
 
     l_Stmt->setString(0, l_IgnoreName);
 
-    m_AddIgnoreCallback = CharacterDatabase.AsyncQuery(l_Stmt);
+    m_AddIgnoreCallback = SessionRealmDatabase.AsyncQuery(l_Stmt);
 }
 
 void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
@@ -751,14 +800,22 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
         {
             if (IgnoreGuid == GetPlayer()->GetGUID())              //not add yourself
                 ignoreResult = FRIEND_IGNORE_SELF;
+#ifndef CROSS
             else if (GetPlayer()->GetSocial()->HasIgnore(GUID_LOPART(IgnoreGuid)))
+#else /* CROSS */
+            else if (GetPlayer()->GetSocial() && GetPlayer()->GetSocial()->HasIgnore(GUID_LOPART(IgnoreGuid)))
+#endif /* CROSS */
                 ignoreResult = FRIEND_IGNORE_ALREADY;
             else
             {
                 ignoreResult = FRIEND_IGNORE_ADDED;
 
                 // ignore list full
+#ifndef CROSS
                 if (!GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(IgnoreGuid), true))
+#else /* CROSS */
+                if (GetPlayer()->GetSocial() && !GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(IgnoreGuid), true))
+#endif /* CROSS */
                     ignoreResult = FRIEND_IGNORE_FULL;
             }
         }
@@ -776,6 +833,11 @@ void WorldSession::HandleDelIgnoreOpcode(WorldPacket& recvData)
     recvData >> l_VirtualRealmAddress;
     recvData.readPackGUID(l_Guid);
 
+#ifdef CROSS
+    if (!GetPlayer()->GetSocial())
+        return;
+
+#endif /* CROSS */
     m_Player->GetSocial()->RemoveFromSocialList(GUID_LOPART(l_Guid), true);
 
     sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_IGNORE_REMOVED, GUID_LOPART(l_Guid), false);
@@ -793,6 +855,11 @@ void WorldSession::HandleSetContactNotesOpcode(WorldPacket& p_RecvData)
     
     l_Notes = p_RecvData.ReadString(p_RecvData.ReadBits(10));
 
+#ifdef CROSS
+    if (!GetPlayer()->GetSocial())
+        return;
+
+#endif /* CROSS */
     m_Player->GetSocial()->SetFriendNote(GUID_LOPART(l_Guid), l_Notes);
 }
 
@@ -809,10 +876,10 @@ void WorldSession::HandleReportBugOpcode(WorldPacket& p_RecvData)
     p_RecvData.FlushBits();
     l_Content = p_RecvData.ReadString(l_ContentLen);
 
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
+    PreparedStatement* l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
     l_Statement->setString(0, "Bug");
     l_Statement->setString(1, l_Content);
-    CharacterDatabase.Execute(l_Statement);
+    SessionRealmDatabase.Execute(l_Statement);
 }
 
 void WorldSession::HandleReportSuggestionOpcode(WorldPacket& p_RecvData)
@@ -828,14 +895,15 @@ void WorldSession::HandleReportSuggestionOpcode(WorldPacket& p_RecvData)
     p_RecvData.FlushBits();
     l_Content = p_RecvData.ReadString(l_ContentLen);
 
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
+    PreparedStatement* l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
     l_Statement->setString(0, "Suggestion");
     l_Statement->setString(1, l_Content);
-    CharacterDatabase.Execute(l_Statement);
+    SessionRealmDatabase.Execute(l_Statement);
 }
 
 void WorldSession::HandleRequestGmTicket(WorldPacket& /*recvPakcet*/)
 {
+#ifndef CROSS
     // Notify player if he has a ticket in progress
     if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
     {
@@ -844,6 +912,7 @@ void WorldSession::HandleRequestGmTicket(WorldPacket& /*recvPakcet*/)
         else
             sTicketMgr->SendTicket(this, ticket);
     }
+#endif /* not CROSS */
 }
 
 void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& p_Packet)
@@ -1453,6 +1522,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
 
     l_Data.put(l_TalentCountPos, l_TalentCount);
 
+#ifndef CROSS
     Guild* l_Guild = sGuildMgr->GetGuildById(l_Player->GetGuildId());
     l_Data.WriteBit(l_Guild != nullptr);
 
@@ -1462,6 +1532,18 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
         l_Data.appendPackGUID(l_GuildGuid);             ///< GuildGUID
         l_Data << uint32(l_Guild->GetMembersCount());   ///< NumGuildMembers
         l_Data << uint32(l_Guild->GetAchievementMgr().GetAchievementPoints());  ///< AchievementPoints
+#else /* CROSS */
+    uint64 guildGuid = MAKE_NEW_GUID(m_Player->GetGuildId(), 0, HIGHGUID_GUILD);
+    InterRealmGuild* guild = sGuildMgr->GetInterRealmGuild(m_Player->GetSession()->GetInterRealmNumber(), guildGuid);
+    l_Data.WriteBit(guild != nullptr);
+
+    if (guild != nullptr)
+    {
+        uint64 l_GuildGuid = guild->GetGUID();
+        l_Data.appendPackGUID(l_GuildGuid);              ///< GuildGUID
+        l_Data << uint32(guild->GetMembersCount());      ///< NumGuildMembers
+        l_Data << uint32(guild->GetAchievementPoints()); ///< AchievementPoints
+#endif /* CROSS */
     }
 
     SendPacket(&l_Data);
@@ -1546,6 +1628,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
 {
+#ifndef CROSS
     uint32 textLength = recvData.ReadBits(6);
     recvData.FlushBits();
     std::string charname = recvData.ReadString(textLength);
@@ -1602,6 +1685,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
     l_Data.FlushBits();
     l_Data.WriteString(msg);
     SendPacket(&l_Data);
+#endif
 }
 
 void WorldSession::HandleComplainOpcode(WorldPacket& /*recvData*/)
@@ -1650,22 +1734,49 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& p_Packet)
 
     p_Packet >> l_RealmID;
 
+#ifndef CROSS
     /// Cheater ?
     if (l_RealmID != g_RealmID)
+#else /* CROSS */
+    const InterRealmDatabaseConfig* l_RealmConfig = sInterRealmMgr->GetConfig(l_RealmID);
+    if (l_RealmConfig == nullptr)
+#endif /* CROSS */
         return;
 
+#ifdef CROSS
+    std::string l_RealmName = l_RealmConfig->name;
+
+#endif /* CROSS */
     WorldPacket l_Data(SMSG_REALM_QUERY_RESPONSE);
+#ifndef CROSS
     l_Data << uint32(g_RealmID);                                    ///< Virtual Realm Address
+#else /* CROSS */
+    l_Data << uint32(l_RealmID);                                    ///< Virtual Realm Address
+#endif /* CROSS */
     l_Data << uint8(REALM_QUERY_NAME_RESPONSE_OK);                  ///< Lookup State
 
+#ifndef CROSS
     l_Data.WriteBit(true);                                          ///< Is Locale
+#else /* CROSS */
+    l_Data.WriteBit(false);                                         ///< Is Locale
+#endif /* CROSS */
     l_Data.WriteBit(false);                                         ///< Unk
+#ifndef CROSS
     l_Data.WriteBits(sWorld->GetRealmName().size(), 8);             ///< Realm Name Actual
     l_Data.WriteBits(sWorld->GetNormalizedRealmName().size(), 8);   ///< Realm Name Normalized
+#else /* CROSS */
+    l_Data.WriteBits(l_RealmName.size(), 8);                        ///< Realm Name Actual
+    l_Data.WriteBits(l_RealmName.size(), 8);                        ///< Realm Name Normalized
+#endif /* CROSS */
     l_Data.FlushBits();
 
+#ifndef CROSS
     l_Data.WriteString(sWorld->GetRealmName());                     ///< Realm Name Actual
     l_Data.WriteString(sWorld->GetNormalizedRealmName());           ///< Realm Name Normalized
+#else /* CROSS */
+    l_Data.WriteString(l_RealmName);                                ///< Realm Name Actual
+    l_Data.WriteString(l_RealmName);                                ///< Realm Name Normalized
+#endif /* CROSS */
 
     SendPacket(&l_Data);
 }
@@ -1920,11 +2031,13 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
         return;
     }
 
+#ifndef CROSS
     if (MS::Garrison::Manager* l_GarrisonMgr = m_Player->GetGarrison())
     {
         if (l_GarrisonMgr->IsTrainingMount())
             return;
     }
+#endif
 
     if (m_Player->isInFlight())                               // not blizz like; no any messages on blizz
     {
@@ -1967,12 +2080,14 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket& p_RecvData)
 
 void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& p_Packet)
 {
+#ifndef CROSS
     uint32 l_AchievementID = 0;
 
     p_Packet >> l_AchievementID;
 
     if (Guild * l_Guild = sGuildMgr->GetGuildById(m_Player->GetGuildId()))
         l_Guild->GetAchievementMgr().SendAchievementInfo(m_Player, l_AchievementID);
+#endif
 }
 
 void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*p_RecvData*/)
@@ -2302,10 +2417,10 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& p_RecvPacket)
 
     m_Player->SendCUFProfiles();
 
-    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+    SQLTransaction l_Transaction = SessionRealmDatabase.BeginTransaction();
 
-    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CUF_PROFILE);
-    l_Stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
+    PreparedStatement* l_Stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_DEL_CUF_PROFILE);
+    l_Stmt->setUInt32(0, GetPlayer()->GetRealGUIDLow());
     l_Transaction->Append(l_Stmt);
 
     for (uint32 l_I = 0; l_I < l_ProfileCount; ++l_I)
@@ -2313,14 +2428,14 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& p_RecvPacket)
         CUFProfile& profile = l_Profiles[l_I];
         CUFProfileData data = profile.data;
 
-        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CUF_PROFILE);
-        l_Stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
+        l_Stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_INS_CUF_PROFILE);
+        l_Stmt->setUInt32(0, GetPlayer()->GetRealGUIDLow());
         l_Stmt->setString(1, profile.Name);
         l_Stmt->setString(2, PackDBBinary(&data, sizeof(CUFProfileData)));
         l_Transaction->Append(l_Stmt);
     }
 
-    CharacterDatabase.CommitTransaction(l_Transaction);
+    SessionRealmDatabase.CommitTransaction(l_Transaction);
 }
 
 void WorldSession::HandleMountSetFavoriteOpcode(WorldPacket & p_Packet)
@@ -2368,3 +2483,20 @@ void WorldSession::SendTwitterStatus(bool p_Enabled)
         SendPacket(&l_Data);
     }
 }
+
+#ifdef CROSS
+void WorldSession::HandleQueryGuildInfoOpcode(WorldPacket& p_Packet)
+{
+    uint64 l_GuildGuid  = 0;
+    uint64 l_PlayerGuid = 0;
+
+    p_Packet.readPackGUID(l_GuildGuid);
+    p_Packet.readPackGUID(l_PlayerGuid);
+
+    Player* targetPlayer = sObjectAccessor->FindPlayerInOrOutOfWorld(l_PlayerGuid);
+    if (!targetPlayer)
+        return;
+ 
+    sGuildMgr->HandleInterRealmGuildQuery(GetPlayer(), targetPlayer->GetSession()->GetInterRealmNumber(), l_GuildGuid);
+}
+#endif /* CROSS */

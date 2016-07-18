@@ -510,6 +510,7 @@ class ScriptMgr
         /// @p_Diff   : Time since last update
         void OnDynamicObjectUpdate(DynamicObject* p_Object, uint32 p_Diff);
 
+#ifndef CROSS
     /// AuctionHouseScript
     public:
         /// Called when an auction is added to an auction house.
@@ -530,6 +531,7 @@ class ScriptMgr
         /// @p_Entry              : Auction who expired
         void OnAuctionExpire(AuctionHouseObject* p_AuctionHouseObject, AuctionEntry* p_Entry);
 
+#endif /* not CROSS */
     /// FormulaScript
     public:
         /// Called after calculating honor.
@@ -712,7 +714,11 @@ class ScriptMgr
         /// @p_Lang    : Message language (WoW)
         /// @p_Message : Message content
         /// @p_Guild   : Message guild target
+#ifndef CROSS
         void OnPlayerChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string& p_Message, Guild* p_Guild);
+#else /* CROSS */
+        void OnPlayerChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string& p_Message, InterRealmGuild* p_Guild);
+#endif /* CROSS */
         /// The following methods are called when a player sends a chat message. (Channel)
         /// @p_Player  : Player instance
         /// @p_Type    : Message type
@@ -990,6 +996,7 @@ class ScriptMgr
         /// @p_Player      : Player instance
         bool EvalPlayerConditionScript(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player const* p_Player);
 
+#ifndef CROSS
     /// Battle Pay product scripts
     public:
         void RegisterBattlePayProductScript(std::string p_ScriptName, BattlePayProductScript* p_Script);
@@ -997,6 +1004,7 @@ class ScriptMgr
         bool BattlePayCanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason);
         std::string BattlePayGetCustomData(Battlepay::Product const& p_Product);
 
+#endif /* not CROSS */
     /// Encounter scripts
     public:
         void OnEncounterEnd(EncounterDatas const* p_EncounterDatas);
@@ -1008,9 +1016,11 @@ class ScriptMgr
         std::atomic<long> m_ScheduledScripts;
         /// Player condition scripts
         MS::Utilities::MutextedMap<uint32, PlayerConditionScript*> m_PlayerConditionScripts;
+#ifndef CROSS
         /// Battle Pay Product Script
         std::map<std::string, BattlePayProductScript*> m_BattlePayProductScripts;
 
+#endif /* not CROSS */
 };
 
 #endif

@@ -16,7 +16,9 @@
 #include "CreatureAI.h"
 #include "Log.h"
 #include "LFGMgr.h"
+#ifndef CROSS
 #include "Guild.h"
+#endif /* not CROSS */
 #include "WowTime.hpp"
 
 InstanceScript::InstanceScript(Map* p_Map)
@@ -396,6 +398,8 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                         }
                     }
 
+                    /// @TODO: cross sync
+                    #ifndef CROSS
                     /// Handle Guild challenges
                     {
                         InstanceMap::PlayerList const& l_PlayersMap = instance->GetPlayers();
@@ -419,6 +423,7 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                             }
                         }
                     }
+                    #endif
 
                     m_EncounterTime = 0;
 
@@ -1175,6 +1180,11 @@ void InstanceScript::SendChallengeNewPlayerRecord()
     {
         if (Player* l_Player = l_Iter->getSource())
         {
+#ifdef CROSS
+            InterRealmDatabasePool l_RealmDatabase = *l_Player->GetSession()->GetInterRealmClient()->GetDatabase();
+#else
+            auto l_RealmDatabase = CharacterDatabase;
+#endif
             if (l_Player->HasChallengeCompleted(l_MapID))
             {
                 CompletedChallenge* l_Challenge = l_Player->GetCompletedChallenge(l_MapID);
@@ -1185,14 +1195,15 @@ void InstanceScript::SendChallengeNewPlayerRecord()
                 bool l_NewBestTime = m_ChallengeTime < l_Challenge->m_BestTime;
                 bool l_NewBestMedal = m_MedalType > l_Challenge->m_BestMedal;
 
-                PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_COMPLETED_CHALLENGE);
+                PreparedStatement* l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_UPD_COMPLETED_CHALLENGE);
+
                 l_Statement->setUInt32(0, l_NewBestTime ? m_ChallengeTime : l_Challenge->m_BestTime);
                 l_Statement->setUInt32(1, m_ChallengeTime);
                 l_Statement->setUInt8(2, l_NewBestMedal ? m_MedalType : l_Challenge->m_BestMedal);
                 l_Statement->setUInt32(3, l_NewBestMedal ? uint32(time(nullptr)) : l_Challenge->m_BestMedalDate);
-                l_Statement->setUInt32(4, l_Player->GetGUIDLow());
+                l_Statement->setUInt32(4, l_Player->GetRealGUIDLow());
                 l_Statement->setUInt32(5, l_MapID);
-                CharacterDatabase.Execute(l_Statement);
+                l_RealmDatabase.Execute(l_Statement);
 
                 if (l_NewBestMedal)
                 {
@@ -1211,14 +1222,14 @@ void InstanceScript::SendChallengeNewPlayerRecord()
             }
             else
             {
-                PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_COMPLETED_CHALLENGE);
-                l_Statement->setUInt32(0, l_Player->GetGUIDLow());
+                PreparedStatement* l_Statement = l_RealmDatabase.GetPreparedStatement(CHAR_INS_COMPLETED_CHALLENGE);
+                l_Statement->setUInt32(0, l_Player->GetRealGUIDLow());
                 l_Statement->setUInt32(1, l_MapID);
                 l_Statement->setUInt32(2, m_ChallengeTime);
                 l_Statement->setUInt32(3, m_ChallengeTime);
                 l_Statement->setUInt8(4, m_MedalType);
                 l_Statement->setUInt32(5, uint32(time(nullptr)));
-                CharacterDatabase.Execute(l_Statement);
+                l_RealmDatabase.Execute(l_Statement);
 
                 CompletedChallenge l_Challenge;
                 l_Challenge.m_BestMedal = m_MedalType;

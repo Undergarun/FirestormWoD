@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "Common.h"
 #include "GarrisonMgr.hpp"
 #include "GarrisonShipmentManager.hpp"
@@ -159,3 +160,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

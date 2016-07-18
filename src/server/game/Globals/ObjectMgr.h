@@ -853,11 +853,15 @@ typedef std::vector<ResearchPOIPoint> ResearchPOIPoints;
 typedef std::map<uint32 /*site id*/, ResearchZoneEntry> ResearchZoneMap;
 typedef std::map<uint32, std::vector<RecipesConditions>> NpcRecipesContainer;
 
+#ifndef CROSS
 class PlayerDumpReader;
+#endif /* not CROSS */
 
 class ObjectMgr
 {
+#ifndef CROSS
     friend class PlayerDumpReader;
+#endif /* not CROSS */
     friend class ACE_Singleton<ObjectMgr, ACE_Null_Mutex>;
 
     private:
@@ -940,8 +944,13 @@ class ObjectMgr
         uint64 GetPlayerGUIDByName(std::string name) const;
         bool GetPlayerNameByGUID(uint64 guid, std::string& name) const;
         uint32 GetPlayerTeamByGUID(uint64 guid) const;
+#ifdef CROSS
+
+#endif /* CROSS */
         uint32 GetPlayerAccountIdByGUID(uint64 guid) const;
+#ifndef CROSS
         uint32 GetPlayerAccountIdByPlayerName(const std::string& name) const;
+#endif /* not CROSS */
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
         void GetTaxiPath(uint32 source, uint32 destination, uint32& path, uint32& cost);
@@ -1273,13 +1282,17 @@ class ObjectMgr
         void LoadBattlePetNpcTeamMember();
         void ComputeBattlePetSpawns();
 
+#ifndef CROSS
         void LoadGuildChallengeRewardInfo();
 
+#endif /* not CROSS */
         void LoadResearchSiteZones();
         void LoadResearchSiteLoot();
 
         void LoadCharacterTemplateData();
+#ifndef CROSS
         void LoadRealmCompletedChallenges();
+#endif /* not CROSS */
         void LoadChallengeRewards();
 
         std::vector<BattlePetNpcTeamMember> GetPetBattleTrainerTeam(uint32 p_NpcID)
@@ -1350,20 +1363,37 @@ class ObjectMgr
             return itr != _fishingBaseForAreaStore.end() ? itr->second : 0;
         }
 
+#ifndef CROSS
         void ReturnOrDeleteOldMails(bool serverUp);
 
+#endif /* not CROSS */
         CreatureBaseStats const* GetCreatureBaseStats(uint8 level, uint8 unitClass);
         CreatureGroupSizeStat const* GetCreatureGroupSizeStat(uint32 p_Entry, uint32 p_Difficulty) const;
 
         void SetHighestGuids();
+#ifdef CROSS
+
+#endif /* CROSS */
         uint32 GenerateLowGuid(HighGuid guidhigh);
+#ifndef CROSS
         uint32 GenerateLowGuid(HighGuid p_GuidHigh, uint32 p_Range);
+#endif /* not CROSS */
         uint32 GenerateAuctionID();
+#ifndef CROSS
         uint64 GenerateEquipmentSetGuid(uint32 p_Range = 1);
         uint32 GenerateMailID(uint32 p_Range = 1);
         uint32 GeneratePetNumber(uint32 p_Range = 1);
+#else /* CROSS */
+        uint64 GenerateEquipmentSetGuid();
+        uint32 GenerateMailID();
+        uint32 GeneratePetNumber();
+#endif /* CROSS */
         uint64 GenerateVoidStorageItemId();
 
+#ifdef CROSS
+        uint32 GenerateLocalRealmLowGuid(HighGuid p_GuidHigh, uint32 p_RealmID);
+
+#endif /* CROSS */
         typedef std::multimap<int32, uint32> ExclusiveQuestGroups;
         ExclusiveQuestGroups mExclusiveQuestGroups;
 
@@ -1499,7 +1529,9 @@ class ObjectMgr
         bool MoveCreData(uint32 guid, uint32 map, Position pos);
 
         // reserved names
+#ifndef CROSS
         void LoadReservedPlayersNames();
+#endif /* not CROSS */
         bool IsReservedName(const std::string& name) const;
 
         // name with valid structure and symbols
@@ -1774,10 +1806,15 @@ class ObjectMgr
         }
 
     private:
+
+#ifndef CROSS
         std::atomic<uint32> m_HighItemGuid;
         std::atomic<uint32> m_MailId;
         std::atomic<uint32> m_PetNumber;
         std::atomic<uint64> m_EquipmentSetGuid;
+#endif
+
+        // first free id for selected id type
         std::atomic<unsigned int>  _auctionId;
         std::atomic<unsigned long> _equipmentSetGuid;
         std::atomic<unsigned int>  _itemTextId;
@@ -1803,6 +1840,10 @@ class ObjectMgr
         std::atomic<unsigned int> m_HiVignetteGuid;
         std::atomic<unsigned int> m_StandaloneSceneInstanceID;
         std::atomic<unsigned int> m_HighConversationGuid;
+
+#ifdef CROSS
+        std::atomic<unsigned int> m_HighItemGuid;
+#endif
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;

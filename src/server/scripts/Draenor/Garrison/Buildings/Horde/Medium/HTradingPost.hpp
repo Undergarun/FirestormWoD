@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_TRADING_POST_HORDE_HPP_GARRISON
 #define GARRISON_TRADING_POST_HORDE_HPP_GARRISON
 
@@ -57,3 +58,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_TRADING_POST_HORDE_HPP_GARRISON
+#endif

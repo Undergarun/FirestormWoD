@@ -229,6 +229,7 @@ class BattlegroundKT : public Battleground
                 return m_OrbKeepers[p_OrbIndex];
             return 0;
         }
+        uint32 GetZoneId() const { return BATTLEGROUND_KT_ZONEID; }
     private:
 
         std::set<uint64> const GetFlagPickersGUID(int32 p_Team) const

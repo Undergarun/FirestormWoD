@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "Common.h"
 #include "Language.h"
 #include "WorldPacket.h"
@@ -764,3 +765,4 @@ void WorldSession::SendPetitionDeclined(uint64 p_PlayerGuid)
 
     SendPacket(&l_Data);
 }
+#endif

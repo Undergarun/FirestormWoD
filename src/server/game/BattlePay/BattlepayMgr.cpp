@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "BattlepayMgr.h"
 #include "BattlepayPacketFactory.h"
 #include "Chat.h"
@@ -475,3 +476,4 @@ namespace Battlepay
         return l_Node.Serialize<std::ostringstream>(true);
     }
 }
+#endif

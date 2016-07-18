@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef CHARACTERDATABASECLEANER_H
 #define CHARACTERDATABASECLEANER_H
 
@@ -34,4 +35,5 @@ namespace CharacterDatabaseCleaner
     void CleanCharacterQuestStatus();
 }
 
+#endif
 #endif

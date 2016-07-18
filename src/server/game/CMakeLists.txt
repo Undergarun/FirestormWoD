@@ -13,12 +13,15 @@ file(GLOB_RECURSE sources_Anticheat Anticheat/*.cpp Anticheat/*.h)
 file(GLOB_RECURSE sources_Achievements Achievements/*.cpp Achievements/*.h)
 file(GLOB_RECURSE sources_Addons Addons/*.cpp Addons/*.h)
 file(GLOB_RECURSE sources_AI AI/*.cpp AI/*.h AI/*.hpp)
+
 file(GLOB_RECURSE sources_AuctionHouse AuctionHouse/*.cpp AuctionHouse/*.h)
 file(GLOB_RECURSE sources_Battlefield Battlefield/*.cpp Battlefield/*.h)
 file(GLOB_RECURSE sources_Battlegrounds Battlegrounds/*.cpp Battlegrounds/*.h Battlegrounds/*.hpp)
+
 file(GLOB_RECURSE sources_BlackMarket BlackMarket/*.cpp BlackMarket/*.h)
 file(GLOB_RECURSE sources_BattlePay BattlePay/*.cpp BattlePay/*.h)
 file(GLOB_RECURSE sources_Calendar Calendar/*.cpp Calendar/*.h)
+
 file(GLOB_RECURSE sources_Chat Chat/*.cpp Chat/*.h)
 file(GLOB_RECURSE sources_Cinematic Cinematic/*.cpp Cinematic/*.h)
 file(GLOB_RECURSE sources_Combat Combat/*.cpp Combat/*.h)
@@ -44,17 +47,21 @@ file(GLOB_RECURSE sources_Quests Quests/*.cpp Quests/*.h)
 file(GLOB_RECURSE sources_Reputation Reputation/*.cpp Reputation/*.h)
 file(GLOB_RECURSE sources_Scripting Scripting/*.cpp Scripting/*.h Scripting/*.hpp)
 file(GLOB_RECURSE sources_Server Server/*.cpp Server/*.h)
+file(GLOB_RECURSE sources_Cross Server/Cross/*.cpp Server/Cross/*.h)
 file(GLOB_RECURSE sources_Skills Skills/*.cpp Skills/*.h Skills/*.hpp)
 file(GLOB_RECURSE sources_Spells Spells/*.cpp Spells/*.h)
 file(GLOB_RECURSE sources_Texts Texts/*.cpp Texts/*.h)
+
 file(GLOB_RECURSE sources_Tools Tools/*.cpp Tools/*.h)
 file(GLOB_RECURSE sources_Tickets Tickets/*.cpp Tickets/*.h)
+
 file(GLOB_RECURSE sources_Warden Warden/*.cpp Warden/*.h)
 file(GLOB_RECURSE sources_Weather Weather/*.cpp Weather/*.h)
 file(GLOB_RECURSE sources_PetBattle PetBattle/*.cpp PetBattle/*.h)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h World/*.hpp)
 file(GLOB_RECURSE sources_shared_ptrs SharedPtrs/*.h)
 file(GLOB_RECURSE sources_Cinematic Cinematic/*.h Cinematic/*.cpp)
+
 file(GLOB_RECURSE sources_Garrison Garrison/*.hpp Garrison/*.cpp)
 file(GLOB_RECURSE sources_Vignette Vignette/*.hpp Vignette/*.cpp Vignette/*.hxx)
 
@@ -76,9 +83,11 @@ set(game_STAT_SRCS
   ${sources_Battlefield}
   ${sources_Battlegrounds}
   ${sources_BattlePet}
+
   ${sources_BlackMarket}
   ${sources_BattlePay}
   ${sources_Calendar}
+
   ${sources_Chat}
   ${sources_Cinematic}
   ${sources_Combat}
@@ -104,6 +113,7 @@ set(game_STAT_SRCS
   ${sources_Reputation}
   ${sources_Scripting}
   ${sources_Server}
+  ${sources_Cross}
   ${sources_Skills}
   ${sources_Spells}
   ${sources_Texts}
@@ -205,6 +215,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlegrounds
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlegrounds/Zones
   ${CMAKE_CURRENT_SOURCE_DIR}/BattlePet
+
   ${CMAKE_CURRENT_SOURCE_DIR}/BattlePay
   ${CMAKE_CURRENT_SOURCE_DIR}/BlackMarket
   ${CMAKE_CURRENT_SOURCE_DIR}/Calendar
@@ -212,7 +223,9 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Chat/Channels
   ${CMAKE_CURRENT_SOURCE_DIR}/Cinematic
   ${CMAKE_CURRENT_SOURCE_DIR}/Combat
+
   ${CMAKE_CURRENT_SOURCE_DIR}/Garrison
+
   ${CMAKE_CURRENT_SOURCE_DIR}/Conditions
   ${CMAKE_CURRENT_SOURCE_DIR}/DataStores
   ${CMAKE_CURRENT_SOURCE_DIR}/DungeonFinding
@@ -258,6 +271,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Quests
   ${CMAKE_CURRENT_SOURCE_DIR}/Reputation
   ${CMAKE_CURRENT_SOURCE_DIR}/Scripting
+  ${CMAKE_CURRENT_SOURCE_DIR}/Server/Cross
   ${CMAKE_CURRENT_SOURCE_DIR}/Server/Protocol
   ${CMAKE_CURRENT_SOURCE_DIR}/Server
   ${CMAKE_CURRENT_SOURCE_DIR}/Skills

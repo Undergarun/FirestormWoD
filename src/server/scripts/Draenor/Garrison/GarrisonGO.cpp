@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "GarrisonGO.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -977,4 +978,5 @@ void AddSC_Garrison_GO()
     new MS::Garrison::go_garrison_timber;
     new MS::Garrison::go_garrison_essence_font;
 }
+#endif
 #endif

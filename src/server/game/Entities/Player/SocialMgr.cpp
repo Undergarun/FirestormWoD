@@ -39,6 +39,7 @@ uint32 PlayerSocial::GetNumberOfSocialsWithFlag(SocialFlag flag)
 
 bool PlayerSocial::AddToSocialList(uint32 friendGuid, bool ignore)
 {
+#ifndef CROSS
     // check client limits
     if (ignore)
     {
@@ -84,11 +85,13 @@ bool PlayerSocial::AddToSocialList(uint32 friendGuid, bool ignore)
         m_playerSocialMap[friendGuid] = fi;
     }
 
+#endif
     return true;
 }
 
 void PlayerSocial::RemoveFromSocialList(uint32 friendGuid, bool ignore)
 {
+#ifndef CROSS
     PlayerSocialMap::iterator itr = m_playerSocialMap.find(friendGuid);
     if (itr == m_playerSocialMap.end())                     // not exist
         return;
@@ -119,10 +122,12 @@ void PlayerSocial::RemoveFromSocialList(uint32 friendGuid, bool ignore)
 
         CharacterDatabase.Execute(stmt);
     }
+#endif
 }
 
 void PlayerSocial::SetFriendNote(uint32 friendGuid, std::string note)
 {
+#ifndef CROSS
     PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friendGuid);
     if (itr == m_playerSocialMap.end())                     // not exist
         return;
@@ -138,6 +143,7 @@ void PlayerSocial::SetFriendNote(uint32 friendGuid, std::string note)
     CharacterDatabase.Execute(stmt);
 
     m_playerSocialMap[friendGuid].Note = note;
+#endif
 }
 
 void PlayerSocial::SendSocialList(Player * p_Player)
@@ -208,9 +214,12 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
     friendInfo.Class = 0;
 
     Player* pFriend = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(friendGUID, 0, HIGHGUID_PLAYER));
+#ifndef CROSS
     
     /// handle if friend is in interrealm bg
+#endif /* not CROSS */
     if (!pFriend)
+#ifndef CROSS
     {
         pFriend = ObjectAccessor::FindPlayerInOrOutOfWorld(friendGUID);
         if (!pFriend || !pFriend->GetSession()->GetInterRealmBG())
@@ -229,17 +238,29 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
         uint32 zoneId = pFriend->GetSession()->GetInterRealmBG();
         friendInfo.Area = zoneId > 1 ? zoneId : 0;
 
+#endif /* not CROSS */
         return;
+#ifndef CROSS
     }
+#endif /* not CROSS */
 
     uint32 team = player->GetTeam();
     AccountTypes security = player->GetSession()->GetSecurity();
     bool allowTwoSideWhoList = sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
     AccountTypes gmLevelInWhoList = AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST));
 
+#ifndef CROSS
     PlayerSocialMap::iterator itr = player->GetSocial()->m_playerSocialMap.find(friendGUID);
     if (itr != player->GetSocial()->m_playerSocialMap.end())
         friendInfo.Note = itr->second.Note;
+#else /* CROSS */
+    if (player->GetSocial())
+    {
+        PlayerSocialMap::iterator itr = player->GetSocial()->m_playerSocialMap.find(friendGUID);
+        if (itr != player->GetSocial()->m_playerSocialMap.end())
+            friendInfo.Note = itr->second.Note;
+    }
+#endif /* CROSS */
 
     // PLAYER see his team only and PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
     // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
@@ -346,6 +367,7 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
         }
     }
 }
+#ifndef CROSS
 
 PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid, uint32 account_id)
 {
@@ -378,3 +400,4 @@ PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid, uin
     return social;
 }
 
+#endif /* not CROSS */

@@ -55,10 +55,14 @@
 #include "BattlegroundWS.h"
 #include "BattlegroundTP.h"
 #include "BattlegroundDG.h"
+#ifndef CROSS
 #include "Guild.h"
+#endif /* not CROSS */
 #include "DB2Stores.h"
+#ifndef CROSS
 #include "../../Garrison/GarrisonMgr.hpp"
 #include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
+#endif /* not CROSS */
 
 //#include <Reporting/Reporter.hpp>
 
@@ -310,6 +314,10 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
 
     m_LastNotifyPosition.Relocate(-5000.0f, -5000.0f, -5000.0f, 0.0f);
     m_LastOutdoorPosition.Relocate(-5000.0f, -5000.0f, -5000.0f, 0.0f);
+#ifdef CROSS
+
+    m_MapSwitchDestination = -1;
+#endif /* CROSS */
 }
 
 ////////////////////////////////////////////////////////////
@@ -10998,6 +11006,11 @@ Unit* Unit::GetCharm() const
         if (Unit* pet = ObjectAccessor::GetUnit(*this, charm_guid))
             return pet;
 
+#ifdef CROSS
+        if (Unit* creature = sObjectAccessor->FindCreature(charm_guid))
+            return creature;
+
+#endif /* CROSS */
         const_cast<Unit*>(this)->SetGuidValue(UNIT_FIELD_CHARM, 0);
     }
 
@@ -15922,8 +15935,10 @@ void Unit::SetLevel(uint8 lvl)
     if (IsPlayer() && ToPlayer()->GetGroup())
         ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_LEVEL);
 
+#ifndef CROSS
     if (IsPlayer())
         sWorld->UpdateCharacterInfoLevel(ToPlayer()->GetGUIDLow(), lvl);
+#endif
 }
 
 void Unit::SetHealth(uint32 val)
@@ -16274,7 +16289,11 @@ void Unit::RemoveFromWorld()
     if (IsInWorld())
     {
         m_duringRemoveFromWorld = true;
+#ifndef CROSS
         if (IsVehicle())
+#else /* CROSS */
+        if (IsVehicle() && GetMapSwitchDestination() == -1)
+#endif /* CROSS */
             GetVehicleKit()->Uninstall();
 
         RemoveCharmAuras();
@@ -16285,7 +16304,12 @@ void Unit::RemoveFromWorld()
         RemoveAllDynObjects();
         RemoveAllAreasTrigger();
 
+#ifndef CROSS
         ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
+#else /* CROSS */
+        if (GetMapSwitchDestination() == -1)
+            ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
+#endif /* CROSS */
         UnsummonAllTotems();
         RemoveAllControlled();
 
@@ -16399,7 +16423,11 @@ void Unit::DeleteCharmInfo()
 }
 
 CharmInfo::CharmInfo(Unit* unit)
+#ifndef CROSS
 : m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_petnumber(0), m_barInit(false), m_CharmType(CharmType::CHARM_TYPE_CHARM),
+#else /* CROSS */
+: m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_petnumber(0), m_barInit(false), m_CharmType(CharmType::CHARM_TYPE_CHARM), m_RealmPetNumber(0),
+#endif /* CROSS */
   m_isCommandAttack(false), m_isAtStay(false), m_isFollowing(false), m_isReturning(false),
   m_stayX(0.0f), m_stayY(0.0f), m_stayZ(0.0f)
 {
@@ -16588,7 +16616,13 @@ void CharmInfo::ToggleCreatureAutocast(SpellInfo const* spellInfo, bool apply)
 
 void CharmInfo::SetPetNumber(uint32 petnumber, bool statwindow)
 {
+#ifndef CROSS
     m_petnumber = petnumber;
+#else /* CROSS */
+    m_RealmPetNumber = petnumber;
+
+    m_petnumber = sObjectMgr->GeneratePetNumber();
+#endif /* CROSS */
     if (statwindow)
         m_unit->SetUInt32Value(UNIT_FIELD_PET_NUMBER, m_petnumber);
     else
@@ -18299,7 +18333,15 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         return false;
     }
 
+#ifndef CROSS
     pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
+#else /* CROSS */
+    uint32 l_PetNumber = InterRealmClient::GetIRClient(pet->GetOwner())->GenerateLocalRealmLowGuid(HIGHGUID_PET_NUMBER);
+    if (l_PetNumber == 0)
+        return false;
+
+    pet->GetCharmInfo()->SetPetNumber(l_PetNumber, true);
+#endif /* CROSS */
     // this enables pet details window (Shift+P)
     pet->InitPetCreateSpells();
     //pet->InitLevelupSpellsForLevel();
@@ -18590,6 +18632,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         Player* l_Looter = l_KillerPlayer;
         if (Group* l_Group = l_KillerPlayer->GetGroup())
         {
+#ifndef CROSS
             if (p_KilledVictim->ToPlayer() && (l_KillerPlayer->GetMapId() == 1116 || l_KillerPlayer->GetMapId() == 1191)) ///< Gladiator's Sanctum
             {
                 if (p_KilledVictim->ToPlayer())
@@ -18612,7 +18655,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                     }
                 }
             }
-
+#endif
             l_Group->BroadcastPacket(&l_Data, l_Group->GetMemberGroup(l_KillerPlayer->GetGUID()));
 
             if (l_KilledCreature)
@@ -18639,6 +18682,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         {
             l_KillerPlayer->SendDirectMessage(&l_Data);
 
+#ifndef CROSS
             if (p_KilledVictim->ToPlayer() && (l_KillerPlayer->GetMapId() == 1116 || l_KillerPlayer->GetMapId() == 1191))
             {
                 if (l_KillerPlayer->GetDistance2d(p_KilledVictim) < 100.0f)
@@ -18650,7 +18694,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                     }
                 }
             }
-
+#endif
             if (l_KilledCreature)
             {
                 WorldPacket l_LootListPacket(SMSG_LOOT_LIST);
@@ -18766,8 +18810,14 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
     {
         ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE, 1, 0, 0, p_KilledVictim);
 
+#ifndef CROSS
         if (Guild* l_Guild = ToPlayer()->GetGuild())
             l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD, 1, 0, 0, p_KilledVictim, ToPlayer());
+#else /* CROSS */
+        /// @TODO: cross sync
+        //if (Guild* l_Guild = ToPlayer()->GetGuild())
+            //l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD, 1, 0, 0, p_KilledVictim, ToPlayer());
+#endif /* CROSS */
     }
 
     /// Proc auras on death - must be before aura/combat remove
@@ -19499,6 +19549,12 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
             case CHARM_TYPE_CHARM:
                 if (GetTypeId() == TYPEID_UNIT && charmer->getClass() == CLASS_WARLOCK)
                 {
+#ifdef CROSS
+                    uint32 l_PetNumber = InterRealmClient::GetIRClient(charmer->ToPlayer())->GenerateLocalRealmLowGuid(HIGHGUID_PET_NUMBER);
+                    if (!l_PetNumber)
+                        return false;
+
+#endif /* CROSS */
                     CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
                     if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
@@ -19507,7 +19563,11 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
                         // just to enable stat window
                         if (GetCharmInfo())
+#ifndef CROSS
                             GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
+#else /* CROSS */
+                            GetCharmInfo()->SetPetNumber(l_PetNumber, true);
+#endif /* CROSS */
 
                         // if charmed two demons the same session, the 2nd gets the 1st one's name
                         SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
@@ -19545,6 +19605,11 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         type = CHARM_TYPE_VEHICLE;
     else
         type = CHARM_TYPE_CHARM;
+#ifdef CROSS
+
+    if (type == CHARM_TYPE_VEHICLE && GetMapSwitchDestination() != -1)
+        return;
+#endif /* CROSS */
 
     CastStop();
     CombatStop(); // TODO: CombatStop(true) may cause crash (interrupt spells)

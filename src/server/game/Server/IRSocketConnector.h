@@ -1,3 +1,4 @@
+#ifndef CROSS
 #ifndef __IRSOCKETCONNECTOR_H_
 #define __IRSOCKETCONNECTOR_H_
 
@@ -43,3 +44,4 @@ protected:
 
 #endif /* __IRSOCKETCONNECTOR_H_ */
 /// @}
+#endif

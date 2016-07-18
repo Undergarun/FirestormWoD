@@ -57,5 +57,6 @@ class BattlegroundNA : public Battleground
         virtual void FillInitialWorldStates(ByteBuffer &d);
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* player);
+        uint32 GetZoneId() const { return BATTLEGROUND_NA_ZONEID; }
 };
 #endif

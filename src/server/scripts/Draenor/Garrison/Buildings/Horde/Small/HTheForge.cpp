@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "HTheForge.hpp"
 #include "HTheForge_Level1Data.hpp"
 #include "ScriptMgr.h"
@@ -305,3 +306,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

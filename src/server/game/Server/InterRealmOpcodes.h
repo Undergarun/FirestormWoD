@@ -2,7 +2,11 @@
 #define INTERREALM_OPCODES_H
 
 #include "WorldPacket.h"
+#ifndef CROSS
 #include "InterRealmSession.h"
+#else /* CROSS */
+#include "InterRealmClient.h"
+#endif /* CROSS */
 
 enum IROpcodes
 {
@@ -121,7 +125,7 @@ enum IROpcodes
     IR_CMSG_QUEST_STATUS_REWARDED_INFO              = 0x5D,
     IR_CMSG_DAILY_QUEST_STATUS_INFO                 = 0x5E,
     IR_CMSG_WEEKLY_QUEST_STATUS_INFO                = 0x5F,
-    IR_CMSG_SEASONAL_STATUS_INFO                    = 0x60,
+    IR_CMSG_SEASONAL_QUEST_STATUS_INFO              = 0x60,
     IR_CMSG_REPUTATION_INFO                         = 0x61,
     IR_CMSG_INVENTORY_INFO                          = 0x62,
 
@@ -130,6 +134,7 @@ enum IROpcodes
     IR_SMSG_ACHIEVEMENT_REWARD                      = 0x64,
 
     IR_CMSG_SUMMON_PLAYER                           = 0x65,
+
     IR_CMSG_APPEAR_REQUEST                          = 0x66,
     IR_SMSG_APPEAR_REQUEST_RESP                     = 0x67,
     IR_CMSG_APPEAR                                  = 0x68,
@@ -160,7 +165,11 @@ enum IROpcodes
     IR_NUM_MSG_TYPES,
 };
 
+#ifndef CROSS
 typedef void (InterRealmSession::*pIROpcodeHandler)(WorldPacket& recvPacket);
+#else /* CROSS */
+typedef void(InterRealmClient::*pIROpcodeHandler)(WorldPacket& recvPacket);
+#endif /* CROSS */
 
 struct IROpcodeHandler
 {
@@ -204,15 +213,19 @@ class IROpcodeTable
 
 extern IROpcodeTable IRopcodeTable;
 
-
 inline std::string GetIROpcodeNameForLogging(uint16 id)
 {
     uint32 opcode = uint32(id);
     std::ostringstream ss;
     ss << '[';
 
-    if (IROpcodeHandler const* handler = IRopcodeTable[uint32(id) & 0x7FFF])
-        ss << handler->name;
+    if (id < UNKNOWN_OPCODE)
+    {
+        if (IROpcodeHandler const* handler = IRopcodeTable[uint32(id) & 0x7FFF])
+            ss << handler->name;
+        else
+            ss << "UNKNOWN OPCODE";
+    }
     else
         ss << "UNKNOWN OPCODE";
 

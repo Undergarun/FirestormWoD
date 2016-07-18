@@ -51,7 +51,11 @@ class Channel;
 class Creature;
 class DynamicObject;
 class Group;
+#ifndef CROSS
 class Guild;
+#else /* CROSS */
+class InterRealmGuild;
+#endif /* CROSS */
 class OutdoorPvP;
 class Pet;
 class PlayerMenu;
@@ -832,8 +836,13 @@ struct EquipmentSet
 {
     EquipmentSet() : Guid(0), IgnoreMask(0), state(EQUIPMENT_SET_NEW)
     {
+#ifndef CROSS
         for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
             Items[i] = 0;
+#else /* CROSS */
+        memset(Items, 0, sizeof(Items));
+        memset(OriginalItems, 0, sizeof(OriginalItems));
+#endif /* CROSS */
     }
 
     uint64 Guid;
@@ -841,6 +850,9 @@ struct EquipmentSet
     std::string IconName;
     uint32 IgnoreMask;
     uint32 Items[EQUIPMENT_SLOT_END];
+#ifdef CROSS
+    uint32 OriginalItems[EQUIPMENT_SLOT_END];
+#endif /* CROSS */
     EquipmentSetUpdateState state;
 };
 
@@ -978,6 +990,7 @@ enum PlayedTimeIndex
 // used at player loading query list preparing, and later result selection
 enum PlayerLoginQueryIndex
 {
+#ifndef CROSS
     PLAYER_LOGIN_QUERY_LOADFROM                     = 0,
     PLAYER_LOGIN_QUERY_LOADGROUP                    = 1,
     PLAYER_LOGIN_QUERY_LOADBOUNDINSTANCES           = 2,
@@ -1042,6 +1055,54 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_STORE_PROFESSION             = 61,
     PLAYER_LOGIN_QUERY_GARRISON_MISSIONS_TAVERNDATA = 62,
     PLAYER_LOGIN_QUERY_GARRISON_WEEKLY_TAVERNDATA   = 63,
+#else /* CROSS */
+    PLAYER_LOGIN_QUERY_LOADFROM,
+    PLAYER_LOGIN_QUERY_LOADACTIONS,
+    PLAYER_LOGIN_QUERY_LOADAURAS,
+    PLAYER_LOGIN_QUERY_LOADAURAS_EFFECTS,
+    PLAYER_LOGIN_QUERY_LOGIN_LOADSPELLS,
+    PLAYER_LOGIN_QUERY_CHAR_LOADSPELLS,
+    PLAYER_LOGIN_QUERY_LOADQUESTSTATUS,
+    PLAYER_LOGIN_QUERY_LOADDAILYQUESTSTATUS,
+    PLAYER_LOGIN_QUERY_LOADREPUTATION,
+    PLAYER_LOGIN_QUERY_LOADINVENTORY,
+    PLAYER_LOGIN_QUERY_LOADHOMEBIND,
+    PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS,
+    PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES,
+    PLAYER_LOGIN_QUERY_LOADGUILD,
+    PLAYER_LOGIN_QUERY_LOADACHIEVEMENTS,
+    PLAYER_LOGIN_QUERY_LOADACCOUNTACHIEVEMENTS,
+    PLAYER_LOGIN_QUERY_LOADCRITERIAPROGRESS,
+    PLAYER_LOGIN_QUERY_LOADACCOUNTCRITERIAPROGRESS,
+    PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS,
+    PLAYER_LOGIN_QUERY_LOADARENADATA,
+    PLAYER_LOGIN_QUERY_LOADBGDATA,
+    PLAYER_LOGIN_QUERY_LOADGLYPHS,
+    PLAYER_LOGIN_QUERY_LOADTALENTS,
+    PLAYER_LOGIN_QUERY_LOADACCOUNTDATA,
+    PLAYER_LOGIN_QUERY_LOADSKILLS,
+    PLAYER_LOGIN_QUERY_LOADWEEKLYQUESTSTATUS,
+    PLAYER_LOGIN_QUERY_LOADRANDOMBG,
+    PLAYER_LOGIN_QUERY_LOADBANNED,
+    PLAYER_LOGIN_QUERY_LOADQUESTSTATUSREW,
+    PLAYER_LOGIN_QUERY_LOADINSTANCELOCKTIMES,
+    PLAYER_LOGIN_QUERY_LOADSEASONALQUESTSTATUS,
+    PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS,
+    PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE,
+    PLAYER_LOGIN_QUERY_LOADCURRENCY,
+    PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES,
+    PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY,
+    PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_PROJECTS,
+    PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_SITES,
+    PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS,
+    PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS,
+    PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS,
+    PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES,
+    PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS,
+    PLAYER_LOGIN_QUERY_BOSS_LOOTED,
+    PLAYER_LOGIN_QUERY_WORLD_STATES,
+    PLAYER_LOGIN_QUERY_STORE_PROFESSION,
+#endif /* CROSS */
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1057,14 +1118,15 @@ class PetQueryHolder : public SQLQueryHolder
 {
     private:
         uint32 m_guid;
+        uint32 m_RealmId;
         PreparedQueryResult m_petResult;
     public:
-        PetQueryHolder(uint32 guid, PreparedQueryResult p_QueryResult) : m_guid(guid), m_petResult(p_QueryResult) { }
+        PetQueryHolder(uint32 guid, uint32 realmId, PreparedQueryResult p_QueryResult) : m_guid(guid), m_RealmId(realmId), m_petResult(p_QueryResult) { }
         uint32 GetGuid() const { return m_guid; }
         bool Initialize();
 
         PreparedQueryResult GetPetResult() { return m_petResult; }
-        static PreparedStatement* GenerateFirstLoadStatement(uint32 p_PetEntry, uint32 p_PetNumber, uint32 p_OwnerID, bool p_CurrentPet, PetSlot p_SlotID);
+        static PreparedStatement* GenerateFirstLoadStatement(uint32 p_PetEntry, uint32 p_PetNumber, uint32 p_OwnerID, bool p_CurrentPet, PetSlot p_SlotID, uint32 p_RealmID);
 };
 
 enum PetLoginQueryIndex
@@ -1221,7 +1283,12 @@ struct BGData
         bgAfkReportedTimer(0),
         bgTeam(0),
         mountSpell(0),
+#ifndef CROSS
         m_LastActiveSpec(0)
+#else /* CROSS */
+        m_LastActiveSpec(0),
+        m_ReconnectBgTeam(0)
+#endif /* CROSS */
     {
         bgQueuesJoinedTime.clear();
         ClearTaxiPath();
@@ -1238,6 +1305,9 @@ struct BGData
     time_t             bgAfkReportedTimer;
 
     uint32 bgTeam;                          ///< What side the player will be added to
+#ifdef CROSS
+    uint32 m_ReconnectBgTeam;
+#endif /* CROSS */
 
     uint32 mountSpell;
     uint32 taxiPath[2];
@@ -1425,6 +1495,7 @@ enum StoreCallback
     MaxDelivery
 };
 
+#ifndef CROSS
 namespace InterRealmPlayerState
 {
     enum Type
@@ -1436,6 +1507,7 @@ namespace InterRealmPlayerState
 }
 
 typedef std::list<Channel*> JoinedChannelsList;
+#endif
 
 namespace InteractionStatus
 {
@@ -1471,10 +1543,10 @@ class Player : public Unit, public GridObject<Player>
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, bool forced_far = false);
-        bool TeleportTo(WorldLocation const &loc, uint32 options = 0, bool forced_far = false)
+        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
+        bool TeleportTo(WorldLocation const &loc, uint32 options = 0)
         {
-            return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options, forced_far);
+            return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
         }
         bool TeleportTo(uint32 p_MapID, Position const p_Pos, uint32 p_Options = 0)
         {
@@ -1488,6 +1560,7 @@ class Player : public Unit, public GridObject<Player>
 
             return TeleportTo(l_Loc->map_id, l_Loc->x, l_Loc->y, l_Loc->z, l_Loc->o, p_Options);
         }
+
         bool TeleportToBGEntryPoint(bool inter_realm = false);
         void SwitchToPhasedMap(uint32 p_MapID);
 
@@ -1533,6 +1606,7 @@ class Player : public Unit, public GridObject<Player>
         std::string afkMsg;
         std::string dndMsg;
 
+#ifndef CROSS
         MS::Garrison::Manager* GetGarrison() const;
         void CreateGarrison();
         bool IsInGarrison() const;
@@ -1541,6 +1615,7 @@ class Player : public Unit, public GridObject<Player>
         int32 GetShipyardMapID() const;
         void DeleteGarrison();
         uint32 GetPlotInstanceID() const;
+#endif
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
 
@@ -1620,7 +1695,7 @@ class Player : public Unit, public GridObject<Player>
         void TextEmote(const std::string& text);
         void Whisper(const std::string& text, const uint32 language, uint64 receiver);
         void WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver);
-        void BuildPlayerChat(WorldPacket* p_Data, Player* p_Target, uint8 p_MsgType, std::string const& p_Text, uint32 p_LangID, char const* p_AddonPrefix = nullptr, std::string const& p_Channel = "") const;
+        void BuildPlayerChat(WorldPacket* p_Data, uint64 p_Target, uint8 p_MsgType, std::string const& p_Text, uint32 p_LangID, char const* p_AddonPrefix = nullptr, std::string const& p_Channel = "") const;
 
         MS::Skill::Archaeology::Manager& GetArchaeologyMgr() { return m_archaeologyMgr; }
 
@@ -1918,7 +1993,9 @@ class Player : public Unit, public GridObject<Player>
         void SetMonthlyQuestStatus(uint32 quest_id);
         void SetSeasonalQuestStatus(uint32 quest_id);
         void ResetDailyQuestStatus();
+#ifndef CROSS
         void ResetDailyGarrisonDatas();
+#endif /* not CROSS */
         void ResetWeeklyQuestStatus();
         void ResetWeeklyGarrisonDatas();
         void ResetMonthlyQuestStatus();
@@ -2030,7 +2107,7 @@ class Player : public Unit, public GridObject<Player>
         /***                   SAVE SYSTEM                     ***/
         /*********************************************************/
 
-        void SaveToDB(bool create = false, std::shared_ptr<MS::Utilities::Callback> p_CallBack = nullptr);
+        void SaveToDB(bool create = false, MS::Utilities::CallBackPtr p_Callback = nullptr);
         void SaveInventoryAndGoldToDB(SQLTransaction& trans);                    // fast save function for item/money cheating preventing
         void SaveGoldToDB(SQLTransaction& trans);
 
@@ -2039,7 +2116,9 @@ class Player : public Unit, public GridObject<Player>
         static void Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair);
         static void SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, uint64 guid);
 
+#ifndef CROSS
         static void DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
+#endif
         static void DeleteOldCharacters();
         static void DeleteOldCharacters(uint32 keepDays);
 
@@ -2184,6 +2263,9 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetSpecializationId(uint8 spec) const { return _talentMgr->SpecInfo[spec].SpecializationId; }
         uint32 GetSpecializationId() const { return _talentMgr->SpecInfo[_talentMgr->ActiveSpec].SpecializationId; }
         uint32 GetRoleForGroup(uint32 specializationId = 0) const;
+#ifdef CROSS
+
+#endif /* CROSS */
         bool IsRangedDamageDealer(bool p_AllowHeal = true) const;
         bool IsMeleeDamageDealer(bool p_AllowTank = false) const;
 
@@ -2400,8 +2482,15 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetGuildLevel() { return GetUInt32Value(PLAYER_FIELD_GUILD_LEVEL); }
         void SetGuildIdInvited(uint32 GuildId) { m_GuildIdInvited = GuildId; }
         uint32 GetGuildId() const { return GetUInt32Value(OBJECT_FIELD_DATA); /* return only lower part */ }
+
+#ifndef CROSS
         Guild* GetGuild();
-        static uint32 GetGuildIdFromDB(uint64 guid);
+#else
+        uint64 GetGuildGUID() const { return GetGuidValue(OBJECT_FIELD_DATA); }
+        InterRealmGuild* GetGuild();
+#endif
+
+        static uint32 GetGuildIdFromDB(uint64 guid, uint32 realmId);
         static uint8 GetRankFromDB(uint64 guid);
         int GetGuildIdInvited() { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(uint64 guid, uint32 type);
@@ -2418,6 +2507,18 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetSeasonGames(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_SeasonGames[slot]; }
         uint32 GetArenaMatchMakerRating(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_ArenaMatchMakerRating[slot]; }
 
+#ifdef CROSS
+        void InitArenaPersonalRating(uint8 slot, uint32 value) { ASSERT(slot < MAX_PVP_SLOT); m_ArenaPersonalRating[slot] = value; }
+        void InitBestRatingOfWeek(uint8 slot, uint32 value) { ASSERT(slot < MAX_PVP_SLOT); m_BestRatingOfWeek[slot] = value; }
+        void InitBestRatingOfSeason(uint8 slot, uint32 value) { ASSERT(slot < MAX_PVP_SLOT); m_BestRatingOfSeason[slot] = value; }
+        void InitWeekWins(uint8 slot, uint32 value) { ASSERT(slot < MAX_PVP_SLOT); m_WeekWins[slot] = value; }
+        void InitPrevWeekWins(uint8 slot, uint32 value) { ASSERT(slot < MAX_PVP_SLOT); m_PrevWeekWins[slot] = value; }
+        void InitSeasonWins(uint8 slot, uint32 value) { ASSERT(slot < MAX_PVP_SLOT); m_SeasonWins[slot] = value; }
+        void InitWeekGames(uint8 slot, uint32 value) { ASSERT(slot < MAX_PVP_SLOT); m_WeekGames[slot] = value; }
+        void InitSeasonGames(uint8 slot, uint32 value) { ASSERT(slot < MAX_PVP_SLOT); m_SeasonGames[slot] = value; }
+        void InitArenaMatchMakerRating(uint8 slot, uint32 value) { ASSERT(slot < MAX_PVP_SLOT); m_ArenaMatchMakerRating[slot] = value; }
+
+#endif /* CROSS */
         uint32 GetMaxRating() const
         {
             uint32 max_value = 0;
@@ -2847,7 +2948,7 @@ class Player : public Unit, public GridObject<Player>
         bool InBattlegroundQueue() const
         {
             for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
-                if (m_bgBattlegroundQueueID[i].BgType <= MS::Battlegrounds::BattlegroundType::DeepwindGorge)
+                if (m_bgBattlegroundQueueID[i].BgType != MS::Battlegrounds::BattlegroundType::None)
                     return true;
             return false;
         }
@@ -2944,6 +3045,9 @@ class Player : public Unit, public GridObject<Player>
 
         /// Return faction team (see enum @Team)
         uint32 GetBGTeam() const { return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam(); }
+#ifdef CROSS
+        uint32 GetReconnectBGTeam() const { return m_bgData.m_ReconnectBgTeam; }
+#endif /* CROSS */
 
         uint8 GetBGLastActiveSpec() const { return m_bgData.m_LastActiveSpec; }
         void SaveBGLastSpecialization() { m_bgData.m_LastActiveSpec = GetActiveSpec(); }
@@ -2961,7 +3065,7 @@ class Player : public Unit, public GridObject<Player>
         bool CanCaptureTowerPoint();
 
         bool GetRandomWinner() { return m_IsBGRandomWinner; }
-        void SetRandomWinner(bool isWinner);
+        void SetRandomWinner(bool p_IsWinner, bool p_DatabaseUpdate = true);
 
         /*********************************************************/
         /***               OUTDOOR PVP SYSTEM                  ***/
@@ -3257,11 +3361,13 @@ class Player : public Unit, public GridObject<Player>
         bool HasTitle(CharTitlesEntry const* title) { return HasTitle(title->MaskID); }
         void SetTitle(CharTitlesEntry const* title, bool lost = false);
 
+#ifndef CROSS
         /// For somes reasons, sometimes players didn't get achievement rewards when achievement is validate
         /// We use that function to ensure the player get rewards
         /// ONLY SUPPORT MOUNT & PETS ITEMS
         void RewardCompletedAchievementsIfNeeded();
 
+#endif /* not CROSS */
         //bool isActiveObject() const { return true; }
         bool canSeeSpellClickOn(Creature const* creature) const;
 
@@ -3608,6 +3714,7 @@ class Player : public Unit, public GridObject<Player>
         void FinishSummon() { m_Summoned = false; }
         void BeginSummon() { m_Summoned = true; }
 
+#ifndef CROSS
         JoinedChannelsList const& GetJoinnedChannelList() const { return m_channels; }
 
         uint32 GetInterRealmZoneId() const { return m_irZoneId; }
@@ -3619,6 +3726,9 @@ class Player : public Unit, public GridObject<Player>
 
         InterRealmPlayerState::Type GetInterRealmPlayerState() const { return m_InterRealmPlayerState; }
         void SetInterRealmPlayerState(InterRealmPlayerState::Type p_State) { m_InterRealmPlayerState = p_State; }
+#else /* CROSS */
+        InterRealmDatabasePool* GetRealmDatabase();
+#endif /* CROSS */
 
         /// Store callback
         bool IsStoreDeliverySaved() const { return m_StoreDeliverySave; }
@@ -3674,7 +3784,35 @@ class Player : public Unit, public GridObject<Player>
 
         BossLooted m_BossLooted;
 
+#ifndef CROSS
         bool m_VoidStorageLoaded;
+#else /* CROSS */
+    public:
+        /// InterRealm
+ 
+        void SetForceCleanupChannels(bool val) { m_forceCleanupChannels = val; }
+        bool IsNeedCleanupChannels() const { return m_forceCleanupChannels; }
+ 
+        bool IsNeedRemove() const { return m_NeedRemove; }
+        void SetNeedRemove(bool value) { m_NeedRemove = value; }
+        void RemovePlayer();
+        void SaveArenaData();
+        void SaveCrossServerArenaData();
+
+        bool PlayOnCross() const { return m_PlayOnCross; }
+        void SetPlayOnCross(bool p_Play) { m_PlayOnCross = p_Play; }
+
+        void AddItemToGuidSync(uint64 p_Guid) { m_ItemToGuidSync.push(p_Guid); }
+
+     private:
+         /// InterRealm
+         bool m_forceCleanupChannels;
+         bool m_NeedRemove;
+         bool m_PlayOnCross;
+         /// ============
+
+         bool m_VoidStorageLoaded;
+#endif /* CROSS */
 
     private:
         InteractionStatusMap            m_InteractionStatus;            ///< InteractionStatus
@@ -3796,8 +3934,10 @@ class Player : public Unit, public GridObject<Player>
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);
         void _SaveCharacterWorldStates(SQLTransaction& p_Transaction);
+#ifndef CROSS
         void _SaveCharacterGarrisonDailyTavernDatas(SQLTransaction& p_Transaction);
         void _SaveCharacterGarrisonWeeklyTavernDatas(SQLTransaction& p_Transaction);
+#endif /* not CROSS */
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -3905,6 +4045,9 @@ class Player : public Unit, public GridObject<Player>
 
         WorldSession* m_session;
 
+#ifdef CROSS
+        typedef std::list<Channel*> JoinedChannelsList;
+#endif /* CROSS */
         JoinedChannelsList m_channels;
 
         uint8 m_cinematic;
@@ -4123,6 +4266,10 @@ class Player : public Unit, public GridObject<Player>
 
         CUFProfiles m_cufProfiles;
 
+#ifdef CROSS
+        /// InterRealm
+        std::queue<uint64> m_ItemToGuidSync;      ///< Every item without local realm guid
+#endif /* CROSS */
         uint32 m_BonusQuestTimer;
 
         /*********************************************************/
@@ -4130,11 +4277,12 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
         SceneObject* m_LastPlayedScene;
 
+#ifndef CROSS
         uint32 m_irZoneId;
         uint32 m_irAreaId;
         uint32 m_irMapId;
-
         InterRealmPlayerState::Type m_InterRealmPlayerState;
+#endif
 
         uint32 m_PvPCombatTimer;
         bool m_pvpCombat;

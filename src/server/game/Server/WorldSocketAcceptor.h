@@ -11,6 +11,7 @@
  *  \file WorldSocketMgr.h
  */
 
+#ifndef CROSS
 #ifndef __WORLDSOCKETACCEPTOR_H_
 #define __WORLDSOCKETACCEPTOR_H_
 
@@ -56,3 +57,4 @@ protected:
 
 #endif /* __WORLDSOCKETACCEPTOR_H_ */
 /// @}
+#endif

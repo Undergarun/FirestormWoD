@@ -112,7 +112,7 @@ class Pet : public Guardian
         bool isBeingLoaded() const { return m_loading;}
         void SavePetToDB(PetSlot mode, bool stampeded = false);
         void Remove(PetSlot mode, bool returnreagent = false, bool stampeded = false);
-        static void DeleteFromDB(uint32 guidlow);
+        static void DeleteFromDB(uint32 guidlow, uint32 realmid);
 
         void setDeathState(DeathState s);                   ///< Overwrite virtual Creature::setDeathState and Unit::setDeathState
         void Update(uint32 diff);                           ///< Overwrite virtual Creature::Update and Unit::Update

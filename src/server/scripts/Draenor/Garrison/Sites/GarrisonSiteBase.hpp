@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_SITE_BASE_HPP_GARRISON
 # define GARRISON_SITE_BASE_HPP_GARRISON
 
@@ -73,3 +74,4 @@ namespace MS { namespace Garrison { namespace Sites
 }   ///< namespace MS
 
 #endif  ///< GARRISON_SITE_BASE_HPP_GARRISON
+#endif

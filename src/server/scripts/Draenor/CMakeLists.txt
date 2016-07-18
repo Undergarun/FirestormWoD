@@ -4,7 +4,9 @@
 #  All Rights Reserved.
 #
 
+#ifndef CROSS
 file(GLOB_RECURSE sources_Garrison Draenor/Garrison/*.hpp Draenor/Garrison/*.cpp Draenor/Garrison/*.hxx)
+#endif /* not CROSS */
 file(GLOB_RECURSE sources_Highmaul Draenor/Highmaul/*.hpp Draenor/Highmaul/*.cpp Draenor/Highmaul/*.hxx)
 file(GLOB_RECURSE sources_ShadowmoonBurialGrounds Draenor/ShadowmoonBurialGrounds/*.hpp Draenor/ShadowmoonBurialGrounds/*.cpp Draenor/ShadowmoonBurialGrounds/*.hxx) 
 file(GLOB_RECURSE sources_IronDocks Draenor/IronDocks/*.hpp Draenor/IronDocks/*.cpp Draenor/IronDocks/*.hxx)
@@ -19,7 +21,9 @@ file(GLOB_RECURSE sources_GrimrailDepot Draenor/GrimrailDepot/*.hpp Draenor/Grim
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+#ifndef CROSS
   ${sources_Garrison}
+#endif /* not CROSS */
   ${sources_Highmaul}
   ${sources_IronDocks}
   ${sources_Auchindoun}

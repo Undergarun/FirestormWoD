@@ -53,5 +53,6 @@ class BattlegroundRL : public Battleground
         bool SetupBattleground();
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* player);
+        uint32 GetZoneId() const { return BATTLEGROUND_RL_ZONEID; }
 };
 #endif

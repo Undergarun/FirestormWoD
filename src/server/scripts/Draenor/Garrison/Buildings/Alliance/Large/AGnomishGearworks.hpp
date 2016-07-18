@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_GNOMISH_GEARWORKS_ALLIANCE_HPP_GARRISON
 #define GARRISON_GNOMISH_GEARWORKS_ALLIANCE_HPP_GARRISON
 
@@ -71,3 +72,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_GNOMISH_GEARWORKS_ALLIANCE_HPP_GARRISON
+#endif

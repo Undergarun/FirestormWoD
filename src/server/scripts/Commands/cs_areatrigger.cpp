@@ -9,7 +9,9 @@
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "MapManager.h"
+#ifndef CROSS
 #include "TicketMgr.h"
+#endif /* not CROSS */
 #include "Chat.h"
 
 class at_commandscript: public CommandScript

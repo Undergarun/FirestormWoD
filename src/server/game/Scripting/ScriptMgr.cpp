@@ -21,7 +21,9 @@
 #include "GossipDef.h"
 #include "CreatureAIImpl.h"
 #include "SpellAuraEffects.h"
+#ifndef CROSS
 #include "BattlepayMgr.h"
+#endif /* not CROSS */
 
 void DoScriptText(int32 p_ItemTextEntry, WorldObject* p_Source, Unit* p_Target)
 {
@@ -295,7 +297,9 @@ void ScriptMgr::Unload()
     ScriptRegistry<OutdoorPvPScript>::Clear();
     ScriptRegistry<CommandScript>::Clear();
     ScriptRegistry<WeatherScript>::Clear();
+#ifndef CROSS
     ScriptRegistry<AuctionHouseScript>::Clear();
+#endif /* not CROSS */
     ScriptRegistry<ConditionScript>::Clear();
     ScriptRegistry<VehicleScript>::Clear();
     ScriptRegistry<DynamicObjectScript>::Clear();
@@ -1546,6 +1550,7 @@ void ScriptMgr::OnDynamicObjectUpdate(DynamicObject* p_Object, uint32 p_Diff)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 /// Called when an auction is added to an auction house.
 /// @p_AuctionHouseObject : Auction House Object Instance
 /// @p_Entry              : Auction to add
@@ -1593,6 +1598,7 @@ void ScriptMgr::OnAuctionExpire(AuctionHouseObject* p_AuctionHouseObject, Auctio
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+#endif /* not CROSS */
 /// Called after calculating honor.
 /// @p_Honor      : Dest honor
 /// @p_Level      : Player level
@@ -1881,7 +1887,11 @@ void ScriptMgr::OnPlayerChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std
 /// @p_Lang    : Message language (WoW)
 /// @p_Message : Message content
 /// @p_Guild   : Message guild target
+#ifndef CROSS
 void ScriptMgr::OnPlayerChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Guild* p_Guild)
+#else /* CROSS */
+void ScriptMgr::OnPlayerChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, InterRealmGuild * p_Guild)
+#endif /* CROSS */
 {
     FOREACH_SCRIPT(PlayerScript)->OnChat(p_Player, p_Type, p_Lang, p_Message, p_Guild);
 }
@@ -2446,6 +2456,7 @@ bool ScriptMgr::EvalPlayerConditionScript(uint32 p_ConditionID, PlayerConditionE
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 void ScriptMgr::RegisterBattlePayProductScript(std::string p_ScriptName, BattlePayProductScript* p_Script)
 {
     if (m_BattlePayProductScripts.find(p_ScriptName) != m_BattlePayProductScripts.end())
@@ -2483,6 +2494,7 @@ std::string ScriptMgr::BattlePayGetCustomData(Battlepay::Product const& p_Produc
     BattlePayProductScript* l_Script = l_Itr->second;
     return l_Script->GetCustomData(p_Product);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 /// EncounterScripts
@@ -2629,6 +2641,7 @@ WeatherScript::WeatherScript(const char* p_Name)
 
 /// Constructor
 /// @p_Name : Script p_Name
+#ifndef CROSS
 AuctionHouseScript::AuctionHouseScript(const char* p_Name)
     : ScriptObjectImpl(p_Name)
 {
@@ -2637,6 +2650,7 @@ AuctionHouseScript::AuctionHouseScript(const char* p_Name)
 
 /// Constructor
 /// @p_Name : Script p_Name
+#endif /* not CROSS */
 ConditionScript::ConditionScript(const char* p_Name)
     : ScriptObjectImpl(p_Name)
 {
@@ -2715,11 +2729,13 @@ PlayerConditionScript::PlayerConditionScript(uint32 p_ID)
     sScriptMgr->RegisterPlayerConditionScript(p_ID, this);
 }
 
+#ifndef CROSS
 BattlePayProductScript::BattlePayProductScript(std::string p_ScriptName)
     : ScriptObjectImpl(p_ScriptName.c_str())
 {
     sScriptMgr->RegisterBattlePayProductScript(p_ScriptName, this);
 }
+#endif /* not CROSS */
 
 EncounterScript::EncounterScript(char const* p_Name) : ScriptObjectImpl(p_Name)
 {
@@ -2746,7 +2762,9 @@ template class ScriptRegistry<BattlegroundScript>;
 template class ScriptRegistry<OutdoorPvPScript>;
 template class ScriptRegistry<CommandScript>;
 template class ScriptRegistry<WeatherScript>;
+#ifndef CROSS
 template class ScriptRegistry<AuctionHouseScript>;
+#endif /* not CROSS */
 template class ScriptRegistry<ConditionScript>;
 template class ScriptRegistry<VehicleScript>;
 template class ScriptRegistry<DynamicObjectScript>;

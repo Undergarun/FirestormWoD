@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "ABarracks.hpp"
 #include "ABarracks_Level1Data.hpp"
 #include "ScriptMgr.h"
@@ -129,3 +130,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

@@ -189,6 +189,7 @@ class DynamicObjectScript : public ScriptObjectImpl<false>, public UpdatableScri
 
 };
 
+#ifndef CROSS
 /// Auction House Script Interface
 class AuctionHouseScript : public ScriptObjectImpl<false>
 {
@@ -234,4 +235,5 @@ class AuctionHouseScript : public ScriptObjectImpl<false>
 
 };
 
+#endif /* not CROSS */
 #endif  ///< SCRIPTING_INTERFACES_MISC_HPP_INCLUDED

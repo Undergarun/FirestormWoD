@@ -243,6 +243,8 @@ void WardenMac::HandleData(ByteBuffer &buff)
         sLog->outDebug(LOG_FILTER_WARDEN, "Handle data failed: MD5 hash is wrong!");
         //found = true;
     }
+#ifndef CROSS
 
     _session->KickPlayer();
+#endif /* not CROSS */
 }

@@ -588,12 +588,14 @@ enum CharacterDatabaseStatements
     CHAR_UPD_PET_DATA_OWNER,
     CHAR_UPD_PET_DATA_OWNER_ID,
 
+#ifndef CROSS
     CHAR_INS_BLACKMARKET_AUCTION,
     CHAR_DEL_BLACKMARKET_AUCTION,
     CHAR_UPD_BLACKMARKET_AUCTION,
     CHAR_SEL_BLACKMARKET_AUCTIONS,
     CHAR_SEL_BLACKMARKET_EXPIRED_AUCTIONS,
 
+#endif /* not CROSS */
     //////////////////////////////////////////////////////////////////////////
     /// Garrison
     //////////////////////////////////////////////////////////////////////////

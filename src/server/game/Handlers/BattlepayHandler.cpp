@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "WorldSession.h"
@@ -277,3 +278,4 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
         sBattlepayMgr->ProcessDelivery(l_Session, l_Purchase);
     });
 }
+#endif

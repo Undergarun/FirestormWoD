@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_TAILORING_EMPORIUM_LEVEL_1_DATA_HORDE_HPP_GARRISON
 #define GARRISON_TAILORING_EMPORIUM_LEVEL_1_DATA_HORDE_HPP_GARRISON
 
@@ -55,3 +56,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_TAILORING_EMPORIUM_LEVEL_1_DATA_HORDE_HPP_GARRISON
+#endif

@@ -13,6 +13,7 @@ Comment: All ticket related commands
 Category: commandscripts
 EndScriptData */
 
+#ifndef CROSS
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "AccountMgr.h"
@@ -734,4 +735,5 @@ void AddSC_ticket_commandscript()
 {
     new ticket_commandscript();
 }
+#endif
 #endif

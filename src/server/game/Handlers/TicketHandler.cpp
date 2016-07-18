@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "Language.h"
 #include "WorldPacket.h"
 #include "Common.h"
@@ -146,3 +147,4 @@ void WorldSession::SendTicketStatusUpdate(uint8 p_Response)
 
     }
 }
+#endif

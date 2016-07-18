@@ -1997,6 +1997,7 @@ enum IRPacketProcessing
      PROCESS_DISTANT_IF_NEED = 1,                            // Send to interrealm if needed (player is on bg)
  };
 
+
 class WorldPacket;
 class WorldSession;
 
@@ -2040,6 +2041,7 @@ inline std::string GetOpcodeNameForLogging(uint16 id, int p_Direction)
     ss << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
     return ss.str();
 }
+
 
 inline bool CanBeSentDuringInterRealm(uint16 id)
 {

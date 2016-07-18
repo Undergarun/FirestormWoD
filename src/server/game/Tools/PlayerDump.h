@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef _PLAYER_DUMP_H
 #define _PLAYER_DUMP_H
 
@@ -100,5 +101,6 @@ public:
 #define sInterRealmTransfertReader ACE_Singleton<PlayerDumpReader, ACE_Thread_Mutex>::instance()
 #define sInterRealmTransfertWriter ACE_Singleton<PlayerDumpWriter, ACE_Thread_Mutex>::instance()
 
+#endif
 #endif
 

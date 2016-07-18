@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_ALLIANCE_LEVEL_2_HPP_GARRISON
+#ifndef CROSS
 #define GARRISON_ALLIANCE_LEVEL_2_HPP_GARRISON
 
 #include "../GarrisonScriptData.hpp"
@@ -113,3 +114,4 @@ namespace MS { namespace Garrison { namespace Sites
 }   ///< namespace MS
 
 #endif  ///< GARRISON_ALLIANCE_LEVEL_2_HPP_GARRISON
+#endif

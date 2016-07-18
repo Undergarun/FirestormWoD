@@ -26,7 +26,9 @@
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "SpellInfo.h"
+#ifndef CROSS
 #include "Guild.h"
+#endif /* not CROSS */
 
 #include "BattlegroundPacketFactory.hpp"
 
@@ -472,14 +474,14 @@ void WorldSession::SendBindPoint(Creature* npc)
     uint32 bindspell = 3286;
 
     // update sql homebind
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_HOMEBIND);
+    PreparedStatement* stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_HOMEBIND);
     stmt->setUInt16(0, m_Player->GetMapId());
     stmt->setUInt16(1, m_Player->GetAreaId());
     stmt->setFloat (2, m_Player->GetPositionX());
     stmt->setFloat (3, m_Player->GetPositionY());
     stmt->setFloat (4, m_Player->GetPositionZ());
     stmt->setUInt32(5, m_Player->GetGUIDLow());
-    CharacterDatabase.Execute(stmt);
+    SessionRealmDatabase.Execute(stmt);
 
     m_Player->m_homebindMapId = m_Player->GetMapId();
     m_Player->m_homebindAreaId = m_Player->GetAreaId();
@@ -518,14 +520,14 @@ void WorldSession::SendStablePet(uint64 guid)
     if (m_Player == nullptr)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS_DETAIL);
+    PreparedStatement* stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS_DETAIL);
 
-    stmt->setUInt32(0, m_Player->GetGUIDLow());
+    stmt->setUInt32(0, m_Player->GetRealGUIDLow());
     stmt->setUInt8(1, PET_SLOT_HUNTER_FIRST);
     stmt->setUInt8(2, PET_SLOT_STABLE_LAST);
 
     _sendStabledPetCallback.SetParam(guid);
-    _sendStabledPetCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
+    _sendStabledPetCallback.SetFutureResult(SessionRealmDatabase.AsyncQuery(stmt));
 }
 
 void WorldSession::SendStablePetCallback(PreparedQueryResult p_QueryResult, uint64 p_Guid)
@@ -611,20 +613,20 @@ void WorldSession::HandleStableSetPetSlot(WorldPacket& p_RecvData)
     Pet* pet = m_Player->GetPet();
 
     //If we move the pet already summoned...
-    if (pet && pet->GetCharmInfo() && pet->GetCharmInfo()->GetPetNumber() == l_PetNumber)
+    if (pet && pet->GetCharmInfo() && pet->GetCharmInfo()->GetRealmPetNumber() == l_PetNumber)
         m_Player->RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, false, pet->m_Stampeded);
 
     //If we move to the pet already summoned...
     if (pet && GetPlayer()->m_currentPetSlot == l_NewSlot)
         m_Player->RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, false, pet->m_Stampeded);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOT_BY_ID);
+    PreparedStatement* stmt = SessionRealmDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOT_BY_ID);
 
-    stmt->setUInt32(0, m_Player->GetGUIDLow());
+    stmt->setUInt32(0, m_Player->GetRealGUIDLow());
     stmt->setUInt32(1, l_PetNumber);
 
     _setPetSlotCallback.SetParam(l_NewSlot);
-    _setPetSlotCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
+    _setPetSlotCallback.SetFutureResult(SessionRealmDatabase.AsyncQuery(stmt));
 }
 
 void WorldSession::HandleStableSetPetSlotCallback(PreparedQueryResult p_Result, uint32 l_NewSlot)
@@ -661,28 +663,28 @@ void WorldSession::HandleStableSetPetSlotCallback(PreparedQueryResult p_Result, 
         return;
     }
 
-    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+    SQLTransaction l_Transaction = SessionRealmDatabase.BeginTransaction();
 
-    auto l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER);
+    auto l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER);
     {
         l_Statement->setUInt32(0, l_NewSlot);
         l_Statement->setUInt32(1, l_OldSlot);
-        l_Statement->setUInt32(2, GetPlayer()->GetGUIDLow());
+        l_Statement->setUInt32(2, GetPlayer()->GetRealGUIDLow());
 
         l_Transaction->Append(l_Statement);
     }
 
-    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER_ID);
+    l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER_ID);
     {
         l_Statement->setUInt32(0, l_OldSlot);
         l_Statement->setUInt32(1, l_NewSlot);
-        l_Statement->setUInt32(2, GetPlayer()->GetGUIDLow());
+        l_Statement->setUInt32(2, GetPlayer()->GetRealGUIDLow());
         l_Statement->setUInt32(3, l_PetNumber);
 
         l_Transaction->Append(l_Statement);
     }
 
-    CharacterDatabase.CommitTransaction(l_Transaction);
+    SessionRealmDatabase.CommitTransaction(l_Transaction);
 
     if (l_NewSlot != PET_SLOT_OTHER_PET)
     {

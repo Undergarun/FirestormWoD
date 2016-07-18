@@ -26,6 +26,9 @@
 #include "LFGMgr.h"
 #include "UpdateFieldFlags.h"
 #include "LFGListMgr.h"
+#ifdef CROSS
+#include "InterRealmClient.h"
+#endif /* CROSS */
 
 Roll::Roll(uint64 _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
     itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -134,6 +137,7 @@ bool Group::Create(Player* leader)
 
         sGroupMgr->RegisterGroupDbStoreId(m_dbStoreId, this);
 
+#ifndef CROSS
         // Store group in database
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GROUP);
 
@@ -158,7 +162,7 @@ bool Group::Create(Player* leader)
         stmt->setUInt32(index++, uint8(m_LegacyRaidDifficuty));
 
         CharacterDatabase.Execute(stmt);
-
+#endif
 
         ASSERT(AddMember(leader)); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
 
@@ -214,6 +218,7 @@ void Group::LoadGroupFromDB(Field* fields)
     m_LegacyRaidDifficuty = Player::CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[18].GetUInt8()));
 }
 
+#ifndef CROSS
 void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles, uint8 playerClass, uint32 specId)
 {
     MemberSlot member;
@@ -247,6 +252,7 @@ void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, 
     }
 }
 
+#endif /* not CROSS */
 void Group::ChangeFlagEveryoneAssistant(bool apply)
 {
     if (apply)
@@ -261,6 +267,8 @@ void Group::ConvertToLFG()
 {
     m_PartyFlags = PartyFlags(m_PartyFlags | PARTY_FLAG_LFG | PARTY_FLAG_UNK1);
     m_lootMethod = NEED_BEFORE_GREED;
+
+#ifndef CROSS
     if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
@@ -270,6 +278,7 @@ void Group::ConvertToLFG()
 
         CharacterDatabase.Execute(stmt);
     }
+#endif
 
     SendUpdate();
 }
@@ -280,6 +289,7 @@ void Group::ConvertToRaid()
 
     _initRaidSubGroupsCounter();
 
+#ifndef CROSS
     if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
@@ -289,6 +299,7 @@ void Group::ConvertToRaid()
 
         CharacterDatabase.Execute(stmt);
     }
+#endif
 
     SendUpdate();
 
@@ -311,6 +322,7 @@ void Group::ConvertToGroup()
         m_subGroupsCounts = NULL;
     }
 
+#ifndef CROSS
     if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
@@ -320,6 +332,7 @@ void Group::ConvertToGroup()
 
         CharacterDatabase.Execute(stmt);
     }
+#endif
 
     SendUpdate();
 
@@ -468,6 +481,7 @@ bool Group::AddMember(Player* p_Player)
             m_targetIcons[i] = 0;
     }
 
+#ifndef CROSS
     // insert into the table if we're not a battleground group
     if (!isBGGroup() && !isBFGroup())
     {
@@ -483,6 +497,7 @@ bool Group::AddMember(Player* p_Player)
 
         CharacterDatabase.Execute(l_Statement);
     }
+#endif
 
     SendUpdate();
     sScriptMgr->OnGroupAddMember(this, p_Player->GetGUID());
@@ -634,6 +649,9 @@ bool Group::RemoveMember(uint64 p_Guid, RemoveMethod const& p_Method /*= GROUP_R
 
             if (p_Method == GROUP_REMOVEMETHOD_KICK)
             {
+#ifdef CROSS
+
+#endif /* CROSS */
                 l_Data.Initialize(SMSG_GROUP_UNINVITE, 0);
                 l_Player->GetSession()->SendPacket(&l_Data);
             }
@@ -670,12 +688,16 @@ bool Group::RemoveMember(uint64 p_Guid, RemoveMethod const& p_Method /*= GROUP_R
 
         /// Remove player from group in DB
         if (!isBGGroup() && !isBFGroup())
+#ifndef CROSS
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_MEMBER);
             stmt->setUInt32(0, GUID_LOPART(p_Guid));
             CharacterDatabase.Execute(stmt);
+#endif /* not CROSS */
             DelinkMember(p_Guid);
+#ifndef CROSS
         }
+#endif /* not CROSS */
 
         /// Reevaluate group enchanter if the leaving player had enchanting skill or the player is offline
         if ((l_Player && l_Player->GetSkillValue(SKILL_ENCHANTING)) || !l_Player)
@@ -773,8 +795,9 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
 
     if (!isBGGroup() && !isBFGroup())
     {
+#ifndef CROSS
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
+#endif
         // Remove the groups permanent instance bindings
         for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
         {
@@ -784,11 +807,12 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
                 // forcing a new instance with another leader requires group disbanding (confirmed on retail)
                 if (itr->second.perm && !sMapMgr->FindMap(itr->first, itr->second.save->GetInstanceId()))
                 {
+#ifndef CROSS
                     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_PERM_BINDING);
                     stmt->setUInt32(0, m_dbStoreId);
                     stmt->setUInt32(1, itr->second.save->GetInstanceId());
                     trans->Append(stmt);
-
+#endif
                     itr->second.save->RemoveGroup(this);
                     m_boundInstances[i].erase(itr++);
                 }
@@ -799,7 +823,7 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
 
         // Copy the permanent binds from the new leader to the group
         Player::ConvertInstancesToGroup(newLeader, this, true);
-
+#ifndef CROSS
         // Update the group leader
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_LEADER);
 
@@ -809,6 +833,7 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
         trans->Append(stmt);
 
         CharacterDatabase.CommitTransaction(trans);
+#endif
     }
 
     Player* oldLeader = ObjectAccessor::FindPlayer(m_leaderGuid);
@@ -919,6 +944,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
     if (!isBGGroup() && !isBFGroup())
     {
+#ifndef CROSS
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP);
@@ -930,14 +956,17 @@ void Group::Disband(bool hideDestroy /* = false */)
         trans->Append(stmt);
 
         CharacterDatabase.CommitTransaction(trans);
+#endif
 
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, false, false, NULL);
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, true, false, NULL);
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, true, true, NULL);
 
+#ifndef CROSS
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
         stmt->setUInt32(0, m_dbStoreId);
         CharacterDatabase.Execute(stmt);
+#endif
 
         sGroupMgr->FreeGroupDbStoreId(this);
     }
@@ -1890,6 +1919,11 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     }
 
     player->GetSession()->SendPacket(&l_Data);
+#ifdef CROSS
+
+    if (InterRealmClient* l_InterRealm = player->GetSession()->GetInterRealmClient())
+        l_InterRealm->SendCrossPartyInfo(player);
+#endif /* CROSS */
 }
 
 void Group::UpdatePlayerOutOfRange(Player* player)
@@ -1982,6 +2016,7 @@ bool Group::_setMembersGroup(uint64 guid, uint8 group)
 
     SubGroupCounterIncrease(group);
 
+#ifndef CROSS
     if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_SUBGROUP);
@@ -1991,6 +2026,7 @@ bool Group::_setMembersGroup(uint64 guid, uint8 group)
 
         CharacterDatabase.Execute(stmt);
     }
+#endif
 
     return true;
 }
@@ -2032,6 +2068,7 @@ void Group::ChangeMembersGroup(uint64 guid, uint8 group)
     // ..and decrease the counter of the previous one
     SubGroupCounterDecrease(prevSubGroup);
 
+#ifndef CROSS
     // Preserve new sub group in database for non-raid groups
     if (!isBGGroup() && !isBFGroup())
     {
@@ -2042,6 +2079,7 @@ void Group::ChangeMembersGroup(uint64 guid, uint8 group)
 
         CharacterDatabase.Execute(stmt);
     }
+#endif
 
     // In case the moved player is online, update the player object with the new sub group references
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -2227,6 +2265,7 @@ void Roll::targetObjectBuildLink()
 void Group::SetDungeonDifficultyID(Difficulty difficulty)
 {
     m_dungeonDifficulty = difficulty;
+#ifndef CROSS
     if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_DIFFICULTY);
@@ -2236,6 +2275,7 @@ void Group::SetDungeonDifficultyID(Difficulty difficulty)
 
         CharacterDatabase.Execute(stmt);
     }
+#endif
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -2253,6 +2293,7 @@ void Group::SetDungeonDifficultyID(Difficulty difficulty)
 void Group::SetRaidDifficultyID(Difficulty difficulty)
 {
     m_raidDifficulty = difficulty;
+#ifndef CROSS
     if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_RAID_DIFFICULTY);
@@ -2263,6 +2304,7 @@ void Group::SetRaidDifficultyID(Difficulty difficulty)
 
         CharacterDatabase.Execute(stmt);
     }
+#endif
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -2279,6 +2321,7 @@ void Group::SetRaidDifficultyID(Difficulty difficulty)
 void Group::SetLegacyRaidDifficultyID(Difficulty difficulty)
 {
     m_LegacyRaidDifficuty = difficulty;
+#ifndef CROSS
     if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_RAID_DIFFICULTY);
@@ -2289,6 +2332,7 @@ void Group::SetLegacyRaidDifficultyID(Difficulty difficulty)
 
         CharacterDatabase.Execute(stmt);
     }
+#endif
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -2393,6 +2437,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
             // do not reset the instance, just unbind if others are permanently bound to it
             if (instanceSave->CanReset())
                 instanceSave->DeleteFromDB();
+#ifndef CROSS
             else
             {
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_INSTANCE);
@@ -2401,7 +2446,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
 
                 CharacterDatabase.Execute(stmt);
             }
-
+#endif
 
             // i don't know for sure if hash_map iterators
             m_boundInstances[diff].erase(itr);
@@ -2462,6 +2507,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
         return NULL;
 
     InstanceGroupBind& bind = m_boundInstances[save->GetDifficultyID()][save->GetMapId()];
+#ifndef CROSS
     if (!load && (!bind.save || permanent != bind.perm || save != bind.save))
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GROUP_INSTANCE);
@@ -2472,6 +2518,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
 
         CharacterDatabase.Execute(stmt);
     }
+#endif
 
     if (bind.save != save)
     {
@@ -2504,6 +2551,7 @@ void Group::UnbindInstance(uint32 p_MapID, uint8 p_DifficultyID, bool p_Unload)
     if (!l_Instance->second.save)
         return;
 
+#ifndef CROSS
     if (!p_Unload)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_GUID);
@@ -2513,6 +2561,7 @@ void Group::UnbindInstance(uint32 p_MapID, uint8 p_DifficultyID, bool p_Unload)
 
         CharacterDatabase.Execute(stmt);
     }
+#endif
 
     l_Instance->second.save->RemoveGroup(this);                // save can become invalid
     m_boundInstances[p_DifficultyID].erase(l_Instance);
@@ -2520,7 +2569,11 @@ void Group::UnbindInstance(uint32 p_MapID, uint8 p_DifficultyID, bool p_Unload)
 
 void Group::_homebindIfInstance(Player* player)
 {
+#ifndef CROSS
     if (player && !player->isGameMaster() && !player->IsInGarrison() && sMapStore.LookupEntry(player->GetMapId())->IsDungeon())
+#else /* CROSS */
+    if (player && !player->isGameMaster() && sMapStore.LookupEntry(player->GetMapId())->IsDungeon())
+#endif /* CROSS */
         player->m_InstanceValid = false;
 }
 
@@ -2935,6 +2988,8 @@ void Group::setGroupMemberRole(uint64 guid, uint32 role)
             break;
         }
     }
+
+#ifndef CROSS
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_ROLE);
     if (stmt != nullptr)
     {
@@ -2942,6 +2997,7 @@ void Group::setGroupMemberRole(uint64 guid, uint32 role)
         stmt->setUInt32(1, GUID_LOPART(guid));
         CharacterDatabase.Execute(stmt);
     }
+#endif
 }
 
 void Group::OnChangeMemberSpec(uint64 p_GUID, uint32 p_SpecId)
@@ -2955,6 +3011,7 @@ void Group::OnChangeMemberSpec(uint64 p_GUID, uint32 p_SpecId)
         }
     }
 
+#ifndef CROSS
     PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_SPEC);
     if (l_Stmt != nullptr)
     {
@@ -2962,7 +3019,7 @@ void Group::OnChangeMemberSpec(uint64 p_GUID, uint32 p_SpecId)
         l_Stmt->setUInt32(1, GUID_LOPART(p_GUID));
         CharacterDatabase.Execute(l_Stmt);
     }
-
+#endif
 }
 
 uint32 Group::getGroupMemberRole(uint64 guid)
@@ -3002,6 +3059,7 @@ void Group::SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag)
     // Switch the actual flag
     ToggleGroupMemberFlag(slot, flag, apply);
 
+#ifndef CROSS
     // Preserve the new setting in the db
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_FLAG);
 
@@ -3009,6 +3067,7 @@ void Group::SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag)
     stmt->setUInt32(1, GUID_LOPART(guid));
 
     CharacterDatabase.Execute(stmt);
+#endif
 
     // Broadcast the changes to the group
     SendUpdate();
@@ -3190,11 +3249,11 @@ uint32 Group::GetRating(uint8 slot)
     return rating;
 }
 
-void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot)
+void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, int32& mmr_change, uint8 slot)
 {
     // Called when the team has won
     // Change in Matchmaker rating
-    int32 mod = Arena::GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, true);
+    mmr_change = Arena::GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, true);
 
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
     {
@@ -3212,7 +3271,7 @@ void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rat
                         itr2->second->RatingChange = rating_change;
 
             player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
-            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
+            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mmr_change);
 
             player->IncrementWeekWins(slot);
             player->IncrementSeasonWins(slot);
@@ -3254,11 +3313,11 @@ bool Group::CanEnterInInstance()
         return false;
 }
 
-void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot)
+void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, int32& mmr_change, uint8 slot)
 {
     // Called when the team has lost
     // Change in Matchmaker Rating
-    int32 mod = Arena::GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, false);
+    mmr_change = Arena::GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, false);
 
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
     {
@@ -3273,7 +3332,7 @@ void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& ra
                         itr2->second->RatingChange = rating_change;
 
             player->SetArenaPersonalRating(slot, std::max(0, (int)player->GetArenaPersonalRating(slot) + rating_change));
-            player->SetArenaMatchMakerRating(slot, std::max(0, (int)player->GetArenaMatchMakerRating(slot) + mod));
+            player->SetArenaMatchMakerRating(slot, std::max(0, (int)player->GetArenaMatchMakerRating(slot) + mmr_change));
 
             player->IncrementWeekGames(slot);
             player->IncrementSeasonGames(slot);

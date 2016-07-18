@@ -871,7 +871,7 @@ public:
     {
         PrepareAuraScript(the_everbloom_witherbark_aura_brittle_bark_AuraScript);
 
-        void OnApply(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/) 
+        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/) 
         { 
             if (Unit* l_Caster = GetCaster())
             {
@@ -880,7 +880,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const*/*p_aurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const* /*p_aurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {

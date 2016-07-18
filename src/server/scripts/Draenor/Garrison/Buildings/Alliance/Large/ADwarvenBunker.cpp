@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "ADwarvenBunker.hpp"
 #include "ADwarvenBunker_Level1Data.hpp"
 #include "ScriptMgr.h"
@@ -271,3 +272,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

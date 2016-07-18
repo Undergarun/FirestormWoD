@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "ATailoringEmporium.hpp"
 #include "ATailoringEmporium_Level1Data.hpp"
 #include "ScriptMgr.h"
@@ -286,3 +287,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

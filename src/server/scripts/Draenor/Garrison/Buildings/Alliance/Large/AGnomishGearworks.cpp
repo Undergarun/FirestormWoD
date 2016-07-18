@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "AGnomishGearworks.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../../GarrisonScriptData.hpp"
@@ -155,3 +156,4 @@ namespace MS {
         }
     }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

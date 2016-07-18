@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_LUMBER_MILL_ALLIANCE_HPP_GARRISON
+#ifndef CROSS
 #define GARRISON_LUMBER_MILL_ALLIANCE_HPP_GARRISON
 
 #include "../../../GarrisonScriptData.hpp"
@@ -74,3 +75,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_LUMBER_MILL_ALLIANCE_HPP_GARRISON
+#endif

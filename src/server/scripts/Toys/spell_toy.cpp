@@ -10,7 +10,9 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
+#ifndef CROSS
 #include "DBCStores.h"
+#endif /* not CROSS */
 
 /// Stonebound - 129755
 class spell_toy_stonebound : public SpellScriptLoader
@@ -184,6 +186,7 @@ class spell_toy_leyaras_locket : public SpellScriptLoader
         }
 };
 
+#ifndef CROSS
 /// Toy Train Set (Pulse) - 61551
 class spell_item_toy_train_set_pulse : public SpellScriptLoader
 {
@@ -229,6 +232,7 @@ class spell_item_toy_train_set_pulse : public SpellScriptLoader
         }
 };
 
+#endif /* not CROSS */
 #ifndef __clang_analyzer__
 void AddSC_spell_toy()
 {
@@ -236,6 +240,8 @@ void AddSC_spell_toy()
     new spell_toy_warsong_orc_costume();
     new spell_toy_flippable_table();
     new spell_toy_leyaras_locket();
+#ifndef CROSS
     new spell_item_toy_train_set_pulse();
+#endif /* not CROSS */
 }
 #endif

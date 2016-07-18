@@ -21,7 +21,10 @@
 #include "Callback.h"
 #include "TimeDiffMgr.h"
 #include "DatabaseWorkerPool.h"
-#include "InterRealmSession.h"
+
+#ifndef CROSS
+# include "InterRealmSession.h"
+#endif
 
 #include <atomic>
 
@@ -80,8 +83,10 @@ enum WorldTimers
     WUPDATE_PINGDB,
     WUPDATE_GUILDSAVE,
     WUPDATE_REALM_STATS,
+#ifndef CROSS
     WUPDATE_TRANSFER,
     WUPDATE_TRANSFER_EXP,
+#endif
     WUPDATE_COUNT
 };
 
@@ -203,8 +208,10 @@ enum WorldBoolConfigs
     CONFIG_LOG_PACKETS,
     CONFIG_BATTLEPAY_ENABLE,
     CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK,
+#ifndef CROSS
     CONFIG_INTERREALM_ENABLE,
     CONFIG_IGNORE_RESEARCH_SITE,
+#endif
     CONFIG_ENABLE_MMAPS,
     CONFIG_ENABLE_QUEST,
     CONFIG_ENABLE_LOOTS,
@@ -670,6 +677,9 @@ struct QueryHolderCallback
     std::function<void(SQLQueryHolder*)>   m_Callback;
 };
 
+#ifdef CROSS
+typedef std::unordered_map<uint64 /*Guid*/, Player*> PlayerMap;
+#endif /* CROSS */
 
 struct MotdText
 {
@@ -688,22 +698,23 @@ class World
         World();
         ~World();
 
-        WorldSession* FindSession(uint32 id) const;
-        void AddSession(WorldSession* s);
         void SendAutoBroadcast();
-        bool RemoveSession(uint32 id);
+
         /// Get the number of current active sessions
         void UpdateMaxSessionCounters();
-        const SessionMap& GetAllSessions() const { return m_sessions; }
-        uint32 GetActiveAndQueuedSessionCount() const { return uint32(m_sessions.size() * getRate(RATE_ONLINE)); }
-        uint32 GetActiveSessionCount() const { return uint32((m_sessions.size() - m_QueuedPlayer.size()) * getRate(RATE_ONLINE)); }
-        uint32 GetQueuedSessionCount() const { return m_QueuedPlayer.size(); }
+
         /// Get the maximum number of parallel sessions on the server since last reboot
         uint32 GetMaxQueuedSessionCount() const { return m_maxQueuedSessionCount; }
         uint32 GetMaxActiveSessionCount() const { return uint32(m_maxActiveSessionCount * getRate(RATE_ONLINE)); }
         /// Get number of players
         inline uint32 GetPlayerCount() const { return m_PlayerCount; }
         inline uint32 GetMaxPlayerCount() const { return m_MaxPlayerCount; }
+
+#ifndef CROSS
+        WorldSession* FindSession(uint32 id) const;
+        void AddSession(WorldSession* s);
+        bool RemoveSession(uint32 id);
+
         /// Increase/Decrease number of players
         inline void IncreasePlayerCount()
         {
@@ -711,6 +722,65 @@ class World
             m_MaxPlayerCount = std::max(m_MaxPlayerCount, m_PlayerCount);
         }
         inline void DecreasePlayerCount() { m_PlayerCount--; }
+
+        //player Queue
+        typedef std::list<WorldSession*> Queue;
+        void AddQueuedPlayer(WorldSession*);
+        bool RemoveQueuedPlayer(WorldSession* session);
+        int32 GetQueuePos(WorldSession*);
+        bool HasRecentlyDisconnected(WorldSession*);
+
+        const SessionMap& GetAllSessions() const { return m_sessions; }
+        uint32 GetActiveAndQueuedSessionCount() const { return uint32(m_sessions.size() * getRate(RATE_ONLINE)); }
+        uint32 GetActiveSessionCount() const { return uint32((m_sessions.size() - m_QueuedPlayer.size()) * getRate(RATE_ONLINE)); }
+        uint32 GetQueuedSessionCount() const { return m_QueuedPlayer.size(); }
+
+        BanReturn BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author);
+        bool RemoveBanAccount(BanMode mode, std::string nameOrIP);
+        BanReturn BanCharacter(std::string name, std::string duration, std::string reason, std::string author);
+        bool RemoveBanCharacter(std::string name);
+
+        CharacterInfo const* GetCharacterInfo(uint32 guid) const;
+        void AddCharacterInfo(uint32 guid, std::string const& name, uint32 accountId, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
+        void UpdateCharacterInfo(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
+        void UpdateCharacterInfoLevel(uint32 guid, uint8 level);
+        void DeleteCharacterInfo(uint32 guid) { _characterInfoStore.erase(guid); }
+        bool HasCharacterInfo(uint32 guid) { return _characterInfoStore.find(guid) != _characterInfoStore.end(); }
+        uint64 GetCharacterGuidByName(std::string const& p_Name);
+
+        void SetInterRealmSession(InterRealmSession* irt) { m_InterRealmSession = irt; }
+        InterRealmSession* GetInterRealmSession() { return m_InterRealmSession; }
+
+        void ResetEventSeasonalQuests(uint16 event_id);
+        void ResetCurrencyWeekCap();
+        void ResetDailyLoots();
+        void ResetGuildChallenges();
+        void ResetBossLooted();
+
+        std::string GetNormalizedRealmName() const;
+#endif
+
+#ifdef CROSS
+        void UpdateInterRealmStat();
+
+        void AddPlayer(Player* player);
+        bool HasPlayer(uint64 guid) const;
+        Player* GetPlayer(uint64 guid);
+        const PlayerMap& GetAllPlayers();
+
+        void RemovePlayer(uint64 p_Guid) { m_players.erase(p_Guid); }
+
+        bool AddCharacterName(std::string name)
+        {
+            if (nameMap.find(name) != nameMap.end())
+                return false;
+
+            nameMap[name] = true;
+            return true;
+        }
+
+        void DeleteCharName(std::string name) { nameMap.erase(name); }
+#endif
 
         Player* FindPlayerInZone(uint32 zone);
 
@@ -729,12 +799,6 @@ class World
         void SetPlayerAmountLimit(uint32 limit) { m_playerLimit = limit; }
         uint32 GetPlayerAmountLimit() const { return m_playerLimit; }
 
-        //player Queue
-        typedef std::list<WorldSession*> Queue;
-        void AddQueuedPlayer(WorldSession*);
-        bool RemoveQueuedPlayer(WorldSession* session);
-        int32 GetQueuePos(WorldSession*);
-        bool HasRecentlyDisconnected(WorldSession*);
 
         /// \todo Actions on m_allowMovement still to be implemented
         /// Is movement allowed?
@@ -887,10 +951,6 @@ class World
 
         void KickAll();
         void KickAllLess(AccountTypes sec);
-        BanReturn BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author);
-        bool RemoveBanAccount(BanMode mode, std::string nameOrIP);
-        BanReturn BanCharacter(std::string name, std::string duration, std::string reason, std::string author);
-        bool RemoveBanCharacter(std::string name);
 
         // for max speed access
         static float GetMaxVisibleDistanceOnContinents()    { return m_MaxVisibleDistanceOnContinents; }
@@ -930,32 +990,15 @@ class World
 
         bool isEventKillStart;
 
-        CharacterInfo const* GetCharacterInfo(uint32 guid) const;
-        void AddCharacterInfo(uint32 guid, std::string const& name, uint32 accountId, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
-        void UpdateCharacterInfo(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
-        void UpdateCharacterInfoLevel(uint32 guid, uint8 level);
-        void DeleteCharacterInfo(uint32 guid) { _characterInfoStore.erase(guid); }
-        bool HasCharacterInfo(uint32 guid) { return _characterInfoStore.find(guid) != _characterInfoStore.end(); }
-        uint64 GetCharacterGuidByName(std::string const& p_Name);
-
-        void SetInterRealmSession(InterRealmSession* irt) { m_InterRealmSession = irt; }
-        InterRealmSession* GetInterRealmSession() { return m_InterRealmSession; }
-
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
-        void   ResetEventSeasonalQuests(uint16 event_id);
         std::string GetRealmName() { return m_realmName; }
-        std::string GetNormalizedRealmName() const;
 
         void UpdatePhaseDefinitions();
 
         void SetRecordDiff(RecordDiffType recordDiff, uint32 diff) { m_recordDiff[recordDiff] = diff; }
         uint32 GetRecordDiff(RecordDiffType recordDiff) { return m_recordDiff[recordDiff]; }
 
-        void ResetCurrencyWeekCap();
-        void ResetDailyLoots();
-        void ResetGuildChallenges();
-        void ResetBossLooted();
 
         bool ModerateMessage(std::string l_Text);
 
@@ -987,13 +1030,14 @@ class World
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
         void _UpdateRealmCharCount(PreparedQueryResult resultCharCount);
-        void _updateTransfers();
+
+        void AutoRestartServer();
+        void InitServerAutoRestartTime();
 
         void InitDailyQuestResetTime();
         void InitWeeklyQuestResetTime();
         void InitMonthlyQuestResetTime();
         void InitRandomBGResetTime();
-        //void InitServerAutoRestartTime();
         void InitCurrencyResetTime();
         void InitDailyLootResetTime();
         void InitGuildChallengesResetTime();
@@ -1004,9 +1048,13 @@ class World
         void ResetWeeklyGarrisonDatas();
         void ResetMonthlyQuests();
         void ResetRandomBG();
-        //void AutoRestartServer();
+
+#ifndef CROSS
+        void _updateTransfers();
+#endif
+
     private:
-        InterRealmSession* m_InterRealmSession;
+
         static std::atomic<bool> m_stopEvent;
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
@@ -1029,13 +1077,46 @@ class World
         uint32 m_serverDelaySum;
         uint32 m_serverUpdateCount;
 
+        time_t m_NextDailyQuestReset;
+        time_t m_NextWeeklyQuestReset;
+        time_t m_NextMonthlyQuestReset;
+        time_t m_NextRandomBGReset;
+        time_t m_NextCurrencyReset;
+        time_t m_NextDailyLootReset;
+        time_t m_NextGuildChallengesReset;
+        time_t m_NextBossLootedReset;
+
+#ifndef CROSS
+        InterRealmSession* m_InterRealmSession;
         SessionMap m_sessions;
         typedef std::unordered_map<uint32, time_t> DisconnectMap;
         DisconnectMap m_disconnects;
+
+        typedef std::unordered_map<uint32, CharacterInfo> CharacterInfoContainer;
+        CharacterInfoContainer _characterInfoStore;
+        void LoadCharacterInfoStore();
+
+        //Player Queue
+        Queue m_QueuedPlayer;
+
+        // sessions that are added async
+        void AddSession_(WorldSession* s);
+        ACE_Based::LockedQueue<WorldSession*, ACE_Thread_Mutex> addSessQueue;
+#endif
+
+#ifdef CROSS
+        PlayerMap m_players;
+        ACE_Thread_Mutex playersLock;
+        uint32 m_update_online_timer;
+        std::map<std::string, bool> nameMap;
+#endif
+
         uint32 m_maxActiveSessionCount;
         uint32 m_maxQueuedSessionCount;
         uint32 m_PlayerCount;
         uint32 m_MaxPlayerCount;
+
+        ACE_Based::LockedQueue<CliCommandHolder*, ACE_Thread_Mutex> cliCmdQueue;
 
         std::string m_newCharString;
         std::string m_realmName;
@@ -1066,26 +1147,7 @@ class World
         static int32 m_visibility_notify_periodInInstances;
         static int32 m_visibility_notify_periodInBGArenas;
 
-        // CLI command holder to be thread safe
-        ACE_Based::LockedQueue<CliCommandHolder*, ACE_Thread_Mutex> cliCmdQueue;
-
-        // next daily quests and random bg reset time
-        time_t m_NextDailyQuestReset;
-        time_t m_NextWeeklyQuestReset;
-        time_t m_NextMonthlyQuestReset;
-        time_t m_NextRandomBGReset;
-        time_t m_NextCurrencyReset;
-        time_t m_NextDailyLootReset;
-        time_t m_NextGuildChallengesReset;
-        time_t m_NextBossLootedReset;
         time_t m_NextServerRestart;
-
-        //Player Queue
-        Queue m_QueuedPlayer;
-
-        // sessions that are added async
-        void AddSession_(WorldSession* s);
-        ACE_Based::LockedQueue<WorldSession*, ACE_Thread_Mutex> addSessQueue;
 
         // used versions
         std::string m_DBVersion;
@@ -1100,9 +1162,6 @@ class World
 
         std::list<AutoBroadcastText> m_Autobroadcasts;
 
-        typedef std::unordered_map<uint32, CharacterInfo> CharacterInfoContainer;
-        CharacterInfoContainer _characterInfoStore;
-        void LoadCharacterInfoStore();
 
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;

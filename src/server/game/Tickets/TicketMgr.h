@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef _TICKETMGR_H
 #define _TICKETMGR_H
 
@@ -237,3 +238,4 @@ class TicketMgr
 #define sTicketMgr ACE_Singleton<TicketMgr, ACE_Null_Mutex>::instance()
 
 #endif // _TICKETMGR_H
+#endif

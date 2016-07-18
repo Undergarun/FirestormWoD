@@ -857,7 +857,11 @@ public:
                     draft.AddItem(item);
                 }
 
+#ifndef CROSS
                 draft.SendMailTo(trans, MailReceiver(killer, killer->GetGUIDLow()), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM));
+#else /* CROSS */
+                draft.SendMailTo(trans, MailReceiver(killer, killer->GetRealGUIDLow()), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM));
+#endif /* CROSS */
                 CharacterDatabase.CommitTransaction(trans);
 
                 ChatHandler(killer).PSendSysMessage("Your inventory seems to be full, we sent you the Reins of the Time-Lost Proto-Drake by mail.");

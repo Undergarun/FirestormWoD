@@ -15,7 +15,7 @@
 
 namespace AccountMgr
 {
-
+#ifndef CROSS
     AccountOpResult CreateAccount(std::string username, std::string password)
     {
         if (utf8length(username) > MAX_ACCOUNT_STR)
@@ -166,6 +166,7 @@ namespace AccountMgr
 
         return AOR_OK;
     }
+#endif
 
     uint32 GetId(std::string username)
     {
@@ -228,6 +229,7 @@ namespace AccountMgr
         return (result) ? true : false;
     }
 
+#ifndef CROSS
     uint32 GetCharactersCount(uint32 accountId)
     {
         // Check character count
@@ -237,6 +239,7 @@ namespace AccountMgr
 
         return (result) ? (*result)[0].GetUInt64() : 0;
     }
+#endif
 
     bool normalizeString(std::string& utf8String)
     {

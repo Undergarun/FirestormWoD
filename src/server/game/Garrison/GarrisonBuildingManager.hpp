@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_BUILDING_MANAGER_HPP_GARRISON
 # define GARRISON_BUILDING_MANAGER_HPP_GARRISON
 
@@ -87,3 +88,4 @@ namespace MS { namespace Garrison
 #define sGarrisonBuildingManager ACE_Singleton<MS::Garrison::BuildingManager, ACE_Null_Mutex>::instance()
 
 #endif  ///< GARRISON_BUILDING_MANAGER_HPP_GARRISON
+#endif

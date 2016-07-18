@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_MISSION_HPP_GARRISON
+#ifndef CROSS
 #define GARRISON_MISSION_HPP_GARRISON
 
 #include "GarrisonMgrConstants.hpp"
@@ -27,3 +28,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_MISSION_HPP_GARRISON
+#endif

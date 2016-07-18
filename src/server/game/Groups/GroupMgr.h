@@ -31,7 +31,9 @@ public:
     Group* GetGroupByDbStoreId(uint32 storageId) const;
     void   SetGroupDbStoreSize(uint32 newSize) { GroupDbStore.resize(newSize); }
 
+#ifndef CROSS
     void   LoadGroups();
+#endif /* not CROSS */
     uint32 GenerateGroupId();
     void   AddGroup(Group* group);
     void   RemoveGroup(Group* group);

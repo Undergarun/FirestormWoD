@@ -1276,6 +1276,7 @@ enum TrinityStrings
 
     LANG_LEXICS_CUTTER_NOTIFY               = 13200,
 
+#ifndef CROSS
     /// InterRealm messages (reserved: 13105-13109)
     LANG_INTERREALM_DISABLED                = 13105,
     LANG_INTERREALM_PLAYER_FAILED           = 13106,
@@ -1286,6 +1287,7 @@ enum TrinityStrings
     LANG_INTERREALM_FAILED_NO_GUIDS             = 13111,
     LANG_INTERREALM_FAILED_CANNOT_CREATE        = 13112,
 
+#endif /* not CROSS */
     LANG_CONFESSION_START                   = 14000,
     LANG_CONFESSION_END                     = 14055,
     LANG_CONFESSION_EMOTE                   = 14056,

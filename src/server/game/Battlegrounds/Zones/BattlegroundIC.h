@@ -901,6 +901,7 @@ class BattlegroundIC : public Battleground
         bool IsScoreIncremental() const { return false; }
 
         virtual bool IsAllNodesControlledByTeam(uint32 team) const;  // overwrited
+        uint32 GetZoneId() const { return BATTLEGROUND_IC_ZONEID; }
     private:
         uint32 closeFortressDoorsTimer;
         bool doorsClosed;

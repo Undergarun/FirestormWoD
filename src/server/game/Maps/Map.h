@@ -255,6 +255,11 @@ class Map : public GridRefManager<NGridType>
         template<class T> bool AddToMap(T *);
         template<class T> void RemoveFromMap(T *, bool);
 
+#ifdef CROSS
+        void SetUpdating(bool value) { m_IsUpdating = value; }
+        bool IsUpdating() const { return m_IsUpdating; }
+
+#endif /* CROSS */
         void VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<JadeCore::ObjectUpdater, GridTypeMapContainer> &gridVisitor, TypeContainerVisitor<JadeCore::ObjectUpdater, WorldTypeMapContainer> &worldVisitor);
         virtual void Update(const uint32);
 
@@ -608,6 +613,10 @@ class Map : public GridRefManager<NGridType>
         TransportsContainer::iterator _transportsUpdateIter;
 
     private:
+#ifdef CROSS
+        bool m_IsUpdating;
+
+#endif /* CROSS */
         Player* _GetScriptPlayerSourceOrTarget(Object* source, Object* target, const ScriptInfo* scriptInfo) const;
         Creature* _GetScriptCreatureSourceOrTarget(Object* source, Object* target, const ScriptInfo* scriptInfo, bool bReverse = false) const;
         Unit* _GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const;

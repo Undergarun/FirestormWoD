@@ -212,6 +212,8 @@ class ObjectAccessor
         /// Find gameobject /!\ IN WORLD !!!!
         static GameObject* FindGameObject(uint64);
 
+        static Player* FindPlayerByNameAndRealmId(std::string const& name, uint32 realmId);
+
         // when using this, you must use the hashmapholder's lock
         static HashMapHolder<Player>::MapType const& GetPlayers()
         {

@@ -41,7 +41,7 @@ void TimeDiffMgr::Update(uint32 diff)
     {
         m_prevLog[INTERVAL_1_MINUTE].Average = m_worldSum[INTERVAL_1_MINUTE] / m_worldCount[INTERVAL_1_MINUTE];
         m_prevLog[INTERVAL_1_MINUTE].Max = m_worldMax[INTERVAL_1_MINUTE];
-        m_prevLog[INTERVAL_1_MINUTE].Players = sWorld->GetActiveSessionCount();
+        m_prevLog[INTERVAL_1_MINUTE].Players = sWorld->GetPlayerCount();
         InitTimer(INTERVAL_1_MINUTE);
 
         CharacterDatabase.PExecute(
@@ -54,7 +54,7 @@ void TimeDiffMgr::Update(uint32 diff)
     {
         m_prevLog[INTERVAL_5_MINUTE].Average = m_worldSum[INTERVAL_5_MINUTE] / m_worldCount[INTERVAL_5_MINUTE];
         m_prevLog[INTERVAL_5_MINUTE].Max = m_worldMax[INTERVAL_5_MINUTE];
-        m_prevLog[INTERVAL_5_MINUTE].Players = sWorld->GetActiveSessionCount();
+        m_prevLog[INTERVAL_5_MINUTE].Players = sWorld->GetPlayerCount();
         InitTimer(INTERVAL_5_MINUTE);
     }
 
@@ -62,7 +62,7 @@ void TimeDiffMgr::Update(uint32 diff)
     {
         m_prevLog[INTERVAL_15_MINUTE].Average = m_worldSum[INTERVAL_15_MINUTE] / m_worldCount[INTERVAL_15_MINUTE];
         m_prevLog[INTERVAL_15_MINUTE].Max = m_worldMax[INTERVAL_15_MINUTE];
-        m_prevLog[INTERVAL_15_MINUTE].Players = sWorld->GetActiveSessionCount();
+        m_prevLog[INTERVAL_15_MINUTE].Players = sWorld->GetPlayerCount();
         InitTimer(INTERVAL_15_MINUTE);
     }
 }

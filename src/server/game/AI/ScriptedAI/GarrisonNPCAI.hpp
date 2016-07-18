@@ -6,6 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "ScriptedCosmeticAI.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
@@ -139,3 +140,4 @@ class GarrisonNPCAI : public MS::AI::CosmeticAI
         uint32 m_RecipesSkillID;
 
 };
+#endif

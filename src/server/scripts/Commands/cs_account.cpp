@@ -16,9 +16,11 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "Chat.h"
+#ifndef CROSS
 #include "BattlepayPacketFactory.h"
 
 using namespace Battlepay::PacketFactory;
+#endif /* not CROSS */
 
 class account_commandscript: public CommandScript
 {
@@ -43,7 +45,9 @@ public:
             { "lock",           SEC_PLAYER,         false, &HandleAccountLockCommand,          "", NULL },
             { "set",            SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable  },
             { "password",       SEC_PLAYER,         false, &HandleAccountPasswordCommand,      "", NULL },
+#ifndef CROSS
             { "updatebalance",  SEC_CONSOLE,        true,  &HandleAccountUpdateBalanceCommand, "", NULL },
+#endif /* not CROSS */
             { "",               SEC_PLAYER,         false, &HandleAccountCommand,              "", NULL },
             { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
@@ -90,6 +94,7 @@ public:
     /// Create an account
     static bool HandleAccountCreateCommand(ChatHandler* handler, char const* args)
     {
+#ifndef CROSS
         if (!*args)
             return false;
 
@@ -129,6 +134,9 @@ public:
                 return false;
         }
 
+#else /* CROSS */
+ 
+#endif /* CROSS */
         return true;
     }
 
@@ -136,6 +144,7 @@ public:
     /// \todo This function has to be enhanced to respect the login/realm split (delete char, delete account chars in realm then delete account)
     static bool HandleAccountDeleteCommand(ChatHandler* handler, char const* args)
     {
+#ifndef CROSS
         if (!*args)
             return false;
 
@@ -186,6 +195,7 @@ public:
                 return false;
         }
 
+#endif /* not CROSS */
         return true;
     }
 
@@ -277,6 +287,7 @@ public:
 
     static bool HandleAccountPasswordCommand(ChatHandler* handler, char const* args)
     {
+#ifndef CROSS
         if (!*args)
         {
             handler->SendSysMessage(LANG_CMD_SYNTAX);
@@ -325,6 +336,7 @@ public:
                 return false;
         }
 
+#endif /* not CROSS */
         return true;
     }
 
@@ -529,6 +541,7 @@ public:
     /// Set password for account
     static bool HandleAccountSetPasswordCommand(ChatHandler* handler, char const* args)
     {
+#ifndef CROSS
         if (!*args)
             return false;
 
@@ -588,7 +601,9 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
         }
+#endif /* not CROSS */
         return true;
+#ifndef CROSS
     }
 
     static bool HandleAccountUpdateBalanceCommand(ChatHandler* /*p_Handler*/, const char* p_Args)
@@ -608,6 +623,7 @@ public:
 
         sBattlepayMgr->OnPaymentSucess(l_AccountID, l_NewBalance);
         return false;
+#endif /* not CROSS */
     }
 };
 

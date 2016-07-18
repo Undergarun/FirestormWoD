@@ -81,7 +81,6 @@ private:
     void TeleportPlaneHackDetection(Player* player, MovementInfo const&);
     void ClimbHackDetection(Player* player, MovementInfo const& movementInfo, uint32 opcode);
 
-
     bool MustCheckTempReports(uint8 type);
 
     AnticheatPlayersDataMap m_Players;                        ///< Player data

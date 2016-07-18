@@ -10,7 +10,9 @@
 #include "Chat.h"
 #include "ObjectMgr.h"
 #include "ConditionMgr.h"
+#ifndef CROSS
 #include "GarrisonMgr.hpp"
+#endif /* not CROSS */
 
 //////////////////////////////////////////////////////////////////
 // Updating
@@ -102,8 +104,10 @@ void PhaseMgr::Recalculate()
         }
     }
 
+#ifndef CROSS
     if (player->GetGarrison() && (player->GetMapId() == MS::Garrison::Globals::BaseMap || player->IsInGarrison()))
         _UpdateFlags |= PHASE_UPDATE_FLAG_CLIENTSIDE_CHANGED;
+#endif /* not CROSS */
 }
 
 inline bool PhaseMgr::CheckDefinition(PhaseDefinition const* phaseDefinition)
@@ -275,6 +279,7 @@ void PhaseData::SendPhaseshiftToPlayer()
             l_TerrainSwaps.insert((*l_IT)->terrainswapmap);
     }
 
+#ifndef CROSS
     if (player->GetGarrison() && player->GetGarrison()->GetGarrisonSiteLevelEntry())
     {
         if (player->GetMapId() == MS::Garrison::Globals::BaseMap || player->IsInGarrison())
@@ -291,6 +296,7 @@ void PhaseData::SendPhaseshiftToPlayer()
             player->GetGarrison()->GetShipyardTerainSwaps(l_TerrainSwaps);
         }
     }
+#endif
 
     player->GetSession()->SendSetPhaseShift(l_PhaseIDs, l_TerrainSwaps, l_InactiveTerrainSwap);
 }

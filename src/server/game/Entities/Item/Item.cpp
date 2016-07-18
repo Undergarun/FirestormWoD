@@ -18,6 +18,10 @@
 #include "ConditionMgr.h"
 #include "DB2Stores.h"
 
+#ifdef CROSS
+# include "InterRealmMgr.h"
+#endif
+
 // @issue : #260
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -365,6 +369,17 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
     SetEntry(itemid);
     SetObjectScale(1.0f);
 
+#ifdef CROSS
+    if (owner)
+    {
+        uint32 l_LocalRealmGuid = InterRealmClient::GetIRClient((Player*)owner)->GenerateLocalRealmLowGuid(HIGHGUID_ITEM);
+        if (l_LocalRealmGuid == 0)
+            ((Player*)owner)->AddItemToGuidSync(GetGUID());
+        else
+            SetRealGUID(MAKE_NEW_GUID(l_LocalRealmGuid, 0, HIGHGUID_ITEM));
+    }
+#endif
+
     SetGuidValue(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
     SetGuidValue(ITEM_FIELD_CONTAINED_IN, owner ? owner->GetGUID() : 0);
 
@@ -438,20 +453,28 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
 
 void Item::SaveToDB(SQLTransaction& trans)
 {
+#ifdef CROSS
+    auto l_Database = GetOwner() ? GetOwner()->GetRealmDatabase() : nullptr;
+    if (l_Database == nullptr)  ///< Happen only in case of guild bank, and guild bank aren't handle cross-side
+        return;
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
+
     bool isInTransaction = trans.get() != nullptr;
     if (!isInTransaction)
-        trans = CharacterDatabase.BeginTransaction();
+        trans = l_Database->BeginTransaction();
 
-    uint32 guid = GetGUIDLow();
+    uint32 guid = GetRealGUIDLow();
     switch (uState)
     {
         case ITEM_NEW:
         case ITEM_CHANGED:
         {
             uint8 index = 0;
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(uState == ITEM_NEW ? CHAR_REP_ITEM_INSTANCE : CHAR_UPD_ITEM_INSTANCE);
+            PreparedStatement* stmt = l_Database->GetPreparedStatement(uState == ITEM_NEW ? CHAR_REP_ITEM_INSTANCE : CHAR_UPD_ITEM_INSTANCE);
             stmt->setUInt32(  index, GetEntry());
-            stmt->setUInt32(++index, GUID_LOPART(GetOwnerGUID()));
+            stmt->setUInt32(++index, GetOwner() ? GetOwner()->GetRealGUIDLow() : GetOwnerGUID());
             stmt->setUInt32(++index, GUID_LOPART(GetGuidValue(ITEM_FIELD_CREATOR)));
             stmt->setUInt32(++index, GUID_LOPART(GetGuidValue(ITEM_FIELD_GIFT_CREATOR)));
             stmt->setUInt32(++index, GetCount());
@@ -499,8 +522,8 @@ void Item::SaveToDB(SQLTransaction& trans)
 
             if ((uState == ITEM_CHANGED) && HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
             {
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GIFT_OWNER);
-                stmt->setUInt32(0, GUID_LOPART(GetOwnerGUID()));
+                stmt = l_Database->GetPreparedStatement(CHAR_UPD_GIFT_OWNER);
+                stmt->setUInt32(0, GetOwner()->GetRealGUIDLow());
                 stmt->setUInt32(1, guid);
                 trans->Append(stmt);
             }
@@ -508,19 +531,19 @@ void Item::SaveToDB(SQLTransaction& trans)
         }
         case ITEM_REMOVED:
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+            PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
             if (HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
             {
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
+                stmt = l_Database->GetPreparedStatement(CHAR_DEL_GIFT);
                 stmt->setUInt32(0, guid);
                 trans->Append(stmt);
             }
 
             if (!isInTransaction)
-                CharacterDatabase.CommitTransaction(trans);
+                l_Database->CommitTransaction(trans);
 
             delete this;
             return;
@@ -532,7 +555,7 @@ void Item::SaveToDB(SQLTransaction& trans)
     SetState(ITEM_UNCHANGED);
 
     if (!isInTransaction)
-        CharacterDatabase.CommitTransaction(trans);
+        l_Database->CommitTransaction(trans);
 }
 
 bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry)
@@ -542,7 +565,14 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
+
+#ifndef CROSS
     Object::_Create(guid, 0, HIGHGUID_ITEM);
+#else /* CROSS */
+    uint32 new_guid = sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM);
+    SetRealGUID(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+    Object::_Create(new_guid, 0, HIGHGUID_ITEM);
+#endif /* CROSS */
 
     // Set entry, MUST be before proto check
     SetEntry(entry);
@@ -624,41 +654,93 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 
     if (need_save)                                           // normal item changed state set not work at loading
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_INSTANCE_ON_LOAD);
-        stmt->setUInt32(0, GetUInt32Value(ITEM_FIELD_EXPIRATION));
-        stmt->setUInt32(1, GetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS));
-        stmt->setUInt32(2, GetUInt32Value(ITEM_FIELD_DURABILITY));
-        stmt->setUInt32(3, guid);
-        CharacterDatabase.Execute(stmt);
+#ifdef CROSS
+        Player* l_Owner = GetOwner();
+        InterRealmDatabasePool* l_Database = l_Owner ? l_Owner->GetRealmDatabase() : nullptr;
+#else
+        auto l_Database = &CharacterDatabase;
+#endif
+
+        if (l_Database)
+        {
+            PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_UPD_ITEM_INSTANCE_ON_LOAD);
+            stmt->setUInt32(0, GetUInt32Value(ITEM_FIELD_EXPIRATION));
+            stmt->setUInt32(1, GetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS));
+            stmt->setUInt32(2, GetUInt32Value(ITEM_FIELD_DURABILITY));
+            stmt->setUInt32(3, guid);
+            l_Database->Execute(stmt);
+        }
     }
 
     return true;
 }
 
 /*static*/
-void Item::DeleteFromDB(SQLTransaction& trans, uint32 itemGuid)
+void Item::DeleteFromDB(SQLTransaction& trans, uint32 itemGuid, uint32 realmId)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+#ifdef CROSS
+
+    InterRealmClient* l_IRClient = sInterRealmMgr->GetClientByRealmNumber(realmId);
+    if (!l_IRClient)
+        return;
+
+    InterRealmDatabasePool* l_Database = l_IRClient->GetDatabase();
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
+
+    PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
     stmt->setUInt32(0, itemGuid);
     trans->Append(stmt);
 }
 
 void Item::DeleteFromDB(SQLTransaction& trans)
 {
-    DeleteFromDB(trans, GetGUIDLow());
+    Player* l_Owner = GetOwner();
+    if (!l_Owner)
+        return; ///< GuildBank only
+
+#ifdef CROSS
+    uint32 l_RealmID = l_Owner->GetSession()->GetInterRealmNumber();
+#else
+    uint32 l_RealmID = g_RealmID;
+#endif
+
+    DeleteFromDB(trans, GetRealGUIDLow(), l_RealmID);
 }
 
 /*static*/
-void Item::DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid)
+void Item::DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid, uint32 realmId)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
+#ifdef CROSS
+
+    InterRealmClient* l_IRClient = sInterRealmMgr->GetClientByRealmNumber(realmId);
+    if (!l_IRClient)
+        return;
+
+    InterRealmDatabasePool* l_Database = l_IRClient->GetDatabase();
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
+
+    PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
     stmt->setUInt32(0, itemGuid);
     trans->Append(stmt);
 }
 
 void Item::DeleteFromInventoryDB(SQLTransaction& trans)
 {
-    DeleteFromInventoryDB(trans, GetGUIDLow());
+    Player* l_Owner = GetOwner();
+    if (!l_Owner)
+        return; ///< GuildBank only
+
+#ifdef CROSS
+    uint32 l_RealmID = l_Owner->GetSession()->GetInterRealmNumber();
+#else
+    uint32 l_RealmID = g_RealmID;
+#endif
+
+    DeleteFromInventoryDB(trans, GetRealGUIDLow(), l_RealmID);
 }
 
 ItemTemplate const* Item::GetTemplate() const
@@ -1461,7 +1543,7 @@ Item* Item::CloneItem(uint32 p_Count, Player const* p_Player) const
     l_NewItem->SetUInt32Value(ITEM_FIELD_EXPIRATION,      GetUInt32Value(ITEM_FIELD_EXPIRATION));
 
     // player CAN be NULL in which case we must not update random properties because that accesses player's item update queue
-    if (p_Player && p_Player->IsInWorld())
+    if (p_Player)
         l_NewItem->SetItemRandomProperties(GetItemRandomPropertyId());
 
     l_NewItem->AddItemBonuses(GetAllItemBonuses());
@@ -1564,30 +1646,46 @@ void Item::BuildDynamicValuesUpdate(uint8 p_UpdateType, ByteBuffer* p_Data, Play
 
 void Item::SaveRefundDataToDB()
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+#ifdef CROSS
+    Player* l_Owner = GetOwner();
+    InterRealmDatabasePool* l_Database = l_Owner ? l_Owner->GetRealmDatabase() : nullptr;
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
-    stmt->setUInt32(0, GetGUIDLow());
+    SQLTransaction trans = l_Database->BeginTransaction();
+
+    PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
+    stmt->setUInt32(0, GetRealGUIDLow());
     trans->Append(stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_REFUND_INSTANCE);
-    stmt->setUInt32(0, GetGUIDLow());
+    stmt = l_Database->GetPreparedStatement(CHAR_INS_ITEM_REFUND_INSTANCE);
+    stmt->setUInt32(0, GetRealGUIDLow());
     stmt->setUInt32(1, GetRefundRecipient());
     stmt->setUInt32(2, GetPaidMoney());
     stmt->setUInt16(3, uint16(GetPaidExtendedCost()));
     trans->Append(stmt);
 
-    CharacterDatabase.CommitTransaction(trans);
+    l_Database->CommitTransaction(trans);
 }
 
 void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
 {
     if (trans && trans->get() != nullptr)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
-        stmt->setUInt32(0, GetGUIDLow());
-        (*trans)->Append(stmt);
+#ifdef CROSS
+        Player* l_Owner = GetOwner();
+        InterRealmDatabasePool* l_Database = l_Owner ? l_Owner->GetRealmDatabase() : nullptr;
+#else
+        auto l_Database = &CharacterDatabase;
+#endif
 
+        if (l_Database)
+        {
+            PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
+            stmt->setUInt32(0, GetRealGUIDLow());
+            (*trans)->Append(stmt);
+        }
     }
 }
 
@@ -1663,9 +1761,20 @@ void Item::ClearSoulboundTradeable(Player* currentOwner)
 
     allowedGUIDs.clear();
     SetState(ITEM_CHANGED, currentOwner);
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_BOP_TRADE);
-    stmt->setUInt32(0, GetGUIDLow());
-    CharacterDatabase.Execute(stmt);
+
+#ifdef CROSS
+    Player* l_Owner = GetOwner();
+    InterRealmDatabasePool* l_Database = l_Owner ? l_Owner->GetRealmDatabase() : nullptr;
+    if (l_Database == nullptr)
+        return;
+#else
+    auto l_Database = &CharacterDatabase;
+#endif
+
+
+    PreparedStatement* stmt = l_Database->GetPreparedStatement(CHAR_DEL_ITEM_BOP_TRADE);
+    stmt->setUInt32(0, GetRealGUIDLow());
+    l_Database->Execute(stmt);
 }
 
 bool Item::CheckSoulboundTradeExpire()
@@ -2539,6 +2648,13 @@ void Item::SetModifier(eItemModifiers p_Modifier, uint32 p_Value)
 
     m_Modifiers[p_Modifier] = p_Value;
     ApplyModFlag(EItemFields::ITEM_FIELD_MODIFIERS_MASK, 1 << p_Modifier, p_Value != 0);
+}
+
+uint64 Item::GetRealOwnerGUID() const
+{
+    if (Player* l_Owner = GetOwner())
+        return l_Owner->GetRealGUID();
+    return 0;
 }
 
 bool Item::SubclassesCompatibleForRandomWeapon(ItemTemplate const* p_Transmogrifier, ItemTemplate const* p_Transmogrified)

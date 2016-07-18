@@ -5,7 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
+#ifndef CROSS
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
@@ -140,3 +140,4 @@ void WorldSession::SendBlackMarketBidResult(uint32 p_ItemEntry, uint32 p_Auction
     l_Data << uint32(BlackMarketBidResult::BidPlaced);    ///< Result OK
     SendPacket(&l_Data);
 }
+#endif

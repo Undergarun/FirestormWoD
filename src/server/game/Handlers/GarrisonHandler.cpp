@@ -1,3 +1,4 @@
+#ifndef CROSS
 #include "Common.h"
 #include "Language.h"
 #include "DatabaseEnv.h"
@@ -1091,3 +1092,4 @@ void WorldSession::SendGarrisonSetMissionNpc(uint64 p_CreatureGUID)
     l_Data << uint32(l_Creature && l_Creature->HasFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_SHIPYARD_MISSION_NPC) ? MS::Garrison::FollowerType::Ship : MS::Garrison::FollowerType::NPC);
     SendPacket(&l_Data);
 }
+#endif

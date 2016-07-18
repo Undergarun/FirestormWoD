@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "AHerbGarden.hpp"
 #include "../../GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
@@ -329,3 +330,4 @@ namespace MS { namespace Garrison
 
 }   ///< namespace Garrison
 }   ///< namespace MS
+#endif

@@ -621,15 +621,15 @@ void WorldSession::HandlePetRename(WorldPacket & p_RecvPacket)
         }
     }
 
-    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+    SQLTransaction l_Transaction = SessionRealmDatabase.BeginTransaction();
     if (l_HasDeclinedNames)
     {
-        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
-        l_Statement->setUInt32(0, l_Pet->GetCharmInfo()->GetPetNumber());
+        PreparedStatement* l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
+        l_Statement->setUInt32(0, l_Pet->GetCharmInfo()->GetRealmPetNumber());
         l_Transaction->Append(l_Statement);
 
-        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CHAR_PET_DECLINEDNAME);
-        l_Statement->setUInt32(0, m_Player->GetGUIDLow());
+        l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_ADD_CHAR_PET_DECLINEDNAME);
+        l_Statement->setUInt32(0, m_Player->GetRealGUIDLow());
 
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
             l_Statement->setString(i + 1, l_DeclinedNames.name[i]);
@@ -637,13 +637,13 @@ void WorldSession::HandlePetRename(WorldPacket & p_RecvPacket)
         l_Transaction->Append(l_Statement);
     }
 
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_NAME);
+    PreparedStatement* l_Statement = SessionRealmDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_NAME);
     l_Statement->setString(0, l_NewName);
-    l_Statement->setUInt32(1, m_Player->GetGUIDLow());
-    l_Statement->setUInt32(2, l_Pet->GetCharmInfo()->GetPetNumber());
+    l_Statement->setUInt32(1, m_Player->GetRealGUIDLow());
+    l_Statement->setUInt32(2, l_Pet->GetCharmInfo()->GetRealmPetNumber());
     l_Transaction->Append(l_Statement);
 
-    CharacterDatabase.CommitTransaction(l_Transaction);
+    SessionRealmDatabase.CommitTransaction(l_Transaction);
 
     l_Pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
 }

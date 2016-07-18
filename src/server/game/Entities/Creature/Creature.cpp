@@ -42,7 +42,10 @@
 #include "MoveSpline.h"
 #include "WildBattlePet.h"
 #include "Transport.h"
-#include "GarrisonNPCAI.hpp"
+
+#ifndef CROSS
+# include "GarrisonNPCAI.hpp"
+#endif
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -1110,10 +1113,12 @@ void Creature::AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint3
     MonsterMoveWithSpeed(x, y, z, speed);
 }
 
+#ifndef CROSS
 GarrisonNPCAI* Creature::ToGarrisonNPCAI() const
 {
     return static_cast<GarrisonNPCAI*>(i_AI);
 }
+#endif
 
 Player* Creature::GetLootRecipient() const
 {
@@ -2967,7 +2972,13 @@ const char* Creature::GetNameForLocaleIdx(LocaleConstant loc_idx) const
 //Do not if this works or not, moving creature to another map is very dangerous
 void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
 {
+#ifndef CROSS
     CleanupBeforeRemoveFromMap(false);
+#else /* CROSS */
+    if (GetMapSwitchDestination() == -1)
+        CleanupBeforeRemoveFromMap(false);
+
+#endif /* CROSS */
     GetMap()->RemoveFromMap(this, false);
     Relocate(X, Y, Z, O);
     SetMap(map);

@@ -94,6 +94,7 @@ class BattlegroundDS : public Battleground
         virtual void FillInitialWorldStates(ByteBuffer &d);
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* player);
+        uint32 GetZoneId() const { return BATTLEGROUND_DS_ZONEID; }
     private:
         uint32 _waterfallTimer;
         uint8 _waterfallStatus;

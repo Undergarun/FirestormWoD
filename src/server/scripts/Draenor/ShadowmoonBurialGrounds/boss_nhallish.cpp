@@ -710,7 +710,7 @@ public:
 			}
 		}
 
-		void OnRemove(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+		void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
 		{
 			if (Unit* l_Caster = GetCaster())
 			{
@@ -746,7 +746,7 @@ public:
 	{
 		PrepareAuraScript(shadowmoon_burial_grounds_nhalish_spell_void_vortex_SpellScript);
 
-		void OnApply(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+		void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
 		{
 			if (Unit* l_Caster = GetCaster())
 			{

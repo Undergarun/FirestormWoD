@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #include "CalendarMgr.h"
 #include "QueryResult.h"
 #include "Log.h"
@@ -86,7 +87,7 @@ void CalendarMgr::LoadFromDB()
             uint32 l_GuildID = 0;
 
             if (l_Flags & CALENDAR_FLAG_GUILD_EVENT || l_Flags & CALENDAR_FLAG_WITHOUT_INVITES)
-                l_GuildID = Player::GetGuildIdFromDB(l_Sender);
+                l_GuildID = Player::GetGuildIdFromDB(l_Sender, g_RealmID);
 
             CalendarEvent* l_Event = new CalendarEvent(l_EventID, l_Sender, l_GuildID, l_Type, l_DungeonID, l_EventTime, l_Flags, l_TimeZone, l_Title, l_Description);
             m_Events.insert(l_Event);
@@ -705,3 +706,4 @@ void CalendarMgr::SendPacketToAllEventRelatives(WorldPacket& p_Packet, CalendarE
     }
 }
 /////////////////////////////////////////////////////////////////////
+#endif

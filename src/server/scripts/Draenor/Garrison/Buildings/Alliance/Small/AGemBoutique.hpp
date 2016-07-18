@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifndef CROSS
 #ifndef GARRISON_GEM_BOUTIQUE_ALLIANCE_HPP_GARRISON
 #define GARRISON_GEM_BOUTIQUE_ALLIANCE_HPP_GARRISON
 
@@ -72,3 +73,4 @@ namespace MS { namespace Garrison
 }   ///< namespace MS
 
 #endif  ///< GARRISON_GEM_BOUTIQUE_ALLIANCE_HPP_GARRISON
+#endif

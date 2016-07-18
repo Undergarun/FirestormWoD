@@ -270,7 +270,9 @@ class Group
         // group manipulation methods
         bool   Create(Player* leader);
         void   LoadGroupFromDB(Field* field);
+#ifndef CROSS
         void   LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles, uint8 playerClass, uint32 specId);
+#endif /* not CROSS */
         bool   AddInvite(Player* player);
         void   RemoveInvite(Player* player);
         void   RemoveAllInvites();
@@ -379,8 +381,8 @@ class Group
         void OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, uint8 slot, int32 MatchmakerRatingChange = -12);
         void MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slot, int32 MatchmakerRatingChange = -12);
         uint32 GetRating(uint8 slot);
-        void WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot);
-        void LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot);
+        void WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, int32& mmr_change, uint8 slot);
+        void LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, int32& mmr_change, uint8 slot);
         void FinishGame(int32 rating_change, uint8 slot);
 
         /*********************************************************/

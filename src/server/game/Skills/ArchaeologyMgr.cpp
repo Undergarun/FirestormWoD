@@ -180,13 +180,19 @@ namespace MS { namespace Skill { namespace Archaeology
 
         std::ostringstream l_StringStream;
 
+#ifdef CROSS
+        auto l_Database = m_Player->GetRealmDatabase();
+#else
+        auto l_Database = &CharacterDatabase;
+#endif
+
         /// character_archaeology
-        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_ARCHAEOLOGY);
-        l_Statement->setUInt32(0, m_Player->GetGUIDLow());
+        PreparedStatement* l_Statement = l_Database->GetPreparedStatement(CHAR_DEL_PLAYER_ARCHAEOLOGY);
+        l_Statement->setUInt32(0, m_Player->GetRealGUIDLow());
         p_Transaction->Append(l_Statement);
 
-        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_ARCHAEOLOGY);
-        l_Statement->setUInt32(0, m_Player->GetGUIDLow());
+        l_Statement = l_Database->GetPreparedStatement(CHAR_INS_PLAYER_ARCHAEOLOGY);
+        l_Statement->setUInt32(0, m_Player->GetRealGUIDLow());
 
         for (uint8 l_J = 0; l_J < Archaeology::Constants::MaxResearchSites; ++l_J)
             l_StringStream << uint32(m_DigSites[l_J].SiteLootCount) << " ";
@@ -201,8 +207,8 @@ namespace MS { namespace Skill { namespace Archaeology
         p_Transaction->Append(l_Statement);
 
         /// character_archaeology_sites
-        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_ARCHAEOLOGY_SITES);
-        l_Statement->setUInt32(0, m_Player->GetGUIDLow());
+        l_Statement = l_Database->GetPreparedStatement(CHAR_DEL_PLAYER_ARCHAEOLOGY_SITES);
+        l_Statement->setUInt32(0, m_Player->GetRealGUIDLow());
         p_Transaction->Append(l_Statement);
 
         for (ResearchSitesMap::const_iterator l_Iterator = m_ResearchSites.begin(); l_Iterator != m_ResearchSites.end(); ++l_Iterator)
@@ -212,8 +218,8 @@ namespace MS { namespace Skill { namespace Archaeology
 
             l_StringStream.str("");
 
-            l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_ARCHAEOLOGY_SITES);
-            l_Statement->setUInt32(0, m_Player->GetGUIDLow());
+            l_Statement = l_Database->GetPreparedStatement(CHAR_INS_PLAYER_ARCHAEOLOGY_SITES);
+            l_Statement->setUInt32(0, m_Player->GetRealGUIDLow());
             l_Statement->setUInt32(1, l_Iterator->first);
 
             for (ResearchSiteSet::const_iterator l_Iterator2 = l_Iterator->second.begin(); l_Iterator2 != l_Iterator->second.end(); ++l_Iterator2)
@@ -225,14 +231,14 @@ namespace MS { namespace Skill { namespace Archaeology
         }
 
         /// character_archaeology_projetcs
-        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_ARCHAEOLOGY_PROJECTS);
-        l_Statement->setUInt32(0, m_Player->GetGUIDLow());
+        l_Statement = l_Database->GetPreparedStatement(CHAR_DEL_PLAYER_ARCHAEOLOGY_PROJECTS);
+        l_Statement->setUInt32(0, m_Player->GetRealGUIDLow());
         p_Transaction->Append(l_Statement);
 
         for (auto l_Pair : m_CompletedProjects)
         {
-            l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_ARCHAEOLOGY_PROJECTS);
-            l_Statement->setUInt32(0, m_Player->GetGUIDLow());
+            l_Statement = l_Database->GetPreparedStatement(CHAR_INS_PLAYER_ARCHAEOLOGY_PROJECTS);
+            l_Statement->setUInt32(0, m_Player->GetRealGUIDLow());
             l_Statement->setUInt32(1, l_Pair.first);
             l_Statement->setUInt32(2, l_Pair.second.CompletionCount);
             l_Statement->setUInt32(3, l_Pair.second.FirstCompletedDate);

@@ -45,16 +45,6 @@ public:
 
     static bool HandleResetAchievementsCommand(ChatHandler* handler, char const* args)
     {
-        Player* target;
-        uint64 targetGuid;
-        if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid))
-            return false;
-
-        if (target)
-            target->GetAchievementMgr().Reset();
-        else
-            AchievementMgr<Player>::DeleteFromDB(GUID_LOPART(targetGuid));
-
         return true;
     }
 

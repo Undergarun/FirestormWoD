@@ -11,6 +11,11 @@
 #include "Group.h"
 #include "BattlegroundPacketFactory.hpp"
 
+#ifdef CROSS
+#include <iostream>
+#include <fstream>
+
+#endif /* CROSS */
 namespace MS
 {
     namespace Battlegrounds
@@ -32,7 +37,7 @@ namespace MS
                 /// We check if all the players have the good level for entering the battleground.
                 for (auto l_Plrs : p_Group->m_Players)
                 {
-                    Player* l_Player = ObjectAccessor::FindPlayer(l_Plrs.first);
+                    Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(l_Plrs.first);
                     if (!l_Player)
                         continue;
 
@@ -113,7 +118,7 @@ namespace MS
             for (auto const& l_Itr : p_Group->m_Players)
             {
                 /// Get the player.
-                Player* l_Player = ObjectAccessor::FindPlayer(l_Itr.first);
+                Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(l_Itr.first);
 
                 /// If offline, skip him, this should not happen - player is removed from queue when he logs out.
                 if (!l_Player)
@@ -215,6 +220,10 @@ namespace MS
 
         void BattlegroundScheduler::RemovePlayer(uint64 p_Guid, BattlegroundType::Type p_Type)
         {
+#ifdef CROSS
+            sLog->outAshran("BattlegroundScheduler::RemovePlayer: bg type: %u, player guid %u 2", p_Type, p_Guid);
+
+#endif /* CROSS */
             /// Remove player from map, if he's there.
             auto l_Itr = m_QueuedPlayers.find(p_Guid);
             if (l_Itr == m_QueuedPlayers.end())
@@ -281,7 +290,7 @@ namespace MS
                 BattlegroundType::Type bgQueueTypeId = GetTypeFromId(GetIdFromType(l_Group->m_BgTypeId), l_Group->m_ArenaType);
                 // remove next player, this is recursive
                 // first send removal information
-                if (Player* plr2 = ObjectAccessor::FindPlayer(l_Group->m_Players.begin()->first))
+                if (Player* plr2 = ObjectAccessor::FindPlayerInOrOutOfWorld(l_Group->m_Players.begin()->first))
                 {
                     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(l_Group->m_BgTypeId);
                     uint32 queueSlot = plr2->GetBattlegroundQueueIndex(bgQueueTypeId);
@@ -290,6 +299,9 @@ namespace MS
                     WorldPacket data;
                     PacketFactory::Status(&data, bg, plr2, queueSlot, STATUS_NONE, plr2->GetBattlegroundQueueJoinTime(l_Group->m_BgTypeId), 0, 0, false);
                     plr2->GetSession()->SendPacket(&data);
+#ifdef CROSS
+                    plr2->SetNeedRemove(true);
+#endif
                 }
                 // then actually delete, this may delete the group as well!
                 RemovePlayer(l_Group->m_Players.begin()->first, bgQueueTypeId);
@@ -539,6 +551,92 @@ namespace MS
             }
         }
 
+#ifdef CROSS
+        void BattlegroundScheduler::DumpBattlegrounds()
+        {
+            /// Only dump 100-100 bracket
+            Bracket::Id l_BracketId = 16;
+
+            std::ostringstream l_BattlegroundDump;
+
+            l_BattlegroundDump << "============= " << time(nullptr) << "============= " << std::endl;
+
+            l_BattlegroundDump << "Current battlegrounds : " << std::endl;
+            /// Loop over all battlegrounds type (only battlegrounds, no arenas)
+            for (uint32 l_I = BattlegroundType::Begin; l_I <= BattlegroundType::DeepwindGorge; l_I++)
+            {
+                BattlegroundType::Type l_BgType = static_cast<BattlegroundType::Type>(l_I);
+
+                /// We get the battleground template.
+                Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(l_BgType);
+                if (!l_Template)
+                    continue;
+
+                auto& l_Battlegrounds = sBattlegroundMgr->GetBattlegroundList(l_BracketId, l_BgType);
+                for (std::pair<uint32, Battleground*> const& l_Pair : l_Battlegrounds)
+                {
+                    Battleground* l_BG = l_Pair.second;
+
+                    /// Don't log ended battleground
+                    if (l_BG->GetStatus() == BattlegroundStatus::STATUS_WAIT_LEAVE)
+                        continue;
+
+                    MapEntry const* l_Map = sMapStore.LookupEntry(l_Template->GetMapId());
+                    if (!l_Map)
+                        continue;
+
+                    l_BattlegroundDump << "[" << l_Pair.first << "] " << l_Map->MapNameLang << std::endl;
+                    l_BattlegroundDump << "---->    Horde : " << l_BG->GetPlayersCountByTeam(HORDE) << "/" << l_BG->GetMaxPlayersPerTeam() << " | Invitation sent : " << l_BG->GetInvitedCount(HORDE) << std::endl;
+                    l_BattlegroundDump << "----> Alliance : " << l_BG->GetPlayersCountByTeam(ALLIANCE) << "/" << l_BG->GetMaxPlayersPerTeam() << " | Invitation sent : " << l_BG->GetInvitedCount(ALLIANCE) << std::endl;
+                }
+            }
+
+            l_BattlegroundDump << "Current queue : " << std::endl;
+            uint32 l_AlliancePlayerCount = 0;
+            uint32 l_HordePlayerCount = 0;
+
+            for (std::size_t l_Team = TEAM_ALLIANCE; l_Team <= TEAM_HORDE; l_Team++)
+            {
+                for (GroupQueueInfo* l_Group : m_QueuedGroups[l_BracketId][l_Team])
+                {
+                    if (l_Group->m_WantedBGs & BattlegroundMasks::AllArenas)
+                        continue;
+
+                    if (l_Team == TEAM_ALLIANCE)
+                        l_AlliancePlayerCount += l_Group->m_Players.size();
+                    else
+                        l_HordePlayerCount += l_Group->m_Players.size();
+                }
+            }
+
+            l_BattlegroundDump << "Alliance : " << l_AlliancePlayerCount << " players in queue for battlegrounds" << std::endl;
+            l_BattlegroundDump << "Horde : " << l_HordePlayerCount << " players in queue for battlegrounds" << std::endl;
+
+            l_BattlegroundDump << "Occurences (Total : " << m_TotalOccurences[l_BracketId] << ") | max freq to proc : " << (1.0f / BattlegroundType::NumBattlegrounds) + 0.05f << std::endl;
+
+            for (std::size_t i = 0; i < BattlegroundType::Max; i++)
+            {
+                Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(static_cast<BattlegroundType::Type>(i));
+                if (!l_Template)
+                    continue;
+
+                MapEntry const* l_Map = sMapStore.LookupEntry(l_Template->GetMapId());
+                if (!l_Map)
+                    continue;
+
+                l_BattlegroundDump << l_Map->MapNameLang << " : (first : " << m_BattlegroundOccurences[l_BracketId][i].first << ", second : " << m_BattlegroundOccurences[l_BracketId][i].second << ")" << std::endl;
+            }
+
+            l_BattlegroundDump << "======================================= " << std::endl;
+
+
+            ofstream l_DumpFile;
+            l_DumpFile.open("battlegrounds.log", std::fstream::in | std::fstream::out | std::fstream::app);
+            l_DumpFile << l_BattlegroundDump.str();
+            l_DumpFile.close();
+        }
+
+#endif /* CROSS */
         void BattlegroundScheduler::FindMatches()
         {
             //////////////////////////////////////////////////////////////////////////////////
@@ -690,10 +788,9 @@ namespace MS
                     {
                         switch (l_BGType)
                         {
-                        case BattlegroundType::RatedBg10v10:
-                            if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < 10 || l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < 10)
-                                continue;
-                            break;
+                            case BattlegroundType::RatedBg10v10:
+                                if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < 10 || l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < 10)
+                                    continue;
                             default:
                                 break;
                         }
