@@ -1159,15 +1159,19 @@ class boss_enforcer_sorka : public CreatureScript
                     {
                         if (!m_IsInBladeDash)
                         {
-                            std::vector<int32> l_ExcludeAuras = { -int32(eIronMaidensSpells::OnABoatPeriodic), -int32(eIronMaidensSpells::RideLoadingChain) };
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true, l_ExcludeAuras))
+                            AddTimedDelayedOperation(10, [this]() -> void
                             {
-                                AttackStart(l_Target);
+                                std::vector<int32> l_ExcludeAuras = { -int32(eIronMaidensSpells::OnABoatPeriodic), -int32(eIronMaidensSpells::RideLoadingChain) };
+                                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true, l_ExcludeAuras))
+                                {
+                                    AttackStart(l_Target);
 
-                                me->GetMotionMaster()->MoveChase(l_Target);
-                            }
+                                    me->GetMotionMaster()->MoveChase(l_Target);
+                                }
 
-                            me->RemoveAura(eSpells::SpellBladeDashCast);
+                                me->RemoveAura(eSpells::SpellBladeDashCast);
+                            });
+
                             break;
                         }
 
@@ -3899,6 +3903,45 @@ class spell_foundry_corrupted_blood : public SpellScriptLoader
         }
 };
 
+/// Chain Lightning - 158710
+class spell_foundry_chain_lightning : public SpellScriptLoader
+{
+    public:
+        spell_foundry_chain_lightning() : SpellScriptLoader("spell_foundry_chain_lightning") { }
+
+        class spell_foundry_chain_lightning_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_chain_lightning_SpellScript)
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->GetEntry() == eIronMaidensCreatures::LoadingChain)
+                        return true;
+
+                    if (p_Object->ToUnit()->IsFriendlyTo(GetCaster()))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_chain_lightning_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_TARGET_ANY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_chain_lightning_SpellScript();
+        }
+};
+
 /// Dominator Blast - 158602
 class areatrigger_foundry_dominator_blast : public AreaTriggerEntityScript
 {
@@ -4115,6 +4158,7 @@ void AddSC_boss_iron_maidens()
     new spell_foundry_detonation_sequence();
     new spell_foundry_rapid_fire_periodic();
     new spell_foundry_corrupted_blood();
+    new spell_foundry_chain_lightning();
 
     /// AreaTriggers (spells)
     new areatrigger_foundry_dominator_blast();

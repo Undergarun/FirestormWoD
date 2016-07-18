@@ -456,7 +456,7 @@ void LFGMgr::Update(uint32 diff)
                 temporalList = currentQueue;
             }
 
-            if (alreadyInQueue == 3 && std::find(currentQueue.begin(), currentQueue.end(), frontguid) == currentQueue.end())
+            if (alreadyInQueue == 4 && std::find(currentQueue.begin(), currentQueue.end(), frontguid) == currentQueue.end())
                 currentQueue.push_back(frontguid);
 
             firstNew.clear();

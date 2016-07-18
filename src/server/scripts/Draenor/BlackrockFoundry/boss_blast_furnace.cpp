@@ -551,7 +551,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                                         float l_X = l_Operator->GetPositionX() + 12.0f * cos(l_O);
                                         float l_Y = l_Operator->GetPositionY() + 12.0f * sin(l_O);
 
-                                        l_Operator->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ() + 9.0f, 10.0f, 30.0f);
+                                        l_Operator->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ() + 9.0f, 10.0f, 30.0f, l_O, 1);
                                     }
                                 });
                             }
@@ -1512,20 +1512,6 @@ class npc_foundry_bellows_operator : public CreatureScript
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_POLYMORPH, true);
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FREEZE, true);
-
-                AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                {
-                    if (Creature* l_Bellows = me->FindNearestCreature(eCreatures::Bellows, 50.0f))
-                        me->EnterVehicle(l_Bellows);
-                        
-                    /// @WORKAROUND - Clear ON VEHICLE state to allow healing (Invalid target errors)
-                    /// Current rule for applying this state is questionable (seatFlags & VEHICLE_SEAT_FLAG_ALLOW_TURNING ???)
-                    me->ClearUnitState(UnitState::UNIT_STATE_ONVEHICLE);
-
-                    /// @WORKAROUND - Clear ON VEHICLE state to allow healing (Invalid target errors)
-                    /// Current rule for applying this state is questionable (seatFlags & VEHICLE_SEAT_FLAG_ALLOW_TURNING ???)
-                    me->ClearUnitState(UnitState::UNIT_STATE_ONVEHICLE);
-                });
             }
 
             void DoAction(int32 const p_Action) override
@@ -1584,8 +1570,28 @@ class npc_foundry_bellows_operator : public CreatureScript
                 CreatureAI::EnterEvadeMode();
             }
 
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::EFFECT_MOTION_TYPE)
+                    return;
+
+                if (p_ID == 1)
+                {
+                    if (Creature* l_Bellows = me->FindNearestCreature(eCreatures::Bellows, 50.0f))
+                        me->EnterVehicle(l_Bellows);
+                }
+            }
+
             void OnVehicleEntered(Unit* /*p_Vehicle*/) override
             {
+                /// @WORKAROUND - Clear ON VEHICLE state to allow healing (Invalid target errors)
+                /// Current rule for applying this state is questionable (seatFlags & VEHICLE_SEAT_FLAG_ALLOW_TURNING ???)
+                me->ClearUnitState(UnitState::UNIT_STATE_ONVEHICLE);
+
+                /// @WORKAROUND - Clear ON VEHICLE state to allow healing (Invalid target errors)
+                /// Current rule for applying this state is questionable (seatFlags & VEHICLE_SEAT_FLAG_ALLOW_TURNING ???)
+                me->ClearUnitState(UnitState::UNIT_STATE_ONVEHICLE);
+
                 AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     me->CastSpell(me, eSpells::Loading, false);
