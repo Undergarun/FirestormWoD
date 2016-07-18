@@ -1422,10 +1422,17 @@ class spell_mage_inferno_blast: public SpellScriptLoader
 
                         for (Unit* l_Unit : l_TargetList)
                         {
+                            if (l_Unit == nullptr)
+                                continue;
+
                             /// 1 : Ignite
                             if (Aura* l_Aura = l_Target->GetAura(SPELL_MAGE_IGNITE, l_Caster->GetGUID()))
                             {
-                                int32 l_Ignite = l_Aura->GetEffect(EFFECT_0)->GetAmount();
+                                AuraEffect* l_AuraEffect = l_Aura->GetEffect(EFFECT_0);
+                                if (l_AuraEffect == nullptr)
+                                    return;
+
+                                int32 l_Ignite = l_AuraEffect->GetAmount();
                                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IGNITE);
 
                                 if (l_SpellInfo != nullptr)
@@ -1464,7 +1471,12 @@ class spell_mage_inferno_blast: public SpellScriptLoader
                                 if (Aura* l_Combustion = l_Caster->AddAura(SPELL_MAGE_COMBUSTION_DOT, l_Unit))
                                 {
                                     l_Combustion->SetDuration(l_AuraCombustion->GetBase()->GetDuration());
-                                    l_Combustion->GetEffect(EFFECT_0)->SetAmount(l_AuraCombustion->GetAmount() + l_PreviousCombustion);
+
+                                    AuraEffect* l_AuraEffect = l_Combustion->GetEffect(EFFECT_0);
+                                    if (l_AuraEffect == nullptr)
+                                        return;
+                                    
+                                    l_AuraEffect->SetAmount(l_AuraCombustion->GetAmount() + l_PreviousCombustion);
                                 }
                             }
                         }
