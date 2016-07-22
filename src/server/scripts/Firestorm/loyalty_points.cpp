@@ -6,7 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-
 #include <ScriptPCH.h>
 #include <ScriptMgr.h>
 
@@ -66,9 +65,11 @@ class LoyaltyEvents : public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_Loyalty_Points()
 {
     new LoyaltyEvents();
 };
+#endif
 
 #endif

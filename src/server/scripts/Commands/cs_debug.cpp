@@ -196,7 +196,7 @@ class debug_commandscript: public CommandScript
                 { "setaura",                     SEC_ADMINISTRATOR,  false, &HandleDebugAuraCommand,                 "", NULL },
                 { "cleardr",                     SEC_ADMINISTRATOR,  false, &HandleDebugCancelDiminishingReturn,     "", NULL },
                 { "scenario",                    SEC_ADMINISTRATOR,  false, &HandleDebugScenarioCommand,             "", NULL },
-				{ "dailypoint",                  SEC_ADMINISTRATOR,  false, &HandleDebugDailyPointCommand,           "", NULL },
+                { "dailypoint",                  SEC_ADMINISTRATOR,  false, &HandleDebugDailyPointCommand,           "", NULL },
                 { NULL,                          SEC_PLAYER,         false, NULL,                                    "", NULL }
             };
             static ChatCommand commandTable[] =

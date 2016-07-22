@@ -2179,7 +2179,6 @@ void WorldSession::CompleteLoyaltyEvent(LoyaltyEvent p_Event)
     LoginDatabase.Execute(l_Statement);
 }
 
-
 /// Send a game error
 /// @p_Error : Game error
 /// @p_Data1 : Additional data 1
