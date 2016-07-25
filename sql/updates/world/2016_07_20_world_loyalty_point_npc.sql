@@ -18,8 +18,8 @@ DELETE FROM locales_npc_text WHERE entry IN (92007, 92008);
 INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc6, Text0_1_loc6) VALUES
 (
     92007,
-    "Oh, tu viens récupérer tes points de fidélité ? Les voilà ! Tu peux les dépenser sur la boutique du site internet de Firestorm ! Pour plus d'informations à propos des points de fidélité, rendez-vous à l'adresse : http://fstorm.cc/point-fidelite",
-    "Oh, tu viens récupérer tes points de fidélité ? Les voilà ! Tu peux les dépenser sur la boutique du site internet de Firestorm ! Pour plus d'informations à propos des points de fidélité, rendez-vous à l'adresse : http://fstorm.cc/point-fidelite",
+    "Bonjour $c, vous venez récupérer vos points de fidélité ? Tenez, les voici. Vous pouvez les utiliser sur la boutique du site internet firestorm. Pour plus d'informations à propos des points de fidélité, rendez-vous à l'adresse : http://fstorm.cc/point-fidelite",
+    "Bonjour $c, vous venez récupérer vos points de fidélité ? Tenez, les voici. Vous pouvez les utiliser sur la boutique du site internet firestorm. Pour plus d'informations à propos des points de fidélité, rendez-vous à l'adresse : http://fstorm.cc/point-fidelite",
     "¡Acabo de hacer entrega de tus puntos de lealtad! Estos puntos pueden ser gastados en la página web de Firestorm www.fstorm.cc/W. Puedes obtener más información en este post del foro: www.fstorm.cc/Lealtad",
     "¡Acabo de hacer entrega de tus puntos de lealtad! Estos puntos pueden ser gastados en la página web de Firestorm www.fstorm.cc/W. Puedes obtener más información en este post del foro: www.fstorm.cc/Lealtad"
 ),
