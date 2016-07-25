@@ -1365,6 +1365,8 @@ enum TrinityStrings
     GarrisonTooMuchPortals,
     GarrisonNoMageTower,
 
+    LoyaltyPointEarn,
+
     /// Custom
     WarnRaidTests = 20000,
     CharXPRateWarn,

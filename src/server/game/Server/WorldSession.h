@@ -253,6 +253,49 @@ namespace Taxi
     class TaxiRequestEarlyLanding;
 }
 
+enum class LoyaltyEvent : uint8
+{
+    Battleground,
+    Arena,
+    DungeonFinder,
+    BattlePet,
+    KillRareOrBossCreature,
+    Achievement,
+    Craft,
+    EpicCraft,
+    GrabRessource,
+    Duel,
+    Max
+};
+
+static const uint32 g_LoyaltyEventObjectives[(uint32)LoyaltyEvent::Max] =
+{
+    1,	///< Complete battleground
+    5,	///< Complete arena
+    1,  ///< Complete dungeon finder
+    5,  ///< Do pet battles
+    1,  ///< Kill rare creature
+    3,  ///< Complete new achievement
+    5,  ///< Craft items
+    1,	///< Craft epic item
+    5,  ///< Grab ressources
+    5   ///< Do duel
+};
+
+static const uint32 g_LoyaltyEventReward[(uint32)LoyaltyEvent::Max] =
+{
+    2,	///< Complete battleground
+    2,	///< Complete arena
+    2,  ///< Complete dungeon finder
+    1,  ///< Do pet battles
+    1,  ///< Kill rare creature
+    1,  ///< Complete new achievement
+    1,  ///< Craft items
+    1,	///< Craft epic item
+    1,  ///< Grab ressources
+    1   ///< Do duel
+};
+
 //class to deal with packet processing
 //allows to determine if next packet is safe to be processed
 class PacketFilter
@@ -619,6 +662,7 @@ class WorldSession
         bool HasCustomFlags(uint32 p_Flags) const { return m_CustomFlags & p_Flags; }
 
         void LoadPremades();
+        void LoadLoyaltyData();
 
         /// Send a game error
         /// @p_Error : Game error
@@ -1427,6 +1471,17 @@ class WorldSession
         void SetStressTest(bool p_Value) { m_IsStressTestSession = p_Value; }
         bool IsStressTest() const { return m_IsStressTestSession; }
 
+        uint32 GetActivityDays() const { return m_ActivityDays; }
+        time_t GetLastBan() const { return m_LastBan; };
+        time_t GetLastClaim() const { return m_LastClaim; }
+        time_t GetLastEventReset() const { return m_LastEventReset; }
+        bool   IsEmailValidated() const { return m_EmailValidated; }
+        bool   HaveAlreadyPurchasePoints() const { return m_AlreadyPurchasePoints; }
+        uint32 GetLoyaltyEventCount(LoyaltyEvent p_Event) { return m_LoyaltyEvents[(uint32)p_Event]; }
+        void   AddLoyaltyPoints(uint32 p_Count, std::string p_Reason);
+        void   SetLastClaim(time_t p_ClaimTime) { m_LastClaim = p_ClaimTime; }
+        void   CompleteLoyaltyEvent(LoyaltyEvent p_Event);
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
@@ -1535,6 +1590,18 @@ class WorldSession
         uint32 m_VoteRemainingTime;
         uint32 m_VoteTimePassed;
         uint32 m_VoteSyncTimer;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Loyalty points system
+        //////////////////////////////////////////////////////////////////////////
+
+        uint32 m_ActivityDays;
+        time_t m_LastBan;
+        time_t m_LastClaim;
+        time_t m_LastEventReset;
+        bool   m_EmailValidated;
+        bool   m_AlreadyPurchasePoints;
+        std::vector<uint32> m_LoyaltyEvents;
 
         typedef std::list<AddonInfo> AddonsList;
 

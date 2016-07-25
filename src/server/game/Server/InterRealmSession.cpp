@@ -724,6 +724,30 @@ void InterRealmSession::Handle_BattlefieldPortResp(WorldPacket& packet)
         pckt << uint32(_instanceId);
         pckt << uint16(_bgTypeId);
         SendPacket(&pckt);
+
+        /// Loyalty System
+        if (sWorld->getBoolConfig(CONFIG_WEB_DATABASE_ENABLE))
+        {
+            switch (_bgTypeId)
+            {
+                case MS::Battlegrounds::BattlegroundType::Arena2v2:
+                case MS::Battlegrounds::BattlegroundType::Arena3v3:
+                case MS::Battlegrounds::BattlegroundType::Arena5v5:
+                case MS::Battlegrounds::BattlegroundType::ArenaSkirmish2v2:
+                case MS::Battlegrounds::BattlegroundType::ArenaSkirmish3v3:
+                case MS::Battlegrounds::BattlegroundType::TigersPeaks:
+                case MS::Battlegrounds::BattlegroundType::TolvironArena:
+                case MS::Battlegrounds::BattlegroundType::BladeEdgeArena:
+                case MS::Battlegrounds::BattlegroundType::DalaranArena:
+                case MS::Battlegrounds::BattlegroundType::RuinsOfLordaeron:
+                case MS::Battlegrounds::BattlegroundType::NagrandArena:
+                    pPlayer->GetSession()->CompleteLoyaltyEvent(LoyaltyEvent::Arena);
+                    break;
+                default:
+                    pPlayer->GetSession()->CompleteLoyaltyEvent(LoyaltyEvent::Battleground);
+                    break;
+            }
+        }
     }
 }
 

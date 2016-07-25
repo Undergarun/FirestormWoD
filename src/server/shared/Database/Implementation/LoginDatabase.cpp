@@ -45,6 +45,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_ALWAYS_BANNED, "SELECT unbandate-UNIX_TIMESTAMP() AS unban FROM account_banned WHERE id = ? AND active = 1 AND bandate <> unbandate", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_BANNED_PERMANENT, "SELECT 1 FROM account_banned WHERE id = ? AND active = 1 AND bandate = unbandate", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_UPD_ACCOUNT_NOT_BANNED, "UPDATE account_banned SET active = 0 WHERE id = ? AND active != 0", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(LOGIN_SEL_LAST_BANNED_DATE, "SELECT MAX(bandate) FROM account_banned WHERE id = ?", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_DEL_REALM_CHARACTERS_BY_REALM, "DELETE FROM realmcharacters WHERE acctid = ? AND realmid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(LOGIN_DEL_REALM_CHARACTERS, "DELETE FROM realmcharacters WHERE acctid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_INS_REALM_CHARACTERS, "INSERT INTO realmcharacters (numchars, acctid, realmid) VALUES (?, ?, ?)", CONNECTION_ASYNC)
@@ -134,4 +135,11 @@ void LoginDatabaseConnection::DoPrepareStatements()
     //////////////////////////////////////////////////////////////////////////
 
     PREPARE_STATEMENT(LOGIN_RPL_CHARACTER_RENDERER_QUEUE, "REPLACE INTO character_renderer_queue (guid, race, gender, class, skinColor, face, hairStyle, hairColor, facialHair, equipment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+
+    PREPARE_STATEMENT(LOGIN_SEL_ACTIVITY, "SELECT CONCAT(WEEK(DATE), ' - ', DATE_FORMAT(DATE, '%Y')) AS `week`, COUNT(DISTINCT(DATE_FORMAT(DATE, '%y - %m - %d'))) `countperweek` FROM account_log_ip WHERE accountid = ? AND source > 1 AND error = 0 GROUP BY CONCAT(WEEK(DATE), ' - ', DATE_FORMAT(DATE, '%y')) ORDER BY DATE", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_SEL_ACC_LOYALTY, "SELECT LastClaim, LastEventReset FROM account_loyalty WHERE AccountID = ?", CONNECTION_SYNCH)
+    PREPARE_STATEMENT(LOGIN_REP_ACC_LOYALTY, "REPLACE INTO account_loyalty(AccountID, LastClaim, LastEventReset) VALUES (?, ?, ?)", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(LOGIN_SEL_ACC_LOYALTY_EVENT, "SELECT Event, Count FROM account_loyalty_event WHERE AccountID = ?", CONNECTION_SYNCH)
+    PREPARE_STATEMENT(LOGIN_DEL_ACC_LOYALTY_EVENT, "DELETE FROM account_loyalty_event WHERE AccountID = ?", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(LOGIN_REP_ACC_LOYALTY_EVENT, "REPLACE INTO account_loyalty_event(AccountID, Event, Count) VALUES (?, ?, ?)", CONNECTION_ASYNC)
 }

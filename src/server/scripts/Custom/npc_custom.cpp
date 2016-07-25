@@ -1035,6 +1035,78 @@ class npc_legendary_transmogrificator : public CreatureScript
         }
 };
 
+
+/// Boris <Loyalty Point> - 250000
+class npc_loyalty_point : public CreatureScript
+{
+public:
+    npc_loyalty_point() : CreatureScript("npc_loyalty_point") { }
+
+    enum eMenuIDs
+    {
+        GiveLoyaltyPoint = 92007,
+        AlreadyEarnPoint = 92008
+    };
+
+    bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+    {
+        if (!p_Player)
+            return false;
+
+        WorldSession* l_Session = p_Player->GetSession();
+        time_t l_NowTime = time(nullptr);
+
+        time_t l_LastClaimTime = l_Session->GetLastClaim();
+
+        auto l_Time = localtime(&l_NowTime);
+        struct tm l_Now = *l_Time;
+        auto l_LastClaim = localtime(&l_LastClaimTime);
+
+        /// If now is a different day than the last event reset day, then clear event history
+        if (l_LastClaim->tm_year != l_Now.tm_year || l_LastClaim->tm_mday != l_Now.tm_mday || l_LastClaim->tm_mon != l_Now.tm_mon)
+        {
+            uint32 l_Points = 5;
+
+            if (l_Session->GetLastBan() < (time(nullptr) - (MONTH * 6)))
+                l_Points += 2;
+
+            if (l_Session->HaveAlreadyPurchasePoints())
+                l_Points += 1;
+
+            if (l_Session->IsEmailValidated())
+                l_Points += 1;
+
+            if (l_Session->GetActivityDays() > 13)
+                l_Points += 1;
+
+            if (l_Session->GetActivityDays() > 59)
+                l_Points += 1;
+
+            if (l_Session->GetActivityDays() > 179)
+                l_Points += 1;
+
+            if (l_Session->GetActivityDays() > 359)
+                l_Points += 1;
+
+            l_Session->AddLoyaltyPoints(l_Points, "NPC Daily reward");
+            l_Session->SetLastClaim(time(nullptr));
+
+            PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACC_LOYALTY);
+            l_Statement->setUInt32(0, l_Session->GetAccountId());
+            l_Statement->setUInt32(1, l_Session->GetLastClaim());
+            l_Statement->setUInt32(2, l_Session->GetLastEventReset());
+            LoginDatabase.Execute(l_Statement);
+
+            p_Player->PlayerTalkClass->ClearMenus();
+            p_Player->SEND_GOSSIP_MENU(eMenuIDs::GiveLoyaltyPoint, p_Creature->GetGUID());
+            return true;
+        }
+
+        p_Player->SEND_GOSSIP_MENU(eMenuIDs::AlreadyEarnPoint, p_Creature->GetGUID());
+        return true;
+    }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_npc_custom()
 {
@@ -1044,5 +1116,6 @@ void AddSC_npc_custom()
     new npc_fun_gold_vendor();
     new npc_fun_transmo_vendor();
     new npc_legendary_transmogrificator();
+    new npc_loyalty_point();
 }
 #endif

@@ -2183,6 +2183,26 @@ void ScriptMgr::OnAchievementEarned(Player* p_Player, AchievementEntry const* p_
     FOREACH_SCRIPT(PlayerScript)->OnAchievementEarned(p_Player, p_Achievement, p_SendAchievement, p_After);
 }
 
+void ScriptMgr::OnPetBattleFinish(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPetBattleFinish(p_Player);
+}
+
+void ScriptMgr::OnDungeonFinderFinish(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnDungeonFinderFinish(p_Player);
+}
+
+void ScriptMgr::OnCraftItem(Player* p_Player, Item* p_Item)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnCraftItem(p_Player, p_Item);
+}
+
+void ScriptMgr::OnPlayerGrabRessource(Player* p_Player, GameObject* p_GameObject)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnGrabRessource(p_Player, p_GameObject);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

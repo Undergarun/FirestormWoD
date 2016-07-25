@@ -14,6 +14,7 @@
 #include "AchievementMgr.h"
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
+#include "ScriptMgr.h"
 
 #define PETBATTLE_ABILITY_TRAP_FAMILY 0x99C00
 
@@ -1346,6 +1347,8 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
 
             if (!l_Player)
                 continue;
+
+            sScriptMgr->OnPetBattleFinish(l_Player);
 
             uint32 l_AvailablePetCount = Teams[l_CurrentTeamID]->GetAvailablesPets().size();
 

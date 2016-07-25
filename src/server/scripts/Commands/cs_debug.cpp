@@ -196,6 +196,7 @@ class debug_commandscript: public CommandScript
                 { "setaura",                     SEC_ADMINISTRATOR,  false, &HandleDebugAuraCommand,                 "", NULL },
                 { "cleardr",                     SEC_ADMINISTRATOR,  false, &HandleDebugCancelDiminishingReturn,     "", NULL },
                 { "scenario",                    SEC_ADMINISTRATOR,  false, &HandleDebugScenarioCommand,             "", NULL },
+				{ "dailypoint",                  SEC_ADMINISTRATOR,  false, &HandleDebugDailyPointCommand,           "", NULL },
                 { NULL,                          SEC_PLAYER,         false, NULL,                                    "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -3923,6 +3924,58 @@ class debug_commandscript: public CommandScript
             l_Data.FlushBits();
 
             l_Player->SendDirectMessage(&l_Data);
+            return true;
+        }
+
+        static bool HandleDebugDailyPointCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+#ifndef CROSS
+            WorldSession* l_Session = p_Handler->GetSession();
+            time_t l_NowTime        = time(nullptr);
+
+            time_t l_LastClaimTime  = l_Session->GetLastClaim();
+
+            auto l_Time = localtime(&l_NowTime);
+            struct tm l_Now = *l_Time;
+            auto l_LastClaim = localtime(&l_LastClaimTime);
+
+            /// If now is a different day than the last event reset day, then clear event history
+            if (l_LastClaim->tm_year != l_Now.tm_year || l_LastClaim->tm_mday != l_Now.tm_mday || l_LastClaim->tm_mon != l_Now.tm_mon)
+            { 
+                uint32 l_Points = 5;
+
+                if (l_Session->GetLastBan() < (time(nullptr) - (MONTH * 6)))
+                    l_Points += 2;
+
+                if (l_Session->HaveAlreadyPurchasePoints())
+                    l_Points += 1;
+
+                if (l_Session->IsEmailValidated())
+                    l_Points += 1;
+
+                if (l_Session->GetActivityDays() > 13)
+                    l_Points += 1;
+
+                if (l_Session->GetActivityDays() > 59)
+                    l_Points += 1;
+
+                if (l_Session->GetActivityDays() > 179)
+                    l_Points += 1;
+
+                if (l_Session->GetActivityDays() > 359)
+                    l_Points += 1;
+
+                l_Session->AddLoyaltyPoints(l_Points, "NPC Daily reward");
+                l_Session->SetLastClaim(time(nullptr));
+
+                PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACC_LOYALTY);
+                l_Statement->setUInt32(0, l_Session->GetAccountId());
+                l_Statement->setUInt32(1, l_Session->GetLastClaim());
+                l_Statement->setUInt32(2, l_Session->GetLastEventReset());
+                LoginDatabase.Execute(l_Statement);
+#endif
+            }
+
             return true;
         }
 };

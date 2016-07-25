@@ -115,6 +115,7 @@ static void GrimailEnforcersWiningCondition(InstanceScript* p_Instance, Creature
         {
             if (Creature* l_Noxx = p_Instance->instance->GetCreature(p_Instance->GetData64(eIronDocksDatas::DataGrimrailNoxx)))
             {
+                /// Makogg doesn't actually die, because it'll fuck the instance conditions.
                 if (l_Duguru->isDead() && l_Noxx->isDead() && l_Makogg->isDead())
                 {
                     if (Player* l_Player = Player::GetPlayer(*p_Me, p_KillerGuid))

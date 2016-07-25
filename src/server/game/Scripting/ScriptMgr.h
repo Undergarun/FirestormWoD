@@ -897,6 +897,14 @@ class ScriptMgr
         /// @p_After : True when the hook is after achievement earned, else : false
         void OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement, bool p_After);
 
+        void OnPetBattleFinish(Player* p_Player);
+
+        void OnDungeonFinderFinish(Player* p_Player);
+
+        void OnCraftItem(Player* p_Player, Item* p_Item);
+
+        void OnPlayerGrabRessource(Player* p_Player, GameObject* p_GameObject);
+
     /// BattlegroundScript
     public:
         /// Should return a fully valid Battleground object for the type ID.

@@ -2123,6 +2123,8 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, bool vellum)
         // we succeeded in creating at least one item, so a level up is possible
         if (bgType == 0)
             player->UpdateCraftSkill(m_spellInfo->Id);
+
+        sScriptMgr->OnCraftItem(player, pItem);
     }
 
 #ifndef CROSS
@@ -2672,6 +2674,9 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
                 // Do one skill-up
                 player->UpdateGatherSkill(skillId, pureSkillValue, reqSkillValue);
             }
+
+            if (gameObjTarget)
+                sScriptMgr->OnPlayerGrabRessource(player, gameObjTarget);
         }
     }
     ExecuteLogEffectOpenLock(effIndex, gameObjTarget ? (Object*)gameObjTarget : (Object*)itemTarget);

@@ -23,6 +23,9 @@ void AddSC_Character_Renderer();
 void AddSC_StressTest();
 void AddSC_CustomPlayerscripts();
 void AddSC_midsummer_fire_festival();
+#ifndef CROSS
+void AddSC_Loyalty_Points();
+#endif
 
 /// Spells
 void AddSC_deathknight_spell_scripts();
@@ -2200,5 +2203,8 @@ void AddCustomScripts()
     AddSC_Character_Renderer();
     AddSC_CustomPlayerscripts();
     AddSC_midsummer_fire_festival();
+#ifndef CROSS
+    AddSC_Loyalty_Points();
+#endif
 #endif
 }

@@ -719,6 +719,28 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_SendAchievement);
             UNUSED(p_After);
         }
+
+        virtual void OnPetBattleFinish(Player* p_Player)
+        {
+            UNUSED(p_Player);
+        }
+
+        virtual void OnDungeonFinderFinish(Player* p_Player)
+        {
+            UNUSED(p_Player);
+        }
+
+        virtual void OnCraftItem(Player* p_Player, Item* p_Item)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Item);
+        }
+
+        virtual void OnGrabRessource(Player* p_Player, GameObject* p_GameObject)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_GameObject);
+        }
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER_HPP_INCLUDED

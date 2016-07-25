@@ -44,6 +44,7 @@
 #include "WardenMac.h"
 #include "AccountMgr.h"
 #include "PetBattle.h"
+#include "Chat.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -157,15 +158,26 @@ WorldSession::WorldSession(uint32 id, InterRealmClient* irc, AccountTypes sec, b
     m_latency                           = 0;
     m_VoteTimePassed                    = 0;
 
-    m_IsStressTestSession      = false;
-    m_playerRecentlyLogout     = false;
-    m_playerSave               = false;
-    m_TutorialsChanged         = false;
-    m_playerLoading            = false;
-    m_playerLogout             = false;
-    m_inQueue                  = false;
+    m_ActivityDays = 0;
+    m_LastBan = 0;
+    m_LastClaim = 0;
+
+
+    m_EmailValidated = false;
+    m_AlreadyPurchasePoints = false;
+
+    m_IsStressTestSession   = false;
+    m_playerRecentlyLogout  = false;
+    m_playerSave            = false;
+    m_TutorialsChanged      = false;
+    m_playerLoading         = false;
+    m_playerLogout          = false;
+    m_inQueue               = false;
+
     m_IsPetBattleJournalLocked = false;
     ///////////////////////////////////////////////////////////////////////////////
+
+    m_LoyaltyEvents.resize((uint32)LoyaltyEvent::Max, 0);
 
     _warden = NULL;
     _filterAddonMessages = false;
@@ -2018,6 +2030,155 @@ void WorldSession::LoadCharacterDone(LoginQueryHolder* p_CharHolder, LoginDBQuer
     delete p_AuthHolder;
 }
 #endif
+
+void WorldSession::LoadLoyaltyData()
+{
+#ifndef CROSS
+    if (!sWorld->getBoolConfig(CONFIG_WEB_DATABASE_ENABLE))
+        return;
+
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACTIVITY);
+    l_Statement->setUInt32(0, GetAccountId());
+
+    PreparedQueryResult l_Activity = LoginDatabase.Query(l_Statement);
+    if (l_Activity)
+    {
+        do
+        {
+            Field* l_Fields = l_Activity->Fetch();
+            uint64 l_Days = l_Fields[1].GetUInt64();
+
+            /// Loyalty points are based on week of activity, a week of activity is at least 3 day of activity in a single week or 7 days of activity
+            m_ActivityDays += l_Days > 2 ? 7 : l_Days;
+        } while (l_Activity->NextRow());
+    }
+
+    l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LAST_BANNED_DATE);
+    l_Statement->setUInt32(0, GetAccountId());
+
+    PreparedQueryResult l_LastBanDate = LoginDatabase.Query(l_Statement);
+    if (l_LastBanDate)
+        m_LastBan = l_LastBanDate->Fetch()[0].GetUInt32();
+
+    l_Statement = WebDatabase.GetPreparedStatement(WEB_SEL_ACC_VALIDATE);
+    l_Statement->setUInt32(0, GetAccountId());
+
+    PreparedQueryResult l_AccountValidate = WebDatabase.Query(l_Statement);
+    if (l_AccountValidate)
+        m_EmailValidated = l_AccountValidate->Fetch()[0].GetBool();
+
+    l_Statement = WebDatabase.GetPreparedStatement(WEB_SEL_POINTS_PURCHASE);
+    l_Statement->setUInt32(0, GetAccountId());
+
+    if (PreparedQueryResult l_PointsPurchase = WebDatabase.Query(l_Statement))
+        m_AlreadyPurchasePoints = true;
+
+    l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACC_LOYALTY);
+    l_Statement->setUInt32(0, GetAccountId());
+
+    if (PreparedQueryResult l_AccountLoyalty = LoginDatabase.Query(l_Statement))
+    {
+        Field* l_Fields = l_AccountLoyalty->Fetch();
+
+        m_LastClaim = l_Fields[0].GetUInt32();
+        m_LastEventReset = l_Fields[1].GetUInt32();
+
+        time_t l_NowTime = time(nullptr);
+
+        auto l_Time = localtime(&l_NowTime);
+        struct tm l_Now = *l_Time;
+        auto l_LastReset = localtime(&m_LastEventReset);
+
+        /// If now is a different day than the last event reset day, then clear event history
+        if (l_LastReset->tm_year != l_Now.tm_year || l_LastReset->tm_mday != l_Now.tm_mday || l_LastReset->tm_mon != l_Now.tm_mon)
+        {
+            m_LastEventReset = l_NowTime;
+
+            l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACC_LOYALTY_EVENT);
+            l_Statement->setUInt32(0, GetAccountId());
+            LoginDatabase.Execute(l_Statement);
+        }
+        /// Load event history of the day
+        else
+        {
+
+            l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACC_LOYALTY_EVENT);
+            l_Statement->setUInt32(0, GetAccountId());
+
+            if (PreparedQueryResult l_Events = LoginDatabase.Query(l_Statement))
+            {
+                do
+                {
+                    Field* l_Fields = l_Events->Fetch();
+                    uint32 l_Event = l_Fields[0].GetUInt32();
+                    uint32 l_Count = l_Fields[1].GetUInt32();
+
+                    /// Corrupted data ?
+                    if (l_Event >= (uint32)LoyaltyEvent::Max)
+                        continue;
+
+                    m_LoyaltyEvents[l_Event] = l_Count;
+                } while (l_Events->NextRow());
+            }
+        }
+    }
+    else
+    {
+        /// Insert default row
+        m_LastEventReset = time(nullptr);
+
+        l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACC_LOYALTY);
+        l_Statement->setUInt32(0, GetAccountId());
+        l_Statement->setUInt32(1, 0);
+        l_Statement->setUInt32(2, m_LastEventReset);
+        LoginDatabase.Execute(l_Statement);
+    }
+#endif
+}
+
+void WorldSession::AddLoyaltyPoints(uint32 p_Count, std::string p_Reason)
+{
+    PreparedStatement* l_Statement = WebDatabase.GetPreparedStatement(WEB_INS_LOYALTY_POINTS);
+    l_Statement->setUInt32(0, GetAccountId());
+    l_Statement->setUInt32(1, p_Count);
+    l_Statement->setString(2, p_Reason);
+    WebDatabase.Execute(l_Statement);
+
+    ChatHandler(this).PSendSysMessage(TrinityStrings::LoyaltyPointEarn, p_Count);
+}
+
+void WorldSession::CompleteLoyaltyEvent(LoyaltyEvent p_Event)
+{
+    m_LoyaltyEvents[(uint32)p_Event]++;
+
+    if (m_LoyaltyEvents[(uint32)p_Event] == g_LoyaltyEventObjectives[(uint32)p_Event])
+    {
+        uint32 l_RewardPoints = g_LoyaltyEventReward[(uint32)p_Event];
+
+        /// loyalty event can give you max 7 points per day
+        int32 l_AlreadyEarnPoints = 0;
+        for (uint8 l_I = 0; l_I < (uint8)LoyaltyEvent::Max; l_I++)
+        {
+            if (m_LoyaltyEvents[l_I] == g_LoyaltyEventObjectives[l_I])
+                l_AlreadyEarnPoints += g_LoyaltyEventReward[l_I];
+        }
+
+        if ((l_AlreadyEarnPoints + l_RewardPoints) > 7)
+            l_RewardPoints = std::max(7 - l_AlreadyEarnPoints, 0);
+
+        if (!l_RewardPoints)
+            return;
+
+        AddLoyaltyPoints(l_RewardPoints, "Loyalty Event " + std::to_string((uint32)p_Event));
+    }
+
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACC_LOYALTY_EVENT);
+    l_Statement->setUInt32(0, GetAccountId());
+    l_Statement->setUInt32(1, (uint32)p_Event);
+    l_Statement->setUInt32(2, m_LoyaltyEvents[(uint32)p_Event]);
+    LoginDatabase.Execute(l_Statement);
+}
+
 
 /// Send a game error
 /// @p_Error : Game error
