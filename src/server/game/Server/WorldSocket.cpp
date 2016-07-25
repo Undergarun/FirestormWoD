@@ -1137,8 +1137,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
         return -1;
     }
 
-    //                                                    0       1          2       3    4  5      6          7       8         9      10    11       12                           13             14
-    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os, username, UNIX_TIMESTAMP(joindate), service_flags, custom_flags FROM account  WHERE id = %u", l_AccountID);
+    //                                                    0       1          2       3    4  5      6          7       8         9      10    11       12                           13             14         15
+    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os, username, UNIX_TIMESTAMP(joindate), service_flags, custom_flags, token_key FROM account  WHERE id = %u", l_AccountID);
 
     /// Stop if the account is not found
     if (!l_Result)
@@ -1205,7 +1205,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     /// Checks gmlevel per Realm                0        1
     l_Result = LoginDatabase.PQuery ("SELECT RealmID, gmlevel FROM account_access WHERE id = '%d' AND (RealmID = '%d' OR RealmID = '-1')", l_AccountID, g_RealmID);
 
-    if (!l_Result)
+    if (!l_Result || (sWorld->getBoolConfig(CONFIG_MUST_HAVE_AUTHENTICATOR_ACCESS) && l_Fields[15].GetString().empty()))
         l_AccountGMLevel = 0;
     else
     {
