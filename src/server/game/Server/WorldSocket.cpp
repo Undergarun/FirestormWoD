@@ -1201,11 +1201,12 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
 
     uint32      l_Recruiter = l_Fields[9].GetUInt32();
     std::string l_AccountOS = l_Fields[10].GetString();
+    std::string l_TokenKey  = l_Fields[15].GetString();
 
     /// Checks gmlevel per Realm                0        1
     l_Result = LoginDatabase.PQuery ("SELECT RealmID, gmlevel FROM account_access WHERE id = '%d' AND (RealmID = '%d' OR RealmID = '-1')", l_AccountID, g_RealmID);
 
-    if (!l_Result || (sWorld->getBoolConfig(CONFIG_MUST_HAVE_AUTHENTICATOR_ACCESS) && l_Fields[15].GetString().empty()))
+    if (!l_Result || (sWorld->getBoolConfig(CONFIG_MUST_HAVE_AUTHENTICATOR_ACCESS) && l_TokenKey.empty()))
         l_AccountGMLevel = 0;
     else
     {
