@@ -1065,7 +1065,7 @@ public:
         /// If now is a different day than the last event reset day, then clear event history
         if (l_LastClaim->tm_year != l_Now.tm_year || l_LastClaim->tm_mday != l_Now.tm_mday || l_LastClaim->tm_mon != l_Now.tm_mon)
         {
-            uint32 l_Points = 5;
+            uint32 l_Points = 10;
 
             if (l_Session->GetLastBan() < (time(nullptr) - (MONTH * 6)))
                 l_Points += 2;

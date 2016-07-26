@@ -284,16 +284,16 @@ static const uint32 g_LoyaltyEventObjectives[(uint32)LoyaltyEvent::Max] =
 
 static const uint32 g_LoyaltyEventReward[(uint32)LoyaltyEvent::Max] =
 {
-    2,	///< Complete battleground
-    2,	///< Complete arena
-    2,  ///< Complete dungeon finder
-    1,  ///< Do pet battles
-    1,  ///< Kill rare creature
-    1,  ///< Complete new achievement
-    1,  ///< Craft items
-    1,	///< Craft epic item
-    1,  ///< Grab ressources
-    1   ///< Do duel
+    3,	///< Complete battleground
+    3,	///< Complete arena
+    3,  ///< Complete dungeon finder
+    2,  ///< Do pet battles
+    2,  ///< Kill rare creature
+    2,  ///< Complete new achievement
+    2,  ///< Craft items
+    2,	///< Craft epic item
+    2,  ///< Grab ressources
+    2   ///< Do duel
 };
 
 //class to deal with packet processing
