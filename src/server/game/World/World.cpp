@@ -165,6 +165,8 @@ World::World()
 
     m_lexicsCutter = nullptr;
 
+    m_LastAccountLogId = 0;
+
     m_QueryHolderCallbacks             = std::unique_ptr<QueryHolderCallbacks>(new QueryHolderCallbacks());
     m_QueryHolderCallbacksBuffer       = std::unique_ptr<QueryHolderCallbacks>(new QueryHolderCallbacks());
     m_TransactionCallbacks             = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
@@ -2316,6 +2318,12 @@ void World::SetInitialWorldSettings()
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
+    QueryResult l_Result = LoginDatabase.PQuery("SELECT max(id) FROM account_log_ip");
+    if (l_Result)
+        m_LastAccountLogId = l_Result->Fetch()[0].GetUInt64();
+
+    m_timers[WUPDATE_SCAN_ACC_LOG_IP].SetInterval(5 * IN_MILLISECONDS);
+
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
     sLog->EnableDBAppenders();
 
@@ -2694,6 +2702,45 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_BLACKMARKET].Reset();
         sBlackMarketMgr->Update();
     }
+
+    if (m_timers[WUPDATE_SCAN_ACC_LOG_IP].Passed())
+    {
+        m_timers[WUPDATE_SCAN_ACC_LOG_IP].Reset();
+
+        PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SCAN_LAST_ACCOUNT_LOG);
+        l_Stmt->setUInt32(0, m_LastAccountLogId);
+        m_AccountLogIpScanCallback = LoginDatabase.AsyncQuery(l_Stmt);
+    }
+
+    if (m_AccountLogIpScanCallback.ready())
+    {
+        PreparedQueryResult l_Result;
+        m_AccountLogIpScanCallback.get(l_Result);
+
+        if (l_Result)
+        {
+            do
+            {
+                Field* l_Fields = l_Result->Fetch();
+                m_LastAccountLogId = l_Fields[0].GetUInt32();
+                uint32 l_AccountId = l_Fields[1].GetUInt32();
+
+                if (WorldSession* l_Session = FindSession(l_AccountId))
+                {
+                    auto l_Itr = m_NewSessions.find(l_AccountId);
+
+                    if (l_Itr == m_NewSessions.end())
+                        l_Session->KickPlayer();
+                    else
+                        m_NewSessions.erase(l_AccountId);
+                }
+            }
+            while (l_Result->NextRow());
+        }
+
+        m_AccountLogIpScanCallback.cancel();
+    }
+
 #endif
 
     // update the instance reset times
@@ -3379,7 +3426,10 @@ void World::UpdateSessions(uint32 diff)
     ///- Add new sessions
     WorldSession* sess = NULL;
     while (addSessQueue.next(sess))
-        AddSession_ (sess);
+    {
+        AddSession_(sess);
+        AddNewSession(sess->GetAccountId());
+    }
 
     ///- Then send an update signal to remaining ones
     for (SessionMap::iterator itr = m_sessions.begin(), next; itr != m_sessions.end(); itr = next)

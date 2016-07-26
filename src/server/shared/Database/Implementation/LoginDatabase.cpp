@@ -142,4 +142,6 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SEL_ACC_LOYALTY_EVENT, "SELECT Event, Count FROM account_loyalty_event WHERE AccountID = ?", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_DEL_ACC_LOYALTY_EVENT, "DELETE FROM account_loyalty_event WHERE AccountID = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(LOGIN_REP_ACC_LOYALTY_EVENT, "REPLACE INTO account_loyalty_event(AccountID, Event, Count) VALUES (?, ?, ?)", CONNECTION_ASYNC)
+
+    PREPARE_STATEMENT(LOGIN_SCAN_LAST_ACCOUNT_LOG, "SELECT id, accountid FROM account_log_ip WHERE id > ? AND error = 0 AND source > 1", CONNECTION_ASYNC)
 }

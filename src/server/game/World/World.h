@@ -86,6 +86,7 @@ enum WorldTimers
 #ifndef CROSS
     WUPDATE_TRANSFER,
     WUPDATE_TRANSFER_EXP,
+    WUPDATE_SCAN_ACC_LOG_IP,
 #endif
     WUPDATE_COUNT
 };
@@ -1026,6 +1027,11 @@ class World
             m_QueryHolderCallbackLock.unlock();
         }
 
+        void AddNewSession(uint32 p_AccountID)
+        {
+            m_NewSessions.insert(p_AccountID);
+        }
+
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -1115,6 +1121,10 @@ class World
         uint32 m_maxQueuedSessionCount;
         uint32 m_PlayerCount;
         uint32 m_MaxPlayerCount;
+
+        std::unordered_set<uint32> m_NewSessions;
+        uint32 m_LastAccountLogId;
+        PreparedQueryResultFuture m_AccountLogIpScanCallback;
 
         ACE_Based::LockedQueue<CliCommandHolder*, ACE_Thread_Mutex> cliCmdQueue;
 

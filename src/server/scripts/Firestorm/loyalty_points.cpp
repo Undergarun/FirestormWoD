@@ -19,7 +19,7 @@ class LoyaltyEvents : public PlayerScript
 
         void OnAchievementEarned(Player* p_Player, AchievementEntry const* p_Achievement, bool& p_SendAchievement, bool p_After) override
         {
-            if (p_After)
+            if (p_After && p_Player)
                 p_Player->GetSession()->CompleteLoyaltyEvent(LoyaltyEvent::Achievement);
         }
 
