@@ -332,7 +332,7 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& p_Packet)
 void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
 {
 #ifndef CROSS
-    bool l_InterRealmEnable = sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE);
+    bool l_InterRealmEnable = sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE) && !m_Player->GetWargameRequest();
     InterRealmSession* l_Tunnel = nullptr;
 
     if (l_InterRealmEnable)
