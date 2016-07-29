@@ -585,6 +585,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     m_MasteryCache = 0.0f;
     m_BonusQuestTimer = 0;
+
+    m_EndSalesTimestamp = 0;
 }
 
 Player::~Player()
@@ -21009,6 +21011,10 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     m_atLoginFlags = fields[34].GetUInt16();
 
+    m_EndSalesTimestamp = fields[72].GetUInt32();
+    if (m_EndSalesTimestamp > time(nullptr))
+        return false;
+
     if (m_atLoginFlags & AT_LOGIN_LOCKED_FOR_TRANSFER)
         return false;
 
@@ -23730,6 +23736,7 @@ void Player::SaveToDB(bool create /*=false*/, MS::Utilities::CallBackPtr p_Callb
         stmt->setUInt32(index++, m_LastSummonedBattlePet);
         stmt->setFloat(index++, m_PersonnalXpRate);
         stmt->setUInt32(index++, m_petSlotUsed);
+        stmt->setUInt32(index++, GetAverageItemLevelTotal());
     }
     else
     {
@@ -23886,6 +23893,7 @@ void Player::SaveToDB(bool create /*=false*/, MS::Utilities::CallBackPtr p_Callb
 
         stmt->setFloat(index++, m_PersonnalXpRate);
         stmt->setUInt32(index++, m_petSlotUsed);
+        stmt->setUInt32(index++, GetAverageItemLevelTotal());
 
         // Index
         stmt->setUInt32(index++, GetRealGUIDLow());

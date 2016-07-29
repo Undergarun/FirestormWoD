@@ -4300,7 +4300,7 @@ class Player : public Unit, public GridObject<Player>
 
         /// Armory caches
         float m_MasteryCache;
-
+        uint32 m_EndSalesTimestamp;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

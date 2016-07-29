@@ -33,8 +33,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_SEL_MAIL_LIST_INFO, "SELECT id, sender, (SELECT name FROM characters WHERE guid = sender) AS sendername, receiver, (SELECT name FROM characters WHERE guid = receiver) AS receivername,"
                      "SUBJECT, deliver_time, expire_time, money, has_items FROM mail WHERE receiver = ? ", CONNECTION_SYNCH);
     PREPARE_STATEMENT(CHAR_SEL_MAIL_LIST_ITEMS, "SELECT itemEntry,count FROM item_instance WHERE guid = ?", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_SEL_ENUM, "SELECT c.guid, c.name, c.race, c.class, c.gender, c.playerBytes, c.playerBytes2, c.level, c.zone, c.map, c.position_x, c.position_y, c.position_z, gm.guildid, c.playerFlags, c.at_login, cp.entry, cp.modelid, cp.level, c.equipmentCache, cb.guid, c.slot FROM characters AS c LEFT JOIN character_pet AS cp ON c.guid = cp.owner AND cp.slot = ? LEFT JOIN guild_member AS gm ON c.guid = gm.guid LEFT JOIN character_banned AS cb ON c.guid = cb.guid AND cb.active = 1 WHERE c.account = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_SEL_ENUM_DECLINED_NAME, "SELECT c.guid, c.name, c.race, c.class, c.gender, c.playerBytes, c.playerBytes2, c.level, c.zone, c.map, c.position_x, c.position_y, c.position_z, gm.guildid, c.playerFlags, c.at_login, cp.entry, cp.modelid, cp.level, c.equipmentCache, cb.guid, c.slot, cd.genitive FROM characters AS c LEFT JOIN character_pet AS cp ON c.guid = cp.owner AND cp.slot = ? LEFT JOIN character_declinedname AS cd ON c.guid = cd.guid LEFT JOIN guild_member AS gm ON c.guid = gm.guid LEFT JOIN character_banned AS cb ON c.guid = cb.guid AND cb.active = 1 WHERE c.account = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_ENUM, "SELECT c.guid, c.name, c.race, c.class, c.gender, c.playerBytes, c.playerBytes2, c.level, c.zone, c.map, c.position_x, c.position_y, c.position_z, gm.guildid, c.playerFlags, c.at_login, cp.entry, cp.modelid, cp.level, c.equipmentCache, cb.guid, c.slot FROM characters AS c LEFT JOIN character_pet AS cp ON c.guid = cp.owner AND cp.slot = ? LEFT JOIN guild_member AS gm ON c.guid = gm.guid LEFT JOIN character_banned AS cb ON c.guid = cb.guid AND cb.active = 1 WHERE c.account = ? AND c.end_sales < UNIX_TIMESTAMP()", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_ENUM_DECLINED_NAME, "SELECT c.guid, c.name, c.race, c.class, c.gender, c.playerBytes, c.playerBytes2, c.level, c.zone, c.map, c.position_x, c.position_y, c.position_z, gm.guildid, c.playerFlags, c.at_login, cp.entry, cp.modelid, cp.level, c.equipmentCache, cb.guid, c.slot, cd.genitive FROM characters AS c LEFT JOIN character_pet AS cp ON c.guid = cp.owner AND cp.slot = ? LEFT JOIN character_declinedname AS cd ON c.guid = cd.guid LEFT JOIN guild_member AS gm ON c.guid = gm.guid LEFT JOIN character_banned AS cb ON c.guid = cb.guid AND cb.active = 1 WHERE c.account = ? AND c.end_sales < UNIX_TIMESTAMP()", CONNECTION_ASYNC);
 
     // Pet
     PREPARE_STATEMENT(CHAR_SEL_PET_SLOTS, "SELECT owner, slot, id FROM character_pet WHERE owner = ?  AND slot >= ? AND slot <= ? ORDER BY slot", CONNECTION_ASYNC);
@@ -69,7 +69,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     "position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, "
     "resettalents_time, talentTree, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, DungeonDifficulty, "
     "totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
-    "health, power1, power2, power3, power4, power5, power6, instance_id, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, knownTitles, actionBars, currentpetslot, petslotused, grantableLevels, resetspecialization_cost, resetspecialization_time, playerFlagsEx, RaidDifficulty, LegacyRaidDifficuly, lastbattlepet, xprate FROM characters WHERE guid = ?", CONNECTION_ASYNC)
+    "health, power1, power2, power3, power4, power5, power6, instance_id, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, knownTitles, actionBars, currentpetslot, petslotused, grantableLevels, resetspecialization_cost, resetspecialization_time, playerFlagsEx, RaidDifficulty, LegacyRaidDifficuly, lastbattlepet, xprate, end_sales FROM characters WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_GROUP_MEMBER, "SELECT guid FROM group_member WHERE memberGuid = ?", CONNECTION_BOTH)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_INSTANCE, "SELECT id, permanent, map, difficulty, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_AURAS, "SELECT caster_guid, slot, spell, effect_mask, recalculate_mask, stackcount, maxduration, remaintime, remaincharges, castItemLevel FROM character_aura WHERE guid = ?", CONNECTION_ASYNC)
@@ -411,15 +411,15 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     "extra_flags, stable_slots, at_login, zone, "
     "death_expire_time, taxi_path, totalKills, "
     "todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, health, power1, power2, power3, "
-    "power4, power5, power6, latency, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, knownTitles, actionBars, currentpetslot, grantableLevels, lastbattlepet, xprate, petslotused) VALUES "
-    "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
+    "power4, power5, power6, latency, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, knownTitles, actionBars, currentpetslot, grantableLevels, lastbattlepet, xprate, petslotused, ilvl) VALUES "
+    "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
 
     PREPARE_STATEMENT(CHAR_UPD_CHARACTER, "UPDATE characters SET name=?,race=?,class=?,gender=?,level=?,xp=?,money=?,playerBytes=?,playerBytes2=?,playerFlags=?,playerFlagsEx=?,"
     "map=?,instance_id=?,DungeonDifficulty=?, RaidDifficulty = ?, LegacyRaidDifficuly = ?, position_x=?,position_y=?,position_z=?,orientation=?,taximask=?,cinematic=?,totaltime=?,leveltime=?,rest_bonus=?,"
     "logout_time=?,is_logout_resting=?,resettalents_cost=?,resettalents_time=?,talentTree=?,extra_flags=?,stable_slots=?,at_login=?,zone=?,death_expire_time=?,taxi_path=?,"
     "totalKills=?,todayKills=?,yesterdayKills=?,chosenTitle=?,"
     "watchedFaction=?,drunk=?,health=?,power1=?,power2=?,power3=?,power4=?,power5=?, power6=?, latency=?,speccount=?,activespec=?,specialization1=?,specialization2=?,exploredZones=?,"
-    "equipmentCache=?,knownTitles=?,actionBars=?,currentpetslot=?,grantableLevels=?,online=?, resetspecialization_cost = ?, resetspecialization_time = ?, lastbattlepet = ?, xprate = ?, petslotused = ? WHERE guid=?", CONNECTION_ASYNC);
+    "equipmentCache=?,knownTitles=?,actionBars=?,currentpetslot=?,grantableLevels=?,online=?, resetspecialization_cost = ?, resetspecialization_time = ?, lastbattlepet = ?, xprate = ?, petslotused = ?, ilvl = ? WHERE guid=?", CONNECTION_ASYNC);
 
     PREPARE_STATEMENT(CHAR_UPD_ADD_AT_LOGIN_FLAG, "UPDATE characters SET at_login = at_login | ? WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_UPD_REM_AT_LOGIN_FLAG, "UPDATE characters set at_login = at_login & ~ ? WHERE guid = ?", CONNECTION_ASYNC);
