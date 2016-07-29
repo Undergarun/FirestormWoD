@@ -2097,6 +2097,12 @@ void WorldSession::LoadLoyaltyData()
             l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACC_LOYALTY_EVENT);
             l_Statement->setUInt32(0, GetAccountId());
             LoginDatabase.Execute(l_Statement);
+
+            l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACC_LOYALTY);
+            l_Statement->setUInt32(0, GetAccountId());
+            l_Statement->setUInt32(1, m_LastClaim);
+            l_Statement->setUInt32(2, m_LastEventReset);
+            LoginDatabase.Execute(l_Statement);
         }
         /// Load event history of the day
         else
