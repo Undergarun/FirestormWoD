@@ -323,6 +323,14 @@ class misc_commandscript: public CommandScript
                 // send status packet (in queue)
                 MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BG, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, 0, l_ArenaType, true);
                 l_Member->GetSession()->SendPacket(&l_Data);
+
+                WargameRequest* l_Request = new WargameRequest();
+                l_Request->OpposingPartyMemberGUID = 0;
+                l_Request->TournamentRules = false;
+                l_Request->CreationDate = time(nullptr);
+                l_Request->QueueID = 0;
+
+                l_Member->SetWargameRequest(l_Request);
             }
 
             l_GInfo = l_Scheduler.AddGroup(l_SecondLeader, l_SecondGroup, MS::Battlegrounds::BattlegroundType::AllArenas, nullptr, l_BracketEntry, l_ArenaType, false, 0, 0, false);
