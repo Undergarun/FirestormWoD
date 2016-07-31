@@ -2154,8 +2154,8 @@ void World::SetInitialWorldSettings()
 
 #ifndef CROSS
     m_timers[WUPDATE_BLACKMARKET].SetInterval(MINUTE * IN_MILLISECONDS);
-    m_timers[WUPDATE_TRANSFER].SetInterval(1 * IN_MILLISECONDS);
-    m_timers[WUPDATE_TRANSFER_EXP].SetInterval(1 * MINUTE * IN_MILLISECONDS);
+    m_timers[WUPDATE_TRANSFER].SetInterval(10 * IN_MILLISECONDS);
+    m_timers[WUPDATE_TRANSFER_EXP].SetInterval(13 * MINUTE * IN_MILLISECONDS);
 #endif
 
     //to set mailtimer to return mails every day between 4 and 5 am
@@ -4425,8 +4425,14 @@ void World::_updateTransfers()
 
         if (l_ToLoad)
         {
+            uint32 l_Now = getMSTime();
+
             do
             {
+                /// Prevent freeze
+                if (GetMSTimeDiffToNow(l_Now) > 5000)
+                    break;
+
                 uint32 l_Timestamp     = getMSTime();
                 Field* l_Field         = l_ToLoad->Fetch();
                 uint32 l_Transaction   = l_Field[0].GetUInt32();
@@ -4494,8 +4500,14 @@ void World::_updateTransfers()
 
         if (l_ToLoad)
         {
+            uint32 l_Now = getMSTime();
+
             do
             {
+                /// Prevent freeze
+                if (GetMSTimeDiffToNow(l_Now) > 5000)
+                    break;
+
                 uint32 l_Timestamp     = getMSTime();
                 Field* l_Field         = l_ToLoad->Fetch();
                 uint32 l_Transaction   = l_Field[0].GetUInt32();
