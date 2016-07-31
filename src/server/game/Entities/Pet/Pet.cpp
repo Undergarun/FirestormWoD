@@ -45,6 +45,7 @@ m_loading(false), m_specialization(0), m_declinedname(NULL)
     m_name = "Pet";
     m_RegenPowerTimer = PET_FOCUS_REGEN_INTERVAL;
     m_Stampeded = false;
+    m_OwnerGuid = m_owner->GetGUID();
 }
 
 Pet::~Pet()
@@ -152,6 +153,8 @@ void Pet::RemoveFromWorld()
 void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 /*petnumber*/, bool current, PetSlot slotID, bool stampeded, PetQueryHolder* holder, std::function<void(Pet*, bool)> p_Callback)
 {
     m_loading = true;
+
+    RefreshOwner();
 
     if (owner->IsPlayer())
     {
@@ -1940,4 +1943,9 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
             _AddCreatureSpellCooldown(unSpellId, curTime + unTimeMs/IN_MILLISECONDS);
         }
     }
+}
+
+void Pet::RefreshOwner()
+{
+     m_owner = sObjectAccessor->FindPlayer(m_OwnerGuid);
 }

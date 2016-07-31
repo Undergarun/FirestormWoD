@@ -183,8 +183,11 @@ class Pet : public Guardian
         void LearnSpecializationSpell();
         void UnlearnSpecializationSpell();
 
+        void RefreshOwner();
+
     protected:
         Player* m_owner;
+        uint64  m_OwnerGuid;
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         uint64  m_auraRaidUpdateMask;
