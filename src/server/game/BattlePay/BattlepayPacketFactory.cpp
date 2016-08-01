@@ -353,7 +353,8 @@ namespace Battlepay
                 if (p_Result)
                 {
                     Field* l_Fields = p_Result->Fetch();
-                    l_Balance = l_Fields[0].GetUInt32();
+                    if (char const* l_BalanceTxt = l_Fields[0].GetCString())
+                        l_Balance = atoi(l_BalanceTxt);
                 }
 
                 Player* l_Player = l_Session->GetPlayer();
