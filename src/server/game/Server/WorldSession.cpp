@@ -2169,8 +2169,8 @@ void WorldSession::CompleteLoyaltyEvent(LoyaltyEvent p_Event)
                 l_AlreadyEarnPoints += g_LoyaltyEventReward[l_I];
         }
 
-        if ((l_AlreadyEarnPoints + l_RewardPoints) > 11)
-            l_RewardPoints = std::max(11 - l_AlreadyEarnPoints, 0);
+        if ((l_AlreadyEarnPoints + l_RewardPoints) > 7)
+            l_RewardPoints = std::max(7 - l_AlreadyEarnPoints, 0);
 
         if (!l_RewardPoints)
             return;
