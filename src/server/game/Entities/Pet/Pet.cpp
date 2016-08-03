@@ -415,8 +415,6 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 /*petnumber*/, bo
     if (owner->IsPlayer() && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
         owner->ToPlayer()->SetLastPetNumber(pet_number);
 
-    m_loading = false;
-
     if (owner->IsPlayer() && isControlled() && !isTemporarySummoned() && getPetType() == HUNTER_PET)
     {
         uint32 l_SpecializationID = GetSpecializationId();
@@ -461,6 +459,8 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 /*petnumber*/, bo
         LearnSpecializationSpell();
         owner->ToPlayer()->SendTalentsInfoData(true);
     }
+
+    m_loading = false;
 
     p_Callback(this, true);
 }
