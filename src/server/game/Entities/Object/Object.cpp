@@ -3151,60 +3151,59 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
                 l_Pet->LoadPetFromDB(l_Player, entry, 0, currentPet, l_LoadPetSlotID, stampeded, (PetQueryHolder*)p_QueryHolder, [entry, x, y, z, ang, petType, duration, slotID, l_LoadPetSlotID, stampeded, p_Callback, l_PlayerGUID](Pet* p_Pet, bool p_Result) -> void
                 {
-                    if (!p_Result)
+                    Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
+                    if (!p_Result && l_Player)
                     {
-                        Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-                        if (l_Player)
-                            l_Player->SummonPet(entry, x, y, z, ang, petType, duration, slotID, stampeded, p_Callback, true);
+                        l_Player->SummonPet(entry, x, y, z, ang, petType, duration, slotID, stampeded, p_Callback, true);
                         return;
                     }
 
-                    if (p_Pet->GetOwner() && p_Pet->GetOwner()->getClass() == CLASS_WARLOCK)
+                    if (l_Player && l_Player->getClass() == CLASS_WARLOCK)
                     {
-                        if (p_Pet->GetOwner()->HasAura(108503))
-                            p_Pet->GetOwner()->RemoveAura(108503);
+                        if (l_Player->HasAura(108503))
+                            l_Player->RemoveAura(108503);
 
                         // Supplant Command Demon
-                        if (p_Pet->GetOwner()->getLevel() >= 56)
+                        if (l_Player->getLevel() >= 56)
                         {
                             int32 bp = 0;
 
-                            p_Pet->GetOwner()->RemoveAura(119904);
+                            l_Player->RemoveAura(119904);
 
                             switch (p_Pet->GetEntry())
                             {
-                            case ENTRY_IMP:
-                            case ENTRY_FEL_IMP:
-                                bp = 119905;// Cauterize Master
-                                break;
-                            case ENTRY_VOIDWALKER:
-                            case ENTRY_VOIDLORD:
-                                bp = 119907;// Disarm
-                                break;
-                            case ENTRY_SUCCUBUS:
-                                bp = 119909;// Whilplash
-                                break;
-                            case ENTRY_SHIVARRA:
-                                bp = 119913;// Fellash
-                                break;
-                            case ENTRY_FELHUNTER:
-                                bp = 119910;// Spell Lock
-                                break;
-                            case ENTRY_OBSERVER:
-                                bp = 119911;// Optical Blast
-                                break;
-                            case ENTRY_FELGUARD:
-                                bp = 119914;// Felstorm
-                                break;
-                            case ENTRY_WRATHGUARD:
-                                bp = 119915;// Wrathstorm
-                                break;
-                            default:
-                                break;
+                                case ENTRY_IMP:
+                                case ENTRY_FEL_IMP:
+                                    bp = 119905;// Cauterize Master
+                                    break;
+                                case ENTRY_VOIDWALKER:
+                                case ENTRY_VOIDLORD:
+                                    bp = 119907;// Disarm
+                                    break;
+                                case ENTRY_SUCCUBUS:
+                                    bp = 119909;// Whilplash
+                                    break;
+                                case ENTRY_SHIVARRA:
+                                    bp = 119913;// Fellash
+                                    break;
+                                case ENTRY_FELHUNTER:
+                                    bp = 119910;// Spell Lock
+                                    break;
+                                case ENTRY_OBSERVER:
+                                    bp = 119911;// Optical Blast
+                                    break;
+                                case ENTRY_FELGUARD:
+                                    bp = 119914;// Felstorm
+                                    break;
+                                case ENTRY_WRATHGUARD:
+                                    bp = 119915;// Wrathstorm
+                                    break;
+                                default:
+                                    break;
                             }
 
                             if (bp)
-                                p_Pet->GetOwner()->CastCustomSpell(p_Pet->GetOwner(), 119904, &bp, NULL, NULL, true);
+                                l_Player->CastCustomSpell(l_Player, 119904, &bp, NULL, NULL, true);
                         }
                         p_Pet->SetFullHealth();
                     }
