@@ -156,7 +156,7 @@ public:
             uint32 l_Entries[6] =
             { eEverbloomCreature::CreatureKirinTorBattleMage, eEverbloomCreature::CreatureLadyBayeu, eYalnuCreatures::CreatureSwiftSproutling,
             eYalnuCreatures::CreatureViciousMandragora, eYalnuCreatures::CreatureGnarledAncient, eYalnuCreatures::CreatureFeralLasher };
-            for (uint8 l_I = 0; l_I < 7; l_I++)
+            for (uint8 l_I = 0; l_I < 6; l_I++)
                 DespawnCreaturesInArea(l_Entries[l_I], me);
 
             if (m_Instance != nullptr)
