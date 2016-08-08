@@ -1578,7 +1578,8 @@
     <field type="int" name="SpecID" />
     <field type="int" name="SpellID" />
     <field type="int" name="OverridesSpellID" />
-    <field type="string" name="DescriptionLang" />
+    <field type="int" name="DescriptionLang" />
+    <field type="int" name="newField" />
   </SpecializationSpells>
   <SpellEffectScaling build="18612">
     <index>
@@ -7182,4 +7183,22 @@
     <field type="int" name="field3" />
     <field type="int" name="field4" />
   </RulesetRaidLootUpgrade>
+  <OverrideSpellData build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+  </OverrideSpellData>
 </DBFilesClient>
