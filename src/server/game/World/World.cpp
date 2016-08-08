@@ -2313,6 +2313,8 @@ void World::SetInitialWorldSettings()
     PlayerDump::LoadColumnsName();
 
     sBattlepayMgr->LoadFromDatabase();
+
+    m_timers[WUPDATE_SCAN_ACC_LOG_IP].SetInterval(5 * IN_MILLISECONDS);
 #endif
 
     InitServerAutoRestartTime();
@@ -2322,8 +2324,6 @@ void World::SetInitialWorldSettings()
     QueryResult l_Result = LoginDatabase.PQuery("SELECT max(id) FROM account_log_ip");
     if (l_Result)
         m_LastAccountLogId = l_Result->Fetch()[0].GetUInt64();
-
-    m_timers[WUPDATE_SCAN_ACC_LOG_IP].SetInterval(5 * IN_MILLISECONDS);
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
     sLog->EnableDBAppenders();

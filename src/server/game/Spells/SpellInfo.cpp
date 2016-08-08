@@ -2023,6 +2023,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
 
             return map_id == 1116 ? SPELL_CAST_OK : SPELL_FAILED_INCORRECT_AREA;
         }
+#ifndef CROSS
         case 176061:
         case 176049:
         {
@@ -2037,6 +2038,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
                     return SPELL_FAILED_REQUIRES_AREA;
             }
         }
+#endif
     }
 
     // aura limitations

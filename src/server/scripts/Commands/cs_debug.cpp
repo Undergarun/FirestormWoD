@@ -3973,8 +3973,8 @@ class debug_commandscript: public CommandScript
                 l_Statement->setUInt32(1, l_Session->GetLastClaim());
                 l_Statement->setUInt32(2, l_Session->GetLastEventReset());
                 LoginDatabase.Execute(l_Statement);
-#endif
             }
+#endif
 
             return true;
         }
