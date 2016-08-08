@@ -1121,7 +1121,7 @@ void Creature::AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint3
 #ifndef CROSS
 GarrisonNPCAI* Creature::ToGarrisonNPCAI() const
 {
-    return static_cast<GarrisonNPCAI*>(i_AI);
+    return dynamic_cast<GarrisonNPCAI*>(i_AI);
 }
 #endif
 
