@@ -277,7 +277,7 @@ namespace MS { namespace Garrison { namespace Sites
                     case Building::ID::LunarfallExcavation_FrostwallMines_Level2:
                     case Building::ID::LunarfallExcavation_FrostwallMines_Level3:
                     {
-                        std::vector<uint64> l_CreatureGuids = l_GarrisonMgr->GetBuildingCreaturesByBuildingType(Building::Type::Inn);
+                        std::vector<uint64> l_CreatureGuids = l_GarrisonMgr->GetBuildingCreaturesByBuildingType(Building::Type::Mine);
 
                         for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
                         {
